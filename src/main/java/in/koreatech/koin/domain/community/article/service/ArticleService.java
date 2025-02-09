@@ -9,8 +9,9 @@ import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.model.Board;
-import in.koreatech.koin.domain.community.article.model.SearchLogEvent;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
 import in.koreatech.koin.domain.community.article.model.redis.BusNoticeArticle;
@@ -26,6 +27,7 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -134,9 +136,93 @@ public class ArticleService {
             articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
         }
 
-        eventPublisher.publishEvent(new SearchLogEvent(query, ipAddress));
+        saveOrUpdateSearchLog(query, ipAddress);
 
         return ArticlesResponse.of(articles, criteria);
+    }
+
+    @ConcurrencyGuard(lockName = "searchLog")
+    private void saveOrUpdateSearchLog(String query, String ipAddress) {
+        if (query == null || query.trim().isEmpty()) {
+            return;
+        }
+
+        String[] keywords = query.split("\\s+");
+
+        for (String keywordStr : keywords) {
+            ArticleSearchKeyword keyword = articleSearchKeywordRepository.findByKeyword(keywordStr)
+                .orElseGet(() -> {
+                    ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
+                        .keyword(keywordStr)
+                        .weight(1.0)
+                        .lastSearchedAt(LocalDateTime.now())
+                        .totalSearch(1)
+                        .build();
+                    articleSearchKeywordRepository.save(newKeyword);
+                    return newKeyword;
+                });
+
+            ArticleSearchKeywordIpMap map = articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(
+                    keyword, ipAddress)
+                .orElseGet(() -> {
+                    ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
+                        .articleSearchKeyword(keyword)
+                        .ipAddress(ipAddress)
+                        .searchCount(1)
+                        .build();
+                    articleSearchKeywordIpMapRepository.save(newMap);
+                    return newMap;
+                });
+
+            updateKeywordWeightAndCount(keyword, map);
+        }
+    }
+
+    /*
+     * 추가될 가중치를 계산합니다. 검색 횟수(map.getSearchCount())에 따라 가중치를 다르게 부여합니다:
+     * - 검색 횟수가 5회 이하인 경우: 1.0 / 2^(검색 횟수 - 1)
+     *   예:
+     *     첫 번째 검색: 1.0
+     *     두 번째 검색: 0.5
+     *     세 번째 검색: 0.25
+     *     네 번째 검색: 0.125
+     *     다섯 번째 검색: 0.0625
+     * - 검색 횟수가 5회를 초과하면: 1.0 / 2^4 (즉, 0.0625) 고정 가중치를 부여합니다.
+     * - 검색 횟수가 10회를 초과할 경우: 추가 가중치를 부여하지 않습니다.
+     */
+    private void updateKeywordWeightAndCount(ArticleSearchKeyword keyword, ArticleSearchKeywordIpMap map) {
+        map.incrementSearchCount();
+        double additionalWeight = 0.0;
+
+        if (map.getSearchCount() <= 5) {
+            additionalWeight = 1.0 / Math.pow(2, map.getSearchCount() - 1);
+        } else if (map.getSearchCount() <= 10) {
+            additionalWeight = 1.0 / Math.pow(2, 4);
+        }
+
+        if (map.getSearchCount() <= 10) {
+            keyword.updateWeight(keyword.getWeight() + additionalWeight);
+        }
+        articleSearchKeywordRepository.save(keyword);
+    }
+
+    @Transactional
+    public void resetWeightsAndCounts() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime before = now.minusHours(6).minusMinutes(30);
+
+        List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByUpdatedAtBetween(
+            before, now);
+        List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByUpdatedAtBetween(
+            before, now);
+
+        for (ArticleSearchKeyword keyword : keywordsToUpdate) {
+            keyword.resetWeight();
+        }
+
+        for (ArticleSearchKeywordIpMap ipMap : ipMapsToUpdate) {
+            ipMap.resetSearchCount();
+        }
     }
 
     public ArticleHotKeywordResponse getArticlesHotKeyword(Integer count) {
