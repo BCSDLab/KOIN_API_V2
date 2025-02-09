@@ -62,4 +62,8 @@ public class ArticleSearchKeyword extends BaseEntity {
     public void incrementTotalSearch() {
         this.totalSearch++;
     }
+
+    public void updateLastSearchedAt(LocalDateTime now) {
+        this.lastSearchedAt = now;
+    }
 }

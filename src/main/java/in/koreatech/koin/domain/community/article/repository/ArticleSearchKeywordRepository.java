@@ -19,10 +19,10 @@ public interface ArticleSearchKeywordRepository extends Repository<ArticleSearch
     @Query("""
         SELECT k.keyword
         FROM ArticleSearchKeyword k
-        WHERE k.lastSearchedAt >= :oneWeekAgo
+        WHERE k.lastSearchedAt >= :fromDate
         ORDER BY k.weight DESC, k.lastSearchedAt DESC
         """)
-    List<String> findTopKeywords(LocalDateTime oneWeekAgo, Pageable pageable);
+    List<String> findTopKeywords(LocalDateTime fromDate, Pageable pageable);
 
     @Query("""
         SELECT k.keyword
