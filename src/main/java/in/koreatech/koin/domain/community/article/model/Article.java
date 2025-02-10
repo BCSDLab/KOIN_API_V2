@@ -245,6 +245,7 @@ public class Article extends BaseEntity {
 
         LostItemArticle lostItemArticle = LostItemArticle.builder()
             .author(author)
+            .type(request.type())
             .category(request.category())
             .foundPlace(request.foundPlace())
             .foundDate(request.foundDate())

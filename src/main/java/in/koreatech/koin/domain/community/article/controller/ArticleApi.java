@@ -22,6 +22,7 @@ import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -125,7 +126,7 @@ public interface ArticleApi {
     @GetMapping("/lost-item/{id}")
     ResponseEntity<LostItemArticleResponse> getLostItemArticle(
         @Parameter(in = PATH) @PathVariable("id") Integer articleId,
-        @Auth(permit = {STUDENT, COUNCIL}, anonymous = true) Integer userId
+        @UserId Integer userId
     );
 
     @ApiResponses(

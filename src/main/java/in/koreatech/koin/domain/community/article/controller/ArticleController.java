@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.service.ArticleService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +96,7 @@ public class ArticleController implements ArticleApi {
     @GetMapping("/lost-item/{id}")
     public ResponseEntity<LostItemArticleResponse> getLostItemArticle(
         @PathVariable("id") Integer articleId,
-        @Auth(permit = {STUDENT, COUNCIL}, anonymous = true) Integer userId
+        @UserId Integer userId
     ) {
         return ResponseEntity.ok().body(articleService.getLostItemArticle(articleId, userId));
     }
