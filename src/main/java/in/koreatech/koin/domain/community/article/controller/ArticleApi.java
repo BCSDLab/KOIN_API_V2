@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
@@ -111,6 +112,7 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 목록 조회")
     @GetMapping("/lost-item")
     ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
+        @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @UserId Integer userId
@@ -125,7 +127,8 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 단건 조회")
     @GetMapping("/lost-item/{id}")
     ResponseEntity<LostItemArticleResponse> getLostItemArticle(
-        @Parameter(in = PATH) @PathVariable("id") Integer articleId
+        @Parameter(in = PATH) @PathVariable("id") Integer articleId,
+        @UserId Integer userId
     );
 
     @ApiResponses(
@@ -140,7 +143,7 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 등록")
     @PostMapping("/lost-item")
     ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {COUNCIL}) Integer councilId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     );
 

@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.community.article.model;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,16 +20,16 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "lost_item_images")
+@Table(name = "lost_item_images", schema = "koin")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LostItemImage {
+public class LostItemImage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lost_item_id", nullable = false)
+    @JoinColumn(name = "lost_item_id", referencedColumnName = "id", nullable = false)
     private LostItemArticle lostItemArticle;
 
     @NotNull
@@ -36,7 +37,6 @@ public class LostItemImage {
     private String imageUrl;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 

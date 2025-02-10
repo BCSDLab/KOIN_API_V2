@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record LostItemArticlesResponse(
@@ -53,6 +55,9 @@ public record LostItemArticlesResponse(
         @Schema(description = "게시판 id", example = "14", requiredMode = REQUIRED)
         Integer boardId,
 
+        @Schema(description = "게시글 타입", example = "LOST", requiredMode = NOT_REQUIRED)
+        String type,
+
         @Schema(description = "분실물 종류", example = "신분증", requiredMode = REQUIRED)
         String category,
 
@@ -80,6 +85,7 @@ public record LostItemArticlesResponse(
             return new InnerLostItemArticleResponse(
                 article.getId(),
                 article.getBoard().getId(),
+                lostItemArticle.getType(),
                 lostItemArticle.getCategory(),
                 lostItemArticle.getFoundPlace(),
                 lostItemArticle.getFoundDate(),

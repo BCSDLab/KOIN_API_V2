@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
 
@@ -84,36 +85,38 @@ public class ArticleController implements ArticleApi {
 
     @GetMapping("/lost-item")
     public ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
+        @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @UserId Integer userId
     ) {
-        LostItemArticlesResponse response = articleService.getLostItemArticles(page, limit, userId);
+        LostItemArticlesResponse response = articleService.getLostItemArticles(type, page, limit, userId);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/lost-item/{id}")
     public ResponseEntity<LostItemArticleResponse> getLostItemArticle(
-        @PathVariable("id") Integer articleId
+        @PathVariable("id") Integer articleId,
+        @UserId Integer userId
     ) {
-        return ResponseEntity.ok().body(articleService.getLostItemArticle(articleId));
+        return ResponseEntity.ok().body(articleService.getLostItemArticle(articleId, userId));
     }
 
     @PostMapping("/lost-item")
     public ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {COUNCIL}) Integer councilId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     ) {
-        LostItemArticleResponse response = articleService.createLostItemArticle(councilId, lostItemArticlesRequest);
+        LostItemArticleResponse response = articleService.createLostItemArticle(studentId, lostItemArticlesRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/lost-item/{id}")
     public ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
-        @Auth(permit = {COUNCIL}) Integer councilId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
-        articleService.deleteLostItemArticle(articleId);
+        articleService.deleteLostItemArticle(articleId, userId);
         return ResponseEntity.noContent().build();
     }
 }
