@@ -11,6 +11,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,16 +33,16 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "lost_item_articles")
+@Table(name = "lost_item_articles", schema = "koin")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LostItemArticle {
+public class LostItemArticle extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "article_id", nullable = false)
+    @JoinColumn(name = "article_id", referencedColumnName = "id", nullable = false)
     private Article article;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,7 +50,7 @@ public class LostItemArticle {
     private User author;
 
     @NotNull
-    @Column(name = "type", nullable = false, columnDefinition = "LOST")
+    @Column(name = "type", nullable = false)
     private String type;
 
     @NotNull
@@ -69,12 +70,10 @@ public class LostItemArticle {
     private List<LostItemImage> images = new ArrayList<>();
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "is_council", nullable = false)
     private Boolean isCouncil = false;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 

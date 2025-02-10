@@ -34,8 +34,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByIdIn(List<Integer> articleIds, PageRequest pageRequest);
 
     default Article getById(Integer articleId) {
-        Article found = findById(articleId).orElseThrow(
-            () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
+        Article found = findById(articleId)
+            .orElseThrow(() -> ArticleNotFoundException.withDetail("articleId: " + articleId));
         try {
             found.getBoard().getName();
         } catch (EntityNotFoundException e) {
