@@ -33,10 +33,10 @@ public record LostItemArticlesResponse(
     Integer currentPage
 ) {
 
-    public static LostItemArticlesResponse of(Page<Article> pagedResult, Criteria criteria) {
+    public static LostItemArticlesResponse of(Page<Article> pagedResult, Criteria criteria, Integer userId) {
         return new LostItemArticlesResponse(
             pagedResult.stream()
-                .map(InnerLostItemArticleResponse::from)
+                .map((Article article) -> InnerLostItemArticleResponse.of(article, userId))
                 .toList(),
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
@@ -69,12 +69,14 @@ public record LostItemArticlesResponse(
         String author,
 
         @Schema(description = "등록일", example = "2025-01-10", requiredMode = REQUIRED)
-        LocalDate registeredAt
+        LocalDate registeredAt,
+
+        @Schema(description = "처리되지 않은 신고 존재 여부", example = "true", requiredMode = REQUIRED)
+        Boolean isReported
     ) {
 
-        public static InnerLostItemArticleResponse from(Article article) {
+        public static InnerLostItemArticleResponse of(Article article, Integer userId) {
             LostItemArticle lostItemArticle = article.getLostItemArticle();
-
             return new InnerLostItemArticleResponse(
                 article.getId(),
                 article.getBoard().getId(),
@@ -83,9 +85,9 @@ public record LostItemArticlesResponse(
                 lostItemArticle.getFoundDate(),
                 article.getContent(),
                 article.getAuthor(),
-                article.getRegisteredAt()
+                article.getRegisteredAt(),
+                lostItemArticle.isReportedByUserId(userId)
             );
         }
     }
-
 }

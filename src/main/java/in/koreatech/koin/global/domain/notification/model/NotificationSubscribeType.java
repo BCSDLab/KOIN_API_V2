@@ -16,7 +16,8 @@ public enum NotificationSubscribeType {
     REVIEW_PROMPT(List.of()),
     DINING_SOLD_OUT(List.of(BREAKFAST, LUNCH, DINNER)),
     DINING_IMAGE_UPLOAD(List.of()),
-    ARTICLE_KEYWORD(List.of())
+    ARTICLE_KEYWORD(List.of()),
+    LOST_ITEM_CHAT(List.of())
     ;
 
     private final List<NotificationDetailSubscribeType> detailTypes;
