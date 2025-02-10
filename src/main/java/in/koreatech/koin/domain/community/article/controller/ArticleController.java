@@ -1,8 +1,7 @@
 package in.koreatech.koin.domain.community.article.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 
-import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -87,8 +86,10 @@ public class ArticleController implements ArticleApi {
     public ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
         @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit
+        @RequestParam(required = false) Integer limit,
+        @UserId Integer userId
     ) {
+        LostItemArticlesResponse response = articleService.getLostItemArticles(page, limit, userId);
         LostItemArticlesResponse response = articleService.getLostItemArticles(type, page, limit);
         return ResponseEntity.ok().body(response);
     }

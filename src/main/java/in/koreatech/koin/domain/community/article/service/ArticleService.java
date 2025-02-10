@@ -296,10 +296,13 @@ public class ArticleService {
         busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
     }
 
+    public LostItemArticlesResponse getLostItemArticles(Integer page, Integer limit, Integer userId) {
     public LostItemArticlesResponse getLostItemArticles(String type, Integer page, Integer limit) {
         Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+        return LostItemArticlesResponse.of(articles, criteria, userId);
         Page<Article> articles;
 
         if (type == null) {
