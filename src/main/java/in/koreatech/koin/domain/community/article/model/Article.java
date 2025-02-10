@@ -258,7 +258,7 @@ public class Article extends BaseEntity {
             lostItemArticle.setIsCouncil();
         }
 
-        images.stream().forEach(image -> image.setArticle(lostItemArticle));
+        images.forEach(image -> image.setArticle(lostItemArticle));
 
         Article article = Article.builder()
             .board(lostItemBoard)

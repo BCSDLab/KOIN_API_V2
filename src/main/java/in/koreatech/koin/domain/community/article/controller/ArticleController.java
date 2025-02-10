@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
 
@@ -89,8 +90,7 @@ public class ArticleController implements ArticleApi {
         @RequestParam(required = false) Integer limit,
         @UserId Integer userId
     ) {
-        LostItemArticlesResponse response = articleService.getLostItemArticles(page, limit, userId);
-        LostItemArticlesResponse response = articleService.getLostItemArticles(type, page, limit);
+        LostItemArticlesResponse response = articleService.getLostItemArticles(type, page, limit, userId);
         return ResponseEntity.ok().body(response);
     }
 
