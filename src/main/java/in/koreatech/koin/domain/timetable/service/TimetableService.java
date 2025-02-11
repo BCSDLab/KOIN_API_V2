@@ -5,20 +5,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import in.koreatech.koin.domain.graduation.model.Catalog;
-import in.koreatech.koin.domain.graduation.model.CourseType;
-import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
-import in.koreatech.koin.domain.student.model.Department;
-import in.koreatech.koin.domain.student.model.Major;
-import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.global.exception.RequestTooFastException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.OptimisticLockException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.graduation.model.Catalog;
+import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
@@ -31,9 +23,13 @@ import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
+import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.exception.RequestTooFastException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,7 +43,7 @@ public class TimetableService {
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
-    private final StudentRepository studentRepository;
+    private final SemesterRepositoryV3 semesterRepositoryV3;
     private final CatalogRepository catalogRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
@@ -68,7 +64,7 @@ public class TimetableService {
         for (TimetableCreateRequest.InnerTimetableRequest timeTable : request.timetable()) {
             Lecture lecture = lectureRepositoryV2.getBySemesterAndCodeAndLectureClass(request.semester(),
                 timeTable.code(), timeTable.lectureClass());
-            CourseType courseType = getCourseType(userId, lecture);
+            CourseType courseType = getCourseType(lecture);
             TimetableLecture timetableLecture = TimetableLecture.builder()
                 .classPlace(timeTable.classPlace())
                 .grades("0")
@@ -84,33 +80,11 @@ public class TimetableService {
         return getTimetableResponse(userId, timetableFrame);
     }
 
-    private CourseType getCourseType(Integer userId, Lecture lecture) {
-        Student student = studentRepository.getById(userId);
-        Department department = student.getDepartment();
-        if (Objects.isNull(department)) {
-            return null;
-        }
-        Major major = student.getMajor();
-        List<Catalog> catalogs = catalogRepository.findAllByCode(lecture.getCode());
-        if (catalogs.isEmpty()) {
-            return null;
-        }
-
-        if (!Objects.isNull(major)) {
-            for (Catalog catalog : catalogs) {
-                if (Objects.equals(catalog.getMajor(), major)) {
-                    return catalog.getCourseType();
-                }
-            }
-        }
-
-        for (Catalog catalog : catalogs) {
-            if (Objects.equals(catalog.getDepartment(), department)) {
-                return catalog.getCourseType();
-            }
-        }
-
-        return null;
+    private CourseType getCourseType(Lecture lecture) {
+        Semester semester = semesterRepositoryV3.getBySemester(lecture.getSemester());
+        return catalogRepository.findByCodeAndYear(lecture.getCode(), String.valueOf(semester.getYear()))
+            .map(Catalog::getCourseType)
+            .orElse(null);
     }
 
     @Transactional

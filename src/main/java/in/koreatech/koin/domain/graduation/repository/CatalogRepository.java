@@ -11,11 +11,11 @@ import in.koreatech.koin.domain.student.model.Department;
 
 public interface CatalogRepository extends Repository<Catalog, Integer> {
 
-    List<Catalog> findAllByCode(String code);
+    Optional<Catalog> findByCodeAndYear(String code, String year);
 
     Optional<Catalog> findByDepartmentAndCode(Department department, String code);
 
-    List<Catalog> findByLectureNameAndMajorIdAndYear(String lectureName, Integer majorId, String year);
+    List<Catalog> findByLectureNameAndYear(String lectureName, String year);
 
     List<Catalog> findByLectureNameAndDepartmentIdAndYear(String lectureName, Integer departmentId, String year);
 
