@@ -116,7 +116,6 @@ public class GraduationService {
             });
     }
 
-    /*
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
         DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
@@ -131,7 +130,7 @@ public class GraduationService {
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
         // 시간표와 대학 요람 데이터 가져오기
-        List<Catalog> catalogList = getCatalogListForStudent(student);
+        List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
 
         // courseTypeId와 학점 맵핑
         Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
@@ -149,7 +148,6 @@ public class GraduationService {
 
         return GraduationCourseCalculationResponse.of(courseTypes);
     }
-    */
 
     @Transactional
     public void readStudentGradeExcelFile(MultipartFile file, Integer userId) throws IOException {
@@ -369,7 +367,6 @@ public class GraduationService {
         return student;
     }
 
-    /*
     private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
         List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.getAllByUserId(student.getId()).stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
@@ -382,14 +379,19 @@ public class GraduationService {
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                List<Catalog> catalogs = catalogRepository.findByLectureNameAndDepartment(
-                    lectureName, student.getDepartment());
+                List<Catalog> catalogs = catalogRepository.findByLectureNameAndMajorIdAndYear(
+                    lectureName, student.getMajor() != null ? student.getMajor().getId() : null, studentYear);
+
+                if (catalogs.isEmpty()) {
+                    catalogs = catalogRepository.findByLectureNameAndDepartmentIdAndYear(
+                        lectureName, student.getDepartment().getId(), studentYear);
+                }
+
                 catalogList.addAll(catalogs);
             }
         });
         return catalogList;
     }
-    */
 
     private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList) {
         Map<Integer, Integer> courseTypeCreditsMap = new HashMap<>();

@@ -2,9 +2,11 @@ package in.koreatech.koin.domain.coop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -92,4 +94,23 @@ public interface CoopApi {
         @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
         @RequestParam("isCafeteria") Boolean isCafeteria
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "영양사 식단 이미지 압축파일 다운로드")
+    @GetMapping("/dining/image")
+    ResponseEntity<Resource> generateImageCompress(
+        @Auth(permit = {COOP}) Integer userId,
+        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate startDate,
+        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate endDate,
+        @RequestParam(name = "isCafeteria", defaultValue = "false") Boolean isCafeteria
+    ) throws IOException, InterruptedException;
 }

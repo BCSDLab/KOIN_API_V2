@@ -1,9 +1,10 @@
 package in.koreatech.koin.global.scheduler;
 
-import in.koreatech.koin.domain.shop.cache.ShopsCacheService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import in.koreatech.koin.domain.shop.cache.ShopsCacheService;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

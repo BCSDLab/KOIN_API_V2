@@ -28,10 +28,11 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
 
     Optional<Catalog> findByDepartmentAndCode(Department department, String code);
 
-    Optional<Catalog> findByCodeAndYear(String code, String year);
+    List<Catalog> findByLectureNameAndMajorIdAndYear(String lectureName, Integer majorId, String year);
 
-    // 이거 오류나요..
-    // List<Catalog> findByLectureNameAndYearAndDepartment(String lectureName, String studentYear, Department department);
+    List<Catalog> findByLectureNameAndDepartmentIdAndYear(String lectureName, Integer departmentId, String year);
+
+    Optional<Catalog> findByCodeAndYear(String code, String year);
 
     Optional<List<Catalog>> findAllByCourseTypeId(Integer courseTypeId);
 
