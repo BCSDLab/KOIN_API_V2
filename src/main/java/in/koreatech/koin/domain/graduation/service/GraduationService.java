@@ -80,6 +80,8 @@ public class GraduationService {
     private static final String TOTAL = "합 계";
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
+    // 성적 엑셀이 아닌 파일을 거르기 위해, 가장 처음 나오는 글자인 "학년도"를 체크
+    private static final String GRADEEXCELFILECHECKWORD = "학년도";
     private final SemesterServiceV3 semesterServiceV3;
 
     @Transactional
@@ -231,16 +233,15 @@ public class GraduationService {
             ));
     }
 
-    private CourseType findCourseType(
-        Lecture lecture, GradeExcelData data, String studentYear,
+    private CourseType findCourseType(Lecture lecture, GradeExcelData data, String studentYear,
         Map<String, Catalog> catalogByNameMap, Map<String, Catalog> catalogByCodeMap, CourseType defaultCourseType) {
-
+        if (data.courseType().equals("자선")) { // 자유선택은 학생선택이라서, 따로 빼줌
+            return courseTypeRepository.getByName("자유선택");
+        }
         if (lecture == null) {
             return defaultCourseType;
         }
-
         Catalog catalog = catalogByNameMap.get(data.classTitle() + "_" + studentYear);
-
         if (catalog == null) {
             catalog = catalogByCodeMap.get(data.code() + "_" + data.year());
         }
@@ -262,11 +263,13 @@ public class GraduationService {
 
         List<TimetableFrame> timetableFrameList = timetableFrameRepositoryV2.findAllByUserIdAndSemesterId
             (userId, saveSemester.getId());
-        for (TimetableFrame timetableFrame : timetableFrameList) {
-            if (timetableFrame.isMain()) {
-                timetableFrame.cancelMain();
-            }
-        }
+
+        timetableFrameList.stream().filter(TimetableFrame::isMain)
+            .forEach(frame -> {
+                frame.cancelMain();
+                timetableFrameRepositoryV2.save(frame);
+            });
+
         TimetableFrame graduationFrame = TimetableFrame.builder()
             .user(user)
             .semester(saveSemester)
@@ -290,6 +293,7 @@ public class GraduationService {
             .lecture(lecture)
             .timetableFrame(graduationFrame)
             .courseType(courseType)
+            .generalEducationArea(null)
             .build();
     }
 
