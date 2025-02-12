@@ -23,10 +23,10 @@ public class ArticleScheduler {
         }
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     public void syncKeywordsToDatabase() {
         try {
-            articleSyncService.syncKeywordsFromRedisToDatabase();
+            articleSyncService.synchronizeSearchKeywords();
         } catch (Exception e) {
             log.error("Redis에서 MySQL로 키워드 동기화 중 오류가 발생했습니다.", e);
         }

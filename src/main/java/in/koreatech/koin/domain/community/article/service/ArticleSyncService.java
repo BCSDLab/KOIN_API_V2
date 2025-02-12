@@ -2,16 +2,21 @@ package in.koreatech.koin.domain.community.article.service;
 
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
 import in.koreatech.koin.domain.community.article.model.redis.BusNoticeArticle;
 import in.koreatech.koin.domain.community.article.model.redis.RedisKeywordTracker;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +41,11 @@ public class ArticleSyncService {
     private final ArticleHitRepository articleHitRepository;
     private final HotArticleRepository hotArticleRepository;
     private final BusArticleRepository busArticleRepository;
-    private final RedisKeywordTracker redisKeywordTracker;
     private final ArticleSearchKeywordRepository keywordRepository;
     private final ArticleRepository articleRepository;
     private final Clock clock;
+    private final ArticleSearchKeywordIpMapRepository ipMapRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public void updateHotArticles() {
@@ -63,39 +69,67 @@ public class ArticleSyncService {
         hotArticleRepository.saveArticlesWithHitToRedis(articlesIdWithHit, HOT_ARTICLE_LIMIT);
     }
 
-    public void syncKeywordsFromRedisToDatabase() {
-        Set<Object> redisTopKeywords = redisKeywordTracker.getTopKeywords(100);
+    @Transactional
+    public void synchronizeSearchKeywords() {
+        Set<TypedTuple<Object>> topKeywords = redisTemplate.opsForZSet().reverseRangeWithScores("popular_keywords", 0, -1);
         LocalDateTime now = LocalDateTime.now();
 
-        for (Object keywordObj : redisTopKeywords) {
-            String keyword = (String) keywordObj;
-            Double redisWeight = Optional.ofNullable(redisKeywordTracker.getCurrentWeight(keyword)).orElse(0.0);
+        if (topKeywords == null || topKeywords.isEmpty()) {
+            clearStoredData();
+            return;
+        }
+
+        for (TypedTuple<Object> tuple : topKeywords) {
+            String keyword = (String) tuple.getValue();
+            Double weight = tuple.getScore() != null ? tuple.getScore() : 0.0;
 
             keywordRepository.findByKeyword(keyword).ifPresentOrElse(
-                existingKeyword -> updateExistingKeyword(existingKeyword, redisWeight, now),
-                () -> createNewKeyword(keyword, redisWeight, now)
+                existingKeyword -> {
+                    updateKeyword(existingKeyword, weight, now);
+                    updateIpSearchCounts(keyword, existingKeyword);
+                },
+                () -> {
+                    ArticleSearchKeyword newKeyword = createKeyword(keyword, weight, now);
+                    updateIpSearchCounts(keyword, newKeyword);
+                }
             );
         }
-        log.info("Redis에서 MySQL로 키워드 동기화 완료");
+
+        log.info("모든 키워드 및 IP별 검색 횟수 동기화 완료");
+
+        clearStoredData();
     }
 
-    @Transactional
-    public void updateExistingKeyword(ArticleSearchKeyword keyword, Double redisWeight, LocalDateTime now) {
-        keyword.updateWeight(redisWeight);
-        keyword.updateLastSearchedAt(now);
-        keyword.incrementTotalSearch();
-        keywordRepository.save(keyword);
-    }
+    private void updateIpSearchCounts(String keyword, ArticleSearchKeyword keywordEntity) {
+        Set<String> ipKeys = redisTemplate.keys("search:count:ip:*:" + keyword);
 
-    @Transactional
-    public void createNewKeyword(String keyword, Double redisWeight, LocalDateTime now) {
-        ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
-            .keyword(keyword)
-            .weight(redisWeight)
-            .lastSearchedAt(now)
-            .totalSearch(1)
-            .build();
-        keywordRepository.save(newKeyword);
+        if (ipKeys == null || ipKeys.isEmpty()) {
+            return;
+        }
+
+        for (String ipKey : ipKeys) {
+            String ipAddress = ipKey.split(":")[3];
+            Integer searchCount = Optional.ofNullable((Integer) redisTemplate.opsForValue().get(ipKey)).orElse(0);
+
+            if (searchCount > 0) {
+                ipMapRepository.findByArticleSearchKeywordAndIpAddress(keywordEntity, ipAddress).ifPresentOrElse(
+                    existingIpMap -> {
+                        existingIpMap.incrementSearchCountBy(searchCount);
+                        ipMapRepository.save(existingIpMap);
+                    },
+                    () -> {
+                        ArticleSearchKeywordIpMap newIpMap = ArticleSearchKeywordIpMap.builder()
+                            .articleSearchKeyword(keywordEntity)
+                            .ipAddress(ipAddress)
+                            .searchCount(searchCount)
+                            .build();
+                        ipMapRepository.save(newIpMap);
+                    }
+                );
+            }
+
+            redisTemplate.delete(ipKey);
+        }
     }
 
     @Transactional
@@ -124,5 +158,42 @@ public class ArticleSyncService {
                 .toList();
         }
         busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
+    }
+
+    @Transactional
+    public void updateKeyword(ArticleSearchKeyword keyword, Double weight, LocalDateTime now) {
+        keyword.updateWeight(weight);
+        keyword.updateLastSearchedAt(now);
+        keyword.incrementTotalSearch();
+        keywordRepository.save(keyword);
+    }
+
+    @Transactional
+    public ArticleSearchKeyword createKeyword(String keyword, Double weight, LocalDateTime now) {
+        ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
+            .keyword(keyword)
+            .weight(weight)
+            .lastSearchedAt(now)
+            .totalSearch(1)
+            .build();
+        return keywordRepository.save(newKeyword);
+    }
+
+    @Transactional
+    public void clearStoredData() {
+        try {
+            // 1. 인기 키워드 ZSet 초기화
+            redisTemplate.delete("popular_keywords");
+            log.info("키워드 집계 데이터 초기화 완료");
+
+            // 2. IP별 검색 통계 초기화
+            Set<String> ipSearchKeys = redisTemplate.keys("search:count:ip:*");
+            if (ipSearchKeys != null && !ipSearchKeys.isEmpty()) {
+                redisTemplate.delete(ipSearchKeys);
+                log.info("IP별 검색 통계 초기화 완료");
+            }
+        } catch (Exception e) {
+            log.error("데이터 초기화 중 오류 발생", e);
+        }
     }
 }

@@ -15,32 +15,25 @@ public class RedisKeywordTracker {
 
     private static final double FIXED_WEIGHT_AFTER_FIVE_SEARCHES = 0.0625;
     private static final int MAX_SEARCH_COUNT_FOR_WEIGHT = 10;
-    private static final int DUPLICATE_CHECK_EXPIRATION_SECONDS = 3600;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String KEYWORD_SET = "popular_keywords";
-    private static final String SEARCH_COUNT_PREFIX = "search:count:";
-    private static final String DUPLICATE_CHECK_PREFIX = "search:duplicate:";
+    private static final String IP_SEARCH_COUNT_PREFIX = "search:count:ip:";
 
-    public void updateKeywordWeight(String keyword, String ipAddress) {
-        if (keyword == null || keyword.isBlank()) {
+    public void updateKeywordWeight(String ipAddress, String keyword) {
+        if (keyword == null || keyword.isBlank() || ipAddress == null || ipAddress.isBlank()) {
             return;
         }
 
-        String duplicateKey = DUPLICATE_CHECK_PREFIX + keyword + ":" + ipAddress;
-        String searchCountKey = SEARCH_COUNT_PREFIX + keyword;
+        String ipSearchCountKey = IP_SEARCH_COUNT_PREFIX + ipAddress + ":" + keyword;
 
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(duplicateKey))) {
-            return;
-        }
+        // IP별 검색 횟수 증가
+        Long currentIpCount = redisTemplate.opsForValue().increment(ipSearchCountKey, 1);
+        if (currentIpCount == null) currentIpCount = 1L;
 
-        redisTemplate.opsForValue().set(duplicateKey, "1", DUPLICATE_CHECK_EXPIRATION_SECONDS, TimeUnit.SECONDS);
-
-        Long currentCount = redisTemplate.opsForValue().increment(searchCountKey, 1);
-        if (currentCount == null) currentCount = 1L;
-
-        double additionalWeight = calculateWeight(currentCount);
+        // 가중치 계산
+        double additionalWeight = calculateWeight(currentIpCount);
         if (additionalWeight > 0) {
             redisTemplate.opsForZSet().incrementScore(KEYWORD_SET, keyword, additionalWeight);
         }
@@ -58,9 +51,5 @@ public class RedisKeywordTracker {
     public Set<Object> getTopKeywords(int limit) {
         Set<TypedTuple<Object>> keywordTuples = redisTemplate.opsForZSet().reverseRangeWithScores(KEYWORD_SET, 0, limit - 1);
         return keywordTuples.stream().map(TypedTuple::getValue).collect(Collectors.toSet());
-    }
-
-    public Double getCurrentWeight(String keyword) {
-        return redisTemplate.opsForZSet().score(KEYWORD_SET, keyword);
     }
 }

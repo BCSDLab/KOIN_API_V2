@@ -51,6 +51,13 @@ public class ArticleSearchKeywordIpMap extends BaseEntity {
         this.searchCount++;
     }
 
+    public void incrementSearchCountBy(Integer additionalCount) {
+        if (additionalCount == null || additionalCount <= 0) {
+            return;
+        }
+        this.searchCount += additionalCount;
+    }
+
     public void resetSearchCount() {
         this.searchCount = 0;
     }

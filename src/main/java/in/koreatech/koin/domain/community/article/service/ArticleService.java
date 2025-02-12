@@ -127,7 +127,7 @@ public class ArticleService {
 
         String[] keywords = query.split("\\s+");
         for (String keyword : keywords) {
-            redisKeywordTracker.updateKeywordWeight(keyword, ipAddress);
+            redisKeywordTracker.updateKeywordWeight(ipAddress, keyword);
         }
 
         return ArticlesResponse.of(articles, criteria);
