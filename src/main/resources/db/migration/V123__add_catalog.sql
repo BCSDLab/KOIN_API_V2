@@ -7,7 +7,7 @@ CREATE TABLE if not exists `koin`.`catalog`
     `lecture_name`   VARCHAR(255) NOT NULL comment '강의 이름',
     `department_id`  INT UNSIGNED NOT NULL comment '학과 id',
     `major_id`       INT UNSIGNED NULL comment '전공 id',
-    `general_education_area_id` INT UNSIGNED NULL comment '교양 영역 id'
+    `general_education_area_id` INT UNSIGNED NULL comment '교양 영역 id',
     `credit`         INT UNSIGNED NOT NULL DEFAULT 0 comment '학점',
     `course_type_id` INT UNSIGNED NOT NULL comment '이수 구분 id',
     PRIMARY KEY (`id`),
