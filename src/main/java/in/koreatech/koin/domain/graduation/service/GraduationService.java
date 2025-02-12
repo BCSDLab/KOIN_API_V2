@@ -53,7 +53,6 @@ import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
-import in.koreatech.koin.domain.timetableV3.service.SemesterServiceV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -80,9 +79,6 @@ public class GraduationService {
     private static final String TOTAL = "합 계";
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
-    // 성적 엑셀이 아닌 파일을 거르기 위해, 가장 처음 나오는 글자인 "학년도"를 체크
-    private static final String GRADEEXCELFILECHECKWORD = "학년도";
-    private final SemesterServiceV3 semesterServiceV3;
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -118,7 +114,8 @@ public class GraduationService {
 
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
-        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
+        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(
+                userId)
             .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
 
         if (!detectGraduationCalculation.isChanged()) {
@@ -184,7 +181,11 @@ public class GraduationService {
 
             Map<String, Lecture> lectureMap = loadLectures(semesters, lectureCodes);
             Map<String, Catalog> catalogByNameMap = loadCatalogByLectureName(lectureNames, studentYear);
-            Map<String, Catalog> catalogByCodeMap = loadCatalogByCode(lectureCodes, years); // 찾았다 문제 이새끼!!!
+            Map<String, Catalog> catalogByCodeMap = loadCatalogByCode(lectureCodes, years);
+            /*
+                이수구분선택이란? : 대학요람(Catalog)에 없어서 매핑되지 않는 과목들의 기본 매핑입니다.
+                현재로서 파악된 것은 K-MOOC / 단기, 장기현장실습 / 2019-1학기 과목들이 매핑됩니다.
+            */
             CourseType defaultCourseType = courseTypeRepository.getByName("이수구분선택");
 
             for (Row row : sheet) {
@@ -201,7 +202,7 @@ public class GraduationService {
                 CourseType courseType = findCourseType(lecture, data, studentYear, catalogByNameMap, catalogByCodeMap,
                     defaultCourseType);
 
-                graduationFrame = updateGraduationFrame(userId, semester, currentSemester, graduationFrame);
+                graduationFrame = updateAndCreateFrame(userId, semester, currentSemester, graduationFrame);
                 currentSemester = semester;
 
                 timetableLectures.add(createTimetableLecture(data, lecture, graduationFrame, courseType));
@@ -217,14 +218,14 @@ public class GraduationService {
                 (existing, duplicate) -> duplicate));
     }
 
-    // 1차 탐색 요소, 학번과 수업 이름으로 카탈로그를 가져옴
+    // 1차 탐색 요소, 학번의 연도와 수업 이름으로 카탈로그를 가져옴
     private Map<String, Catalog> loadCatalogByLectureName(Set<String> lectureNames, String year) {
         return catalogRepository.findAllByLectureNameInAndYear(lectureNames, year).stream().collect(Collectors.
             toMap(c -> c.getLectureName() + "_" + c.getYear(), Function.identity(), (existing, duplicate) -> duplicate
             ));
     }
 
-    // 2차 탐색 요소, 1차에서 찾지 못했을 경우 엑셀의 연도과 코드를 통해서 카탈로그를 가져옴
+    // 2차 탐색 요소, 1차에서 찾지 못했을 경우 학생이 지금까지 다닌 모든 학기(연도)와 코드를 통해서 카탈로그를 가져옴
     private Map<String, Catalog> loadCatalogByCode(Set<String> lectureCodes, Set<String> years) {
         return catalogRepository.findAllByCodeInAndYearIn(lectureCodes, years).stream().collect(Collectors.
             toMap(c -> c.getCode() + "_" + c.getYear(), Function.identity(), (existing, duplicate) -> duplicate
@@ -233,12 +234,17 @@ public class GraduationService {
 
     private CourseType findCourseType(Lecture lecture, GradeExcelData data, String studentYear,
         Map<String, Catalog> catalogByNameMap, Map<String, Catalog> catalogByCodeMap, CourseType defaultCourseType) {
-        if (data.courseType().equals("자선")) { // 자유선택은 학생선택이라서, 따로 빼줌
-            return courseTypeRepository.getByName("자유선택");
+        if (data.courseType().equals("자선")) {
+            return courseTypeRepository.getByName("자유선택"); // 자유선택은 학생이 직접 신청하는 부분이라 매핑해줬음
         }
         if (lecture == null) {
             return defaultCourseType;
         }
+
+        /*
+            Name과 Code로 나눈 이유? : 1차로는 학생의 학번과 수업이름으로 찾습니다.(코드가 다른 경우가 많음)
+            2차로는 1차에서 찾지 못 한 수업을 연도를 찾아가며 코드를 비교해서 찾습니다.(학생 학번에 없는 수업 수강 찾기)
+        */
         Catalog catalog = catalogByNameMap.get(data.classTitle() + "_" + studentYear);
         if (catalog == null) {
             catalog = catalogByCodeMap.get(data.code() + "_" + data.year());
@@ -247,36 +253,29 @@ public class GraduationService {
         return (catalog != null) ? catalog.getCourseType() : defaultCourseType;
     }
 
-    private TimetableFrame updateGraduationFrame(Integer userId, String semester,
+    private TimetableFrame updateAndCreateFrame(Integer userId, String semester,
         String currentSemester, TimetableFrame graduationFrame) {
         if (!currentSemester.equals(semester)) {
-            return createFrameAboutExcel(userId, semester);
+            User user = userRepository.getById(userId);
+            Semester saveSemester = semesterRepositoryV2.getBySemester(semester);
+
+            timetableFrameRepositoryV2.findAllByUserIdAndSemesterId(userId, saveSemester.getId())
+                .stream().filter(TimetableFrame::isMain)
+                .forEach(frame -> {
+                    frame.cancelMain();
+                    timetableFrameRepositoryV2.save(frame);
+                });
+
+            return timetableFrameRepositoryV2.save(
+                TimetableFrame.builder()
+                    .user(user)
+                    .semester(saveSemester)
+                    .name("졸업학점 계산 테이블")
+                    .isDeleted(false)
+                    .isMain(true)
+                    .build()
+            );
         }
-        return graduationFrame;
-    }
-
-    private TimetableFrame createFrameAboutExcel(Integer userId, String semester) {
-        User user = userRepository.getById(userId);
-        Semester saveSemester = semesterRepositoryV2.getBySemester(semester);
-
-        List<TimetableFrame> timetableFrameList = timetableFrameRepositoryV2.findAllByUserIdAndSemesterId
-            (userId, saveSemester.getId());
-
-        timetableFrameList.stream().filter(TimetableFrame::isMain)
-            .forEach(frame -> {
-                frame.cancelMain();
-                timetableFrameRepositoryV2.save(frame);
-            });
-
-        TimetableFrame graduationFrame = TimetableFrame.builder()
-            .user(user)
-            .semester(saveSemester)
-            .name("졸업학점 계산 테이블")
-            .isDeleted(false)
-            .isMain(true)
-            .build();
-        timetableFrameRepositoryV2.save(graduationFrame);
-
         return graduationFrame;
     }
 
