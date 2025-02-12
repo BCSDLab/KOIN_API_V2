@@ -16,8 +16,6 @@ import in.koreatech.koin.domain.student.model.Department;
 
 public interface CatalogRepository extends Repository<Catalog, Integer> {
 
-    Optional<Catalog> findByCodeAndYear(String code, String year);
-
     @EntityGraph(attributePaths = {"courseType"}, type = LOAD)
     @Query("SELECT c FROM Catalog c WHERE c.lectureName IN :lectureNames AND c.year = :year")
     List<Catalog> findAllByLectureNameInAndYear(Set<String> lectureNames, String year);
