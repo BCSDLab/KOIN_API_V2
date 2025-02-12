@@ -68,15 +68,16 @@ public class TimetableRegularLectureServiceV3 {
 
         final int currentYear = LocalDateTime.now().getYear();
         for (int initStudentNumberYear = 2019; initStudentNumberYear <= currentYear; initStudentNumberYear++) {
-            catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
-                String.valueOf(initStudentNumberYear));
+            Catalog catalog = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
+                    lecture.getCode())
+                .orElse(null);
 
-            if (!catalogs.isEmpty()) {
-                return catalogs.get(0).getCourseType();
+            if (!Objects.isNull(catalog)) {
+                return catalog.getCourseType();
             }
         }
 
-        return null;
+        return courseTypeRepository.getByName("이수구분선택");
     }
 
     @Transactional

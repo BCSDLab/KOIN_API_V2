@@ -4,12 +4,14 @@ import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureC
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
+import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
@@ -29,6 +31,7 @@ public class TimetableLectureCreator {
     private final StudentRepository studentRepository;
     private final LectureRepositoryV2 lectureRepositoryV2;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
+    private final CourseTypeRepository courseTypeRepository;
 
     public void createTimetableLectures(TimetableLectureCreateRequest request, TimetableFrame frame) {
         for (InnerTimeTableLectureRequest lectureRequest : request.timetableLecture()) {
@@ -59,14 +62,15 @@ public class TimetableLectureCreator {
 
         final int currentYear = LocalDateTime.now().getYear();
         for (int initStudentNumberYear = 2019; initStudentNumberYear <= currentYear; initStudentNumberYear++) {
-            catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
-                String.valueOf(initStudentNumberYear));
+            Catalog catalog = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
+                    lecture.getCode())
+                .orElse(null);
 
-            if (!catalogs.isEmpty()) {
-                return catalogs.get(0).getCourseType();
+            if (!Objects.isNull(catalog)) {
+                return catalog.getCourseType();
             }
         }
 
-        return null;
+        return courseTypeRepository.getByName("이수구분선택");
     }
 }
