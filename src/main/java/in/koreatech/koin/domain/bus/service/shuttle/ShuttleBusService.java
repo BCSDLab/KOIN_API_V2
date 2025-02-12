@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -29,7 +30,6 @@ import in.koreatech.koin.domain.bus.enums.BusType;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.service.shuttle.model.BusCourse;
 import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
 import in.koreatech.koin.domain.bus.service.shuttle.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
@@ -47,15 +47,11 @@ public class ShuttleBusService {
     private final Clock clock;
 
     public List<BusCourseResponse> getBusCourses() {
-        List<BusCourseResponse> courses = new ArrayList<>();
-        for (var routeName : ShuttleRouteName.values()) {
-            for (var direction : BusDirection.values()) {
-                courses.add(
-                    new BusCourseResponse(routeName.getBusType().toString().toLowerCase(), direction.getDirect(),
-                        routeName.getRegionName()));
-            }
-        }
-        return courses;
+        return Arrays.stream(ShuttleRouteName.values())
+            .flatMap(routeName ->
+                Arrays.stream(BusDirection.values())
+                    .map(direction -> BusCourseResponse.of(routeName, direction)))
+            .toList();
     }
 
     public ShuttleBusRoutesResponse getShuttleBusRoutes() {
@@ -70,7 +66,6 @@ public class ShuttleBusService {
     }
 
     public List<BusRemainTime> getShuttleBusRemainTimes(BusType busType, BusStation depart, BusStation arrival) {
-        List<BusCourse> busCourses = new ArrayList<>();
         List<ShuttleBusRoute> shuttleBusRoutes = new ArrayList<>();
         if (busType.equals(COMMUTING)) {
             shuttleBusRoutes.addAll(shuttleBusRepository.findAllByRouteType(WEEKDAYS));
@@ -130,9 +125,9 @@ public class ShuttleBusService {
         String semester = versionService.getVersionEntity("shuttle_bus_timetable").getTitle();
 
         // ex) 통학-천안 다 가져오기
-        List<ShuttleBusRoute> shuttleBusRoutes = routeName.getRouteTypes().stream()
+        List<ShuttleBusRoute> shuttleBusRoutes = routeName.getNewBusType().stream()
             .map(routeType -> shuttleBusRepository.findAllByRegionAndRouteTypeAndSemesterType(
-                routeName.getBusRegion(), routeType, semester))
+                routeName.getNewRegionName(), routeType, semester))
             .flatMap(List::stream)
             .toList();
 
@@ -158,7 +153,7 @@ public class ShuttleBusService {
                         .toList());
                 } else {
                     routeInfos.addAll(shuttleBusRoute.getRouteInfo().stream()
-                        .filter(direct -> (direct.getArrivalTime().get(0) == null) == busDirection.isNull())
+                        .filter(direct -> (direct.getArrivalTime().get(0) == null) == busDirection.isReverseDirection("하교"))
                         .toList());
                 }
             }

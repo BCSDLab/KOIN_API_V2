@@ -12,25 +12,27 @@ public enum BusDirection {
     /**
      * 상행: 종합터미널 -> 병천 (한기대행)
      */
-    NORTH("등교", true, "from"),
+    NORTH("등교", "to"),
 
     /**
      * 하행: 병천 -> 종합터미널 (천안역, 터미널행)
      */
-    SOUTH("하교", false, "to"),
+    SOUTH("하교", "from"),
     ;
 
     private final String name;
-    private final boolean isNull;
     private final String direct;
 
-    public static BusDirection from(String direction) {
-        if (StringUtils.equals(direction, "to")) {
-            return NORTH;
+    public static BusDirection from(String directions) {
+        for (BusDirection direction : values()) {
+            if (StringUtils.equals(direction.name, directions)) {
+                return direction;
+            }
         }
-        if (StringUtils.equals(direction, "from")) {
-            return SOUTH;
-        }
-        throw BusDirectionNotFoundException.withDetail("direction: " + direction);
+        throw BusDirectionNotFoundException.withDetail("directions: " + directions);
+    }
+
+    public static boolean isReverseDirection(String direction) {
+        return StringUtils.equals(direction, "하교");
     }
 }
