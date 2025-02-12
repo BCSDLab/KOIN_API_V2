@@ -181,7 +181,7 @@ public class GraduationService {
 
             Map<String, Lecture> lectureMap = loadLectures(semesters, lectureCodes);
             Map<String, Catalog> catalogByNameMap = loadCatalogByLectureName(lectureNames, studentYear);
-            Map<String, Catalog> catalogByCodeMap = loadCatalogByCode(lectureCodes, years); // 찾았다 문제 이새끼!!!
+            Map<String, Catalog> catalogByCodeMap = loadCatalogByCode(lectureCodes, years);
             /*
                 이수구분선택이란? : 대학요람(Catalog)에 없어서 매핑되지 않는 과목들의 기본 매핑입니다.
                 현재로서 파악된 것은 K-MOOC / 단기, 장기현장실습 / 2019-1학기 과목들이 매핑됩니다.
