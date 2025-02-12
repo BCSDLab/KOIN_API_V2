@@ -14,6 +14,7 @@ import in.koreatech.koin.global.socket.domain.chatroom.model.LostItemChatRoomInf
 import in.koreatech.koin.global.socket.domain.chatroom.service.implement.ChatRoomInfoAppender;
 import in.koreatech.koin.global.socket.domain.chatroom.service.implement.ChatRoomInfoReader;
 import in.koreatech.koin.global.socket.domain.chatroom.service.implement.LostItemArticleReader;
+import in.koreatech.koin.global.socket.domain.chatroom.service.implement.UserBlockReader;
 import in.koreatech.koin.global.socket.domain.message.service.implement.MessageReader;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +26,7 @@ public class LostItemChatRoomInfoService {
     private final ChatRoomInfoReader chatRoomInfoReader;
     private final ChatRoomInfoAppender chatRoomInfoAppender;
     private final LostItemArticleReader lostItemArticleReader;
+    private final UserBlockReader userBlockReader;
 
     public Integer createLostItemChatRoom(Integer articleId, Integer ownerId) {
         var existingChatRoom = chatRoomInfoReader.readByArticleIdAndOwnerId(articleId, ownerId);
@@ -62,6 +64,10 @@ public class LostItemChatRoomInfoService {
                     return null;
                 }
 
+                if (isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
+                    return null;
+                }
+
                 return ChatRoomListResponse.builder()
                     .articleId(entity.getArticleId())
                     .chatRoomId(entity.getChatRoomId())
@@ -89,5 +95,25 @@ public class LostItemChatRoomInfoService {
         if (ownerId.equals(articleAuthorId)) {
             throw new SelfChatNotAllowedException("사용자가 자신과 채팅방을 생성할 수 없습니다.");
         }
+    }
+
+    private boolean isUserBlocked(Integer articleId, Integer chatRoomId, Integer studentId) {
+        LostItemChatRoomInfoEntity chatRoomInfo = chatRoomInfoReader.readByArticleIdAndChatRoomId(articleId, chatRoomId);
+        Integer articleAuthorId = chatRoomInfo.getAuthorId();
+        Integer ownerId = chatRoomInfo.getOwnerId();
+
+        Integer otherUserId;
+        if (studentId.equals(articleAuthorId)) {
+            otherUserId = ownerId;
+        } else {
+            otherUserId = articleAuthorId;
+        }
+
+        boolean blockedByMe = userBlockReader.readByBlockerUserIdAndBlockedUserIdAndIsActive(
+            studentId, otherUserId, true).isPresent();
+        boolean blockedByOther = userBlockReader.readByBlockerUserIdAndBlockedUserIdAndIsActive(
+            otherUserId, studentId, true).isPresent();
+
+        return blockedByMe || blockedByOther;
     }
 }
