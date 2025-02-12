@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.model;
 
 import static in.koreatech.koin.domain.community.article.model.Board.KOIN_ADMIN_NOTICE_BOARD_ID;
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -125,7 +126,7 @@ public class Article extends BaseEntity {
             return;
         }
         if (lostItemArticle != null) {
-            author = lostItemArticle.getAuthor().getName();
+            author = lostItemArticle.getAuthor().getNickname();
             return;
         }
         if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
@@ -244,14 +245,20 @@ public class Article extends BaseEntity {
 
         LostItemArticle lostItemArticle = LostItemArticle.builder()
             .author(author)
+            .type(request.type())
             .category(request.category())
             .foundPlace(request.foundPlace())
             .foundDate(request.foundDate())
             .images(images)
+            .isCouncil(false)
             .isDeleted(false)
             .build();
 
-        images.stream().forEach(image -> image.setArticle(lostItemArticle));
+        if (author.getUserType().equals(COUNCIL)) {
+            lostItemArticle.setIsCouncil();
+        }
+
+        images.forEach(image -> image.setArticle(lostItemArticle));
 
         Article article = Article.builder()
             .board(lostItemBoard)

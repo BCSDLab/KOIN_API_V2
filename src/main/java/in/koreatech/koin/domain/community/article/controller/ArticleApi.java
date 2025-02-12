@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -110,8 +112,10 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 목록 조회")
     @GetMapping("/lost-item")
     ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
+        @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit
+        @RequestParam(required = false) Integer limit,
+        @UserId Integer userId
     );
 
     @ApiResponses(
@@ -123,7 +127,8 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 단건 조회")
     @GetMapping("/lost-item/{id}")
     ResponseEntity<LostItemArticleResponse> getLostItemArticle(
-        @Parameter(in = PATH) @PathVariable("id") Integer articleId
+        @Parameter(in = PATH) @PathVariable("id") Integer articleId,
+        @UserId Integer userId
     );
 
     @ApiResponses(
@@ -138,7 +143,7 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 등록")
     @PostMapping("/lost-item")
     ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {COUNCIL}) Integer councilId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     );
 
@@ -153,7 +158,7 @@ public interface ArticleApi {
     )
     @Operation(summary = "분실물 게시글 삭제")
     @DeleteMapping("/lost-item/{id}")
-    public ResponseEntity<Void> deleteLostItemArticle(
+    ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
         @Auth(permit = {COUNCIL}) Integer councilId
     );
