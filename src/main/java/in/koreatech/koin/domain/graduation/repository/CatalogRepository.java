@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.swing.text.html.Option;
+
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -33,6 +35,8 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
     Optional<Catalog> findByCodeAndYear(String code, String year);
 
     Optional<List<Catalog>> findAllByCourseTypeId(Integer courseTypeId);
+
+    Optional<Catalog> findByYearAndCode(String year, String code);
 
     default Catalog getByDepartmentAndCode(Department department, String code) {
         return findByDepartmentAndCode(department, code)

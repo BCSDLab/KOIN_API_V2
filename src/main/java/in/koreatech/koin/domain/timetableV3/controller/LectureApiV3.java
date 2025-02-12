@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetableV3.dto.response.LectureResponseV3;
+import in.koreatech.koin.global.auth.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,6 +29,7 @@ public interface LectureApiV3 {
     @GetMapping("/v3/lectures")
     ResponseEntity<List<LectureResponseV3>> getLectures(
         @RequestParam(name = "year") Integer year,
-        @RequestParam(name = "term") String term
+        @RequestParam(name = "term") String term,
+        @UserId Integer userId
     );
 }

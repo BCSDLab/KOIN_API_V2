@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.timetableV3.dto.response.LectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.service.LectureServiceV3;
+import in.koreatech.koin.global.auth.UserId;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -20,9 +21,10 @@ public class LectureControllerV3 implements LectureApiV3 {
     @GetMapping("/v3/lectures")
     public ResponseEntity<List<LectureResponseV3>> getLectures(
         @RequestParam(name = "year") Integer year,
-        @RequestParam(name = "term") String term
+        @RequestParam(name = "term") String term,
+        @UserId Integer userId
     ) {
-        List<LectureResponseV3> response = lectureServiceV3.getLectures(year, term);
+        List<LectureResponseV3> response = lectureServiceV3.getLectures(year, term, userId);
         return ResponseEntity.ok(response);
     }
 }
