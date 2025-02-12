@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin.domain.bus.dto.CityBusRouteApiResponse;
+import in.koreatech.koin.domain.bus.service.city.dto.CityBusRouteApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusRoute;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusRouteCache;

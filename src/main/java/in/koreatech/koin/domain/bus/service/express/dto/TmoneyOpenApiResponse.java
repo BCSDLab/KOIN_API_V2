@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.dto;
+package in.koreatech.koin.domain.bus.service.express.dto;
 
 import java.util.List;
 
