@@ -8,9 +8,11 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -54,7 +56,10 @@ public record LectureResponseV3(
     String isElearning,
 
     @Schema(description = "강의 정보", requiredMode = REQUIRED)
-    List<LectureInfo> lectureInfos
+    List<LectureInfo> lectureInfos,
+
+    @Schema(description = "이수 구분", example = "교양선택", requiredMode = REQUIRED)
+    String courseType
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record LectureInfo(
@@ -96,7 +101,7 @@ public record LectureResponseV3(
         }
     }
 
-    public static LectureResponseV3 from(Lecture lecture) {
+    public static LectureResponseV3 of(Lecture lecture, CourseType courseType) {
         return new LectureResponseV3(
             lecture.getId(),
             lecture.getCode(),
@@ -110,7 +115,15 @@ public record LectureResponseV3(
             lecture.getIsEnglish(),
             lecture.getDesignScore(),
             lecture.getIsElearning(),
-            LectureInfo.from(lecture.getClassTime())
+            LectureInfo.from(lecture.getClassTime()),
+            getCourseType(courseType)
         );
+    }
+
+    private static String getCourseType(CourseType courseType) {
+        if (Objects.isNull(courseType)) {
+            return "";
+        }
+        return courseType.getName();
     }
 }

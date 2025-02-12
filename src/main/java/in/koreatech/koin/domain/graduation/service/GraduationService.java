@@ -307,8 +307,8 @@ public class GraduationService {
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                List<Catalog> catalogs = catalogRepository.findByLectureNameAndMajorIdAndYear(
-                    lectureName, student.getMajor() != null ? student.getMajor().getId() : null, studentYear);
+                List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(
+                    lectureName, studentYear);
 
                 if (catalogs.isEmpty()) {
                     catalogs = catalogRepository.findByLectureNameAndDepartmentIdAndYear(
@@ -335,7 +335,7 @@ public class GraduationService {
         String studentYear) {
         return catalogList.stream()
             .map(catalog -> standardGraduationRequirementsRepository.findByMajorIdAndCourseTypeIdAndYear(
-                catalog.getMajor().getId(),
+                null,
                 catalog.getCourseType().getId(),
                 studentYear
             ))
