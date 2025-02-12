@@ -49,18 +49,16 @@ public class LectureServiceV3 {
         Student student = studentRepository.getById(userId);
         Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
 
-        List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
-            String.valueOf(studentNumberYear));
-        if (!catalogs.isEmpty()) {
-            return catalogs.get(0).getCourseType();
+        Catalog catalog = catalogRepository.findByYearAndCodeAndLectureName(String.valueOf(studentNumberYear),
+            lecture.getCode(), lecture.getName()).orElse(null);
+        if (!Objects.isNull(catalog)) {
+            return catalog.getCourseType();
         }
 
         final int currentYear = LocalDateTime.now().getYear();
         for (int initStudentNumberYear = 2019; initStudentNumberYear <= currentYear; initStudentNumberYear++) {
-            Catalog catalog = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
-                    lecture.getCode())
-                .orElse(null);
-
+            catalog = catalogRepository.findByYearAndCodeAndLectureName(String.valueOf(studentNumberYear),
+                lecture.getCode(), lecture.getName()).orElse(null);
             if (!Objects.isNull(catalog)) {
                 return catalog.getCourseType();
             }

@@ -36,6 +36,8 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
 
     Optional<Catalog> findByYearAndCode(String year, String code);
 
+    Optional<Catalog> findByYearAndCodeAndLectureName(String year, String code, String lectureName);
+
     default Catalog getByDepartmentAndCode(Department department, String code) {
         return findByDepartmentAndCode(department, code)
             .orElseThrow(() -> CatalogNotFoundException.withDetail("department: " + department + ", code: " + code));
