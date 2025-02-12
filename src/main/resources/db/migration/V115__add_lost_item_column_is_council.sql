@@ -1,13 +1,3 @@
-CREATE TABLE IF NOT EXISTS `lost_item_reports`
-(
-    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    lost_id    INT UNSIGNED NOT NULL,
-    title      VARCHAR(50)  NOT NULL,
-    content    VARCHAR(255) NOT NULL,
-    user_id    INT UNSIGNED NOT NULL,
-    status     VARCHAR(25) DEFAULT 'UNHANDLED',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`lost_id`) REFERENCES `lost_item_articles` (`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-);
+alter table `lost_item_articles`
+    add column `type`       VARCHAR(100)    NOT NULL comment '게시글 타입'           DEFAULT 'LOST',
+    add column `is_council` TINYINT(1)      NOT NULL comment '작성자 총학생회 여부'   DEFAULT '0';
