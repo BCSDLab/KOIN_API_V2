@@ -38,7 +38,6 @@ import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
-import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
@@ -72,7 +71,6 @@ public class ArticleService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
-    private final LostItemArticleRepository lostItemArticleRepository;
     private final BoardRepository boardRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
@@ -95,20 +93,20 @@ public class ArticleService {
         return ArticleResponse.of(article);
     }
 
-    public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
+    public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
         Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         if (boardId == null) {
             Page<Article> articles = articleRepository.findAll(pageRequest);
-            return ArticlesResponse.of(articles, criteria);
+            return ArticlesResponse.of(articles, criteria, userId);
         }
         if (boardId == NOTICE_BOARD_ID) {
             Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
-            return ArticlesResponse.of(articles, criteria);
+            return ArticlesResponse.of(articles, criteria, userId);
         }
         Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
-        return ArticlesResponse.of(articles, criteria);
+        return ArticlesResponse.of(articles, criteria, userId);
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
@@ -128,7 +126,7 @@ public class ArticleService {
 
     @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
-        String ipAddress) {
+        String ipAddress, Integer userId) {
         if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
             throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
         }
@@ -146,7 +144,7 @@ public class ArticleService {
 
         saveOrUpdateSearchLog(query, ipAddress);
 
-        return ArticlesResponse.of(articles, criteria);
+        return ArticlesResponse.of(articles, criteria, userId);
     }
 
     public ArticleHotKeywordResponse getArticlesHotKeyword(Integer count) {
@@ -283,11 +281,15 @@ public class ArticleService {
                     int secondWeight = 0;
 
                     // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
-                    if (first.getTitle().contains("사과")) firstWeight++;
-                    if (first.getTitle().contains("긴급")) firstWeight--;
+                    if (first.getTitle().contains("사과"))
+                        firstWeight++;
+                    if (first.getTitle().contains("긴급"))
+                        firstWeight--;
 
-                    if (second.getTitle().contains("사과")) secondWeight++;
-                    if (second.getTitle().contains("긴급")) secondWeight--;
+                    if (second.getTitle().contains("사과"))
+                        secondWeight++;
+                    if (second.getTitle().contains("긴급"))
+                        secondWeight--;
 
                     return Integer.compare(firstWeight, secondWeight);
                 })

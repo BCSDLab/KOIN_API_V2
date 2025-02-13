@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record LostItemArticlesResponse(
@@ -76,7 +75,7 @@ public record LostItemArticlesResponse(
         @Schema(description = "등록일", example = "2025-01-10", requiredMode = REQUIRED)
         LocalDate registeredAt,
 
-        @Schema(description = "처리되지 않은 신고 존재 여부", example = "true", requiredMode = REQUIRED)
+        @Schema(description = "처리되지 않은 자신의 신고 존재 여부", example = "true", requiredMode = REQUIRED)
         Boolean isReported
     ) {
 
