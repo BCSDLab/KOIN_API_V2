@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
+import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -76,14 +77,10 @@ public class GraduationController implements GraduationApi {
         return ResponseEntity.ok(response);
     }
 
-    ;
-
-    /*
     @GetMapping("/graduation/course/calculation")
     public ResponseEntity<GraduationCourseCalculationResponse> getGraduationCourseCalculation(
         @Auth(permit = {STUDENT}) Integer userId) {
         GraduationCourseCalculationResponse response = graduationService.getGraduationCourseCalculationResponse(userId);
         return ResponseEntity.ok(response);
     }
-    */
 }

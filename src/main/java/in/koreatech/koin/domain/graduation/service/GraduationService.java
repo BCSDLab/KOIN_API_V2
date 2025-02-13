@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.graduation.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,15 +20,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin.domain.graduation.model.CatalogResult;
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
+import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
+import in.koreatech.koin.domain.graduation.exception.ExcelFileNotFoundException;
 import in.koreatech.koin.domain.graduation.model.Catalog;
+import in.koreatech.koin.domain.graduation.model.CatalogResult;
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.model.DetectGraduationCalculation;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
+import in.koreatech.koin.domain.graduation.model.GradeExcelData;
 import in.koreatech.koin.domain.graduation.model.StandardGraduationRequirements;
 import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
+import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
 import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculationRepository;
 import in.koreatech.koin.domain.graduation.repository.GeneralEducationAreaRepository;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
@@ -40,20 +44,14 @@ import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
-import in.koreatech.koin.domain.timetableV2.exception.NotFoundSemesterAndCourseTypeException;
-import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
-
-import in.koreatech.koin.domain.graduation.model.GradeExcelData;
-import in.koreatech.koin.domain.graduation.model.CourseType;
-import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
-import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
-import in.koreatech.koin.domain.graduation.exception.ExcelFileNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
+import in.koreatech.koin.domain.timetableV2.exception.NotFoundSemesterAndCourseTypeException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
@@ -332,8 +330,8 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-               gradeExcelData.retakeStatus().equals(RETAKE) ||
-               gradeExcelData.grade().equals(UNSATISFACTORY);
+            gradeExcelData.retakeStatus().equals(RETAKE) ||
+            gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
     private String getKoinSemester(String semester, String year) {
@@ -484,7 +482,7 @@ public class GraduationService {
 
             catalogs = catalogs.stream()
                 .filter(catalog -> catalog.getGeneralEducationArea() != null
-                                   && catalog.getGeneralEducationArea().getId().equals(generalEducationArea.getId()))
+                    && catalog.getGeneralEducationArea().getId().equals(generalEducationArea.getId()))
                 .toList();
         }
 
