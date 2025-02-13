@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.graduation.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
+import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -67,6 +70,17 @@ public interface GraduationApi {
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
         @RequestParam(name = "name") String courseTypeName,
+        @RequestParam(name = "general_education_area", required = false) String generalEducationAreaName,
         @Auth(permit = {STUDENT}) Integer userId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "교양영역 전체 조회")
+    @GetMapping("/general-education-area")
+    ResponseEntity<List<GeneralEducationArea>> getCourseTypeLecture();
 }
