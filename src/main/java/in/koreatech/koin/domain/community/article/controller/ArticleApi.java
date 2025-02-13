@@ -63,7 +63,8 @@ public interface ArticleApi {
     ResponseEntity<ArticlesResponse> getArticles(
         @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit
+        @RequestParam(required = false) Integer limit,
+        @UserId Integer userId
     );
 
     @ApiResponses(
@@ -89,7 +90,8 @@ public interface ArticleApi {
         @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @IpAddress String ipAddress
+        @IpAddress String ipAddress,
+        @UserId Integer userId
     );
 
     @ApiResponses(

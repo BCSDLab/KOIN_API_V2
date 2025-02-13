@@ -51,9 +51,10 @@ public class ArticleController implements ArticleApi {
     public ResponseEntity<ArticlesResponse> getArticles(
         @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit
+        @RequestParam(required = false) Integer limit,
+        @UserId Integer userId
     ) {
-        ArticlesResponse foundArticles = articleService.getArticles(boardId, page, limit);
+        ArticlesResponse foundArticles = articleService.getArticles(boardId, page, limit, userId);
         return ResponseEntity.ok().body(foundArticles);
     }
 
@@ -69,9 +70,10 @@ public class ArticleController implements ArticleApi {
         @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @IpAddress String ipAddress
+        @IpAddress String ipAddress,
+        @UserId Integer userId
     ) {
-        ArticlesResponse foundArticles = articleService.searchArticles(query, boardId, page, limit, ipAddress);
+        ArticlesResponse foundArticles = articleService.searchArticles(query, boardId, page, limit, ipAddress, userId);
         return ResponseEntity.ok().body(foundArticles);
     }
 
