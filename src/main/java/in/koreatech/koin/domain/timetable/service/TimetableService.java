@@ -1,24 +1,21 @@
 package in.koreatech.koin.domain.timetable.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import in.koreatech.koin.domain.graduation.model.Catalog;
-import in.koreatech.koin.domain.graduation.model.CourseType;
-import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
-import in.koreatech.koin.domain.student.model.Department;
-import in.koreatech.koin.domain.student.model.Major;
-import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.global.exception.RequestTooFastException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.OptimisticLockException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.graduation.model.Catalog;
+import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
+import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
@@ -34,6 +31,9 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositor
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.exception.RequestTooFastException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,8 +47,9 @@ public class TimetableService {
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
-    private final StudentRepository studentRepository;
+    private final CourseTypeRepository courseTypeRepository;
     private final CatalogRepository catalogRepository;
+    private final StudentRepository studentRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
         semesterRepositoryV2.getBySemester(semester);
@@ -68,7 +69,7 @@ public class TimetableService {
         for (TimetableCreateRequest.InnerTimetableRequest timeTable : request.timetable()) {
             Lecture lecture = lectureRepositoryV2.getBySemesterAndCodeAndLectureClass(request.semester(),
                 timeTable.code(), timeTable.lectureClass());
-            CourseType courseType = getCourseType(userId, lecture);
+            CourseType courseType = getCourseType(lecture, userId);
             TimetableLecture timetableLecture = TimetableLecture.builder()
                 .classPlace(timeTable.classPlace())
                 .grades("0")
@@ -84,33 +85,27 @@ public class TimetableService {
         return getTimetableResponse(userId, timetableFrame);
     }
 
-    private CourseType getCourseType(Integer userId, Lecture lecture) {
+    private CourseType getCourseType(Lecture lecture, Integer userId) {
         Student student = studentRepository.getById(userId);
-        Department department = student.getDepartment();
-        if (Objects.isNull(department)) {
-            return null;
-        }
-        Major major = student.getMajor();
-        List<Catalog> catalogs = catalogRepository.findAllByCode(lecture.getCode());
-        if (catalogs.isEmpty()) {
-            return null;
+        Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
+
+        List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
+            String.valueOf(studentNumberYear));
+        if (!catalogs.isEmpty()) {
+            return catalogs.get(0).getCourseType();
         }
 
-        if (!Objects.isNull(major)) {
-            for (Catalog catalog : catalogs) {
-                if (Objects.equals(catalog.getMajor(), major)) {
-                    return catalog.getCourseType();
-                }
+        final int currentYear = LocalDateTime.now().getYear();
+        for (int initStudentNumberYear = 2019; initStudentNumberYear <= currentYear; initStudentNumberYear++) {
+            catalogs = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
+                lecture.getCode());
+
+            if (!Objects.isNull(catalogs)) {
+                return catalogs.get(0).getCourseType();
             }
         }
 
-        for (Catalog catalog : catalogs) {
-            if (Objects.equals(catalog.getDepartment(), department)) {
-                return catalog.getCourseType();
-            }
-        }
-
-        return null;
+        return courseTypeRepository.getByName("이수구분선택");
     }
 
     @Transactional

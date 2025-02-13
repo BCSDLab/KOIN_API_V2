@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculat
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,10 +15,9 @@ import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
-import in.koreatech.koin.domain.student.model.Department;
-import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureC
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.repository.LectureRepositoryV3;
+import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
 import lombok.RequiredArgsConstructor;
@@ -48,40 +49,34 @@ public class TimetableRegularLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
-        CourseType courseType = getCourseType(frame.getUser().getId(), lecture);
+        CourseType courseType = getCourseType(lecture, userId);
         TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture, courseType);
         frame.addTimeTableLecture(timetableLecture);
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
     }
 
-    private CourseType getCourseType(Integer userId, Lecture lecture) {
+    private CourseType getCourseType(Lecture lecture, Integer userId) {
         Student student = studentRepository.getById(userId);
-        Department department = student.getDepartment();
-        if (Objects.isNull(department)) {
-            return null;
-        }
-        Major major = student.getMajor();
-        List<Catalog> catalogs = catalogRepository.findAllByCode(lecture.getCode());
-        if (catalogs.isEmpty()) {
-            return null;
+        Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
+
+        List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
+            String.valueOf(studentNumberYear));
+        if (!catalogs.isEmpty()) {
+            return catalogs.get(0).getCourseType();
         }
 
-        if (!Objects.isNull(major)) {
-            for (Catalog catalog : catalogs) {
-                if (Objects.equals(catalog.getMajor(), major)) {
-                    return catalog.getCourseType();
-                }
+        final int currentYear = LocalDateTime.now().getYear();
+        for (int initStudentNumberYear = 2019; initStudentNumberYear <= currentYear; initStudentNumberYear++) {
+            catalogs = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
+                lecture.getCode());
+
+            if (!Objects.isNull(catalogs)) {
+                return catalogs.get(0).getCourseType();
             }
         }
 
-        for (Catalog catalog : catalogs) {
-            if (Objects.equals(catalog.getDepartment(), department)) {
-                return catalog.getCourseType();
-            }
-        }
-
-        return null;
+        return courseTypeRepository.getByName("이수구분선택");
     }
 
     @Transactional

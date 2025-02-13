@@ -16,8 +16,6 @@ import in.koreatech.koin.domain.student.model.Department;
 
 public interface CatalogRepository extends Repository<Catalog, Integer> {
 
-    List<Catalog> findAllByCode(String code);
-
     @EntityGraph(attributePaths = {"courseType"}, type = LOAD)
     @Query("SELECT c FROM Catalog c WHERE c.lectureName IN :lectureNames AND c.year = :year")
     List<Catalog> findAllByLectureNameInAndYear(Set<String> lectureNames, String year);
@@ -35,6 +33,12 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
     Optional<Catalog> findByCodeAndYear(String code, String year);
 
     Optional<List<Catalog>> findAllByCourseTypeId(Integer courseTypeId);
+
+    List<Catalog> findByYearAndCode(String year, String code);
+
+    List<Catalog> findByLectureNameAndYear(String lectureName, String year);
+
+    Optional<Catalog> findByYearAndCodeAndLectureName(String year, String code, String lectureName);
 
     default Catalog getByDepartmentAndCode(Department department, String code) {
         return findByDepartmentAndCode(department, code)
