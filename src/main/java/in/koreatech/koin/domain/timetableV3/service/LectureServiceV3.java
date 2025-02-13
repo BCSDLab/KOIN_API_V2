@@ -25,7 +25,7 @@ public class LectureServiceV3 {
     public List<LectureResponseV3> getLectures(Integer year, String term) {
         Semester semester = semesterRepositoryV3.getByYearAndTerm(year, Term.fromDescription(term));
         return lectureRepositoryV3.findBySemester(semester.getSemester()).stream()
-            .map(LectureResponseV3::of)
+            .map(LectureResponseV3::from)
             .toList();
     }
 }

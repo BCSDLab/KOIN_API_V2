@@ -8,11 +8,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -98,7 +96,7 @@ public record LectureResponseV3(
         }
     }
 
-    public static LectureResponseV3 of(Lecture lecture) {
+    public static LectureResponseV3 from(Lecture lecture) {
         return new LectureResponseV3(
             lecture.getId(),
             lecture.getCode(),
