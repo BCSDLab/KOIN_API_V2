@@ -67,6 +67,7 @@ public interface GraduationApi {
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
         @RequestParam(name = "name") String courseTypeName,
+        @RequestParam(name = "generalEducationArea", required = false) String generalEducationAreaName,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

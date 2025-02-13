@@ -48,9 +48,11 @@ public class GraduationController implements GraduationApi {
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
         @RequestParam(name = "name") String courseTypeName,
+        @RequestParam(name = "generalEducationArea", required = false) String generalEducationAreaName,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        CourseTypeLectureResponse response = graduationService.getLectureByCourseType(year, term, courseTypeName);
+        CourseTypeLectureResponse response = graduationService.getLectureByCourseType(year, term,
+            courseTypeName, generalEducationAreaName);
         return ResponseEntity.ok(response);
     }
 

@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.graduation.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,14 +21,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import in.koreatech.koin.domain.graduation.model.CatalogResult;
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.DetectGraduationCalculation;
+import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.model.StandardGraduationRequirements;
 import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculationRepository;
+import in.koreatech.koin.domain.graduation.repository.GeneralEducationAreaRepository;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
@@ -74,11 +78,13 @@ public class GraduationService {
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final SemesterRepositoryV3 semesterRepositoryV3;
     private final CatalogRepository catalogRepository;
+    private final GeneralEducationAreaRepository generalEducationAreaRepository;
 
     private static final String MIDDLE_TOTAL = "소 계";
     private static final String TOTAL = "합 계";
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
+    private static final String DEFAULTCOURSERTYPE = "이수구분선택";
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -186,8 +192,6 @@ public class GraduationService {
                 이수구분선택이란? : 대학요람(Catalog)에 없어서 매핑되지 않는 과목들의 기본 매핑입니다.
                 현재로서 파악된 것은 K-MOOC / 단기, 장기현장실습 / 2019-1학기 과목들이 매핑됩니다.
             */
-            CourseType defaultCourseType = courseTypeRepository.getByName("이수구분선택");
-
             for (Row row : sheet) {
                 GradeExcelData data = extractExcelData(row);
                 if (row.getRowNum() == 0 || skipRow(data)) {
@@ -199,13 +203,16 @@ public class GraduationService {
 
                 String semester = getKoinSemester(data.semester(), data.year());
                 Lecture lecture = lectureMap.get(semester + "_" + data.code());
-                CourseType courseType = findCourseType(lecture, data, studentYear, catalogByNameMap, catalogByCodeMap,
-                    defaultCourseType);
+                CatalogResult catalogResult = findCourseType(lecture, data, studentYear, catalogByNameMap,
+                    catalogByCodeMap);
+                CourseType courseType = catalogResult.courseType();
+                GeneralEducationArea generalEducationArea = catalogResult.generalEducation();
 
                 graduationFrame = updateAndCreateFrame(userId, semester, currentSemester, graduationFrame);
                 currentSemester = semester;
 
-                timetableLectures.add(createTimetableLecture(data, lecture, graduationFrame, courseType));
+                timetableLectures.add(
+                    createTimetableLecture(data, lecture, graduationFrame, courseType, generalEducationArea));
             }
             timetableLectureRepositoryV2.saveAll(timetableLectures);
         }
@@ -232,15 +239,17 @@ public class GraduationService {
             ));
     }
 
-    private CourseType findCourseType(Lecture lecture, GradeExcelData data, String studentYear,
-        Map<String, Catalog> catalogByNameMap, Map<String, Catalog> catalogByCodeMap, CourseType defaultCourseType) {
+    public CatalogResult findCourseType(Lecture lecture, GradeExcelData data,
+        String studentYear, Map<String, Catalog> catalogByNameMap, Map<String, Catalog> catalogByCodeMap) {
+
+        // 자유선택은 학생이 직접 신청하는 부분이라 매핑해줬음
         if (data.courseType().equals("자선")) {
-            return courseTypeRepository.getByName("자유선택"); // 자유선택은 학생이 직접 신청하는 부분이라 매핑해줬음
-        }
-        if (lecture == null) {
-            return defaultCourseType;
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
         }
 
+        if (lecture == null) {
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
+        }
         /*
             Name과 Code로 나눈 이유? : 1차로는 학생의 학번과 수업이름으로 찾습니다.(코드가 다른 경우가 많음)
             2차로는 1차에서 찾지 못 한 수업을 연도를 찾아가며 코드를 비교해서 찾습니다.(학생 학번에 없는 수업 수강 찾기)
@@ -250,7 +259,13 @@ public class GraduationService {
             catalog = catalogByCodeMap.get(data.code() + "_" + data.year());
         }
 
-        return (catalog != null) ? catalog.getCourseType() : defaultCourseType;
+        // catalog가 없으면 기본 이수구분 반환
+        if (catalog == null) {
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
+        }
+
+        // CourseType과 GeneralEducation_id 반환
+        return new CatalogResult(catalog.getCourseType(), catalog.getGeneralEducationArea());
     }
 
     private TimetableFrame updateAndCreateFrame(Integer userId, String semester,
@@ -280,7 +295,7 @@ public class GraduationService {
     }
 
     private TimetableLecture createTimetableLecture(GradeExcelData data, Lecture lecture,
-        TimetableFrame graduationFrame, CourseType courseType) {
+        TimetableFrame graduationFrame, CourseType courseType, GeneralEducationArea generalEducationArea) {
         return TimetableLecture.builder()
             .classTitle(data.classTitle())
             .classTime(lecture != null ? lecture.getClassTime() : null)
@@ -290,7 +305,7 @@ public class GraduationService {
             .lecture(lecture)
             .timetableFrame(graduationFrame)
             .courseType(courseType)
-            .generalEducationArea(null)
+            .generalEducationArea(generalEducationArea)
             .build();
     }
 
@@ -367,7 +382,8 @@ public class GraduationService {
     }
 
     private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
-        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.getAllByUserId(student.getId()).stream()
+        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.getAllByUserId(student.getId())
+            .stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .toList();
 
@@ -456,17 +472,35 @@ public class GraduationService {
         return completedGrades;
     }
 
-    public CourseTypeLectureResponse getLectureByCourseType(Integer year, String term, String courseTypeName) {
+    public CourseTypeLectureResponse getLectureByCourseType(Integer year, String term, String courseTypeName,
+        String generalEducationAreaName) {
         CourseType courseType = courseTypeRepository.getByName(courseTypeName);
+
         List<Catalog> catalogs = catalogRepository.getAllByCourseTypeId(courseType.getId());
+
+        if (generalEducationAreaName != null) {
+            GeneralEducationArea generalEducationArea =
+                generalEducationAreaRepository.getGeneralEducationAreaByName(generalEducationAreaName);
+
+            catalogs = catalogs.stream()
+                .filter(catalog -> catalog.getGeneralEducationArea() != null
+                                   && catalog.getGeneralEducationArea().getId().equals(generalEducationArea.getId()))
+                .toList();
+        }
+
         List<String> codes = catalogs.stream().map(Catalog::getCode).toList();
 
         Term parsedTerm = Term.fromDescription(term);
         Semester foundSemester = semesterRepositoryV3.getByYearAndTerm(year, parsedTerm);
         String semester = foundSemester.getSemester();
 
-        List<Lecture> lectures = lectureRepositoryV2.findAllByCodesAndSemester(codes, semester)
-            .orElseThrow(() -> new NotFoundSemesterAndCourseTypeException("학기나 이수구분을 찾을 수 없습니다."));
+        // 이름이 같은 강의는 중복되길래 빼버렸음
+        Map<String, Lecture> lectureMap = lectureRepositoryV2.findAllByCodesAndSemester(codes, semester)
+            .orElseThrow(() -> new NotFoundSemesterAndCourseTypeException("학기나 이수구분을 찾을 수 없습니다."))
+            .stream()
+            .collect(Collectors.toMap(Lecture::getName, Function.identity(), (existing, duplicate) -> existing));
+
+        List<Lecture> lectures = new ArrayList<>(lectureMap.values());
 
         return CourseTypeLectureResponse.of(semester, lectures);
     }
