@@ -129,7 +129,7 @@ public record TimetableLectureResponseV3(
 
         private static String getCourseType(TimetableLecture timetableLecture) {
             if (Objects.isNull(timetableLecture.getCourseType())) {
-                return "";
+                return "이수구분선택";
             }
             return timetableLecture.getCourseType().getName();
         }
