@@ -2,8 +2,6 @@ package in.koreatech.koin.domain.timetableV2.factory;
 
 import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest.InnerTimetableLectureRequest;
 import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest.InnerTimetableLectureRequest.ClassInfo;
-import static java.util.stream.Stream.concat;
-import static java.util.stream.Stream.of;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
@@ -41,7 +38,8 @@ public class TimetableLectureUpdater {
         if (classInfos != null) {
             List<Integer> classTimes = new ArrayList<>();
             for (int i = 0; i < classInfos.size(); i++) {
-                if (i > 0) classTimes.add(-1);
+                if (i > 0)
+                    classTimes.add(-1);
                 classTimes.addAll(classInfos.get(i).classTime());
             }
             return classTimes.toString();

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
 import in.koreatech.koin.domain.student.model.Student;
@@ -25,7 +26,6 @@ import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureC
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.repository.LectureRepositoryV3;
-import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
 import lombok.RequiredArgsConstructor;
@@ -49,21 +49,23 @@ public class TimetableRegularLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
-        CourseType courseType = getCourseType(lecture, userId);
-        TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture, courseType);
+        Catalog catalog = getCatalog(lecture, userId);
+        CourseType courseType = getCourseType(catalog);
+        GeneralEducationArea generalEducationArea = getGeneralEducationArea(catalog);
+        TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture, courseType, generalEducationArea);
         frame.addTimeTableLecture(timetableLecture);
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
     }
 
-    private CourseType getCourseType(Lecture lecture, Integer userId) {
+    private Catalog getCatalog(Lecture lecture, Integer userId) {
         Student student = studentRepository.getById(userId);
         Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
 
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
             String.valueOf(studentNumberYear));
         if (!catalogs.isEmpty()) {
-            return catalogs.get(0).getCourseType();
+            return catalogs.get(0);
         }
 
         final int currentYear = LocalDateTime.now().getYear();
@@ -72,11 +74,27 @@ public class TimetableRegularLectureServiceV3 {
                 lecture.getCode());
 
             if (!Objects.isNull(catalogs)) {
-                return catalogs.get(0).getCourseType();
+                return catalogs.get(0);
             }
         }
 
+        return null;
+    }
+
+    private CourseType getCourseType(Catalog catalog) {
+        if (catalog != null) {
+            return catalog.getCourseType();
+        }
         return courseTypeRepository.getByName("이수구분선택");
+    }
+
+    private GeneralEducationArea getGeneralEducationArea(Catalog catalog) {
+        if (catalog != null) {
+            if (catalog.getGeneralEducationArea() != null) {
+                return catalog.getGeneralEducationArea();
+            }
+        }
+        return null;
     }
 
     @Transactional

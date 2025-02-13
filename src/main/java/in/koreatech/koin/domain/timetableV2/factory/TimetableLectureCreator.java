@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
 import in.koreatech.koin.domain.student.model.Student;
@@ -33,11 +34,14 @@ public class TimetableLectureCreator {
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final CourseTypeRepository courseTypeRepository;
 
-    public void createTimetableLectures(TimetableLectureCreateRequest request, TimetableFrame frame) {
+    public void createTimetableLectures(TimetableLectureCreateRequest request, TimetableFrame frame, Integer userId) {
         for (InnerTimeTableLectureRequest lectureRequest : request.timetableLecture()) {
             Lecture lecture = determineLecture(lectureRequest.lectureId());
-            CourseType courseType = getCourseType(lecture, frame.getUser().getId());
-            TimetableLecture timetableLecture = lectureRequest.toTimetableLecture(frame, lecture, courseType);
+            Catalog catalog = getCatalog(lecture, userId);
+            CourseType courseType = getCourseType(catalog);
+            GeneralEducationArea generalEducationArea = getGeneralEducationArea(catalog);
+            TimetableLecture timetableLecture = lectureRequest.toTimetableLecture(frame, lecture, courseType,
+                generalEducationArea);
             frame.addTimeTableLecture(timetableLecture);
             timetableLectureRepositoryV2.save(timetableLecture);
         }
@@ -50,14 +54,14 @@ public class TimetableLectureCreator {
         return null;
     }
 
-    private CourseType getCourseType(Lecture lecture, Integer userId) {
+    private Catalog getCatalog(Lecture lecture, Integer userId) {
         Student student = studentRepository.getById(userId);
         Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
 
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
             String.valueOf(studentNumberYear));
         if (!catalogs.isEmpty()) {
-            return catalogs.get(0).getCourseType();
+            return catalogs.get(0);
         }
 
         final int currentYear = LocalDateTime.now().getYear();
@@ -66,10 +70,26 @@ public class TimetableLectureCreator {
                 lecture.getCode());
 
             if (!Objects.isNull(catalogs)) {
-                return catalogs.get(0).getCourseType();
+                return catalogs.get(0);
             }
         }
 
+        return null;
+    }
+
+    private CourseType getCourseType(Catalog catalog) {
+        if (catalog != null) {
+            return catalog.getCourseType();
+        }
         return courseTypeRepository.getByName("이수구분선택");
+    }
+
+    private GeneralEducationArea getGeneralEducationArea(Catalog catalog) {
+        if (catalog != null) {
+            if (catalog.getGeneralEducationArea() != null) {
+                return catalog.getGeneralEducationArea();
+            }
+        }
+        return null;
     }
 }
