@@ -29,7 +29,6 @@ public interface LectureApiV3 {
     @GetMapping("/v3/lectures")
     ResponseEntity<List<LectureResponseV3>> getLectures(
         @RequestParam(name = "year") Integer year,
-        @RequestParam(name = "term") String term,
-        @UserId Integer userId
+        @RequestParam(name = "term") String term
     );
 }

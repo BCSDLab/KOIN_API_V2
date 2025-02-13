@@ -34,7 +34,7 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
 
     Optional<List<Catalog>> findAllByCourseTypeId(Integer courseTypeId);
 
-    Optional<Catalog> findByYearAndCode(String year, String code);
+    List<Catalog> findByYearAndCode(String year, String code);
 
     Optional<Catalog> findByYearAndCodeAndLectureName(String year, String code, String lectureName);
 

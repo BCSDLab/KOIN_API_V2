@@ -56,10 +56,7 @@ public record LectureResponseV3(
     String isElearning,
 
     @Schema(description = "강의 정보", requiredMode = REQUIRED)
-    List<LectureInfo> lectureInfos,
-
-    @Schema(description = "이수 구분", example = "교양선택", requiredMode = REQUIRED)
-    String courseType
+    List<LectureInfo> lectureInfos
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record LectureInfo(
@@ -101,7 +98,7 @@ public record LectureResponseV3(
         }
     }
 
-    public static LectureResponseV3 of(Lecture lecture, CourseType courseType) {
+    public static LectureResponseV3 of(Lecture lecture) {
         return new LectureResponseV3(
             lecture.getId(),
             lecture.getCode(),
@@ -115,15 +112,7 @@ public record LectureResponseV3(
             lecture.getIsEnglish(),
             lecture.getDesignScore(),
             lecture.getIsElearning(),
-            LectureInfo.from(lecture.getClassTime()),
-            getCourseType(courseType)
+            LectureInfo.from(lecture.getClassTime())
         );
-    }
-
-    private static String getCourseType(CourseType courseType) {
-        if (Objects.isNull(courseType)) {
-            return "";
-        }
-        return courseType.getName();
     }
 }

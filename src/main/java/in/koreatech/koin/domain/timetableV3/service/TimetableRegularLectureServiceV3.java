@@ -68,12 +68,11 @@ public class TimetableRegularLectureServiceV3 {
 
         final int currentYear = LocalDateTime.now().getYear();
         for (int initStudentNumberYear = 2019; initStudentNumberYear <= currentYear; initStudentNumberYear++) {
-            Catalog catalog = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
-                    lecture.getCode())
-                .orElse(null);
+            catalogs = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
+                lecture.getCode());
 
-            if (!Objects.isNull(catalog)) {
-                return catalog.getCourseType();
+            if (!Objects.isNull(catalogs)) {
+                return catalogs.get(0).getCourseType();
             }
         }
 

@@ -21,10 +21,9 @@ public class LectureControllerV3 implements LectureApiV3 {
     @GetMapping("/v3/lectures")
     public ResponseEntity<List<LectureResponseV3>> getLectures(
         @RequestParam(name = "year") Integer year,
-        @RequestParam(name = "term") String term,
-        @UserId Integer userId
+        @RequestParam(name = "term") String term
     ) {
-        List<LectureResponseV3> response = lectureServiceV3.getLectures(year, term, userId);
+        List<LectureResponseV3> response = lectureServiceV3.getLectures(year, term);
         return ResponseEntity.ok(response);
     }
 }
