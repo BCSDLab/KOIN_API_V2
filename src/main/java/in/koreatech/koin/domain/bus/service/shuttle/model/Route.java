@@ -10,12 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.springframework.data.mongodb.core.mapping.Field;
-
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
+import in.koreatech.koin.domain.bus.enums.BusStation;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.enums.BusStation;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,13 +24,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Route {
 
-    @Field("route_name")
     private String routeName;
 
-    @Field("running_days")
+    private ShuttleRouteType routeType;
+
+    private String direction;
+
     private List<String> runningDays = new ArrayList<>();
 
-    @Field("arrival_info")
     private List<ArrivalNode> arrivalInfos = new ArrayList<>();
 
     public boolean isRunning(Clock clock) {
@@ -61,7 +61,7 @@ public class Route {
 
     public BusRemainTime getRemainTime(BusStation busStation) {
         ArrivalNode convertedNode = convertToArrivalNode(busStation);
-        return BusRemainTime.from(convertedNode.arrivalTime);
+        return BusRemainTime.from(convertedNode.getArrivalTime());
     }
 
     private ArrivalNode convertToArrivalNode(BusStation busStation) {
@@ -119,25 +119,17 @@ public class Route {
     }
 
     @Builder
-    private Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
+    private Route(
+        String routeName,
+        ShuttleRouteType routeType,
+        String direction,
+        List<String> runningDays,
+        List<ArrivalNode> arrivalInfos
+    ) {
         this.routeName = routeName;
+        this.routeType = routeType;
+        this.direction = direction;
         this.runningDays = runningDays;
         this.arrivalInfos = arrivalInfos;
-    }
-
-    @Getter
-    public static class ArrivalNode {
-
-        @Field("node_name")
-        private String nodeName;
-
-        @Field("arrival_time")
-        private String arrivalTime;
-
-        @Builder
-        private ArrivalNode(String nodeName, String arrivalTime) {
-            this.nodeName = nodeName;
-            this.arrivalTime = arrivalTime;
-        }
     }
 }

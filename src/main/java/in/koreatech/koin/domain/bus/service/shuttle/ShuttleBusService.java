@@ -1,10 +1,9 @@
 package in.koreatech.koin.domain.bus.service.shuttle;
 
-import static in.koreatech.koin.domain.bus.enums.BusType.COMMUTING;
-import static in.koreatech.koin.domain.bus.enums.BusType.SHUTTLE;
 import static in.koreatech.koin.domain.bus.enums.ShuttleBusRegion.CHEONAN_ASAN;
 import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKDAYS;
 import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKEND;
+import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.SHUTTLE;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -30,6 +29,7 @@ import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.service.shuttle.dto.ShuttleBusRoutesResponse;
 import in.koreatech.koin.domain.bus.service.shuttle.dto.ShuttleBusTimetableResponse;
+import in.koreatech.koin.domain.bus.service.shuttle.model.ArrivalNode;
 import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
 import in.koreatech.koin.domain.bus.service.shuttle.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
@@ -68,15 +68,7 @@ public class ShuttleBusService {
     }
 
     public List<BusRemainTime> getShuttleBusRemainTimes(BusType busType, BusStation depart, BusStation arrival) {
-        List<ShuttleBusRoute> shuttleBusRoutes = new ArrayList<>();
-        if (busType.equals(COMMUTING)) {
-            shuttleBusRoutes.addAll(shuttleBusRepository.findAllByRouteType(ShuttleRouteType.WEEKDAYS));
-        }
-        if (busType.equals(SHUTTLE)) {
-            shuttleBusRoutes.addAll(shuttleBusRepository.findAllByRouteType(ShuttleRouteType.WEEKEND));
-            shuttleBusRoutes.addAll(shuttleBusRepository.findAllByRouteType(ShuttleRouteType.SHUTTLE));
-        }
-
+        List<ShuttleBusRoute> shuttleBusRoutes = getShuttleBusRoutes(busType);
         List<List<Route>> routeList = shuttleBusRoutes.stream()
             .map(this::routeConvertor)
             .toList();
@@ -93,82 +85,25 @@ public class ShuttleBusService {
             .toList();
     }
 
-    private List<Route> routeConvertor(ShuttleBusRoute shuttleBusRoute) {
-        return shuttleBusRoute.getRouteInfo().stream()
-            .map(routeInfo ->
-                Route.builder()
-                    .routeName(shuttleBusRoute.getRouteName())
-                    .runningDays(routeInfo.getRunningDays())
-                    .arrivalInfos(
-                        IntStream.range(0, routeInfo.getArrivalTime().size()).mapToObj(i ->
-                                Route.ArrivalNode.builder()
-                                    .nodeName(shuttleBusRoute.getNodeInfo().get(i).getName())
-                                    .arrivalTime(routeInfo.getArrivalTime().get(i))
-                                    .build())
-                            .toList())
-                    .build())
-            .toList();
-    }
-
     public List<SchoolBusTimetable> getSchoolBusTimetables(BusType busType, String direction, String region) {
-        List<SchoolBusTimetable> timetableList = new ArrayList<>();
-
-        // 기존 요청으로 최신 db에 맞는 요청으로 변환
         ShuttleRouteName routeName = ShuttleRouteName.getRegionByLegacy(busType, region);
         String semester = versionService.getVersionEntity("shuttle_bus_timetable").getTitle();
+        String busDirection = BusDirection.from(direction).getName();
 
-        // ex) 통학-천안 다 가져오기
-        List<ShuttleBusRoute> shuttleBusRoutes = routeName.getNewBusType().stream()
-            .map(routeType -> shuttleBusRepository.findAllByRegionAndRouteTypeAndSemesterType(
-                routeName.getNewRegionName(), routeType, semester))
-            .flatMap(List::stream)
+        List<Route> routes = routeName.getNewBusType().stream()
+            .flatMap(routeType -> shuttleBusRepository.findAllByRegionAndRouteTypeAndSemesterType(
+                routeName.getNewRegionName(), routeType, semester).stream())
+            .flatMap(route -> routeConvertor(route).stream())
+            .filter(route -> route.getDirection().equals(busDirection))
             .toList();
 
-        // to -> 하교 / from -> 등교 변환
-        BusDirection busDirection = BusDirection.from(direction);
-
-        // 등교/하교 필터링 필요
-        for (var shuttleBusRoute : shuttleBusRoutes) {
-            List<String> nodeInfo = shuttleBusRoute.getNodeInfo().stream()
-                .map(ShuttleBusRoute.NodeInfo::getName)
-                .toList();
-            List<ShuttleBusRoute.RouteInfo> routeInfos = new ArrayList<>();
-
-            if (busType.equals(COMMUTING)) {
-                routeInfos.addAll(shuttleBusRoute.getRouteInfo().stream()
-                    .filter(direct -> direct.getName().equals(busDirection.getName()))
-                    .toList());
-            }
-            if (busType.equals(SHUTTLE)) {
-                if (shuttleBusRoute.getRouteName().contains("일학습병행대학")) {
-                    routeInfos.addAll(shuttleBusRoute.getRouteInfo().stream()
-                        .filter(direct -> direct.getName().equals(busDirection.getName()))
-                        .toList());
-                } else {
-                    routeInfos.addAll(shuttleBusRoute.getRouteInfo().stream()
-                        .filter(
-                            direct -> (direct.getArrivalTime().get(0) == null) == busDirection.isReverseDirection(
-                                "하교"))
-                        .toList());
-                }
-            }
-
-            for (var routeInfo : routeInfos) {
-                List<SchoolBusTimetable.ArrivalNode> arrivalNodes = new ArrayList<>();
-                for (int i = 0; i < routeInfo.getArrivalTime().size(); i++) {
-                    arrivalNodes.add(new SchoolBusTimetable.ArrivalNode(nodeInfo.get(i),
-                        routeInfo.getArrivalTime().get(i)));
-                }
-                timetableList.add(new SchoolBusTimetable(shuttleBusRoute.getRouteName(), arrivalNodes));
-            }
-        }
-
-        return timetableList;
+        return routes.stream()
+            .map(route -> new SchoolBusTimetable(route.getRouteName(), route.getArrivalInfos()))
+            .toList();
     }
 
     public SingleBusTimeResponse searchShuttleBusTime(BusStation depart, BusStation arrival, BusType busType,
         LocalDateTime targetTime) {
-        SingleBusTimeResponse busTimeResponse;
         ZonedDateTime zonedAt = targetTime.atZone(clock.getZone());
         Clock clockAt = Clock.fixed(zonedAt.toInstant(), zonedAt.getZone());
 
@@ -176,17 +111,8 @@ public class ShuttleBusService {
             .getDisplayName(TextStyle.SHORT, Locale.US)
             .toUpperCase();
 
-        List<ShuttleBusRoute> busRoutes = new ArrayList<>();
-        if (busType.equals(COMMUTING)) {
-            busRoutes.addAll(shuttleBusRepository.findAllByRouteType(WEEKDAYS));
-        }
-        if (busType.equals(SHUTTLE)) {
-            for (var shuttleBusType : List.of(ShuttleRouteType.SHUTTLE, WEEKEND)) {
-                busRoutes.addAll(shuttleBusRepository.findAllByRouteType(shuttleBusType));
-            }
-        }
-
-        LocalTime arrivalTime = busRoutes.stream()
+        List<ShuttleBusRoute> routeList = getShuttleBusRoutes(busType);
+        LocalTime arrivalTime = routeList.stream()
             .filter(busRoute -> busRoute.getRegion().equals(CHEONAN_ASAN))
             .map(this::routeConvertor)
             .flatMap(routes ->
@@ -200,11 +126,53 @@ public class ShuttleBusService {
                     )
             )
             .min(Comparator.comparing(o -> LocalTime.parse(o.getArrivalTime())))
-            .map(Route.ArrivalNode::getArrivalTime)
+            .map(ArrivalNode::getArrivalTime)
             .map(LocalTime::parse)
             .orElse(null);
 
-        busTimeResponse = new SingleBusTimeResponse(busType.getName(), arrivalTime);
-        return busTimeResponse;
+        return new SingleBusTimeResponse(busType.getName(), arrivalTime);
+    }
+
+    private List<ShuttleBusRoute> getShuttleBusRoutes(BusType busType) {
+        List<ShuttleBusRoute> routes = new ArrayList<>();
+        if (busType.equals(BusType.COMMUTING)) {
+            routes.addAll(shuttleBusRepository.findAllByRouteType(WEEKDAYS));
+        }
+        if (busType.equals(BusType.SHUTTLE)) {
+            for (var shuttleBusType : List.of(SHUTTLE, WEEKEND)) {
+                routes.addAll(shuttleBusRepository.findAllByRouteType(shuttleBusType));
+            }
+        }
+        return routes;
+    }
+
+    private List<Route> routeConvertor(ShuttleBusRoute shuttleBusRoute) {
+        return shuttleBusRoute.getRouteInfo().stream()
+            .map(routeInfo ->
+                Route.builder()
+                    .routeName(shuttleBusRoute.getRouteName())
+                    .routeType(shuttleBusRoute.getRouteType())
+                    .direction(extractDirection(shuttleBusRoute, routeInfo))
+                    .runningDays(routeInfo.getRunningDays())
+                    .arrivalInfos(
+                        IntStream.range(0, routeInfo.getArrivalTime().size()).mapToObj(i ->
+                                ArrivalNode.builder()
+                                    .nodeName(shuttleBusRoute.getNodeInfo().get(i).getName())
+                                    .arrivalTime(routeInfo.getArrivalTime().get(i))
+                                    .build())
+                            .toList())
+                    .build())
+            .toList();
+    }
+
+    private String extractDirection(ShuttleBusRoute busRoute, ShuttleBusRoute.RouteInfo routeInfo) {
+        ShuttleRouteType busType = busRoute.getRouteType();
+        if (busType.equals(WEEKDAYS)) {
+            return routeInfo.getName();
+        }
+        if (busType.equals(WEEKEND)) {
+            return routeInfo.getDetail();
+        }
+        return routeInfo.getArrivalTime().get(0) == null ? "등교" : "하교";
     }
 }

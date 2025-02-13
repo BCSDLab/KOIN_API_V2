@@ -18,16 +18,4 @@ public class SchoolBusTimetable extends BusTimetable {
         this.routeName = routeName;
         this.arrivalInfo = arrivalInfo;
     }
-
-    @Getter
-    @JsonNaming(value = SnakeCaseStrategy.class)
-    public static class ArrivalNode {
-        private final String nodeName;
-        private final String arrivalTime;
-
-        public ArrivalNode(String nodeName, String arrivalTime) {
-            this.nodeName = nodeName;
-            this.arrivalTime = arrivalTime;
-        }
-    }
 }
