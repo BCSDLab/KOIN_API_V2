@@ -504,4 +504,8 @@ public class GraduationService {
 
         return CourseTypeLectureResponse.of(semester, lectures);
     }
+
+    public List<GeneralEducationArea> getAllGeneralEducationArea() {
+        return generalEducationAreaRepository.findAll();
+    }
 }
