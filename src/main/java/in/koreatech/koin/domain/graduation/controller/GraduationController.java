@@ -55,7 +55,7 @@ public class GraduationController implements GraduationApi {
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
         @RequestParam(name = "name") String courseTypeName,
-        @RequestParam(name = "generalEducationArea", required = false) String generalEducationAreaName,
+        @RequestParam(name = "general_education_area", required = false) String generalEducationAreaName,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         CourseTypeLectureResponse response = graduationService.getLectureByCourseType(year, term,
@@ -70,7 +70,7 @@ public class GraduationController implements GraduationApi {
         }
     )
     @Operation(summary = "교양영역 전체 조회")
-    @GetMapping("/graduation/general-education-area")
+    @GetMapping("/general-education-area")
     public ResponseEntity<List<GeneralEducationArea>> getCourseTypeLecture() {
         List<GeneralEducationArea> response = graduationService.getAllGeneralEducationArea();
         return ResponseEntity.ok(response);

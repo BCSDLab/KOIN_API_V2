@@ -70,7 +70,7 @@ public interface GraduationApi {
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
         @RequestParam(name = "name") String courseTypeName,
-        @RequestParam(name = "generalEducationArea", required = false) String generalEducationAreaName,
+        @RequestParam(name = "general_education_area", required = false) String generalEducationAreaName,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -81,6 +81,6 @@ public interface GraduationApi {
         }
     )
     @Operation(summary = "교양영역 전체 조회")
-    @GetMapping("/graduation/general-education-area")
+    @GetMapping("/general-education-area")
     ResponseEntity<List<GeneralEducationArea>> getCourseTypeLecture();
 }
