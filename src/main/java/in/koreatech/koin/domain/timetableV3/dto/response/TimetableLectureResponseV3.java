@@ -71,7 +71,10 @@ public record TimetableLectureResponseV3(
         String department,
 
         @Schema(description = "이수구분", example = "전공필수", requiredMode = NOT_REQUIRED)
-        String courseType
+        String courseType,
+
+        @Schema(description = "교양영역", example = "", requiredMode = NOT_REQUIRED)
+        String generalEducationArea
     ) {
         public static List<InnerTimetableLectureResponseV3> from(List<TimetableLecture> timetableLectures) {
             List<InnerTimetableLectureResponseV3> InnerTimetableLectureResponses = new ArrayList<>();
@@ -96,7 +99,8 @@ public record TimetableLectureResponseV3(
                         null,
                         timetableLecture.getProfessor(),
                         null,
-                        getCourseType(timetableLecture)
+                        getCourseType(timetableLecture),
+                        getGeneralEducationArea(timetableLecture)
                     );
                 } else {
                     responseV3 = new InnerTimetableLectureResponseV3(
@@ -114,7 +118,8 @@ public record TimetableLectureResponseV3(
                         lecture.getTarget(),
                         lecture.getProfessor(),
                         lecture.getDepartment(),
-                        getCourseType(timetableLecture)
+                        getCourseType(timetableLecture),
+                        getGeneralEducationArea(timetableLecture)
                     );
                 }
                 InnerTimetableLectureResponses.add(responseV3);
@@ -124,9 +129,16 @@ public record TimetableLectureResponseV3(
 
         private static String getCourseType(TimetableLecture timetableLecture) {
             if (Objects.isNull(timetableLecture.getCourseType())) {
-                return null;
+                return "";
             }
             return timetableLecture.getCourseType().getName();
+        }
+
+        private static String getGeneralEducationArea(TimetableLecture timetableLecture) {
+            if (timetableLecture.getGeneralEducationArea() == null) {
+                return "";
+            }
+            return timetableLecture.getGeneralEducationArea().getName();
         }
     }
 
