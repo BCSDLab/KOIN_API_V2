@@ -65,7 +65,8 @@ public class Student {
         Department department,
         UserIdentity userIdentity,
         boolean isGraduated,
-        User user
+        User user,
+        Major major
     ) {
         this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
@@ -73,6 +74,7 @@ public class Student {
         this.userIdentity = userIdentity;
         this.isGraduated = isGraduated;
         this.user = user;
+        this.major = major;
     }
 
     public void updateInfo(String studentNumber, Department department) {

@@ -98,6 +98,7 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
+        Department department = departmentRepository.getByName(request.major());
         Major oldMajor = student.getMajor();
         Major newMajor = majorRepository.getByName(request.major());
         // 전공 변경 시 학생의 졸업 요건 계산 정보 초기화
@@ -107,6 +108,7 @@ public class StudentService {
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updateStudentPassword(passwordEncoder, request.password());
         student.updateInfo(request.studentNumber(), newMajor);
+        student.updateInfo(request.studentNumber(), department);
 
         return StudentUpdateResponse.from(student);
     }
