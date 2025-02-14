@@ -58,7 +58,10 @@ public class OwnerSmsService {
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         ownerValidator.validateExistCompanyNumber(request.companyNumber());
         Owner saved = ownerRepository.save(request.toOwner(passwordEncoder));
-        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(saved.getId());
+        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder()
+            .ownerId(saved.getId())
+            .shopName(request.shopName())
+            .shopNumber(request.shopNumber());
         ownerUtilService.setShopId(request.shopId(), ownerShopBuilder);
         ownerShopRedisRepository.save(ownerShopBuilder.build());
         ownerInVerificationRedisRepository.deleteByVerify(saved.getUser().getPhoneNumber());
