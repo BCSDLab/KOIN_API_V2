@@ -36,9 +36,9 @@ public class OwnerUtilService {
         return savedToken.getRefreshToken();
     }
 
-    public void existShopId(Integer shopId) {
+    public void validateExistShopId(Integer shopId) {
         if (shopId != null) {
-            shopRepository.getById(shopId);
+            shopRepository.existsById(shopId);
         }
     }
 
