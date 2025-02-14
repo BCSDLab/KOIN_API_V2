@@ -38,7 +38,7 @@ public class OwnerUtilService {
 
     public void validateExistShopId(Integer shopId) {
         if (shopId != null) {
-            shopRepository.existsById(shopId);
+            shopRepository.existsByShopId(shopId);
         }
     }
 

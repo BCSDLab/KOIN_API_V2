@@ -19,6 +19,13 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     boolean existsById(Integer shopId);
 
+    default boolean existsByShopId(Integer shopId) {
+        if (!existsById(shopId)) {
+            throw ShopNotFoundException.withDetail("shopId: " + shopId);
+        }
+        return true;
+    }
+
     List<Shop> findAllByOwnerId(Integer ownerId);
 
     Optional<Shop> findById(Integer shopId);
