@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.fixture.DepartmentFixture;
+import in.koreatech.koin.fixture.MajorFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -47,6 +48,9 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MajorFixture majorFixture;
 
     @BeforeAll
     void setup() {
@@ -227,6 +231,10 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_특정_학생_정보를_수정한다() throws Exception {
+        departmentFixture.전체학부();
+        majorFixture.컴퓨터공학전공();
+        majorFixture.기계공학전공();
+
         Student student = userFixture.준호_학생();
 
         Admin adminUser = userFixture.코인_운영자();
