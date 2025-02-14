@@ -72,7 +72,7 @@ public class TimetableLectureCreator {
             catalogs = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
                 lecture.getCode());
 
-            if (!Objects.isNull(catalogs)) {
+            if (!catalogs.isEmpty()) {
                 return catalogs.get(0);
             }
         }
