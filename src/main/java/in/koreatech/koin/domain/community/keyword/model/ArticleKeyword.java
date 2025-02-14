@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -22,6 +24,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Where(clause = "is_deleted = 0")
 @Table(name = "article_keywords")
 @NoArgsConstructor(access = PROTECTED)
 public class ArticleKeyword extends BaseEntity {
@@ -39,6 +42,9 @@ public class ArticleKeyword extends BaseEntity {
     @Column(name = "is_filtered", nullable = false)
     private Boolean isFiltered = false;
 
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+
     @OneToMany(mappedBy = "articleKeyword", cascade = CascadeType.PERSIST)
     private List<ArticleKeywordUserMap> articleKeywordUserMaps = new ArrayList<>();
 
@@ -50,13 +56,6 @@ public class ArticleKeyword extends BaseEntity {
     }
 
     public void addUserMap(ArticleKeywordUserMap keywordUserMap) {
-        boolean isDuplicate = articleKeywordUserMaps.stream()
-            .anyMatch(map -> map.getUser().equals(keywordUserMap.getUser()));
-
-        if (isDuplicate) {
-            throw new KeywordDuplicationException("해당 키워드는 이미 등록되었습니다.");
-        }
-
         articleKeywordUserMaps.add(keywordUserMap);
         updateLastUsedAt();
     }
@@ -67,5 +66,14 @@ public class ArticleKeyword extends BaseEntity {
 
     public void applyFiltered(Boolean isFiltered) {
         this.isFiltered = isFiltered;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    public void restore() {
+        this.isDeleted = false;
+        this.lastUsedAt = LocalDateTime.now();
     }
 }
