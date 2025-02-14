@@ -11,6 +11,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,21 +33,25 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "lost_item_articles")
+@Table(name = "lost_item_articles", schema = "koin")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LostItemArticle {
+public class LostItemArticle extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "article_id", nullable = false)
+    @JoinColumn(name = "article_id", referencedColumnName = "id", nullable = false)
     private Article article;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private User author;
+
+    @NotNull
+    @Column(name = "type", nullable = false)
+    private String type;
 
     @NotNull
     @Column(name = "category", nullable = false)
@@ -65,7 +70,10 @@ public class LostItemArticle {
     private List<LostItemImage> images = new ArrayList<>();
 
     @NotNull
-    @ColumnDefault("0")
+    @Column(name = "is_council", nullable = false)
+    private Boolean isCouncil = false;
+
+    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
@@ -77,18 +85,22 @@ public class LostItemArticle {
     public LostItemArticle(
         Article article,
         User author,
+        String type,
         String category,
         String foundPlace,
         LocalDate foundDate,
         List<LostItemImage> images,
+        Boolean isCouncil,
         Boolean isDeleted
     ) {
         this.article = article;
         this.author = author;
+        this.type = type;
         this.category = category;
         this.foundPlace = foundPlace;
         this.foundDate = foundDate;
         this.images = images;
+        this.isCouncil = isCouncil;
         this.isDeleted = isDeleted;
     }
 
@@ -102,6 +114,10 @@ public class LostItemArticle {
 
     public void setArticle(Article article) {
         this.article = article;
+    }
+
+    public void setIsCouncil() {
+        this.isCouncil = true;
     }
 
     public String generateTitle() {

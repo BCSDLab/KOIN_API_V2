@@ -25,16 +25,18 @@ public class LostItemArticleReader {
     }
 
     public ArticleSummary getArticleSummary(Integer articleId) {
-        LostItemArticle lostItemArticle = readByArticleId(articleId);
-        String title = lostItemArticle.getArticle().getTitle();
-        String imageUrl = (lostItemArticle.getImages() != null && !lostItemArticle.getImages().isEmpty())
-            ? lostItemArticle.getImages().get(0).getImageUrl()
-            : null;
-
-        return ArticleSummary.builder()
-            .articleTitle(title)
-            .itemImage(imageUrl)
-            .build();
+        return lostItemArticleRepository.findByArticleId(articleId)
+            .map(lostItemArticle -> {
+                String title = lostItemArticle.getArticle().getTitle();
+                String imageUrl = (lostItemArticle.getImages() != null && !lostItemArticle.getImages().isEmpty())
+                    ? lostItemArticle.getImages().get(0).getImageUrl()
+                    : null;
+                return ArticleSummary.builder()
+                    .articleTitle(title)
+                    .itemImage(imageUrl)
+                    .build();
+            })
+            .orElse(null);
     }
 
     @Getter

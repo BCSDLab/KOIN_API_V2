@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
@@ -53,6 +54,9 @@ public record LostItemArticlesResponse(
         @Schema(description = "게시판 id", example = "14", requiredMode = REQUIRED)
         Integer boardId,
 
+        @Schema(description = "게시글 타입", example = "LOST", requiredMode = NOT_REQUIRED)
+        String type,
+
         @Schema(description = "분실물 종류", example = "신분증", requiredMode = REQUIRED)
         String category,
 
@@ -71,7 +75,7 @@ public record LostItemArticlesResponse(
         @Schema(description = "등록일", example = "2025-01-10", requiredMode = REQUIRED)
         LocalDate registeredAt,
 
-        @Schema(description = "처리되지 않은 신고 존재 여부", example = "true", requiredMode = REQUIRED)
+        @Schema(description = "처리되지 않은 자신의 신고 존재 여부", example = "true", requiredMode = REQUIRED)
         Boolean isReported
     ) {
 
@@ -80,6 +84,7 @@ public record LostItemArticlesResponse(
             return new InnerLostItemArticleResponse(
                 article.getId(),
                 article.getBoard().getId(),
+                lostItemArticle.getType(),
                 lostItemArticle.getCategory(),
                 lostItemArticle.getFoundPlace(),
                 lostItemArticle.getFoundDate(),

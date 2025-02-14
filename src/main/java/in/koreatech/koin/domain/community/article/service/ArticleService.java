@@ -1,5 +1,24 @@
 package in.koreatech.koin.domain.community.article.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
@@ -27,24 +46,11 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -87,20 +93,20 @@ public class ArticleService {
         return ArticleResponse.of(article);
     }
 
-    public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
+    public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
         Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         if (boardId == null) {
             Page<Article> articles = articleRepository.findAll(pageRequest);
-            return ArticlesResponse.of(articles, criteria);
+            return ArticlesResponse.of(articles, criteria, userId);
         }
         if (boardId == NOTICE_BOARD_ID) {
             Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
-            return ArticlesResponse.of(articles, criteria);
+            return ArticlesResponse.of(articles, criteria, userId);
         }
         Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
-        return ArticlesResponse.of(articles, criteria);
+        return ArticlesResponse.of(articles, criteria, userId);
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
@@ -120,7 +126,7 @@ public class ArticleService {
 
     @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
-        String ipAddress) {
+        String ipAddress, Integer userId) {
         if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
             throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
         }
@@ -138,7 +144,7 @@ public class ArticleService {
 
         saveOrUpdateSearchLog(query, ipAddress);
 
-        return ArticlesResponse.of(articles, criteria);
+        return ArticlesResponse.of(articles, criteria, userId);
     }
 
     public ArticleHotKeywordResponse getArticlesHotKeyword(Integer count) {
@@ -275,11 +281,15 @@ public class ArticleService {
                     int secondWeight = 0;
 
                     // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
-                    if (first.getTitle().contains("사과")) firstWeight++;
-                    if (first.getTitle().contains("긴급")) firstWeight--;
+                    if (first.getTitle().contains("사과"))
+                        firstWeight++;
+                    if (first.getTitle().contains("긴급"))
+                        firstWeight--;
 
-                    if (second.getTitle().contains("사과")) secondWeight++;
-                    if (second.getTitle().contains("긴급")) secondWeight--;
+                    if (second.getTitle().contains("사과"))
+                        secondWeight++;
+                    if (second.getTitle().contains("긴급"))
+                        secondWeight--;
 
                     return Integer.compare(firstWeight, secondWeight);
                 })
@@ -288,43 +298,58 @@ public class ArticleService {
         busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
     }
 
-    public LostItemArticlesResponse getLostItemArticles(Integer page, Integer limit, Integer userId) {
+    public LostItemArticlesResponse getLostItemArticles(String type, Integer page, Integer limit, Integer userId) {
         Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
-        Page<Article> articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+        Page<Article> articles;
+
+        if (type == null) {
+            articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+        } else {
+            articles = articleRepository.findAllByLostItemArticleType(type, pageRequest);
+        }
+
         return LostItemArticlesResponse.of(articles, criteria, userId);
     }
 
-    public LostItemArticleResponse getLostItemArticle(Integer articleId) {
+    public LostItemArticleResponse getLostItemArticle(Integer articleId, Integer userId) {
         Article article = articleRepository.getById(articleId);
         setPrevNextArticle(LOST_ITEM_BOARD_ID, article);
-        return LostItemArticleResponse.from(article);
+
+        boolean isMine = false;
+        User author = article.getLostItemArticle().getAuthor();
+        if (Objects.equals(author.getId(), userId)) {
+            isMine = true;
+        }
+
+        return LostItemArticleResponse.of(article, isMine);
     }
 
     @Transactional
     public LostItemArticleResponse createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
         Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
-        List<Article> newArticles = new ArrayList<>();
         User user = userRepository.getById(userId);
-        requests.articles()
-            .forEach(article -> {
-                    Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
-                    articleRepository.save(lostItemArticle);
-                    newArticles.add(lostItemArticle);
-                }
-            );
+        List<Article> newArticles = new ArrayList<>();
+
+        for (var article : requests.articles()) {
+            Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
+            articleRepository.save(lostItemArticle);
+            newArticles.add(lostItemArticle);
+        }
+
         sendKeywordNotification(newArticles);
-        return LostItemArticleResponse.from(newArticles.get(0));
+        return LostItemArticleResponse.of(newArticles.get(0), true);
     }
 
     @Transactional
-    public void deleteLostItemArticle(Integer articleId) {
-        Optional<Article> foundArticle = articleRepository.findById(articleId);
-        if (foundArticle.isEmpty()) {
-            return;
+    public void deleteLostItemArticle(Integer articleId, Integer userId) {
+        Article foundArticle = articleRepository.getById(articleId);
+        User author = foundArticle.getLostItemArticle().getAuthor();
+        if (!Objects.equals(author.getId(), userId)) {
+            throw AuthorizationException.withDetail("userId: " + userId);
         }
-        foundArticle.get().delete();
+        foundArticle.delete();
     }
 
     private void setPrevNextArticle(Integer boardId, Article article) {

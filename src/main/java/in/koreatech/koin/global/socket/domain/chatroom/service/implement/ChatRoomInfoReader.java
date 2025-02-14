@@ -21,6 +21,10 @@ public class ChatRoomInfoReader {
         return chatRoomInfoRepository.findByArticleIdAndOwnerId(articleId, ownerId);
     }
 
+    public LostItemChatRoomInfoEntity readByArticleIdAndChatRoomId(Integer articleId, Integer chatRoomId) {
+        return chatRoomInfoRepository.getByArticleIdAndChatRoomId(articleId, chatRoomId);
+    }
+
     public List<LostItemChatRoomInfoEntity> readByUserId(Integer userId) {
         return chatRoomInfoRepository.findByUserId(userId);
     }
