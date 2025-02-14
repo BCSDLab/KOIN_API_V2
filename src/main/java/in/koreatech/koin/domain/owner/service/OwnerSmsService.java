@@ -57,15 +57,15 @@ public class OwnerSmsService {
     public void registerByPhone(OwnerRegisterByPhoneRequest request) {
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         ownerValidator.validateExistCompanyNumber(request.companyNumber());
-        Owner saved = ownerRepository.save(request.toOwner(passwordEncoder));
+        Owner savedOwner = ownerRepository.save(request.toOwner(passwordEncoder));
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder()
-            .ownerId(saved.getId())
+            .ownerId(savedOwner.getId())
             .shopName(request.shopName())
             .shopNumber(request.shopNumber());
         ownerUtilService.setShopId(request.shopId(), ownerShopBuilder);
         ownerShopRedisRepository.save(ownerShopBuilder.build());
-        ownerInVerificationRedisRepository.deleteByVerify(saved.getUser().getPhoneNumber());
-        ownerUtilService.sendSlackNotification(saved);
+        ownerInVerificationRedisRepository.deleteByVerify(savedOwner.getUser().getPhoneNumber());
+        ownerUtilService.sendSlackNotification(savedOwner);
     }
 
     @Transactional

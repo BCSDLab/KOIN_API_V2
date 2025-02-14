@@ -17,7 +17,12 @@ public class OwnerShop {
     private String shopNumber;
 
     @Builder
-    private OwnerShop(Integer ownerId, Integer shopId, String shopName, String shopNumber) {
+    private OwnerShop(
+        Integer ownerId,
+        Integer shopId,
+        String shopName,
+        String shopNumber
+    ) {
         this.ownerId = ownerId;
         this.shopId = shopId;
         this.shopName = shopName;
