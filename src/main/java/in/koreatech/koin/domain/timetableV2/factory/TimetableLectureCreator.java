@@ -38,7 +38,7 @@ public class TimetableLectureCreator {
         for (InnerTimeTableLectureRequest lectureRequest : request.timetableLecture()) {
             Lecture lecture = determineLecture(lectureRequest.lectureId());
             Catalog catalog = getCatalog(lecture, userId);
-            CourseType courseType = getCourseType(catalog);
+            CourseType courseType = lecture == null ? null : getCourseType(catalog);
             GeneralEducationArea generalEducationArea = getGeneralEducationArea(catalog);
             TimetableLecture timetableLecture = lectureRequest.toTimetableLecture(frame, lecture, courseType,
                 generalEducationArea);
@@ -55,6 +55,9 @@ public class TimetableLectureCreator {
     }
 
     private Catalog getCatalog(Lecture lecture, Integer userId) {
+        if (lecture == null) {
+            return null;
+        }
         Student student = studentRepository.getById(userId);
         Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
 

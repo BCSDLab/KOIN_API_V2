@@ -94,6 +94,7 @@ public record TimetableLectureCreateRequest(
                 .professor(professor)
                 .memo(memo)
                 .isDeleted(false)
+                .grades(grades)
                 .lecture(lecture)
                 .timetableFrame(timetableFrame)
                 .courseType(courseType)

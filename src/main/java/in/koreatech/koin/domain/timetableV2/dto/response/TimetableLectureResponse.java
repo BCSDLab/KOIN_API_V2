@@ -73,7 +73,10 @@ public record TimetableLectureResponse(
         String department,
 
         @Schema(description = "이수 구분", example = "전공필수", requiredMode = NOT_REQUIRED)
-        String courseType
+        String courseType,
+
+        @Schema(description = "교양영역", example = "", requiredMode = NOT_REQUIRED)
+        String generalEducationArea
     ) {
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record ClassInfo(
@@ -166,7 +169,8 @@ public record TimetableLectureResponse(
                         null,
                         timetableLecture.getProfessor(),
                         null,
-                        getCourseType(timetableLecture)
+                        null,
+                        null
                     );
                 } else {
                     response = new InnerTimetableLectureResponse(
@@ -183,7 +187,8 @@ public record TimetableLectureResponse(
                         lecture.getTarget(),
                         getProfessor(timetableLecture, lecture),
                         lecture.getDepartment(),
-                        getCourseType(timetableLecture)
+                        getCourseType(timetableLecture),
+                        getGeneralEducationArea(timetableLecture)
                     );
                 }
                 timetableLectureList.add(response);
@@ -221,9 +226,16 @@ public record TimetableLectureResponse(
 
         private static String getCourseType(TimetableLecture timetableLecture) {
             if (Objects.isNull(timetableLecture.getCourseType())) {
-                return null;
+                return "이수구분선택";
             }
             return timetableLecture.getCourseType().getName();
+        }
+
+        private static String getGeneralEducationArea(TimetableLecture timetableLecture) {
+            if (timetableLecture.getGeneralEducationArea() == null) {
+                return "";
+            }
+            return timetableLecture.getGeneralEducationArea().getName();
         }
     }
 
