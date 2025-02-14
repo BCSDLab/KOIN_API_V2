@@ -13,7 +13,7 @@ import lombok.Getter;
 @RedisHash("passwordResetToken")
 public class PasswordResetToken {
 
-    private static final int RESET_TOKEN_EXPIRE_HOUR = 1;
+    private static final int RESET_TOKEN_EXPIRE_HOUR = 3600;
 
     @Id
     private Integer id;
@@ -21,7 +21,7 @@ public class PasswordResetToken {
     @Indexed
     private final String resetToken;
 
-    @TimeToLive(unit = TimeUnit.HOURS)
+    @TimeToLive(unit = TimeUnit.SECONDS)
     private int expiration;
 
     private PasswordResetToken(String resetToken, Integer id) {
@@ -30,7 +30,7 @@ public class PasswordResetToken {
         this.id = id;
     }
 
-    public static PasswordResetToken from(String resetToken, Integer id) {
+    public static PasswordResetToken of(String resetToken, Integer id) {
         return new PasswordResetToken(resetToken, id);
     }
 }
