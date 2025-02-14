@@ -30,6 +30,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
+import in.koreatech.koin.fixture.MajorFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
 
@@ -57,6 +58,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Autowired
     private DepartmentFixture departmentFixture;
+
+    @Autowired
+    private MajorFixture majorFixture;
 
     @BeforeAll
     void setup() {
@@ -139,6 +143,8 @@ public class StudentApiTest extends AcceptanceTest {
     @Test
     void 학생이_정보를_수정한다() throws Exception {
         departmentFixture.전체학부();
+        majorFixture.컴퓨터공학전공(departmentFixture.컴퓨터공학부());
+        majorFixture.기계공학전공(departmentFixture.기계공학부());
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 

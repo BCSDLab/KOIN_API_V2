@@ -117,7 +117,6 @@ public class SemesterApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "user_id": 1,
                     "semesters": [
                       "20201",
                       "20192"
@@ -201,7 +200,6 @@ public class SemesterApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "user_id": 1,
                     "semesters": [
                     {
                         "year": 2019,

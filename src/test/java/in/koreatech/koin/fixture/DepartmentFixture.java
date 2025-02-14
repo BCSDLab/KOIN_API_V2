@@ -43,4 +43,12 @@ public class DepartmentFixture {
                 .build()
         );
     }
+
+    public Department 기계공학부() {
+        return departmentRepository.save(
+            Department.builder()
+                .name("기계공학부")
+                .build()
+        );
+    }
 }
