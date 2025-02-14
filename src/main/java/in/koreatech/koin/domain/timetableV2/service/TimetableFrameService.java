@@ -70,7 +70,7 @@ public class TimetableFrameService {
     }
 
     public TimetableFramesResponse getAllTimetablesFrame(Integer userId) {
-        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findAllByUserId(userId);
+        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.getAllByUserId(userId);
         return TimetableFramesResponse.from(timetableFrames);
     }
 

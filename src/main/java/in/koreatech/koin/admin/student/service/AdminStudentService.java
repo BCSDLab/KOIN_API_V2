@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.student.repository.AdminDepartmentRepository;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.student.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.student.dto.AdminStudentUpdateRequest;
@@ -14,6 +15,7 @@ import in.koreatech.koin.admin.student.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.student.dto.StudentsCondition;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentDepartment;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
@@ -28,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminStudentService {
 
     private final AdminStudentRepository adminStudentRepository;
+    private final AdminDepartmentRepository adminDepartmentRepository;
     private final AdminUserRepository adminUserRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -55,7 +58,8 @@ public class AdminStudentService {
         user.update(adminRequest.nickname(), adminRequest.name(),
             adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updateStudentPassword(passwordEncoder, adminRequest.password());
-        student.updateInfo(adminRequest.studentNumber(), adminRequest.major());
+        Department department = adminDepartmentRepository.getByName(adminRequest.major());
+        student.updateInfo(adminRequest.studentNumber(), department);
         adminStudentRepository.save(student);
 
         return AdminStudentUpdateResponse.from(student);

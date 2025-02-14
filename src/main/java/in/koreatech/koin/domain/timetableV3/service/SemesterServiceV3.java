@@ -37,6 +37,6 @@ public class SemesterServiceV3 {
             .sorted(Comparator.comparing(Semester::getYear).reversed()
                 .thenComparing(semester -> semester.getTerm().getPriority()))
             .toList();
-        return SemesterCheckResponseV3.of(userId, semesters);
+        return SemesterCheckResponseV3.of(semesters);
     }
 }

@@ -15,11 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.Coop;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
 
@@ -39,6 +41,9 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @BeforeAll
     void setup() {
@@ -236,10 +241,11 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 로그인된_사용자의_권한을_조회한다() throws Exception {
+        Department department = departmentFixture.컴퓨터공학부();
         Student student = Student.builder()
             .studentNumber("2019136135")
             .anonymousNickname("익명")
-            .department("컴퓨터공학부")
+            .department(department)
             .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(

@@ -112,4 +112,6 @@ public class TimetableFrame extends BaseEntity {
     public void undelete() {
         this.isDeleted = false;
     }
+
+    public void cancelMain() { this.isMain = false; }
 }

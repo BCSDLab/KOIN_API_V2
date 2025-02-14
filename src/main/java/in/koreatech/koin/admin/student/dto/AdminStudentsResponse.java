@@ -33,7 +33,7 @@ public record AdminStudentsResponse(
             return new StudentInfo(
                 student.getUser().getEmail(),
                 student.getUser().getId(),
-                student.getDepartment(),
+                student.getDepartment().getName(),
                 student.getUser().getName(),
                 student.getUser().getNickname(),
                 student.getStudentNumber()
