@@ -38,4 +38,12 @@ public class CourseTypeFixture {
                 .build()
         );
     }
+
+    public CourseType 이수_구분_선택() {
+        return courseTypeRepository.save(
+            CourseType.builder()
+                .name("이수구분선택")
+                .build()
+        );
+    }
 }

@@ -50,6 +50,7 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
     private User user;
     private String token;
     private Semester semester;
+    private CourseType courseType;
 
     @BeforeAll
     void setup() {
@@ -57,6 +58,7 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
         user = userFixture.준호_학생().getUser();
         token = userFixture.getToken(user);
         semester = semesterFixture.semester_2019년도_2학기();
+        courseType = courseTypeFixture.이수_구분_선택();
     }
 
     @Test

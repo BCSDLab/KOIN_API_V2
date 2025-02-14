@@ -59,6 +59,9 @@ public class TimetableRegularLectureServiceV3 {
     }
 
     private Catalog getCatalog(Lecture lecture, Integer userId) {
+        if (lecture == null) {
+            return null;
+        }
         Student student = studentRepository.getById(userId);
         Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
 
@@ -73,7 +76,7 @@ public class TimetableRegularLectureServiceV3 {
             catalogs = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
                 lecture.getCode());
 
-            if (!Objects.isNull(catalogs)) {
+            if (!catalogs.isEmpty()) {
                 return catalogs.get(0);
             }
         }
