@@ -58,11 +58,13 @@ public class OwnerSmsService {
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         ownerValidator.validateExistCompanyNumber(request.companyNumber());
         Owner savedOwner = ownerRepository.save(request.toOwner(passwordEncoder));
+
+        ownerUtilService.existShopId(request.shopId());
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder()
             .ownerId(savedOwner.getId())
+            .shopId(request.shopId())
             .shopName(request.shopName())
             .shopNumber(request.shopNumber());
-        ownerUtilService.setShopId(request.shopId(), ownerShopBuilder);
         ownerShopRedisRepository.save(ownerShopBuilder.build());
         ownerInVerificationRedisRepository.deleteByVerify(savedOwner.getUser().getPhoneNumber());
         ownerUtilService.sendSlackNotification(savedOwner);

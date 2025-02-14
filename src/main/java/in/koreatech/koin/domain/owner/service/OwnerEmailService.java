@@ -39,8 +39,10 @@ public class OwnerEmailService {
         ownerValidator.validateExistCompanyNumber(request.companyNumber());
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         Owner savedOwner = ownerRepository.save(request.toOwner(passwordEncoder));
-        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(savedOwner.getId());
-        ownerUtilService.setShopId(request.shopId(), ownerShopBuilder);
+        ownerUtilService.existShopId(request.shopId());
+        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder()
+            .ownerId(savedOwner.getId())
+            .shopId(request.shopId());
         ownerShopRedisRepository.save(ownerShopBuilder.build());
         ownerUtilService.sendSlackNotification(savedOwner);
     }
