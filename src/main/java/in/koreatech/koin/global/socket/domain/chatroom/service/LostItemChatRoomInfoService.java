@@ -60,7 +60,7 @@ public class LostItemChatRoomInfoService {
                 var messageSummary = messageReader.getMessageSummary(entity.getArticleId(), entity.getChatRoomId(), userId);
                 var articleSummary = lostItemArticleReader.getArticleSummary(entity.getArticleId());
 
-                if (messageSummary == null) {
+                if (messageSummary == null || articleSummary == null) {
                     return null;
                 }
 
