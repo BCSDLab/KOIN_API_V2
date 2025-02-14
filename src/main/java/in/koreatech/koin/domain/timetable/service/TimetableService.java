@@ -70,62 +70,18 @@ public class TimetableService {
         for (TimetableCreateRequest.InnerTimetableRequest timeTable : request.timetable()) {
             Lecture lecture = lectureRepositoryV2.getBySemesterAndCodeAndLectureClass(request.semester(),
                 timeTable.code(), timeTable.lectureClass());
-            Catalog catalog = getCatalog(lecture, userId);
-            CourseType courseType = getCourseType(catalog);
-            GeneralEducationArea generalEducationArea = getGeneralEducationArea(catalog);
             TimetableLecture timetableLecture = TimetableLecture.builder()
                 .classPlace(timeTable.classPlace())
                 .grades("0")
                 .memo(timeTable.memo())
                 .lecture(lecture)
                 .timetableFrame(timetableFrame)
-                .courseType(courseType)
-                .generalEducationArea(generalEducationArea)
                 .build();
 
             timetableLectures.add(timetableLectureRepositoryV2.save(timetableLecture));
         }
 
         return getTimetableResponse(userId, timetableFrame);
-    }
-
-    private Catalog getCatalog(Lecture lecture, Integer userId) {
-        Student student = studentRepository.getById(userId);
-        Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
-
-        List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
-            String.valueOf(studentNumberYear));
-        if (!catalogs.isEmpty()) {
-            return catalogs.get(0);
-        }
-
-        final int currentYear = LocalDateTime.now().getYear();
-        for (int initStudentNumberYear = 2019; initStudentNumberYear <= currentYear; initStudentNumberYear++) {
-            catalogs = catalogRepository.findByYearAndCode(String.valueOf(initStudentNumberYear),
-                lecture.getCode());
-
-            if (!Objects.isNull(catalogs)) {
-                return catalogs.get(0);
-            }
-        }
-
-        return null;
-    }
-
-    private CourseType getCourseType(Catalog catalog) {
-        if (catalog != null) {
-            return catalog.getCourseType();
-        }
-        return courseTypeRepository.getByName("이수구분선택");
-    }
-
-    private GeneralEducationArea getGeneralEducationArea(Catalog catalog) {
-        if (catalog != null) {
-            if (catalog.getGeneralEducationArea() != null) {
-                return catalog.getGeneralEducationArea();
-            }
-        }
-        return null;
     }
 
     @Transactional
