@@ -2,18 +2,12 @@ package in.koreatech.koin.domain.bus.service.shuttle.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.format.TextStyle;
 import java.util.List;
-import java.util.Locale;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
-import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import lombok.Getter;
@@ -74,39 +68,5 @@ public class ShuttleBusRoute {
 
         @Field("arrival_time")
         private List<String> arrivalTime;
-
-        public boolean filterRoutesByDayOfWeek(LocalDate date) {
-            DayOfWeek dayOfWeek = date.getDayOfWeek();
-            return runningDays.contains(dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase());
-        }
-    }
-
-    public boolean filterDepartAndArriveNode(BusStation departNode, BusStation arriveNode) {
-        boolean foundDepart = false;
-        for (NodeInfo node : nodeInfo) {
-            for (String nodeName : departNode.getDisplayNames()) {
-                if (!foundDepart && node.getName().contains(nodeName)) {
-                    foundDepart = true;
-                    break;
-                }
-            }
-            for (String nodeName : arriveNode.getDisplayNames()) {
-                if (foundDepart && node.getName().contains(nodeName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public int findArrivalNodeIndexByStation(BusStation departNode) {
-        for (int i = 0; i < nodeInfo.size(); i++) {
-            for (String nodeName : departNode.getDisplayNames()) {
-                if (nodeInfo.get(i).getName().contains(nodeName)) {
-                    return i;
-                }
-            }
-        }
-        throw new BusArrivalNodeNotFoundException("");
     }
 }
