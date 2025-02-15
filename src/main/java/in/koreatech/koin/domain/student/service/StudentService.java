@@ -1,31 +1,39 @@
 package in.koreatech.koin.domain.student.service;
-import java.time.Clock;
+
 import java.util.Optional;
 import java.util.UUID;
-
-import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
-import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
-import in.koreatech.koin.domain.user.model.*;
-import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
-import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
-import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
+
+import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
+import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
+import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.repository.DepartmentRepository;
+import in.koreatech.koin.domain.student.repository.MajorRepository;
+import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
+import in.koreatech.koin.domain.user.model.PasswordResetToken;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserToken;
+import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.domain.user.service.UserService;
@@ -51,9 +59,12 @@ public class StudentService {
     private final UserTokenRepository userTokenRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
+    private final DepartmentRepository departmentRepository;
+    private final MajorRepository majorRepository;
+    private final GraduationService graduationService;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final Clock clock;
+    private final UserPasswordResetTokenRepository passwordResetTokenRepository;
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
@@ -88,9 +99,17 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
+        Department department = departmentRepository.getByName(request.major());
+        Major oldMajor = student.getMajor();
+        Major newMajor = majorRepository.getByName(request.major());
+        // 전공 변경 시 학생의 졸업 요건 계산 정보 초기화
+        if (isChangedMajor(oldMajor, newMajor) && student.getStudentNumber() != null) {
+            graduationService.resetStudentCourseCalculation(student, newMajor);
+        }
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updateStudentPassword(passwordEncoder, request.password());
-        student.updateInfo(request.studentNumber(), request.major());
+        student.updateInfo(request.studentNumber(), newMajor);
+        student.updateInfo(request.studentNumber(), department);
 
         return StudentUpdateResponse.from(student);
     }
@@ -104,7 +123,8 @@ public class StudentService {
             modelAndView.addObject("errorMessage", "토큰이 유효하지 않습니다.");
             return modelAndView;
         }
-        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
+        Department department = departmentRepository.getByName(studentTemporaryStatus.get().getDepartment());
+        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
         studentRedisRepository.deleteById(student.getUser().getEmail());
@@ -115,9 +135,9 @@ public class StudentService {
     @Transactional
     public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
-        user.generateResetTokenForFindPassword(clock);
-        User authedUser = userRepository.save(user);
-        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, authedUser.getResetToken()));
+        String resetToken = UUID.randomUUID().toString();
+        passwordResetTokenRepository.save(PasswordResetToken.of(resetToken, user.getId()));
+        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, resetToken));
     }
 
     public StudentResponse getStudent(Integer userId) {
@@ -134,9 +154,10 @@ public class StudentService {
 
     @Transactional
     public void changePasswordSubmit(UserPasswordChangeSubmitRequest request, String resetToken) {
-        User authedUser = userRepository.getByResetToken(resetToken);
-        authedUser.validateResetToken();
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.getByResetToken(resetToken);
+        User authedUser = userRepository.getById(passwordResetToken.getId());
         authedUser.updatePassword(passwordEncoder, request.password());
+        passwordResetTokenRepository.deleteById(passwordResetToken.getId());
     }
 
     public ModelAndView checkResetToken(String resetToken, String serverUrl) {
@@ -144,5 +165,9 @@ public class StudentService {
         modelAndView.addObject("contextPath", serverUrl);
         modelAndView.addObject("resetToken", resetToken);
         return modelAndView;
+    }
+
+    private boolean isChangedMajor(Major oldMajor, Major newMajor) {
+        return !oldMajor.equals(newMajor);
     }
 }
