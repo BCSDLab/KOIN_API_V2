@@ -5,6 +5,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -26,13 +29,11 @@ public class RedisKeywordTracker {
             return;
         }
 
-        String ipSearchCountKey = IP_SEARCH_COUNT_PREFIX + ipAddress; // IP별 하나의 키 사용
+        String ipSearchCountKey = IP_SEARCH_COUNT_PREFIX + ipAddress;
 
-        // 해당 IP에서 특정 키워드를 몇 번 검색했는지 증가
         Long currentIpCount = redisTemplate.opsForHash().increment(ipSearchCountKey, keyword, 1);
         if (currentIpCount == null) currentIpCount = 1L;
 
-        // 가중치 계산 후 업데이트
         double additionalWeight = calculateWeight(currentIpCount);
         if (additionalWeight > 0) {
             redisTemplate.opsForZSet().incrementScore(KEYWORD_SET, keyword, additionalWeight);
@@ -48,8 +49,17 @@ public class RedisKeywordTracker {
         return 0.0;
     }
 
-    public Set<Object> getTopKeywords(int limit) {
-        Set<TypedTuple<Object>> keywordTuples = redisTemplate.opsForZSet().reverseRangeWithScores(KEYWORD_SET, 0, limit - 1);
-        return keywordTuples.stream().map(TypedTuple::getValue).collect(Collectors.toSet());
+    public Set<String> getTopKeywords(int limit) {
+        Set<TypedTuple<Object>> keywordTuples = redisTemplate.opsForZSet()
+            .reverseRangeWithScores(KEYWORD_SET, 0, limit - 1);
+
+        if (keywordTuples == null || keywordTuples.isEmpty()) {
+            return Set.of();
+        }
+
+        return keywordTuples.stream()
+            .map(TypedTuple::getValue)
+            .map(String::valueOf)
+            .collect(Collectors.toSet());
     }
 }
