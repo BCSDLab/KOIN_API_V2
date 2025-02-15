@@ -21,6 +21,8 @@ import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -137,7 +139,8 @@ public final class UserFixture {
             Student.builder()
                 .studentNumber("2019136135")
                 .anonymousNickname("익명")
-                .department("컴퓨터공학부")
+                .department(new Department("컴퓨터공학부"))
+                .major(new Major("컴퓨터공학전공"))
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
@@ -162,7 +165,7 @@ public final class UserFixture {
             Student.builder()
                 .studentNumber("2020136111")
                 .anonymousNickname("익명111")
-                .department("컴퓨터공학부")
+                .department(new Department("컴퓨터공학부"))
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
@@ -186,7 +189,7 @@ public final class UserFixture {
             Student.builder()
                 .studentNumber("2023100514")
                 .anonymousNickname("익명123")
-                .department("컴퓨터공학부")
+                .department(new Department("컴퓨터공학부"))
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(

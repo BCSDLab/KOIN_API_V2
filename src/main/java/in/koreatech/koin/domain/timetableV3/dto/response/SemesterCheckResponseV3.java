@@ -12,9 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record SemesterCheckResponseV3(
-    @Schema(description = "유저 id", example = "1", requiredMode = REQUIRED)
-    Integer userId,
-
     @Schema(description = "유저 학기", requiredMode = REQUIRED)
     List<InnerSemesterCheckResponse> semesters
 ) {
@@ -34,9 +31,8 @@ public record SemesterCheckResponseV3(
         }
     }
 
-    public static SemesterCheckResponseV3 of(Integer userId, List<Semester> semester) {
+    public static SemesterCheckResponseV3 of(List<Semester> semester) {
         return new SemesterCheckResponseV3(
-            userId,
             semester.stream()
                 .map(InnerSemesterCheckResponse::of)
                 .toList()

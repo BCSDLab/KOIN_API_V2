@@ -257,6 +257,7 @@ class OwnerApiTest extends AcceptanceTest {
                                    "name": "최준호",
                                    "password": "a0240120305812krlakdsflsa;1235",
                                    "phone_number": "01012341234",
+                                   "shop_number": "0510000000",
                                    "shop_name": "기분좋은 뷔짱"
                                 }
                             """)

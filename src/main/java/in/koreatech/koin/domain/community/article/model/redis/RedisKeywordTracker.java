@@ -26,13 +26,13 @@ public class RedisKeywordTracker {
             return;
         }
 
-        String ipSearchCountKey = IP_SEARCH_COUNT_PREFIX + ipAddress + ":" + keyword;
+        String ipSearchCountKey = IP_SEARCH_COUNT_PREFIX + ipAddress; // IP별 하나의 키 사용
 
-        // IP별 검색 횟수 증가
-        Long currentIpCount = redisTemplate.opsForValue().increment(ipSearchCountKey, 1);
+        // 해당 IP에서 특정 키워드를 몇 번 검색했는지 증가
+        Long currentIpCount = redisTemplate.opsForHash().increment(ipSearchCountKey, keyword, 1);
         if (currentIpCount == null) currentIpCount = 1L;
 
-        // 가중치 계산
+        // 가중치 계산 후 업데이트
         double additionalWeight = calculateWeight(currentIpCount);
         if (additionalWeight > 0) {
             redisTemplate.opsForZSet().incrementScore(KEYWORD_SET, keyword, additionalWeight);

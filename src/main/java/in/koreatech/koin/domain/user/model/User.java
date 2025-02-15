@@ -159,12 +159,6 @@ public class User extends BaseEntity {
         return passwordEncoder.matches(password, this.password);
     }
 
-    public void validateResetToken() {
-        if (resetExpiredAt.isBefore(LocalDateTime.now())) {
-            throw UserResetTokenExpiredException.withDetail("resetToken: " + resetToken);
-        }
-    }
-
     public void auth() {
         this.isAuthed = true;
     }

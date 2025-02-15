@@ -5,7 +5,6 @@ import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
 import in.koreatech.koin.domain.community.article.model.redis.BusNoticeArticle;
-import in.koreatech.koin.domain.community.article.model.redis.RedisKeywordTracker;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
@@ -47,6 +46,8 @@ public class ArticleSyncService {
     private final ArticleSearchKeywordIpMapRepository ipMapRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    private static final String IP_SEARCH_COUNT_PREFIX = "search:count:ip:";
+
     @Transactional
     public void updateHotArticles() {
         List<ArticleHit> articleHits = articleHitRepository.findAll();
@@ -71,7 +72,8 @@ public class ArticleSyncService {
 
     @Transactional
     public void synchronizeSearchKeywords() {
-        Set<TypedTuple<Object>> topKeywords = redisTemplate.opsForZSet().reverseRangeWithScores("popular_keywords", 0, -1);
+        Set<TypedTuple<Object>> topKeywords = redisTemplate.opsForZSet()
+            .reverseRangeWithScores("popular_keywords", 0, -1);
         LocalDateTime now = LocalDateTime.now();
 
         if (topKeywords == null || topKeywords.isEmpty()) {
@@ -80,7 +82,7 @@ public class ArticleSyncService {
         }
 
         for (TypedTuple<Object> tuple : topKeywords) {
-            String keyword = (String) tuple.getValue();
+            String keyword = (String)tuple.getValue();
             Double weight = tuple.getScore() != null ? tuple.getScore() : 0.0;
 
             keywordRepository.findByKeyword(keyword).ifPresentOrElse(
@@ -101,31 +103,36 @@ public class ArticleSyncService {
     }
 
     private void updateIpSearchCounts(String keyword, ArticleSearchKeyword keywordEntity) {
-        Set<String> ipKeys = redisTemplate.keys("search:count:ip:*:" + keyword);
+        Set<String> ipKeys = redisTemplate.keys(IP_SEARCH_COUNT_PREFIX + "*");
 
         if (ipKeys == null || ipKeys.isEmpty()) {
             return;
         }
 
         for (String ipKey : ipKeys) {
-            String ipAddress = ipKey.split(":")[3];
-            Integer searchCount = Optional.ofNullable((Integer) redisTemplate.opsForValue().get(ipKey)).orElse(0);
+            Map<Object, Object> keywordSearchCounts = redisTemplate.opsForHash().entries(ipKey);
 
-            if (searchCount > 0) {
-                ipMapRepository.findByArticleSearchKeywordAndIpAddress(keywordEntity, ipAddress).ifPresentOrElse(
-                    existingIpMap -> {
-                        existingIpMap.incrementSearchCountBy(searchCount);
-                        ipMapRepository.save(existingIpMap);
-                    },
-                    () -> {
-                        ArticleSearchKeywordIpMap newIpMap = ArticleSearchKeywordIpMap.builder()
-                            .articleSearchKeyword(keywordEntity)
-                            .ipAddress(ipAddress)
-                            .searchCount(searchCount)
-                            .build();
-                        ipMapRepository.save(newIpMap);
-                    }
-                );
+            for (Map.Entry<Object, Object> entry : keywordSearchCounts.entrySet()) {
+                String searchedKeyword = (String) entry.getKey();
+                Integer searchCount = Integer.parseInt(entry.getValue().toString());
+                String ipAddress = ipKey.replace(IP_SEARCH_COUNT_PREFIX, "");
+
+                if (searchCount > 0 && searchedKeyword.equals(keyword)) {
+                    ipMapRepository.findByArticleSearchKeywordAndIpAddress(keywordEntity, ipAddress).ifPresentOrElse(
+                        existingIpMap -> {
+                            existingIpMap.incrementSearchCountBy(searchCount);
+                            ipMapRepository.save(existingIpMap);
+                        },
+                        () -> {
+                            ArticleSearchKeywordIpMap newIpMap = ArticleSearchKeywordIpMap.builder()
+                                .articleSearchKeyword(keywordEntity)
+                                .ipAddress(ipAddress)
+                                .searchCount(searchCount)
+                                .build();
+                            ipMapRepository.save(newIpMap);
+                        }
+                    );
+                }
             }
 
             redisTemplate.delete(ipKey);
@@ -147,11 +154,15 @@ public class ArticleSyncService {
                     int secondWeight = 0;
 
                     // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
-                    if (first.getTitle().contains("사과")) firstWeight++;
-                    if (first.getTitle().contains("긴급")) firstWeight--;
+                    if (first.getTitle().contains("사과"))
+                        firstWeight++;
+                    if (first.getTitle().contains("긴급"))
+                        firstWeight--;
 
-                    if (second.getTitle().contains("사과")) secondWeight++;
-                    if (second.getTitle().contains("긴급")) secondWeight--;
+                    if (second.getTitle().contains("사과"))
+                        secondWeight++;
+                    if (second.getTitle().contains("긴급"))
+                        secondWeight--;
 
                     return Integer.compare(firstWeight, secondWeight);
                 })
