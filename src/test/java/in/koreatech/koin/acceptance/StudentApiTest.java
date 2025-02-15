@@ -29,6 +29,8 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.fixture.DepartmentFixture;
+import in.koreatech.koin.fixture.MajorFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
 
@@ -53,6 +55,12 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
+    @Autowired
+    private MajorFixture majorFixture;
 
     @BeforeAll
     void setup() {
@@ -134,6 +142,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_정보를_수정한다() throws Exception {
+        departmentFixture.전체학부();
+        majorFixture.컴퓨터공학전공();
+        majorFixture.기계공학전공();
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
@@ -341,6 +352,7 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 이메일_요청을_확인_후_회원가입_이벤트가_발생하고_Redis에_저장된_정보가_삭제된다() throws Exception {
+        departmentFixture.전체학부();
         mockMvc.perform(
                 post("/user/student/register")
                     .content("""

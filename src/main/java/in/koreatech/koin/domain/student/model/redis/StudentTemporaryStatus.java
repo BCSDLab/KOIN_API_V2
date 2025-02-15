@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.student.model.redis;
 
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.model.*;
@@ -63,7 +64,7 @@ public class StudentTemporaryStatus {
                 request.isGraduated(), request.major(), request.studentNumber(), request.phoneNumber());
     }
 
-    public Student toStudent(PasswordEncoder passwordEncoder) {
+    public Student toStudent(PasswordEncoder passwordEncoder, Department department) {
         User user = User.builder()
                 .password(passwordEncoder.encode(password))
                 .email(email)

@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -67,7 +68,13 @@ public record TimetableLectureResponseV3(
         String professor,
 
         @Schema(description = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
-        String department
+        String department,
+
+        @Schema(description = "이수구분", example = "전공필수", requiredMode = NOT_REQUIRED)
+        String courseType,
+
+        @Schema(description = "교양영역", example = "", requiredMode = NOT_REQUIRED)
+        String generalEducationArea
     ) {
         public static List<InnerTimetableLectureResponseV3> from(List<TimetableLecture> timetableLectures) {
             List<InnerTimetableLectureResponseV3> InnerTimetableLectureResponses = new ArrayList<>();
@@ -91,7 +98,9 @@ public record TimetableLectureResponseV3(
                         null,
                         null,
                         timetableLecture.getProfessor(),
-                        null
+                        null,
+                        getCourseType(timetableLecture),
+                        getGeneralEducationArea(timetableLecture)
                     );
                 } else {
                     responseV3 = new InnerTimetableLectureResponseV3(
@@ -108,12 +117,28 @@ public record TimetableLectureResponseV3(
                         lecture.getLectureClass(),
                         lecture.getTarget(),
                         lecture.getProfessor(),
-                        lecture.getDepartment()
+                        lecture.getDepartment(),
+                        getCourseType(timetableLecture),
+                        getGeneralEducationArea(timetableLecture)
                     );
                 }
                 InnerTimetableLectureResponses.add(responseV3);
             }
             return InnerTimetableLectureResponses;
+        }
+
+        private static String getCourseType(TimetableLecture timetableLecture) {
+            if (Objects.isNull(timetableLecture.getCourseType())) {
+                return "이수구분선택";
+            }
+            return timetableLecture.getCourseType().getName();
+        }
+
+        private static String getGeneralEducationArea(TimetableLecture timetableLecture) {
+            if (timetableLecture.getGeneralEducationArea() == null) {
+                return "";
+            }
+            return timetableLecture.getGeneralEducationArea().getName();
         }
     }
 

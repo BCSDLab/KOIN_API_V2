@@ -9,16 +9,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
 import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
 import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.repository.DepartmentRepository;
+import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
@@ -54,6 +59,9 @@ public class StudentService {
     private final UserTokenRepository userTokenRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
+    private final DepartmentRepository departmentRepository;
+    private final MajorRepository majorRepository;
+    private final GraduationService graduationService;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRepository passwordResetTokenRepository;
@@ -91,9 +99,17 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
+        Department department = departmentRepository.getByName(request.major());
+        Major oldMajor = student.getMajor();
+        Major newMajor = majorRepository.getByName(request.major());
+        // 전공 변경 시 학생의 졸업 요건 계산 정보 초기화
+        if (isChangedMajor(oldMajor, newMajor) && student.getStudentNumber() != null) {
+            graduationService.resetStudentCourseCalculation(student, newMajor);
+        }
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updateStudentPassword(passwordEncoder, request.password());
-        student.updateInfo(request.studentNumber(), request.major());
+        student.updateInfo(request.studentNumber(), newMajor);
+        student.updateInfo(request.studentNumber(), department);
 
         return StudentUpdateResponse.from(student);
     }
@@ -107,7 +123,8 @@ public class StudentService {
             modelAndView.addObject("errorMessage", "토큰이 유효하지 않습니다.");
             return modelAndView;
         }
-        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
+        Department department = departmentRepository.getByName(studentTemporaryStatus.get().getDepartment());
+        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
         studentRedisRepository.deleteById(student.getUser().getEmail());
@@ -148,5 +165,9 @@ public class StudentService {
         modelAndView.addObject("contextPath", serverUrl);
         modelAndView.addObject("resetToken", resetToken);
         return modelAndView;
+    }
+
+    private boolean isChangedMajor(Major oldMajor, Major newMajor) {
+        return !oldMajor.equals(newMajor);
     }
 }
