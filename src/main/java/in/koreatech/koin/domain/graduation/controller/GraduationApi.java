@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
+import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,4 +84,18 @@ public interface GraduationApi {
     @Operation(summary = "교양영역 전체 조회")
     @GetMapping("/general-education-area")
     ResponseEntity<List<GeneralEducationArea>> getCourseTypeLecture();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "이수 구분에 따른 자신이 들은 학점 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/graduation/course/calculation")
+    ResponseEntity<GraduationCourseCalculationResponse> getGraduationCourseCalculation(
+        @Auth(permit = {STUDENT}) Integer userId);
 }
