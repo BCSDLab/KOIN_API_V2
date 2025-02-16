@@ -193,11 +193,9 @@ public class ArticleSyncService {
     @Transactional
     public void clearStoredData() {
         try {
-            // 1. 인기 키워드 ZSet 초기화
             redisTemplate.delete("popular_keywords");
             log.info("키워드 집계 데이터 초기화 완료");
 
-            // 2. IP별 검색 통계 초기화
             Set<String> ipSearchKeys = redisTemplate.keys("search:count:ip:*");
             if (ipSearchKeys != null && !ipSearchKeys.isEmpty()) {
                 redisTemplate.delete(ipSearchKeys);

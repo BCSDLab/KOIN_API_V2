@@ -26,7 +26,7 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
 import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTracker;
-import in.koreatech.koin.domain.community.article.model.strategy.KeywordRetrievalContext;
+import in.koreatech.koin.domain.community.article.model.KeywordRankingManager;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
@@ -66,7 +66,7 @@ public class ArticleService {
     private final Clock clock;
     private final KeywordExtractor keywordExtractor;
     private final PopularKeywordTracker popularKeywordTracker;
-    private final KeywordRetrievalContext keywordRetrievalContext;
+    private final KeywordRankingManager keywordRankingManager;
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
@@ -138,7 +138,7 @@ public class ArticleService {
     }
 
     public ArticleHotKeywordResponse getArticlesHotKeyword(int count) {
-        List<String> topKeywords = keywordRetrievalContext.retrieveTopKeywords(count);
+        List<String> topKeywords = keywordRankingManager.getTopKeywords(count);
         return ArticleHotKeywordResponse.from(topKeywords);
     }
 

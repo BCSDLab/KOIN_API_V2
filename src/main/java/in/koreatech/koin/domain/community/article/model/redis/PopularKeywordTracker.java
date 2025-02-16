@@ -16,10 +16,10 @@ public class PopularKeywordTracker {
     private static final double FIXED_WEIGHT_AFTER_FIVE_SEARCHES = 0.0625;
     private static final int MAX_SEARCH_COUNT_FOR_WEIGHT = 10;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-
     private static final String KEYWORD_SET = "popular_keywords";
     private static final String IP_SEARCH_COUNT_PREFIX = "search:count:ip:";
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public void updateKeywordWeight(String ipAddress, String keyword) {
         if (keyword == null || keyword.isBlank() || ipAddress == null || ipAddress.isBlank()) {
