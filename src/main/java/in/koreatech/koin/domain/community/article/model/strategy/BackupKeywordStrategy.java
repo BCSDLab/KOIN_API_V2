@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class FallbackKeywordStrategy implements KeywordRetrievalStrategy {
+public class BackupKeywordStrategy implements KeywordSelectionStrategy {
 
     private final ArticleSearchKeywordRepository keywordRepository;
 

@@ -10,16 +10,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KeywordRetrievalContext {
 
-    private final RedisKeywordStrategy redisKeywordStrategy;
-    private final FallbackKeywordStrategy fallbackKeywordStrategy;
+    private final PopularKeywordStrategy popularKeywordStrategy;
+    private final BackupKeywordStrategy backupKeywordStrategy;
 
     public List<String> retrieveTopKeywords(int count) {
-        List<String> primaryKeywords = redisKeywordStrategy.getTopKeywords(count);
+        List<String> primaryKeywords = popularKeywordStrategy.getTopKeywords(count);
         List<String> finalKeywords = new ArrayList<>(primaryKeywords);
 
         if (primaryKeywords.size() < count) {
             int remainingCount = count - primaryKeywords.size();
-            List<String> secondaryKeywords = fallbackKeywordStrategy.getTopKeywords(remainingCount);
+            List<String> secondaryKeywords = backupKeywordStrategy.getTopKeywords(remainingCount);
             secondaryKeywords.stream()
                 .filter(keyword -> !finalKeywords.contains(keyword))
                 .forEach(finalKeywords::add);

@@ -6,15 +6,12 @@ import org.springframework.stereotype.Component;
 
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class RedisKeywordTracker {
+public class PopularKeywordTracker {
 
     private static final double FIXED_WEIGHT_AFTER_FIVE_SEARCHES = 0.0625;
     private static final int MAX_SEARCH_COUNT_FOR_WEIGHT = 10;

@@ -25,15 +25,11 @@ import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatch
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
-import in.koreatech.koin.domain.community.article.model.redis.RedisKeywordTracker;
+import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTracker;
 import in.koreatech.koin.domain.community.article.model.strategy.KeywordRetrievalContext;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
-import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
-import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
-import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
@@ -69,7 +65,7 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final Clock clock;
     private final KeywordExtractor keywordExtractor;
-    private final RedisKeywordTracker redisKeywordTracker;
+    private final PopularKeywordTracker popularKeywordTracker;
     private final KeywordRetrievalContext keywordRetrievalContext;
 
     @Transactional
@@ -135,7 +131,7 @@ public class ArticleService {
         String[] keywords = query.split("\\s+");
 
         for (String keyword : keywords) {
-            redisKeywordTracker.updateKeywordWeight(ipAddress, keyword);
+            popularKeywordTracker.updateKeywordWeight(ipAddress, keyword);
         }
 
         return ArticlesResponse.of(articles, criteria, userId);
