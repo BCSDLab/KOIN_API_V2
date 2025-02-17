@@ -22,6 +22,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
@@ -257,6 +258,7 @@ class OwnerApiTest extends AcceptanceTest {
                                    "name": "최준호",
                                    "password": "a0240120305812krlakdsflsa;1235",
                                    "phone_number": "01012341234",
+                                   "shop_number": "0510000000",
                                    "shop_name": "기분좋은 뷔짱"
                                 }
                             """)
@@ -434,6 +436,32 @@ class OwnerApiTest extends AcceptanceTest {
                     softly.assertThat(ownerShop.getShopId()).isNull();
                 }
             );
+        }
+
+        @Test
+        void 사장님이_전화번호를_아이디로_회원가입을_했을_때_저장된_가게정보를_조회한다() throws Exception {
+            Owner owner = userFixture.현수_사장님();
+            String token = userFixture.getToken(owner.getUser());
+
+            OwnerShop ownerShop = OwnerShop.builder()
+                .ownerId(owner.getId())
+                .shopName("가게명")
+                .shopNumber("01012345678")
+                .build();
+
+            ownerShopRedisRepository.save(ownerShop);
+
+            mockMvc.perform(
+                    get("/owner/registered-store")
+                        .header("Authorization", "Bearer " + token)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                    {
+                        "shopName": "가게명",
+                        "shopNumber": "01012345678"
+                    }
+                    """));
         }
     }
 

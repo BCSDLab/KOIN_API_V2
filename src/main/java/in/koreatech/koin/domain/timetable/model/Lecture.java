@@ -87,7 +87,8 @@ public class Lecture {
     private String classTime;
 
     @Builder
-    public Lecture(
+    private Lecture(
+        Integer id,
         String semester,
         String code,
         String name,
@@ -102,6 +103,7 @@ public class Lecture {
         String isElearning,
         String classTime
     ) {
+        this.id = id;
         this.semester = semester;
         this.code = code;
         this.name = name;

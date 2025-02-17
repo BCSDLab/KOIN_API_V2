@@ -8,9 +8,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerRegisteredInfoResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.service.OwnerService;
 import in.koreatech.koin.global.auth.Auth;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -35,5 +42,13 @@ public class OwnerController implements OwnerApi {
     ) {
         ownerService.checkCompanyNumber(request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/owner/registered-store")
+    public ResponseEntity<OwnerRegisteredInfoResponse> getOwnerRegisteredStoreInfo(
+        @Auth(permit = {OWNER}) Integer userId
+    ) {
+        OwnerRegisteredInfoResponse response = ownerService.getOwnerRegisteredStoreInfo(userId);
+        return ResponseEntity.ok().body(response);
     }
 }

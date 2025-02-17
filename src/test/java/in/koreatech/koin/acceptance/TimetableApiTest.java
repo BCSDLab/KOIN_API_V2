@@ -193,7 +193,7 @@ class TimetableApiTest extends AcceptanceTest {
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
 
-        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론, null, null);
 
         mockMvc.perform(
                 get("/timetables")
@@ -476,7 +476,7 @@ class TimetableApiTest extends AcceptanceTest {
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
 
-        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론, null, null);
 
         mockMvc.perform(
                 delete("/timetable")

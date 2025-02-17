@@ -13,12 +13,20 @@ public interface SemesterRepositoryV3 extends Repository<Semester, Integer> {
 
     List<Semester> findAll();
 
+    Optional<Semester> findBySemester(String semester);
+
     Semester save(Semester semester);
 
     Optional<Semester> findByYearAndTerm(Integer year, Term term);
 
     default Semester getByYearAndTerm(Integer year, Term term) {
         return findByYearAndTerm(year, term)
-            .orElseThrow(() -> SemesterNotFoundException.withDetail("year : " + year + "term : " + term.getDescription()));
+            .orElseThrow(
+                () -> SemesterNotFoundException.withDetail("year : " + year + "term : " + term.getDescription()));
+    }
+
+    default Semester getBySemester(String semester) {
+        return findBySemester(semester)
+            .orElseThrow(() -> SemesterNotFoundException.withDetail("semester : " + semester));
     }
 }
