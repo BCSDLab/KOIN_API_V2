@@ -54,6 +54,5 @@ public class OwnerVerificationService {
         if (!Objects.equals(verify.getCertificationCode(), code)) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
-        ownerVerificationStatusRepository.deleteById(key);
     }
 }
