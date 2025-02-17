@@ -1,0 +1,1 @@
+ALTER TABLE koin.major AUTO_INCREMENT = 1;

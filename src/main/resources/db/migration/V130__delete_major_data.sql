@@ -1,0 +1,1 @@
+DELETE FROM koin.major WHERE id BETWEEN 1 AND 16;
