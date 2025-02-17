@@ -58,7 +58,7 @@ public record StudentResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
             userGender,
-            student.getDepartment().getName(),
+            student.getDepartment() == null ? null : student.getDepartment().getName(),
             user.getName(),
             user.getNickname(),
             user.getPhoneNumber(),
