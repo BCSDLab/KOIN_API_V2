@@ -94,6 +94,16 @@ public interface ArticleApi {
         @UserId Integer userId
     );
 
+    @Operation(summary = "분실물 게시글 검색")
+    @GetMapping("/lost-item/search")
+    ResponseEntity<LostItemArticlesResponse> searchArticles(
+        @RequestParam String query,
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @IpAddress String ipAddress,
+        @UserId Integer userId
+    );
+
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200")
