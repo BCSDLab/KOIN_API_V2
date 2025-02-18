@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.student.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -11,6 +12,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record StudentResponse(
+    @Schema(example = "1", description = "학생 고유 id", requiredMode = REQUIRED)
+    Integer id,
+
     @Schema(description = "익명 닉네임", example = "익명_1676688416361", requiredMode = NOT_REQUIRED)
     String anonymousNickname,
 
@@ -55,6 +59,7 @@ public record StudentResponse(
             userGender = user.getGender().ordinal();
         }
         return new StudentResponse(
+            student.getId(),
             student.getAnonymousNickname(),
             user.getEmail(),
             userGender,
