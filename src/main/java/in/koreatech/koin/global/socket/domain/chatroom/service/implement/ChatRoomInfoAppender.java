@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.socket.domain.chatroom.service.implement;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.global.socket.domain.chatroom.model.LostItemChatRoomInfoEntity;
@@ -23,6 +25,7 @@ public class ChatRoomInfoAppender {
             .chatRoomId(chatRoomId)
             .ownerId(ownerId)
             .authorId(authorId)
+            .createdAt(LocalDateTime.now())
             .build();
 
        return chatRoomInfoRepository.save(newInfo);
