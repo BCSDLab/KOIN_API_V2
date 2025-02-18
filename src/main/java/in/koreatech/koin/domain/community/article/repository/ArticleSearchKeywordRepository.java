@@ -12,22 +12,22 @@ import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 
 public interface ArticleSearchKeywordRepository extends Repository<ArticleSearchKeyword, Integer> {
 
-    void save(ArticleSearchKeyword keyword);
+    ArticleSearchKeyword save(ArticleSearchKeyword keyword);
 
     Optional<ArticleSearchKeyword> findByKeyword(String keywordStr);
 
     @Query("""
         SELECT k.keyword
         FROM ArticleSearchKeyword k
-        WHERE k.lastSearchedAt >= :oneWeekAgo
+        WHERE k.lastSearchedAt >= :fromDate
         ORDER BY k.weight DESC, k.lastSearchedAt DESC
         """)
-    List<String> findTopKeywords(LocalDateTime oneWeekAgo, Pageable pageable);
+    List<String> findTopKeywords(LocalDateTime fromDate, Pageable pageable);
 
     @Query("""
         SELECT k.keyword
         FROM ArticleSearchKeyword k
-        ORDER BY k.weight DESC, k.lastSearchedAt
+        ORDER BY k.totalSearch DESC, k.lastSearchedAt
         """)
     List<String> findTopKeywordsByLatest(Pageable pageable);
 
