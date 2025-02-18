@@ -29,9 +29,8 @@ public class Major extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull
     @Size(max = 255)
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", length = 255)
     private String name;
 
     @JoinColumn(name = "department_id")
