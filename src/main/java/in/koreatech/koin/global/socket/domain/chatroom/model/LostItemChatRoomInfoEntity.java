@@ -1,5 +1,6 @@
 package in.koreatech.koin.global.socket.domain.chatroom.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,13 +37,18 @@ public class LostItemChatRoomInfoEntity {
     @Field("messages")
     private List<LostItemChatMessageEntity> messageList;
 
+    @Field("created_at")
+    private LocalDateTime createdAt;
+
     @Builder
-    public LostItemChatRoomInfoEntity(Integer articleId, Integer chatRoomId, Integer authorId, Integer ownerId) {
+    public LostItemChatRoomInfoEntity(Integer articleId, Integer chatRoomId, Integer authorId, Integer ownerId,
+        LocalDateTime createdAt) {
         this.articleId = articleId;
         this.chatRoomId = chatRoomId;
         this.authorId = authorId;
         this.ownerId = ownerId;
         this.messageList = new ArrayList<>();
+        this.createdAt = createdAt;
     }
 
     public void addMessage(LostItemChatMessageEntity message) {
