@@ -27,7 +27,7 @@ public interface ArticleSearchKeywordRepository extends Repository<ArticleSearch
     @Query("""
         SELECT k.keyword
         FROM ArticleSearchKeyword k
-        ORDER BY k.weight DESC, k.lastSearchedAt
+        ORDER BY k.totalSearch DESC, k.lastSearchedAt
         """)
     List<String> findTopKeywordsByLatest(Pageable pageable);
 

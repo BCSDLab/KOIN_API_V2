@@ -36,17 +36,17 @@ public class ArticleSyncService {
 
     private static final int HOT_ARTICLE_BEFORE_DAYS = 30;
     private static final int HOT_ARTICLE_LIMIT = 10;
+    private static final String IP_SEARCH_COUNT_PREFIX = "search:count:ip:";
+    private static final String KEYWORD_SET = "popular_keywords";
 
     private final ArticleHitRepository articleHitRepository;
     private final HotArticleRepository hotArticleRepository;
     private final BusArticleRepository busArticleRepository;
-    private final ArticleSearchKeywordRepository keywordRepository;
+    private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
     private final ArticleRepository articleRepository;
     private final Clock clock;
     private final ArticleSearchKeywordIpMapRepository ipMapRepository;
     private final RedisTemplate<String, Object> redisTemplate;
-
-    private static final String IP_SEARCH_COUNT_PREFIX = "search:count:ip:";
 
     @Transactional
     public void updateHotArticles() {
@@ -68,75 +68,6 @@ public class ArticleSyncService {
             articlesIdWithHit.put(article.getId(), article.getTotalHit() - beforeArticleHit);
         }
         hotArticleRepository.saveArticlesWithHitToRedis(articlesIdWithHit, HOT_ARTICLE_LIMIT);
-    }
-
-    @Transactional
-    public void synchronizeSearchKeywords() {
-        Set<TypedTuple<Object>> topKeywords = redisTemplate.opsForZSet()
-            .reverseRangeWithScores("popular_keywords", 0, -1);
-        LocalDateTime now = LocalDateTime.now();
-
-        if (topKeywords == null || topKeywords.isEmpty()) {
-            clearStoredData();
-            return;
-        }
-
-        for (TypedTuple<Object> tuple : topKeywords) {
-            String keyword = (String)tuple.getValue();
-            Double weight = tuple.getScore() != null ? tuple.getScore() : 0.0;
-
-            keywordRepository.findByKeyword(keyword).ifPresentOrElse(
-                existingKeyword -> {
-                    updateKeyword(existingKeyword, weight, now);
-                    updateIpSearchCounts(keyword, existingKeyword);
-                },
-                () -> {
-                    ArticleSearchKeyword newKeyword = createKeyword(keyword, weight, now);
-                    updateIpSearchCounts(keyword, newKeyword);
-                }
-            );
-        }
-
-        log.info("모든 키워드 및 IP별 검색 횟수 동기화 완료");
-
-        clearStoredData();
-    }
-
-    private void updateIpSearchCounts(String keyword, ArticleSearchKeyword keywordEntity) {
-        Set<String> ipKeys = redisTemplate.keys(IP_SEARCH_COUNT_PREFIX + "*");
-
-        if (ipKeys == null || ipKeys.isEmpty()) {
-            return;
-        }
-
-        for (String ipKey : ipKeys) {
-            Map<Object, Object> keywordSearchCounts = redisTemplate.opsForHash().entries(ipKey);
-
-            for (Map.Entry<Object, Object> entry : keywordSearchCounts.entrySet()) {
-                String searchedKeyword = (String) entry.getKey();
-                Integer searchCount = Integer.parseInt(entry.getValue().toString());
-                String ipAddress = ipKey.replace(IP_SEARCH_COUNT_PREFIX, "");
-
-                if (searchCount > 0 && searchedKeyword.equals(keyword)) {
-                    ipMapRepository.findByArticleSearchKeywordAndIpAddress(keywordEntity, ipAddress).ifPresentOrElse(
-                        existingIpMap -> {
-                            existingIpMap.incrementSearchCountBy(searchCount);
-                            ipMapRepository.save(existingIpMap);
-                        },
-                        () -> {
-                            ArticleSearchKeywordIpMap newIpMap = ArticleSearchKeywordIpMap.builder()
-                                .articleSearchKeyword(keywordEntity)
-                                .ipAddress(ipAddress)
-                                .searchCount(searchCount)
-                                .build();
-                            ipMapRepository.save(newIpMap);
-                        }
-                    );
-                }
-            }
-
-            redisTemplate.delete(ipKey);
-        }
     }
 
     @Transactional
@@ -172,31 +103,126 @@ public class ArticleSyncService {
     }
 
     @Transactional
-    public void updateKeyword(ArticleSearchKeyword keyword, Double weight, LocalDateTime now) {
-        keyword.updateWeight(weight);
-        keyword.updateLastSearchedAt(now);
-        keyword.incrementTotalSearch();
-        keywordRepository.save(keyword);
+    public void synchronizeAndResetKeywords() {
+        Set<TypedTuple<Object>> topKeywords = redisTemplate.opsForZSet()
+            .reverseRangeWithScores(KEYWORD_SET, 0, -1);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (topKeywords == null || topKeywords.isEmpty()) {
+            clearStoredData();
+            return;
+        }
+
+        for (TypedTuple<Object> tuple : topKeywords) {
+            String keyword = (String) tuple.getValue();
+            Double weight = tuple.getScore() != null ? tuple.getScore() : 0.0;
+
+            int totalSearchCount = getTotalSearchCount(keyword);
+
+            ArticleSearchKeyword keywordEntity = articleSearchKeywordRepository.findByKeyword(keyword)
+                .map(existingKeyword -> {
+                    updateKeyword(existingKeyword, weight, now, totalSearchCount);
+                    return existingKeyword;
+                })
+                .orElseGet(() -> createKeyword(keyword, weight, totalSearchCount, now));
+
+            syncIpSearchCounts(keyword, keywordEntity);
+        }
+
+        log.info("모든 키워드 및 IP별 검색 횟수 동기화 완료");
+
+        clearStoredData();
+        resetWeightsAndCounts();
+    }
+
+    private int getTotalSearchCount(String keyword) {
+        Set<String> ipKeys = redisTemplate.keys(IP_SEARCH_COUNT_PREFIX + "*");
+
+        if (ipKeys == null || ipKeys.isEmpty()) {
+            return 0;
+        }
+
+        int totalSearchCount = 0;
+
+        for (String ipKey : ipKeys) {
+            Map<Object, Object> keywordSearchCounts = redisTemplate.opsForHash().entries(ipKey);
+
+            for (Map.Entry<Object, Object> entry : keywordSearchCounts.entrySet()) {
+                String searchedKeyword = (String) entry.getKey();
+                Integer searchCount = Integer.parseInt(entry.getValue().toString());
+
+                if (searchedKeyword.equals(keyword)) {
+                    totalSearchCount += searchCount;
+                }
+            }
+        }
+
+        return totalSearchCount;
+    }
+
+    private void syncIpSearchCounts(String keyword, ArticleSearchKeyword keywordEntity) {
+        Set<String> ipKeys = redisTemplate.keys(IP_SEARCH_COUNT_PREFIX + "*");
+
+        if (ipKeys == null || ipKeys.isEmpty()) {
+            return;
+        }
+
+        for (String ipKey : ipKeys) {
+            Map<Object, Object> keywordSearchCounts = redisTemplate.opsForHash().entries(ipKey);
+            String ipAddress = ipKey.replace(IP_SEARCH_COUNT_PREFIX, "");
+
+            for (Map.Entry<Object, Object> entry : keywordSearchCounts.entrySet()) {
+                String searchedKeyword = (String) entry.getKey();
+                Integer searchCount = Integer.parseInt(entry.getValue().toString());
+
+                if (searchCount > 0 && searchedKeyword.equals(keyword)) {
+                    ipMapRepository.findByArticleSearchKeywordAndIpAddress(keywordEntity, ipAddress)
+                        .ifPresentOrElse(
+                            existingIpMap -> {
+                                existingIpMap.incrementSearchCountBy(searchCount);
+                                ipMapRepository.save(existingIpMap);
+                            },
+                            () -> {
+                                ArticleSearchKeywordIpMap newIpMap = ArticleSearchKeywordIpMap.builder()
+                                    .articleSearchKeyword(keywordEntity)
+                                    .ipAddress(ipAddress)
+                                    .searchCount(searchCount)
+                                    .build();
+                                ipMapRepository.save(newIpMap);
+                            }
+                        );
+                }
+            }
+            redisTemplate.delete(ipKey);
+        }
     }
 
     @Transactional
-    public ArticleSearchKeyword createKeyword(String keyword, Double weight, LocalDateTime now) {
+    public void updateKeyword(ArticleSearchKeyword keyword, Double weight, LocalDateTime now, int totalSearchCountFromRedis) {
+        keyword.updateWeight(weight);
+        keyword.updateLastSearchedAt(now);
+        keyword.increaseTotalSearchBy(totalSearchCountFromRedis);
+        articleSearchKeywordRepository.save(keyword);
+    }
+
+    @Transactional
+    public ArticleSearchKeyword createKeyword(String keyword, Double weight, int totalSearchCountFromRedis, LocalDateTime now) {
         ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
             .keyword(keyword)
             .weight(weight)
             .lastSearchedAt(now)
-            .totalSearch(1)
+            .totalSearch(totalSearchCountFromRedis)
             .build();
-        return keywordRepository.save(newKeyword);
+        return articleSearchKeywordRepository.save(newKeyword);
     }
 
     @Transactional
     public void clearStoredData() {
         try {
-            redisTemplate.delete("popular_keywords");
+            redisTemplate.delete(KEYWORD_SET);
             log.info("키워드 집계 데이터 초기화 완료");
 
-            Set<String> ipSearchKeys = redisTemplate.keys("search:count:ip:*");
+            Set<String> ipSearchKeys = redisTemplate.keys(IP_SEARCH_COUNT_PREFIX + "*");
             if (ipSearchKeys != null && !ipSearchKeys.isEmpty()) {
                 redisTemplate.delete(ipSearchKeys);
                 log.info("IP별 검색 통계 초기화 완료");
@@ -204,5 +230,24 @@ public class ArticleSyncService {
         } catch (Exception e) {
             log.error("데이터 초기화 중 오류 발생", e);
         }
+    }
+
+    @Transactional
+    public void resetWeightsAndCounts() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime before = now.minusHours(6).minusMinutes(30);
+
+        List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByUpdatedAtBetween(before, now);
+        List<ArticleSearchKeywordIpMap> ipMapsToUpdate = ipMapRepository.findByUpdatedAtBetween(before, now);
+
+        for (ArticleSearchKeyword keyword : keywordsToUpdate) {
+            keyword.resetWeight();
+        }
+
+        for (ArticleSearchKeywordIpMap ipMap : ipMapsToUpdate) {
+            ipMap.resetSearchCount();
+        }
+
+        log.info("MySQL 가중치 및 검색 횟수 초기화 완료");
     }
 }

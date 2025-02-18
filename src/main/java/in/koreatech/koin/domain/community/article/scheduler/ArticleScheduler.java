@@ -23,21 +23,21 @@ public class ArticleScheduler {
         }
     }
 
-    @Scheduled(cron = "0 */5 * * * *")
-    public void syncKeywordsToDatabase() {
-        try {
-            articleSyncService.synchronizeSearchKeywords();
-        } catch (Exception e) {
-            log.error("Redis에서 MySQL로 키워드 동기화 중 오류가 발생했습니다.", e);
-        }
-    }
-
     @Scheduled(cron = "0 0 * * * *")
     public void getBusNoticeArticle() {
         try {
             articleSyncService.updateBusNoticeArticle();
         } catch (Exception e) {
             log.error("버스 공지 게시글 조회 중에 오류가 발생했습니다.", e);
+        }
+    }
+
+    @Scheduled(cron = "0 */1 * * * *")
+    public void syncKeywordsToDatabase() {
+        try {
+            articleSyncService.synchronizeAndResetKeywords();
+        } catch (Exception e) {
+            log.error("Redis에서 MySQL로 키워드 동기화 중 오류가 발생했습니다.", e);
         }
     }
 }
