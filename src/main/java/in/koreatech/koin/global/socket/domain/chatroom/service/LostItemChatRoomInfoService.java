@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,10 +59,10 @@ public class LostItemChatRoomInfoService {
         }
 
         return chatRoomInfoList.stream()
-            .map(entity -> {
+            .flatMap(entity -> {
                 var articleSummary = lostItemArticleReader.getArticleSummary(entity.getArticleId());
                 if (articleSummary == null || isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
-                    return null;
+                    return Stream.empty();
                 }
 
                 var messageSummary = messageReader.getMessageSummary(entity.getArticleId(), entity.getChatRoomId(), userId);
@@ -70,6 +71,10 @@ public class LostItemChatRoomInfoService {
                     .chatRoomId(entity.getChatRoomId())
                     .articleTitle(articleSummary.getArticleTitle())
                     .lostItemImageUrl(articleSummary.getItemImage());
+
+                if (messageSummary == null && entity.getAuthorId().equals(userId)) {
+                    return Stream.empty();
+                }
 
                 if(messageSummary == null) {
                     responseBuilder
@@ -82,9 +87,8 @@ public class LostItemChatRoomInfoService {
                         .unreadMessageCount(messageSummary.getUnreadCount())
                         .lastMessageAt(messageSummary.getLastMessageTime());
                 }
-                return responseBuilder.build();
+                return Stream.of(responseBuilder.build());
             })
-            .filter(Objects::nonNull)
             .sorted(Comparator.comparing(ChatRoomListResponse::lastMessageAt, Comparator.reverseOrder()))
             .toList();
     }
