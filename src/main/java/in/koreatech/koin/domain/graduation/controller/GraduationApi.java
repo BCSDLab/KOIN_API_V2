@@ -97,5 +97,6 @@ public interface GraduationApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/graduation/course/calculation")
     ResponseEntity<GraduationCourseCalculationResponse> getGraduationCourseCalculation(
-        @Auth(permit = {STUDENT}) Integer userId);
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 }

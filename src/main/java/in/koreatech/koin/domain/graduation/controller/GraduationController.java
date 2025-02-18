@@ -64,13 +64,6 @@ public class GraduationController implements GraduationApi {
         return ResponseEntity.ok(response);
     }
 
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "교양영역 전체 조회")
     @GetMapping("/general-education-area")
     public ResponseEntity<List<GeneralEducationArea>> getCourseTypeLecture() {
         List<GeneralEducationArea> response = graduationService.getAllGeneralEducationArea();
