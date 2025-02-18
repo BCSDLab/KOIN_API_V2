@@ -1,6 +1,8 @@
 package in.koreatech.koin.global.socket.domain.chatroom.service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,28 +59,44 @@ public class LostItemChatRoomInfoService {
 
         return chatRoomInfoList.stream()
             .map(entity -> {
-                var messageSummary = messageReader.getMessageSummary(entity.getArticleId(), entity.getChatRoomId(), userId);
                 var articleSummary = lostItemArticleReader.getArticleSummary(entity.getArticleId());
-
-                if (messageSummary == null || articleSummary == null) {
+                if (articleSummary == null || isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
                     return null;
                 }
 
-                if (isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
-                    return null;
-                }
-
-                return ChatRoomListResponse.builder()
+                var messageSummary = messageReader.getMessageSummary(entity.getArticleId(), entity.getChatRoomId(), userId);
+                var responseBuilder = ChatRoomListResponse.builder()
                     .articleId(entity.getArticleId())
                     .chatRoomId(entity.getChatRoomId())
                     .articleTitle(articleSummary.getArticleTitle())
-                    .lostItemImageUrl(articleSummary.getItemImage())
-                    .recentMessageContent(messageSummary.getLastMessageContent())
-                    .unreadMessageCount(messageSummary.getUnreadCount())
-                    .lastMessageAt(messageSummary.getLastMessageTime())
-                    .build();
+                    .lostItemImageUrl(articleSummary.getItemImage());
+
+                if(messageSummary == null) {
+                    responseBuilder
+                        .recentMessageContent(null)
+                        .unreadMessageCount(0)
+                        .lastMessageAt(null);
+                } else {
+                    responseBuilder
+                        .recentMessageContent(messageSummary.getLastMessageContent())
+                        .unreadMessageCount(messageSummary.getUnreadCount())
+                        .lastMessageAt(messageSummary.getLastMessageTime());
+                }
+                return responseBuilder.build();
             })
             .filter(Objects::nonNull)
+            .sorted((r1, r2) -> {
+                if (r1.lastMessageAt() != null && r2.lastMessageAt() != null) {
+                    return r2.lastMessageAt().compareTo(r1.lastMessageAt());
+                }
+                if (r1.lastMessageAt() == null && r2.lastMessageAt() != null) {
+                    return 1;
+                }
+                if (r1.lastMessageAt() != null) {
+                    return -1;
+                }
+                return 0;
+            })
             .toList();
     }
 
