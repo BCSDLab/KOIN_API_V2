@@ -1,6 +1,5 @@
 package in.koreatech.koin.global.socket.domain.chatroom.service;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +28,7 @@ public class LostItemChatRoomInfoService {
     private final ChatRoomInfoAppender chatRoomInfoAppender;
     private final LostItemArticleReader lostItemArticleReader;
     private final UserBlockReader userBlockReader;
+    private static final String DEFAULT_MESSAGE = "대화를 시작해보세요!";
 
     public Integer createLostItemChatRoom(Integer articleId, Integer ownerId) {
         var existingChatRoom = chatRoomInfoReader.readByArticleIdAndOwnerId(articleId, ownerId);
@@ -73,9 +73,9 @@ public class LostItemChatRoomInfoService {
 
                 if(messageSummary == null) {
                     responseBuilder
-                        .recentMessageContent(null)
+                        .recentMessageContent(DEFAULT_MESSAGE)
                         .unreadMessageCount(0)
-                        .lastMessageAt(null);
+                        .lastMessageAt(entity.getCreatedAt());
                 } else {
                     responseBuilder
                         .recentMessageContent(messageSummary.getLastMessageContent())
@@ -85,18 +85,7 @@ public class LostItemChatRoomInfoService {
                 return responseBuilder.build();
             })
             .filter(Objects::nonNull)
-            .sorted((r1, r2) -> {
-                if (r1.lastMessageAt() != null && r2.lastMessageAt() != null) {
-                    return r2.lastMessageAt().compareTo(r1.lastMessageAt());
-                }
-                if (r1.lastMessageAt() == null && r2.lastMessageAt() != null) {
-                    return 1;
-                }
-                if (r1.lastMessageAt() != null) {
-                    return -1;
-                }
-                return 0;
-            })
+            .sorted(Comparator.comparing(ChatRoomListResponse::lastMessageAt, Comparator.reverseOrder()))
             .toList();
     }
 
