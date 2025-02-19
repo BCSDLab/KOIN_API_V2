@@ -233,27 +233,27 @@ public class Article extends BaseEntity {
     }
 
     public static Article createLostItemArticle(
-            LostItemArticleRequest request,
-            Board lostItemBoard,
-            User author
+        LostItemArticleRequest request,
+        Board lostItemBoard,
+        User author
     ) {
         List<LostItemImage> images = request.images().stream()
-                .map(image -> LostItemImage.builder()
-                        .imageUrl(image)
-                        .isDeleted(false)
-                        .build())
-                .toList();
+            .map(image -> LostItemImage.builder()
+                .imageUrl(image)
+                .isDeleted(false)
+                .build())
+            .toList();
 
         LostItemArticle lostItemArticle = LostItemArticle.builder()
-                .author(author)
-                .type(request.type())
-                .category(request.category())
-                .foundPlace(getValidatedFoundPlace(request.foundPlace()))
-                .foundDate(request.foundDate())
-                .images(images)
-                .isCouncil(false)
-                .isDeleted(false)
-                .build();
+            .author(author)
+            .type(request.type())
+            .category(request.category())
+            .foundPlace(getValidatedFoundPlace(request.foundPlace()))
+            .foundDate(request.foundDate())
+            .images(images)
+            .isCouncil(false)
+            .isDeleted(false)
+            .build();
 
         if (author.getUserType().equals(COUNCIL)) {
             lostItemArticle.setIsCouncil();
@@ -262,14 +262,14 @@ public class Article extends BaseEntity {
         images.forEach(image -> image.setArticle(lostItemArticle));
 
         Article article = Article.builder()
-                .board(lostItemBoard)
-                .title(lostItemArticle.generateTitle())
-                .content(request.content())
-                .koinArticle(null)
-                .koreatechArticle(null)
-                .lostItemArticle(lostItemArticle)
-                .isDeleted(false)
-                .build();
+            .board(lostItemBoard)
+            .title(lostItemArticle.generateTitle())
+            .content(request.content())
+            .koinArticle(null)
+            .koreatechArticle(null)
+            .lostItemArticle(lostItemArticle)
+            .isDeleted(false)
+            .build();
 
         lostItemArticle.setArticle(article);
         return article;
