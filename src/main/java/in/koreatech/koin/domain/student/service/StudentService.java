@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.student.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -99,20 +100,67 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
-        Department department = departmentRepository.getByName(request.major());
-        /*
-        Major oldMajor = student.getMajor();
-        Major newMajor = majorRepository.getByName(request.major());
-        // 전공 변경 시 학생의 졸업 요건 계산 정보 초기화
-        if (isChangedMajor(oldMajor, newMajor) && student.getStudentNumber() != null) {
+        // 학번에 변경 사항이 생겼을 경우
+        String oldStudentNumber = student.getStudentNumber();
+        String newStudentNumber = request.studentNumber();
+
+        boolean updateStudentNumber = isChangeStudentNumber(oldStudentNumber, newStudentNumber);
+        if (updateStudentNumber) {
+            student.updateStudentNumber(newStudentNumber);
+        }
+
+        // Department 조회
+        Department newDepartment = null;
+        if (request.major() != null) {
+            newDepartment = departmentRepository.getByName(request.major());
+        }
+        Department oldDepartment = student.getDepartment();
+
+        /**
+         * 해당 API에서는 학생의 Major를 수정할 수 없음.
+         * 졸업학점계산기 설계 상으로 학번, 학부, 전공이 변경되면 졸업학점 관련 메소드를 호출해야함.
+         * Department로 조회된 Major의 첫 번째 값을 Student의 Major으로 설정
+         * 단, Department가 변경될 경우만 설정
+         */
+        Major newMajor = null;
+        boolean updateDepartment = isChangedDepartment(oldDepartment, newDepartment);
+        if (updateDepartment) {
+            List<Major> majors = majorRepository.findByDepartmentId(newDepartment.getId());
+            newMajor = majors.get(0);
+            student.updateDepartmentMajor(newDepartment, newMajor);
+        }
+
+        /**
+         * 1. 학생의 학변이 변경됐고, 학부 변경이 없는경우 (학부가 있냐 / 학부가 없냐)
+         * 2. 학생의 학번이 변경이 안되고, 학부 변경이 있는 경우 (학번이 있냐 / 학번이 없냐)
+         * 3. 학생의 학번도 변경되고, 학부 변경도 있는 경우
+         */
+        if (updateStudentNumber && updateDepartment) {
             graduationService.resetStudentCourseCalculation(student, newMajor);
-        }*/
+        }
+        else if (updateDepartment) {
+            if (student.getStudentNumber() != null) {
+                graduationService.resetStudentCourseCalculation(student, newMajor);
+            }
+        }
+        else if (updateStudentNumber) {
+            if (student.getDepartment() != null) {
+                graduationService.resetStudentCourseCalculation(student, newMajor);
+            }
+        }
+
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updateStudentPassword(passwordEncoder, request.password());
-        // student.updateInfo(request.studentNumber(), newMajor);
-        student.updateInfo(request.studentNumber(), department);
 
         return StudentUpdateResponse.from(student);
+    }
+
+    private boolean isChangeStudentNumber(String newStudentNumber, String oldStudentNumber) {
+        return newStudentNumber != null && !newStudentNumber.equals(oldStudentNumber);
+    }
+
+    private boolean isChangedDepartment(Department oldDepartment, Department newDepartment) {
+        return newDepartment != null && !newDepartment.equals(oldDepartment);
     }
 
     @ConcurrencyGuard(lockName = "studentAuthenticate")
