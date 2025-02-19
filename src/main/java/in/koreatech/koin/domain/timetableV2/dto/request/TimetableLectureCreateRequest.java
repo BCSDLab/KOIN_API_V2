@@ -19,6 +19,7 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -39,6 +40,7 @@ public record TimetableLectureCreateRequest(
         String classTitle,
 
         @Valid
+        @NotEmpty(message = "강의 정보는 필수로 입력해야 합니다.")
         @Schema(description = "강의 정보", requiredMode = NOT_REQUIRED)
         List<ClassInfo> classInfos,
 
