@@ -40,12 +40,6 @@ public class OwnerValidator {
         }
     }
 
-    public void validateExistEmailAddress(String email) {
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw DuplicationEmailException.withDetail("account: " + email);
-        }
-    }
-
     public void validateExistCompanyNumber(String companyNumber) {
         if (ownerRepository.findByCompanyRegistrationNumber(companyNumber).isPresent()) {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + companyNumber);

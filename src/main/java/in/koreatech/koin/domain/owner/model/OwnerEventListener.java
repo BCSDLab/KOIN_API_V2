@@ -27,7 +27,6 @@ public class OwnerEventListener {
     private final SlackClient slackClient;
     private final ShopRepository shopRepository;
     private final SlackNotificationFactory slackNotificationFactory;
-    private final OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerEmailRequest(OwnerEmailRequestEvent event) {
