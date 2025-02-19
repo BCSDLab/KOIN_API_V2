@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureC
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
@@ -59,6 +58,9 @@ public class TimetableLectureCreator {
             return null;
         }
         Student student = studentRepository.getById(userId);
+        if (student.getStudentNumber() == null) {
+            return null;
+        }
         Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
 
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),

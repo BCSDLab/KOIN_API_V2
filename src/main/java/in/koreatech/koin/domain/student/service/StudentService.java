@@ -124,7 +124,10 @@ public class StudentService {
             modelAndView.addObject("errorMessage", "토큰이 유효하지 않습니다.");
             return modelAndView;
         }
-        Department department = departmentRepository.getByName(studentTemporaryStatus.get().getDepartment());
+        Department department = null;
+        if (studentTemporaryStatus.get().getDepartment() != null) {
+            department = departmentRepository.getByName(studentTemporaryStatus.get().getDepartment());
+        }
         Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
