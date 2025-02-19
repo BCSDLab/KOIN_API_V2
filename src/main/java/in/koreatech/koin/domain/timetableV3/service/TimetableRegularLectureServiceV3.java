@@ -63,6 +63,9 @@ public class TimetableRegularLectureServiceV3 {
             return null;
         }
         Student student = studentRepository.getById(userId);
+        if (student.getStudentNumber() == null) {
+            return null;
+        }
         Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
 
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
