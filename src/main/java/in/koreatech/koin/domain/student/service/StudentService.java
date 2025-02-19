@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.graduation.service.GraduationService;
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
@@ -163,6 +165,72 @@ public class StudentService {
         return newDepartment != null && !newDepartment.equals(oldDepartment);
     }
 
+    @Transactional
+    public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(Integer userId, StudentAcademicInfoUpdateRequest request) {
+        studentValidationService.validateDepartment(request.department());
+        studentValidationService.validateMajor(request.major());
+
+        Student student = studentRepository.getById(userId);
+
+        // 학번에 변경 사항이 생겼을 경우
+        String oldStudentNumber = student.getStudentNumber();
+        String newStudentNumber = request.studentNumber();
+
+        boolean updateStudentNumber = isChangeStudentNumber(newStudentNumber, oldStudentNumber);
+        if (updateStudentNumber) {
+            student.updateStudentNumber(newStudentNumber);
+        }
+
+        Department newDepartment = departmentRepository.findByName(request.department()).orElse(null);
+        Department oldDepartment = student.getDepartment();
+        boolean updateDepartment = isChangedDepartment(oldDepartment, newDepartment);
+        if (updateDepartment) {
+            student.updateDepartment(newDepartment);
+        }
+
+        Major newMajor = null;
+        if (request.major() != null) {
+            newMajor = majorRepository.getByNameAndDepartmentId(request.major(), student.getDepartment().getId());
+        }
+        Major oldMajor = student.getMajor();
+        boolean updateMajor = isChangedMajor(oldMajor, newMajor);
+        if (updateMajor) {
+            student.updateMajor(newMajor);
+        }
+
+        /**
+         * 해당 API에서는 Major를 수정할 수 있음 (여기서 그대로는 null이 아닌 경우)
+         * 1. 학번, 학부, 전공 모두 변경
+         * 2. 전공만 변경 (학번, 학부는 그대로)
+         * 3. 학부만 변경 (학번, 전공은 그대로)
+         * 4. 학번만 변경 (학부, 전공은 그대로)
+         */
+        if (updateStudentNumber && updateDepartment && updateMajor) {
+            graduationService.resetStudentCourseCalculation(student, newMajor);
+        }
+        else if (updateMajor) {
+            if (student.getDepartment() != null && student.getStudentNumber() != null) {
+                graduationService.resetStudentCourseCalculation(student, newMajor);
+            }
+        }
+        else if (updateDepartment) {
+            if (student.getMajor() != null && student.getStudentNumber() != null) {
+                graduationService.resetStudentCourseCalculation(student, newMajor);
+            }
+        }
+        else if (updateStudentNumber) {
+            if (student.getDepartment() != null && student.getMajor() != null) {
+                graduationService.resetStudentCourseCalculation(student, newMajor);
+            }
+        }
+
+        return StudentAcademicInfoUpdateResponse.from(student);
+    }
+
+    private boolean isChangedMajor(Major oldMajor, Major newMajor) {
+        return newMajor != null && !newMajor.equals(oldMajor);
+    }
+
     @ConcurrencyGuard(lockName = "studentAuthenticate")
     public ModelAndView authenticate(AuthTokenRequest request) {
         Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
@@ -217,9 +285,5 @@ public class StudentService {
         modelAndView.addObject("contextPath", serverUrl);
         modelAndView.addObject("resetToken", resetToken);
         return modelAndView;
-    }
-
-    private boolean isChangedMajor(Major oldMajor, Major newMajor) {
-        return !oldMajor.equals(newMajor);
     }
 }

@@ -20,8 +20,17 @@ public interface MajorRepository extends Repository<Major, Integer> {
 
     List<Major> findByDepartmentId(Integer departmentId);
 
+    boolean existsByName(String name);
+
+    Optional<Major> findByNameAndDepartmentId(String name, Integer departmentId);
+
     default Major getByName(String name) {
         return findByName(name)
             .orElseThrow(() -> DepartmentNotFoundException.withDetail("name: " + name));
+    }
+
+    default Major getByNameAndDepartmentId(String name, Integer departmentId) {
+        return findByNameAndDepartmentId(name, departmentId)
+            .orElseThrow(() -> DepartmentNotFoundException.withDetail("name: " + name + ", departmentId: " + departmentId));
     }
 }

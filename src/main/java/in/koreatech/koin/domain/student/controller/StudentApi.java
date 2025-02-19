@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
@@ -76,9 +77,9 @@ public interface StudentApi {
     @Operation(summary = "학생 학적 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/user/student/academic-info")
-    ResponseEntity<StudentUpdateResponse> updateStudentAcademicInfo(
+    ResponseEntity<StudentAcademicInfoUpdateResponse> updateStudentAcademicInfo(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
-        @Valid StudentAcademicInfoUpdateRequest request
+        @Valid @RequestBody StudentAcademicInfoUpdateRequest request
     );
 
     @ApiResponses(

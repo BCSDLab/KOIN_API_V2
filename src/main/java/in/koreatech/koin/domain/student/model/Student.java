@@ -85,6 +85,14 @@ public class Student {
         this.studentNumber = studentNumber;
     }
 
+    public void updateDepartment(Department department) {
+        this.department = department;
+    }
+
+    public void updateMajor(Major major) {
+        this.major = major;
+    }
+
     public void updateDepartmentMajor(Department department, Major major) {
         this.department = department;
         this.major = major;

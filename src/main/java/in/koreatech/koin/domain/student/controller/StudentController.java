@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
@@ -54,6 +56,15 @@ public class StudentController implements StudentApi{
     ) {
         StudentUpdateResponse studentUpdateResponse = studentService.updateStudent(userId, request);
         return ResponseEntity.ok(studentUpdateResponse);
+    }
+
+    @PutMapping("/user/student/academic-info")
+    public ResponseEntity<StudentAcademicInfoUpdateResponse> updateStudentAcademicInfo(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @Valid @RequestBody StudentAcademicInfoUpdateRequest request
+    ) {
+        StudentAcademicInfoUpdateResponse response = studentService.updateStudentAcademicInfo(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/student/login")
