@@ -18,7 +18,9 @@ import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TechStackFixture;
 import in.koreatech.koin.fixture.TrackFixture;
@@ -42,6 +44,9 @@ public class AdminTrackApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Autowired
+    private DepartmentFixture departmentFixture;
+
+    @Autowired
     private AdminTrackRepository adminTrackRepository;
 
     @Autowired
@@ -54,7 +59,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_조회한다_관리자가_아니면_403_반환() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(

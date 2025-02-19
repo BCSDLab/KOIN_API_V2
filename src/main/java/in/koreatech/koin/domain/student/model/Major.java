@@ -39,9 +39,8 @@ public class Major extends BaseEntity {
     private Department department;
 
     @Builder
-    public Major(
-        String name
-    ) {
+    public Major(String name, Department department) {
         this.name = name;
+        this.department = department;
     }
 }
