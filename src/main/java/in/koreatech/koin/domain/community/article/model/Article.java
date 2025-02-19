@@ -119,6 +119,7 @@ public class Article extends BaseEntity {
     @PostLoad
     public void updateAuthor() {
         if (koreatechArticle == null && koinArticle == null && lostItemArticle == null) {
+            author = "익명";
             return;
         }
         if (koreatechArticle != null) {
