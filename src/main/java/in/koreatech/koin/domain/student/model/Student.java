@@ -81,11 +81,6 @@ public class Student {
         this.department = department;
     }
 
-    public void updateInfo(String studentNumber, Major major) {
-        this.studentNumber = studentNumber;
-        this.major = major;
-    }
-
     public void updateStudentNumber(String studentNumber) {
         this.studentNumber = studentNumber;
     }
