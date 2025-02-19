@@ -51,4 +51,6 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
     }
 
     List<Catalog> findByLectureNameAndDepartment(String lectureName, Department department);
+
+    List<Catalog> findAllByYearAndCourseTypeId(String year, Integer courseTypeId);
 }

@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
+import in.koreatech.koin.domain.graduation.dto.EducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileNotFoundException;
@@ -83,6 +84,7 @@ public class GraduationService {
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
     private static final String DEFAULTCOURSERTYPE = "이수구분선택";
+    private static final String EDUCATIONCOURSETYPE = "교양선택";
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -505,5 +507,49 @@ public class GraduationService {
 
     public List<GeneralEducationArea> getAllGeneralEducationArea() {
         return generalEducationAreaRepository.findAll();
+    }
+
+    public EducationLectureResponse getEducationLecture(Integer userId) {
+        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
+
+        List<TimetableLecture> educationTimetableLectures = timetableFrames.stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .filter(lecture -> lecture.getGeneralEducationArea() != null)
+            .collect(Collectors.groupingBy(TimetableLecture::getGeneralEducationArea))
+            .values()
+            .stream()
+            .map(list -> list.get(0))
+            .toList();
+
+        List<GeneralEducationArea> generalEducationAreas = catalogRepository.findAllByYearAndCourseTypeId(
+                StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber()),
+                courseTypeRepository.getByName(EDUCATIONCOURSETYPE).getId())
+            .stream()
+            .filter(catalog -> catalog.getGeneralEducationArea() != null)
+            .collect(Collectors.groupingBy(Catalog::getGeneralEducationArea))
+            .values()
+            .stream()
+            .map(list -> list.get(0).getGeneralEducationArea())
+            .toList();
+
+        Map<String, EducationLectureResponse.RequiredEducationArea> requiredEducationAreaMap = new HashMap<>();
+
+        for (GeneralEducationArea generalEducationArea : generalEducationAreas) {
+            boolean isCompleted = false;
+            String lectureName = null;
+
+            for (TimetableLecture timetableLecture : educationTimetableLectures) {
+                if (timetableLecture.getGeneralEducationArea().equals(generalEducationArea)) {
+                    isCompleted = true;
+                    lectureName = timetableLecture.getLecture().getName();
+                    break;
+                }
+            }
+
+            requiredEducationAreaMap.put(generalEducationArea.getName(),
+                EducationLectureResponse.RequiredEducationArea.of(generalEducationArea.getName(), isCompleted, lectureName));
+        }
+
+        return EducationLectureResponse.of(new ArrayList<>(requiredEducationAreaMap.values()));
     }
 }
