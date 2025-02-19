@@ -16,12 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.CourseTypeFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
@@ -47,14 +49,19 @@ public class TimetableLectureApiTest extends AcceptanceTest {
     @Autowired
     private CourseTypeFixture courseTypeFixture;
 
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
     private User user;
     private String token;
     private Semester semester;
+    private Department department;
 
     @BeforeAll
     void setup() {
         clear();
-        user = userFixture.준호_학생().getUser();
+        department = departmentFixture.컴퓨터공학부();
+        user = userFixture.준호_학생(department, null).getUser();
         token = userFixture.getToken(user);
         semester = semesterFixture.semester_2019년도_2학기();
     }
