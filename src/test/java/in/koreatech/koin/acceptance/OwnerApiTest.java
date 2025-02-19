@@ -676,7 +676,7 @@ class OwnerApiTest extends AcceptanceTest {
     void 사업자_등록번호_중복_검증_존재하지_않으면_200() throws Exception {
         // when & then
         mockMvc.perform(
-                get("/owners/exists/company-number")
+                post("/owners/exists/company-number")
                     .queryParam("company_number", "123-45-67190")
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -689,7 +689,7 @@ class OwnerApiTest extends AcceptanceTest {
         Owner owner = userFixture.현수_사장님();
         // when & then
         mockMvc.perform(
-                get("/owners/exists/company-number")
+                post("/owners/exists/company-number")
                     .queryParam("company_number", owner.getCompanyRegistrationNumber())
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -700,7 +700,7 @@ class OwnerApiTest extends AcceptanceTest {
     void 사업자_등록번호_중복_검증_값이_존재하지_않으면_400() throws Exception {
         // when & then
         mockMvc.perform(
-                get("/owners/exists/company-number")
+                post("/owners/exists/company-number")
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
@@ -710,7 +710,7 @@ class OwnerApiTest extends AcceptanceTest {
     void 사업자_등록번호_중복_검증_값이_올바르지_않으면_400() throws Exception {
         // when & then
         mockMvc.perform(
-                get("/owners/exists/company-number")
+                post("/owners/exists/company-number")
                     .queryParam("company_number", "1234567890")
                     .contentType(MediaType.APPLICATION_JSON)
             )
