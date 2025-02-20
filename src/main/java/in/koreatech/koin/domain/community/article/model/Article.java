@@ -132,7 +132,8 @@ public class Article extends BaseEntity {
             return;
         }
         if (lostItemArticle != null) {
-            author = (lostItemArticle.getAuthor() != null) ? lostItemArticle.getAuthor().getNickname() : UNKNOWN_AUTHOR;
+            User user = lostItemArticle.getAuthor();
+            author = (user != null && user.getNickname() != null) ? user.getNickname() : UNKNOWN_AUTHOR;
             return;
         }
         author = UNKNOWN_AUTHOR;
