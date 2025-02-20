@@ -105,7 +105,8 @@ public class GraduationService {
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
-        List<StudentCourseCalculation> studentCourseCalculations = studentCourseCalculationRepository.findAllByUserId(student.getUser().getId());
+        List<StudentCourseCalculation> studentCourseCalculations = studentCourseCalculationRepository.findAllByUserId(
+            student.getUser().getId());
         if (!studentCourseCalculations.isEmpty()) {
             studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
         }
@@ -547,7 +548,8 @@ public class GraduationService {
             }
 
             requiredEducationAreaMap.put(generalEducationArea.getName(),
-                EducationLectureResponse.RequiredEducationArea.of(generalEducationArea.getName(), isCompleted, lectureName));
+                EducationLectureResponse.RequiredEducationArea.of(generalEducationArea.getName(), isCompleted,
+                    lectureName));
         }
 
         return EducationLectureResponse.of(new ArrayList<>(requiredEducationAreaMap.values()));

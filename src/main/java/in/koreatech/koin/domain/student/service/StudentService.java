@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.student.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,7 +20,6 @@ import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
-import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
@@ -125,13 +125,12 @@ public class StudentService {
          */
         Major newMajor = null;
         boolean updateDepartment = isChangedDepartment(oldDepartment, newDepartment);
-        if (updateDepartment) {
+        if (updateDepartment && newDepartment != null) {
             List<Major> majors = majorRepository.findByDepartmentId(newDepartment.getId());
-            if (majors.isEmpty()) {
-                throw new MajorNotFoundException("해당 학부에 전공이 존재하지 않습니다: " + newDepartment.getName());
-            }
             newMajor = majors.get(0);
             student.updateDepartmentMajor(newDepartment, newMajor);
+        } else if (newDepartment == null) {
+            student.updateDepartmentMajor(null, null);
         }
 
         /**
@@ -140,13 +139,15 @@ public class StudentService {
          * 3. 학생의 학번도 변경되고, 학부 변경도 있는 경우
          */
         if (updateStudentNumber && updateDepartment) {
-            graduationService.resetStudentCourseCalculation(student, newMajor);
+            if (student.getStudentNumber() != null && student.getDepartment() != null) {
+                graduationService.resetStudentCourseCalculation(student, newMajor);
+            }
         } else if (updateDepartment) {
-            if (student.getStudentNumber() != null) {
+            if (student.getStudentNumber() != null && student.getDepartment() != null) {
                 graduationService.resetStudentCourseCalculation(student, newMajor);
             }
         } else if (updateStudentNumber) {
-            if (student.getDepartment() != null) {
+            if (student.getDepartment() != null && student.getStudentNumber() != null) {
                 graduationService.resetStudentCourseCalculation(student, newMajor);
             }
         }
@@ -158,11 +159,11 @@ public class StudentService {
     }
 
     private boolean isChangeStudentNumber(String newStudentNumber, String oldStudentNumber) {
-        return newStudentNumber != null && !newStudentNumber.equals(oldStudentNumber);
+        return !Objects.equals(newStudentNumber, oldStudentNumber);
     }
 
     private boolean isChangedDepartment(Department oldDepartment, Department newDepartment) {
-        return newDepartment != null && !newDepartment.equals(oldDepartment);
+        return !Objects.equals(newDepartment, oldDepartment);
     }
 
     @Transactional
