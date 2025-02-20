@@ -130,6 +130,10 @@ public class StudentService {
             List<Major> majors = majorRepository.findByDepartmentId(newDepartment.getId());
             newMajor = majors.get(0);
             student.updateDepartmentMajor(newDepartment, newMajor);
+        } else if (student.getDepartment() != null && student.getMajor() == null) {
+            List<Major> majors = majorRepository.findByDepartmentId(student.getDepartment().getId());
+            newMajor = majors.get(0);
+            student.updateDepartmentMajor(student.getDepartment(), newMajor);
         }
 
         /**
@@ -171,17 +175,12 @@ public class StudentService {
         studentValidationService.validateMajor(request.major());
 
         Student student = studentRepository.getById(userId);
-
         // 학번에 변경 사항이 생겼을 경우
         String oldStudentNumber = student.getStudentNumber();
         String newStudentNumber = request.studentNumber();
         boolean updateStudentNumber = isChangeStudentNumber(newStudentNumber, oldStudentNumber);
-
         // 학부에 변경 사항이 생겼을 경우
-        Department newDepartment = departmentRepository.findByName(request.department()).orElse(null);
-        Department oldDepartment = student.getDepartment();
-        boolean updateDepartment = isChangedDepartment(oldDepartment, newDepartment);
-
+        Department newDepartment = departmentRepository.getByName(request.department());
         // 전공에 변경 사항이 생겼을 경우
         Major newMajor = majorRepository.getByNameAndDepartmentId(request.major(), student.getDepartment().getId());
         Major oldMajor = student.getMajor();
@@ -191,21 +190,15 @@ public class StudentService {
 
         /**
          * 해당 API에서는 Major를 수정할 수 있음 (여기서 그대로는 null이 아닌 경우)
-         * 1. 학번, 학부, 전공 모두 변경
+         * 1. 학번, 전공 모두 변경
          * 2. 전공만 변경 (학번, 학부는 그대로)
-         * 3. 학부만 변경 (학번, 전공은 그대로)
-         * 4. 학번만 변경 (학부, 전공은 그대로)
+         * 3. 학번만 변경 (학부, 전공은 그대로)
          */
-        if (updateStudentNumber && updateDepartment && updateMajor) {
+        if (updateStudentNumber && updateMajor) {
             graduationService.resetStudentCourseCalculation(student, newMajor);
         }
         else if (updateMajor) {
             if (student.getDepartment() != null && student.getStudentNumber() != null) {
-                graduationService.resetStudentCourseCalculation(student, newMajor);
-            }
-        }
-        else if (updateDepartment) {
-            if (student.getMajor() != null && student.getStudentNumber() != null) {
                 graduationService.resetStudentCourseCalculation(student, newMajor);
             }
         }
