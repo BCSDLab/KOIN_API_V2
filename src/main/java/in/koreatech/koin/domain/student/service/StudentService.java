@@ -128,10 +128,6 @@ public class StudentService {
             List<Major> majors = majorRepository.findByDepartmentId(newDepartment.getId());
             newMajor = majors.get(0);
             student.updateDepartmentMajor(newDepartment, newMajor);
-        } else if (student.getDepartment() != null && student.getMajor() == null) {
-            List<Major> majors = majorRepository.findByDepartmentId(student.getDepartment().getId());
-            newMajor = majors.get(0);
-            student.updateDepartmentMajor(student.getDepartment(), newMajor);
         }
 
         /**
