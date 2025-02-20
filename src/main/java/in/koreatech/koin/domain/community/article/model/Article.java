@@ -44,6 +44,7 @@ import lombok.NoArgsConstructor;
 public class Article extends BaseEntity {
 
     private static final String ADMIN_NOTICE_AUTHOR = "BCSD Lab";
+    private static final String UNKNOWN_AUTHOR = "탈퇴한 사용자";
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -118,27 +119,24 @@ public class Article extends BaseEntity {
     @PostPersist
     @PostLoad
     public void updateAuthor() {
-        if (koreatechArticle == null && koinArticle == null && lostItemArticle == null) {
-            author = "익명";
-            return;
-        }
-        if (koreatechArticle != null) {
-            author = koreatechArticle.getAuthor();
-            return;
-        }
-        if (lostItemArticle != null) {
-            author = lostItemArticle.getAuthor().getNickname();
-            return;
-        }
         if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
             author = ADMIN_NOTICE_AUTHOR;
             return;
         }
-        if (Objects.equals(koinArticle.getUser(), null)) {
-            author = "탈퇴한 사용자";
+        if (koinArticle != null) {
+            author = (koinArticle.getUser() != null) ? koinArticle.getUser().getName() : UNKNOWN_AUTHOR;
             return;
         }
-        author = koinArticle.getUser().getName();
+        if (koreatechArticle != null) {
+            author = (koreatechArticle.getAuthor() != null) ? koreatechArticle.getAuthor() : UNKNOWN_AUTHOR;
+            return;
+        }
+        if (lostItemArticle != null) {
+            User user = lostItemArticle.getAuthor();
+            author = (user != null && user.getNickname() != null) ? user.getNickname() : UNKNOWN_AUTHOR;
+            return;
+        }
+        author = UNKNOWN_AUTHOR;
     }
 
     public void setAuthor(String author) {
