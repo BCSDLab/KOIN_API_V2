@@ -151,7 +151,7 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_정보를_수정한다() throws Exception {
-        departmentFixture.전체학부();
+        majorFixture.기계공학전공(departmentFixture.기계공학부());
         Department department = departmentFixture.컴퓨터공학부();
 
         Student student = userFixture.준호_학생(department, null);
