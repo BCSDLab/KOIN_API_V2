@@ -95,11 +95,17 @@ public class GraduationService {
 
         initializeStudentCourseCalculation(student, student.getMajor());
 
-        DetectGraduationCalculation detectGraduationCalculation = DetectGraduationCalculation.builder()
-            .user(student.getUser())
-            .isChanged(false)
-            .build();
-        detectGraduationCalculationRepository.save(detectGraduationCalculation);
+        detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
+            .ifPresentOrElse(
+                existingCalculation -> existingCalculation.updatedIsChanged(false),
+                () -> {
+                    DetectGraduationCalculation newCalculation = DetectGraduationCalculation.builder()
+                        .user(student.getUser())
+                        .isChanged(false)
+                        .build();
+                    detectGraduationCalculationRepository.save(newCalculation);
+                }
+            );
     }
 
     @Transactional
