@@ -138,18 +138,11 @@ public class StudentService {
          * 2. 학생의 학번이 변경이 안되고, 학부 변경이 있는 경우 (학번이 있냐 / 학번이 없냐)
          * 3. 학생의 학번도 변경되고, 학부 변경도 있는 경우
          */
-        if (updateStudentNumber && updateDepartment) {
-            if (student.getStudentNumber() != null && student.getDepartment() != null) {
-                graduationService.resetStudentCourseCalculation(student, newMajor);
-            }
-        } else if (updateDepartment) {
-            if (student.getStudentNumber() != null && student.getDepartment() != null) {
-                graduationService.resetStudentCourseCalculation(student, newMajor);
-            }
-        } else if (updateStudentNumber) {
-            if (student.getDepartment() != null && student.getStudentNumber() != null) {
-                graduationService.resetStudentCourseCalculation(student, newMajor);
-            }
+        if ((updateStudentNumber || updateDepartment)
+            && student.getStudentNumber() != null
+            && student.getDepartment() != null
+        ) {
+            graduationService.resetStudentCourseCalculation(student, newMajor);
         }
 
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
