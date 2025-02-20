@@ -15,7 +15,7 @@ public record StudentAcademicInfoUpdateResponse(
 
     @Schema(
         description = """
-            전공
+            학부
             - 기계공학부
             - 컴퓨터공학부
             - 메카트로닉스공학부
@@ -34,7 +34,7 @@ public record StudentAcademicInfoUpdateResponse(
 
     @Schema(
         description = """
-                학부 및 전공 정보:
+                전공:
                 - 컴퓨터공학부 (null)
                 - 기계공학부 (null)
                 - 메카트로닉스공학부 (생산시스템전공, 제어시스템전공, 디지털시스템전공)
