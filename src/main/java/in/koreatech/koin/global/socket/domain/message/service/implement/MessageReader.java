@@ -41,9 +41,8 @@ public class MessageReader {
         // 최근 메시지 내용 조회
         String lastMessageContent = messages.stream()
             .max(Comparator.comparing(ChatMessageEntity::getId))
-            .map(ChatMessageEntity::getContents)
+            .map(message -> message.getIsImage() ? "사진" : message.getContents())
             .orElse("");
-
 
         //최근 메시지 시간 조회
         LocalDateTime lastMessageTime = messages.stream()
