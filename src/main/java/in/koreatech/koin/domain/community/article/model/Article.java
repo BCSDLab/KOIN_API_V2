@@ -246,7 +246,7 @@ public class Article extends BaseEntity {
             .author(author)
             .type(request.type())
             .category(request.category())
-            .foundPlace(request.foundPlace())
+            .foundPlace(getValidatedFoundPlace(request.foundPlace()))
             .foundDate(request.foundDate())
             .images(images)
             .isCouncil(false)
@@ -271,5 +271,9 @@ public class Article extends BaseEntity {
 
         lostItemArticle.setArticle(article);
         return article;
+    }
+
+    private static String getValidatedFoundPlace(String foundPlace) {
+        return (foundPlace == null || foundPlace.isBlank()) ? "장소 미상" : foundPlace;
     }
 }

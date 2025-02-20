@@ -61,21 +61,6 @@ public class SlackNotificationFactory {
     }
 
     /**
-     * 사장님 이메일 인증 완료 알림
-     */
-    public SlackNotification generateOwnerEmailVerificationCompleteNotification(
-        String content
-    ) {
-        return SlackNotification.builder()
-            .slackUrl(ownerEventNotificationUrl)
-            .text(String.format("""
-                `%s(사장님)님이 이메일 인증을 완료했습니다.`
-                """, content)
-            )
-            .build();
-    }
-
-    /**
      * 사장님 회원가입 요청 알림
      */
     public SlackNotification generateOwnerRegisterRequestNotification(
