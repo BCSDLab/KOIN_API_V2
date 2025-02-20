@@ -112,10 +112,7 @@ public class StudentService {
         }
 
         // Department 조회
-        Department newDepartment = null;
-        if (request.major() != null) {
-            newDepartment = departmentRepository.getByName(request.major());
-        }
+        Department newDepartment = departmentRepository.findByName(request.major()).orElse(null);
         Department oldDepartment = student.getDepartment();
 
         /**
@@ -123,6 +120,7 @@ public class StudentService {
          * 졸업학점계산기 설계 상으로 학번, 학부, 전공이 변경되면 졸업학점 관련 메소드를 호출해야함.
          * Department로 조회된 Major의 첫 번째 값을 Student의 Major으로 설정
          * 단, Department가 변경될 경우만 설정
+         * 초기 major 설정이 안 되어 있는 경우에도 동일한 로직을 수행
          */
         Major newMajor = null;
         boolean updateDepartment = isChangedDepartment(oldDepartment, newDepartment);
