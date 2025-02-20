@@ -141,13 +141,11 @@ public class StudentService {
          */
         if (updateStudentNumber && updateDepartment) {
             graduationService.resetStudentCourseCalculation(student, newMajor);
-        }
-        else if (updateDepartment) {
+        } else if (updateDepartment) {
             if (student.getStudentNumber() != null) {
                 graduationService.resetStudentCourseCalculation(student, newMajor);
             }
-        }
-        else if (updateStudentNumber) {
+        } else if (updateStudentNumber) {
             if (student.getDepartment() != null) {
                 graduationService.resetStudentCourseCalculation(student, newMajor);
             }
@@ -168,7 +166,8 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(Integer userId, StudentAcademicInfoUpdateRequest request) {
+    public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(Integer userId,
+        StudentAcademicInfoUpdateRequest request) {
         studentValidationService.validateDepartment(request.department());
         studentValidationService.validateMajor(request.major());
 
@@ -194,13 +193,11 @@ public class StudentService {
          */
         if (updateStudentNumber && updateMajor) {
             graduationService.resetStudentCourseCalculation(student, newMajor);
-        }
-        else if (updateMajor) {
+        } else if (updateMajor) {
             if (student.getDepartment() != null && student.getStudentNumber() != null) {
                 graduationService.resetStudentCourseCalculation(student, newMajor);
             }
-        }
-        else if (updateStudentNumber) {
+        } else if (updateStudentNumber) {
             if (student.getDepartment() != null && student.getMajor() != null) {
                 graduationService.resetStudentCourseCalculation(student, newMajor);
             }
