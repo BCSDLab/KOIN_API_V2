@@ -177,10 +177,12 @@ public class StudentService {
         String newStudentNumber = request.studentNumber();
         boolean updateStudentNumber = isChangeStudentNumber(newStudentNumber, oldStudentNumber);
 
+        // 학부에 변경 사항이 생겼을 경우
         Department newDepartment = departmentRepository.findByName(request.department()).orElse(null);
         Department oldDepartment = student.getDepartment();
         boolean updateDepartment = isChangedDepartment(oldDepartment, newDepartment);
 
+        // 전공에 변경 사항이 생겼을 경우
         Major newMajor = majorRepository.getByNameAndDepartmentId(request.major(), student.getDepartment().getId());
         Major oldMajor = student.getMajor();
         boolean updateMajor = isChangedMajor(oldMajor, newMajor);
