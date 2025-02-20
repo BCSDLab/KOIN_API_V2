@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.graduation.controller;
 import java.io.IOException;
 import java.util.List;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
@@ -78,9 +79,9 @@ public class GraduationController implements GraduationApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/graduation/lecture/education")
+    @GetMapping("/graduation/lecture/general-education")
     public ResponseEntity<EducationLectureResponse> getEducationLecture(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         EducationLectureResponse response = graduationService.getEducationLecture(userId);
         return ResponseEntity.ok(response);

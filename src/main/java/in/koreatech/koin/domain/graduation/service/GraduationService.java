@@ -84,7 +84,7 @@ public class GraduationService {
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
     private static final String DEFAULTCOURSERTYPE = "이수구분선택";
-    private static final String EDUCATIONCOURSETYPE = "교양선택";
+    private static final String GENERALEDUCATIONCOURSETYPE = "교양선택";
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -523,7 +523,7 @@ public class GraduationService {
 
         List<GeneralEducationArea> generalEducationAreas = catalogRepository.findAllByYearAndCourseTypeId(
                 StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber()),
-                courseTypeRepository.getByName(EDUCATIONCOURSETYPE).getId())
+                courseTypeRepository.getByName(GENERALEDUCATIONCOURSETYPE).getId())
             .stream()
             .filter(catalog -> catalog.getGeneralEducationArea() != null)
             .collect(Collectors.groupingBy(Catalog::getGeneralEducationArea))

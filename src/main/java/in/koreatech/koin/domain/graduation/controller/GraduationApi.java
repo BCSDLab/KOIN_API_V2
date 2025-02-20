@@ -111,7 +111,7 @@ public interface GraduationApi {
     )
     @Operation(summary = "현재 이수한 교양 강의 출력")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/graduation/lecture/education")
+    @GetMapping("/graduation/lecture/general-education")
     ResponseEntity<EducationLectureResponse> getEducationLecture(
         @Auth(permit = {STUDENT}) Integer userId
     );
