@@ -19,6 +19,7 @@ import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
@@ -126,6 +127,9 @@ public class StudentService {
         boolean updateDepartment = isChangedDepartment(oldDepartment, newDepartment);
         if (updateDepartment) {
             List<Major> majors = majorRepository.findByDepartmentId(newDepartment.getId());
+            if (majors.isEmpty()) {
+                throw new MajorNotFoundException("해당 학부에 전공이 존재하지 않습니다: " + newDepartment.getName());
+            }
             newMajor = majors.get(0);
             student.updateDepartmentMajor(newDepartment, newMajor);
         }
@@ -165,7 +169,9 @@ public class StudentService {
     public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(Integer userId,
         StudentAcademicInfoUpdateRequest request) {
         studentValidationService.validateDepartment(request.department());
-        studentValidationService.validateMajor(request.major());
+        if (request.department() != null) {
+            studentValidationService.validateMajor(request.major());
+        }
 
         Student student = studentRepository.getById(userId);
         // 학번에 변경 사항이 생겼을 경우
