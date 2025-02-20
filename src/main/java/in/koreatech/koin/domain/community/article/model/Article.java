@@ -118,27 +118,23 @@ public class Article extends BaseEntity {
     @PostPersist
     @PostLoad
     public void updateAuthor() {
-        if (koreatechArticle == null && koinArticle == null && lostItemArticle == null) {
-            author = "익명";
-            return;
-        }
-        if (koreatechArticle != null) {
-            author = koreatechArticle.getAuthor();
-            return;
-        }
-        if (lostItemArticle != null) {
-            author = lostItemArticle.getAuthor().getNickname();
-            return;
-        }
         if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
             author = ADMIN_NOTICE_AUTHOR;
             return;
         }
-        if (Objects.equals(koinArticle.getUser(), null)) {
-            author = "탈퇴한 사용자";
+        if (koinArticle != null) {
+            author = (koinArticle.getUser() != null) ? koinArticle.getUser().getName() : "탈퇴한 사용자";
             return;
         }
-        author = koinArticle.getUser().getName();
+        if (koreatechArticle != null) {
+            author = (koreatechArticle.getAuthor() != null) ? koreatechArticle.getAuthor() : "익명";
+            return;
+        }
+        if (lostItemArticle != null) {
+            author = (lostItemArticle.getAuthor() != null) ? lostItemArticle.getAuthor().getNickname() : "익명";
+            return;
+        }
+        author = "익명";
     }
 
     public void setAuthor(String author) {
