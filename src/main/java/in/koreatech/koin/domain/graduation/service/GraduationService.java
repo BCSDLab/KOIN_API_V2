@@ -517,10 +517,10 @@ public class GraduationService {
                 throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
                 };
             });
-        studentCourseCalculationRepository.findByUserId(userId)
-            .ifPresent(studentCourseCalculation -> {
-                throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
-                };
-            });
+        if (!studentCourseCalculationRepository.findAllByUserId(userId).isEmpty()) {
+            throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
+            };
+        }
+
     }
 }
