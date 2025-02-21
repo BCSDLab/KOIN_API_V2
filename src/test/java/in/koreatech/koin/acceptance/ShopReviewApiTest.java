@@ -1,11 +1,12 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.shop.model.review.ReportStatus.*;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
 
@@ -27,7 +28,9 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepository;
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.ShopReviewReportCategoryFixture;
@@ -44,6 +47,9 @@ class ShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @Autowired
     private ShopReviewFixture shopReviewFixture;
@@ -64,6 +70,7 @@ class ShopReviewApiTest extends AcceptanceTest {
     private Student 준호_학생;
     private Student 익명_학생;
     private String token_준호;
+    private Department 컴퓨터_공학부;
     private ShopReviewReportCategory 신고_카테고리_1;
     private ShopReviewReportCategory 신고_카테고리_2;
     private ShopReviewReportCategory 신고_카테고리_3;
@@ -83,8 +90,9 @@ class ShopReviewApiTest extends AcceptanceTest {
     @BeforeAll
     void setUp() {
         clear();
-        준호_학생 = userFixture.준호_학생();
-        익명_학생 = userFixture.익명_학생();
+        컴퓨터_공학부 = departmentFixture.컴퓨터공학부();
+        준호_학생 = userFixture.준호_학생(컴퓨터_공학부, null);
+        익명_학생 = userFixture.익명_학생(컴퓨터_공학부);
         현수_사장님 = userFixture.현수_사장님();
         신전_떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(현수_사장님);
         token_준호 = userFixture.getToken(준호_학생.getUser());

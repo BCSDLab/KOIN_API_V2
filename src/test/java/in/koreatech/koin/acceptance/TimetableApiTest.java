@@ -2,7 +2,8 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,10 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.repository.TimetableRepository;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
@@ -40,6 +43,9 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Autowired
     private SemesterFixture semesterFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @BeforeAll
     void setup() {
@@ -186,7 +192,8 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 시간표를_조회한다() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester_2019년도_2학기();
 
@@ -245,7 +252,8 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 시간표를_조회한다_시간표_프레임_없으면_생성() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester_2019년도_2학기();
 
@@ -269,7 +277,8 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 시간표를_생성한다() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester_2019년도_2학기();
 
@@ -362,7 +371,8 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 시간표를_단일_생성한다_전체_반환() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester_2019년도_2학기();
 
@@ -469,7 +479,8 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 시간표를_삭제한다() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester_2019년도_2학기();
 

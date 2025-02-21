@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.graduation.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -11,6 +12,8 @@ public interface StudentCourseCalculationRepository extends Repository<StudentCo
     void save(StudentCourseCalculation studentCourseCalculation);
 
     Optional<StudentCourseCalculation> findByUserId(Integer userId);
+
+    List<StudentCourseCalculation> findAllByUserId(Integer userId);
 
     StudentCourseCalculation findByUserIdAndStandardGraduationRequirementsId(Integer userId, Integer id);
 

@@ -1,8 +1,10 @@
 package in.koreatech.koin.global.socket.domain.chatroom.service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class LostItemChatRoomInfoService {
     private final ChatRoomInfoAppender chatRoomInfoAppender;
     private final LostItemArticleReader lostItemArticleReader;
     private final UserBlockReader userBlockReader;
+    private static final String DEFAULT_MESSAGE = "대화를 시작해보세요!";
 
     public Integer createLostItemChatRoom(Integer articleId, Integer ownerId) {
         var existingChatRoom = chatRoomInfoReader.readByArticleIdAndOwnerId(articleId, ownerId);
@@ -56,29 +59,37 @@ public class LostItemChatRoomInfoService {
         }
 
         return chatRoomInfoList.stream()
-            .map(entity -> {
-                var messageSummary = messageReader.getMessageSummary(entity.getArticleId(), entity.getChatRoomId(), userId);
+            .flatMap(entity -> {
                 var articleSummary = lostItemArticleReader.getArticleSummary(entity.getArticleId());
-
-                if (messageSummary == null || articleSummary == null) {
-                    return null;
+                if (articleSummary == null || isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
+                    return Stream.empty();
                 }
 
-                if (isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
-                    return null;
-                }
-
-                return ChatRoomListResponse.builder()
+                var messageSummary = messageReader.getMessageSummary(entity.getArticleId(), entity.getChatRoomId(), userId);
+                var responseBuilder = ChatRoomListResponse.builder()
                     .articleId(entity.getArticleId())
                     .chatRoomId(entity.getChatRoomId())
                     .articleTitle(articleSummary.getArticleTitle())
-                    .lostItemImageUrl(articleSummary.getItemImage())
-                    .recentMessageContent(messageSummary.getLastMessageContent())
-                    .unreadMessageCount(messageSummary.getUnreadCount())
-                    .lastMessageAt(messageSummary.getLastMessageTime())
-                    .build();
+                    .lostItemImageUrl(articleSummary.getItemImage());
+
+                if (messageSummary == null && entity.getAuthorId().equals(userId)) {
+                    return Stream.empty();
+                }
+
+                if(messageSummary == null) {
+                    responseBuilder
+                        .recentMessageContent(DEFAULT_MESSAGE)
+                        .unreadMessageCount(0)
+                        .lastMessageAt(entity.getCreatedAt());
+                } else {
+                    responseBuilder
+                        .recentMessageContent(messageSummary.getLastMessageContent())
+                        .unreadMessageCount(messageSummary.getUnreadCount())
+                        .lastMessageAt(messageSummary.getLastMessageTime());
+                }
+                return Stream.of(responseBuilder.build());
             })
-            .filter(Objects::nonNull)
+            .sorted(Comparator.comparing(ChatRoomListResponse::lastMessageAt, Comparator.reverseOrder()))
             .toList();
     }
 

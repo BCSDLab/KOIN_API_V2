@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
+import in.koreatech.koin.domain.graduation.dto.EducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileNotFoundException;
@@ -38,6 +39,7 @@ import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculatio
 import in.koreatech.koin.domain.graduation.repository.GeneralEducationAreaRepository;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotFoundException;
 import in.koreatech.koin.domain.student.model.Major;
@@ -57,6 +59,8 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.exception.DuplicationException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -83,11 +87,13 @@ public class GraduationService {
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
     private static final String DEFAULTCOURSERTYPE = "이수구분선택";
+    private static final String GENERALEDUCATIONCOURSETYPE = "교양선택";
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
         Student student = studentRepository.getById(userId);
 
+        validateGraduationCalculatedDataExist(userId);
         validateStudentField(student.getMajor(), "전공을 추가하세요.");
         validateStudentField(student.getStudentNumber(), "학번을 추가하세요.");
 
@@ -103,10 +109,10 @@ public class GraduationService {
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
-        studentCourseCalculationRepository.findByUserId(student.getUser().getId())
-            .ifPresent(studentCourseCalculation -> {
-                studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
-            });
+        List<StudentCourseCalculation> studentCourseCalculations = studentCourseCalculationRepository.findAllByUserId(student.getUser().getId());
+        if (!studentCourseCalculations.isEmpty()) {
+            studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
+        }
 
         initializeStudentCourseCalculation(student, newMajor);
 
@@ -505,5 +511,62 @@ public class GraduationService {
 
     public List<GeneralEducationArea> getAllGeneralEducationArea() {
         return generalEducationAreaRepository.findAll();
+    }
+
+    public EducationLectureResponse getEducationLecture(Integer userId) {
+        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
+
+        List<TimetableLecture> educationTimetableLectures = timetableFrames.stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .filter(lecture -> lecture.getGeneralEducationArea() != null)
+            .collect(Collectors.groupingBy(TimetableLecture::getGeneralEducationArea))
+            .values()
+            .stream()
+            .map(list -> list.get(0))
+            .toList();
+
+        List<GeneralEducationArea> generalEducationAreas = catalogRepository.findAllByYearAndCourseTypeId(
+                StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber()),
+                courseTypeRepository.getByName(GENERALEDUCATIONCOURSETYPE).getId())
+            .stream()
+            .filter(catalog -> catalog.getGeneralEducationArea() != null)
+            .collect(Collectors.groupingBy(Catalog::getGeneralEducationArea))
+            .values()
+            .stream()
+            .map(list -> list.get(0).getGeneralEducationArea())
+            .toList();
+
+        Map<String, EducationLectureResponse.RequiredEducationArea> requiredEducationAreaMap = new HashMap<>();
+
+        for (GeneralEducationArea generalEducationArea : generalEducationAreas) {
+            boolean isCompleted = false;
+            String lectureName = null;
+
+            for (TimetableLecture timetableLecture : educationTimetableLectures) {
+                if (timetableLecture.getGeneralEducationArea().equals(generalEducationArea)) {
+                    isCompleted = true;
+                    lectureName = timetableLecture.getLecture().getName();
+                    break;
+                }
+            }
+
+            requiredEducationAreaMap.put(generalEducationArea.getName(),
+                EducationLectureResponse.RequiredEducationArea.of(generalEducationArea.getName(), isCompleted, lectureName));
+        }
+
+        return EducationLectureResponse.of(new ArrayList<>(requiredEducationAreaMap.values()));
+    }
+
+    private void validateGraduationCalculatedDataExist(Integer userId) {
+        detectGraduationCalculationRepository.findByUserId(userId)
+            .ifPresent(detectGraduationCalculation -> {
+                throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
+                };
+            });
+        if (!studentCourseCalculationRepository.findAllByUserId(userId).isEmpty()) {
+            throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
+            };
+        }
+
     }
 }

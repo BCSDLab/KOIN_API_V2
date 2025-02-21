@@ -38,7 +38,7 @@ public record AdminOwnerUpdateResponse (
         return new AdminOwnerUpdateResponse(
             owner.getCompanyRegistrationNumber(),
             owner.getUser().getEmail(),
-            owner.getUser().getGender().ordinal(),
+            owner.getUser().getGender() == null ? null : owner.getUser().getGender().ordinal(),
             owner.isGrantShop(),
             owner.isGrantEvent(),
             owner.getUser().getName(),

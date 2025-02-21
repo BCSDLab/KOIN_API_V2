@@ -25,7 +25,6 @@ public class OwnerVerificationService {
     private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final NaverSmsService naverSmsService;
-    private final MailService mailService;
 
     private void setVerificationCount(String key) {
         Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
@@ -36,18 +35,6 @@ public class OwnerVerificationService {
             dailyVerification.requestVerification();
             dailyVerificationLimitRedisRepository.save(dailyVerification);
         }
-    }
-
-    public void sendCertificationEmail(String email) {
-        setVerificationCount(email);
-        String certificationCode = CertificateNumberGenerator.generate();
-        mailService.sendMail(email, new OwnerRegistrationData(certificationCode));
-        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
-                email,
-                certificationCode
-        );
-        ownerVerificationStatusRepository.save(ownerVerificationStatus);
-        eventPublisher.publishEvent(new OwnerEmailRequestEvent(email));
     }
 
     public void sendCertificationSms(String phoneNumber) {
@@ -67,6 +54,5 @@ public class OwnerVerificationService {
         if (!Objects.equals(verify.getCertificationCode(), code)) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
-        ownerVerificationStatusRepository.deleteById(key);
     }
 }

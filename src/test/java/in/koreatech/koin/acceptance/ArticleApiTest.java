@@ -13,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -32,14 +34,19 @@ class ArticleApiTest extends AcceptanceTest {
     @Autowired
     private BoardFixture boardFixture;
 
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
     Student student;
+    Department department;
     Board board, adminBoard;
     Article article1, article2, article3;
 
     @BeforeAll
     void givenBeforeEach() {
         clear();
-        student = userFixture.준호_학생();
+        department = departmentFixture.컴퓨터공학부();
+        student = userFixture.준호_학생(department, null);
         board = boardFixture.자유게시판();
         adminBoard = boardFixture.공지사항();
         article1 = articleFixture.자유글_1(board, student.getUser());

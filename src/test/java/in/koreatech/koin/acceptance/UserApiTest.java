@@ -52,7 +52,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_로그인을_진행한다_구_API_user_login() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.성빈_학생(department);
         String email = student.getUser().getEmail();
         String password = "1234";
 
@@ -104,7 +105,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 회원이_탈퇴한다() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.성빈_학생(department);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -154,7 +156,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 이메일이_중복인지_확인한다_중복이면_422() throws Exception {
-        User user = userFixture.성빈_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.성빈_학생(department).getUser();
 
         mockMvc.perform(
                 get("/user/check/email")
@@ -167,7 +170,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 닉네임_중복일때_상태코드_409를_반환한다() throws Exception {
-        User user = userFixture.성빈_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.성빈_학생(department).getUser();
 
         mockMvc.perform(
                 get("/user/check/nickname")
@@ -180,7 +184,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 닉네임_중복이_아닐시_상태코드_200을_반환한다() throws Exception {
-        User user = userFixture.성빈_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.성빈_학생(department).getUser();
 
         mockMvc.perform(
                 get("/user/check/nickname")
@@ -192,7 +197,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_비밀번호를_통해_자신이_맞는지_인증한다_비밀번호가_다르면_400_반환() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -278,7 +284,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_비밀번호를_변경하고_기존_비밀번호로_로그인하면_에러를_반환한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
         String accessToken = userFixture.getToken(student.getUser());
         String newPassword = "newPassword1234";
 
@@ -321,7 +328,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_로그인상태인지_확인한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
         String accessToken = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
