@@ -55,7 +55,7 @@ public record StudentUpdateResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
             user.getGender() != null ? user.getGender().ordinal() : null,
-            student.getDepartment().getName(),
+            student.getDepartment() != null ? student.getDepartment().getName() : null,
             user.getName(),
             user.getNickname(),
             user.getPhoneNumber(),
