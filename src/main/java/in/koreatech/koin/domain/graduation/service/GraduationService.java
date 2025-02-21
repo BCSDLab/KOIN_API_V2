@@ -105,11 +105,7 @@ public class GraduationService {
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
-        List<StudentCourseCalculation> studentCourseCalculations = studentCourseCalculationRepository.findAllByUserId(
-            student.getUser().getId());
-        if (!studentCourseCalculations.isEmpty()) {
-            studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
-        }
+        studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
 
         initializeStudentCourseCalculation(student, newMajor);
 
