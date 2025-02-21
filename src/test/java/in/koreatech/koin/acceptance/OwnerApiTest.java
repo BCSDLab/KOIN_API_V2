@@ -205,8 +205,8 @@ class OwnerApiTest extends AcceptanceTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
                     {
-                        "shopName": "가게명",
-                        "shopNumber": "01012345678"
+                        "shop_name": "가게명",
+                        "shop_number": "01012345678"
                     }
                     """));
         }

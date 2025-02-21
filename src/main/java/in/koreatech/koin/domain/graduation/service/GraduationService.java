@@ -39,6 +39,7 @@ import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculatio
 import in.koreatech.koin.domain.graduation.repository.GeneralEducationAreaRepository;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotFoundException;
 import in.koreatech.koin.domain.student.model.Major;
@@ -58,6 +59,8 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.exception.DuplicationException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -90,6 +93,7 @@ public class GraduationService {
     public void createStudentCourseCalculation(Integer userId) {
         Student student = studentRepository.getById(userId);
 
+        validateGraduationCalculatedDataExist(userId);
         validateStudentField(student.getMajor(), "전공을 추가하세요.");
         validateStudentField(student.getStudentNumber(), "학번을 추가하세요.");
 
@@ -549,5 +553,18 @@ public class GraduationService {
         }
 
         return EducationLectureResponse.of(new ArrayList<>(requiredEducationAreaMap.values()));
+    }
+
+    private void validateGraduationCalculatedDataExist(Integer userId) {
+        detectGraduationCalculationRepository.findByUserId(userId)
+            .ifPresent(detectGraduationCalculation -> {
+                throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
+                };
+            });
+        if (!studentCourseCalculationRepository.findAllByUserId(userId).isEmpty()) {
+            throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
+            };
+        }
+
     }
 }
