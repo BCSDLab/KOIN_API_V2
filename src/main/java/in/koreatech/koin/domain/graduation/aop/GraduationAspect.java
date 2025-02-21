@@ -35,6 +35,7 @@ public class GraduationAspect {
 
         detectGraduationCalculationRepository.findByUserId(userId).ifPresent(detectGraduationCalculation -> {
             detectGraduationCalculation.updatedIsChanged(true);
+            detectGraduationCalculationRepository.save(detectGraduationCalculation);
         });
     }
 }
