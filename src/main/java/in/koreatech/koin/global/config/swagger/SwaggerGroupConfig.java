@@ -49,7 +49,8 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.coop",
             "in.koreatech.koin.domain.coopshop",
             "in.koreatech.koin.domain.dining",
-            "in.koreatech.koin.global.socket.domain.chatroom"
+            "in.koreatech.koin.global.socket.domain.chatroom",
+            "in.koreatech.koin.batch.campus",
         };
 
         return createGroupedOpenApi("3. Campus API", packagesPath);
