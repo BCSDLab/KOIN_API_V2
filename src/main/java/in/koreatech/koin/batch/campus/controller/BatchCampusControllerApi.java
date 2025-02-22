@@ -29,7 +29,7 @@ public interface BatchCampusControllerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "셔틀버스 시간표 업데이트")
+    @Operation(summary = "학교버스 시간표 업데이트")
     @PostMapping("/bus/school")
     ResponseEntity<Void> updateSchoolBus(
         @Auth(permit = {ADMIN}) Integer adminId,
