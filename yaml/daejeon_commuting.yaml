@@ -1,0 +1,45 @@
+nodes:
+  - &koreatech "한기대"
+  - &daejeon_station "대전역"
+  - &compound_terminal "복합터미널"
+to_school:
+  - route_name: "일요일(18시 10분)"
+    running_days: [ "SUN" ]
+    arrival_info:
+      - node_name: *daejeon_station
+        arrival_time: "18:10"
+      - node_name: *compound_terminal
+        arrival_time: "18:15"
+      - node_name: *koreatech
+        arrival_time: "도착"
+
+  - route_name: "일요일(18시 20분)"
+    running_days: [ "SUN" ]
+    arrival_info:
+      - node_name: *daejeon_station
+        arrival_time: "18:20"
+      - node_name: *compound_terminal
+        arrival_time: "18:25"
+      - node_name: *koreatech
+        arrival_time: "도착"
+
+from_school:
+  - route_name: "금요일(14시)"
+    running_days: [ "FRI" ]
+    arrival_info:
+      - node_name: *koreatech
+        arrival_time: "14:00"
+      - node_name: *compound_terminal
+        arrival_time: "도착"
+      - node_name: *daejeon_station
+        arrival_time: "도착"
+
+  - route_name: "금요일(18시 20분)"
+    running_days: [ "FRI" ]
+    arrival_info:
+      - node_name: *koreatech
+        arrival_time: "18:20"
+      - node_name: *compound_terminal
+        arrival_time: "도착"
+      - node_name: *daejeon_station
+        arrival_time: "도착"
