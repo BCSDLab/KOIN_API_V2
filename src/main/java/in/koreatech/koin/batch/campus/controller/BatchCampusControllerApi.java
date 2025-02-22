@@ -35,4 +35,18 @@ public interface BatchCampusControllerApi {
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestBody @Valid BatchSchoolBusVersionUpdateRequest request
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "시내버스 시간표 업데이트")
+    @PostMapping("/bus/city")
+    ResponseEntity<Void> updateCityBus(
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
 }
