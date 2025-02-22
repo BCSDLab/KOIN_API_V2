@@ -29,4 +29,14 @@ public record SubscribeDestination(
         Long chatRoomId = Long.valueOf(pathSegments[4]);
         return new SubscribeDestination(articleId, chatRoomId);
     }
+
+    public static boolean isChatRoomSubscribe(StompHeaderAccessor accessor) {
+        String destination = accessor.getDestination();
+        return destination != null && destination.startsWith("/topic/chat/");
+    }
+
+    public static boolean isChatRoomListSubscribe(StompHeaderAccessor accessor) {
+        String destination = accessor.getDestination();
+        return destination != null && destination.startsWith("/topic/chatroom/list");
+    }
 }
