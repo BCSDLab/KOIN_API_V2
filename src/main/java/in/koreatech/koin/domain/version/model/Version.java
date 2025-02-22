@@ -68,6 +68,12 @@ public class Version extends BaseEntity {
         version = generateVersionName(clock);
     }
 
+    public void update(Clock clock, String title, String content) {
+        update(clock);
+        this.title = title;
+        this.content = content;
+    }
+
     private String generateVersionName(Clock clock) {
         String year = Integer.toString(LocalDate.now().getYear());
         String padding = "0_";
@@ -82,5 +88,16 @@ public class Version extends BaseEntity {
             .title(request.title())
             .content(request.content())
             .build();
+    }
+
+    public static Version of(VersionType type, Clock clock) {
+        Version version = Version.builder()
+            .type(type.getValue())
+            .version(clock.toString())
+            .build();
+
+        version.update(clock);
+
+        return version;
     }
 }
