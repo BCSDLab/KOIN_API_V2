@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -16,6 +17,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +42,6 @@ import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculatio
 import in.koreatech.koin.domain.graduation.repository.GeneralEducationAreaRepository;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotFoundException;
 import in.koreatech.koin.domain.student.model.Major;
@@ -59,7 +61,6 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.exception.DuplicationException;
 import lombok.RequiredArgsConstructor;
 
@@ -121,31 +122,23 @@ public class GraduationService {
 
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
-        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(
-                userId)
+        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
 
         if (!detectGraduationCalculation.isChanged()) {
-            return GraduationCourseCalculationResponse.of(List.of());
+            return getExistingGraduationCalculation(userId);
         }
 
-        // 학생 정보와 학과 검증
+        studentCourseCalculationRepository.deleteAllByUserId(userId);
+
         Student student = getValidatedStudent(userId);
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
-        // 시간표와 대학 요람 데이터 가져오기
         List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
-
-        // courseTypeId와 학점 맵핑
         Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
 
-        // GraduationRequirements 리스트 조회
-        List<StandardGraduationRequirements> graduationRequirements = getGraduationRequirements(catalogList,
-            studentYear);
-
-        // 계산 로직 및 응답 생성
         List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = processGraduationCalculations(
-            userId, student, graduationRequirements, courseTypeCreditsMap
+            student, courseTypeCreditsMap
         );
 
         detectGraduationCalculation.updatedIsChanged(false);
@@ -370,6 +363,23 @@ public class GraduationService {
         );
     }
 
+    private GraduationCourseCalculationResponse getExistingGraduationCalculation(Integer userId) {
+        List<StudentCourseCalculation> existingCalculations = studentCourseCalculationRepository.findAllByUserId(userId);
+
+        List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = existingCalculations.stream()
+            .map(calc -> {
+                StandardGraduationRequirements requirement = calc.getStandardGraduationRequirements();
+                return GraduationCourseCalculationResponse.InnerCalculationResponse.of(
+                    requirement.getCourseType().getName(),
+                    requirement.getRequiredGrades(),
+                    calc.getCompletedGrades()
+                );
+            })
+            .collect(Collectors.toList());
+
+        return GraduationCourseCalculationResponse.of(courseTypes);
+    }
+
     private Student getValidatedStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
 
@@ -383,30 +393,45 @@ public class GraduationService {
     }
 
     private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
-        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.getAllByUserId(student.getId())
+        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(student.getId())
             .stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .toList();
 
         List<Catalog> catalogList = new ArrayList<>();
-        timetableLectures.forEach(timetableLecture -> {
+        for (TimetableLecture timetableLecture : timetableLectures) {
             String lectureName = timetableLecture.getLecture() != null
                 ? timetableLecture.getLecture().getName()
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                List<Catalog> catalogs = catalogRepository.findByLectureNameAndMajorIdAndYear(
-                    lectureName, student.getMajor() != null ? student.getMajor().getId() : null, studentYear);
+                Catalog bestCatalog = findBestMatchingCatalog(lectureName, studentYear, student.getMajor());
 
-                if (catalogs.isEmpty()) {
-                    catalogs = catalogRepository.findByLectureNameAndDepartmentIdAndYear(
-                        lectureName, student.getDepartment().getId(), studentYear);
+                if (bestCatalog != null) {
+                    catalogList.add(bestCatalog);
                 }
-
-                catalogList.addAll(catalogs);
             }
-        });
+        }
         return catalogList;
+    }
+
+    private Catalog findBestMatchingCatalog(String lectureName, String studentYear, Major major) {
+        List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndMajor(lectureName, studentYear, major);
+        if (!catalogs.isEmpty()) {
+            return catalogs.get(0);
+        }
+
+        catalogs = catalogRepository.findByLectureNameAndYear(lectureName, studentYear);
+        if (!catalogs.isEmpty()) {
+            return catalogs.get(0);
+        }
+
+        catalogs = catalogRepository.findByLectureNameOrderByYearDesc(lectureName);
+        if (!catalogs.isEmpty()) {
+            return catalogs.get(0);
+        }
+
+        return null;
     }
 
     private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList) {
@@ -419,14 +444,21 @@ public class GraduationService {
         return courseTypeCreditsMap;
     }
 
-    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList,
-        String studentYear) {
+    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList, String studentYear) {
         return catalogList.stream()
-            .map(catalog -> standardGraduationRequirementsRepository.findByMajorIdAndCourseTypeIdAndYear(
-                catalog.getMajor().getId(),
-                catalog.getCourseType().getId(),
-                studentYear
-            ))
+            .map(catalog -> {
+                if (catalog.getMajor() == null) {
+                    return standardGraduationRequirementsRepository.findByCourseTypeIdAndYear(
+                        catalog.getCourseType().getId(),
+                        studentYear
+                    );
+                }
+                return standardGraduationRequirementsRepository.findByMajorIdAndCourseTypeIdAndYear(
+                    catalog.getMajor().getId(),
+                    catalog.getCourseType().getId(),
+                    studentYear
+                );
+            })
             .filter(Objects::nonNull)
             .flatMap(List::stream)
             .distinct()
@@ -434,43 +466,58 @@ public class GraduationService {
     }
 
     private List<GraduationCourseCalculationResponse.InnerCalculationResponse> processGraduationCalculations(
-        Integer userId, Student student, List<StandardGraduationRequirements> graduationRequirements,
-        Map<Integer, Integer> courseTypeCreditsMap) {
+        Student student, Map<Integer, Integer> courseTypeCreditsMap) {
 
-        return graduationRequirements.stream()
-            .map(requirement -> GraduationCourseCalculationResponse.InnerCalculationResponse.of(
-                requirement.getCourseType().getName(),
-                requirement.getRequiredGrades(),
-                updateStudentCourseCalculation(userId, student, requirement, courseTypeCreditsMap)
-            ))
-            .toList();
-    }
+        List<StandardGraduationRequirements> allRequirements =
+            standardGraduationRequirementsRepository.findAllByMajorAndYear(student.getMajor(),
+                student.getStudentNumber().substring(0, 4));
 
-    private int updateStudentCourseCalculation(Integer userId, Student student,
-        StandardGraduationRequirements requirement,
-        Map<Integer, Integer> courseTypeCreditsMap) {
-        if (requirement.getCourseType() == null) {
-            return 0;
+        Map<CourseType, Integer> groupedRequirements = new HashMap<>();
+
+        for (StandardGraduationRequirements requirement : allRequirements) {
+            int requiredGrades = requirement.getRequiredGrades();
+            int completedGrades = courseTypeCreditsMap.getOrDefault(requirement.getCourseType().getId(), 0);
+
+            groupedRequirements.put(requirement.getCourseType(), requiredGrades);
+
+            updateStudentCourseCalculation(student, requirement.getCourseType(), completedGrades);
         }
 
-        int completedGrades = courseTypeCreditsMap.getOrDefault(requirement.getCourseType().getId(), 0);
+        List<GraduationCourseCalculationResponse.InnerCalculationResponse> results = new ArrayList<>();
 
-        StudentCourseCalculation existingCalculation = studentCourseCalculationRepository
-            .findByUserIdAndStandardGraduationRequirementsId(userId, requirement.getId());
+        for (Map.Entry<CourseType, Integer> entry : groupedRequirements.entrySet()) {
+            CourseType courseType = entry.getKey();
+            int totalRequiredGrades = entry.getValue();
+            int completedGrades = courseTypeCreditsMap.getOrDefault(courseType.getId(), 0);
 
-        if (existingCalculation != null) {
-            completedGrades += existingCalculation.getCompletedGrades();
-            studentCourseCalculationRepository.delete(existingCalculation);
+            results.add(GraduationCourseCalculationResponse.InnerCalculationResponse.of(
+                courseType.getName(), totalRequiredGrades, completedGrades
+            ));
+        }
+
+        return results;
+    }
+
+    private void updateStudentCourseCalculation(Student student, CourseType courseType, int completedGrades) {
+        String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
+
+        Optional<StandardGraduationRequirements> standardGraduationRequirementOpt =
+            standardGraduationRequirementsRepository.findFirstByMajorIdAndCourseTypeIdAndYear(
+                student.getMajor().getId(),
+                courseType.getId(),
+                studentYear
+            );
+
+        if (standardGraduationRequirementOpt.isEmpty()) {
+            return;
         }
 
         StudentCourseCalculation newCalculation = StudentCourseCalculation.builder()
             .completedGrades(completedGrades)
             .user(student.getUser())
-            .standardGraduationRequirements(requirement)
+            .standardGraduationRequirements(standardGraduationRequirementOpt.get())
             .build();
         studentCourseCalculationRepository.save(newCalculation);
-
-        return completedGrades;
     }
 
     public CourseTypeLectureResponse getLectureByCourseType(Integer year, String term, String courseTypeName,
