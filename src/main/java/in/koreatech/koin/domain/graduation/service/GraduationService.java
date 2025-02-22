@@ -17,8 +17,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -416,16 +414,19 @@ public class GraduationService {
     }
 
     private Catalog findBestMatchingCatalog(String lectureName, String studentYear, Major major) {
+        // 학생의 학번 연도와 전공이 모두 일치하는 Catalog 조회
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndMajor(lectureName, studentYear, major);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
         }
 
+        // 학생의 학번 연도만 일치하는 Catalog 조회 (전공 무관)
         catalogs = catalogRepository.findByLectureNameAndYear(lectureName, studentYear);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
         }
 
+        // 강의명이 일치하는 모든 Catalog 조회
         catalogs = catalogRepository.findByLectureNameOrderByYearDesc(lectureName);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
@@ -470,7 +471,7 @@ public class GraduationService {
 
         List<StandardGraduationRequirements> allRequirements =
             standardGraduationRequirementsRepository.findAllByMajorAndYear(student.getMajor(),
-                student.getStudentNumber().substring(0, 4));
+                StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber()));
 
         Map<CourseType, Integer> groupedRequirements = new HashMap<>();
 
