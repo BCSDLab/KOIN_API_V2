@@ -4,8 +4,8 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
@@ -32,8 +32,7 @@ public class OwnerController implements OwnerApi {
 
     @PostMapping("/owners/exists/company-number")
     public ResponseEntity<Void> checkCompanyNumber(
-        @ModelAttribute("company_number")
-        @Valid CompanyNumberCheckRequest request
+        @Valid @RequestBody CompanyNumberCheckRequest request
     ) {
         ownerService.checkCompanyNumber(request);
         return ResponseEntity.ok().build();
