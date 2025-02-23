@@ -40,7 +40,6 @@ public class BatchCityBusService {
 
         batchCityBusTimetableRepository.saveAll(timetables);
 
-        // TODO : Save Timetables using Bulk Write
         // TODO : Remove Duplicate Entities
         // TODO : Change System.out.println to Logger
     }
@@ -118,6 +117,7 @@ public class BatchCityBusService {
                 .get();
 
         } catch (IOException e) {
+            // TODO : Exception 커스텀하기
             throw new RuntimeException(e);
         }
 
