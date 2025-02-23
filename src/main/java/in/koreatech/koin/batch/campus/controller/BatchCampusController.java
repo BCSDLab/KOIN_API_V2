@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.batch.campus.bus.city.service.BatchCityBusService;
 import in.koreatech.koin.batch.campus.bus.school.dto.BatchSchoolBusVersionUpdateRequest;
 import in.koreatech.koin.batch.campus.bus.school.service.SchoolBusService;
+import in.koreatech.koin.batch.campus.koreatech.dining.service.BatchDiningService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class BatchCampusController implements BatchCampusControllerApi {
 
     private final SchoolBusService schoolBusService;
     private final BatchCityBusService batchCityBusService;
+    private final BatchDiningService batchDiningService;
 
     @Override
     @PostMapping("/bus/school")
@@ -39,6 +41,15 @@ public class BatchCampusController implements BatchCampusControllerApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         batchCityBusService.update();
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @PostMapping("/dining")
+    public ResponseEntity<Void> updateDining(
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        batchDiningService.update();
         return ResponseEntity.ok().build();
     }
 }
