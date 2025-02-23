@@ -12,6 +12,7 @@ import in.koreatech.koin.batch.campus.bus.city.service.BatchCityBusService;
 import in.koreatech.koin.batch.campus.bus.school.dto.BatchSchoolBusVersionUpdateRequest;
 import in.koreatech.koin.batch.campus.bus.school.service.SchoolBusService;
 import in.koreatech.koin.batch.campus.koreatech.dining.service.BatchDiningService;
+import in.koreatech.koin.batch.campus.service.BatchPortalLoginService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class BatchCampusController implements BatchCampusControllerApi {
 
     private final SchoolBusService schoolBusService;
     private final BatchCityBusService batchCityBusService;
+    private final BatchPortalLoginService batchPortalLoginService;
     private final BatchDiningService batchDiningService;
 
     @Override
@@ -49,6 +51,7 @@ public class BatchCampusController implements BatchCampusControllerApi {
     public ResponseEntity<Void> updateDining(
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
+        batchPortalLoginService.login();
         batchDiningService.update();
         return ResponseEntity.ok().build();
     }
