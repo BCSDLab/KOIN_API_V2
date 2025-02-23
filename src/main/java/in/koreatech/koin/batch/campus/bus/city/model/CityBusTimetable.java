@@ -6,8 +6,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class CityBusTimetable {
 
     @Field("day_of_week")

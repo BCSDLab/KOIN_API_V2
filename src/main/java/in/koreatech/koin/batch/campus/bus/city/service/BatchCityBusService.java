@@ -40,26 +40,25 @@ public class BatchCityBusService {
 
         batchCityBusTimetableRepository.saveAll(timetables);
 
-        // TODO : Remove Duplicate Entities
-        // TODO : Change System.out.println to Logger
+        // TODO : Remove Duplicate Entities (CityBusRouteInfo, BusInfo, CityBusTimetable, TimetableDocument, ...)
     }
 
     private List<TimetableDocument> crawling() {
         List<Long> availableBuses = getAvailableBus();
-        System.out.println(availableBuses);
+        log.info(availableBuses.toString());
 
         List<Long> routeIds = availableBuses.stream()
             .flatMap(busNumber -> getRouteIds(busNumber).stream())
             .toList();
-        System.out.println(routeIds);
+        log.info(routeIds.toString());
 
         List<CityBusRouteInfo> routeInfos = routeIds.stream()
             .flatMap(routeId -> getRouteInfo(routeId).stream())
             .toList();
-        System.out.println(routeInfos);
+        log.info(routeInfos.toString());
 
         List<TimetableDocument> timetables = routeInfos.stream().map(this::getTimetable).toList();
-        System.out.println(timetables);
+        timetables.forEach(timetable -> log.info(timetable.toString()));
 
         return timetables;
     }

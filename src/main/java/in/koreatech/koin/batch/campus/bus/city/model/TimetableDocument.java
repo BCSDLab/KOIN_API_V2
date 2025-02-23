@@ -10,8 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import in.koreatech.koin.batch.campus.bus.city.dto.CityBusRouteInfo;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 @Document(collection = "citybus_timetables")
 public class TimetableDocument {
 
