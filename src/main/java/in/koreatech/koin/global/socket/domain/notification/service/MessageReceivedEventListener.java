@@ -1,6 +1,7 @@
 package in.koreatech.koin.global.socket.domain.notification.service;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.model.User;
@@ -8,8 +9,10 @@ import in.koreatech.koin.global.domain.notification.model.Notification;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.global.fcm.MobileAppPath;
+import in.koreatech.koin.global.socket.domain.chatroom.service.LostItemChatRoomInfoService;
 import in.koreatech.koin.global.socket.domain.chatroom.service.implement.ChatRoomInfoReader;
 import in.koreatech.koin.global.socket.domain.notification.model.MessageReceivedEvent;
+import in.koreatech.koin.global.socket.domain.session.model.UserSession;
 import in.koreatech.koin.global.socket.domain.session.model.UserSessionStatus;
 import in.koreatech.koin.global.socket.domain.session.service.UserSessionService;
 import in.koreatech.koin.global.socket.domain.session.service.implement.UserReader;
@@ -25,12 +28,18 @@ public class MessageReceivedEventListener {
     private final ChatRoomInfoReader chatRoomInfoReader;
     private final UserReader userReader;
     private final UserSessionService userSessionService;
+    private final SimpMessageSendingOperations simpMessageSendingOperations;
+    private final LostItemChatRoomInfoService chatRoomInfoService;
 
     @EventListener
     public void lostItemChatMessageReceived(MessageReceivedEvent event) {
         Integer partnerId = chatRoomInfoReader.getPartnerId(
             event.articleId(), event.chatRoomId(), event.userId()
         );
+
+        String destination = "/topic/chatroom/list/" + partnerId;
+        var chatRoomInfo = chatRoomInfoService.getAllChatRoomInfo(partnerId);
+        simpMessageSendingOperations.convertAndSend(destination, chatRoomInfo);
 
         if (!isNotificationEligible(partnerId)) {
             return;
@@ -65,7 +74,10 @@ public class MessageReceivedEventListener {
      */
     private boolean isActiveSession(Integer partnerId) {
         return userSessionService.read(partnerId)
-            .filter(session -> session.getStatus().equals(UserSessionStatus.ACTIVE_CHAT_ROOM))
+            .map(UserSession::getStatus)
+            .filter(session ->
+                UserSessionStatus.ACTIVE_CHAT_ROOM.equals(session) ||
+                UserSessionStatus.ACTIVE_CHAT_ROOM_LIST.equals(session))
             .isPresent();
     }
 
