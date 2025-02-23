@@ -233,7 +233,11 @@ class OwnerApiTest extends AcceptanceTest {
         // when & then
         mockMvc.perform(
                 post("/owners/exists/company-number")
-                    .queryParam("company_number", "123-45-67190")
+                    .content("""
+                                {
+                                   "company_number": "123-45-67190"
+                                }
+                            """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
@@ -246,7 +250,11 @@ class OwnerApiTest extends AcceptanceTest {
         // when & then
         mockMvc.perform(
                 post("/owners/exists/company-number")
-                    .queryParam("company_number", owner.getCompanyRegistrationNumber())
+                    .content("""
+                                {
+                                   "company_number": "%s"
+                                }
+                            """.formatted(owner.getCompanyRegistrationNumber()))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isConflict());
@@ -267,7 +275,11 @@ class OwnerApiTest extends AcceptanceTest {
         // when & then
         mockMvc.perform(
                 post("/owners/exists/company-number")
-                    .queryParam("company_number", "1234567890")
+                    .content("""
+                                {
+                                   "company_number": "1234567890"
+                                }
+                            """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
