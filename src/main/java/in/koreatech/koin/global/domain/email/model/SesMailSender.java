@@ -1,5 +1,9 @@
 package in.koreatech.koin.global.domain.email.model;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.stereotype.Component;
 
 import com.amazonaws.handlers.AsyncHandler;
@@ -23,6 +27,7 @@ public class SesMailSender {
     private static final long retryInterval = 500L;
 
     private final AmazonSimpleEmailServiceAsync amazonSimpleEmailServiceAsync;
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public void sendMail(String from, String to, String subject, String htmlBody) {
         SendEmailRequest request = new SendEmailRequest()
@@ -42,14 +47,9 @@ public class SesMailSender {
                 log.warn(e.getMessage());
 
                 if (retryCount < maxRetries) {
-                    try {
-                        Thread.sleep(retryInterval);
-                    } catch (InterruptedException interruptedException) {
-                        Thread.currentThread().interrupt();
-                    }
-                    sendEmailWithRetry(request, retryCount + 1);
+                    scheduler.schedule(() -> sendEmailWithRetry(request, retryCount + 1), retryInterval, TimeUnit.MILLISECONDS);
                 } else {
-                    log.error("메일 전송 재시도 횟수의 최대치를 넘었습니다.");
+                    log.error("메일 전송 재시도 횟수의 최대치를 초과했습니다.");
                 }
             }
 
