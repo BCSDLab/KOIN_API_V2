@@ -104,9 +104,6 @@ dependencies {
 
     // Zip Compress
     implementation 'net.lingala.zip4j:zip4j:2.6.1'
-
-    // jsoup HTML parser library @ https://jsoup.org/
-    implementation 'org.jsoup:jsoup:1.18.3'
 }
 
 clean {
