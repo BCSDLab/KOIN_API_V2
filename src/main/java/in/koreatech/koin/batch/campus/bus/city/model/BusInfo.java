@@ -4,8 +4,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class BusInfo {
 
     @Field("number")
