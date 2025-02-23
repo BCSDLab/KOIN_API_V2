@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import com.mongodb.bulk.BulkWriteResult;
-
 import in.koreatech.koin.batch.campus.bus.city.model.TimetableDocument;
 import lombok.RequiredArgsConstructor;
 
@@ -37,12 +35,6 @@ public class BatchCityBusTimetableRepository {
             bulkOps.upsert(query, update);
         });
 
-        BulkWriteResult result = bulkOps.execute();
-
-        // log.info("Bulk upsert completed - Upserted: {}, Modified: {}, Matched: {}",
-        //     result.getUpserts().size(),
-        //     result.getModifiedCount(),
-        //     result.getMatchedCount()
-        // );
+        bulkOps.execute();
     }
 }
