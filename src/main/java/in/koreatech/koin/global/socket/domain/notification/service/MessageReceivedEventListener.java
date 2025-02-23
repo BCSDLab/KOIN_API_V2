@@ -17,7 +17,6 @@ import in.koreatech.koin.global.socket.domain.session.model.UserSessionStatus;
 import in.koreatech.koin.global.socket.domain.session.service.UserSessionService;
 import in.koreatech.koin.global.socket.domain.session.service.implement.UserReader;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
