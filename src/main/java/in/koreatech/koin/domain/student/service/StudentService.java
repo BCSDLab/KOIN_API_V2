@@ -182,23 +182,23 @@ public class StudentService {
             updateStudentNumber = isChangeStudentNumber(requestStudentNumber, oldStudentNumber);
         }
 
-        Department newStudentDepartment = student.getDepartment();
+        Department newDepartment = student.getDepartment();
         if (request.department() != null) {
-            newStudentDepartment = departmentRepository.getByName(request.department());
+            newDepartment = departmentRepository.getByName(request.department());
         }
 
         Major oldMajor = student.getMajor();
         Major newMajor;
         if (request.major() != null) {
-            newMajor = majorRepository.getByNameAndDepartmentId(request.major(), newStudentDepartment.getId());
+            newMajor = majorRepository.getByNameAndDepartmentId(request.major(), newDepartment.getId());
         } else {
-            newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newStudentDepartment.getId())
+            newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newDepartment.getId())
                 .orElse(null);
         }
         // 전공 변경 사항 감지
         boolean updateMajor = isChangedMajor(oldMajor, newMajor);
 
-        student.updateStudentAcademicInfo(newStudentNumber, newStudentDepartment, newMajor);
+        student.updateStudentAcademicInfo(newStudentNumber, newDepartment, newMajor);
 
         /**
          * 해당 API에서는 Major를 수정할 수 있음 (여기서 그대로는 null이 아닌 경우)
