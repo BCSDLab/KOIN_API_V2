@@ -71,6 +71,7 @@ public record OwnerShopEventsResponse(
 
     public static OwnerShopEventsResponse from(Shop shop) {
         var innerShopEventResponses = shop.getEventArticles().stream()
+            .sorted(Comparator.comparing(EventArticle::getUpdatedAt).reversed())
             .map(InnerOwnerShopEventResponse::from)
             .toList();
         return new OwnerShopEventsResponse(innerShopEventResponses);
