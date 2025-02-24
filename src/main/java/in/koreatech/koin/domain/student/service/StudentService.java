@@ -168,7 +168,7 @@ public class StudentService {
         }
 
         Student student = studentRepository.getById(userId);
-        // 학번에 변경 사항이 생겼을 경우
+
         String oldStudentNumber = student.getStudentNumber();
         String newStudentNumber = student.getStudentNumber();
         String requestStudentNumber = request.studentNumber();
@@ -176,17 +176,17 @@ public class StudentService {
             newStudentNumber = requestStudentNumber;
         }
 
+        // 학번 변경 사항 감지
         boolean updateStudentNumber = false;
         if (requestStudentNumber != null && oldStudentNumber != null) {
             updateStudentNumber = isChangeStudentNumber(requestStudentNumber, oldStudentNumber);
         }
 
-        // 학부 변경이 생기는 경우 처리
         Department newStudentDepartment = student.getDepartment();
         if (request.department() != null) {
             newStudentDepartment = departmentRepository.getByName(request.department());
         }
-        // 전공에 변경 사항이 생겼을 경우
+
         Major oldMajor = student.getMajor();
         Major newMajor;
         if (request.major() != null) {
@@ -195,6 +195,7 @@ public class StudentService {
             newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newStudentDepartment.getId())
                 .orElse(null);
         }
+        // 전공 변경 사항 감지
         boolean updateMajor = isChangedMajor(oldMajor, newMajor);
 
         student.updateStudentAcademicInfo(newStudentNumber, newStudentDepartment, newMajor);
