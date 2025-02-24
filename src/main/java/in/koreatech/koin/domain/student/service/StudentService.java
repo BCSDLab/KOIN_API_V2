@@ -170,16 +170,34 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         // 학번에 변경 사항이 생겼을 경우
         String oldStudentNumber = student.getStudentNumber();
-        String newStudentNumber = request.studentNumber();
-        boolean updateStudentNumber = isChangeStudentNumber(newStudentNumber, oldStudentNumber);
-        // 학부에 변경 사항이 생겼을 경우
-        Department newDepartment = departmentRepository.getByName(request.department());
+        String newStudentNumber = student.getStudentNumber();
+        String requestStudentNumber = request.studentNumber();
+        if (requestStudentNumber != null) {
+            newStudentNumber = requestStudentNumber;
+        }
+
+        boolean updateStudentNumber = false;
+        if (requestStudentNumber != null && oldStudentNumber != null) {
+            updateStudentNumber = isChangeStudentNumber(requestStudentNumber, oldStudentNumber);
+        }
+
+        // 학부 변경이 생기는 경우 처리
+        Department newStudentDepartment = student.getDepartment();
+        if (request.department() != null) {
+            newStudentDepartment = departmentRepository.getByName(request.department());
+        }
         // 전공에 변경 사항이 생겼을 경우
-        Major newMajor = majorRepository.getByNameAndDepartmentId(request.major(), student.getDepartment().getId());
         Major oldMajor = student.getMajor();
+        Major newMajor;
+        if (request.major() != null) {
+            newMajor = majorRepository.getByNameAndDepartmentId(request.major(), newStudentDepartment.getId());
+        } else {
+            newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newStudentDepartment.getId())
+                .orElse(null);
+        }
         boolean updateMajor = isChangedMajor(oldMajor, newMajor);
 
-        student.updateStudentAcademicInfo(newStudentNumber, newDepartment, newMajor);
+        student.updateStudentAcademicInfo(newStudentNumber, newStudentDepartment, newMajor);
 
         /**
          * 해당 API에서는 Major를 수정할 수 있음 (여기서 그대로는 null이 아닌 경우)
