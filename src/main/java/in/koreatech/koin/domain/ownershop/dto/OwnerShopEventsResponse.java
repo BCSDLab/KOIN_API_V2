@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -66,16 +67,6 @@ public record OwnerShopEventsResponse(
                 eventArticle.getEndDate()
             );
         }
-    }
-
-    public static OwnerShopEventsResponse from(List<Shop> shops) {
-        List<InnerOwnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
-        for (Shop shop : shops) {
-            shop.getEventArticles().stream()
-                .map(InnerOwnerShopEventResponse::from)
-                .forEach(innerShopEventResponses::add);
-        }
-        return new OwnerShopEventsResponse(innerShopEventResponses);
     }
 
     public static OwnerShopEventsResponse from(Shop shop) {
