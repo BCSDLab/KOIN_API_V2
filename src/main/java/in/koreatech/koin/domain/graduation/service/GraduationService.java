@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
-import in.koreatech.koin.domain.graduation.dto.EducationLectureResponse;
+import in.koreatech.koin.domain.graduation.dto.GeneralEducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.enums.GeneralEducationAreaEnum;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
@@ -88,6 +88,7 @@ public class GraduationService {
     private static final String UNSATISFACTORY = "U";
     private static final String DEFAULTCOURSERTYPE = "이수구분선택";
     private static final String GENERALEDUCATIONCOURSETYPE = "교양선택";
+    private static final Integer SELECTIVE_EDUCATION_REQUIRED_CREDIT = 3;
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -562,59 +563,88 @@ public class GraduationService {
         return generalEducationAreaRepository.findAll();
     }
 
-    public EducationLectureResponse getEducationLecture(Integer userId) {
+    public GeneralEducationLectureResponse getEducationLecture(Integer userId) {
+        String studentYear = StudentUtil.parseStudentNumberYearAsString(
+            studentRepository.getById(userId).getStudentNumber());
         List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
 
-        List<TimetableLecture> educationTimetableLectures = timetableFrames.stream()
+        List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
+
+        // 교양 선택
+        educationAreas.addAll(getSelectiveEducationAreas(timetableFrames));
+        // 일반 교양
+        educationAreas.addAll(getGeneralEducationAreas(studentYear, timetableFrames));
+
+        return GeneralEducationLectureResponse.of(educationAreas);
+    }
+
+    private List<GeneralEducationLectureResponse.GeneralEducationArea> getGeneralEducationAreas(
+        String studentYear, List<TimetableFrame> timetableFrames) {
+
+        List<TimetableLecture> generalEducationTimetableLectures = timetableFrames.stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .filter(lecture -> lecture.getGeneralEducationArea() != null)
-            .collect(Collectors.groupingBy(TimetableLecture::getGeneralEducationArea))
-            .values()
-            .stream()
-            .map(list -> list.get(0))
             .toList();
 
-        GeneralEducationArea shaGeneralEducationArea = generalEducationAreaRepository.getGeneralEducationAreaByName(
-            GeneralEducationAreaEnum.fromYear(
-                StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber())
-            ).getCreditArea());
-
-        List<GeneralEducationArea> generalEducationAreas = GeneralEducationAreaEnum.fromYear(
-                StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber())
-            ).getAreas().stream()
+        List<GeneralEducationArea> generalEducationAreas = GeneralEducationAreaEnum.fromYear(studentYear)
+            .getAreasWithCredits().keySet().stream()
             .map(generalEducationAreaRepository::getGeneralEducationAreaByName)
             .toList();
 
-        // 일반 교양 내 예외(글로벌, 인성과소양) 수강 학점 계산
-        Integer requiredCredit = 2;
-        Integer completedCredit = 0;
-        for (TimetableLecture timetableLecture : educationTimetableLectures) {
-            if (timetableLecture.getGeneralEducationArea().equals(shaGeneralEducationArea)) {
-                completedCredit += 1;
-            }
-        }
-        EducationLectureResponse.ShaEducationArea shaEducationArea = EducationLectureResponse.ShaEducationArea.of(
-            requiredCredit, completedCredit);
+        List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
 
-        // 일반 교양 수강 여부 체크
-        List<EducationLectureResponse.RequiredEducationArea> requiredEducationAreas = new ArrayList<>();
         for (GeneralEducationArea generalEducationArea : generalEducationAreas) {
-            boolean isCompleted = false;
-            String lectureName = null;
-            for (TimetableLecture timetableLecture : educationTimetableLectures) {
+            Integer requiredCredit = getRequiredCredits(studentYear, generalEducationArea.getName());
+            Integer completedCredit = 0;
+            List<String> lectureNames = new ArrayList<>();
+
+            for (TimetableLecture timetableLecture : generalEducationTimetableLectures) {
                 if (timetableLecture.getGeneralEducationArea().equals(generalEducationArea)) {
-                    isCompleted = true;
-                    lectureName = timetableLecture.getLecture().getName();
-                    break;
+                    completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
+                    lectureNames.add(timetableLecture.getLecture().getName());
                 }
             }
-            requiredEducationAreas.add(
-                EducationLectureResponse.RequiredEducationArea.of(
-                    generalEducationArea.getName(), isCompleted, lectureName)
+
+            educationAreas.add(
+                GeneralEducationLectureResponse.GeneralEducationArea.of(
+                    generalEducationArea.getName(), requiredCredit, completedCredit, lectureNames)
             );
         }
 
-        return EducationLectureResponse.of(shaEducationArea, requiredEducationAreas);
+        return educationAreas;
+    }
+
+    private List<GeneralEducationLectureResponse.GeneralEducationArea> getSelectiveEducationAreas(
+        List<TimetableFrame> timetableFrames) {
+
+        List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .filter(lecture -> lecture.getGeneralEducationArea() == null
+                && lecture.getCourseType() == courseTypeRepository.getByName(GENERALEDUCATIONCOURSETYPE))
+            .toList();
+
+        Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;
+        Integer completedCredit = 0;
+        List<String> lectureNames = new ArrayList<>();
+
+        for (TimetableLecture timetableLecture : selectiveEducationTimetableLectures) {
+            completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
+            lectureNames.add(timetableLecture.getLecture().getName());
+        }
+
+        List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
+        educationAreas.add(
+            GeneralEducationLectureResponse.GeneralEducationArea.of(
+                GENERALEDUCATIONCOURSETYPE, requiredCredit, completedCredit, lectureNames)
+        );
+
+        return educationAreas;
+    }
+
+
+    private Integer getRequiredCredits(String year, String areaName) {
+        GeneralEducationAreaEnum generalEducationAreaEnum = GeneralEducationAreaEnum.fromYear(year);
+        return generalEducationAreaEnum.getAreasWithCredits().get(areaName);
     }
 
     private void validateGraduationCalculatedDataExist(Integer userId) {
