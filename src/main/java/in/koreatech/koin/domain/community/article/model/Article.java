@@ -44,7 +44,8 @@ import lombok.NoArgsConstructor;
 public class Article extends BaseEntity {
 
     private static final String ADMIN_NOTICE_AUTHOR = "BCSD Lab";
-    private static final String UNKNOWN_AUTHOR = "탈퇴한 사용자";
+    private static final String DELETED_USER = "탈퇴한 사용자";
+    private static final String ANONYMOUS_USER = "익명";
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -124,19 +125,19 @@ public class Article extends BaseEntity {
             return;
         }
         if (koinArticle != null) {
-            author = (koinArticle.getUser() != null) ? koinArticle.getUser().getName() : UNKNOWN_AUTHOR;
+            author = (koinArticle.getUser() != null) ? koinArticle.getUser().getName() : DELETED_USER;
             return;
         }
         if (koreatechArticle != null) {
-            author = (koreatechArticle.getAuthor() != null) ? koreatechArticle.getAuthor() : UNKNOWN_AUTHOR;
+            author = (koreatechArticle.getAuthor() != null) ? koreatechArticle.getAuthor() : DELETED_USER;
             return;
         }
         if (lostItemArticle != null) {
             User user = lostItemArticle.getAuthor();
-            author = (user != null && user.getNickname() != null) ? user.getNickname() : UNKNOWN_AUTHOR;
+            author = (user != null && user.getNickname() != null) ? user.getNickname() : ANONYMOUS_USER;
             return;
         }
-        author = UNKNOWN_AUTHOR;
+        author = DELETED_USER;
     }
 
     public void setAuthor(String author) {

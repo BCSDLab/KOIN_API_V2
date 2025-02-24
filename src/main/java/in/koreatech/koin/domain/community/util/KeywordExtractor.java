@@ -23,7 +23,7 @@ public class KeywordExtractor {
 
     private final ArticleKeywordRepository articleKeywordRepository;
 
-    public List<ArticleKeywordEvent> matchKeyword(List<Article> articles) {
+    public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId) {
         List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
         int offset = 0;
 
@@ -39,7 +39,7 @@ public class KeywordExtractor {
                 String title = article.getTitle();
                 for (ArticleKeyword keyword : keywords) {
                     if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
+                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), authorId, keyword));
                     }
                 }
             }
