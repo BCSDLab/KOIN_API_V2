@@ -20,6 +20,7 @@ import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
@@ -257,6 +258,11 @@ public class StudentService {
     public StudentResponse getStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
         return StudentResponse.from(student);
+    }
+
+    public StudentWithAcademicResponse getStudentWithAcademicInfo(Integer userId) {
+        Student student = studentRepository.getById(userId);
+        return StudentWithAcademicResponse.from(student);
     }
 
     @Transactional

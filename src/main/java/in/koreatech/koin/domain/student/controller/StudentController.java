@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.service.StudentService;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
@@ -47,6 +48,14 @@ public class StudentController implements StudentApi{
     ) {
         StudentResponse studentResponse = studentService.getStudent(userId);
         return ResponseEntity.ok().body(studentResponse);
+    }
+
+    @GetMapping("/user/student/me/academic-info")
+    public ResponseEntity<StudentWithAcademicResponse> getStudentWithAcademicInfo(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    ) {
+        StudentWithAcademicResponse response = studentService.getStudentWithAcademicInfo(userId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/user/student/me")
