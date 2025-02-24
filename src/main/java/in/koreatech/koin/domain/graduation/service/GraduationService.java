@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.EducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
+import in.koreatech.koin.domain.graduation.enums.GeneralEducationAreaEnum;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileNotFoundException;
 import in.koreatech.koin.domain.graduation.model.Catalog;
@@ -120,7 +121,8 @@ public class GraduationService {
 
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
-        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
+        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(
+                userId)
             .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
 
         if (!detectGraduationCalculation.isChanged()) {
@@ -362,7 +364,8 @@ public class GraduationService {
     }
 
     private GraduationCourseCalculationResponse getExistingGraduationCalculation(Integer userId) {
-        List<StudentCourseCalculation> existingCalculations = studentCourseCalculationRepository.findAllByUserId(userId);
+        List<StudentCourseCalculation> existingCalculations = studentCourseCalculationRepository.findAllByUserId(
+            userId);
 
         List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = existingCalculations.stream()
             .map(calc -> {
@@ -445,7 +448,8 @@ public class GraduationService {
         return courseTypeCreditsMap;
     }
 
-    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList, String studentYear) {
+    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList,
+        String studentYear) {
         return catalogList.stream()
             .map(catalog -> {
                 if (catalog.getMajor() == null) {
@@ -570,23 +574,33 @@ public class GraduationService {
             .map(list -> list.get(0))
             .toList();
 
-        List<GeneralEducationArea> generalEducationAreas = catalogRepository.findAllByYearAndCourseTypeId(
-                StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber()),
-                courseTypeRepository.getByName(GENERALEDUCATIONCOURSETYPE).getId())
-            .stream()
-            .filter(catalog -> catalog.getGeneralEducationArea() != null)
-            .collect(Collectors.groupingBy(Catalog::getGeneralEducationArea))
-            .values()
-            .stream()
-            .map(list -> list.get(0).getGeneralEducationArea())
+        GeneralEducationArea shaGeneralEducationArea = generalEducationAreaRepository.getGeneralEducationAreaByName(
+            GeneralEducationAreaEnum.fromYear(
+                StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber())
+            ).getCreditArea());
+
+        List<GeneralEducationArea> generalEducationAreas = GeneralEducationAreaEnum.fromYear(
+                StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber())
+            ).getAreas().stream()
+            .map(generalEducationAreaRepository::getGeneralEducationAreaByName)
             .toList();
 
-        Map<String, EducationLectureResponse.RequiredEducationArea> requiredEducationAreaMap = new HashMap<>();
+        // 일반 교양 내 예외(글로벌, 인성과소양) 수강 학점 계산
+        Integer requiredCredit = 2;
+        Integer completedCredit = 0;
+        for (TimetableLecture timetableLecture : educationTimetableLectures) {
+            if (timetableLecture.getGeneralEducationArea().equals(shaGeneralEducationArea)) {
+                completedCredit += 1;
+            }
+        }
+        EducationLectureResponse.ShaEducationArea shaEducationArea = EducationLectureResponse.ShaEducationArea.of(
+            requiredCredit, completedCredit);
 
+        // 일반 교양 수강 여부 체크
+        List<EducationLectureResponse.RequiredEducationArea> requiredEducationAreas = new ArrayList<>();
         for (GeneralEducationArea generalEducationArea : generalEducationAreas) {
             boolean isCompleted = false;
             String lectureName = null;
-
             for (TimetableLecture timetableLecture : educationTimetableLectures) {
                 if (timetableLecture.getGeneralEducationArea().equals(generalEducationArea)) {
                     isCompleted = true;
@@ -594,13 +608,13 @@ public class GraduationService {
                     break;
                 }
             }
-
-            requiredEducationAreaMap.put(generalEducationArea.getName(),
-                EducationLectureResponse.RequiredEducationArea.of(generalEducationArea.getName(), isCompleted,
-                    lectureName));
+            requiredEducationAreas.add(
+                EducationLectureResponse.RequiredEducationArea.of(
+                    generalEducationArea.getName(), isCompleted, lectureName)
+            );
         }
 
-        return EducationLectureResponse.of(new ArrayList<>(requiredEducationAreaMap.values()));
+        return EducationLectureResponse.of(shaEducationArea, requiredEducationAreas);
     }
 
     private void validateGraduationCalculatedDataExist(Integer userId) {
