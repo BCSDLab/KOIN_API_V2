@@ -28,7 +28,7 @@ public enum GeneralEducationAreaEnum {
         , "미래와융합", 3));
 
     private final String year;
-    private final Map<String, Integer> areasWithCredits; // 교양 영역과 필요 학점 매핑
+    private final Map<String, Integer> areasWithCredits;
 
     GeneralEducationAreaEnum(String year, Map<String, Integer> areasWithCredits) {
         this.year = year;
