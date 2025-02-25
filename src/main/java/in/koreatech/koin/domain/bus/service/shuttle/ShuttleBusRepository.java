@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.exception.BusNotFoundException;
 import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
@@ -14,6 +15,8 @@ import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusSimpleRoute;
 
 public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, ObjectId> {
+
+    ShuttleBusRoute save(ShuttleBusRoute route);
 
     List<ShuttleBusRoute> findBySemesterType(String semesterType);
 

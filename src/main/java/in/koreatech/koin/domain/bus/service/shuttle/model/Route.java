@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.bus.service.shuttle.model;
 
-import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKDAYS;
-import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKEND;
+import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.*;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -89,7 +88,7 @@ public class Route {
 
     public void sortArrivalNodesByDirection() {
         setDirection();
-        if (direction.equals("하교")) {
+        if (direction.equals("하교") && routeType != SHUTTLE) {
             Collections.reverse(this.arrivalNodes);
         }
     }
