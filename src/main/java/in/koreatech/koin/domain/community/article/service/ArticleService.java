@@ -351,7 +351,7 @@ public class ArticleService {
             newArticles.add(lostItemArticle);
         }
 
-        sendKeywordNotification(newArticles);
+        sendKeywordNotification(newArticles, userId);
         return LostItemArticleResponse.of(newArticles.get(0), true);
     }
 
@@ -390,8 +390,8 @@ public class ArticleService {
         return boardRepository.getById(boardId);
     }
 
-    private void sendKeywordNotification(List<Article> articles) {
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
+    private void sendKeywordNotification(List<Article> articles, Integer authorId) {
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, authorId);
         if (!keywordEvents.isEmpty()) {
             for (ArticleKeywordEvent event : keywordEvents) {
                 eventPublisher.publishEvent(event);
