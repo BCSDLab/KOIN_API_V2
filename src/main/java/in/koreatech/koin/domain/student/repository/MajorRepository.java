@@ -24,6 +24,8 @@ public interface MajorRepository extends Repository<Major, Integer> {
 
     Optional<Major> findByNameAndDepartmentId(String name, Integer departmentId);
 
+    Optional<Major> findFirstByDepartmentIdOrderByIdAsc(Integer departmentId);
+
     default Major getByName(String name) {
         return findByName(name)
             .orElseThrow(() -> DepartmentNotFoundException.withDetail("name: " + name));

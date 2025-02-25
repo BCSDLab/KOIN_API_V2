@@ -20,6 +20,7 @@ import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
@@ -168,15 +169,34 @@ public class StudentService {
         }
 
         Student student = studentRepository.getById(userId);
-        // 학번에 변경 사항이 생겼을 경우
+
         String oldStudentNumber = student.getStudentNumber();
-        String newStudentNumber = request.studentNumber();
-        boolean updateStudentNumber = isChangeStudentNumber(newStudentNumber, oldStudentNumber);
-        // 학부에 변경 사항이 생겼을 경우
-        Department newDepartment = departmentRepository.getByName(request.department());
-        // 전공에 변경 사항이 생겼을 경우
-        Major newMajor = majorRepository.getByNameAndDepartmentId(request.major(), student.getDepartment().getId());
+        String newStudentNumber = student.getStudentNumber();
+        String requestStudentNumber = request.studentNumber();
+        if (requestStudentNumber != null) {
+            newStudentNumber = requestStudentNumber;
+        }
+
+        // 학번 변경 사항 감지
+        boolean updateStudentNumber = false;
+        if (requestStudentNumber != null && oldStudentNumber != null) {
+            updateStudentNumber = isChangeStudentNumber(requestStudentNumber, oldStudentNumber);
+        }
+
+        Department newDepartment = student.getDepartment();
+        if (request.department() != null) {
+            newDepartment = departmentRepository.getByName(request.department());
+        }
+
         Major oldMajor = student.getMajor();
+        Major newMajor;
+        if (request.major() != null) {
+            newMajor = majorRepository.getByNameAndDepartmentId(request.major(), newDepartment.getId());
+        } else {
+            newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newDepartment.getId())
+                .orElse(null);
+        }
+        // 전공 변경 사항 감지
         boolean updateMajor = isChangedMajor(oldMajor, newMajor);
 
         student.updateStudentAcademicInfo(newStudentNumber, newDepartment, newMajor);
@@ -238,6 +258,11 @@ public class StudentService {
     public StudentResponse getStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
         return StudentResponse.from(student);
+    }
+
+    public StudentWithAcademicResponse getStudentWithAcademicInfo(Integer userId) {
+        Student student = studentRepository.getById(userId);
+        return StudentWithAcademicResponse.from(student);
     }
 
     @Transactional
