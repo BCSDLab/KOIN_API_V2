@@ -23,9 +23,9 @@ public record BusCourseResponse(
 
     public static BusCourseResponse of(ShuttleRouteName routeName, BusDirection direction) {
         return new BusCourseResponse(
-            routeName.getBusType().toString(),
-            direction.getName(),
-            routeName.getRegionName()
+            routeName.getBusType().toString().toLowerCase(),
+            direction.getLegacyDirection(),
+            routeName.getLabel()
         );
     }
 }

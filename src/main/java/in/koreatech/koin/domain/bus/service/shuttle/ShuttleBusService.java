@@ -1,9 +1,7 @@
 package in.koreatech.koin.domain.bus.service.shuttle;
 
 import static in.koreatech.koin.domain.bus.enums.ShuttleBusRegion.CHEONAN_ASAN;
-import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKDAYS;
-import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKEND;
-import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.SHUTTLE;
+import static in.koreatech.koin.domain.version.model.VersionType.SHUTTLE;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -14,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +21,7 @@ import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
@@ -48,9 +46,9 @@ public class ShuttleBusService {
 
     public List<BusCourseResponse> getBusCourses() {
         List<BusCourseResponse> courses = new ArrayList<>();
-        for (var routeName : ShuttleRouteName.values()) {
+        for (var region : ShuttleRouteName.values()) {
             for (var direction : BusDirection.values()) {
-                courses.add(BusCourseResponse.of(routeName, direction));
+                courses.add(BusCourseResponse.of(region, direction));
             }
         }
         return courses;
@@ -68,37 +66,25 @@ public class ShuttleBusService {
     }
 
     public List<BusRemainTime> getShuttleBusRemainTimes(BusType busType, BusStation depart, BusStation arrival) {
-        List<ShuttleBusRoute> shuttleBusRoutes = getShuttleBusRoutes(busType);
-        List<List<Route>> routeList = shuttleBusRoutes.stream()
-            .map(this::routeConvertor)
-            .toList();
+        List<Route> routes = getShuttleRoutesByBusType(busType);
 
-        return routeList.stream()
-            .flatMap(routes ->
-                routes.stream()
-                    .filter(route -> route.isRunning(clock))
-                    .filter(route -> route.isCorrectRoute(depart, arrival, clock))
-                    .map(route -> route.getRemainTime(depart))
-            )
+        return routes.stream()
+            .filter(route -> route.isRunning(clock))
+            .filter(route -> route.isCorrectRoute(depart, arrival, clock))
+            .map(route -> route.getRemainTime(depart))
             .distinct()
             .sorted()
             .toList();
     }
 
     public List<SchoolBusTimetable> getSchoolBusTimetables(BusType busType, String direction, String region) {
-        ShuttleRouteName routeName = ShuttleRouteName.getRegionByLegacy(busType, region);
-        String semester = versionService.getVersionEntity("shuttle_bus_timetable").getTitle();
+        ShuttleBusRegion busRegion = ShuttleBusRegion.convertFrom(region);
         String busDirection = BusDirection.from(direction).getName();
 
-        List<Route> routes = routeName.getNewBusType().stream()
-            .flatMap(routeType -> shuttleBusRepository.findAllByRegionAndRouteTypeAndSemesterType(
-                routeName.getNewRegionName(), routeType, semester).stream())
-            .flatMap(route -> routeConvertor(route).stream())
+        return getShuttleRoutesByBusType(busType).stream()
             .filter(route -> route.getDirection().equals(busDirection))
-            .toList();
-
-        return routes.stream()
-            .map(route -> new SchoolBusTimetable(route.getRouteName(), route.getArrivalInfos()))
+            .filter(route -> route.getRegion().equals(busRegion))
+            .map(SchoolBusTimetable::new)
             .toList();
     }
 
@@ -111,19 +97,17 @@ public class ShuttleBusService {
             .getDisplayName(TextStyle.SHORT, Locale.US)
             .toUpperCase();
 
-        List<ShuttleBusRoute> routeList = getShuttleBusRoutes(busType);
-        LocalTime arrivalTime = routeList.stream()
-            .filter(busRoute -> busRoute.getRegion().equals(CHEONAN_ASAN))
-            .map(this::routeConvertor)
-            .flatMap(routes ->
-                routes.stream()
-                    .filter(route -> route.getRunningDays().contains(todayName))
-                    .filter(route -> route.isRunning(clockAt))
-                    .filter(route -> route.isCorrectRoute(depart, arrival, clockAt))
-                    .flatMap(route ->
-                        route.getArrivalInfos().stream()
-                            .filter(arrivalNode -> depart.getDisplayNames().contains(arrivalNode.getNodeName()))
-                    )
+        List<Route> routes = getShuttleRoutesByBusType(busType).stream()
+            .filter(route -> route.getRegion().equals(CHEONAN_ASAN))
+            .filter(route -> route.getRunningDays().contains(todayName))
+            .filter(route -> route.isRunning(clockAt))
+            .filter(route -> route.isCorrectRoute(depart, arrival, clockAt))
+            .toList();
+
+        LocalTime arrivalTime = routes.stream()
+            .flatMap(route ->
+                route.getArrivalNodes().stream()
+                    .filter(arrivalNode -> depart.getDisplayNames().contains(arrivalNode.getNodeName()))
             )
             .min(Comparator.comparing(o -> LocalTime.parse(o.getArrivalTime())))
             .map(ArrivalNode::getArrivalTime)
@@ -133,46 +117,14 @@ public class ShuttleBusService {
         return new SingleBusTimeResponse(busType.getName(), arrivalTime);
     }
 
-    private List<ShuttleBusRoute> getShuttleBusRoutes(BusType busType) {
-        List<ShuttleBusRoute> routes = new ArrayList<>();
-        if (busType.equals(BusType.COMMUTING)) {
-            routes.addAll(shuttleBusRepository.findAllByRouteType(WEEKDAYS));
-        }
-        if (busType.equals(BusType.SHUTTLE)) {
-            for (var shuttleBusType : List.of(SHUTTLE, WEEKEND)) {
-                routes.addAll(shuttleBusRepository.findAllByRouteType(shuttleBusType));
-            }
-        }
-        return routes;
-    }
-
-    private List<Route> routeConvertor(ShuttleBusRoute shuttleBusRoute) {
-        return shuttleBusRoute.getRouteInfo().stream()
-            .map(routeInfo ->
-                Route.builder()
-                    .routeName(shuttleBusRoute.getRouteName())
-                    .routeType(shuttleBusRoute.getRouteType())
-                    .direction(extractDirection(shuttleBusRoute, routeInfo))
-                    .runningDays(routeInfo.getRunningDays())
-                    .arrivalInfos(
-                        IntStream.range(0, routeInfo.getArrivalTime().size()).mapToObj(i ->
-                                ArrivalNode.builder()
-                                    .nodeName(shuttleBusRoute.getNodeInfo().get(i).getName())
-                                    .arrivalTime(routeInfo.getArrivalTime().get(i))
-                                    .build())
-                            .toList())
-                    .build())
+    private List<Route> getShuttleRoutesByBusType(BusType busType) {
+        String semester = versionService.getVersionEntity(SHUTTLE).getTitle();
+        List<ShuttleRouteType> routeTypes = ShuttleRouteType.convertFrom(busType);
+        List<Route> routes = routeTypes.stream()
+            .flatMap(routeType ->
+                shuttleBusRepository.findAllBySemesterTypeAndRouteType(semester, routeType).stream())
             .toList();
-    }
-
-    private String extractDirection(ShuttleBusRoute busRoute, ShuttleBusRoute.RouteInfo routeInfo) {
-        ShuttleRouteType busType = busRoute.getRouteType();
-        if (busType.equals(WEEKDAYS)) {
-            return routeInfo.getName();
-        }
-        if (busType.equals(WEEKEND)) {
-            return routeInfo.getDetail();
-        }
-        return routeInfo.getArrivalTime().get(0) == null ? "등교" : "하교";
+        routes.forEach(Route::sortArrivalNodesByDirection);
+        return routes;
     }
 }

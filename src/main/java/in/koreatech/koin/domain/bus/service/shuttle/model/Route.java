@@ -1,22 +1,24 @@
 package in.koreatech.koin.domain.bus.service.shuttle.model;
 
+import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKDAYS;
+import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKEND;
+
 import java.time.Clock;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import in.koreatech.koin.domain.bus.enums.BusStation;
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,18 +26,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Route {
 
+    @Field("route_name")
     private String routeName;
 
+    @Field("route_type")
     private ShuttleRouteType routeType;
+
+    @Field("region")
+    private ShuttleBusRegion region;
+
+    @Field("route_info")
+    private String routeInfo;
+
+    @Field("route_detail")
+    private String routeDetail;
+
+    @Field("running_days")
+    private List<String> runningDays = new ArrayList<>();
+
+    @Field("arrival_nodes")
+    private List<ArrivalNode> arrivalNodes = new ArrayList<>();
 
     private String direction;
 
-    private List<String> runningDays = new ArrayList<>();
-
-    private List<ArrivalNode> arrivalInfos = new ArrayList<>();
-
     public boolean isRunning(Clock clock) {
-        if ("미운행".equals(routeName) || arrivalInfos.isEmpty()) {
+        if ("미운행".equals(routeName) || arrivalNodes.isEmpty()) {
             return false;
         }
         String todayOfWeek = LocalDateTime.now(clock)
@@ -47,7 +62,7 @@ public class Route {
 
     public boolean isCorrectRoute(BusStation depart, BusStation arrival, Clock clock) {
         boolean foundDepart = false;
-        for (ArrivalNode node : arrivalInfos) {
+        for (ArrivalNode node : arrivalNodes) {
             if (depart.getDisplayNames().contains(node.getNodeName())
                 && (BusRemainTime.from(node.getArrivalTime()).isBefore(clock))) {
                 foundDepart = true;
@@ -65,71 +80,29 @@ public class Route {
     }
 
     private ArrivalNode convertToArrivalNode(BusStation busStation) {
-        return arrivalInfos.stream()
+        return arrivalNodes.stream()
             .filter(node -> busStation.getDisplayNames().contains(node.getNodeName()))
             .findFirst()
             .orElseThrow(() -> BusArrivalNodeNotFoundException.withDetail(
                 "routeName: " + routeName + ", busStation: " + busStation.name()));
     }
 
-    public boolean filterRoutesByDayOfWeek(LocalDate date) {
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
-        return runningDays.contains(dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase());
-    }
-
-    public boolean filterDepartAndArriveNode(BusStation departNode, BusStation arriveNode) {
-        boolean foundDepart = false;
-
-        for (ArrivalNode node : arrivalInfos) {
-            if (!foundDepart && node.getNodeName().contains(departNode.getQueryName())
-                && isValidTimeFormat(node.getArrivalTime())) {
-                foundDepart = true;
-            } else if (foundDepart && node.getNodeName().contains(arriveNode.getQueryName())) {
-                return true;
-            }
+    public void sortArrivalNodesByDirection() {
+        setDirection();
+        if (direction.equals("하교")) {
+            Collections.reverse(this.arrivalNodes);
         }
-
-        return false;
     }
 
-    public ScheduleInfo getShuttleBusScheduleInfo(BusStation depart) {
-        ArrivalNode findDepartNode = findArrivalNodeByStation(depart);
-        return new ScheduleInfo("shuttle", routeName, LocalTime.parse(findDepartNode.getArrivalTime()));
-    }
-
-    public ScheduleInfo getCommutingShuttleBusScheduleInfo(BusStation depart) {
-        String busType = "한기대".equals(depart.getQueryName()) ? "하교셔틀" : "등교셔틀";
-        ArrivalNode findDepartNode = findArrivalNodeByStation(depart);
-
-        return new ScheduleInfo("shuttle", String.format("%s %s", routeName, busType),
-            LocalTime.parse(findDepartNode.getArrivalTime()));
-    }
-
-    private ArrivalNode findArrivalNodeByStation(BusStation depart) {
-        return arrivalInfos.stream()
-            .filter(arrivalNode -> arrivalNode.getNodeName().contains(depart.getQueryName()))
-            .findFirst()
-            .orElseThrow(() -> new BusArrivalNodeNotFoundException(""));
-    }
-
-    private boolean isValidTimeFormat(String time) {
-        // HH:mm 형식의 정규식 (00:00부터 23:59까지 유효)
-        String timeRegex = "([01]\\d|2[0-3]):[0-5]\\d";
-        return time != null && time.matches(timeRegex);
-    }
-
-    @Builder
-    private Route(
-        String routeName,
-        ShuttleRouteType routeType,
-        String direction,
-        List<String> runningDays,
-        List<ArrivalNode> arrivalInfos
-    ) {
-        this.routeName = routeName;
-        this.routeType = routeType;
-        this.direction = direction;
-        this.runningDays = runningDays;
-        this.arrivalInfos = arrivalInfos;
+    private void setDirection() {
+        if (routeType.equals(WEEKDAYS)) {
+            this.direction = routeInfo;
+            return;
+        }
+        if (routeType.equals(WEEKEND)) {
+            this.direction = routeDetail;
+            return;
+        }
+        this.direction = arrivalNodes.get(0).getArrivalTime() == null ? "등교" : "하교";
     }
 }

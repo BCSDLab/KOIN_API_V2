@@ -2,10 +2,11 @@ package in.koreatech.koin.domain.bus.service.shuttle.model;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,13 +15,9 @@ import lombok.NoArgsConstructor;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public class ArrivalNode {
 
+    @Field("node_name")
     private String nodeName;
 
+    @Field("arrival_time")
     private String arrivalTime;
-
-    @Builder
-    private ArrivalNode(String nodeName, String arrivalTime) {
-        this.nodeName = nodeName;
-        this.arrivalTime = arrivalTime;
-    }
 }

@@ -16,9 +16,18 @@ public enum ShuttleBusRegion {
     private final String label;
 
     public static int getOrdinalByLabel(String label) {
-        for (ShuttleBusRegion region : ShuttleBusRegion.values()) {
+        for (var region : ShuttleBusRegion.values()) {
             if (region.getLabel().equals(label)) {
                 return region.ordinal();
+            }
+        }
+        throw BusIllegalRegionException.withDetail("displayName: " + label);
+    }
+
+    public static ShuttleBusRegion convertFrom(String label) {
+        for (var region : ShuttleBusRegion.values()) {
+            if (region.getLabel().contains(label)) {
+                return region;
             }
         }
         throw BusIllegalRegionException.withDetail("displayName: " + label);
