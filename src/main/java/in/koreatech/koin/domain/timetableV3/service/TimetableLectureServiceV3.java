@@ -44,7 +44,7 @@ public class TimetableLectureServiceV3 {
         return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
     }
 
-    public TakeAllTimetableLectureResponse getAllTakeTimetableLecture(Integer userId) {
+    public TakeAllTimetableLectureResponse getTakeAllTimetableLectures(Integer userId) {
         List<TimetableFrame> frames = timetableFrameRepositoryV3.findAllByUserIdAndIsMainTrue(userId);
 
         List<TimetableLecture> collectedLectures = frames.stream()

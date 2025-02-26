@@ -36,7 +36,7 @@ public class TimetableLectureControllerV3 implements TimetableLectureApiV3 {
     public ResponseEntity<TakeAllTimetableLectureResponse> getTakeAllTimetableLectures(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
-        TakeAllTimetableLectureResponse response = lectureServiceV3.getAllTakeTimetableLecture(userId);
+        TakeAllTimetableLectureResponse response = lectureServiceV3.getTakeAllTimetableLectures(userId);
         return ResponseEntity.ok(response);
     }
 

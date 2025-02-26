@@ -120,8 +120,7 @@ public class GraduationService {
 
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
-        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(
-                userId)
+        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
 
         if (!detectGraduationCalculation.isChanged()) {
