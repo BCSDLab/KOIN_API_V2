@@ -86,8 +86,8 @@ public class GraduationService {
     private static final String TOTAL = "합 계";
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
-    private static final String DEFAULTCOURSERTYPE = "이수구분선택";
-    private static final String GENERALEDUCATIONCOURSETYPE = "교양선택";
+    private static final String DEFAULT_COURSER_TYPE = "이수구분선택";
+    private static final String GENERAL_EDUCATION_COURSE_TYPE = "교양선택";
     private static final Integer SELECTIVE_EDUCATION_REQUIRED_CREDIT = 3;
 
     @Transactional
@@ -239,11 +239,11 @@ public class GraduationService {
 
         // 자유선택은 학생이 직접 신청하는 부분이라 매핑해줬음
         if (data.courseType().equals("자선")) {
-            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULT_COURSER_TYPE), null);
         }
 
         if (lecture == null) {
-            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULT_COURSER_TYPE), null);
         }
         /*
             Name과 Code로 나눈 이유? : 1차로는 학생의 학번과 수업이름으로 찾습니다.(코드가 다른 경우가 많음)
@@ -256,7 +256,7 @@ public class GraduationService {
 
         // catalog가 없으면 기본 이수구분 반환
         if (catalog == null) {
-            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULT_COURSER_TYPE), null);
         }
 
         // CourseType과 GeneralEducation_id 반환
@@ -620,7 +620,7 @@ public class GraduationService {
         List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .filter(lecture -> lecture.getGeneralEducationArea() == null
-                && lecture.getCourseType() == courseTypeRepository.getByName(GENERALEDUCATIONCOURSETYPE))
+                && lecture.getCourseType() == courseTypeRepository.getByName(GENERAL_EDUCATION_COURSE_TYPE))
             .toList();
 
         Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;
@@ -635,7 +635,7 @@ public class GraduationService {
         List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
         educationAreas.add(
             GeneralEducationLectureResponse.GeneralEducationArea.of(
-                GENERALEDUCATIONCOURSETYPE, requiredCredit, completedCredit, lectureNames)
+                GENERAL_EDUCATION_COURSE_TYPE, requiredCredit, completedCredit, lectureNames)
         );
 
         return educationAreas;

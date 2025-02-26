@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.graduation.enums;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -36,11 +37,9 @@ public enum GeneralEducationAreaEnum {
     }
 
     public static GeneralEducationAreaEnum fromYear(String year) {
-        for (GeneralEducationAreaEnum generalEducationArea : GeneralEducationAreaEnum.values()) {
-            if (generalEducationArea.year.equals(year)) {
-                return generalEducationArea;
-            }
-        }
-        throw new KoinIllegalArgumentException("year 양식이 잘못됐습니다. year : " + year);
+        return Arrays.stream(GeneralEducationAreaEnum.values())
+            .filter(area -> area.year.equals(year))
+            .findFirst()
+            .orElseThrow(() -> new KoinIllegalArgumentException("year 양식이 잘못됐습니다. year : " + year));
     }
 }

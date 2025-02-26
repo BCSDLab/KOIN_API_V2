@@ -16,10 +16,13 @@ public record GeneralEducationLectureResponse(
     public record GeneralEducationArea(
         @Schema(description = "이수구분", example = "인성과소양")
         String courseType,
+
         @Schema(description = "필요학점", example = "2")
         Integer requiredCredit,
+
         @Schema(description = "이수학점", example = "2")
         Integer completedCredit,
+
         @Schema(description = "이수강의", example = "[대학생활과비전, 견행학]")
         List<String> courseNames
     ) {
