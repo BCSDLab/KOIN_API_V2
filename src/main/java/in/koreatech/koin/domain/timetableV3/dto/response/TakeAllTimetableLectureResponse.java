@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -17,18 +17,9 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimetableLectureResponseV3(
-    @Schema(description = "시간표 프레임 id", example = "1")
-    Integer timetableFrameId,
-
+public record TakeAllTimetableLectureResponse(
     @Schema(description = "시간표 프레임 강의 정보")
-    List<InnerTimetableLectureResponseV3> timetable,
-
-    @Schema(description = "해당 학기 학점", example = "24")
-    Integer grades,
-
-    @Schema(description = "전체 학기 학점", example = "131")
-    Integer totalGrades
+    List<TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3> timetable
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureResponseV3(
@@ -77,15 +68,16 @@ public record TimetableLectureResponseV3(
         @Schema(description = "교양영역", example = "", requiredMode = NOT_REQUIRED)
         String generalEducationArea
     ) {
-        public static List<InnerTimetableLectureResponseV3> from(List<TimetableLecture> timetableLectures) {
-            List<InnerTimetableLectureResponseV3> InnerTimetableLectureResponses = new ArrayList<>();
+        public static List<TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3> from(
+            List<TimetableLecture> timetableLectures) {
+            List<TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3> InnerTimetableLectureResponses = new ArrayList<>();
 
             for (TimetableLecture timetableLecture : timetableLectures) {
                 Lecture lecture = timetableLecture.getLecture();
-                InnerTimetableLectureResponseV3 responseV3;
+                TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3 responseV3;
 
                 if (lecture == null) {
-                    responseV3 = new InnerTimetableLectureResponseV3(
+                    responseV3 = new TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3(
                         timetableLecture.getId(),
                         null,
                         null,
@@ -104,7 +96,7 @@ public record TimetableLectureResponseV3(
                         getGeneralEducationArea(timetableLecture)
                     );
                 } else {
-                    responseV3 = new InnerTimetableLectureResponseV3(
+                    responseV3 = new TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3(
                         timetableLecture.getId(),
                         lecture.getId(),
                         lecture.getRegularNumber(),
@@ -142,14 +134,11 @@ public record TimetableLectureResponseV3(
             }
             return timetableLecture.getGeneralEducationArea().getName();
         }
-    }
 
-    public static TimetableLectureResponseV3 of(TimetableFrame frame, int grades, int totalGrades) {
-        return new TimetableLectureResponseV3(
-            frame.getId(),
-            InnerTimetableLectureResponseV3.from(frame.getTimetableLectures()),
-            grades,
-            totalGrades
-        );
+        public static TakeAllTimetableLectureResponse of(TimetableFrame frame) {
+            return new TakeAllTimetableLectureResponse(
+                TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3.from(frame.getTimetableLectures())
+            );
+        }
     }
 }

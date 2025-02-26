@@ -180,7 +180,7 @@ public class GraduationService {
                 years.add(data.year());
             }
 
-            Map<String, Lecture> lectureMap = loadLectures(semesters, lectureCodes);
+            Map<String, List<Lecture>> lectureMap = loadLectures(semesters, lectureCodes);
             Map<String, Catalog> catalogByNameMap = loadCatalogByLectureName(lectureNames, studentYear);
             Map<String, Catalog> catalogByCodeMap = loadCatalogByCode(lectureCodes, years);
             /*
@@ -197,7 +197,10 @@ public class GraduationService {
                 }
 
                 String semester = getKoinSemester(data.semester(), data.year());
-                Lecture lecture = lectureMap.get(semester + "_" + data.code());
+
+                List<Lecture> lectures = lectureMap.get(semester + "_" + data.code());
+                Lecture lecture = findBestMatchingLecture(lectures, data.lectureClass());
+
                 CatalogResult catalogResult = findCourseType(lecture, data, studentYear, catalogByNameMap,
                     catalogByCodeMap);
                 CourseType courseType = catalogResult.courseType();
@@ -213,11 +216,21 @@ public class GraduationService {
         }
     }
 
-    // _를 넣은 이유는, 각각의 고유한 key 값을 갖게 하기 위해서(문제가 자주 생기길래..)
-    private Map<String, Lecture> loadLectures(Set<String> semesters, Set<String> lectureCodes) {
+    // 분반 문제를 해결하기 위해서, 강의들을 전부 가져오도록 했음
+    private Map<String, List<Lecture>> loadLectures(Set<String> semesters, Set<String> lectureCodes) {
         return lectureRepositoryV2.findAllBySemesterInAndCodeIn(semesters, lectureCodes)
-            .stream().collect(Collectors.toMap(l -> l.getSemester() + "_" + l.getCode(), Function.identity(),
-                (existing, duplicate) -> duplicate));
+            .stream().collect(Collectors.groupingBy(l -> l.getSemester() + "_" + l.getCode()));
+    }
+
+    private Lecture findBestMatchingLecture(List<Lecture> lectures, String lectureClass) {
+        if (lectures == null || lectures.isEmpty())
+            return null;
+        for (Lecture lecture : lectures) {
+            if (lecture.getLectureClass().equals(lectureClass)) {
+                return lecture;
+            }
+        }
+        return lectures.get(0);
     }
 
     // 1차 탐색 요소, 학번의 연도와 수업 이름으로 카탈로그를 가져옴
@@ -327,8 +340,8 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-            gradeExcelData.retakeStatus().equals(RETAKE) ||
-            gradeExcelData.grade().equals(UNSATISFACTORY);
+               gradeExcelData.retakeStatus().equals(RETAKE) ||
+               gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
     private String getKoinSemester(String semester, String year) {
@@ -533,13 +546,20 @@ public class GraduationService {
         List<Catalog> catalogs = catalogRepository.getAllByCourseTypeId(courseType.getId());
 
         if (generalEducationAreaName != null) {
-            GeneralEducationArea generalEducationArea =
-                generalEducationAreaRepository.getGeneralEducationAreaByName(generalEducationAreaName);
+            if (generalEducationAreaName.equals("교양선택")) {
+                catalogs = catalogs.stream()
+                    .filter(catalog -> catalog.getGeneralEducationArea() == null)
+                    .toList();
+            } else {
+                GeneralEducationArea generalEducationArea =
+                    generalEducationAreaRepository.getGeneralEducationAreaByName(generalEducationAreaName);
 
-            catalogs = catalogs.stream()
-                .filter(catalog -> catalog.getGeneralEducationArea() != null
-                    && catalog.getGeneralEducationArea().getId().equals(generalEducationArea.getId()))
-                .toList();
+                catalogs = catalogs.stream()
+                    .filter(catalog -> catalog.getGeneralEducationArea() != null && catalog.getGeneralEducationArea()
+                        .getId()
+                        .equals(generalEducationArea.getId()))
+                    .toList();
+            }
         }
 
         List<String> codes = catalogs.stream().map(Catalog::getCode).toList();
