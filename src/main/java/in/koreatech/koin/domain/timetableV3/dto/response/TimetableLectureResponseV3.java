@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.timetableV3.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -109,14 +110,15 @@ public record TimetableLectureResponseV3(
                         lecture.getRegularNumber(),
                         lecture.getCode(),
                         lecture.getDesignScore(),
-                        LectureInfoResponse.getRegularLectureInfo(lecture.getClassTime(),
+                        LectureInfoResponse.getRegularLectureInfo(
+                            firstNonNull(timetableLecture.getClassTime(), lecture.getClassTime()),
                             timetableLecture.getClassPlace()),
                         timetableLecture.getMemo(),
                         lecture.getGrades(),
-                        timetableLecture.getClassTitle() == null ? lecture.getName() : timetableLecture.getClassTitle(),
+                        lecture.getName(),
                         lecture.getLectureClass(),
                         lecture.getTarget(),
-                        lecture.getProfessor(),
+                        firstNonNull(timetableLecture.getProfessor(),lecture.getProfessor()),
                         lecture.getDepartment(),
                         getCourseType(timetableLecture),
                         getGeneralEducationArea(timetableLecture)

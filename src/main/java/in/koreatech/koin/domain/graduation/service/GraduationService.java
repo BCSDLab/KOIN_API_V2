@@ -120,7 +120,8 @@ public class GraduationService {
 
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
-        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
+        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(
+                userId)
             .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
 
         if (!detectGraduationCalculation.isChanged()) {
@@ -324,8 +325,8 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-            gradeExcelData.retakeStatus().equals(RETAKE) ||
-            gradeExcelData.grade().equals(UNSATISFACTORY);
+               gradeExcelData.retakeStatus().equals(RETAKE) ||
+               gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
     private String getKoinSemester(String semester, String year) {
@@ -528,13 +529,20 @@ public class GraduationService {
         List<Catalog> catalogs = catalogRepository.getAllByCourseTypeId(courseType.getId());
 
         if (generalEducationAreaName != null) {
-            GeneralEducationArea generalEducationArea =
-                generalEducationAreaRepository.getGeneralEducationAreaByName(generalEducationAreaName);
+            if (generalEducationAreaName.equals("교양선택")) {
+                catalogs = catalogs.stream()
+                    .filter(catalog -> catalog.getGeneralEducationArea() == null)
+                    .toList();
+            } else {
+                GeneralEducationArea generalEducationArea =
+                    generalEducationAreaRepository.getGeneralEducationAreaByName(generalEducationAreaName);
 
-            catalogs = catalogs.stream()
-                .filter(catalog -> catalog.getGeneralEducationArea() != null
-                    && catalog.getGeneralEducationArea().getId().equals(generalEducationArea.getId()))
-                .toList();
+                catalogs = catalogs.stream()
+                    .filter(catalog -> catalog.getGeneralEducationArea() != null && catalog.getGeneralEducationArea()
+                        .getId()
+                        .equals(generalEducationArea.getId()))
+                    .toList();
+            }
         }
 
         List<String> codes = catalogs.stream().map(Catalog::getCode).toList();
