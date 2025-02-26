@@ -22,8 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
-import in.koreatech.koin.domain.graduation.dto.EducationLectureResponse;
+import in.koreatech.koin.domain.graduation.dto.GeneralEducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
+import in.koreatech.koin.domain.graduation.enums.GeneralEducationAreaEnum;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileNotFoundException;
 import in.koreatech.koin.domain.graduation.model.Catalog;
@@ -85,8 +86,9 @@ public class GraduationService {
     private static final String TOTAL = "합 계";
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
-    private static final String DEFAULTCOURSERTYPE = "이수구분선택";
-    private static final String GENERALEDUCATIONCOURSETYPE = "교양선택";
+    private static final String DEFAULT_COURSER_TYPE = "이수구분선택";
+    private static final String GENERAL_EDUCATION_COURSE_TYPE = "교양선택";
+    private static final Integer SELECTIVE_EDUCATION_REQUIRED_CREDIT = 3;
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -120,7 +122,8 @@ public class GraduationService {
 
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
-        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
+        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(
+                userId)
             .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
 
         if (!detectGraduationCalculation.isChanged()) {
@@ -236,11 +239,11 @@ public class GraduationService {
 
         // 자유선택은 학생이 직접 신청하는 부분이라 매핑해줬음
         if (data.courseType().equals("자선")) {
-            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULT_COURSER_TYPE), null);
         }
 
         if (lecture == null) {
-            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULT_COURSER_TYPE), null);
         }
         /*
             Name과 Code로 나눈 이유? : 1차로는 학생의 학번과 수업이름으로 찾습니다.(코드가 다른 경우가 많음)
@@ -253,7 +256,7 @@ public class GraduationService {
 
         // catalog가 없으면 기본 이수구분 반환
         if (catalog == null) {
-            return new CatalogResult(courseTypeRepository.getByName(DEFAULTCOURSERTYPE), null);
+            return new CatalogResult(courseTypeRepository.getByName(DEFAULT_COURSER_TYPE), null);
         }
 
         // CourseType과 GeneralEducation_id 반환
@@ -362,7 +365,8 @@ public class GraduationService {
     }
 
     private GraduationCourseCalculationResponse getExistingGraduationCalculation(Integer userId) {
-        List<StudentCourseCalculation> existingCalculations = studentCourseCalculationRepository.findAllByUserId(userId);
+        List<StudentCourseCalculation> existingCalculations = studentCourseCalculationRepository.findAllByUserId(
+            userId);
 
         List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = existingCalculations.stream()
             .map(calc -> {
@@ -445,7 +449,8 @@ public class GraduationService {
         return courseTypeCreditsMap;
     }
 
-    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList, String studentYear) {
+    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList,
+        String studentYear) {
         return catalogList.stream()
             .map(catalog -> {
                 if (catalog.getMajor() == null) {
@@ -558,49 +563,88 @@ public class GraduationService {
         return generalEducationAreaRepository.findAll();
     }
 
-    public EducationLectureResponse getEducationLecture(Integer userId) {
+    public GeneralEducationLectureResponse getEducationLecture(Integer userId) {
+        String studentYear = StudentUtil.parseStudentNumberYearAsString(
+            studentRepository.getById(userId).getStudentNumber());
         List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
 
-        List<TimetableLecture> educationTimetableLectures = timetableFrames.stream()
+        List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
+
+        // 교양 선택
+        educationAreas.addAll(getSelectiveEducationAreas(timetableFrames));
+        // 일반 교양
+        educationAreas.addAll(getGeneralEducationAreas(studentYear, timetableFrames));
+
+        return GeneralEducationLectureResponse.of(educationAreas);
+    }
+
+    private List<GeneralEducationLectureResponse.GeneralEducationArea> getGeneralEducationAreas(
+        String studentYear, List<TimetableFrame> timetableFrames) {
+
+        List<TimetableLecture> generalEducationTimetableLectures = timetableFrames.stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .filter(lecture -> lecture.getGeneralEducationArea() != null)
-            .collect(Collectors.groupingBy(TimetableLecture::getGeneralEducationArea))
-            .values()
-            .stream()
-            .map(list -> list.get(0))
             .toList();
 
-        List<GeneralEducationArea> generalEducationAreas = catalogRepository.findAllByYearAndCourseTypeId(
-                StudentUtil.parseStudentNumberYearAsString(studentRepository.getById(userId).getStudentNumber()),
-                courseTypeRepository.getByName(GENERALEDUCATIONCOURSETYPE).getId())
-            .stream()
-            .filter(catalog -> catalog.getGeneralEducationArea() != null)
-            .collect(Collectors.groupingBy(Catalog::getGeneralEducationArea))
-            .values()
-            .stream()
-            .map(list -> list.get(0).getGeneralEducationArea())
+        List<GeneralEducationArea> generalEducationAreas = GeneralEducationAreaEnum.fromYear(studentYear)
+            .getAreasWithCredits().keySet().stream()
+            .map(generalEducationAreaRepository::getGeneralEducationAreaByName)
             .toList();
 
-        Map<String, EducationLectureResponse.RequiredEducationArea> requiredEducationAreaMap = new HashMap<>();
+        List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
 
         for (GeneralEducationArea generalEducationArea : generalEducationAreas) {
-            boolean isCompleted = false;
-            String lectureName = null;
+            Integer requiredCredit = getRequiredCredits(studentYear, generalEducationArea.getName());
+            Integer completedCredit = 0;
+            List<String> lectureNames = new ArrayList<>();
 
-            for (TimetableLecture timetableLecture : educationTimetableLectures) {
+            for (TimetableLecture timetableLecture : generalEducationTimetableLectures) {
                 if (timetableLecture.getGeneralEducationArea().equals(generalEducationArea)) {
-                    isCompleted = true;
-                    lectureName = timetableLecture.getLecture().getName();
-                    break;
+                    completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
+                    lectureNames.add(timetableLecture.getLecture().getName());
                 }
             }
 
-            requiredEducationAreaMap.put(generalEducationArea.getName(),
-                EducationLectureResponse.RequiredEducationArea.of(generalEducationArea.getName(), isCompleted,
-                    lectureName));
+            educationAreas.add(
+                GeneralEducationLectureResponse.GeneralEducationArea.of(
+                    generalEducationArea.getName(), requiredCredit, completedCredit, lectureNames)
+            );
         }
 
-        return EducationLectureResponse.of(new ArrayList<>(requiredEducationAreaMap.values()));
+        return educationAreas;
+    }
+
+    private List<GeneralEducationLectureResponse.GeneralEducationArea> getSelectiveEducationAreas(
+        List<TimetableFrame> timetableFrames) {
+
+        List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .filter(lecture -> lecture.getGeneralEducationArea() == null
+                && lecture.getCourseType() == courseTypeRepository.getByName(GENERAL_EDUCATION_COURSE_TYPE))
+            .toList();
+
+        Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;
+        Integer completedCredit = 0;
+        List<String> lectureNames = new ArrayList<>();
+
+        for (TimetableLecture timetableLecture : selectiveEducationTimetableLectures) {
+            completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
+            lectureNames.add(timetableLecture.getLecture().getName());
+        }
+
+        List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
+        educationAreas.add(
+            GeneralEducationLectureResponse.GeneralEducationArea.of(
+                GENERAL_EDUCATION_COURSE_TYPE, requiredCredit, completedCredit, lectureNames)
+        );
+
+        return educationAreas;
+    }
+
+
+    private Integer getRequiredCredits(String year, String areaName) {
+        GeneralEducationAreaEnum generalEducationAreaEnum = GeneralEducationAreaEnum.fromYear(year);
+        return generalEducationAreaEnum.getAreasWithCredits().get(areaName);
     }
 
     private void validateGraduationCalculatedDataExist(Integer userId) {
