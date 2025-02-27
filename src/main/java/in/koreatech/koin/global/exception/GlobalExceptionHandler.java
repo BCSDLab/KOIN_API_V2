@@ -13,6 +13,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.lang.Nullable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -178,13 +180,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+        HttpMessageNotReadableException e,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest request
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(((ServletWebRequest)request).getRequest());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 입력 형식이거나, 값이 허용된 범위를 초과했습니다.");
+    }
+
+    @Override
     public ResponseEntity<Object> handleNoHandlerFoundException(
         NoHandlerFoundException e,
         HttpHeaders headers,
         HttpStatusCode status,
         WebRequest request
     ) {
-        log.warn("유효하지 않은 API 경로입니다. " + e.getRequestURL());
+        log.warn("유효하지 않은 API 경로입니다. {}", e.getRequestURL());
         requestLogging(((ServletWebRequest)request).getRequest());
         return buildErrorResponse(HttpStatus.NOT_FOUND, "유효하지 않은 API 경로입니다.");
     }
@@ -211,7 +225,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String detail = String.format("""
                 Exception: *%s*
                 Location: *%s Line %d*
-                                
+                
                 ```%s```
                 """,
             errorName, errorFile, errorLine, errorMessage);
@@ -225,15 +239,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException ex,
+        MethodArgumentNotValidException e,
         HttpHeaders headers,
         HttpStatusCode status,
         WebRequest webRequest
     ) {
         HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
-        log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), ex);
+        log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), e);
         requestLogging(request);
-        String errorMessages = ex.getBindingResult().getAllErrors().stream()
+        String errorMessages = e.getBindingResult().getAllErrors().stream()
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
             .collect(Collectors.joining(", "));
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
@@ -242,13 +256,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // 예외 메시지 구성 로직
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
-        Exception ex,
-        Object body,
+        Exception e,
+        @Nullable Object body,
         HttpHeaders headers,
         HttpStatusCode statusCode,
         WebRequest request
     ) {
-        return buildErrorResponse(HttpStatus.valueOf(statusCode.value()), ex.getMessage());
+        return buildErrorResponse(HttpStatus.valueOf(statusCode.value()), e.getMessage());
     }
 
     private ResponseEntity<Object> buildErrorResponse(
