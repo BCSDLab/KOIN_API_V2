@@ -107,6 +107,26 @@ public class GraduationService {
         detectGraduationCalculationRepository.save(detectGraduationCalculation);
     }
 
+
+    private void validateGraduationCalculatedDataExist(Integer userId) {
+        detectGraduationCalculationRepository.findByUserId(userId)
+            .ifPresent(detectGraduationCalculation -> {
+                throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
+                };
+            });
+        if (!studentCourseCalculationRepository.findAllByUserId(userId).isEmpty()) {
+            throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
+            };
+        }
+
+    }
+
+    private void validateStudentField(Object field, String message) {
+        if (field == null) {
+            throw DepartmentNotFoundException.withDetail(message);
+        }
+    }
+
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
@@ -118,6 +138,24 @@ public class GraduationService {
             .ifPresent(detectGraduationCalculation -> {
                 detectGraduationCalculation.updatedIsChanged(true);
             });
+    }
+
+    private void initializeStudentCourseCalculation(Student student, Major major) {
+        // 학번에 맞는 이수요건 정보 조회
+        List<StandardGraduationRequirements> requirementsList =
+            standardGraduationRequirementsRepository.findAllByMajorAndYear(
+                major, student.getStudentNumber().substring(0, 4));
+
+        // 학생 졸업요건 계산 정보 초기화
+        requirementsList.forEach(requirement ->
+            studentCourseCalculationRepository.save(
+                StudentCourseCalculation.builder()
+                    .completedGrades(0)
+                    .user(student.getUser())
+                    .standardGraduationRequirements(requirement)
+                    .build()
+            )
+        );
     }
 
     @Transactional
@@ -145,6 +183,130 @@ public class GraduationService {
         detectGraduationCalculation.updatedIsChanged(false);
 
         return GraduationCourseCalculationResponse.of(courseTypes);
+    }
+
+    private Student getValidatedStudent(Integer userId) {
+        Student student = studentRepository.getById(userId);
+
+        if (student.getDepartment() == null) {
+            throw new DepartmentNotFoundException("학과를 추가하세요.");
+        }
+        if (student.getStudentNumber() == null) {
+            throw new StudentNumberNotFoundException("학번을 추가하세요.");
+        }
+        return student;
+    }
+
+
+    private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
+        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(student.getId())
+            .stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .toList();
+
+        List<Catalog> catalogList = new ArrayList<>();
+        for (TimetableLecture timetableLecture : timetableLectures) {
+            String lectureName = timetableLecture.getLecture() != null
+                ? timetableLecture.getLecture().getName()
+                : timetableLecture.getClassTitle();
+
+            if (lectureName != null) {
+                Catalog bestCatalog = findBestMatchingCatalog(lectureName, studentYear, student.getMajor());
+
+                if (bestCatalog != null) {
+                    catalogList.add(bestCatalog);
+                }
+            }
+        }
+        return catalogList;
+    }
+
+
+    private Catalog findBestMatchingCatalog(String lectureName, String studentYear, Major major) {
+        // 학생의 학번 연도와 전공이 모두 일치하는 Catalog 조회
+        List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndMajor(lectureName, studentYear, major);
+        if (!catalogs.isEmpty()) {
+            return catalogs.get(0);
+        }
+
+        // 학생의 학번 연도만 일치하는 Catalog 조회 (전공 무관)
+        catalogs = catalogRepository.findByLectureNameAndYear(lectureName, studentYear);
+        if (!catalogs.isEmpty()) {
+            return catalogs.get(0);
+        }
+
+        // 강의명이 일치하는 모든 Catalog 조회
+        catalogs = catalogRepository.findByLectureNameOrderByYearDesc(lectureName);
+        if (!catalogs.isEmpty()) {
+            return catalogs.get(0);
+        }
+
+        return null;
+    }
+
+    private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList) {
+        Map<Integer, Integer> courseTypeCreditsMap = new HashMap<>();
+        for (Catalog catalog : catalogList) {
+            int courseTypeId = catalog.getCourseType().getId();
+            courseTypeCreditsMap.put(courseTypeId,
+                courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + catalog.getCredit());
+        }
+        return courseTypeCreditsMap;
+    }
+
+    private List<GraduationCourseCalculationResponse.InnerCalculationResponse> processGraduationCalculations(
+        Student student, Map<Integer, Integer> courseTypeCreditsMap) {
+
+        List<StandardGraduationRequirements> allRequirements =
+            standardGraduationRequirementsRepository.findAllByMajorAndYear(student.getMajor(),
+                StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber()));
+
+        Map<CourseType, Integer> groupedRequirements = new HashMap<>();
+
+        for (StandardGraduationRequirements requirement : allRequirements) {
+            int requiredGrades = requirement.getRequiredGrades();
+            int completedGrades = courseTypeCreditsMap.getOrDefault(requirement.getCourseType().getId(), 0);
+
+            groupedRequirements.put(requirement.getCourseType(), requiredGrades);
+
+            updateStudentCourseCalculation(student, requirement.getCourseType(), completedGrades);
+        }
+
+        List<GraduationCourseCalculationResponse.InnerCalculationResponse> results = new ArrayList<>();
+
+        for (Map.Entry<CourseType, Integer> entry : groupedRequirements.entrySet()) {
+            CourseType courseType = entry.getKey();
+            int totalRequiredGrades = entry.getValue();
+            int completedGrades = courseTypeCreditsMap.getOrDefault(courseType.getId(), 0);
+
+            results.add(GraduationCourseCalculationResponse.InnerCalculationResponse.of(
+                courseType.getName(), totalRequiredGrades, completedGrades
+            ));
+        }
+
+        return results;
+    }
+
+    private void updateStudentCourseCalculation(Student student, CourseType courseType, int completedGrades) {
+        String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
+
+        Optional<StandardGraduationRequirements> standardGraduationRequirementOpt =
+            standardGraduationRequirementsRepository.findFirstByMajorIdAndCourseTypeIdAndYear(
+                student.getMajor().getId(),
+                courseType.getId(),
+                studentYear
+            );
+
+        if (standardGraduationRequirementOpt.isEmpty()) {
+            return;
+        }
+
+        StudentCourseCalculation newCalculation = StudentCourseCalculation.builder()
+            .completedGrades(completedGrades)
+            .user(student.getUser())
+            .standardGraduationRequirements(standardGraduationRequirementOpt.get())
+            .build();
+        studentCourseCalculationRepository.save(newCalculation);
     }
 
     @Transactional
@@ -216,21 +378,38 @@ public class GraduationService {
         }
     }
 
+
+    private void checkFiletype(MultipartFile file) {
+        if (file == null) {
+            throw new ExcelFileNotFoundException("파일이 있는지 확인 해주세요.");
+        }
+
+        String fileName = file.getOriginalFilename();
+        int findDot = fileName.lastIndexOf(".");
+        if (findDot == -1) {
+            throw new ExcelFileNotFoundException("파일의 형식이 맞는지 확인 해주세요.");
+        }
+
+        String extension = fileName.substring(findDot + 1);
+        if (!extension.equals("xls") && !extension.equals("xlsx")) {
+            throw new ExcelFileCheckException("엑셀 파일인지 확인 해주세요.");
+        }
+    }
+
+    private GradeExcelData extractExcelData(Row row) {
+        return GradeExcelData.fromRow(row);
+    }
+
+    private boolean skipRow(GradeExcelData gradeExcelData) {
+        return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
+            gradeExcelData.retakeStatus().equals(RETAKE) ||
+            gradeExcelData.grade().equals(UNSATISFACTORY);
+    }
+
     // 분반 문제를 해결하기 위해서, 강의들을 전부 가져오도록 했음
     private Map<String, List<Lecture>> loadLectures(Set<String> semesters, Set<String> lectureCodes) {
         return lectureRepositoryV2.findAllBySemesterInAndCodeIn(semesters, lectureCodes)
             .stream().collect(Collectors.groupingBy(l -> l.getSemester() + "_" + l.getCode()));
-    }
-
-    private Lecture findBestMatchingLecture(List<Lecture> lectures, String lectureClass) {
-        if (lectures == null || lectures.isEmpty())
-            return null;
-        for (Lecture lecture : lectures) {
-            if (lecture.getLectureClass().equals(lectureClass)) {
-                return lecture;
-            }
-        }
-        return lectures.get(0);
     }
 
     // 1차 탐색 요소, 학번의 연도와 수업 이름으로 카탈로그를 가져옴
@@ -245,6 +424,26 @@ public class GraduationService {
         return catalogRepository.findAllByCodeInAndYearIn(lectureCodes, years).stream().collect(Collectors.
             toMap(c -> c.getCode() + "_" + c.getYear(), Function.identity(), (existing, duplicate) -> duplicate
             ));
+    }
+
+    private String getKoinSemester(String semester, String year) {
+        if (semester.equals("1") || semester.equals("2")) {
+            return year + semester;
+        } else if (semester.equals("동계")) {
+            return year + "-" + "겨울";
+        } else
+            return year + "-" + "여름";
+    }
+
+    private Lecture findBestMatchingLecture(List<Lecture> lectures, String lectureClass) {
+        if (lectures == null || lectures.isEmpty())
+            return null;
+        for (Lecture lecture : lectures) {
+            if (lecture.getLectureClass().equals(lectureClass)) {
+                return lecture;
+            }
+        }
+        return lectures.get(0);
     }
 
     public CatalogResult findCourseType(Lecture lecture, GradeExcelData data,
@@ -317,66 +516,6 @@ public class GraduationService {
             .build();
     }
 
-    private GradeExcelData extractExcelData(Row row) {
-        return GradeExcelData.fromRow(row);
-    }
-
-    private void checkFiletype(MultipartFile file) {
-        if (file == null) {
-            throw new ExcelFileNotFoundException("파일이 있는지 확인 해주세요.");
-        }
-
-        String fileName = file.getOriginalFilename();
-        int findDot = fileName.lastIndexOf(".");
-        if (findDot == -1) {
-            throw new ExcelFileNotFoundException("파일의 형식이 맞는지 확인 해주세요.");
-        }
-
-        String extension = fileName.substring(findDot + 1);
-        if (!extension.equals("xls") && !extension.equals("xlsx")) {
-            throw new ExcelFileCheckException("엑셀 파일인지 확인 해주세요.");
-        }
-    }
-
-    private boolean skipRow(GradeExcelData gradeExcelData) {
-        return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-               gradeExcelData.retakeStatus().equals(RETAKE) ||
-               gradeExcelData.grade().equals(UNSATISFACTORY);
-    }
-
-    private String getKoinSemester(String semester, String year) {
-        if (semester.equals("1") || semester.equals("2")) {
-            return year + semester;
-        } else if (semester.equals("동계")) {
-            return year + "-" + "겨울";
-        } else
-            return year + "-" + "여름";
-    }
-
-    private void validateStudentField(Object field, String message) {
-        if (field == null) {
-            throw DepartmentNotFoundException.withDetail(message);
-        }
-    }
-
-    private void initializeStudentCourseCalculation(Student student, Major major) {
-        // 학번에 맞는 이수요건 정보 조회
-        List<StandardGraduationRequirements> requirementsList =
-            standardGraduationRequirementsRepository.findAllByMajorAndYear(
-                major, student.getStudentNumber().substring(0, 4));
-
-        // 학생 졸업요건 계산 정보 초기화
-        requirementsList.forEach(requirement ->
-            studentCourseCalculationRepository.save(
-                StudentCourseCalculation.builder()
-                    .completedGrades(0)
-                    .user(student.getUser())
-                    .standardGraduationRequirements(requirement)
-                    .build()
-            )
-        );
-    }
-
     private GraduationCourseCalculationResponse getExistingGraduationCalculation(Integer userId) {
         List<StudentCourseCalculation> existingCalculations = studentCourseCalculationRepository.findAllByUserId(
             userId);
@@ -393,150 +532,6 @@ public class GraduationService {
             .collect(Collectors.toList());
 
         return GraduationCourseCalculationResponse.of(courseTypes);
-    }
-
-    private Student getValidatedStudent(Integer userId) {
-        Student student = studentRepository.getById(userId);
-
-        if (student.getDepartment() == null) {
-            throw new DepartmentNotFoundException("학과를 추가하세요.");
-        }
-        if (student.getStudentNumber() == null) {
-            throw new StudentNumberNotFoundException("학번을 추가하세요.");
-        }
-        return student;
-    }
-
-    private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
-        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(student.getId())
-            .stream()
-            .flatMap(frame -> frame.getTimetableLectures().stream())
-            .toList();
-
-        List<Catalog> catalogList = new ArrayList<>();
-        for (TimetableLecture timetableLecture : timetableLectures) {
-            String lectureName = timetableLecture.getLecture() != null
-                ? timetableLecture.getLecture().getName()
-                : timetableLecture.getClassTitle();
-
-            if (lectureName != null) {
-                Catalog bestCatalog = findBestMatchingCatalog(lectureName, studentYear, student.getMajor());
-
-                if (bestCatalog != null) {
-                    catalogList.add(bestCatalog);
-                }
-            }
-        }
-        return catalogList;
-    }
-
-    private Catalog findBestMatchingCatalog(String lectureName, String studentYear, Major major) {
-        // 학생의 학번 연도와 전공이 모두 일치하는 Catalog 조회
-        List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndMajor(lectureName, studentYear, major);
-        if (!catalogs.isEmpty()) {
-            return catalogs.get(0);
-        }
-
-        // 학생의 학번 연도만 일치하는 Catalog 조회 (전공 무관)
-        catalogs = catalogRepository.findByLectureNameAndYear(lectureName, studentYear);
-        if (!catalogs.isEmpty()) {
-            return catalogs.get(0);
-        }
-
-        // 강의명이 일치하는 모든 Catalog 조회
-        catalogs = catalogRepository.findByLectureNameOrderByYearDesc(lectureName);
-        if (!catalogs.isEmpty()) {
-            return catalogs.get(0);
-        }
-
-        return null;
-    }
-
-    private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList) {
-        Map<Integer, Integer> courseTypeCreditsMap = new HashMap<>();
-        for (Catalog catalog : catalogList) {
-            int courseTypeId = catalog.getCourseType().getId();
-            courseTypeCreditsMap.put(courseTypeId,
-                courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + catalog.getCredit());
-        }
-        return courseTypeCreditsMap;
-    }
-
-    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList,
-        String studentYear) {
-        return catalogList.stream()
-            .map(catalog -> {
-                if (catalog.getMajor() == null) {
-                    return standardGraduationRequirementsRepository.findByCourseTypeIdAndYear(
-                        catalog.getCourseType().getId(),
-                        studentYear
-                    );
-                }
-                return standardGraduationRequirementsRepository.findByMajorIdAndCourseTypeIdAndYear(
-                    catalog.getMajor().getId(),
-                    catalog.getCourseType().getId(),
-                    studentYear
-                );
-            })
-            .filter(Objects::nonNull)
-            .flatMap(List::stream)
-            .distinct()
-            .toList();
-    }
-
-    private List<GraduationCourseCalculationResponse.InnerCalculationResponse> processGraduationCalculations(
-        Student student, Map<Integer, Integer> courseTypeCreditsMap) {
-
-        List<StandardGraduationRequirements> allRequirements =
-            standardGraduationRequirementsRepository.findAllByMajorAndYear(student.getMajor(),
-                StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber()));
-
-        Map<CourseType, Integer> groupedRequirements = new HashMap<>();
-
-        for (StandardGraduationRequirements requirement : allRequirements) {
-            int requiredGrades = requirement.getRequiredGrades();
-            int completedGrades = courseTypeCreditsMap.getOrDefault(requirement.getCourseType().getId(), 0);
-
-            groupedRequirements.put(requirement.getCourseType(), requiredGrades);
-
-            updateStudentCourseCalculation(student, requirement.getCourseType(), completedGrades);
-        }
-
-        List<GraduationCourseCalculationResponse.InnerCalculationResponse> results = new ArrayList<>();
-
-        for (Map.Entry<CourseType, Integer> entry : groupedRequirements.entrySet()) {
-            CourseType courseType = entry.getKey();
-            int totalRequiredGrades = entry.getValue();
-            int completedGrades = courseTypeCreditsMap.getOrDefault(courseType.getId(), 0);
-
-            results.add(GraduationCourseCalculationResponse.InnerCalculationResponse.of(
-                courseType.getName(), totalRequiredGrades, completedGrades
-            ));
-        }
-
-        return results;
-    }
-
-    private void updateStudentCourseCalculation(Student student, CourseType courseType, int completedGrades) {
-        String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
-
-        Optional<StandardGraduationRequirements> standardGraduationRequirementOpt =
-            standardGraduationRequirementsRepository.findFirstByMajorIdAndCourseTypeIdAndYear(
-                student.getMajor().getId(),
-                courseType.getId(),
-                studentYear
-            );
-
-        if (standardGraduationRequirementOpt.isEmpty()) {
-            return;
-        }
-
-        StudentCourseCalculation newCalculation = StudentCourseCalculation.builder()
-            .completedGrades(completedGrades)
-            .user(student.getUser())
-            .standardGraduationRequirements(standardGraduationRequirementOpt.get())
-            .build();
-        studentCourseCalculationRepository.save(newCalculation);
     }
 
     public CourseTypeLectureResponse getLectureByCourseType(Integer year, String term, String courseTypeName,
@@ -598,6 +593,33 @@ public class GraduationService {
         return GeneralEducationLectureResponse.of(educationAreas);
     }
 
+    private List<GeneralEducationLectureResponse.GeneralEducationArea> getSelectiveEducationAreas(
+        List<TimetableFrame> timetableFrames) {
+
+        List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .filter(lecture -> lecture.getGeneralEducationArea() == null
+                && lecture.getCourseType() == courseTypeRepository.getByName(GENERAL_EDUCATION_COURSE_TYPE))
+            .toList();
+
+        Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;
+        Integer completedCredit = 0;
+        List<String> lectureNames = new ArrayList<>();
+
+        for (TimetableLecture timetableLecture : selectiveEducationTimetableLectures) {
+            completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
+            lectureNames.add(timetableLecture.getLecture().getName());
+        }
+
+        List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
+        educationAreas.add(
+            GeneralEducationLectureResponse.GeneralEducationArea.of(
+                GENERAL_EDUCATION_COURSE_TYPE, requiredCredit, completedCredit, lectureNames)
+        );
+
+        return educationAreas;
+    }
+
     private List<GeneralEducationLectureResponse.GeneralEducationArea> getGeneralEducationAreas(
         String studentYear, List<TimetableFrame> timetableFrames) {
 
@@ -634,49 +656,8 @@ public class GraduationService {
         return educationAreas;
     }
 
-    private List<GeneralEducationLectureResponse.GeneralEducationArea> getSelectiveEducationAreas(
-        List<TimetableFrame> timetableFrames) {
-
-        List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
-            .flatMap(frame -> frame.getTimetableLectures().stream())
-            .filter(lecture -> lecture.getGeneralEducationArea() == null
-                && lecture.getCourseType() == courseTypeRepository.getByName(GENERAL_EDUCATION_COURSE_TYPE))
-            .toList();
-
-        Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;
-        Integer completedCredit = 0;
-        List<String> lectureNames = new ArrayList<>();
-
-        for (TimetableLecture timetableLecture : selectiveEducationTimetableLectures) {
-            completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
-            lectureNames.add(timetableLecture.getLecture().getName());
-        }
-
-        List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
-        educationAreas.add(
-            GeneralEducationLectureResponse.GeneralEducationArea.of(
-                GENERAL_EDUCATION_COURSE_TYPE, requiredCredit, completedCredit, lectureNames)
-        );
-
-        return educationAreas;
-    }
-
-
     private Integer getRequiredCredits(String year, String areaName) {
         GeneralEducationAreaEnum generalEducationAreaEnum = GeneralEducationAreaEnum.fromYear(year);
         return generalEducationAreaEnum.getAreasWithCredits().get(areaName);
-    }
-
-    private void validateGraduationCalculatedDataExist(Integer userId) {
-        detectGraduationCalculationRepository.findByUserId(userId)
-            .ifPresent(detectGraduationCalculation -> {
-                throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
-                };
-            });
-        if (!studentCourseCalculationRepository.findAllByUserId(userId).isEmpty()) {
-            throw new DuplicationException("이미 졸업요건 계산이 초기화 되었습니다.") {
-            };
-        }
-
     }
 }
