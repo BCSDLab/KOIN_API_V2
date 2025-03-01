@@ -3,11 +3,11 @@ package in.koreatech.koin.domain.graduation.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -60,6 +60,7 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.DuplicationException;
 import lombok.RequiredArgsConstructor;
 
@@ -90,7 +91,7 @@ public class GraduationService {
     private static final String GENERAL_EDUCATION_COURSE_TYPE = "교양선택";
     private static final Integer SELECTIVE_EDUCATION_REQUIRED_CREDIT = 3;
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "createCalculation")
     public void createStudentCourseCalculation(Integer userId) {
         Student student = studentRepository.getById(userId);
 
@@ -106,7 +107,6 @@ public class GraduationService {
             .build();
         detectGraduationCalculationRepository.save(detectGraduationCalculation);
     }
-
 
     private void validateGraduationCalculatedDataExist(Integer userId) {
         detectGraduationCalculationRepository.findByUserId(userId)
@@ -165,10 +165,9 @@ public class GraduationService {
             .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
 
         if (!detectGraduationCalculation.isChanged()) {
+
             return getExistingGraduationCalculation(userId);
         }
-
-        studentCourseCalculationRepository.deleteAllByUserId(userId);
 
         Student student = getValidatedStudent(userId);
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
@@ -179,6 +178,9 @@ public class GraduationService {
         List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = processGraduationCalculations(
             student, courseTypeCreditsMap
         );
+
+        courseTypes.sort(
+            Comparator.comparing(GraduationCourseCalculationResponse.InnerCalculationResponse::courseType));
 
         detectGraduationCalculation.updatedIsChanged(false);
 
@@ -196,7 +198,6 @@ public class GraduationService {
         }
         return student;
     }
-
 
     private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
         List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(student.getId())
@@ -221,21 +222,20 @@ public class GraduationService {
         return catalogList;
     }
 
-
     private Catalog findBestMatchingCatalog(String lectureName, String studentYear, Major major) {
-        // 학생의 학번 연도와 전공이 모두 일치하는 Catalog 조회
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndMajor(lectureName, studentYear, major);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
         }
 
-        // 학생의 학번 연도만 일치하는 Catalog 조회 (전공 무관)
-        catalogs = catalogRepository.findByLectureNameAndYear(lectureName, studentYear);
+        // 학생이 들은 연도 내에서 검색
+        List<String> attendedYears = timetableLectureRepositoryV2.findYearsByUserId(major.getId());
+
+        catalogs = catalogRepository.findByLectureNameAndYearIn(lectureName, attendedYears);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
         }
 
-        // 강의명이 일치하는 모든 Catalog 조회
         catalogs = catalogRepository.findByLectureNameOrderByYearDesc(lectureName);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
@@ -301,12 +301,23 @@ public class GraduationService {
             return;
         }
 
-        StudentCourseCalculation newCalculation = StudentCourseCalculation.builder()
-            .completedGrades(completedGrades)
-            .user(student.getUser())
-            .standardGraduationRequirements(standardGraduationRequirementOpt.get())
-            .build();
-        studentCourseCalculationRepository.save(newCalculation);
+        Optional<StudentCourseCalculation> existingCalculation = studentCourseCalculationRepository
+            .findByUserIdAndStandardGraduationRequirements(student.getId(), standardGraduationRequirementOpt.get());
+
+        if (existingCalculation.isPresent()) {
+            if (existingCalculation.get().getCompletedGrades() != completedGrades) {
+                existingCalculation.get().updateCompletedGrades(completedGrades);
+                studentCourseCalculationRepository.save(existingCalculation.get());
+            }
+        } else {
+            StudentCourseCalculation newCalculation = StudentCourseCalculation.builder()
+                .completedGrades(completedGrades)
+                .isDeleted(false)
+                .user(student.getUser())
+                .standardGraduationRequirements(standardGraduationRequirementOpt.get())
+                .build();
+            studentCourseCalculationRepository.save(newCalculation);
+        }
     }
 
     @Transactional
@@ -377,7 +388,6 @@ public class GraduationService {
             timetableLectureRepositoryV2.saveAll(timetableLectures);
         }
     }
-
 
     private void checkFiletype(MultipartFile file) {
         if (file == null) {
