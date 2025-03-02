@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -18,7 +18,6 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -85,12 +84,6 @@ public class UserService {
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
-    }
-
-    // 이거 옮길 예정
-    public CoopResponse getCoop(Integer userId) {
-        User user = userRepository.getById(userId);
-        return CoopResponse.from(user);
     }
 
     public void updateLastLoginTime(User user) {

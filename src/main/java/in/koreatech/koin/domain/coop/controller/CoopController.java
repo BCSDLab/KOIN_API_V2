@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.ExcelResponseBuilder;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
+import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -63,6 +64,14 @@ public class CoopController implements CoopApi {
         CoopLoginResponse response = coopService.coopLogin(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
+    }
+
+    @GetMapping("/user/coop/me")
+    public ResponseEntity<CoopResponse> getCoop(
+        @Auth(permit = COOP) Integer userId
+    ) {
+        CoopResponse coopResponse = coopService.getCoop(userId);
+        return ResponseEntity.ok().body(coopResponse);
     }
 
     @GetMapping("/dining/excel")

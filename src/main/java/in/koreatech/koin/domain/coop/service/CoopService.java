@@ -62,8 +62,10 @@ import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.enums.ExcelDiningPosition;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
+import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -83,6 +85,7 @@ public class CoopService {
     private final ExcelDownloadCacheRepository excelDownloadCacheRepository;
     private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
+    private final UserRepository userRepository;
     private final UserTokenRepository userTokenRepository;
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
@@ -195,6 +198,11 @@ public class CoopService {
         user.updateLastLoggedTime(LocalDateTime.now());
 
         return CoopLoginResponse.of(accessToken, savedToken.getRefreshToken());
+    }
+
+    public CoopResponse getCoop(Integer userId) {
+        User user = userRepository.getById(userId);
+        return CoopResponse.from(user);
     }
 
     public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {

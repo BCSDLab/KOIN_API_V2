@@ -20,12 +20,14 @@ import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
+import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -76,6 +78,21 @@ public interface CoopApi {
     @PostMapping("/coop/login")
     ResponseEntity<CoopLoginResponse> coopLogin(
         @RequestBody @Valid CoopLoginRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "영양사 정보 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/user/coop/me")
+    ResponseEntity<CoopResponse> getCoop(
+        @Auth(permit = COOP) Integer userId
     );
 
     @ApiResponses(
