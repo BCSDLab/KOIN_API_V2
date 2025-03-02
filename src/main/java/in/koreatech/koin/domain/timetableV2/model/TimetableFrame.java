@@ -54,7 +54,7 @@ public class TimetableFrame extends BaseEntity {
 
     @NotNull
     @Size(max = 255)
-    @Column(name = "name", length = 255, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @NotNull
