@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
@@ -30,9 +29,6 @@ class AuthApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private userTokenRedisRepository tokenRepository;
@@ -50,7 +46,7 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        MvcResult result = mockMvc.perform(
+        mockMvc.perform(
                 post("/user/login")
                     .content("""
                         {

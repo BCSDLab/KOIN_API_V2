@@ -255,7 +255,7 @@ public class StudentApiTest extends AcceptanceTest {
     void 학생이_정보를_수정한다_토큰이_올바르지_않다면_401() throws Exception {
         Department department = departmentFixture.컴퓨터공학부();
 
-        Student student = userFixture.준호_학생(department, null);
+        userFixture.준호_학생(department, null);
         String token = "invalidToken";
 
         mockMvc.perform(

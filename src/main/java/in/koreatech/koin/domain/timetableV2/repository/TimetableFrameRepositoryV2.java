@@ -50,13 +50,6 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
 
     TimetableFrame save(TimetableFrame timetableFrame);
 
-    Optional<TimetableFrame> findByUser(User user);
-
-    default TimetableFrame getByUser(User user) {
-        return findByUser(user)
-            .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + user.getId()));
-    }
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(
         """
@@ -99,5 +92,5 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     default List<TimetableFrame> getAllByUserId(Integer userId) {
         return findAllByUserId(userId)
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + userId));
-    };
+    }
 }
