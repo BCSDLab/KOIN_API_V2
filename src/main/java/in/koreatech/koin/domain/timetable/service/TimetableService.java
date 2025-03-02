@@ -85,7 +85,14 @@ public class TimetableService {
             semester.getId());
         for (TimetableUpdateRequest.InnerTimetableRequest timetableRequest : request.timetable()) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
-            timetableLecture.update(timetableRequest);
+            timetableLecture.update(
+                timetableRequest.classTitle(),
+                timetableRequest.classTime().toString(),
+                timetableRequest.classPlace(),
+                timetableRequest.professor(),
+                timetableRequest.grades(),
+                timetableRequest.memo()
+            );
             timetableLectureRepositoryV2.save(timetableLecture);
         }
         return getTimetableResponse(userId, timetableFrame);
