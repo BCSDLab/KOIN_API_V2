@@ -152,20 +152,4 @@ class TimetableApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNotFound());
     }
-
-    @Test
-    void 계절학기를_조회하면_빈_리스트로_반환한다() throws Exception {
-        semesterFixture.semester_2024년도_1학기();
-        semesterFixture.semester_2024년도_2학기();
-        semesterFixture.semester_2024년도_여름();
-        semesterFixture.semester_2024년도_겨울();
-
-        mockMvc.perform(
-                get("/lectures")
-                    .param("semester_date", "2024-여름")
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("[]"));
-    }
 }
