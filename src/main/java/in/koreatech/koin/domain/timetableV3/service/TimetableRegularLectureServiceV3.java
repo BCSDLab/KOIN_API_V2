@@ -49,19 +49,15 @@ public class TimetableRegularLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
-        /*
         Catalog catalog = getCatalog(lecture, userId);
         CourseType courseType = getCourseType(catalog);
         GeneralEducationArea generalEducationArea = getGeneralEducationArea(catalog);
         TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture, courseType, generalEducationArea);
-         */
-        TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture);
         frame.addTimeTableLecture(timetableLecture);
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
     }
 
-    /*
     private Catalog getCatalog(Lecture lecture, Integer userId) {
         if (lecture == null) {
             return null;
@@ -105,7 +101,7 @@ public class TimetableRegularLectureServiceV3 {
             }
         }
         return null;
-    }*/
+    }
 
     @Transactional
     public TimetableLectureResponseV3 updateTimetablesRegularLecture(
@@ -114,16 +110,16 @@ public class TimetableRegularLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
 
-        /*
         CourseType courseType = null;
         if (!Objects.isNull(request.timetableLecture().courseType())) {
             courseType = courseTypeRepository.getByName(request.timetableLecture().courseType());
-        }*/
+        }
 
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
         timetableLecture.updateRegularLecture(
             request.timetableLecture().classTitle(),
-            request.timetableLecture().classPlacesToString()
+            request.timetableLecture().classPlacesToString(),
+            courseType
         );
 
         timetableLectureRepositoryV3.save(timetableLecture);
