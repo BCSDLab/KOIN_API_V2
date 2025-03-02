@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV2.service;
 
+import static in.koreatech.koin.domain.timetableV2.model.TimetableFrame.*;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateTimetableFrameUpdate;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
@@ -13,7 +14,6 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequ
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFramesResponse;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
@@ -30,7 +30,6 @@ public class TimetableFrameService {
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
-    private final TimetableFrameCreator timetableFrameCreator;
     private final TimetableFrameUpdater timetableFrameUpdater;
 
     @Transactional
@@ -39,10 +38,11 @@ public class TimetableFrameService {
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
 
-        TimetableFrame frame = timetableFrameCreator.createTimetableFrame(request, user, semester, currentFrameCount);
-        TimetableFrame saveFrame = timetableFrameRepositoryV2.save(frame);
+        boolean isMain = determineIfMain(currentFrameCount);
+        String name = getTimetableName(request.timetableName(), currentFrameCount);
+        TimetableFrame frame = request.toTimetablesFrame(user, semester, name, isMain);
 
-        return TimetableFrameResponse.from(saveFrame);
+        return TimetableFrameResponse.from(timetableFrameRepositoryV2.save(frame));
     }
 
     @Transactional
