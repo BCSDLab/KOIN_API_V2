@@ -92,8 +92,7 @@ public class StudentValidationService {
             return;
         }
         int studentNumberYear = StudentUtil.parseStudentNumberYear(studentNumber);
-        if (studentNumberYear < MIN_YEAR
-            || LocalDateTime.now().getYear() < studentNumberYear) {
+        if (studentNumberYear < MIN_YEAR || LocalDateTime.now().getYear() < studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
     }
