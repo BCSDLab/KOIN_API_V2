@@ -40,6 +40,12 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
             .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
     }
 
+    default TimetableFrame getMainTimetableFrame(Integer userId, Integer semesterId) {
+        return findByUserIdAndSemesterIdAndIsMainTrue(userId, semesterId)
+            .orElseThrow(
+                () -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
+    }
+
     List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
     TimetableFrame save(TimetableFrame timetableFrame);
