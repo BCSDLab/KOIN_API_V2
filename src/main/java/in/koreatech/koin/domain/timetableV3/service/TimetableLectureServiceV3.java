@@ -77,7 +77,7 @@ public class TimetableLectureServiceV3 {
             timetableFrame.getSemester());
 
         if (!hasTimetableFrame) {
-            timetableFrame.updateMainFlag(true);
+            timetableFrame.setMain(true);
         }
         timetableFrame.undelete();
 

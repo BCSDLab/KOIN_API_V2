@@ -79,7 +79,7 @@ public class TimetableFrameServiceV3 {
         if (isMain) {
             TimetableFrame mainTimetableFrame = timetableFrameRepositoryV3.getMainTimetableByUserIdAndSemesterId(userId,
                 semesterId);
-            mainTimetableFrame.updateMainFlag(false);
+            mainTimetableFrame.setMain(false);
         }
     }
 
