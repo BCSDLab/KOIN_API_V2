@@ -92,8 +92,6 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("id: " + id));
     }
 
-    void deleteAllByUserAndSemester(User user, Semester semester);
-
     Optional<List<TimetableFrame>> findAllByUserId(Integer userId);
 
     boolean existsByUserAndSemester(User user, Semester semester);
