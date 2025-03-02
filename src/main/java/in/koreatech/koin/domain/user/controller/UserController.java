@@ -40,8 +40,7 @@ public class UserController implements UserApi {
         @RequestBody @Valid UserLoginRequest request
     ) {
         UserLoginResponse response = userService.login(request);
-        return ResponseEntity.created(URI.create("/"))
-            .body(response);
+        return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/logout")
