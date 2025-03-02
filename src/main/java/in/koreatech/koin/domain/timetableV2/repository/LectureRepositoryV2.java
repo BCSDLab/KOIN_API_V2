@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.timetable.exception.LectureNotFoundException;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import io.lettuce.core.dynamic.annotation.Param;
