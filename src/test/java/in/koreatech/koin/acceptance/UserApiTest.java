@@ -15,11 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.Coop;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
 
@@ -40,6 +42,9 @@ class UserApiTest extends AcceptanceTest {
     @Autowired
     private UserFixture userFixture;
 
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
     @BeforeAll
     void setup() {
         clear();
@@ -47,7 +52,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_로그인을_진행한다_구_API_user_login() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.성빈_학생(department);
         String email = student.getUser().getEmail();
         String password = "1234";
 
@@ -99,7 +105,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 회원이_탈퇴한다() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.성빈_학생(department);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -149,7 +156,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 이메일이_중복인지_확인한다_중복이면_422() throws Exception {
-        User user = userFixture.성빈_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.성빈_학생(department).getUser();
 
         mockMvc.perform(
                 get("/user/check/email")
@@ -162,7 +170,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 닉네임_중복일때_상태코드_409를_반환한다() throws Exception {
-        User user = userFixture.성빈_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.성빈_학생(department).getUser();
 
         mockMvc.perform(
                 get("/user/check/nickname")
@@ -175,7 +184,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 닉네임_중복이_아닐시_상태코드_200을_반환한다() throws Exception {
-        User user = userFixture.성빈_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.성빈_학생(department).getUser();
 
         mockMvc.perform(
                 get("/user/check/nickname")
@@ -187,7 +197,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_비밀번호를_통해_자신이_맞는지_인증한다_비밀번호가_다르면_400_반환() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -236,10 +247,11 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 로그인된_사용자의_권한을_조회한다() throws Exception {
+        Department department = departmentFixture.컴퓨터공학부();
         Student student = Student.builder()
             .studentNumber("2019136135")
             .anonymousNickname("익명")
-            .department("컴퓨터공학부")
+            .department(department)
             .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
@@ -272,7 +284,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_비밀번호를_변경하고_기존_비밀번호로_로그인하면_에러를_반환한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
         String accessToken = userFixture.getToken(student.getUser());
         String newPassword = "newPassword1234";
 
@@ -315,7 +328,8 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_로그인상태인지_확인한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
         String accessToken = userFixture.getToken(student.getUser());
 
         mockMvc.perform(

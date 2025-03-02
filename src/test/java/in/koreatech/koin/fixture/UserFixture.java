@@ -21,6 +21,8 @@ import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -132,12 +134,13 @@ public final class UserFixture {
         );
     }
 
-    public Student 준호_학생() {
+    public Student 준호_학생(Department department, Major major) {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2019136135")
                 .anonymousNickname("익명")
-                .department("컴퓨터공학부")
+                .department(department)
+                .major(major)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
@@ -157,12 +160,12 @@ public final class UserFixture {
         );
     }
 
-    public Student 익명_학생() {
+    public Student 익명_학생(Department department) {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2020136111")
                 .anonymousNickname("익명111")
-                .department("컴퓨터공학부")
+                .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
@@ -181,12 +184,12 @@ public final class UserFixture {
         );
     }
 
-    public Student 성빈_학생() {
+    public Student 성빈_학생(Department department) {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2023100514")
                 .anonymousNickname("익명123")
-                .department("컴퓨터공학부")
+                .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(

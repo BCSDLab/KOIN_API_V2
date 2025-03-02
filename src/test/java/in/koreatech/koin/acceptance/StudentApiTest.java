@@ -5,7 +5,6 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,6 +21,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.dept.model.Dept;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
@@ -29,6 +30,8 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.fixture.DepartmentFixture;
+import in.koreatech.koin.fixture.MajorFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
 
@@ -54,6 +57,12 @@ public class StudentApiTest extends AcceptanceTest {
     @Autowired
     private UserFixture userFixture;
 
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
+    @Autowired
+    private MajorFixture majorFixture;
+
     @BeforeAll
     void setup() {
         clear();
@@ -61,7 +70,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_로그인을_진행한다_신규_API_student_login() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.성빈_학생(department);
         String email = student.getUser().getEmail();
         String password = "1234";
 
@@ -80,7 +91,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 올바른_학생계정인지_확인한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -105,7 +118,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 올바른_학생계정인지_확인한다_토큰_정보가_올바르지_않으면_401() throws Exception {
-        userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        userFixture.준호_학생(department, null);
         String token = "invalidToken";
 
         mockMvc.perform(
@@ -118,7 +133,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 올바른_학생계정인지_확인한다_회원을_찾을_수_없으면_404() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
         String token = jwtProvider.createToken(student.getUser());
         transactionTemplate.executeWithoutResult(status ->
             studentRepository.deleteByUserId(student.getId())
@@ -134,7 +151,10 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_정보를_수정한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        majorFixture.기계공학전공(departmentFixture.기계공학부());
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -183,7 +203,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_정보를_수정한다_학번의_형식이_맞지_않으면_400() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -206,7 +228,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_정보를_수정한다_학부의_형식이_맞지_않으면_400() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -229,7 +253,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_정보를_수정한다_토큰이_올바르지_않다면_401() throws Exception {
-        userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
         String token = "invalidToken";
 
         mockMvc.perform(
@@ -252,7 +278,10 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_정보를_수정한다_회원을_찾을_수_없다면_404() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Major major = majorFixture.컴퓨터공학전공(department);
+
+        Student student = userFixture.준호_학생(department, major);
         String token = userFixture.getToken(student.getUser());
         transactionTemplate.executeWithoutResult(status ->
             studentRepository.deleteByUserId(student.getId())
@@ -278,8 +307,10 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_정보를_수정한다_이미_있는_닉네임이라면_409() throws Exception {
-        Student 준호 = userFixture.준호_학생();
-        Student 성빈 = userFixture.성빈_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student 준호 = userFixture.준호_학생(department, null);
+        Student 성빈 = userFixture.성빈_학생(department);
         String token = userFixture.getToken(준호.getUser());
 
         mockMvc.perform(
@@ -341,6 +372,7 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 이메일_요청을_확인_후_회원가입_이벤트가_발생하고_Redis에_저장된_정보가_삭제된다() throws Exception {
+        departmentFixture.전체학부();
         mockMvc.perform(
                 post("/user/student/register")
                     .content("""

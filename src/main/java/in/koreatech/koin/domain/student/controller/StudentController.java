@@ -16,12 +16,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.service.StudentService;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
@@ -47,6 +50,14 @@ public class StudentController implements StudentApi{
         return ResponseEntity.ok().body(studentResponse);
     }
 
+    @GetMapping("/user/student/me/academic-info")
+    public ResponseEntity<StudentWithAcademicResponse> getStudentWithAcademicInfo(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    ) {
+        StudentWithAcademicResponse response = studentService.getStudentWithAcademicInfo(userId);
+        return ResponseEntity.ok().body(response);
+    }
+
     @PutMapping("/user/student/me")
     public ResponseEntity<StudentUpdateResponse> updateStudent(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
@@ -54,6 +65,15 @@ public class StudentController implements StudentApi{
     ) {
         StudentUpdateResponse studentUpdateResponse = studentService.updateStudent(userId, request);
         return ResponseEntity.ok(studentUpdateResponse);
+    }
+
+    @PutMapping("/user/student/academic-info")
+    public ResponseEntity<StudentAcademicInfoUpdateResponse> updateStudentAcademicInfo(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @Valid @RequestBody StudentAcademicInfoUpdateRequest request
+    ) {
+        StudentAcademicInfoUpdateResponse response = studentService.updateStudentAcademicInfo(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/student/login")

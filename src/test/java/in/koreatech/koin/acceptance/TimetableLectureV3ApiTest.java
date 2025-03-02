@@ -15,11 +15,15 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.CourseTypeFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
@@ -42,16 +46,26 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
     @Autowired
     private LectureFixture lectureFixture;
 
+    @Autowired
+    private CourseTypeFixture courseTypeFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
     private User user;
     private String token;
     private Semester semester;
+    private CourseType courseType;
+    private Department department;
 
     @BeforeAll
     void setup() {
         clear();
-        user = userFixture.준호_학생().getUser();
+        department = departmentFixture.컴퓨터공학부();
+        user = userFixture.준호_학생(department, null).getUser();
         token = userFixture.getToken(user);
         semester = semesterFixture.semester_2019년도_2학기();
+        courseType = courseTypeFixture.이수_구분_선택();
     }
 
     @Test
@@ -175,7 +189,9 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
     void 시간표에서_삭제된_강의를_복구한다_V3() throws Exception {
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
-        TimetableFrame frame = timetableV2Fixture.시간표8(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+        CourseType HRD_필수 = courseTypeFixture.HRD_필수();
+        CourseType 전공_필수 = courseTypeFixture.전공_필수();
+        TimetableFrame frame = timetableV2Fixture.시간표8(user, semester, 건축구조의_이해_및_실습, HRD_개론, 전공_필수, HRD_필수);
 
         List<Integer> timetableLecturesId = frame.getTimetableLectures().stream()
             .map(TimetableLecture::getId)
@@ -254,7 +270,9 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
     void 삭제된_시간표프레임과_그에_해당하는_강의를_복구한다_V3() throws Exception {
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
-        TimetableFrame frame = timetableV2Fixture.시간표7(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+        CourseType HRD_필수 = courseTypeFixture.HRD_필수();
+        CourseType 전공_필수 = courseTypeFixture.전공_필수();
+        TimetableFrame frame = timetableV2Fixture.시간표7(user, semester, 건축구조의_이해_및_실습, HRD_개론, 전공_필수, HRD_필수);
 
         mockMvc.perform(
                 post("/v3/timetables/frame/rollback")

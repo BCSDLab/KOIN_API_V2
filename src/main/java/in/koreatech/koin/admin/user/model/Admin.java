@@ -2,7 +2,6 @@ package in.koreatech.koin.admin.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
@@ -52,7 +51,15 @@ public class Admin {
     private boolean superAdmin = false;
 
     @Builder
-    public Admin(User user, TeamType teamType, TrackType trackType, boolean canCreateAdmin, boolean superAdmin) {
+    private Admin(
+        Integer id,
+        User user,
+        TeamType teamType,
+        TrackType trackType,
+        boolean canCreateAdmin,
+        boolean superAdmin
+    ) {
+        this.id = id;
         this.user = user;
         this.teamType = teamType;
         this.trackType = trackType;
@@ -60,14 +67,14 @@ public class Admin {
         this.superAdmin = superAdmin;
     }
 
-    public void update(TeamType teamName, TrackType trackName) {
+    public void updateTeamTrack(TeamType teamName, TrackType trackName) {
         this.teamType = teamName;
         this.trackType = trackName;
     }
 
     /* 어드민 권한이 추가 되면, 해당 메소드에도 추가해야 합니다. */
-    public void updatePermission(AdminPermissionUpdateRequest request) {
-        this.canCreateAdmin = request.canCreateAdmin();
-        this.superAdmin = request.superAdmin();
+    public void updatePermission(boolean canCreateAdmin, boolean superAdmin) {
+        this.canCreateAdmin = canCreateAdmin;
+        this.superAdmin = superAdmin;
     }
 }

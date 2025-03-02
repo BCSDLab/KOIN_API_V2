@@ -12,9 +12,13 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.CourseTypeFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
@@ -36,6 +40,12 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Autowired
     private TimeTableV2Fixture timetableV2Fixture;
+
+    @Autowired
+    private CourseTypeFixture courseTypeFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @BeforeAll
     void setup() {
@@ -93,14 +103,17 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_가진_시간표의_학기를_조회한다() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester1 = semesterFixture.semester_2019년도_2학기();
         Semester semester2 = semesterFixture.semester_2020년도_1학기();
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
-        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
-        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null);
+        CourseType courseType1 = courseTypeFixture.HRD_필수();
+        CourseType courseType2 = courseTypeFixture.전공_필수();
+        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null, courseType1, null);
+        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null, courseType2, null);
 
         mockMvc.perform(
                 get("/semesters/check")
@@ -110,7 +123,6 @@ public class SemesterApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "user_id": 1,
                     "semesters": [
                       "20201",
                       "20192"
@@ -175,14 +187,17 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_가진_시간표의_학기를_조회한다_V3() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester1 = semesterFixture.semester_2019년도_2학기();
         Semester semester2 = semesterFixture.semester_2020년도_1학기();
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
-        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
-        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null);
+        CourseType courseType1 = courseTypeFixture.HRD_필수();
+        CourseType courseType2 = courseTypeFixture.전공_필수();
+        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null, courseType1, null);
+        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null, courseType2, null);
 
         mockMvc.perform(
                 get("/v3/semesters/check")
@@ -192,7 +207,6 @@ public class SemesterApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "user_id": 1,
                     "semesters": [
                     {
                         "year": 2019,

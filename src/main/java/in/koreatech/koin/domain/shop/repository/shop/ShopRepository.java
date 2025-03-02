@@ -17,6 +17,8 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     Shop save(Shop shop);
 
+    boolean existsById(Integer shopId);
+
     List<Shop> findAllByOwnerId(Integer ownerId);
 
     Optional<Shop> findById(Integer shopId);

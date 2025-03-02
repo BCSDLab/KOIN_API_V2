@@ -46,8 +46,14 @@ public record OwnerRegisterByPhoneRequest(
     @Schema(description = "상점 고유 ID", requiredMode = NOT_REQUIRED)
     Integer shopId,
 
-    @Schema(description = "상점 이름", example = "고릴라밥", requiredMode = NOT_REQUIRED)
+    @NotBlank(message = "상점 이름은 필수입니다.")
+    @Schema(description = "상점 이름", example = "고릴라밥", requiredMode = REQUIRED)
     String shopName,
+
+    @NotBlank(message = "상점 전화번호는 필수입니다.")
+    @Schema(description = "상점 전화번호", example = "0415605555 또는 01012345678", requiredMode = REQUIRED)
+    @Pattern(regexp = "^\\d{10,11}$", message = "가게 전화번호 형식이 올바르지 않습니다. 10~11자리 숫자로 입력해 주세요.")
+    String shopNumber,
 
     @Size(min = 1, max = 5, message = "이미지는 사업자등록증, 영업신고증, 통장사본을 포함하여 최소 1개 최대 5개까지 가능합니다.")
     @Schema(description = "첨부 이미지들", requiredMode = REQUIRED)

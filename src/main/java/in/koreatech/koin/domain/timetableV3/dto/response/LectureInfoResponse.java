@@ -72,6 +72,10 @@ public record LectureInfoResponse(
 
     // 역정규화 된 커스텀 강의 정보를 정규화 하는 메소드
     public static List<LectureInfoResponse> getCustomLectureInfo(String classTime, String classPlace) {
+        if (classTime == null || classPlace == null) {
+            return Collections.emptyList();
+        }
+
         List<Integer> classTimes = parseToIntegerList(classTime);
         List<LectureInfoResponse> response = new ArrayList<>();
 

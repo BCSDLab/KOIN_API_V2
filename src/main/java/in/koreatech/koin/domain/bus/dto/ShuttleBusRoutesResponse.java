@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.bus.model.enums.ShuttleBusRegion;
-import in.koreatech.koin.domain.bus.model.enums.ShuttleRouteType;
-import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
+import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import in.koreatech.koin.domain.version.dto.VersionMessageResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 

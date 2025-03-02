@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
@@ -33,10 +34,10 @@ public record LostItemArticlesResponse(
     Integer currentPage
 ) {
 
-    public static LostItemArticlesResponse of(Page<Article> pagedResult, Criteria criteria) {
+    public static LostItemArticlesResponse of(Page<Article> pagedResult, Criteria criteria, Integer userId) {
         return new LostItemArticlesResponse(
             pagedResult.stream()
-                .map(InnerLostItemArticleResponse::from)
+                .map((Article article) -> InnerLostItemArticleResponse.of(article, userId))
                 .toList(),
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
@@ -52,6 +53,9 @@ public record LostItemArticlesResponse(
 
         @Schema(description = "게시판 id", example = "14", requiredMode = REQUIRED)
         Integer boardId,
+
+        @Schema(description = "게시글 타입", example = "LOST", requiredMode = NOT_REQUIRED)
+        String type,
 
         @Schema(description = "분실물 종류", example = "신분증", requiredMode = REQUIRED)
         String category,
@@ -69,23 +73,26 @@ public record LostItemArticlesResponse(
         String author,
 
         @Schema(description = "등록일", example = "2025-01-10", requiredMode = REQUIRED)
-        LocalDate registeredAt
+        LocalDate registeredAt,
+
+        @Schema(description = "처리되지 않은 자신의 신고 존재 여부", example = "true", requiredMode = REQUIRED)
+        Boolean isReported
     ) {
 
-        public static InnerLostItemArticleResponse from(Article article) {
+        public static InnerLostItemArticleResponse of(Article article, Integer userId) {
             LostItemArticle lostItemArticle = article.getLostItemArticle();
-
             return new InnerLostItemArticleResponse(
                 article.getId(),
                 article.getBoard().getId(),
+                lostItemArticle.getType(),
                 lostItemArticle.getCategory(),
                 lostItemArticle.getFoundPlace(),
                 lostItemArticle.getFoundDate(),
                 article.getContent(),
                 article.getAuthor(),
-                article.getRegisteredAt()
+                article.getRegisteredAt(),
+                lostItemArticle.isReportedByUserId(userId)
             );
         }
     }
-
 }

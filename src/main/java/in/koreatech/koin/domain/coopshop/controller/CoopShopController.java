@@ -24,11 +24,11 @@ public class CoopShopController implements CoopShopApi {
         return ResponseEntity.ok(coopShops);
     }
 
-    @GetMapping("/{coopShopId}")
+    @GetMapping("/{coopNameId}")
     public ResponseEntity<CoopShopResponse> getCoopShop(
-        @PathVariable Integer coopShopId
+        @PathVariable Integer coopNameId
     ) {
-        CoopShopResponse coopShop = coopShopService.getCoopShop(coopShopId);
+        CoopShopResponse coopShop = coopShopService.getCoopShop(coopNameId);
         return ResponseEntity.ok(coopShop);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
+import in.koreatech.koin.domain.timetableV3.dto.response.TakeAllTimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
@@ -41,6 +42,18 @@ public class TimetableLectureServiceV3 {
         int grades = calculateGradesMainFrame(timetableFrame);
         int totalGrades = calculateTotalGrades(timetableFrameRepositoryV3.findByUserIdAndIsMainTrue(userId));
         return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
+    }
+
+    public TakeAllTimetableLectureResponse getTakeAllTimetableLectures(Integer userId) {
+        List<TimetableFrame> frames = timetableFrameRepositoryV3.findAllByUserIdAndIsMainTrue(userId);
+
+        List<TimetableLecture> collectedLectures = frames.stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .toList();
+
+        return new TakeAllTimetableLectureResponse(
+            TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3.from(collectedLectures)
+        );
     }
 
     @Transactional

@@ -15,19 +15,22 @@ public class SlackNotificationFactory {
     private final String ownerEventNotificationUrl;
     private final String eventNotificationUrl;
     private final String reviewNotificationUrl;
+    private final String lostItemNotificationUrl;
 
     public SlackNotificationFactory(
         @Value("${koin.admin.shop.url}") String adminPageUrl,
         @Value("${koin.admin.review.url}") String adminReviewPageUrl,
         @Value("${slack.koin_event_notify_url}") String eventNotificationUrl,
         @Value("${slack.koin_owner_event_notify_url}") String ownerEventNotificationUrl,
-        @Value("${slack.koin_shop_review_notify_url}") String reviewNotificationUrl
+        @Value("${slack.koin_shop_review_notify_url}") String reviewNotificationUrl,
+        @Value("${slack.koin_lost_item_notify_url}") String lostItemNotificationUrl
     ) {
         this.adminPageUrl = adminPageUrl;
         this.adminReviewPageUrl = adminReviewPageUrl;
         this.eventNotificationUrl = eventNotificationUrl;
         this.ownerEventNotificationUrl = ownerEventNotificationUrl;
         this.reviewNotificationUrl = reviewNotificationUrl;
+        this.lostItemNotificationUrl = lostItemNotificationUrl;
     }
 
     /**
@@ -52,21 +55,6 @@ public class SlackNotificationFactory {
             .slackUrl(ownerEventNotificationUrl)
             .text(String.format("""
                 `%s(사장님)님이 문자 인증을 요청하셨습니다.`
-                """, content)
-            )
-            .build();
-    }
-
-    /**
-     * 사장님 이메일 인증 완료 알림
-     */
-    public SlackNotification generateOwnerEmailVerificationCompleteNotification(
-        String content
-    ) {
-        return SlackNotification.builder()
-            .slackUrl(ownerEventNotificationUrl)
-            .text(String.format("""
-                `%s(사장님)님이 이메일 인증을 완료했습니다.`
                 """, content)
             )
             .build();
@@ -187,6 +175,28 @@ public class SlackNotificationFactory {
                 String.format(
                     MARKDOWN_ADMIN_PAGE_URL_FORMAT,
                     adminReviewPageUrl
+                ))
+            )
+            .build();
+    }
+
+    /**
+     * 분실물 게시글 신고 알림
+     */
+    public SlackNotification generateLostItemReportNotification(
+        Integer lostItemArticleId
+    ) {
+        return SlackNotification.builder()
+            .slackUrl(lostItemNotificationUrl)
+            .text(String.format("""
+                `%d번 분실물 게시글이 신고되었습니다.`
+                `신고를 처리해주세요!!`
+                %s
+                """,
+                lostItemArticleId,
+                String.format(
+                    MARKDOWN_ADMIN_PAGE_URL_FORMAT,
+                    adminPageUrl
                 ))
             )
             .build();

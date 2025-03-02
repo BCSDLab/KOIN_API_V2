@@ -4,6 +4,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -36,10 +37,9 @@ public class OwnerUtilService {
         return savedToken.getRefreshToken();
     }
 
-    public void setShopId(Integer shopId, OwnerShop.OwnerShopBuilder builder) {
-        if (shopId != null) {
-            Shop shop = shopRepository.getById(shopId);
-            builder.shopId(shop.getId());
+    public void validateExistShopId(Integer shopId) {
+        if (shopId != null && !shopRepository.existsById(shopId)) {
+            throw ShopNotFoundException.withDetail("shopId: " + shopId);
         }
     }
 

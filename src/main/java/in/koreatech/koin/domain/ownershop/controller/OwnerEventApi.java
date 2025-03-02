@@ -34,7 +34,7 @@ public interface OwnerEventApi {
         }
     )
     @Operation(summary = "상점 이벤트 추가")
-    @PostMapping("/owner/shops/{shopId}/events")
+    @PostMapping("/owner/shops/{shopId}/event")
     ResponseEntity<Void> createShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId,

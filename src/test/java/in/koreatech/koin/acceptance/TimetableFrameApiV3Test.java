@@ -13,9 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -33,14 +35,19 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
     @Autowired
     private SemesterFixture semesterFixture;
 
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
     private User user;
     private String token;
     private Semester semester;
+    private Department department;
 
     @BeforeAll
     void setup() {
         clear();
-        user = userFixture.준호_학생().getUser();
+        department = departmentFixture.컴퓨터공학부();
+        user = userFixture.준호_학생(department, null).getUser();
         token = userFixture.getToken(user);
         semester = semesterFixture.semester_2019년도_2학기();
     }

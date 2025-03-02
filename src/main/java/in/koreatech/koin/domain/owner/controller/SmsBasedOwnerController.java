@@ -37,19 +37,19 @@ public class SmsBasedOwnerController implements SmsBasedOwnerApi {
                 .body(response);
     }
 
-    @PostMapping("/owners/verification/sms")
-    public ResponseEntity<Void> requestVerificationToRegisterBySms(
-        @RequestBody @Valid VerifySmsRequest verifySmsRequest
-    ) {
-        ownerSmsService.requestSignUpSmsVerification(verifySmsRequest);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/owners/register/phone")
     public ResponseEntity<Void> registerByPhone(
         @Valid @RequestBody OwnerRegisterByPhoneRequest request
     ) {
         ownerSmsService.registerByPhone(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owners/verification/sms")
+    public ResponseEntity<Void> requestVerificationToRegisterBySms(
+        @RequestBody @Valid VerifySmsRequest verifySmsRequest
+    ) {
+        ownerSmsService.requestSignUpSmsVerification(verifySmsRequest);
         return ResponseEntity.ok().build();
     }
 

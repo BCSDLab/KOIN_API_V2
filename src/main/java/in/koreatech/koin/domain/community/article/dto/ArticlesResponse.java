@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -34,10 +36,10 @@ public record ArticlesResponse(
     Integer currentPage
 ) {
 
-    public static ArticlesResponse of(Page<Article> pagedResult, Criteria criteria) {
+    public static ArticlesResponse of(Page<Article> pagedResult, Criteria criteria, Integer userId) {
         return new ArticlesResponse(
             pagedResult.stream()
-                .map(InnerArticleResponse::from)
+                .map(article -> InnerArticleResponse.of(article, userId))
                 .toList(),
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
@@ -68,10 +70,14 @@ public record ArticlesResponse(
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDate registeredAt,
 
         @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt,
+
+        @Schema(description = "처리되지 않은 자신의 신고 존재 여부", example = "true", requiredMode = REQUIRED)
+        Boolean isReported
     ) {
 
-        public static InnerArticleResponse from(Article article) {
+        public static InnerArticleResponse of(Article article, Integer userId) {
+            Optional<LostItemArticle> lostItemArticle = Optional.ofNullable(article.getLostItemArticle());
             return new InnerArticleResponse(
                 article.getId(),
                 article.getBoard().getId(),
@@ -79,7 +85,8 @@ public record ArticlesResponse(
                 article.getAuthor(),
                 article.getTotalHit(),
                 article.getRegisteredAt(),
-                article.getUpdatedAt()
+                article.getUpdatedAt(),
+                lostItemArticle.map(lostItem -> lostItem.isReportedByUserId(userId)).orElse(false)
             );
         }
     }

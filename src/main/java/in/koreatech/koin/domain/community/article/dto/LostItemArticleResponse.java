@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
@@ -22,6 +23,9 @@ public record LostItemArticleResponse(
     @Schema(description = "게시판 id", example = "14", requiredMode = REQUIRED)
     Integer boardId,
 
+    @Schema(description = "게시글 타입", example = "LOST", requiredMode = NOT_REQUIRED)
+    String type,
+
     @Schema(description = "분실물 종류", example = "신분증", requiredMode = REQUIRED)
     String category,
 
@@ -36,6 +40,12 @@ public record LostItemArticleResponse(
 
     @Schema(description = "작성자", example = "총학생회", requiredMode = REQUIRED)
     String author,
+
+    @Schema(description = "총학생회 여부", example = "1", requiredMode = NOT_REQUIRED)
+    Boolean isCouncil,
+
+    @Schema(description = "내 게시글 여부", example = "1", requiredMode = NOT_REQUIRED)
+    Boolean isMine,
 
     @Schema(description = "분실물 사진")
     List<InnerLostItemImageResponse> images,
@@ -53,17 +63,20 @@ public record LostItemArticleResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static LostItemArticleResponse from(Article article) {
+    public static LostItemArticleResponse of(Article article, Boolean isMine) {
         LostItemArticle lostItemArticle = article.getLostItemArticle();
 
         return new LostItemArticleResponse(
             article.getId(),
             article.getBoard().getId(),
+            lostItemArticle.getType(),
             lostItemArticle.getCategory(),
             lostItemArticle.getFoundPlace(),
             lostItemArticle.getFoundDate(),
             article.getContent(),
-            lostItemArticle.getAuthor().getName(),
+            article.getAuthor(),
+            lostItemArticle.getIsCouncil(),
+            isMine,
             lostItemArticle.getImages().stream()
                 .map(InnerLostItemImageResponse::from)
                 .toList(),

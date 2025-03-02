@@ -1,11 +1,13 @@
 package in.koreatech.koin.domain.timetableV3.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -67,7 +69,13 @@ public record TimetableLectureResponseV3(
         String professor,
 
         @Schema(description = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
-        String department
+        String department,
+
+        @Schema(description = "이수구분", example = "전공필수", requiredMode = NOT_REQUIRED)
+        String courseType,
+
+        @Schema(description = "교양영역", example = "", requiredMode = NOT_REQUIRED)
+        String generalEducationArea
     ) {
         public static List<InnerTimetableLectureResponseV3> from(List<TimetableLecture> timetableLectures) {
             List<InnerTimetableLectureResponseV3> InnerTimetableLectureResponses = new ArrayList<>();
@@ -91,7 +99,9 @@ public record TimetableLectureResponseV3(
                         null,
                         null,
                         timetableLecture.getProfessor(),
-                        null
+                        null,
+                        getCourseType(timetableLecture),
+                        getGeneralEducationArea(timetableLecture)
                     );
                 } else {
                     responseV3 = new InnerTimetableLectureResponseV3(
@@ -100,20 +110,37 @@ public record TimetableLectureResponseV3(
                         lecture.getRegularNumber(),
                         lecture.getCode(),
                         lecture.getDesignScore(),
-                        LectureInfoResponse.getRegularLectureInfo(lecture.getClassTime(),
+                        LectureInfoResponse.getRegularLectureInfo(
+                            firstNonNull(timetableLecture.getClassTime(), lecture.getClassTime()),
                             timetableLecture.getClassPlace()),
                         timetableLecture.getMemo(),
                         lecture.getGrades(),
-                        timetableLecture.getClassTitle() == null ? lecture.getName() : timetableLecture.getClassTitle(),
+                        lecture.getName(),
                         lecture.getLectureClass(),
                         lecture.getTarget(),
-                        lecture.getProfessor(),
-                        lecture.getDepartment()
+                        firstNonNull(timetableLecture.getProfessor(),lecture.getProfessor()),
+                        lecture.getDepartment(),
+                        getCourseType(timetableLecture),
+                        getGeneralEducationArea(timetableLecture)
                     );
                 }
                 InnerTimetableLectureResponses.add(responseV3);
             }
             return InnerTimetableLectureResponses;
+        }
+
+        private static String getCourseType(TimetableLecture timetableLecture) {
+            if (Objects.isNull(timetableLecture.getCourseType())) {
+                return "이수구분선택";
+            }
+            return timetableLecture.getCourseType().getName();
+        }
+
+        private static String getGeneralEducationArea(TimetableLecture timetableLecture) {
+            if (timetableLecture.getGeneralEducationArea() == null) {
+                return "";
+            }
+            return timetableLecture.getGeneralEducationArea().getName();
         }
     }
 

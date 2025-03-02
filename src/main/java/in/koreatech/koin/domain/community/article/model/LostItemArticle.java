@@ -4,10 +4,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,21 +33,25 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "lost_item_articles")
+@Table(name = "lost_item_articles", schema = "koin")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LostItemArticle {
+public class LostItemArticle extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "article_id", nullable = false)
+    @JoinColumn(name = "article_id", referencedColumnName = "id", nullable = false)
     private Article article;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private User author;
+
+    @NotNull
+    @Column(name = "type", nullable = false)
+    private String type;
 
     @NotNull
     @Column(name = "category", nullable = false)
@@ -62,28 +70,37 @@ public class LostItemArticle {
     private List<LostItemImage> images = new ArrayList<>();
 
     @NotNull
-    @ColumnDefault("0")
+    @Column(name = "is_council", nullable = false)
+    private Boolean isCouncil = false;
+
+    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "lostItemArticle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LostItemReport> lostItemReports = new ArrayList<>();
+
     @Builder
     public LostItemArticle(
-        Integer id,
         Article article,
         User author,
+        String type,
         String category,
         String foundPlace,
         LocalDate foundDate,
         List<LostItemImage> images,
+        Boolean isCouncil,
         Boolean isDeleted
     ) {
-        this.id = id;
         this.article = article;
         this.author = author;
+        this.type = type;
         this.category = category;
         this.foundPlace = foundPlace;
         this.foundDate = foundDate;
         this.images = images;
+        this.isCouncil = isCouncil;
         this.isDeleted = isDeleted;
     }
 
@@ -99,6 +116,10 @@ public class LostItemArticle {
         this.article = article;
     }
 
+    public void setIsCouncil() {
+        this.isCouncil = true;
+    }
+
     public String generateTitle() {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yy.MM.dd");
         return String.format(
@@ -112,5 +133,24 @@ public class LostItemArticle {
     public void delete() {
         this.isDeleted = true;
         this.images.forEach(LostItemImage::delete);
+    }
+
+    /**
+     * 미처리된 신고가 존재하는지 확인합니다.
+     */
+    public boolean isReported() {
+        return this.getLostItemReports()
+            .stream()
+            .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
+    }
+
+    /**
+     * 특정 사용자에 의해 미처리된 신고가 존재하는지 확인합니다.
+     */
+    public boolean isReportedByUserId(Integer userId) {
+        return this.getLostItemReports()
+            .stream()
+            .filter(report -> Objects.equals(report.getStudent().getId(), userId))
+            .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
     }
 }
