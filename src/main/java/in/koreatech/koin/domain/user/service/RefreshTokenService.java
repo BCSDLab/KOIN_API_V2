@@ -20,7 +20,7 @@ public class RefreshTokenService {
 
     private final userTokenRedisRepository userTokenRedisRepository;
 
-    public String generateRefreshToken(User user) {
+    public String createRefreshToken(User user) {
         return String.format(REFRESH_TOKEN_FORMAT, UUID.randomUUID(), user.getId());
     }
 

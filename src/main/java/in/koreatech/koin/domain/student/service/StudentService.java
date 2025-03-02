@@ -91,7 +91,7 @@ public class StudentService {
         userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.generateRefreshToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user);
         UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         userService.updateLastLoginTime(user);
 
