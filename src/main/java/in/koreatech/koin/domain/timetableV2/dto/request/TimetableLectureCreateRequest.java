@@ -84,8 +84,7 @@ public record TimetableLectureCreateRequest(
         }
 
         public TimetableLecture toTimetableLecture(
-            TimetableFrame timetableFrame, Lecture lecture, CourseType courseType,
-            GeneralEducationArea generalEducationArea
+            TimetableFrame timetableFrame, Lecture lecture
         ) {
             return TimetableLecture.builder()
                 .classTitle(classTitle)
@@ -97,8 +96,6 @@ public record TimetableLectureCreateRequest(
                 .grades(grades)
                 .lecture(lecture)
                 .timetableFrame(timetableFrame)
-                .courseType(courseType)
-                .generalEducationArea(generalEducationArea)
                 .build();
         }
 
