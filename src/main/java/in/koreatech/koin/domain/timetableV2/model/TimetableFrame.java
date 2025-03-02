@@ -87,8 +87,7 @@ public class TimetableFrame extends BaseEntity {
 
     private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표";
 
-    public void updateTimetableFrame(Semester semester, String name, boolean isMain) {
-        this.semester = semester;
+    public void renameAndSetMain(String name, boolean isMain) {
         this.name = name;
         this.isMain = isMain;
     }

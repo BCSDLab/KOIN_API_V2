@@ -55,7 +55,7 @@ public class TimetableFrameService {
                 .findByUserIdAndSemesterIdAndIsMainTrue(userId, frame.getSemester().getId())
                 .ifPresent(TimetableFrame::cancelMain);
         }
-        frame.updateTimetableFrame(frame.getSemester(), request.timetableName(), request.isMain());
+        frame.renameAndSetMain(request.timetableName(), request.isMain());
 
         return TimetableFrameResponse.from(timetableFrameRepositoryV2.save(frame));
     }
