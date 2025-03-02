@@ -5,7 +5,6 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -115,26 +114,6 @@ public class Timetable extends BaseEntity {
         this.designScore = designScore;
         this.department = department;
         this.memo = memo;
-        this.isDeleted = isDeleted;
-    }
-
-    public void update(TimetableUpdateRequest.InnerTimetableRequest timeTableRequest) {
-        this.code = timeTableRequest.code();
-        this.classTitle = timeTableRequest.classTitle();
-        this.classTime = timeTableRequest.classTime().toString();
-        this.classPlace = timeTableRequest.classPlace();
-        this.professor = timeTableRequest.professor();
-        this.grades = timeTableRequest.grades();
-        this.lectureClass = timeTableRequest.lectureClass();
-        this.target = timeTableRequest.target();
-        this.regularNumber = timeTableRequest.regularNumber();
-        this.designScore = timeTableRequest.designScore();
-        this.department = timeTableRequest.department();
-        this.memo = timeTableRequest.memo();
-        this.isDeleted = false;
-    }
-
-    public void updateIsDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
 }
