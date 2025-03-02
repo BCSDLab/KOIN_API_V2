@@ -40,10 +40,11 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
 import in.koreatech.koin.domain.user.service.UserService;
-import in.koreatech.koin.domain.user.service.UserTokenService;
+import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
+import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
@@ -60,10 +61,11 @@ public class StudentService {
     private final UserValidationService userValidationService;
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
-    private final UserTokenService userTokenService;
-    private final UserTokenRepository userTokenRepository;
+    private final RefreshTokenService refreshTokenService;
+    private final userTokenRedisRepository userTokenRedisRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
+    private final JwtProvider jwtProvider;
     private final DepartmentRepository departmentRepository;
     private final MajorRepository majorRepository;
     private final GraduationService graduationService;
@@ -88,9 +90,9 @@ public class StudentService {
         User user = userValidationService.checkLoginCredentials(request.email(), request.password());
         userValidationService.checkUserAuthentication(request.email());
 
-        String accessToken = userTokenService.createAccessToken(user);
-        String refreshToken = userTokenService.generateRefreshToken(user);
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = refreshTokenService.generateRefreshToken(user);
+        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         userService.updateLastLoginTime(user);
 
         return StudentLoginResponse.of(accessToken, savedToken.getRefreshToken());

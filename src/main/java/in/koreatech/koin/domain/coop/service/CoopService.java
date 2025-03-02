@@ -66,7 +66,7 @@ import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
@@ -86,7 +86,7 @@ public class CoopService {
     private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
     private final UserRepository userRepository;
-    private final UserTokenRepository userTokenRepository;
+    private final userTokenRedisRepository userTokenRedisRepository;
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -194,7 +194,7 @@ public class CoopService {
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(LocalDateTime.now());
 
         return CoopLoginResponse.of(accessToken, savedToken.getRefreshToken());
