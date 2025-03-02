@@ -26,7 +26,7 @@ import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
 import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
-import in.koreatech.koin.domain.student.model.redis.unauthenticatedStudentInfo;
+import in.koreatech.koin.domain.student.model.redis.UnauthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
@@ -76,7 +76,7 @@ public class StudentService {
         studentValidationService.validateStudentRegister(request);
         String authToken = UUID.randomUUID().toString();
 
-        unauthenticatedStudentInfo unauthenticatedStudentInfo = unauthenticatedStudentInfo.of(request, authToken);
+        UnauthenticatedStudentInfo unauthenticatedStudentInfo = UnauthenticatedStudentInfo.of(request, authToken);
         studentRedisRepository.save(unauthenticatedStudentInfo);
 
         mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, authToken));
@@ -228,7 +228,7 @@ public class StudentService {
 
     @ConcurrencyGuard(lockName = "studentAuthenticate")
     public ModelAndView authenticate(AuthTokenRequest request) {
-        Optional<unauthenticatedStudentInfo> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
+        Optional<UnauthenticatedStudentInfo> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
             request.authToken());
         if (studentTemporaryStatus.isEmpty()) {
             ModelAndView modelAndView = new ModelAndView("error_config");
