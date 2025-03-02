@@ -1,8 +1,8 @@
 package in.koreatech.koin.domain.timetableV2.service;
 
 import static in.koreatech.koin.domain.timetableV2.model.TimetableFrame.*;
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateTimetableFrameUpdate;
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.ensureMainTimetableExists;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.ensureUserOwnsFrame;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class TimetableFrameService {
         TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableFrameId);
-        validateTimetableFrameUpdate(frame, request.isMain());
+        ensureMainTimetableExists(frame, request.isMain());
 
         if (request.isMain()) {
             timetableFrameRepositoryV2
@@ -87,7 +87,7 @@ public class TimetableFrameService {
     @Transactional
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
-        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        ensureUserOwnsFrame(timetableFrame.getUser().getId(), userId);
 
         deleteFrameAndUpdateMainStatus(userId, timetableFrame);
     }
