@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.timetableV2.repository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,12 +38,6 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     default TimetableFrame getByIdWithLock(Integer id) {
         return findByIdWithLock(id)
             .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
-    }
-
-    default TimetableFrame getMainTimetableByUserIdAndSemesterId(Integer userId, Integer semesterId) {
-        return findByUserIdAndSemesterIdAndIsMainTrue(userId, semesterId)
-            .orElseThrow(
-                () -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
     }
 
     List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);

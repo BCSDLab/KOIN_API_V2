@@ -14,7 +14,6 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequ
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFramesResponse;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -30,7 +29,6 @@ public class TimetableFrameService {
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
-    private final TimetableFrameUpdater timetableFrameUpdater;
 
     @Transactional
     public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
@@ -51,7 +49,15 @@ public class TimetableFrameService {
     ) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableFrameId);
         validateTimetableFrameUpdate(frame, request.isMain());
-        return timetableFrameUpdater.updateTimetableFrame(frame, userId, request.timetableName(), request.isMain());
+
+        if (request.isMain()) {
+            timetableFrameRepositoryV2
+                .findByUserIdAndSemesterIdAndIsMainTrue(userId, frame.getSemester().getId())
+                .ifPresent(TimetableFrame::cancelMain);
+        }
+
+        frame.updateTimetableFrame(frame.getSemester(), request.timetableName(), request.isMain());
+        return TimetableFrameResponse.from(timetableFrameRepositoryV2.save(frame));
     }
 
     public Object getTimetablesFrame(Integer userId, String semesterRequest) {
