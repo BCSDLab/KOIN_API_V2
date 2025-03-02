@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 
-public interface UserPasswordResetTokenRepository extends Repository<PasswordResetToken, Integer> {
+public interface UserPasswordResetTokenRedisRepository extends Repository<PasswordResetToken, Integer> {
 
     PasswordResetToken save(PasswordResetToken passwordResetToken);
 

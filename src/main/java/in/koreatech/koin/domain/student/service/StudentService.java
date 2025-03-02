@@ -38,7 +38,7 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
 import in.koreatech.koin.domain.user.service.UserService;
@@ -71,7 +71,7 @@ public class StudentService {
     private final GraduationService graduationService;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final UserPasswordResetTokenRepository passwordResetTokenRepository;
+    private final UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
