@@ -23,15 +23,11 @@ public record TimetableRegularLectureCreateRequest(
     @Schema(description = "정규 강의 id", example = "3015", requiredMode = REQUIRED)
     Integer lectureId
 ) {
-    public TimetableLecture toTimetableLecture(
-        TimetableFrame frame, Lecture lecture, CourseType courseType, GeneralEducationArea generalEducationArea
-    ) {
+    public TimetableLecture toTimetableLecture(TimetableFrame frame, Lecture lecture) {
         return TimetableLecture.builder()
             .lecture(lecture)
             .timetableFrame(frame)
             .grades("0")
-            .courseType(courseType)
-            .generalEducationArea(generalEducationArea)
             .build();
     }
 }
