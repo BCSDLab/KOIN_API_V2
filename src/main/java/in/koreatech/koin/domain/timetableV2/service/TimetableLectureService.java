@@ -13,7 +13,6 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRe
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureCreator;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureUpdater;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -35,7 +34,6 @@ public class TimetableLectureService {
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final TimetableLectureCreator timetableLectureCreator;
-    private final TimetableLectureUpdater timetableLectureUpdater;
 
     @Transactional
     public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
@@ -49,7 +47,17 @@ public class TimetableLectureService {
     public TimetableLectureResponse updateTimetablesLectures(Integer userId, TimetableLectureUpdateRequest request) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
-        timetableLectureUpdater.updateTimetablesLectures(request);
+        for (TimetableLectureUpdateRequest.InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
+            TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
+            timetableLecture.update(
+                timetableRequest.classTitle(),
+                timetableRequest.getClassTimeToString(),
+                timetableRequest.getClassPlaceToString(),
+                timetableRequest.professor(),
+                timetableRequest.grades(),
+                timetableRequest.memo()
+            );
+        }
         return getTimetableLectureResponse(userId, frame);
     }
 

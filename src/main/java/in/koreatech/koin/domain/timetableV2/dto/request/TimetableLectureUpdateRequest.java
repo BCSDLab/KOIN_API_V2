@@ -4,6 +4,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -64,6 +67,36 @@ public record TimetableLectureUpdateRequest(
             String classPlace
         ) {
 
+        }
+
+        /**
+         * 강의 시간에 -1 구분자를 넣기 위한 메소드
+         * -1을 기준으로 강의 시간을 구별합니다.
+         */
+        public String getClassTimeToString() {
+            if (classInfos == null) {
+                return null;
+            }
+
+            return classInfos.stream()
+                .flatMap(info -> Stream.concat(Stream.of(-1), info.classTime.stream()))
+                .skip(1)
+                .toList()
+                .toString();
+        }
+
+        /**
+         * 강의 장소에 , 구분자를 넣기 위한 메소드
+         * , 를 기준으로 강의 장소를 구별합니다.
+         */
+        public String getClassPlaceToString() {
+            if (classInfos == null) {
+                return null;
+            }
+
+            return classInfos.stream()
+                .map(info -> Objects.toString(info.classPlace, ""))
+                .collect(Collectors.joining(", "));
         }
     }
 }
