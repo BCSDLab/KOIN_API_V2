@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,17 +12,14 @@ import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFramesResponse;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -50,7 +46,7 @@ public class TimetableFrameService {
     }
 
     @Transactional
-    public TimetableFrameUpdateResponse updateTimetableFrame(
+    public TimetableFrameResponse updateTimetableFrame(
         TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableFrameId);

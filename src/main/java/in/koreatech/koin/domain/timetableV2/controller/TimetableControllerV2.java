@@ -20,7 +20,6 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequ
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.service.TimetableFrameService;
 import in.koreatech.koin.domain.timetableV2.service.TimetableLectureService;
@@ -46,12 +45,12 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     }
 
     @PutMapping("/v2/timetables/frame/{id}")
-    public ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
+    public ResponseEntity<TimetableFrameResponse> updateTimetableFrame(
         @Valid @RequestBody TimetableFrameUpdateRequest request,
         @PathVariable(value = "id") Integer timetableFrameId,
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
-        TimetableFrameUpdateResponse response = frameServiceV2.updateTimetableFrame(request, timetableFrameId, userId);
+        TimetableFrameResponse response = frameServiceV2.updateTimetableFrame(request, timetableFrameId, userId);
         return ResponseEntity.ok(response);
     }
 
