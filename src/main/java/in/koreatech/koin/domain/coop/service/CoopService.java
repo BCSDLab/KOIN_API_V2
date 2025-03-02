@@ -65,10 +65,10 @@ import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
-import in.koreatech.koin.global.s3.S3Utils;
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin._common.integration.s3.S3Utils;
 import lombok.RequiredArgsConstructor;
 
 @Service

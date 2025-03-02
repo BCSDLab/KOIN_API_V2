@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.kakao.exception;
 
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 
 public class KakaoSkillFailedException extends KoinIllegalStateException {
 

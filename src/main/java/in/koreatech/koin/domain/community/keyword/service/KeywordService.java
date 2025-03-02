@@ -32,9 +32,9 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserM
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service

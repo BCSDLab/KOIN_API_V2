@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.member.exception;
 
-import in.koreatech.koin.global.exception.DataNotFoundException;
+import in.koreatech.koin._common.exception.custom.DataNotFoundException;
 
 public class MemberNotFoundException extends DataNotFoundException {
 

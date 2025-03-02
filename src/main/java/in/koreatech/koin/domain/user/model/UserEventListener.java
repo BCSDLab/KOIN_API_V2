@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.global.domain.slack.SlackClient;
-import in.koreatech.koin.global.domain.slack.model.SlackNotificationFactory;
+import in.koreatech.koin._common.domain.slack.SlackClient;
+import in.koreatech.koin._common.domain.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
 
 @Component

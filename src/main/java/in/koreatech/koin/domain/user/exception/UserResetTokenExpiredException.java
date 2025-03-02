@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.user.exception;
 
-import in.koreatech.koin.global.auth.exception.AuthenticationException;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 
 public class UserResetTokenExpiredException extends AuthenticationException {
 

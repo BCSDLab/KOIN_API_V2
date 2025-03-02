@@ -17,7 +17,7 @@ import in.koreatech.koin.admin.version.dto.AdminVersionUpdateRequest;
 import in.koreatech.koin.admin.version.dto.AdminVersionResponse;
 import in.koreatech.koin.admin.version.dto.AdminVersionsResponse;
 import in.koreatech.koin.admin.version.service.AdminVersionService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

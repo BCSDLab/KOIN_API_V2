@@ -9,7 +9,7 @@ import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
 import in.koreatech.koin.admin.coopShop.repository.AdminCoopSemesterRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopSemester;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service

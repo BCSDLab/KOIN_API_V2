@@ -1,8 +1,6 @@
 package in.koreatech.koin.domain.community.article.model;
 
-import org.hibernate.annotations.ColumnDefault;
-
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

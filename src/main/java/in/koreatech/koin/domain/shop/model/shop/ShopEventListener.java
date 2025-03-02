@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.shop.model.shop;
 
-import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
-import static in.koreatech.koin.global.fcm.MobileAppPath.SHOP;
+import static in.koreatech.koin._common.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
+import static in.koreatech.koin._common.integration.fcm.MobileAppPath.SHOP;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import java.util.List;
@@ -12,10 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.domain.ownershop.dto.EventArticleCreateShopEvent;
-import in.koreatech.koin.global.domain.notification.model.Notification;
-import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
+import in.koreatech.koin._common.domain.notification.model.Notification;
+import in.koreatech.koin._common.domain.notification.model.NotificationFactory;
+import in.koreatech.koin._common.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin._common.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 
 @Component

@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.member.exception;
 
-import in.koreatech.koin.global.exception.DuplicationException;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 
 public class TrackNameDuplicationException extends DuplicationException {
 

@@ -6,8 +6,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.global.config.HashAttributeConverter;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.config.HashAttributeConverter;
+import in.koreatech.koin._common.domain.BaseEntity;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;

@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.coop.exception;
 
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 
 public class DiningNowDateException extends KoinIllegalArgumentException {
 

@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.timetable.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,14 +8,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.graduation.model.Catalog;
-import in.koreatech.koin.domain.graduation.model.CourseType;
-import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
-import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
@@ -31,8 +25,8 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.exception.RequestTooFastException;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.RequestTooFastException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;

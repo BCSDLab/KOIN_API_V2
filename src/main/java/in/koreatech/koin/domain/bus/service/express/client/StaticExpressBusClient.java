@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.global.domain.callcontoller.CallControlInfo;
+import in.koreatech.koin._common.domain.callcontoller.CallControlInfo;
 
 @Component
 @CallControlInfo(ratio = 0)

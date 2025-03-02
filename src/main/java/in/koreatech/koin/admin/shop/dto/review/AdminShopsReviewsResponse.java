@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.shop.model.review.ShopReviewImage;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewMenu;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Page;
 

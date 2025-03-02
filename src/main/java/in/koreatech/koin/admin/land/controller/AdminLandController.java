@@ -17,7 +17,7 @@ import in.koreatech.koin.admin.land.dto.AdminLandResponse;
 import in.koreatech.koin.admin.land.dto.AdminLandRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 import in.koreatech.koin.admin.land.service.AdminLandService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

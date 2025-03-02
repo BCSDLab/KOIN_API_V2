@@ -22,7 +22,7 @@ import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.service.SemesterService;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

@@ -6,7 +6,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

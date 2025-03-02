@@ -1,9 +1,9 @@
 package in.koreatech.koin.admin.history.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static in.koreatech.koin.global.model.Criteria.*;
-import static in.koreatech.koin.global.model.Criteria.Sort.CREATED_AT_ASC;
-import static in.koreatech.koin.global.model.Criteria.Sort.CREATED_AT_DESC;
+import static in.koreatech.koin._common.model.Criteria.*;
+import static in.koreatech.koin._common.model.Criteria.Sort.CREATED_AT_ASC;
+import static in.koreatech.koin._common.model.Criteria.Sort.CREATED_AT_DESC;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static org.springframework.data.domain.Sort.Direction;
 

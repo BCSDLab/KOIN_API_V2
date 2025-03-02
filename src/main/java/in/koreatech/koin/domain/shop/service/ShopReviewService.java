@@ -39,8 +39,8 @@ import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepositor
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.global.auth.exception.AuthenticationException;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
+import in.koreatech.koin._common.model.Criteria;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 

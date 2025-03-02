@@ -29,7 +29,7 @@ import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

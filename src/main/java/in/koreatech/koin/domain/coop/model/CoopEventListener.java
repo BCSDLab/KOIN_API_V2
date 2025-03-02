@@ -1,8 +1,8 @@
 package in.koreatech.koin.domain.coop.model;
 
-import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_IMAGE_UPLOAD;
-import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
-import static in.koreatech.koin.global.fcm.MobileAppPath.DINING;
+import static in.koreatech.koin._common.domain.notification.model.NotificationSubscribeType.DINING_IMAGE_UPLOAD;
+import static in.koreatech.koin._common.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
+import static in.koreatech.koin._common.integration.fcm.MobileAppPath.DINING;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import org.springframework.stereotype.Component;
@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
-import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
-import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
+import in.koreatech.koin._common.domain.notification.model.NotificationDetailSubscribeType;
+import in.koreatech.koin._common.domain.notification.model.NotificationFactory;
+import in.koreatech.koin._common.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin._common.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 
 @Component

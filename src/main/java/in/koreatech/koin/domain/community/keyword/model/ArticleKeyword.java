@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

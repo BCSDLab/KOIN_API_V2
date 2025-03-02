@@ -61,9 +61,7 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.exception.DuplicationException;
-import jakarta.persistence.EntityManager;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 import lombok.RequiredArgsConstructor;
 
 @Service

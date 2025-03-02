@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.service.ShopSearchService;
 import in.koreatech.koin.domain.shop.service.ShopService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.util.Collections;
 import java.util.List;
