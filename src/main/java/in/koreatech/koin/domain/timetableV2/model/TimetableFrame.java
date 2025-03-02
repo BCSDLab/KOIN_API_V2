@@ -85,7 +85,7 @@ public class TimetableFrame extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
-    private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표";
+    private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표 %d";
 
     public void renameAndSetMain(String name, boolean isMain) {
         this.name = name;
@@ -125,6 +125,6 @@ public class TimetableFrame extends BaseEntity {
     }
 
     private static String getDefaultTimetableFrameName(int currentFrameCount) {
-        return DEFAULT_TIMETABLE_FRAME_NAME + (currentFrameCount);
+        return String.format(DEFAULT_TIMETABLE_FRAME_NAME, currentFrameCount);
     }
 }
