@@ -56,7 +56,6 @@ public class TimetableLectureCreator {
         return null;
     }
 
-    /*
     private Catalog getCatalog(Lecture lecture, Integer userId) {
         if (lecture == null) {
             return null;
@@ -100,5 +99,5 @@ public class TimetableLectureCreator {
             }
         }
         return null;
-    }*/
+    }
 }

@@ -6,7 +6,6 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,7 +60,6 @@ public class TimetableRegularLectureServiceV3 {
         return getTimetableLectureResponse(userId, frame);
     }
 
-    /*
     private Catalog getCatalog(Lecture lecture, Integer userId) {
         if (lecture == null) {
             return null;
@@ -105,7 +103,7 @@ public class TimetableRegularLectureServiceV3 {
             }
         }
         return null;
-    }*/
+    }
 
     @Transactional
     public TimetableLectureResponseV3 updateTimetablesRegularLecture(
