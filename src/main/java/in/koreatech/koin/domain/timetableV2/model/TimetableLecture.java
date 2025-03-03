@@ -138,11 +138,13 @@ public class TimetableLecture extends BaseEntity {
         this.classPlace = classPlace;
     }
 
-    public void updateRegularLecture(String classTitle, String classPlace, CourseType courseType) {
+    public void updateRegularLecture(String classTitle, String classPlace, CourseType courseType,
+        GeneralEducationArea generalEducationArea) {
         if (!lecture.getName().equals(classTitle)) {
             this.classTitle = classTitle;
         }
         this.classPlace = classPlace;
         this.courseType = courseType;
+        this.generalEducationArea = generalEducationArea;
     }
 }

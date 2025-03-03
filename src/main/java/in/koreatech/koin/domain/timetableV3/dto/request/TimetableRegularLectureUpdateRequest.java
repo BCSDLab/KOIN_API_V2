@@ -42,6 +42,9 @@ public record TimetableRegularLectureUpdateRequest(
         @Schema(description = "이수 구분", example = "교양선택", requiredMode = NOT_REQUIRED)
         String courseType,
 
+        @Schema(description = "교양 이수 구분", example = "자연과인간", requiredMode = NOT_REQUIRED)
+        String generalEducationArea,
+
         @Valid
         @Schema(description = "정규 강의 장소 정보", requiredMode = REQUIRED)
         List<ClassPlace> classPlaces
