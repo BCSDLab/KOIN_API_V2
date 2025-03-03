@@ -39,8 +39,9 @@ public record TimetableRegularLectureUpdateRequest(
         @Size(max = 100, message = "정규 강의 이름의 최대 글자는 100글자 입니다.")
         String classTitle,
 
+        /*
         @Schema(description = "이수 구분", example = "교양선택", requiredMode = NOT_REQUIRED)
-        String courseType,
+        String courseType,*/
 
         @Schema(description = "교양 이수 구분", example = "자연과인간", requiredMode = NOT_REQUIRED)
         String generalEducationArea,

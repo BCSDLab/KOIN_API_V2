@@ -6,7 +6,6 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,10 +50,13 @@ public class TimetableRegularLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
+        /*
         Catalog catalog = getCatalog(lecture, userId);
         CourseType courseType = getCourseType(catalog);
         GeneralEducationArea generalEducationArea = getGeneralEducationArea(catalog);
         TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture, courseType, generalEducationArea);
+         */
+        TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture);
         frame.addTimeTableLecture(timetableLecture);
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
@@ -112,10 +114,11 @@ public class TimetableRegularLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
 
+        /*
         CourseType courseType = null;
         if (!Objects.isNull(request.timetableLecture().courseType())) {
             courseType = courseTypeRepository.getByName(request.timetableLecture().courseType());
-        }
+        }*/
 
         GeneralEducationArea generalEducationArea = null;
         if (!Objects.isNull(request.timetableLecture().generalEducationArea())) {
@@ -129,7 +132,7 @@ public class TimetableRegularLectureServiceV3 {
             request.timetableLecture().classPlacesToString(),
             courseType,
             generalEducationArea
-        );
+            request.timetableLecture().classPlacesToString()
 
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
