@@ -586,10 +586,12 @@ public class GraduationService {
     public GeneralEducationLectureResponse getEducationLecture(Integer userId) {
         String studentYear = StudentUtil.parseStudentNumberYearAsString(
             studentRepository.getById(userId).getStudentNumber());
+        if (studentYear == null) {
+            throw new StudentNumberNotFoundException("학번을 추가하세요.");
+        }
         List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
 
         List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
-
         // 교양 선택
         educationAreas.addAll(getSelectiveEducationAreas(timetableFrames));
         // 일반 교양

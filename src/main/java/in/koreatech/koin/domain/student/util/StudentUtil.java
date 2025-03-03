@@ -6,10 +6,10 @@ import lombok.experimental.UtilityClass;
 public class StudentUtil {
 
     public static Integer parseStudentNumberYear(String studentNumber) {
-        return Integer.parseInt(studentNumber.substring(0, 4));
+        return (studentNumber != null) ? Integer.parseInt(studentNumber.substring(0, 4)) : null;
     }
 
     public static String parseStudentNumberYearAsString(String studentNumber) {
-        return studentNumber.substring(0, 4);
+        return (studentNumber != null) ? studentNumber.substring(0, 4) : null;
     }
 }
