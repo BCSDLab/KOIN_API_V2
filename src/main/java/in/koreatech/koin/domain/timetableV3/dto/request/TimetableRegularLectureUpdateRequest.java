@@ -31,8 +31,7 @@ public record TimetableRegularLectureUpdateRequest(
         @NotNull(message = "시간표 id를 입력해주세요.")
         Integer id,
 
-        @Schema(description = "강의 id", example = "3015", requiredMode = REQUIRED)
-        @NotNull(message = "강의 id를 입력해주세요.")
+        @Schema(description = "강의 id", example = "3015", requiredMode = NOT_REQUIRED)
         Integer lectureId,
 
         @Schema(description = "정규 강의 이름", example = "정규 강의 이름", requiredMode = NOT_REQUIRED)
