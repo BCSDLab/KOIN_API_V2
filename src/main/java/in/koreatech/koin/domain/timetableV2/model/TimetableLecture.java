@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.timetableV2.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.Optional;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.graduation.model.CourseType;
@@ -140,7 +142,11 @@ public class TimetableLecture extends BaseEntity {
 
     public void updateRegularLecture(String classTitle, String classPlace, CourseType courseType,
         GeneralEducationArea generalEducationArea) {
-        if (!lecture.getName().equals(classTitle)) {
+        String newClassTitle = Optional.ofNullable(lecture)
+            .map(Lecture::getName)
+            .orElse(this.classTitle);
+
+        if (!newClassTitle.equals(classTitle)) {
             this.classTitle = classTitle;
         }
         this.classPlace = classPlace;
