@@ -110,14 +110,16 @@ public class GraduationService {
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
-        studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
+        if(!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
+            studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
 
-        initializeStudentCourseCalculation(student, newMajor);
+            initializeStudentCourseCalculation(student, newMajor);
 
-        detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
-            .ifPresent(detectGraduationCalculation -> {
-                detectGraduationCalculation.updatedIsChanged(true);
-            });
+            detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
+                .ifPresent(detectGraduationCalculation -> {
+                    detectGraduationCalculation.updatedIsChanged(true);
+                });
+        }
     }
 
     @Transactional
