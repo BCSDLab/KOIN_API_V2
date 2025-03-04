@@ -5,6 +5,8 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
@@ -21,11 +23,15 @@ public record TimetableRegularLectureCreateRequest(
     @Schema(description = "정규 강의 id", example = "3015", requiredMode = REQUIRED)
     Integer lectureId
 ) {
-    public TimetableLecture toTimetableLecture(TimetableFrame frame, Lecture lecture) {
+    public TimetableLecture toTimetableLecture(
+        TimetableFrame frame, Lecture lecture, CourseType courseType, GeneralEducationArea generalEducationArea
+    ) {
         return TimetableLecture.builder()
             .lecture(lecture)
             .timetableFrame(frame)
             .grades("0")
+            .courseType(courseType)
+            .generalEducationArea(generalEducationArea)
             .build();
     }
 }
