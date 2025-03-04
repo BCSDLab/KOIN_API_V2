@@ -165,7 +165,6 @@ public class GraduationService {
             .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
 
         if (!detectGraduationCalculation.isChanged()) {
-
             return getExistingGraduationCalculation(userId);
         }
 
@@ -173,7 +172,7 @@ public class GraduationService {
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
         List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
-        Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
+        Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList, student);
 
         List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = processGraduationCalculations(
             student, courseTypeCreditsMap
@@ -215,6 +214,18 @@ public class GraduationService {
                 Catalog bestCatalog = findBestMatchingCatalog(lectureName, studentYear, student.getMajor());
 
                 if (bestCatalog != null) {
+                    if (timetableLecture.getCourseType() != null) {
+                        bestCatalog = Catalog.builder()
+                            .year(bestCatalog.getYear())
+                            .code(bestCatalog.getCode())
+                            .lectureName(bestCatalog.getLectureName())
+                            .credit(bestCatalog.getCredit())
+                            .major(bestCatalog.getMajor())
+                            .department(bestCatalog.getDepartment())
+                            .courseType(timetableLecture.getCourseType()) // 🎯 학생이 수정한 이수구분 적용
+                            .generalEducationArea(bestCatalog.getGeneralEducationArea())
+                            .build();
+                    }
                     catalogList.add(bestCatalog);
                 }
             }
@@ -228,7 +239,6 @@ public class GraduationService {
             return catalogs.get(0);
         }
 
-        // 학생이 들은 연도 내에서 검색
         List<String> attendedYears = timetableLectureRepositoryV2.findYearsByUserId(major.getId());
 
         catalogs = catalogRepository.findByLectureNameAndYearIn(lectureName, attendedYears);
@@ -244,13 +254,30 @@ public class GraduationService {
         return null;
     }
 
-    private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList) {
+    private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList, Student student) {
         Map<Integer, Integer> courseTypeCreditsMap = new HashMap<>();
+
+        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(student.getId())
+            .stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .toList();
+
         for (Catalog catalog : catalogList) {
-            int courseTypeId = catalog.getCourseType().getId();
+            CourseType appliedCourseType = catalog.getCourseType();
+
+            for (TimetableLecture lecture : timetableLectures) {
+                if (lecture.getLecture() != null && lecture.getLecture().getName().equals(catalog.getLectureName())) {
+                    if (lecture.getCourseType() != null) {
+                        appliedCourseType = lecture.getCourseType();
+                    }
+                }
+            }
+
+            int courseTypeId = appliedCourseType.getId();
             courseTypeCreditsMap.put(courseTypeId,
                 courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + catalog.getCredit());
         }
+
         return courseTypeCreditsMap;
     }
 
