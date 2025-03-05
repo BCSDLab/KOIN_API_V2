@@ -1,5 +1,0 @@
-ALTER TABLE student_course_calculation
-DROP CONSTRAINT unique_user_standard_graduation_requirements;
-
-ALTER TABLE detect_graduation_calculation
-DROP CONSTRAINT unique_user;

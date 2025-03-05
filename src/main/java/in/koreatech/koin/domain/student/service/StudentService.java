@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
@@ -31,6 +32,8 @@ import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.util.StudentUtil;
+import in.koreatech.koin.domain.timetableV3.exception.ChangeMajorNotExistException;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
@@ -70,6 +73,7 @@ public class StudentService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRepository passwordResetTokenRepository;
+    private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
@@ -196,6 +200,9 @@ public class StudentService {
             newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newDepartment.getId())
                 .orElse(null);
         }
+
+        validateMajorChange(newStudentNumber, newMajor);
+
         // 전공 변경 사항 감지
         boolean updateMajor = isChangedMajor(oldMajor, newMajor);
 
@@ -220,6 +227,18 @@ public class StudentService {
         }
 
         return StudentAcademicInfoUpdateResponse.from(student);
+    }
+
+    private void validateMajorChange(String studentNumber, Major newMajor) {
+        String studentYear = StudentUtil.parseStudentNumberYearAsString(studentNumber);
+
+        boolean exists = standardGraduationRequirementsRepository.existsByMajorIdAndYear(
+            newMajor.getId(), studentYear
+        );
+
+        if (!exists) {
+            throw ChangeMajorNotExistException.withDetail("studentYear: " + studentYear + " major: " + newMajor);
+        }
     }
 
     private boolean isChangedMajor(Major oldMajor, Major newMajor) {
