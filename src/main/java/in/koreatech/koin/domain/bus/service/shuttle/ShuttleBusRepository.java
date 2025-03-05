@@ -23,7 +23,7 @@ public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, Object
     }
 
     @Aggregation(pipeline = {
-        "{ $match: { 'semester_type': ?0 } }",                   // semesterType, region 필터
+        "{ $match: { 'semester_type': ?0 } }",
         "{ $unwind: '$route_info' }",                                         // route_info 배열 분해
         "{ $match: { 'route_info.running_days': ?1 } }",                      // running_days 필터
         """
