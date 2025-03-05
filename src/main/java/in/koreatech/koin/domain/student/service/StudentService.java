@@ -33,7 +33,7 @@ import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
-import in.koreatech.koin.domain.timetableV3.exception.InvalidMajorChangeException;
+import in.koreatech.koin.domain.timetableV3.exception.ChangeMajorNotExistException;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
@@ -237,7 +237,7 @@ public class StudentService {
         );
 
         if (!exists) {
-            throw InvalidMajorChangeException.withDetail("studentYear: " + studentYear + " major: " + newMajor);
+            throw ChangeMajorNotExistException.withDetail("studentYear: " + studentYear + " major: " + newMajor);
         }
     }
 
