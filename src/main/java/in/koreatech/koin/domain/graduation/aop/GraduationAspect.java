@@ -26,9 +26,13 @@ public class GraduationAspect {
         "execution(* in.koreatech.koin.domain.timetableV2.controller.TimetableControllerV2.createTimetableLecture(..)) || " +
         "execution(* in.koreatech.koin.domain.timetableV2.controller.TimetableControllerV2.updateTimetableLecture(..)) || " +
         "execution(* in.koreatech.koin.domain.timetableV2.controller.TimetableControllerV2.deleteTimetableLecture(..)) || " +
+        "execution(* in.koreatech.koin.domain.timetableV2.controller.TimetableControllerV2.deleteTimetableLectures(..)) || " +
+        "execution(* in.koreatech.koin.domain.timetableV2.controller.TimetableControllerV2.deleteTimetableLectureByFrameId(..)) ||" +
+        "execution(* in.koreatech.koin.domain.timetableV2.controller.TimetableControllerV2.deleteAllTimetablesFrame(..)) || " +
         "execution(* in.koreatech.koin.domain.timetableV2.controller.TimetableControllerV2.deleteTimetablesFrame(..)) ||" +
         "execution(* in.koreatech.koin.domain.timetableV3.controller.TimetableRegularLectureControllerV3.createTimetablesRegularLecture(..)) || " +
-        "execution(* in.koreatech.koin.domain.timetableV3.controller.TimetableRegularLectureControllerV3.updateTimetablesRegularLecture(..))",
+        "execution(* in.koreatech.koin.domain.timetableV3.controller.TimetableRegularLectureControllerV3.updateTimetablesRegularLecture(..)) || " +
+        "execution(* in.koreatech.koin.domain.graduation.controller.GraduationController.uploadStudentGradeExcelFile(..))",
     returning = "result")
     public void afterTimetableLecture(JoinPoint joinPoint, Object result) {
         Integer userId = authContext.getUserId();
