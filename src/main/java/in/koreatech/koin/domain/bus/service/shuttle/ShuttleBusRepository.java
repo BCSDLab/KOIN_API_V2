@@ -22,10 +22,20 @@ public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, Object
             () -> BusNotFoundException.withDetail("id: " + id));
     }
 
+    /**
+     * 교통편 조회를 위해 DB 데이터를 간소화하여 찾는다.
+     */
     @Aggregation(pipeline = {
-        "{ $match: { 'semester_type': ?0 } }",                   // semesterType, region 필터
-        "{ $unwind: '$route_info' }",                                         // route_info 배열 분해
-        "{ $match: { 'route_info.running_days': ?1 } }",                      // running_days 필터
+        // 1단계: 'semester_type' 필드가 입력값과 일치하는 문서만 필터링
+        "{ $match: { 'semester_type': ?0 } }",
+
+        // 2단계: 'route_info' 배열을 개별 문서로 분해 (배열 내 요소들을 개별적으로 처리하기 위함)
+        "{ $unwind: '$route_info' }",
+
+        // 3단계: 'route_info.running_days' 필드가 입력된 요일과 일치하는 데이터만 필터링
+        "{ $match: { 'route_info.running_days': ?1 } }",
+
+        // 4단계: 필요한 필드만 선택하여 반환 (불필요한 필드 제외)
         """
         { $project: {
             'route_name': 1,
