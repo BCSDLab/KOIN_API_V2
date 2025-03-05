@@ -62,6 +62,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.DuplicationException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -69,6 +70,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class GraduationService {
 
+    private final EntityManager entityManager;
     private final StudentRepository studentRepository;
     private final StudentCourseCalculationRepository studentCourseCalculationRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
@@ -132,7 +134,8 @@ public class GraduationService {
         // 기존 학생 졸업요건 계산 정보 삭제
         if(!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
             studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
-
+            entityManager.flush();
+            entityManager.clear();
             initializeStudentCourseCalculation(student, newMajor);
 
             detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
