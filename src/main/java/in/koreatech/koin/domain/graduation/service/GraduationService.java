@@ -130,14 +130,16 @@ public class GraduationService {
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
-        studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
+        if(!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
+            studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
 
-        initializeStudentCourseCalculation(student, newMajor);
+            initializeStudentCourseCalculation(student, newMajor);
 
-        detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
-            .ifPresent(detectGraduationCalculation -> {
-                detectGraduationCalculation.updatedIsChanged(true);
-            });
+            detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
+                .ifPresent(detectGraduationCalculation -> {
+                    detectGraduationCalculation.updatedIsChanged(true);
+                });
+        }
     }
 
     private void initializeStudentCourseCalculation(Student student, Major major) {
@@ -618,10 +620,12 @@ public class GraduationService {
     public GeneralEducationLectureResponse getEducationLecture(Integer userId) {
         String studentYear = StudentUtil.parseStudentNumberYearAsString(
             studentRepository.getById(userId).getStudentNumber());
+        if (studentYear == null) {
+            throw new StudentNumberNotFoundException("학번을 추가하세요.");
+        }
         List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
 
         List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
-
         // 교양 선택
         educationAreas.addAll(getSelectiveEducationAreas(timetableFrames));
         // 일반 교양
