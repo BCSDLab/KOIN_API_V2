@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.useragent;
+package in.koreatech.koin.admin.abtest.useragent;
 
 import java.io.IOException;
 
