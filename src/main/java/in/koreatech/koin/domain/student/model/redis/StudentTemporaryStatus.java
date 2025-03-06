@@ -1,15 +1,20 @@
 package in.koreatech.koin.domain.student.model.redis;
 
-import in.koreatech.koin.domain.student.model.Department;
-import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.user.model.*;
-import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.UserIdentity;
+import in.koreatech.koin.domain.user.model.UserType;
+import lombok.Getter;
 
 @Getter
 @RedisHash(value = "StudentTemporaryStatus")
@@ -45,7 +50,7 @@ public class StudentTemporaryStatus {
     private Long expiration;
 
     public StudentTemporaryStatus(String email, String authToken, String nickname, String name, String password,
-                                  UserGender gender, boolean isGraduated, String department, String studentNumber, String phoneNumber) {
+        UserGender gender, boolean isGraduated, String department, String studentNumber, String phoneNumber) {
         this.email = email;
         this.authToken = authToken;
         this.nickname = nickname;
@@ -60,30 +65,32 @@ public class StudentTemporaryStatus {
     }
 
     public static StudentTemporaryStatus of(StudentRegisterRequest request, String authToken) {
-        return new StudentTemporaryStatus(request.email(), authToken, request.nickname(), request.name(), request.password(), request.gender(),
-                request.isGraduated(), request.major(), request.studentNumber(), request.phoneNumber());
+        return new StudentTemporaryStatus(request.email(), authToken, request.nickname(), request.name(),
+            request.password(), request.gender(),
+            request.isGraduated(), request.major(), request.studentNumber(), request.phoneNumber());
     }
 
-    public Student toStudent(PasswordEncoder passwordEncoder, Department department) {
+    public Student toStudent(PasswordEncoder passwordEncoder, Department department, Major major) {
         User user = User.builder()
-                .password(passwordEncoder.encode(password))
-                .email(email)
-                .name(name)
-                .nickname(nickname)
-                .gender(gender)
-                .phoneNumber(phoneNumber)
-                .isAuthed(true)
-                .isDeleted(false)
-                .userType(UserType.STUDENT)
-                .build();
+            .password(passwordEncoder.encode(password))
+            .email(email)
+            .name(name)
+            .nickname(nickname)
+            .gender(gender)
+            .phoneNumber(phoneNumber)
+            .isAuthed(true)
+            .isDeleted(false)
+            .userType(UserType.STUDENT)
+            .build();
 
         return Student.builder()
-                .user(user)
-                .anonymousNickname("익명_" + (System.currentTimeMillis()))
-                .isGraduated(isGraduated)
-                .userIdentity(UserIdentity.UNDERGRADUATE)
-                .department(department)
-                .studentNumber(studentNumber)
-                .build();
+            .user(user)
+            .anonymousNickname("익명_" + (System.currentTimeMillis()))
+            .isGraduated(isGraduated)
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .department(department)
+            .major(major)
+            .studentNumber(studentNumber)
+            .build();
     }
 }
