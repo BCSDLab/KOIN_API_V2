@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.domain.random.model;
+package in.koreatech.koin._common.util.random;
 
 import static lombok.AccessLevel.PRIVATE;
 

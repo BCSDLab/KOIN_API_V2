@@ -1,10 +1,10 @@
-package in.koreatech.koin._common.util;
+package in.koreatech.koin._common.util.datetime;
 
 import java.time.LocalDate;
 
 public class DateTimes {
 
-    private DateTimes(){
+    private DateTimes() {
     }
 
     public static boolean isBetween(LocalDate start, LocalDate end, LocalDate target) {

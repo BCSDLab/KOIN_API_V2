@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.reflection.exception;
+package in.koreatech.koin._common.util.reflection.exception;
 
 import in.koreatech.koin._common.exception.custom.DataNotFoundException;
 

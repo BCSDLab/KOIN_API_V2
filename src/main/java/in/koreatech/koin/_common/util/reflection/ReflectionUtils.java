@@ -1,12 +1,12 @@
-package in.koreatech.koin._common.reflection;
+package in.koreatech.koin._common.util.reflection;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.springframework.aop.framework.AopProxyUtils;
 
-import in.koreatech.koin._common.reflection.exception.ClassNotFoundException;
-import in.koreatech.koin._common.reflection.exception.MethodNotFoundException;
+import in.koreatech.koin._common.util.reflection.exception.ClassNotFoundException;
+import in.koreatech.koin._common.util.reflection.exception.MethodNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
