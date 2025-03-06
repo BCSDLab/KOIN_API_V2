@@ -653,10 +653,9 @@ public class GraduationService {
         List<String> lectureNames = new ArrayList<>();
 
         for (TimetableLecture timetableLecture : selectiveEducationTimetableLectures) {
-            if (timetableLecture.getLecture() != null) {
-                completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
-                lectureNames.add(timetableLecture.getLecture().getName());
-            }
+            Lecture lecture = timetableLecture.getLecture();
+            completedCredit += Integer.parseInt(lecture != null ? lecture.getGrades() : timetableLecture.getGrades());
+            lectureNames.add(lecture != null ? lecture.getName() : timetableLecture.getClassTitle());
         }
 
         List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
@@ -690,10 +689,9 @@ public class GraduationService {
 
             for (TimetableLecture timetableLecture : generalEducationTimetableLectures) {
                 if (Objects.equals(timetableLecture.getGeneralEducationArea(), generalEducationArea)) {
-                    if (timetableLecture.getLecture() != null) {
-                        completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
-                        lectureNames.add(timetableLecture.getLecture().getName());
-                    }
+                    Lecture lecture = timetableLecture.getLecture();
+                    completedCredit += Integer.parseInt(lecture != null ? lecture.getGrades() : timetableLecture.getGrades());
+                    lectureNames.add(lecture != null ? lecture.getName() : timetableLecture.getClassTitle());
                 }
             }
 
