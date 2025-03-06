@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.exception.handler;
+package in.koreatech.koin._common.exception;
 
 import java.time.DateTimeException;
 import java.util.Enumeration;

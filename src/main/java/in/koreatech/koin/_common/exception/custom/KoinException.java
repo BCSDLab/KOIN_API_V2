@@ -14,7 +14,7 @@ public abstract class KoinException extends RuntimeException {
         this.detail = detail;
     }
 
-    protected String getFullMessage() {
+    public String getFullMessage() {
         return String.format("%s %s", getMessage(), detail);
     }
 }

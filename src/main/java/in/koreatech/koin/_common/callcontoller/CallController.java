@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.domain.callcontoller;
+package in.koreatech.koin._common.callcontoller;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin._common.reflection.ReflectionUtils;
+import in.koreatech.koin._common.util.reflection.ReflectionUtils;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class CallController<T> {
 
-    private static final Class<CallControlInfo> CALL_CONTROL_ANNOTATION = CallControlInfo.class;
+    private static final Class<CallControl> CALL_CONTROL_ANNOTATION = CallControl.class;
     private static final String RATIO = "ratio";
 
     public T getInstanceByRatio(List<T> clientTypes, List<T> apiCallListByRatio) {
