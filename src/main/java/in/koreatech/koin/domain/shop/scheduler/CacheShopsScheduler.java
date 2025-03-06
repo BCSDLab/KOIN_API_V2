@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.scheduler;
+package in.koreatech.koin.domain.shop.scheduler;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
