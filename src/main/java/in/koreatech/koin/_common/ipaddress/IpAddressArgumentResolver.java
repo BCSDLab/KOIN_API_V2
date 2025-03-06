@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class IpAddressArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private final NetworkContext networkContext;
+    private final IpAddressContext ipAddressContext;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -24,6 +24,6 @@ public class IpAddressArgumentResolver implements HandlerMethodArgumentResolver 
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
-        return networkContext.getIpAddress();
+        return ipAddressContext.getIpAddress();
     }
 }

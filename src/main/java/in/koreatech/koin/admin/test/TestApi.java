@@ -1,11 +1,11 @@
-package in.koreatech.koin._common.domain.test.controller;
+package in.koreatech.koin.admin.test;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin._common.integration.fcm.MobileAppPath;
+import in.koreatech.koin.integration.fcm.MobileAppPath;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

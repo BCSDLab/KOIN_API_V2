@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.log;
+package in.koreatech.koin._common.logging;
 
 import java.io.IOException;
 import java.util.Arrays;

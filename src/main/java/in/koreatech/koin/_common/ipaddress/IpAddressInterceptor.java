@@ -11,12 +11,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class IpAddressInterceptor implements HandlerInterceptor {
 
-    private final NetworkContext networkContext;
+    private final IpAddressContext ipAddressContext;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String clientIP = getClientIP(request);
-        networkContext.setIpAddress(clientIP);
+        ipAddressContext.setIpAddress(clientIP);
         return true;
     }
 

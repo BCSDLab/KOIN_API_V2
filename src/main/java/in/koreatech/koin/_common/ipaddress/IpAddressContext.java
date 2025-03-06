@@ -5,7 +5,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 @Component
 @RequestScope
-public class NetworkContext {
+public class IpAddressContext {
 
     private String ipAddress;
 
