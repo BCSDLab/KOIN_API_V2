@@ -11,7 +11,7 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = EmojiValidator.class)
+@Constraint(validatedBy = NotEmojiValidator.class)
 @Target({FIELD, PARAMETER, LOCAL_VARIABLE})
 @Retention(RUNTIME)
 public @interface NotEmoji {

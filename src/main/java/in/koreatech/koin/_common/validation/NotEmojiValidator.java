@@ -9,7 +9,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class EmojiValidator implements ConstraintValidator<NotEmoji, String> {
+public class NotEmojiValidator implements ConstraintValidator<NotEmoji, String> {
 
     private static final Pattern EMOJI_PATTERN = Pattern.compile("[\\uD83C-\\uDBFF\\uDC00-\\uDFFF]+");
 

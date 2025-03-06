@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = DayOfWeekValidator.class)
 @Target({FIELD, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-public @interface ValidDayOfWeek {
+public @interface DayOfWeek {
 
     String message() default "요일 형식을 확인해주세요.";
 
