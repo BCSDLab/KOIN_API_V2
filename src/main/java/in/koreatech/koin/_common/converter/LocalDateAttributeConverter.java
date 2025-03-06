@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.config;
+package in.koreatech.koin._common.converter;
 
 import java.sql.Date;
 import java.time.LocalDate;

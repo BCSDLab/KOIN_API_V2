@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.config;
+package in.koreatech.koin._common.converter;
 
 import static java.time.temporal.ChronoField.MILLI_OF_SECOND;
 
