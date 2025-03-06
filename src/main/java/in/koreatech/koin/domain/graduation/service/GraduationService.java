@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -652,8 +653,10 @@ public class GraduationService {
         List<String> lectureNames = new ArrayList<>();
 
         for (TimetableLecture timetableLecture : selectiveEducationTimetableLectures) {
-            completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
-            lectureNames.add(timetableLecture.getLecture().getName());
+            if (timetableLecture.getLecture() != null) {
+                completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
+                lectureNames.add(timetableLecture.getLecture().getName());
+            }
         }
 
         List<GeneralEducationLectureResponse.GeneralEducationArea> educationAreas = new ArrayList<>();
@@ -686,9 +689,11 @@ public class GraduationService {
             List<String> lectureNames = new ArrayList<>();
 
             for (TimetableLecture timetableLecture : generalEducationTimetableLectures) {
-                if (timetableLecture.getGeneralEducationArea().equals(generalEducationArea)) {
-                    completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
-                    lectureNames.add(timetableLecture.getLecture().getName());
+                if (Objects.equals(timetableLecture.getGeneralEducationArea(), generalEducationArea)) {
+                    if (timetableLecture.getLecture() != null) {
+                        completedCredit += Integer.parseInt(timetableLecture.getLecture().getGrades());
+                        lectureNames.add(timetableLecture.getLecture().getName());
+                    }
                 }
             }
 
