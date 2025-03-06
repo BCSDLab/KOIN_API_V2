@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.domain.slack;
+package in.koreatech.koin.integration.slack;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin._common.domain.slack.model.SlackNotification;
+import in.koreatech.koin.integration.slack.model.SlackNotification;
 import lombok.RequiredArgsConstructor;
 
 @Service

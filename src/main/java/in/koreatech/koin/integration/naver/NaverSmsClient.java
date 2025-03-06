@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.integration.naver.sms;
+package in.koreatech.koin.integration.naver;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -18,6 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.integration.naver.dto.NaverSmsResponse;
+import in.koreatech.koin.integration.naver.dto.NaverSmsSendRequest;
+import in.koreatech.koin.integration.naver.exception.NaverSmsException;
 
 @Component
 public class NaverSmsClient {

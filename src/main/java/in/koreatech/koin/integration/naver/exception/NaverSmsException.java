@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.integration.naver.sms;
+package in.koreatech.koin.integration.naver.exception;
 
 import in.koreatech.koin._common.exception.custom.ExternalServiceException;
 

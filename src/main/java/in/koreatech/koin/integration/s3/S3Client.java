@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.integration.s3;
+package in.koreatech.koin.integration.s3;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -19,15 +19,15 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 
-import in.koreatech.koin._common.domain.upload.dto.UploadFileResponse;
-import in.koreatech.koin._common.domain.upload.dto.UploadUrlResponse;
+import in.koreatech.koin.domain.upload.dto.UploadFileResponse;
+import in.koreatech.koin.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Component
-public class S3Utils {
+public class S3Client {
 
     private static final int URL_EXPIRATION_MINUTE = 10;
 
@@ -37,7 +37,7 @@ public class S3Utils {
     private final AmazonS3 s3Client;
     private final Clock clock;
 
-    public S3Utils(
+    public S3Client(
         @Value("${s3.bucket}") String bucketName,
         @Value("${s3.custom_domain}") String domainUrlPrefix,
         S3Presigner.Builder presignerBuilder,

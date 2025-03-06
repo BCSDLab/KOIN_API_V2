@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.domain.slack.model;
+package in.koreatech.koin.integration.slack.model;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

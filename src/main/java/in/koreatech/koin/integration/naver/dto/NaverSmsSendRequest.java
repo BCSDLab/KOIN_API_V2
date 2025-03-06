@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.integration.naver.sms;
+package in.koreatech.koin.integration.naver.dto;
 
 import java.util.List;
 

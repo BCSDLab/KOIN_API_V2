@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.domain.slack.model;
+package in.koreatech.koin.integration.slack.model;
 
 import lombok.Builder;
 import lombok.Getter;
