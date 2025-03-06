@@ -188,6 +188,25 @@ public class GraduationService {
         return GraduationCourseCalculationResponse.of(courseTypes);
     }
 
+    private GraduationCourseCalculationResponse getExistingGraduationCalculation(Integer userId) {
+        List<StudentCourseCalculation> existingCalculations = studentCourseCalculationRepository.findAllByUserId(
+            userId);
+
+        List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = existingCalculations.stream()
+            .map(calc -> {
+                StandardGraduationRequirements requirement = calc.getStandardGraduationRequirements();
+                return GraduationCourseCalculationResponse.InnerCalculationResponse.of(
+                    requirement.getCourseType().getName(),
+                    requirement.getRequiredGrades(),
+                    calc.getCompletedGrades()
+                );
+            })
+            .sorted(Comparator.comparing(GraduationCourseCalculationResponse.InnerCalculationResponse::courseType))
+            .collect(Collectors.toList());
+
+        return GraduationCourseCalculationResponse.of(courseTypes);
+    }
+
     private Student getValidatedStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
 
@@ -553,24 +572,6 @@ public class GraduationService {
             .courseType(courseType)
             .generalEducationArea(generalEducationArea)
             .build();
-    }
-
-    private GraduationCourseCalculationResponse getExistingGraduationCalculation(Integer userId) {
-        List<StudentCourseCalculation> existingCalculations = studentCourseCalculationRepository.findAllByUserId(
-            userId);
-
-        List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = existingCalculations.stream()
-            .map(calc -> {
-                StandardGraduationRequirements requirement = calc.getStandardGraduationRequirements();
-                return GraduationCourseCalculationResponse.InnerCalculationResponse.of(
-                    requirement.getCourseType().getName(),
-                    requirement.getRequiredGrades(),
-                    calc.getCompletedGrades()
-                );
-            })
-            .collect(Collectors.toList());
-
-        return GraduationCourseCalculationResponse.of(courseTypes);
     }
 
     public CourseTypeLectureResponse getLectureByCourseType(Integer year, String term, String courseTypeName,
