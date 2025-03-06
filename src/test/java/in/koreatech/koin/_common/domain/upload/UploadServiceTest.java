@@ -31,7 +31,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner.Builder;
 @Disabled
 class UploadServiceTest extends AcceptanceTest {
 
-    private AmazonS3 s3Client;
+    private AmazonS3 amazonS3;
     private Builder presigner;
 
     @Container
@@ -45,7 +45,7 @@ class UploadServiceTest extends AcceptanceTest {
             localStackContainer.getAccessKey(),
             localStackContainer.getSecretKey()
         );
-        s3Client = AmazonS3ClientBuilder.standard()
+        amazonS3 = AmazonS3ClientBuilder.standard()
             .withRegion(localStackContainer.getRegion())
             .withCredentials(new AWSStaticCredentialsProvider(
                 new BasicAWSCredentials(
@@ -67,7 +67,7 @@ class UploadServiceTest extends AcceptanceTest {
             "test-bucket",
             "https://test-image.koreatech.in/",
             presigner,
-            s3Client,
+            amazonS3,
             Clock.systemDefaultZone()
         );
 

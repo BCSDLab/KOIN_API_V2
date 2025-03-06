@@ -34,20 +34,20 @@ public class S3Client {
     private final String bucketName;
     private final String domainUrlPrefix;
     private final S3Presigner.Builder presignerBuilder;
-    private final AmazonS3 s3Client;
+    private final AmazonS3 amazonS3;
     private final Clock clock;
 
     public S3Client(
         @Value("${s3.bucket}") String bucketName,
         @Value("${s3.custom_domain}") String domainUrlPrefix,
         S3Presigner.Builder presignerBuilder,
-        AmazonS3 s3Client,
+        AmazonS3 amazonS3,
         Clock clock
     ) {
         this.bucketName = bucketName;
         this.domainUrlPrefix = domainUrlPrefix;
         this.presignerBuilder = presignerBuilder;
-        this.s3Client = s3Client;
+        this.amazonS3 = amazonS3;
         this.clock = clock;
     }
 
@@ -73,14 +73,14 @@ public class S3Client {
     public UploadFileResponse uploadFile(String uploadFilePath, byte[] fileData) {
         ObjectMetadata metaData = new ObjectMetadata();
         metaData.setContentLength(fileData.length);
-        s3Client.putObject(
+        amazonS3.putObject(
             new PutObjectRequest(bucketName, uploadFilePath, new ByteArrayInputStream(fileData), metaData)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
         return new UploadFileResponse(domainUrlPrefix + uploadFilePath);
     }
 
     public void downloadS3Object(String bucketName, String s3Key, File localFile) {
-        try (S3Object s3Object = s3Client.getObject(bucketName, s3Key);
+        try (S3Object s3Object = amazonS3.getObject(bucketName, s3Key);
              InputStream inputStream = s3Object.getObjectContent();
              OutputStream outputStream = new FileOutputStream(localFile)) {
             byte[] buffer = new byte[1024];
