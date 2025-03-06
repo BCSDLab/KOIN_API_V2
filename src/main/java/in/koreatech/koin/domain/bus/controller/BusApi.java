@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus;
+package in.koreatech.koin.domain.bus.controller;
 
 import java.time.LocalDate;
 import java.util.List;
