@@ -1,11 +1,11 @@
 package in.koreatech.koin.domain.bus.service.model.route;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -38,48 +38,52 @@ public class ShuttleBusRouteStrategy implements BusRouteStrategy {
         // 운영 학기에 맞는 셔틀버스 데이터 가져오기
         List<ShuttleBusSimpleRoute> routes = shuttleBusRepository.findBySemesterType(
             semesterType,
-            convertDateToDayOfWeek(command)
+            convertDateToDayOfWeek(command.date())
         );
 
         // 출발/도착 정류장을 기준으로 ScheduleInfo 생성
         return routes.stream()
             .flatMap(route -> mapToScheduleInfo(route, command.depart().getQueryName(),
                 command.arrive().getQueryName()).stream())
-            .collect(Collectors.toList());
-    }
-
-    private String convertDateToDayOfWeek(BusRouteCommand command) {
-        return command.date().getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase();
-    }
-
-    private List<ScheduleInfo> mapToScheduleInfo(ShuttleBusSimpleRoute route, String depart, String arrive) {
-        List<String> nodes = route.getNodeName();
-        List<String> arrivalTimes = route.getArrivalTime();
-
-        // 출발 정류장과 도착 정류장에 해당하는 모든 시간 찾기
-        List<LocalTime> departTimes = findTimesForNode(nodes, arrivalTimes, depart);
-        List<LocalTime> arriveTimes = findTimesForNode(nodes, arrivalTimes, arrive);
-
-        // 유효한 노선인지 확인하고 ScheduleInfo 생성
-        return departTimes.stream()
-            .flatMap(departTime -> arriveTimes.stream()
-                .filter(departTime::isBefore) // 출발 시간 < 도착 시간일 경우 필터링
-                .map(validDepartTime -> createScheduleInfo(route, validDepartTime)) // ScheduleInfo 생성
-            )
             .toList();
     }
 
-    private ScheduleInfo createScheduleInfo(ShuttleBusSimpleRoute route, LocalTime departTime) {
+    /**
+     * 날짜를 요일 이니셜(ex: SAT)로 변환하는 함수
+     */
+    private String convertDateToDayOfWeek(LocalDate date) {
+        return date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase();
+    }
+
+    private List<ScheduleInfo> mapToScheduleInfo(ShuttleBusSimpleRoute route, String departureNode,
+        String arrivalNode) {
+        List<String> nodes = route.getNodeName();
+        List<String> arrivalTimes = route.getArrivalTime();
+
+        // 출발 정류장과 도착 정류장에 해당하는 모든 도착 시각 찾기
+        List<LocalTime> departTimes = findTimesForNode(nodes, arrivalTimes, departureNode);
+        List<LocalTime> arriveTimes = findTimesForNode(nodes, arrivalTimes, arrivalNode);
+
+        // 유효한 노선인지 확인하고 ScheduleInfo 생성
+        return departTimes.stream()
+            .flatMap(departureTime -> arriveTimes.stream() // 각 출발 정류장에서 도착 정류장 찾기
+                .filter(departureTime::isBefore) // 출발 시각 > 도착 시각일 경우 필터링
+                .map(arrivalTime -> createScheduleInfo(route, departureTime))
+            )
+            .distinct() // 중복제거 (record 타입: 필드명이 모두 같으면 중복)
+            .toList();
+    }
+
+    private ScheduleInfo createScheduleInfo(ShuttleBusSimpleRoute route, LocalTime departureTime) {
         return new ScheduleInfo(
             "shuttle",
             route.getRouteName(),
-            departTime
+            departureTime
         );
     }
 
     /**
-     * 특정 정류장에 해당하는 모든 시간을 반환
-     * 도착 정류장, 출발 정류장에 정차하는 시간은 각각 반환
+     * 특정 정류장에 해당하는 모든 도착 시각을 반환
      */
     private List<LocalTime> findTimesForNode(List<String> nodes, List<String> arrivalTimes, String targetNode) {
         List<LocalTime> times = new ArrayList<>();
