@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.config.swagger;
+package in.koreatech.koin._common.config;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;

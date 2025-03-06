@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.integration.fcm;
+package in.koreatech.koin._common.config;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

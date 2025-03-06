@@ -10,19 +10,19 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import in.koreatech.koin.domain.bus.converter.BusStationEnumConverter;
-import in.koreatech.koin.domain.bus.converter.BusTypeEnumConverter;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaConverter;
 import in.koreatech.koin._common.auth.AuthArgumentResolver;
 import in.koreatech.koin._common.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin._common.auth.UserIdArgumentResolver;
-import in.koreatech.koin._common.domain.notification.controller.NotificationSubscribeTypeConverter;
-import in.koreatech.koin._common.domain.upload.controller.ImageUploadDomainEnumConverter;
+import in.koreatech.koin.integration.notification.controller.NotificationSubscribeTypeConverter;
+import in.koreatech.koin.integration.upload.convertor.ImageUploadDomainEnumConverter;
 import in.koreatech.koin._common.host.ServerURLArgumentResolver;
 import in.koreatech.koin._common.host.ServerURLInterceptor;
 import in.koreatech.koin._common.ipaddress.IpAddressArgumentResolver;
 import in.koreatech.koin._common.ipaddress.IpAddressInterceptor;
-import in.koreatech.koin._common.useragent.UserAgentArgumentResolver;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentArgumentResolver;
+import in.koreatech.koin.domain.bus.converter.BusStationEnumConverter;
+import in.koreatech.koin.domain.bus.converter.BusTypeEnumConverter;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaConverter;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -31,12 +31,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final ExtractAuthenticationInterceptor extractAuthenticationInterceptor;
     private final IpAddressArgumentResolver ipAddressArgumentResolver;
-    private final UserIdArgumentResolver userIdArgumentResolver;
+    private final ServerURLInterceptor serverURLInterceptor;
+
     private final AuthArgumentResolver authArgumentResolver;
     private final IpAddressInterceptor ipAddressInterceptor;
     private final ServerURLArgumentResolver serverURLArgumentResolver;
+    private final UserIdArgumentResolver userIdArgumentResolver;
     private final UserAgentArgumentResolver userAgentArgumentResolver;
-    private final ServerURLInterceptor serverURLInterceptor;
+
     private final CorsProperties corsProperties;
 
     @Override
@@ -56,8 +58,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(authArgumentResolver);
         resolvers.add(ipAddressArgumentResolver);
-        resolvers.add(userIdArgumentResolver);
         resolvers.add(serverURLArgumentResolver);
+        resolvers.add(userIdArgumentResolver);
         resolvers.add(userAgentArgumentResolver);
     }
 
