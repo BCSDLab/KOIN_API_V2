@@ -294,12 +294,14 @@ public class GraduationService {
                     if (lecture.getCourseType() != null) {
                         appliedCourseType = lecture.getCourseType();
                     }
+
+                    int credit = Integer.parseInt(lecture.getLecture().getGrades());
+
+                    int courseTypeId = appliedCourseType.getId();
+                    courseTypeCreditsMap.put(courseTypeId,
+                        courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + credit);
                 }
             }
-
-            int courseTypeId = appliedCourseType.getId();
-            courseTypeCreditsMap.put(courseTypeId,
-                courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + catalog.getCredit());
         }
 
         return courseTypeCreditsMap;
