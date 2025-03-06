@@ -286,22 +286,30 @@ public class GraduationService {
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .toList();
 
-        for (Catalog catalog : catalogList) {
-            CourseType appliedCourseType = catalog.getCourseType();
+        for (TimetableLecture timetableLecture : timetableLectures) {
+            Lecture lecture = timetableLecture.getLecture();
+            String lectureName = (lecture != null) ? lecture.getName() : timetableLecture.getClassTitle();
 
-            for (TimetableLecture lecture : timetableLectures) {
-                if (lecture.getLecture() != null && lecture.getLecture().getName().equals(catalog.getLectureName())) {
-                    if (lecture.getCourseType() != null) {
-                        appliedCourseType = lecture.getCourseType();
-                    }
+            Catalog matchingCatalog = catalogList.stream()
+                .filter(catalog -> catalog.getLectureName().equals(lectureName))
+                .findFirst()
+                .orElse(null);
 
-                    int credit = Integer.parseInt(lecture.getLecture().getGrades());
-
-                    int courseTypeId = appliedCourseType.getId();
-                    courseTypeCreditsMap.put(courseTypeId,
-                        courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + credit);
-                }
+            if (matchingCatalog == null) {
+                continue;
             }
+
+            CourseType appliedCourseType = matchingCatalog.getCourseType();
+
+            if (timetableLecture.getCourseType() != null) {
+                appliedCourseType = timetableLecture.getCourseType();
+            }
+
+            String grades = (lecture != null) ? lecture.getGrades() : timetableLecture.getGrades();
+            int credit = Integer.parseInt(grades);
+
+            int courseTypeId = appliedCourseType.getId();
+            courseTypeCreditsMap.put(courseTypeId, courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + credit);
         }
 
         return courseTypeCreditsMap;
