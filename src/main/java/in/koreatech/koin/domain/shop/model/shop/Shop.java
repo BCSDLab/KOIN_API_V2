@@ -23,7 +23,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
-import in.koreatech.koin._common.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;

@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.domain;
+package in.koreatech.koin._common.model;
 
 import java.time.LocalDateTime;
 

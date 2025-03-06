@@ -9,7 +9,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin._common.converter.LocalDateAttributeConverter;
-import in.koreatech.koin._common.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

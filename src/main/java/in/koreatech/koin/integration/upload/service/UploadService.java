@@ -28,18 +28,18 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class UploadService {
 
-    private final S3Client s3Util;
+    private final S3Client s3Client;
     private final Clock clock;
 
     public UploadUrlResponse getPresignedUrl(ImageUploadDomain domain, UploadUrlRequest request) {
         var filePath = generateFilePath(domain.name(), request.fileName());
-        return s3Util.getUploadUrl(filePath);
+        return s3Client.getUploadUrl(filePath);
     }
 
     public UploadFileResponse uploadFile(ImageUploadDomain domain, MultipartFile multipartFile) {
         try {
             var filePath = generateFilePath(domain.name(), Objects.requireNonNull(multipartFile.getOriginalFilename()));
-            return s3Util.uploadFile(filePath, multipartFile.getBytes());
+            return s3Client.uploadFile(filePath, multipartFile.getBytes());
         } catch (Exception e) {
             log.warn("파일 업로드중 문제가 발생했습니다. file: {} \n message: {}", multipartFile, e.getMessage());
             throw new KoinIllegalArgumentException("파일 업로드중 오류가 발생했습니다.");
