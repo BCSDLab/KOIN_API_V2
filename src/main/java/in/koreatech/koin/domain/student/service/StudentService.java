@@ -258,7 +258,11 @@ public class StudentService {
         if (studentTemporaryStatus.get().getDepartment() != null) {
             department = departmentRepository.getByName(studentTemporaryStatus.get().getDepartment());
         }
-        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department);
+        Major major = null;
+        if (department != null) {
+            major = majorRepository.findByDepartmentId(department.getId()).get(0);
+        }
+        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department, major);
         studentRepository.save(student);
         userRepository.save(student.getUser());
         studentRedisRepository.deleteById(student.getUser().getEmail());
