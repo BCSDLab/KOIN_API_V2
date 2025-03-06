@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.community.keyword.model;
 
-import static in.koreatech.koin._common.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
-import static in.koreatech.koin._common.integration.fcm.MobileAppPath.KEYWORD;
+import static in.koreatech.koin.integration.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
+import static in.koreatech.koin.integration.notification.client.MobileAppPath.KEYWORD;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import java.util.List;
@@ -17,11 +17,11 @@ import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
-import in.koreatech.koin._common.domain.notification.model.Notification;
-import in.koreatech.koin._common.domain.notification.model.NotificationFactory;
-import in.koreatech.koin._common.domain.notification.model.NotificationSubscribe;
-import in.koreatech.koin._common.domain.notification.repository.NotificationSubscribeRepository;
-import in.koreatech.koin._common.domain.notification.service.NotificationService;
+import in.koreatech.koin.integration.notification.model.Notification;
+import in.koreatech.koin.integration.notification.model.NotificationFactory;
+import in.koreatech.koin.integration.notification.model.NotificationSubscribe;
+import in.koreatech.koin.integration.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.integration.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 
 @Component

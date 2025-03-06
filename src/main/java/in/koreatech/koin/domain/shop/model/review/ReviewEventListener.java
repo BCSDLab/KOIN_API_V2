@@ -9,8 +9,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.domain.shop.model.dto.ReviewRegisterEvent;
 import in.koreatech.koin.domain.shop.model.dto.ReviewReportEvent;
-import in.koreatech.koin._common.domain.slack.SlackClient;
-import in.koreatech.koin._common.domain.slack.model.SlackNotificationFactory;
+import in.koreatech.koin.integration.slack.SlackClient;
+import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
 
 @Component

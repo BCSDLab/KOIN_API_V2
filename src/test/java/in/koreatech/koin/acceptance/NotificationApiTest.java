@@ -1,8 +1,8 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin._common.domain.notification.model.NotificationDetailSubscribeType.LUNCH;
-import static in.koreatech.koin._common.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
-import static in.koreatech.koin._common.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
+import static in.koreatech.koin.integration.notification.model.NotificationDetailSubscribeType.LUNCH;
+import static in.koreatech.koin.integration.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
+import static in.koreatech.koin.integration.notification.model.NotificationSubscribeType.SHOP_EVENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -22,10 +22,10 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin._common.domain.notification.model.NotificationDetailSubscribeType;
-import in.koreatech.koin._common.domain.notification.model.NotificationSubscribe;
-import in.koreatech.koin._common.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin._common.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.integration.notification.model.NotificationDetailSubscribeType;
+import in.koreatech.koin.integration.notification.model.NotificationSubscribe;
+import in.koreatech.koin.integration.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.integration.notification.repository.NotificationSubscribeRepository;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional

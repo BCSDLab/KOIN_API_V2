@@ -68,7 +68,7 @@ import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin._common.integration.s3.S3Utils;
+import in.koreatech.koin.integration.upload.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -87,8 +87,7 @@ public class CoopService {
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final AmazonS3 s3Client;
-    private final S3Utils s3Utils;
+    private final S3Client s3Client;
     private final List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
     private final List<String> cafeteriaPlaceFilters = Arrays.asList("A코너", "B코너", "C코너");
     private final List<String> allPlaceFilters = Arrays.asList("A코너", "B코너", "C코너", "능수관", "2캠퍼스");
@@ -485,7 +484,7 @@ public class CoopService {
     }
 
     private File generateZipFileOf(List<Dining> dinings) {
-        String bucketName = s3Utils.getBucketName();
+        String bucketName = s3Client.getBucketName();
         File parentDirectory = new File("image-download", RandomStringUtils.randomAlphanumeric(6));
         File localImageDirectory = new File(parentDirectory, "dining_images");
         File zipFile = new File(parentDirectory, "dining_images.zip");
@@ -493,12 +492,12 @@ public class CoopService {
 
         for (Dining dining : dinings) {
             if (dining.getImageUrl().isEmpty()
-                || !dining.getImageUrl().startsWith(s3Utils.getDomainUrlPrefix())) {
+                || !dining.getImageUrl().startsWith(s3Client.getDomainUrlPrefix())) {
                 continue;
             }
             String s3Key = extractS3KeyFrom(dining.getImageUrl());
             File localFile = new File(localImageDirectory, convertFileName(dining, s3Key));
-            s3Utils.downloadS3Object(bucketName, s3Key, localFile);
+            s3Client.downloadS3Object(bucketName, s3Key, localFile);
         }
         compress(zipFile, localImageDirectory);
         remove(localImageDirectory);
@@ -515,7 +514,7 @@ public class CoopService {
 
     private String extractS3KeyFrom(String imageUrl) {
         // URL format: https://<bucket-name>/<key(경로+파일명)>
-        String cdnPath = s3Utils.getDomainUrlPrefix();
+        String cdnPath = s3Client.getDomainUrlPrefix();
         return imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length());
     }
 

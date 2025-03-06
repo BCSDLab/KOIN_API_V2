@@ -5,7 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin._common.util.DateTimes;
+import in.koreatech.koin._common.util.datetime.DateTimes;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

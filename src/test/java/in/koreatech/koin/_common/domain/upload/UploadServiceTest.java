@@ -1,6 +1,6 @@
 package in.koreatech.koin._common.domain.upload;
 
-import static in.koreatech.koin._common.domain.upload.model.ImageUploadDomain.OWNERS;
+import static in.koreatech.koin.integration.upload.model.ImageUploadDomain.OWNERS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Clock;
@@ -19,9 +19,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin._common.domain.upload.dto.UploadUrlRequest;
-import in.koreatech.koin._common.domain.upload.service.UploadService;
-import in.koreatech.koin._common.integration.s3.S3Utils;
+import in.koreatech.koin.integration.upload.dto.UploadUrlRequest;
+import in.koreatech.koin.integration.upload.service.UploadService;
+import in.koreatech.koin.integration.upload.client.S3Client;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -63,7 +63,7 @@ class UploadServiceTest extends AcceptanceTest {
     @Test
     void 이미지_확장자를_받아_이미지_이름을_UUID로_생성_후_Presigned_URL을_생성하여_반환한다() {
         // given
-        S3Utils utils = new S3Utils(
+        S3Client utils = new S3Client(
             "test-bucket",
             "https://test-image.koreatech.in/",
             presigner,

@@ -5,10 +5,10 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.notification.model.Notification;
-import in.koreatech.koin.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.domain.notification.service.NotificationService;
-import in.koreatech.koin.integration.fcm.MobileAppPath;
+import in.koreatech.koin.integration.notification.model.Notification;
+import in.koreatech.koin.integration.notification.model.NotificationFactory;
+import in.koreatech.koin.integration.notification.service.NotificationService;
+import in.koreatech.koin.integration.notification.client.MobileAppPath;
 import in.koreatech.koin.socket.domain.chatroom.service.LostItemChatRoomInfoService;
 import in.koreatech.koin.socket.domain.chatroom.service.implement.ChatRoomInfoReader;
 import in.koreatech.koin.socket.domain.notification.model.MessageReceivedEvent;

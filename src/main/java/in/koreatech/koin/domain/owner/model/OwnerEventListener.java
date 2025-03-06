@@ -11,8 +11,8 @@ import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.dto.OwnerSmsRequestEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
-import in.koreatech.koin._common.domain.slack.SlackClient;
-import in.koreatech.koin._common.domain.slack.model.SlackNotificationFactory;
+import in.koreatech.koin.integration.slack.SlackClient;
+import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
 
 @Component

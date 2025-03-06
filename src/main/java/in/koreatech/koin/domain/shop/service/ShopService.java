@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin._common.domain.notification.model.NotificationSubscribeType.REVIEW_PROMPT;
+import static in.koreatech.koin.integration.notification.model.NotificationSubscribeType.REVIEW_PROMPT;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.benefit.repository.BenefitCategoryMapRepository;
@@ -20,7 +20,7 @@ import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopReviewNotificationRedisRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
-import in.koreatech.koin._common.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.integration.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import java.time.Clock;
 import java.time.LocalDate;

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import in.koreatech.koin._common.config.LocalDateTimeAttributeConverter;
+import in.koreatech.koin._common.converter.LocalDateTimeAttributeConverter;
 import in.koreatech.koin._common.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;

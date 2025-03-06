@@ -14,7 +14,7 @@ import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.integration.email.exception.DuplicationEmailException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
