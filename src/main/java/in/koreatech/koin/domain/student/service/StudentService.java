@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
@@ -31,6 +32,8 @@ import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.util.StudentUtil;
+import in.koreatech.koin.domain.timetableV3.exception.ChangeMajorNotExistException;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
@@ -41,8 +44,8 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
-import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
+import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -72,6 +75,7 @@ public class StudentService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
+    private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
@@ -224,6 +228,18 @@ public class StudentService {
         return StudentAcademicInfoUpdateResponse.from(student);
     }
 
+    private void validateMajorChange(String studentNumber, Major newMajor) {
+        String studentYear = StudentUtil.parseStudentNumberYearAsString(studentNumber);
+
+        boolean exists = standardGraduationRequirementsRepository.existsByMajorIdAndYear(
+            newMajor.getId(), studentYear
+        );
+
+        if (!exists) {
+            throw ChangeMajorNotExistException.withDetail("studentYear: " + studentYear + " major: " + newMajor);
+        }
+    }
+
     private boolean isChangedMajor(Major oldMajor, Major newMajor) {
         return newMajor != null && !newMajor.equals(oldMajor);
     }
@@ -241,7 +257,11 @@ public class StudentService {
         if (studentTemporaryStatus.get().getDepartment() != null) {
             department = departmentRepository.getByName(studentTemporaryStatus.get().getDepartment());
         }
-        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department);
+        Major major = null;
+        if (department != null) {
+            major = majorRepository.findByDepartmentId(department.getId()).get(0);
+        }
+        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department, major);
         studentRepository.save(student);
         userRepository.save(student.getUser());
         studentRedisRepository.deleteById(student.getUser().getEmail());

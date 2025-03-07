@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
+import in.koreatech.koin.domain.graduation.repository.GeneralEducationAreaRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
@@ -41,6 +42,7 @@ public class TimetableRegularLectureServiceV3 {
     private final CatalogRepository catalogRepository;
     private final StudentRepository studentRepository;
     private final CourseTypeRepository courseTypeRepository;
+    private final GeneralEducationAreaRepository generalEducationAreaRepository;
 
     @Transactional
     public TimetableLectureResponseV3 createTimetablesRegularLecture(
@@ -115,11 +117,18 @@ public class TimetableRegularLectureServiceV3 {
             courseType = courseTypeRepository.getByName(request.timetableLecture().courseType());
         }
 
+        GeneralEducationArea generalEducationArea = null;
+        if (!Objects.isNull(request.timetableLecture().generalEducationArea())) {
+            generalEducationArea = generalEducationAreaRepository.getGeneralEducationAreaByName(
+                request.timetableLecture().generalEducationArea());
+        }
+
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
         timetableLecture.updateRegularLecture(
             request.timetableLecture().classTitle(),
             request.timetableLecture().classPlacesToString(),
-            courseType
+            courseType,
+            generalEducationArea
         );
 
         timetableLectureRepositoryV3.save(timetableLecture);

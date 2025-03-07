@@ -372,7 +372,7 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 이메일_요청을_확인_후_회원가입_이벤트가_발생하고_Redis에_저장된_정보가_삭제된다() throws Exception {
-        departmentFixture.전체학부();
+        majorFixture.컴퓨터공학전공(departmentFixture.컴퓨터공학부());
         mockMvc.perform(
                 post("/user/student/register")
                     .content("""
