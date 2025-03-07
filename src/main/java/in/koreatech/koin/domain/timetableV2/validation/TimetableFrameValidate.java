@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public class TimetableFrameValidate {
 
-    public static void ensureUserOwnsFrame(Integer frameUserId, Integer userId) {
+    public static void validateUserOwnsFrame(Integer frameUserId, Integer userId) {
         if (!Objects.equals(frameUserId, userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
     }
 
-    public static void ensureMainTimetableExists(TimetableFrame timeTableFrame, boolean isMain) {
+    public static void validateMainTimetableRequired(TimetableFrame timeTableFrame, boolean isMain) {
         if (timeTableFrame.isMain() && !isMain) {
             throw new KoinIllegalArgumentException("메인 시간표는 필수입니다.");
         }

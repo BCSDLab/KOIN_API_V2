@@ -85,7 +85,7 @@ public class TimetableFrame extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
-    private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표 %d";
+    private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표%d";
 
     public void renameAndSetMain(String name, boolean isMain) {
         this.name = name;
@@ -116,7 +116,7 @@ public class TimetableFrame extends BaseEntity {
 
     public void cancelMain() { this.isMain = false; }
 
-    public static boolean determineIfMain(int currentFrameCount) {
+    public static boolean isMainFrame(int currentFrameCount) {
         return currentFrameCount == 0;
     }
 
