@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.batch.campus.bus.city.service.BatchCityBusService;
 import in.koreatech.koin.batch.campus.koreatech.dining.service.BatchDiningService;
-import in.koreatech.koin.batch.campus.service.BatchPortalLoginService;
+import in.koreatech.koin.batch.campus.koreatech.service.BatchKoreatechLoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BatchCampusScheduler {
 
     private final BatchCityBusService batchCityBusService;
-    private final BatchPortalLoginService batchPortalLoginService;
+    private final BatchKoreatechLoginService batchKoreatechLoginService;
     private final BatchDiningService batchDiningService;
 
     @Scheduled(cron = "0 0 0 * * 0")
@@ -28,7 +28,7 @@ public class BatchCampusScheduler {
     @Scheduled(cron = "0 */30 8-11 * * *")
     @Scheduled(cron = "0 15 11 * * *")
     public void updateDining() {
-        batchPortalLoginService.login();
+        batchKoreatechLoginService.login();
         batchDiningService.update();
     }
 }
