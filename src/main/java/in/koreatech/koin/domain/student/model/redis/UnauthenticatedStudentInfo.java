@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
@@ -88,7 +89,7 @@ public class UnauthenticatedStudentInfo {
         );
     }
 
-    public Student toStudent(PasswordEncoder passwordEncoder, Department department) {
+    public Student toStudent(PasswordEncoder passwordEncoder, Department department, Major major) {
         User user = User.builder()
             .password(passwordEncoder.encode(password))
             .email(email)
@@ -108,6 +109,7 @@ public class UnauthenticatedStudentInfo {
             .userIdentity(UserIdentity.UNDERGRADUATE)
             .department(department)
             .studentNumber(studentNumber)
+            .major(major)
             .build();
     }
 }
