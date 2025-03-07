@@ -202,6 +202,9 @@ public class StudentService {
             newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newDepartment.getId())
                 .orElse(null);
         }
+
+        validateMajorChange(newStudentNumber, newMajor);
+
         // 전공 변경 사항 감지
         boolean updateMajor = isChangedMajor(oldMajor, newMajor);
 
