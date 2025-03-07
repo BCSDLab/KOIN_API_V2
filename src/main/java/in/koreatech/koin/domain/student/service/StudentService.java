@@ -43,7 +43,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
@@ -65,7 +65,7 @@ public class StudentService {
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
-    private final userTokenRedisRepository userTokenRedisRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final JwtProvider jwtProvider;

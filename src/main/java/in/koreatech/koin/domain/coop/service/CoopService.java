@@ -66,7 +66,7 @@ import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
@@ -86,7 +86,7 @@ public class CoopService {
     private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
     private final UserRepository userRepository;
-    private final userTokenRedisRepository userTokenRedisRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;

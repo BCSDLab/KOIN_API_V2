@@ -7,7 +7,7 @@ import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class OwnerUtilService {
 
     private final OwnerRepository ownerRepository;
-    private final userTokenRedisRepository userTokenRedisRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final ShopRepository shopRepository;
     private final ApplicationEventPublisher eventPublisher;
 

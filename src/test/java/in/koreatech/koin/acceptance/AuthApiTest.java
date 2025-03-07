@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 
@@ -31,7 +31,7 @@ class AuthApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Autowired
-    private userTokenRedisRepository tokenRepository;
+    private UserTokenRedisRepository tokenRepository;
 
     @Test
     void 사용자가_로그인을_수행한다() throws Exception {

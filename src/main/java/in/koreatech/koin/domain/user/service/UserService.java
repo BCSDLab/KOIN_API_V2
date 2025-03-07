@@ -19,7 +19,7 @@ import in.koreatech.koin.domain.user.model.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +31,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
-    private final userTokenRedisRepository userTokenRedisRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final ApplicationEventPublisher eventPublisher;
     private final UserValidationService userValidationService;

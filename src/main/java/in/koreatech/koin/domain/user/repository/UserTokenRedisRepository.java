@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 
-public interface userTokenRedisRepository extends Repository<UserToken, Integer> {
+public interface UserTokenRedisRepository extends Repository<UserToken, Integer> {
 
     UserToken save(UserToken userToken);
 

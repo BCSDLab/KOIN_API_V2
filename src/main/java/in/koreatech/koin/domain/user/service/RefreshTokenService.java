@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.userTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class RefreshTokenService {
 
     private static final String REFRESH_TOKEN_FORMAT = "%s-%d";
 
-    private final userTokenRedisRepository userTokenRedisRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
 
     public String createRefreshToken(User user) {
         return String.format(REFRESH_TOKEN_FORMAT, UUID.randomUUID(), user.getId());
