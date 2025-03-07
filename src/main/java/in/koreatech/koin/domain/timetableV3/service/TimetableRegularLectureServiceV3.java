@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetableV3.service;
 
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserOwnsFrame;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,7 +49,7 @@ public class TimetableRegularLectureServiceV3 {
         TimetableRegularLectureCreateRequest request, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
         Catalog catalog = getCatalog(lecture, userId);
         CourseType courseType = getCourseType(catalog);
@@ -110,7 +110,7 @@ public class TimetableRegularLectureServiceV3 {
         TimetableRegularLectureUpdateRequest request, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
 
         CourseType courseType = null;
         if (!Objects.isNull(request.timetableLecture().courseType())) {

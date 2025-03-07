@@ -18,7 +18,7 @@ import lombok.Getter;
 
 @Getter
 @RedisHash(value = "StudentTemporaryStatus")
-public class StudentTemporaryStatus {
+public class UnAuthenticatedStudentInfo {
 
     private static final long CACHE_EXPIRE_SECOND = 60 * 60 * 10L;
 
@@ -49,8 +49,18 @@ public class StudentTemporaryStatus {
     @TimeToLive
     private Long expiration;
 
-    public StudentTemporaryStatus(String email, String authToken, String nickname, String name, String password,
-        UserGender gender, boolean isGraduated, String department, String studentNumber, String phoneNumber) {
+    public UnAuthenticatedStudentInfo(
+        String email,
+        String authToken,
+        String nickname,
+        String name,
+        String password,
+        UserGender gender,
+        boolean isGraduated,
+        String department,
+        String studentNumber,
+        String phoneNumber
+    ) {
         this.email = email;
         this.authToken = authToken;
         this.nickname = nickname;
@@ -64,10 +74,19 @@ public class StudentTemporaryStatus {
         this.expiration = CACHE_EXPIRE_SECOND;
     }
 
-    public static StudentTemporaryStatus of(StudentRegisterRequest request, String authToken) {
-        return new StudentTemporaryStatus(request.email(), authToken, request.nickname(), request.name(),
-            request.password(), request.gender(),
-            request.isGraduated(), request.major(), request.studentNumber(), request.phoneNumber());
+    public static UnAuthenticatedStudentInfo of(StudentRegisterRequest request, String authToken) {
+        return new UnAuthenticatedStudentInfo(
+            request.email(),
+            authToken,
+            request.nickname(),
+            request.name(),
+            request.password(),
+            request.gender(),
+            request.isGraduated(),
+            request.major(),
+            request.studentNumber(),
+            request.phoneNumber()
+        );
     }
 
     public Student toStudent(PasswordEncoder passwordEncoder, Department department, Major major) {
@@ -89,8 +108,8 @@ public class StudentTemporaryStatus {
             .isGraduated(isGraduated)
             .userIdentity(UserIdentity.UNDERGRADUATE)
             .department(department)
-            .major(major)
             .studentNumber(studentNumber)
+            .major(major)
             .build();
     }
 }
