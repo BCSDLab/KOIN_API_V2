@@ -1,6 +1,6 @@
 package in.koreatech.koin._common.domain.upload;
 
-import static in.koreatech.koin.integration.upload.model.ImageUploadDomain.OWNERS;
+import static in.koreatech.koin.integration.s3.model.ImageUploadDomain.OWNERS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Clock;
@@ -19,9 +19,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.integration.upload.dto.UploadUrlRequest;
-import in.koreatech.koin.integration.upload.service.UploadService;
-import in.koreatech.koin.integration.upload.client.S3Client;
+import in.koreatech.koin.integration.s3.dto.UploadUrlRequest;
+import in.koreatech.koin.integration.s3.service.UploadService;
+import in.koreatech.koin.integration.s3.client.S3Client;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;

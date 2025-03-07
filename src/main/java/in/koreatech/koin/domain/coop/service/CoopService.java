@@ -39,8 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
-import com.amazonaws.services.s3.AmazonS3;
-
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
@@ -50,8 +48,8 @@ import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
 import in.koreatech.koin.domain.coop.exception.DuplicateExcelRequestException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
-import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
-import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
+import in.koreatech.koin._common.event.DiningImageUploadEvent;
+import in.koreatech.koin._common.event.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
@@ -68,7 +66,7 @@ import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.integration.upload.client.S3Client;
+import in.koreatech.koin.integration.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
 @Service

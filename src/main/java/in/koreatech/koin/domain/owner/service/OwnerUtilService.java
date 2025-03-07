@@ -1,11 +1,9 @@
 package in.koreatech.koin.domain.owner.service;
 
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.OwnerShop;
-import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
+import in.koreatech.koin._common.event.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
-import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;

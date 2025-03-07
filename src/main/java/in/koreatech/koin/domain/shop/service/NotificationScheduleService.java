@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin.integration.notification.client.MobileAppPath.SHOP;
+import static in.koreatech.koin.integration.fcm.client.MobileAppPath.SHOP;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -17,9 +17,9 @@ import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopReviewNotificationRedisRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.integration.notification.model.Notification;
-import in.koreatech.koin.integration.notification.model.NotificationFactory;
-import in.koreatech.koin.integration.notification.service.NotificationService;
+import in.koreatech.koin.integration.fcm.notification.model.Notification;
+import in.koreatech.koin.integration.fcm.notification.model.NotificationFactory;
+import in.koreatech.koin.integration.fcm.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 
 @Service

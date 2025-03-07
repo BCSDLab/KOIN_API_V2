@@ -22,7 +22,7 @@ import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionR
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
+import in.koreatech.koin._common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;

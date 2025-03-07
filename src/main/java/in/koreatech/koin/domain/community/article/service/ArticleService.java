@@ -42,7 +42,7 @@ import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRep
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
+import in.koreatech.koin._common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
