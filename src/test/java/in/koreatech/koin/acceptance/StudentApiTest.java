@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.model.redis.UnauthenticatedStudentInfo;
+import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -352,7 +352,7 @@ public class StudentApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-        Optional<UnauthenticatedStudentInfo> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
+        Optional<UnAuthenticatedStudentInfo> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
 
         assertSoftly(
             softly -> {
@@ -392,7 +392,7 @@ public class StudentApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-        Optional<UnauthenticatedStudentInfo> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
+        Optional<UnAuthenticatedStudentInfo> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
         mockMvc.perform(
                 get("/user/authenticate")
                     .queryParam("auth_token", student.get().getAuthToken())

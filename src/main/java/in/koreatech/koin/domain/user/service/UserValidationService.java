@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.student.model.redis.UnauthenticatedStudentInfo;
+import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -54,7 +54,7 @@ public class UserValidationService {
     }
 
     public void checkUserAuthentication(String email) {
-        Optional<UnauthenticatedStudentInfo> studentTemporaryStatus = studentRedisRepository.findById(email);
+        Optional<UnAuthenticatedStudentInfo> studentTemporaryStatus = studentRedisRepository.findById(email);
         if (studentTemporaryStatus.isPresent()) {
             throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
         }

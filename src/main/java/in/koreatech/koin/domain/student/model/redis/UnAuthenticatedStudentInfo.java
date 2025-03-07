@@ -18,7 +18,7 @@ import lombok.Getter;
 
 @Getter
 @RedisHash(value = "StudentTemporaryStatus")
-public class UnauthenticatedStudentInfo {
+public class UnAuthenticatedStudentInfo {
 
     private static final long CACHE_EXPIRE_SECOND = 60 * 60 * 10L;
 
@@ -49,7 +49,7 @@ public class UnauthenticatedStudentInfo {
     @TimeToLive
     private Long expiration;
 
-    public UnauthenticatedStudentInfo(
+    public UnAuthenticatedStudentInfo(
         String email,
         String authToken,
         String nickname,
@@ -74,8 +74,8 @@ public class UnauthenticatedStudentInfo {
         this.expiration = CACHE_EXPIRE_SECOND;
     }
 
-    public static UnauthenticatedStudentInfo of(StudentRegisterRequest request, String authToken) {
-        return new UnauthenticatedStudentInfo(
+    public static UnAuthenticatedStudentInfo of(StudentRegisterRequest request, String authToken) {
+        return new UnAuthenticatedStudentInfo(
             request.email(),
             authToken,
             request.nickname(),
