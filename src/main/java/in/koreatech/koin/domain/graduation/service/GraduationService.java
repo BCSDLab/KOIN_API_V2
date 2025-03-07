@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GeneralEducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
@@ -61,7 +63,7 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin._common.exception.custom.DuplicationException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -131,7 +133,7 @@ public class GraduationService {
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
-        if(!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
+        if (!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
             studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
             entityManager.flush();
             entityManager.clear();
@@ -472,8 +474,8 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-            gradeExcelData.retakeStatus().equals(RETAKE) ||
-            gradeExcelData.grade().equals(UNSATISFACTORY);
+               gradeExcelData.retakeStatus().equals(RETAKE) ||
+               gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
     // 분반 문제를 해결하기 위해서, 강의들을 전부 가져오도록 했음
@@ -653,7 +655,8 @@ public class GraduationService {
         List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .filter(lecture -> lecture.getGeneralEducationArea() == null
-                && lecture.getCourseType() == courseTypeRepository.getByName(GENERAL_EDUCATION_COURSE_TYPE))
+                               && lecture.getCourseType() == courseTypeRepository.getByName(
+                GENERAL_EDUCATION_COURSE_TYPE))
             .toList();
 
         Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;
@@ -698,7 +701,8 @@ public class GraduationService {
             for (TimetableLecture timetableLecture : generalEducationTimetableLectures) {
                 if (Objects.equals(timetableLecture.getGeneralEducationArea(), generalEducationArea)) {
                     Lecture lecture = timetableLecture.getLecture();
-                    completedCredit += Integer.parseInt(lecture != null ? lecture.getGrades() : timetableLecture.getGrades());
+                    completedCredit += Integer.parseInt(
+                        lecture != null ? lecture.getGrades() : timetableLecture.getGrades());
                     lectureNames.add(lecture != null ? lecture.getName() : timetableLecture.getClassTitle());
                 }
             }
