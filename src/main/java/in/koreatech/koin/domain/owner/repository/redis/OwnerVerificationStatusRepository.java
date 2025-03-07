@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
-import in.koreatech.koin.global.domain.email.exception.VerifyNotFoundException;
+import in.koreatech.koin.integration.email.exception.VerifyNotFoundException;
 
 public interface OwnerVerificationStatusRepository extends Repository<OwnerVerificationStatus, String> {
 

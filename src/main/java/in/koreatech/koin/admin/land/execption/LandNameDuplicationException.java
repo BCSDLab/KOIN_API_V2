@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.land.execption;
 
-import in.koreatech.koin.global.exception.DuplicationException;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 
 public class LandNameDuplicationException extends DuplicationException {
 

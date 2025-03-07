@@ -11,7 +11,7 @@ import in.koreatech.koin.domain.community.article.dto.LostItemReportRequest.Inne
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemReport;
-import in.koreatech.koin.domain.community.article.model.dto.LostItemReportEvent;
+import in.koreatech.koin._common.event.LostItemReportEvent;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.LostItemReportRepository;
 import in.koreatech.koin.domain.student.model.Student;

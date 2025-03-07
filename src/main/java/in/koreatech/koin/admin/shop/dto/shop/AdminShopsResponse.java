@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)

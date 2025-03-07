@@ -7,7 +7,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

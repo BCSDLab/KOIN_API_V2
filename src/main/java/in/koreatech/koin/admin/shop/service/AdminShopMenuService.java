@@ -13,7 +13,7 @@ import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.domain.shop.model.menu.*;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 

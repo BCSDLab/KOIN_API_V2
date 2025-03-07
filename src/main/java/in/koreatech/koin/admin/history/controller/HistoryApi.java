@@ -1,7 +1,7 @@
 package in.koreatech.koin.admin.history.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.global.model.Criteria.Sort;
+import static in.koreatech.koin._common.model.Criteria.Sort;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ import in.koreatech.koin.admin.history.dto.AdminHistoryResponse;
 import in.koreatech.koin.admin.history.dto.AdminHistoriesResponse;
 import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.history.enums.HttpMethodType;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

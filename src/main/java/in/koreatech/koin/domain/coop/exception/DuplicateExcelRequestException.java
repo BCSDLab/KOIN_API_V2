@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.coop.exception;
 
 import java.time.LocalDate;
 
-import in.koreatech.koin.global.exception.DuplicationException;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 
 public class DuplicateExcelRequestException extends DuplicationException {
 

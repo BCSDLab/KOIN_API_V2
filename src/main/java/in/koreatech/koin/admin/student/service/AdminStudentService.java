@@ -21,7 +21,7 @@ import in.koreatech.koin.domain.student.model.StudentDepartment;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service

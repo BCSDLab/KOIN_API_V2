@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.benefit.exception;
 
-import in.koreatech.koin.global.exception.DataNotFoundException;
+import in.koreatech.koin._common.exception.custom.DataNotFoundException;
 
 public class BenefitMapNotFoundException extends DataNotFoundException {
 

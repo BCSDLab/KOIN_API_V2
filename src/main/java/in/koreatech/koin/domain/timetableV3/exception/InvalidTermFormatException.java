@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.exception;
 
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 
 public class InvalidTermFormatException extends KoinIllegalArgumentException {
 

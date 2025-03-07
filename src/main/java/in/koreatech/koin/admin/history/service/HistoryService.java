@@ -10,7 +10,7 @@ import in.koreatech.koin.admin.history.dto.AdminHistoriesCondition;
 import in.koreatech.koin.admin.history.dto.AdminHistoriesResponse;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import in.koreatech.koin.admin.history.repository.AdminActivityHistoryRepository;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service

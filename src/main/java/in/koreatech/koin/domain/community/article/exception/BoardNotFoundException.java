@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.community.article.exception;
 
-import in.koreatech.koin.global.exception.DataNotFoundException;
+import in.koreatech.koin._common.exception.custom.DataNotFoundException;
 
 public class BoardNotFoundException extends DataNotFoundException {
 

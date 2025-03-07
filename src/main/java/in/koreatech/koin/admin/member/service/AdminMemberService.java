@@ -14,7 +14,7 @@ import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
 import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
 import in.koreatech.koin.domain.member.model.Member;
 import in.koreatech.koin.domain.member.model.Track;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service

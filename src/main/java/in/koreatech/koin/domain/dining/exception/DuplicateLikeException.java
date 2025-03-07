@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.dining.exception;
 
-import in.koreatech.koin.global.exception.DuplicationException;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 
 public class DuplicateLikeException extends DuplicationException {
     private static final String DEFAULT_MESSAGE = "이미 좋아요를 누른 식단입니다!";

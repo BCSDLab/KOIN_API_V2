@@ -7,7 +7,6 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,13 +19,11 @@ import java.util.Set;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest.InnerShopOpen;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;

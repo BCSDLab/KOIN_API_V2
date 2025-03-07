@@ -8,9 +8,8 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import in.koreatech.koin.domain.user.exception.UserResetTokenExpiredException;
-import in.koreatech.koin.global.config.LocalDateTimeAttributeConverter;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.converter.LocalDateTimeAttributeConverter;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

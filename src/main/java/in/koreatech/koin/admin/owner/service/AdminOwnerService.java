@@ -23,7 +23,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service

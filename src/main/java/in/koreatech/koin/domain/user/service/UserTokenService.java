@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service

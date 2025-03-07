@@ -23,8 +23,8 @@ import in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
-import in.koreatech.koin.domain.shop.model.dto.ReviewRegisterEvent;
-import in.koreatech.koin.domain.shop.model.dto.ReviewReportEvent;
+import in.koreatech.koin._common.event.ReviewRegisterEvent;
+import in.koreatech.koin._common.event.ReviewReportEvent;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewImage;
@@ -39,8 +39,8 @@ import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepositor
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.global.auth.exception.AuthenticationException;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
+import in.koreatech.koin._common.model.Criteria;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 

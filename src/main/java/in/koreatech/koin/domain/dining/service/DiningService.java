@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.dining.model.DiningLikes;
 import in.koreatech.koin.domain.dining.model.DiningPlace;
 import in.koreatech.koin.domain.dining.repository.DiningLikesRepository;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

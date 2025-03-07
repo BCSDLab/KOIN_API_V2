@@ -10,10 +10,10 @@ import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
-import in.koreatech.koin.global.domain.email.model.EmailAddress;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin.integration.email.exception.DuplicationEmailException;
+import in.koreatech.koin.integration.email.model.EmailAddress;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Component

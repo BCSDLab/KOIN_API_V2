@@ -25,8 +25,8 @@ import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
-import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
+import in.koreatech.koin._common.event.StudentEmailRequestEvent;
+import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
@@ -47,10 +47,10 @@ import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserTokenService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
-import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
-import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
+import in.koreatech.koin.integration.email.form.StudentRegistrationData;
+import in.koreatech.koin.integration.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @Service

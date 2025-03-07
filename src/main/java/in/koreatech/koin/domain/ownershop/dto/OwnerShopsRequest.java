@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
-import in.koreatech.koin.global.validation.NotBlankElement;
-import in.koreatech.koin.global.validation.UniqueId;
-import in.koreatech.koin.global.validation.UniqueUrl;
-import in.koreatech.koin.global.validation.ValidDayOfWeek;
+import in.koreatech.koin._common.validation.NotBlankElement;
+import in.koreatech.koin._common.validation.UniqueId;
+import in.koreatech.koin._common.validation.UniqueUrl;
+import in.koreatech.koin._common.validation.DayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -120,7 +120,7 @@ public record OwnerShopsRequest(
 
             @Schema(description = "요일", example = "MONDAY", requiredMode = REQUIRED)
             @NotBlank(message = "영업 요일을 입력해주세요.")
-            @ValidDayOfWeek
+            @DayOfWeek
             String dayOfWeek,
 
             @Schema(description = "여는 시간", example = "10:00", requiredMode = REQUIRED)

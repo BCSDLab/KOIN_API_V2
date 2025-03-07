@@ -19,7 +19,7 @@ import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeResponse;
 import in.koreatech.koin.admin.notice.dto.AdminNoticesResponse;
 import in.koreatech.koin.admin.notice.service.AdminNoticeService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

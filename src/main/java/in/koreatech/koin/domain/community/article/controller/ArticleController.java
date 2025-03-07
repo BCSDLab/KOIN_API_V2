@@ -24,9 +24,9 @@ import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.service.ArticleService;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
-import in.koreatech.koin.global.ipaddress.IpAddress;
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
+import in.koreatech.koin.web.ipaddress.IpAddress;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

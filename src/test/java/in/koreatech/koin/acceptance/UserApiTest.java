@@ -23,7 +23,7 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin._common.auth.JwtProvider;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional

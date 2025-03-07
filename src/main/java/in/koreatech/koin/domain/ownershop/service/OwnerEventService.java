@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.ownershop.service;
 
-import in.koreatech.koin.domain.ownershop.dto.EventArticleCreateShopEvent;
+import in.koreatech.koin._common.event.EventArticleCreateShopEvent;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;

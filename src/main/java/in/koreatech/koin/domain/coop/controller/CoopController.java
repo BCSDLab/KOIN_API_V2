@@ -26,7 +26,7 @@ import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.ExcelResponseBuilder;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

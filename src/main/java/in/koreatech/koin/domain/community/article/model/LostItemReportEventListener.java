@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.community.article.model.dto.LostItemReportEvent;
-import in.koreatech.koin.global.domain.slack.SlackClient;
-import in.koreatech.koin.global.domain.slack.model.SlackNotification;
-import in.koreatech.koin.global.domain.slack.model.SlackNotificationFactory;
+import in.koreatech.koin._common.event.LostItemReportEvent;
+import in.koreatech.koin.integration.slack.SlackClient;
+import in.koreatech.koin.integration.slack.model.SlackNotification;
+import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
 
 @Component

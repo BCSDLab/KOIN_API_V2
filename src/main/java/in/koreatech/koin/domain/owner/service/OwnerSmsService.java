@@ -20,7 +20,7 @@ import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin._common.auth.JwtProvider;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
