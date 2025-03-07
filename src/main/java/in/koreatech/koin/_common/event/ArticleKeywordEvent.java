@@ -1,4 +1,6 @@
-package in.koreatech.koin.domain.community.keyword.model;
+package in.koreatech.koin._common.event;
+
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 
 public record ArticleKeywordEvent(
     Integer articleId,

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.coop.model;
+package in.koreatech.koin._common.event;
 
 public record DiningImageUploadEvent(
     int id,

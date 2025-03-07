@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.model.dto;
+package in.koreatech.koin._common.event;
 
 public record ReviewReportEvent(
     String shop
