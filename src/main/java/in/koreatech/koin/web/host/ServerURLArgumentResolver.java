@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.host;
+package in.koreatech.koin.web.host;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

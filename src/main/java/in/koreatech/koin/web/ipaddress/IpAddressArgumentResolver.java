@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.ipaddress;
+package in.koreatech.koin.web.ipaddress;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -21,8 +21,12 @@ public class IpAddressArgumentResolver implements HandlerMethodArgumentResolver 
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+    public Object resolveArgument(
+        MethodParameter parameter,
+        ModelAndViewContainer mavContainer,
+        NativeWebRequest webRequest,
+        WebDataBinderFactory binderFactory
+    ) {
 
         return ipAddressContext.getIpAddress();
     }

@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.config;
+package in.koreatech.koin.web.config;
 
 import java.util.List;
 
@@ -13,12 +13,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import in.koreatech.koin._common.auth.AuthArgumentResolver;
 import in.koreatech.koin._common.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin._common.auth.UserIdArgumentResolver;
-import in.koreatech.koin.integration.notification.controller.NotificationSubscribeTypeConverter;
-import in.koreatech.koin.integration.upload.convertor.ImageUploadDomainEnumConverter;
-import in.koreatech.koin._common.host.ServerURLArgumentResolver;
-import in.koreatech.koin._common.host.ServerURLInterceptor;
-import in.koreatech.koin._common.ipaddress.IpAddressArgumentResolver;
-import in.koreatech.koin._common.ipaddress.IpAddressInterceptor;
+import in.koreatech.koin.integration.fcm.notification.controller.NotificationSubscribeTypeConverter;
+import in.koreatech.koin.integration.s3.convertor.ImageUploadDomainEnumConverter;
+import in.koreatech.koin.web.host.ServerURLArgumentResolver;
+import in.koreatech.koin.web.host.ServerURLInterceptor;
+import in.koreatech.koin.web.ipaddress.IpAddressArgumentResolver;
+import in.koreatech.koin.web.ipaddress.IpAddressInterceptor;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentArgumentResolver;
 import in.koreatech.koin.domain.bus.converter.BusStationEnumConverter;
 import in.koreatech.koin.domain.bus.converter.BusTypeEnumConverter;

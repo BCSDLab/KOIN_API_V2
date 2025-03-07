@@ -1,10 +1,10 @@
-package in.koreatech.koin._common.config;
+package in.koreatech.koin.web.config;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import in.koreatech.koin._common.logging.RequestLoggingFilter;
+import in.koreatech.koin.web.logging.RequestLoggingFilter;
 import lombok.RequiredArgsConstructor;
 
 @Configuration

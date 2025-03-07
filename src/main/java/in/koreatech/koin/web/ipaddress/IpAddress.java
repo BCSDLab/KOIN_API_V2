@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.ipaddress;
+package in.koreatech.koin.web.ipaddress;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

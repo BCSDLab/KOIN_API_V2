@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.host;
+package in.koreatech.koin.web.host;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

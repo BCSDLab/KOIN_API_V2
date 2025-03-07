@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.ipaddress;
+package in.koreatech.koin.web.ipaddress;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
