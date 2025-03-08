@@ -89,7 +89,6 @@ public class GraduationService {
     private static final String MIDDLE_TOTAL = "소 계";
     private static final String TOTAL = "합 계";
     private static final String FAIL = "F";
-    private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
     private static final String DEFAULT_COURSER_TYPE = "이수구분선택";
     private static final String GENERAL_EDUCATION_COURSE_TYPE = "교양선택";
@@ -475,7 +474,6 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-               gradeExcelData.retakeStatus().equals(RETAKE) ||
                gradeExcelData.grade().equals(FAIL) ||
                gradeExcelData.grade().equals(UNSATISFACTORY);
     }
