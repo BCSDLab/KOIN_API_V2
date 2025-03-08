@@ -17,7 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.batch.campus.koreatech.BatchKoreatechCookieRepository;
+import in.koreatech.koin.batch.campus.koreatech.model.HttpCookieJar;
+import in.koreatech.koin.batch.campus.koreatech.repository.HttpCookieJarRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +27,9 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class BatchKoreatechLoginService {
 
-    private final BatchKoreatechCookieRepository koreatechCookieRepository;
+    private static final String COOKIE_JAR_ID = "KOREATECH";
+
+    private final HttpCookieJarRepository httpCookieJarRepository;
 
     private final String userId;
     private final String userPwd;
@@ -36,12 +39,12 @@ public class BatchKoreatechLoginService {
     private final HttpClient httpClient;
 
     public BatchKoreatechLoginService(
-        BatchKoreatechCookieRepository koreatechCookieRepository,
+        HttpCookieJarRepository httpCookieJarRepository,
         @Value("${portal.koreatech.id}") String userId,
         @Value("${portal.koreatech.password}") String userPwd,
         @Value("${portal.koreatech.ip}") String ip
     ) {
-        this.koreatechCookieRepository = koreatechCookieRepository;
+        this.httpCookieJarRepository = httpCookieJarRepository;
 
         this.userId = userId;
         this.userPwd = userPwd;
@@ -80,7 +83,7 @@ public class BatchKoreatechLoginService {
             cookieManager.getCookieStore().removeAll();
         }
 
-        koreatechCookieRepository.save(cookies);
+        httpCookieJarRepository.save(HttpCookieJar.of(COOKIE_JAR_ID, cookies));
     }
 
     private void checkLoginId() throws IOException, InterruptedException {
