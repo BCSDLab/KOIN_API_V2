@@ -701,8 +701,7 @@ public class GraduationService {
             for (TimetableLecture timetableLecture : generalEducationTimetableLectures) {
                 if (Objects.equals(timetableLecture.getGeneralEducationArea(), generalEducationArea)) {
                     Lecture lecture = timetableLecture.getLecture();
-                    completedCredit += Integer.parseInt(
-                        lecture != null ? lecture.getGrades() : timetableLecture.getGrades());
+                    completedCredit += Integer.parseInt(lecture != null ? lecture.getGrades() : timetableLecture.getGrades());
                     lectureNames.add(lecture != null ? lecture.getName() : timetableLecture.getClassTitle());
                 }
             }
