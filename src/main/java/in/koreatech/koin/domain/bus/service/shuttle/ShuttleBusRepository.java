@@ -7,11 +7,16 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.exception.BusNotFoundException;
+import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusSimpleRoute;
 
 public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, ObjectId> {
+
+    ShuttleBusRoute save(ShuttleBusRoute route);
 
     List<ShuttleBusRoute> findBySemesterType(String semesterType);
 
@@ -37,12 +42,38 @@ public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, Object
 
         // 4단계: 필요한 필드만 선택하여 반환 (불필요한 필드 제외)
         """
-        { $project: {
-            'route_name': 1,
-            'node_name': '$node_info.name',
-            'arrival_time': '$route_info.arrival_time',
-            '_id': 0
-        }}"""
+            { $project: {
+                'route_name': 1,
+                'node_name': '$node_info.name',
+                'arrival_time': '$route_info.arrival_time',
+                '_id': 0
+            }}"""
     })
     List<ShuttleBusSimpleRoute> findBySemesterType(String semesterType, String dayOfWeek);
+
+    @Aggregation(pipeline = {
+        "{ $match: { 'semester_type': ?0, 'route_type': ?1 } }",
+        "{ $unwind: '$route_info' }",
+        """
+            { $project: {
+                '_id': 0,
+                'route_name': 1,
+                'region': 1,
+                'route_type': 1,
+                'route_info': '$route_info.name',
+                'route_detail': '$route_info.detail',
+                'running_days': '$route_info.running_days',
+                'arrival_nodes': {
+                    $map: {
+                        input: { $range: [0, { $size: '$node_info' }] },
+                        as: 'index',
+                        in: {
+                            'node_name': { '$arrayElemAt': ['$node_info.name', '$$index'] },
+                            'arrival_time': { '$arrayElemAt': ['$route_info.arrival_time', '$$index'] }
+                        }
+                    }
+                }
+            }}"""
+    })
+    List<Route> findAllBySemesterTypeAndRouteType(String semesterType, ShuttleRouteType routeType);
 }

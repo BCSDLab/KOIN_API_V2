@@ -22,6 +22,10 @@ public class VersionService {
         return VersionResponse.from(version);
     }
 
+    public Version getVersionEntity(VersionType type) {
+        return versionRepository.getByTypeAndIsPrevious(type, false);
+    }
+
     public VersionMessageResponse getVersionWithMessage(String type) {
         Version version = versionRepository.getByTypeAndIsPrevious(VersionType.from(type), false);
         return VersionMessageResponse.from(version);

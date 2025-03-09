@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -51,6 +52,12 @@ public class ShuttleBusRoute {
 
         @Field("detail")
         private String detail;
+
+        @Builder
+        private NodeInfo(String name, String detail) {
+            this.name = name;
+            this.detail = detail;
+        }
     }
 
     @Getter
@@ -68,5 +75,34 @@ public class ShuttleBusRoute {
 
         @Field("arrival_time")
         private List<String> arrivalTime;
+
+        @Builder
+        private RouteInfo(String name, String detail, List<String> runningDays, List<String> arrivalTime) {
+            this.name = name;
+            this.detail = detail;
+            this.runningDays = runningDays;
+            this.arrivalTime = arrivalTime;
+        }
+    }
+
+    @Builder
+    private ShuttleBusRoute(
+        String id,
+        String semesterType,
+        ShuttleBusRegion region,
+        ShuttleRouteType routeType,
+        String routeName,
+        String subName,
+        List<NodeInfo> nodeInfo,
+        List<RouteInfo> routeInfo
+    ) {
+        this.id = id;
+        this.semesterType = semesterType;
+        this.region = region;
+        this.routeType = routeType;
+        this.routeName = routeName;
+        this.subName = subName;
+        this.nodeInfo = nodeInfo;
+        this.routeInfo = routeInfo;
     }
 }

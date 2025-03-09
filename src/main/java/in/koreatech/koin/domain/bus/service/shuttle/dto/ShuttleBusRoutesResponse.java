@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.dto;
+package in.koreatech.koin.domain.bus.service.shuttle.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 

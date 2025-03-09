@@ -23,22 +23,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.service.city.model.CityBusArrival;
-import in.koreatech.koin.domain.bus.service.city.model.CityBusCache;
-import in.koreatech.koin.domain.bus.service.city.model.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
+import in.koreatech.koin.domain.bus.service.cache.BusCacheService;
+import in.koreatech.koin.domain.bus.service.city.model.CityBusArrival;
+import in.koreatech.koin.domain.bus.service.city.model.CityBusCache;
+import in.koreatech.koin.domain.bus.service.city.model.CityBusCacheInfo;
+import in.koreatech.koin.domain.bus.service.city.repository.CityBusCacheRepository;
+import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
-import in.koreatech.koin.domain.bus.service.city.repository.CityBusCacheRepository;
-import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
-import in.koreatech.koin.domain.bus.service.cache.BusCacheService;
 import in.koreatech.koin.domain.version.model.Version;
-import in.koreatech.koin.domain.version.model.VersionType;
-import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.fixture.BusFixture;
+import in.koreatech.koin.fixture.VersionFixture;
 import in.koreatech.koin.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -50,7 +49,7 @@ class BusApiTest extends AcceptanceTest {
     private BusFixture busFixture;
 
     @Autowired
-    private VersionRepository versionRepository;
+    private VersionFixture versionFixture;
 
     @Autowired
     private CityBusCacheRepository cityBusCacheRepository;
@@ -70,7 +69,7 @@ class BusApiTest extends AcceptanceTest {
 
     @Test
     void 다음_셔틀버스까지_남은_시간을_조회한다() throws Exception {
-
+        versionFixture.셔틀버스();
         mockMvc.perform(
                 get("/bus")
                     .param("bus_type", "shuttle")
@@ -93,13 +92,8 @@ class BusApiTest extends AcceptanceTest {
 
     @Test
     void 도착_시간이_18시_10분인_버스를_정확하게_조회한다() throws Exception {
-        versionRepository.save(
-            Version.builder()
-                .version("test_version")
-                .type(VersionType.EXPRESS.getValue())
-                .build()
-        );
-
+        versionFixture.셔틀버스();
+        versionFixture.대성고속();
         ZonedDateTime requestedAt = ZonedDateTime.parse("2024-01-15 12:05:00 KST",
             ofPattern("yyyy-MM-dd " + "HH:mm:ss z"));
 
@@ -158,6 +152,7 @@ class BusApiTest extends AcceptanceTest {
 
     @Test
     void 다음_시내버스까지_남은_시간을_조회한다_Redis_캐시_히트() throws Exception {
+        Version cityBusVersion = versionFixture.시내버스();
         final long remainTime = 600L;
         final long busNumber = 400;
         BusType busType = BusType.CITY;
@@ -165,12 +160,6 @@ class BusApiTest extends AcceptanceTest {
         BusStation arrival = BusStation.KOREATECH;
 
         BusDirection direction = BusStation.getDirection(depart, arrival);
-        Version version = versionRepository.save(
-            Version.builder()
-                .version("test_version")
-                .type(VersionType.CITY.getValue())
-                .build()
-        );
 
         cityBusCacheRepository.save(
             CityBusCache.of(
@@ -180,7 +169,7 @@ class BusApiTest extends AcceptanceTest {
                         .routeno(busNumber)
                         .arrtime(remainTime)
                         .build(),
-                    version.getUpdatedAt())
+                    cityBusVersion.getUpdatedAt())
                 )
             )
         );
@@ -212,20 +201,15 @@ class BusApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].bus_type").value("shuttle"))
-            .andExpect(jsonPath("$[0].direction").value("from"))
+            .andExpect(jsonPath("$.length()").value(14))
+            .andExpect(jsonPath("$[0].bus_type").value("commuting"))
+            .andExpect(jsonPath("$[0].direction").value("to"))
             .andExpect(jsonPath("$[0].region").value("천안"));
     }
 
     @Test
     void 셔틀버스_시간표를_조회한다_업데이트_시각_포함() throws Exception {
-        Version version = Version.builder()
-            .version("test_version")
-            .type(VersionType.SHUTTLE.getValue())
-            .build();
-        versionRepository.save(version);
-
+        versionFixture.셔틀버스();
         BusType busType = BusType.from("shuttle");
         String direction = "from";
         String region = "천안";
@@ -242,8 +226,8 @@ class BusApiTest extends AcceptanceTest {
                       {
                         "bus_timetables": [
                             {
-                                "route_name": "주중",
-                                "arrival_info": [
+                                "route_name": "터미널/천안역",
+                                "arrival_nodes": [
                                     {
                                         "node_name": "한기대",
                                         "arrival_time": "18:10"

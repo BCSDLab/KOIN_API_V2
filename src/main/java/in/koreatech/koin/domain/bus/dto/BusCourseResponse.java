@@ -5,7 +5,8 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.bus.service.shuttle.model.BusCourse;
+import in.koreatech.koin.domain.bus.enums.BusDirection;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -20,11 +21,11 @@ public record BusCourseResponse(
     String region
 ) {
 
-    public static BusCourseResponse from(BusCourse busCourse) {
+    public static BusCourseResponse of(ShuttleRouteName routeName, BusDirection direction) {
         return new BusCourseResponse(
-            busCourse.getBusType(),
-            busCourse.getDirection(),
-            busCourse.getRegion()
+            routeName.getBusType().toString().toLowerCase(),
+            direction.getLegacyDirection(),
+            routeName.getLabel()
         );
     }
 }
