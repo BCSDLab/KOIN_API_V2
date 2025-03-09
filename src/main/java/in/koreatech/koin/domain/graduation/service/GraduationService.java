@@ -88,7 +88,7 @@ public class GraduationService {
 
     private static final String MIDDLE_TOTAL = "소 계";
     private static final String TOTAL = "합 계";
-    private static final String RETAKE = "Y";
+    private static final String FAIL = "F";
     private static final String UNSATISFACTORY = "U";
     private static final String DEFAULT_COURSER_TYPE = "이수구분선택";
     private static final String GENERAL_EDUCATION_COURSE_TYPE = "교양선택";
@@ -133,7 +133,7 @@ public class GraduationService {
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
-        if(!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
+        if (!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
             studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
             entityManager.flush();
             entityManager.clear();
@@ -474,8 +474,8 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-            gradeExcelData.retakeStatus().equals(RETAKE) ||
-            gradeExcelData.grade().equals(UNSATISFACTORY);
+               gradeExcelData.grade().equals(FAIL) ||
+               gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
     // 분반 문제를 해결하기 위해서, 강의들을 전부 가져오도록 했음
@@ -655,7 +655,8 @@ public class GraduationService {
         List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .filter(lecture -> lecture.getGeneralEducationArea() == null
-                && lecture.getCourseType() == courseTypeRepository.getByName(GENERAL_EDUCATION_COURSE_TYPE))
+                               && lecture.getCourseType() == courseTypeRepository.getByName(
+                GENERAL_EDUCATION_COURSE_TYPE))
             .toList();
 
         Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;
