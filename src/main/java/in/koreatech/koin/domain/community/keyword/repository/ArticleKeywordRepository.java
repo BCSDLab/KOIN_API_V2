@@ -7,14 +7,20 @@ import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
-import in.koreatech.koin.domain.community.keyword.exception.ArticleKeywordNotFoundException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 
 public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Integer> {
 
     Optional<ArticleKeyword> findByKeyword(String keyword);
+
+    @Query(value = """
+    SELECT * FROM article_keywords ak
+    WHERE ak.keyword = :keyword
+    """, nativeQuery = true)
+    Optional<ArticleKeyword> findByKeywordIncludingDeleted(@Param("keyword") String keyword);
 
     ArticleKeyword save(ArticleKeyword articleKeyword);
 

@@ -34,5 +34,15 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
         JOIN akum.articleKeyword akw
         WHERE akum.user.id = :userId
         """)
-    List<String> findAllKeywordbyUserId(@Param("userId") Integer userId);
+    List<String> findAllKeywordByUserId(@Param("userId") Integer userId);
+
+    @Query(value = """
+    SELECT * FROM article_keyword_user_map akum
+    WHERE akum.keyword_id = :articleKeywordId
+      AND akum.user_id = :userId
+    """, nativeQuery = true)
+    Optional<ArticleKeywordUserMap> findByArticleKeywordIdAndUserIdIncludingDeleted(
+        @Param("articleKeywordId") Integer articleKeywordId,
+        @Param("userId") Integer userId
+    );
 }
