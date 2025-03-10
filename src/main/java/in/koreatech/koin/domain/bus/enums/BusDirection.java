@@ -24,6 +24,7 @@ public enum BusDirection {
         this.legacyDirection = legacyDirection;
     }
 
+    // Deprecated: 강제 업데이트 이후 삭제할 레거시 Bus
     public static BusDirection from(String legacyDirection) {
         for (var direction : BusDirection.values()) {
             if (direction.getLegacyDirection().equals(legacyDirection)) {

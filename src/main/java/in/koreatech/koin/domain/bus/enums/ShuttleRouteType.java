@@ -28,6 +28,7 @@ public enum ShuttleRouteType {
         throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
     }
 
+    // Deprecated: 강제 업데이트 이후 삭제할 레거시 Bus
     public static List<ShuttleRouteType> convertFrom(BusType legacyBusType) {
         List<ShuttleRouteType> newTypes = new ArrayList<>();
         for (var shuttleRouteType : ShuttleRouteType.values()) {

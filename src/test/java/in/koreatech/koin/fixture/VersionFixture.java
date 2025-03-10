@@ -57,7 +57,6 @@ public final class VersionFixture {
             Version.builder()
                 .type(VersionType.EXPRESS.getValue())
                 .version("test_version")
-                .title(null)
                 .content("2025-01-15~2025-02-28")
                 .build()
         );
@@ -69,7 +68,6 @@ public final class VersionFixture {
             Version.builder()
                 .type(VersionType.CITY.getValue())
                 .version("test_version")
-                .title(null)
                 .content("2025-01-15~2025-02-28")
                 .build()
         );

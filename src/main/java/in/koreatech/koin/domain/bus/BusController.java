@@ -36,7 +36,7 @@ public class BusController implements BusApi {
 
     private final BusService busService;
 
-    // 강제 업데이트 이후 API 삭제 예정
+    // Deprecated: 강제 업데이트 이후 API 삭제 예정
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
         @RequestParam(value = "bus_type") BusType busType,
@@ -65,7 +65,7 @@ public class BusController implements BusApi {
         return ResponseEntity.ok().body(busService.getCityBusTimetable(busNumber, direction));
     }
 
-    // 강제 업데이트 이후 API 삭제 예정
+    // Deprecated: 강제 업데이트 이후 API 삭제 예정
     @GetMapping("/search")
     public ResponseEntity<List<SingleBusTimeResponse>> getSearchTimetable(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
@@ -78,7 +78,7 @@ public class BusController implements BusApi {
         return ResponseEntity.ok().body(singleBusTimeResponses);
     }
 
-    // 강제 업데이트 이후 API 삭제 예정
+    // Deprecated: 강제 업데이트 이후 API 삭제 예정
     @GetMapping("/courses")
     public ResponseEntity<List<BusCourseResponse>> getBusCourses() {
         return ResponseEntity.ok().body(busService.getBusCourses());

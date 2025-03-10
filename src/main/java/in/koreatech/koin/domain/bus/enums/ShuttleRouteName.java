@@ -9,6 +9,7 @@ import java.util.Objects;
 import static in.koreatech.koin.domain.bus.enums.BusType.COMMUTING;
 import static in.koreatech.koin.domain.bus.enums.BusType.SHUTTLE;
 
+// Deprecated: 강제 업데이트 이후 삭제할 레거시 Bus
 @Getter
 @RequiredArgsConstructor
 public enum ShuttleRouteName {

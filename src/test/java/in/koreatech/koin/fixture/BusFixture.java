@@ -43,24 +43,19 @@ public final class BusFixture {
                 .nodeInfo(List.of(
                         ShuttleBusRoute.NodeInfo.builder()
                             .name("한기대")
-                            .detail(null)
                             .build(),
                         ShuttleBusRoute.NodeInfo.builder()
                             .name("신계초,운전리,연춘리")
-                            .detail(null)
                             .build(),
                         ShuttleBusRoute.NodeInfo.builder()
                             .name("천안역(학화호두과자)")
-                            .detail(null)
                             .build(),
                         ShuttleBusRoute.NodeInfo.builder()
                             .name("터미널(신세계 앞 횡단보도)")
-                            .detail(null)
                             .build()))
                 .routeInfo(List.of(
                         ShuttleBusRoute.RouteInfo.builder()
                             .name("주중")
-                            .detail(null)
                             .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
                             .arrivalTime(List.of("18:10", "정차", "18:50", "18:55"))
                             .build()))
