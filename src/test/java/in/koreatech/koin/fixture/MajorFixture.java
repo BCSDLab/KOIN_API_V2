@@ -2,6 +2,7 @@ package in.koreatech.koin.fixture;
 
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 
@@ -15,16 +16,18 @@ public class MajorFixture {
         this.majorRepository = majorRepository;
     }
 
-    public void 기계공학전공() {
-        majorRepository.save(Major.builder()
-            .name("기계공학부")
+    public Major 기계공학전공(Department department) {
+        return majorRepository.save(Major.builder()
+            .name(null)
+            .department(department)
             .build()
         );
     }
 
-    public void 컴퓨터공학전공() {
-        majorRepository.save(Major.builder()
-            .name("컴퓨터공학전공")
+    public Major 컴퓨터공학전공(Department department) {
+        return majorRepository.save(Major.builder()
+            .name(null)
+            .department(department)
             .build()
         );
     }

@@ -47,11 +47,6 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("id: " + id));
     }
 
-    default User getByResetToken(String resetToken) {
-        return findAllByResetToken(resetToken)
-            .orElseThrow(() -> UserNotFoundException.withDetail("resetToken: " + resetToken));
-    }
-
     boolean existsByNickname(String nickname);
 
     void delete(User user);

@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.student.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.global.domain.BaseEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,19 +28,17 @@ public class Major extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull
     @Size(max = 255)
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", length = 255)
     private String name;
 
     @JoinColumn(name = "department_id")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
 
     @Builder
-    public Major(
-        String name
-    ) {
+    public Major(String name, Department department) {
         this.name = name;
+        this.department = department;
     }
 }

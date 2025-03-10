@@ -1,15 +1,14 @@
 package in.koreatech.koin.domain.student.model;
 
+import static jakarta.persistence.FetchType.*;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserIdentity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -40,11 +39,11 @@ public class Student {
     private String studentNumber;
 
     @JoinColumn(name = "department_id")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = LAZY)
     private Department department;
 
     @JoinColumn(name = "major_id")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = LAZY)
     private Major major;
 
     @Column(name = "identity", columnDefinition = "SMALLINT")
@@ -82,8 +81,18 @@ public class Student {
         this.department = department;
     }
 
-    public void updateInfo(String studentNumber, Major major) {
+    public void updateStudentNumber(String studentNumber) {
         this.studentNumber = studentNumber;
+    }
+
+    public void updateDepartmentMajor(Department department, Major major) {
+        this.department = department;
+        this.major = major;
+    }
+
+    public void updateStudentAcademicInfo(String studentNumber, Department department, Major major) {
+        this.studentNumber = studentNumber;
+        this.department = department;
         this.major = major;
     }
 }

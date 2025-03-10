@@ -24,6 +24,8 @@ public interface TimetableFrameRepositoryV3 extends Repository<TimetableFrame, I
 
     List<TimetableFrame> findByUserIdAndIsMainTrue(Integer userId);
 
+    List<TimetableFrame> findAllByUserIdAndIsMainTrue(Integer userId);
+
     @Query(value = "SELECT * FROM timetable_frame WHERE id = :id", nativeQuery = true)
     Optional<TimetableFrame> findByIdWithDeleted(@Param("id") Integer id);
 

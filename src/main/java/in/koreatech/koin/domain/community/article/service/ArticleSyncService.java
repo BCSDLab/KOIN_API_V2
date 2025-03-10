@@ -247,7 +247,5 @@ public class ArticleSyncService {
         for (ArticleSearchKeywordIpMap ipMap : ipMapsToUpdate) {
             ipMap.resetSearchCount();
         }
-
-        log.info("MySQL 가중치 및 검색 횟수 초기화 완료");
     }
 }

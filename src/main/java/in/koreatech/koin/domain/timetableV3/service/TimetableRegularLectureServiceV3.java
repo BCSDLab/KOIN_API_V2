@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetableV3.service;
 
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserOwnsFrame;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
+import in.koreatech.koin.domain.graduation.repository.GeneralEducationAreaRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
@@ -41,13 +42,14 @@ public class TimetableRegularLectureServiceV3 {
     private final CatalogRepository catalogRepository;
     private final StudentRepository studentRepository;
     private final CourseTypeRepository courseTypeRepository;
+    private final GeneralEducationAreaRepository generalEducationAreaRepository;
 
     @Transactional
     public TimetableLectureResponseV3 createTimetablesRegularLecture(
         TimetableRegularLectureCreateRequest request, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
         Catalog catalog = getCatalog(lecture, userId);
         CourseType courseType = getCourseType(catalog);
@@ -63,6 +65,9 @@ public class TimetableRegularLectureServiceV3 {
             return null;
         }
         Student student = studentRepository.getById(userId);
+        if (student.getStudentNumber() == null) {
+            return null;
+        }
         Integer studentNumberYear = StudentUtil.parseStudentNumberYear(student.getStudentNumber());
 
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYear(lecture.getName(),
@@ -105,18 +110,25 @@ public class TimetableRegularLectureServiceV3 {
         TimetableRegularLectureUpdateRequest request, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
 
         CourseType courseType = null;
         if (!Objects.isNull(request.timetableLecture().courseType())) {
             courseType = courseTypeRepository.getByName(request.timetableLecture().courseType());
         }
 
+        GeneralEducationArea generalEducationArea = null;
+        if (!Objects.isNull(request.timetableLecture().generalEducationArea())) {
+            generalEducationArea = generalEducationAreaRepository.getGeneralEducationAreaByName(
+                request.timetableLecture().generalEducationArea());
+        }
+
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
         timetableLecture.updateRegularLecture(
             request.timetableLecture().classTitle(),
             request.timetableLecture().classPlacesToString(),
-            courseType
+            courseType,
+            generalEducationArea
         );
 
         timetableLectureRepositoryV3.save(timetableLecture);

@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetableV3.service;
 
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserOwnsFrame;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ public class TimetableCustomLectureServiceV3 {
         TimetableCustomLectureCreateRequest request, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
         TimetableLecture timetableLecture = request.toTimetableLecture(frame);
         frame.addTimeTableLecture(timetableLecture);
         timetableLectureRepositoryV3.save(timetableLecture);
@@ -41,7 +41,7 @@ public class TimetableCustomLectureServiceV3 {
         TimetableCustomLectureUpdateRequest request, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
 
         timetableLecture.updateCustomLecture(

@@ -7,9 +7,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import in.koreatech.koin.domain.benefit.model.BenefitCategory;
-import in.koreatech.koin.fixture.BenefitCategoryFixture;
-import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
@@ -26,7 +24,11 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.fixture.BenefitCategoryFixture;
+import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
@@ -79,11 +81,15 @@ class ShopApiTest extends AcceptanceTest {
     @Autowired
     private ShopNotificationMessageFixture shopNotificationMessageFixture;
 
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
     private Shop 마슬랜;
     private Owner owner;
 
     private Student 익명_학생;
     private String token_익명;
+    private Department department;
 
     private ShopParentCategory shopParentCategory_가게;
     private ShopNotificationMessage notificationMessage_가게;
@@ -94,7 +100,7 @@ class ShopApiTest extends AcceptanceTest {
     void setUp() {
         clear();
         owner = userFixture.준영_사장님();
-        익명_학생 = userFixture.익명_학생();
+        익명_학생 = userFixture.익명_학생(department);
         token_익명 = userFixture.getToken(익명_학생.getUser());
         notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
         shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);

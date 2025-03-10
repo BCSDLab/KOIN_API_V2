@@ -13,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.CourseTypeFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
@@ -41,6 +43,9 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Autowired
     private CourseTypeFixture courseTypeFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @BeforeAll
     void setup() {
@@ -98,7 +103,8 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_가진_시간표의_학기를_조회한다() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester1 = semesterFixture.semester_2019년도_2학기();
         Semester semester2 = semesterFixture.semester_2020년도_1학기();
@@ -181,7 +187,8 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Test
     void 학생이_가진_시간표의_학기를_조회한다_V3() throws Exception {
-        User user = userFixture.준호_학생().getUser();
+        Department department = departmentFixture.컴퓨터공학부();
+        User user = userFixture.준호_학생(department, null).getUser();
         String token = userFixture.getToken(user);
         Semester semester1 = semesterFixture.semester_2019년도_2학기();
         Semester semester2 = semesterFixture.semester_2020년도_1학기();

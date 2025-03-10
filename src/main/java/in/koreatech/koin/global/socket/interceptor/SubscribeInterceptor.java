@@ -38,16 +38,22 @@ public class SubscribeInterceptor implements ChannelInterceptor {
             UserPrincipal principal = (UserPrincipal) accessor.getUser();
 
             if (principal != null) {
-                SubscribeDestination subscribeDestination = SubscribeDestination.extractDestinationInfo(accessor);
-
-                userSessionService.updateUserStatus(
-                    principal.getUserId(),
-                    subscribeDestination.articleId(),
-                    subscribeDestination.chatRoomId()
-                );
+                updateUserSessionByDestination(accessor, principal.getUserId());
             }
         }
 
         return message;
+    }
+
+    private void updateUserSessionByDestination(StompHeaderAccessor accessor, Integer userId) {
+        if (SubscribeDestination.isChatRoomSubscribe(accessor)) {
+            SubscribeDestination destination = SubscribeDestination.extractDestinationInfo(accessor);
+            userSessionService.updateUserStatus(userId, destination.articleId(), destination.chatRoomId());
+            return;
+        }
+
+        if (SubscribeDestination.isChatRoomListSubscribe(accessor)) {
+            userSessionService.updateUserStatus(userId, UserSessionStatus.ACTIVE_CHAT_ROOM_LIST);
+        }
     }
 }

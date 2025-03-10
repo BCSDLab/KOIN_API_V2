@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,19 +25,19 @@ import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.ExcelResponseBuilder;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
+import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/coop")
 @RequiredArgsConstructor
 public class CoopController implements CoopApi {
 
     private final CoopService coopService;
 
-    @PatchMapping("/dining/soldout")
+    @PatchMapping("/coop/dining/soldout")
     public ResponseEntity<Void> changeSoldOut(
         @Auth(permit = {COOP}) Integer userId,
         @Valid @RequestBody SoldOutRequest soldOutRequest
@@ -47,7 +46,7 @@ public class CoopController implements CoopApi {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/dining/image")
+    @PatchMapping("/coop/dining/image")
     public ResponseEntity<Void> saveDiningImage(
         @Auth(permit = {COOP}) Integer userId,
         @RequestBody @Valid DiningImageRequest imageRequest
@@ -56,7 +55,7 @@ public class CoopController implements CoopApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/login")
+    @PostMapping("/coop/login")
     public ResponseEntity<CoopLoginResponse> coopLogin(
         @RequestBody @Valid CoopLoginRequest request
     ) {
@@ -65,7 +64,15 @@ public class CoopController implements CoopApi {
             .body(response);
     }
 
-    @GetMapping("/dining/excel")
+    @GetMapping("/user/coop/me")
+    public ResponseEntity<CoopResponse> getCoop(
+        @Auth(permit = COOP) Integer userId
+    ) {
+        CoopResponse coopResponse = coopService.getCoop(userId);
+        return ResponseEntity.ok().body(coopResponse);
+    }
+
+    @GetMapping("/coop/dining/excel")
     public ResponseEntity<InputStreamResource> generateCoopExcel(
         @Auth(permit = {COOP}) Integer userId,
         @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2022-11-29")
@@ -80,7 +87,7 @@ public class CoopController implements CoopApi {
         return ExcelResponseBuilder.buildExcelResponse(excelFile, startDate, endDate);
     }
 
-    @GetMapping("/dining/image")
+    @GetMapping("/coop/dining/image")
     public ResponseEntity<Resource> generateImageCompress(
         @Auth(permit = {COOP}) Integer userId,
         @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2022-11-29")

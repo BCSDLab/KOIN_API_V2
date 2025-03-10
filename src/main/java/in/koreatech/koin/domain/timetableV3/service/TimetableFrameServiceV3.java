@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.service;
 
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateTimetableFrameUpdate;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateMainTimetableRequired;
 import static in.koreatech.koin.domain.timetableV3.model.Term.fromDescription;
 
 import java.util.Comparator;
@@ -63,9 +63,9 @@ public class TimetableFrameServiceV3 {
         TimetableFrameUpdateRequestV3 request, Integer timetableFrameId, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(timetableFrameId);
-        validateTimetableFrameUpdate(frame, request.isMain());
+        validateMainTimetableRequired(frame, request.isMain());
         cancelIfMainTimetable(userId, frame.getSemester().getId(), request.isMain());
-        frame.updateTimetableFrame(frame.getSemester(), request.name(), request.isMain());
+        frame.renameAndSetMain(request.name(), request.isMain());
 
         List<TimetableFrame> frames = timetableFrameRepositoryV3.findByUserAndSemester(frame.getUser(),
             frame.getSemester());
@@ -79,7 +79,7 @@ public class TimetableFrameServiceV3 {
         if (isMain) {
             TimetableFrame mainTimetableFrame = timetableFrameRepositoryV3.getMainTimetableByUserIdAndSemesterId(userId,
                 semesterId);
-            mainTimetableFrame.updateMainFlag(false);
+            mainTimetableFrame.setMain(false);
         }
     }
 

@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetableV3.service;
 
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserOwnsFrame;
 
 import java.util.List;
 
@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
+import in.koreatech.koin.domain.timetableV3.dto.response.TakeAllTimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
@@ -33,7 +34,7 @@ public class TimetableLectureServiceV3 {
 
     public TimetableLectureResponseV3 getTimetableLecture(Integer timetableFrameId, Integer userId) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(timetableFrameId);
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
         return getTimetableLectureResponse(userId, frame);
     }
 
@@ -43,11 +44,23 @@ public class TimetableLectureServiceV3 {
         return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
     }
 
+    public TakeAllTimetableLectureResponse getTakeAllTimetableLectures(Integer userId) {
+        List<TimetableFrame> frames = timetableFrameRepositoryV3.findAllByUserIdAndIsMainTrue(userId);
+
+        List<TimetableLecture> collectedLectures = frames.stream()
+            .flatMap(frame -> frame.getTimetableLectures().stream())
+            .toList();
+
+        return new TakeAllTimetableLectureResponse(
+            TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3.from(collectedLectures)
+        );
+    }
+
     @Transactional
     public TimetableLectureResponseV3 rollbackTimetableLecture(List<Integer> timetableLecturesId, Integer userId) {
         timetableLecturesId.stream()
             .map(timetableLectureRepositoryV3::getByIdWithDeleted)
-            .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
+            .peek(lecture -> validateUserOwnsFrame(lecture.getTimetableFrame().getUser().getId(), userId))
             .forEach(TimetableLecture::undelete);
         entityManager.flush();
         TimetableLecture timeTableLecture = timetableLectureRepositoryV3.getById(timetableLecturesId.get(0));
@@ -57,14 +70,14 @@ public class TimetableLectureServiceV3 {
     @Transactional
     public TimetableLectureResponseV3 rollbackTimetableFrame(Integer frameId, Integer userId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV3.getByIdWithDeleted(frameId);
-        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        validateUserOwnsFrame(timetableFrame.getUser().getId(), userId);
 
         User user = userRepository.getById(userId);
         boolean hasTimetableFrame = timetableFrameRepositoryV3.existsByUserAndSemester(user,
             timetableFrame.getSemester());
 
         if (!hasTimetableFrame) {
-            timetableFrame.updateMainFlag(true);
+            timetableFrame.setMain(true);
         }
         timetableFrame.undelete();
 

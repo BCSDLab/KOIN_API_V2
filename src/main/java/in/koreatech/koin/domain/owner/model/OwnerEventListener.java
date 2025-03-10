@@ -2,19 +2,15 @@ package in.koreatech.koin.domain.owner.model;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
-import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
-import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
-import in.koreatech.koin.domain.owner.model.dto.OwnerSmsRequestEvent;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
-import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
+import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
+import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
+import in.koreatech.koin.domain.owner.model.dto.OwnerSmsRequestEvent;
+import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.global.domain.slack.SlackClient;
 import in.koreatech.koin.global.domain.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +21,8 @@ import lombok.RequiredArgsConstructor;
 public class OwnerEventListener {
 
     private final SlackClient slackClient;
-    private final ShopRepository shopRepository;
+    private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final SlackNotificationFactory slackNotificationFactory;
-    private final OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerEmailRequest(OwnerEmailRequestEvent event) {
@@ -38,7 +33,7 @@ public class OwnerEventListener {
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerPhoneRequest(OwnerSmsRequestEvent ownerPhoneRequestEvent) {
         var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(
-                ownerPhoneRequestEvent.phoneNumber());
+            ownerPhoneRequestEvent.phoneNumber());
         slackClient.sendMessage(notification);
     }
 
@@ -50,16 +45,13 @@ public class OwnerEventListener {
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerRegisterBySms(OwnerRegisterEvent event) {
         var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(
-                event.ownerName(),
-                shopsName(event.ownerId())
+            event.ownerName(),
+            shopsName(event.ownerId())
         );
         slackClient.sendMessage(notification);
     }
 
     private String shopsName(Integer id) {
-        return shopRepository.findAllByOwnerId(id)
-                .stream()
-                .map(Shop::getName)
-                .collect(Collectors.joining(", "));
+        return ownerShopRedisRepository.findById(id).getShopName();
     }
 }

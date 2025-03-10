@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.community.article.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,19 +25,26 @@ import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
 import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTracker;
 import in.koreatech.koin.domain.community.article.model.KeywordRankingManager;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
+import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +69,8 @@ public class ArticleService {
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
+    private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
+    private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
     private final UserRepository userRepository;
@@ -113,10 +124,7 @@ public class ArticleService {
     @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
         String ipAddress, Integer userId) {
-        if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
-            throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
-        }
-
+        verifyQueryLength(query);
         Criteria criteria = Criteria.of(page, limit);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
         Page<Article> articles;
@@ -140,6 +148,30 @@ public class ArticleService {
     public ArticleHotKeywordResponse getArticlesHotKeyword(int count) {
         List<String> topKeywords = keywordRankingManager.getTopKeywords(count);
         return ArticleHotKeywordResponse.from(topKeywords);
+    }
+
+    @Transactional
+    public LostItemArticlesResponse searchLostItemArticles(String query, Integer page, Integer limit,
+        String ipAddress, Integer userId) {
+        verifyQueryLength(query);
+        Criteria criteria = Criteria.of(page, limit);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
+        Page<Article> articles = articleRepository.findAllByBoardIdAndTitleContaining(LOST_ITEM_BOARD_ID, query,
+            pageRequest);
+
+        String[] keywords = query.split("\\s+");
+
+        for (String keyword : keywords) {
+            popularKeywordTracker.updateKeywordWeight(ipAddress, keyword);
+        }
+
+        return LostItemArticlesResponse.of(articles, criteria, userId);
+    }
+
+    private void verifyQueryLength(String query) {
+        if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
+            throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
+        }
     }
 
     public LostItemArticlesResponse getLostItemArticles(String type, Integer page, Integer limit, Integer userId) {
@@ -182,7 +214,7 @@ public class ArticleService {
             newArticles.add(lostItemArticle);
         }
 
-        sendKeywordNotification(newArticles);
+        sendKeywordNotification(newArticles, userId);
         return LostItemArticleResponse.of(newArticles.get(0), true);
     }
 
@@ -221,8 +253,8 @@ public class ArticleService {
         return boardRepository.getById(boardId);
     }
 
-    private void sendKeywordNotification(List<Article> articles) {
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
+    private void sendKeywordNotification(List<Article> articles, Integer authorId) {
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, authorId);
         if (!keywordEvents.isEmpty()) {
             for (ArticleKeywordEvent event : keywordEvents) {
                 eventPublisher.publishEvent(event);

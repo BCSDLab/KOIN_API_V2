@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.timetableV3.dto.response.TakeAllTimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.service.TimetableLectureServiceV3;
 import in.koreatech.koin.global.auth.Auth;
@@ -28,6 +29,14 @@ public class TimetableLectureControllerV3 implements TimetableLectureApiV3 {
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponseV3 response = lectureServiceV3.getTimetableLecture(timetableFrameId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/v3/timetables/main/lectures")
+    public ResponseEntity<TakeAllTimetableLectureResponse> getTakeAllTimetableLectures(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    ) {
+        TakeAllTimetableLectureResponse response = lectureServiceV3.getTakeAllTimetableLectures(userId);
         return ResponseEntity.ok(response);
     }
 

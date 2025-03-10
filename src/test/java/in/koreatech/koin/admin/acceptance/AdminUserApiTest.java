@@ -18,8 +18,10 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 
@@ -36,6 +38,9 @@ class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @BeforeAll
     void setup() {
@@ -63,7 +68,8 @@ class AdminUserApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_로그인_한다_관리자가_아니면_404_반환() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
         String email = student.getUser().getEmail();
         String password = "1234";
 
@@ -150,7 +156,8 @@ class AdminUserApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_회원을_조회한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
 
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());
@@ -168,7 +175,8 @@ class AdminUserApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_회원을_삭제한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
 
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());

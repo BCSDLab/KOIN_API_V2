@@ -44,6 +44,8 @@ import lombok.NoArgsConstructor;
 public class Article extends BaseEntity {
 
     private static final String ADMIN_NOTICE_AUTHOR = "BCSD Lab";
+    private static final String DELETED_USER = "탈퇴한 사용자";
+    private static final String ANONYMOUS_USER = "익명";
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -118,26 +120,24 @@ public class Article extends BaseEntity {
     @PostPersist
     @PostLoad
     public void updateAuthor() {
-        if (koreatechArticle == null && koinArticle == null && lostItemArticle == null) {
-            return;
-        }
-        if (koreatechArticle != null) {
-            author = koreatechArticle.getAuthor();
-            return;
-        }
-        if (lostItemArticle != null) {
-            author = lostItemArticle.getAuthor().getNickname();
-            return;
-        }
         if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
             author = ADMIN_NOTICE_AUTHOR;
             return;
         }
-        if (Objects.equals(koinArticle.getUser(), null)) {
-            author = "탈퇴한 사용자";
+        if (koinArticle != null) {
+            author = (koinArticle.getUser() != null) ? koinArticle.getUser().getName() : DELETED_USER;
             return;
         }
-        author = koinArticle.getUser().getName();
+        if (koreatechArticle != null) {
+            author = (koreatechArticle.getAuthor() != null) ? koreatechArticle.getAuthor() : DELETED_USER;
+            return;
+        }
+        if (lostItemArticle != null) {
+            User user = lostItemArticle.getAuthor();
+            author = (user != null && user.getNickname() != null) ? user.getNickname() : ANONYMOUS_USER;
+            return;
+        }
+        author = DELETED_USER;
     }
 
     public void setAuthor(String author) {
@@ -247,7 +247,7 @@ public class Article extends BaseEntity {
             .author(author)
             .type(request.type())
             .category(request.category())
-            .foundPlace(request.foundPlace())
+            .foundPlace(getValidatedFoundPlace(request.foundPlace()))
             .foundDate(request.foundDate())
             .images(images)
             .isCouncil(false)
@@ -272,5 +272,9 @@ public class Article extends BaseEntity {
 
         lostItemArticle.setArticle(article);
         return article;
+    }
+
+    private static String getValidatedFoundPlace(String foundPlace) {
+        return (foundPlace == null || foundPlace.isBlank()) ? "장소 미상" : foundPlace;
     }
 }
