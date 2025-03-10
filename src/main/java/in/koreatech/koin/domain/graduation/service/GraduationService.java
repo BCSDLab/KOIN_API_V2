@@ -247,7 +247,7 @@ public class GraduationService {
                             .credit(bestCatalog.getCredit())
                             .major(bestCatalog.getMajor())
                             .department(bestCatalog.getDepartment())
-                            .courseType(timetableLecture.getCourseType()) // 🎯 학생이 수정한 이수구분 적용
+                            .courseType(timetableLecture.getCourseType())
                             .generalEducationArea(bestCatalog.getGeneralEducationArea())
                             .build();
                     }
@@ -276,7 +276,17 @@ public class GraduationService {
             return catalogs.get(0);
         }
 
-        return null;
+        CourseType defaultCourseType = courseTypeRepository.getByName(DEFAULT_COURSER_TYPE);
+        return Catalog.builder()
+            .year(studentYear)
+            .code("UNKNOWN")
+            .lectureName(lectureName)
+            .credit(0)
+            .major(major)
+            .department(null)
+            .courseType(defaultCourseType)
+            .generalEducationArea(null)
+            .build();
     }
 
     private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList, Student student) {
@@ -297,7 +307,17 @@ public class GraduationService {
                 .orElse(null);
 
             if (matchingCatalog == null) {
-                continue;
+                CourseType defaultCourseType = courseTypeRepository.getByName(DEFAULT_COURSER_TYPE);
+                matchingCatalog = Catalog.builder()
+                    .year(StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber()))
+                    .code("UNKNOWN")
+                    .lectureName(lectureName)
+                    .credit(0)
+                    .major(student.getMajor())
+                    .department(null)
+                    .courseType(defaultCourseType)
+                    .generalEducationArea(null)
+                    .build();
             }
 
             CourseType appliedCourseType = matchingCatalog.getCourseType();
