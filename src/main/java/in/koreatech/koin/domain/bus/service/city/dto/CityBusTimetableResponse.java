@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.dto;
+package in.koreatech.koin.domain.bus.service.city.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
