@@ -127,10 +127,7 @@ public class ArticleService {
     @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
         String ipAddress, Integer userId) {
-        if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
-            throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
-        }
-
+        verifyQueryLength(query);
         Criteria criteria = Criteria.of(page, limit);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
         Page<Article> articles;
@@ -141,10 +138,26 @@ public class ArticleService {
         } else {
             articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
         }
-
         saveOrUpdateSearchLog(query, ipAddress);
-
         return ArticlesResponse.of(articles, criteria, userId);
+    }
+
+    @Transactional
+    public LostItemArticlesResponse searchLostItemArticles(String query, Integer page, Integer limit,
+        String ipAddress, Integer userId) {
+        verifyQueryLength(query);
+        Criteria criteria = Criteria.of(page, limit);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
+        Page<Article> articles = articleRepository.findAllByBoardIdAndTitleContaining(LOST_ITEM_BOARD_ID, query,
+            pageRequest);
+        saveOrUpdateSearchLog(query, ipAddress);
+        return LostItemArticlesResponse.of(articles, criteria, userId);
+    }
+
+    private void verifyQueryLength(String query) {
+        if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
+            throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
+        }
     }
 
     public ArticleHotKeywordResponse getArticlesHotKeyword(Integer count) {
@@ -338,7 +351,7 @@ public class ArticleService {
             newArticles.add(lostItemArticle);
         }
 
-        sendKeywordNotification(newArticles);
+        sendKeywordNotification(newArticles, userId);
         return LostItemArticleResponse.of(newArticles.get(0), true);
     }
 
@@ -377,8 +390,8 @@ public class ArticleService {
         return boardRepository.getById(boardId);
     }
 
-    private void sendKeywordNotification(List<Article> articles) {
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
+    private void sendKeywordNotification(List<Article> articles, Integer authorId) {
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, authorId);
         if (!keywordEvents.isEmpty()) {
             for (ArticleKeywordEvent event : keywordEvents) {
                 eventPublisher.publishEvent(event);

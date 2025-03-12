@@ -4,8 +4,6 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.net.URI;
 
-import in.koreatech.koin.domain.user.dto.*;
-
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +13,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
+import in.koreatech.koin.domain.user.dto.UserLoginRequest;
+import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
+import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
+import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.global.auth.Auth;
@@ -33,8 +40,7 @@ public class UserController implements UserApi {
         @RequestBody @Valid UserLoginRequest request
     ) {
         UserLoginResponse response = userService.login(request);
-        return ResponseEntity.created(URI.create("/"))
-            .body(response);
+        return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/logout")
@@ -104,14 +110,5 @@ public class UserController implements UserApi {
     ) {
         userValidationService.checkPassword(request, userId);
         return ResponseEntity.ok().build();
-    }
-
-    // 영양사로 옮길 예정
-    @GetMapping("/user/coop/me")
-    public ResponseEntity<CoopResponse> getCoop(
-        @Auth(permit = COOP) Integer userId
-    ) {
-        CoopResponse coopResponse = userService.getCoop(userId);
-        return ResponseEntity.ok().body(coopResponse);
     }
 }

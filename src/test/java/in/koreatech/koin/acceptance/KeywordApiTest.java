@@ -27,9 +27,11 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.KeywordFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
@@ -54,6 +56,9 @@ public class KeywordApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Autowired
+    private DepartmentFixture departmentFixture;
+
+    @Autowired
     private BoardFixture boardFixture;
 
     @Autowired
@@ -63,11 +68,13 @@ public class KeywordApiTest extends AcceptanceTest {
     private Admin 관리자;
     private String token;
     private String adminToken;
+    private Department department;
 
     @BeforeAll
     void setup() {
         clear();
-        준호_학생 = userFixture.준호_학생();
+        department = departmentFixture.컴퓨터공학부();
+        준호_학생 = userFixture.준호_학생(department, null);
         관리자 = userFixture.코인_운영자();
         token = userFixture.getToken(준호_학생.getUser());
         adminToken = userFixture.getToken(관리자.getUser());

@@ -134,13 +134,13 @@ public final class UserFixture {
         );
     }
 
-    public Student 준호_학생() {
+    public Student 준호_학생(Department department, Major major) {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2019136135")
                 .anonymousNickname("익명")
-                .department(new Department("컴퓨터공학부"))
-                .major(new Major("컴퓨터공학전공"))
+                .department(department)
+                .major(major)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
@@ -160,12 +160,12 @@ public final class UserFixture {
         );
     }
 
-    public Student 익명_학생() {
+    public Student 익명_학생(Department department) {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2020136111")
                 .anonymousNickname("익명111")
-                .department(new Department("컴퓨터공학부"))
+                .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
@@ -184,12 +184,12 @@ public final class UserFixture {
         );
     }
 
-    public Student 성빈_학생() {
+    public Student 성빈_학생(Department department) {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2023100514")
                 .anonymousNickname("익명123")
-                .department(new Department("컴퓨터공학부"))
+                .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(

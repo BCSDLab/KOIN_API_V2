@@ -47,7 +47,6 @@ public class AdminOwnerService {
                 shop.updateOwner(owner);
                 owner.setGrantShop(true);
             }
-            adminOwnerShopRedisRepository.deleteById(id);
         });
     }
 

@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.timetableV2.repository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +40,7 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
             .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
     }
 
-    default TimetableFrame getMainTimetableByUserIdAndSemesterId(Integer userId, Integer semesterId) {
+    default TimetableFrame getMainTimetableFrame(Integer userId, Integer semesterId) {
         return findByUserIdAndSemesterIdAndIsMainTrue(userId, semesterId)
             .orElseThrow(
                 () -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
@@ -50,13 +49,6 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
     TimetableFrame save(TimetableFrame timetableFrame);
-
-    Optional<TimetableFrame> findByUser(User user);
-
-    default TimetableFrame getByUser(User user) {
-        return findByUser(user)
-            .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + user.getId()));
-    }
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(
@@ -93,8 +85,6 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("id: " + id));
     }
 
-    void deleteAllByUserAndSemester(User user, Semester semester);
-
     Optional<List<TimetableFrame>> findAllByUserId(Integer userId);
 
     boolean existsByUserAndSemester(User user, Semester semester);
@@ -102,5 +92,5 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     default List<TimetableFrame> getAllByUserId(Integer userId) {
         return findAllByUserId(userId)
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + userId));
-    };
+    }
 }

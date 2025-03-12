@@ -27,8 +27,10 @@ import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.AbtestFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.DeviceFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
@@ -54,14 +56,19 @@ class AbtestApiTest extends AcceptanceTest {
     @Autowired
     private DeviceRepository deviceRepository;
 
+    @Autowired
+    private DepartmentFixture departmentFixture;
+
     private Admin admin;
     private String adminToken;
+    private Department department;
 
     @BeforeAll
     void setUp() {
         clear();
         admin = userFixture.코인_운영자();
         adminToken = userFixture.getToken(admin.getUser());
+        department = departmentFixture.컴퓨터공학부();
     }
 
     @Test
@@ -366,7 +373,7 @@ class AbtestApiTest extends AcceptanceTest {
 
     @Test
     void 실험군_수동편입_이름으로_유저_목록을_조회한다() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Student student = userFixture.성빈_학생(department);
         Owner owner = userFixture.성빈_사장님();
 
         mockMvc.perform(
@@ -396,7 +403,7 @@ class AbtestApiTest extends AcceptanceTest {
 
     @Test
     void 실험군_수동편입_유저_ID로_기기_목록을_조회한다() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Student student = userFixture.성빈_학생(department);
         Device device1 = deviceFixture.아이폰(student.getUser().getId());
         Device device2 = deviceFixture.갤럭시(student.getUser().getId());
 
@@ -428,7 +435,7 @@ class AbtestApiTest extends AcceptanceTest {
 
     @Test
     void 특정_유저의_실험군을_수동으로_편입시킨다() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Student student = userFixture.성빈_학생(department);
         Device device = deviceFixture.아이폰(student.getUser().getId());
         Abtest abtest = abtestFixture.식단_UI_실험();
 
@@ -463,7 +470,7 @@ class AbtestApiTest extends AcceptanceTest {
 
     @Test
     void 자신의_실험군을_조회한다() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Student student = userFixture.성빈_학생(department);
         final Device device = deviceFixture.아이폰(student.getUser().getId());
         Abtest abtest = abtestFixture.식단_UI_실험();
 
@@ -512,7 +519,7 @@ class AbtestApiTest extends AcceptanceTest {
 
     @Test
     void 실험군_자동_편입_실험군에_최초로_편입된다() throws Exception {
-        Student student = userFixture.성빈_학생();
+        Student student = userFixture.성빈_학생(department);
         Device device1 = deviceFixture.아이폰(student.getUser().getId());
         Device device2 = deviceFixture.갤럭시(student.getUser().getId());
         Abtest abtest = abtestFixture.식단_UI_실험();

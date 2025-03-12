@@ -77,6 +77,19 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok().body(foundArticles);
     }
 
+    @GetMapping("/lost-item/search")
+    public ResponseEntity<LostItemArticlesResponse> searchArticles(
+        @RequestParam String query,
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @IpAddress String ipAddress,
+        @UserId Integer userId
+    ) {
+        LostItemArticlesResponse foundArticles = articleService.searchLostItemArticles(query, page, limit, ipAddress,
+            userId);
+        return ResponseEntity.ok().body(foundArticles);
+    }
+
     @GetMapping("/hot/keyword")
     public ResponseEntity<ArticleHotKeywordResponse> getArticlesHotKeyword(
         @RequestParam Integer count

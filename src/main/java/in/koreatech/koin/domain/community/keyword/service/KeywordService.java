@@ -157,7 +157,7 @@ public class KeywordService {
                 articles.add(articleRepository.getById(id));
             }
 
-            List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
+            List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
 
             if (!keywordEvents.isEmpty()) {
                 for (ArticleKeywordEvent event : keywordEvents) {

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.timetableV3.dto.response.TakeAllTimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +37,21 @@ public interface TimetableLectureApiV3 {
     @GetMapping("/v3/timetables/lecture")
     ResponseEntity<TimetableLectureResponseV3> getTimetableLecture(
         @RequestParam(value = "timetable_frame_id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "수강한 강의 정보 전체 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/v3/timetables/main/lectures")
+    ResponseEntity<TakeAllTimetableLectureResponse> getTakeAllTimetableLectures(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 

@@ -1,15 +1,13 @@
 package in.koreatech.koin.domain.owner.service;
 
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
-import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class OwnerUtilService {
 
     private final OwnerRepository ownerRepository;
-    private final UserTokenRepository userTokenRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final ShopRepository shopRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -33,7 +31,7 @@ public class OwnerUtilService {
 
     public String saveRefreshToken(User user) {
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         return savedToken.getRefreshToken();
     }
 

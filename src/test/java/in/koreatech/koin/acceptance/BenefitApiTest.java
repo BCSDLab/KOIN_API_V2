@@ -17,9 +17,11 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.BenefitCategoryFixture;
 import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
@@ -47,6 +49,9 @@ public class BenefitApiTest extends AcceptanceTest {
     UserFixture userFixture;
 
     @Autowired
+    DepartmentFixture departmentFixture;
+
+    @Autowired
     ShopCategoryFixture shopCategoryFixture;
 
     @Autowired
@@ -63,6 +68,7 @@ public class BenefitApiTest extends AcceptanceTest {
     Owner 현수_사장님;
 
     Student 성빈_학생;
+    Department 컴퓨터_공학부;
 
     Shop 마슬랜;
     Shop 김밥천국;
@@ -93,7 +99,7 @@ public class BenefitApiTest extends AcceptanceTest {
         shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
         shopCategory_일반 = shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
 
-        성빈_학생 = userFixture.성빈_학생();
+        성빈_학생 = userFixture.성빈_학생(departmentFixture.컴퓨터공학부());
 
         benefitCategoryMapFixture.설명이_포함된_혜택_추가(김밥천국, 배달비_무료, "무료");
         benefitCategoryMapFixture.혜택_추가(마슬랜, 배달비_무료);

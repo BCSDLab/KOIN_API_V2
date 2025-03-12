@@ -1,19 +1,19 @@
 package in.koreatech.koin.domain.student.repository;
 
-import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import org.springframework.data.repository.Repository;
 
 import java.util.Optional;
 
-public interface StudentRedisRepository extends Repository<StudentTemporaryStatus, String> {
+public interface StudentRedisRepository extends Repository<UnAuthenticatedStudentInfo, String> {
 
-    StudentTemporaryStatus save(StudentTemporaryStatus studentTemporaryStatus);
+    UnAuthenticatedStudentInfo save(UnAuthenticatedStudentInfo unauthenticatedStudentInfo);
 
-    Optional<StudentTemporaryStatus> findById(String email);
+    Optional<UnAuthenticatedStudentInfo> findById(String email);
 
-    Optional<StudentTemporaryStatus> findByNickname(String nickname);
+    Optional<UnAuthenticatedStudentInfo> findByNickname(String nickname);
 
-    Optional<StudentTemporaryStatus> findByAuthToken(String authToken);
+    Optional<UnAuthenticatedStudentInfo> findByAuthToken(String authToken);
 
     void deleteById(String email);
 }

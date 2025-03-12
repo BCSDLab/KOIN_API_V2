@@ -82,13 +82,11 @@ public class AdminOwnerApiTest extends AcceptanceTest {
 
         //영속성 컨테스트 동기화
         Owner updatedOwner = adminOwnerRepository.getById(owner.getId());
-        var resultOwnerShop = adminOwnerShopRedisRepository.findById(owner.getId());
 
         assertSoftly(
             softly -> {
                 softly.assertThat(updatedOwner.getUser().isAuthed()).isEqualTo(true);
                 softly.assertThat(updatedOwner.isGrantShop()).isEqualTo(true);
-                softly.assertThat(resultOwnerShop).isEmpty();
             }
         );
     }

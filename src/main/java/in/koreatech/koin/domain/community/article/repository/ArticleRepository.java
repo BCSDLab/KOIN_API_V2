@@ -45,8 +45,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     }
 
     @Query(
-        value = "SELECT a.* FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type",
-        countQuery = "SELECT COUNT(*) FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type",
+        value = "SELECT a.* FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type AND a.is_deleted = 0",
+        countQuery = "SELECT COUNT(*) FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type AND a.is_deleted = 0",
         nativeQuery = true
     )
     Page<Article> findAllByLostItemArticleType(@Param("type") String type, PageRequest pageRequest);

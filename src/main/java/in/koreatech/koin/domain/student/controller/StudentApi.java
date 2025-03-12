@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.student.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.global.auth.Auth;
@@ -48,7 +51,22 @@ public interface StudentApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "학생 정보 조회(학적 포함)")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/user/student/me/academic-info")
+    ResponseEntity<StudentWithAcademicResponse> getStudentWithAcademicInfo(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
@@ -61,6 +79,23 @@ public interface StudentApi {
     ResponseEntity<StudentUpdateResponse> updateStudent(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
         @Valid StudentUpdateRequest studentUpdateRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "학생 학적 정보 수정")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/user/student/academic-info")
+    ResponseEntity<StudentAcademicInfoUpdateResponse> updateStudentAcademicInfo(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @Valid @RequestBody StudentAcademicInfoUpdateRequest request
     );
 
     @ApiResponses(

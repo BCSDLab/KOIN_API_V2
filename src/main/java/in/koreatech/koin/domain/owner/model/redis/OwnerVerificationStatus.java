@@ -10,7 +10,7 @@ import lombok.Getter;
 @RedisHash(value = "verificationStatus@")
 public class OwnerVerificationStatus {
 
-    private static final long CACHE_EXPIRE_SECOND = 60 * 60 * 2L;
+    private static final long CACHE_EXPIRE_SECOND = 60 * 3L;
 
     @Id
     private String key;

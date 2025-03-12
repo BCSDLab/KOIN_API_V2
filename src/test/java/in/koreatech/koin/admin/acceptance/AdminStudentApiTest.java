@@ -23,6 +23,7 @@ import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.fixture.DepartmentFixture;
@@ -52,6 +53,9 @@ public class AdminStudentApiTest extends AcceptanceTest {
     @Autowired
     private MajorFixture majorFixture;
 
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
     @BeforeAll
     void setup() {
         clear();
@@ -59,7 +63,9 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_학생_리스트를_파라미터가_없이_조회한다_페이지네이션() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
         Admin adminUser = userFixture.코인_운영자();
 
         String token = userFixture.getToken(adminUser.getUser());
@@ -150,8 +156,11 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_학생_리스트를_닉네임으로_조회한다_페이지네이션() throws Exception {
-        Student student1 = userFixture.성빈_학생();
-        Student student2 = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student1 = userFixture.성빈_학생(department);
+        Student student = userFixture.준호_학생(department, null);
+
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());
 
@@ -184,7 +193,9 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_특정_학생_정보를_조회한다_관리자가_아니면_403_반환() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
@@ -197,7 +208,9 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_특정_학생_정보를_조회한다() throws Exception {
-        Student student = userFixture.준호_학생();
+        Department department = departmentFixture.컴퓨터공학부();
+
+        Student student = userFixture.준호_학생(department, null);
 
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());
@@ -232,10 +245,9 @@ public class AdminStudentApiTest extends AcceptanceTest {
     @Test
     void 관리자가_특정_학생_정보를_수정한다() throws Exception {
         departmentFixture.전체학부();
-        majorFixture.컴퓨터공학전공();
-        majorFixture.기계공학전공();
 
-        Student student = userFixture.준호_학생();
+        Department department = departmentRepository.getByName("컴퓨터공학부");
+        Student student = userFixture.준호_학생(department, null);
 
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());

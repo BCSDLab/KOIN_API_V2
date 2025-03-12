@@ -27,7 +27,9 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
@@ -46,6 +48,9 @@ class AdminShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @Autowired
     private ShopReviewFixture shopReviewFixture;
@@ -71,6 +76,7 @@ class AdminShopReviewApiTest extends AcceptanceTest {
     private Admin admin;
     private Owner owner_현수;
     private Student student_익명;
+    private Department 컴퓨터_공학부;
     private ShopReview 준호_리뷰;
     private Shop shop_마슬랜;
     private String token_admin;
@@ -81,8 +87,9 @@ class AdminShopReviewApiTest extends AcceptanceTest {
     @BeforeAll
     void setUp() {
         clear();
+        컴퓨터_공학부 = departmentFixture.컴퓨터공학부();
         admin = userFixture.코인_운영자();
-        student_익명 = userFixture.익명_학생();
+        student_익명 = userFixture.익명_학생(컴퓨터_공학부);
         token_admin = userFixture.getToken(admin.getUser());
         owner_현수 = userFixture.현수_사장님();
         shop_마슬랜 = shopFixture.마슬랜(owner_현수, shopCategory_치킨);

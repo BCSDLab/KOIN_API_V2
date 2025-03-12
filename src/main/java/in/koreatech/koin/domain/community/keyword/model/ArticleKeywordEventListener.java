@@ -5,6 +5,7 @@ import static in.koreatech.koin.global.fcm.MobileAppPath.KEYWORD;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -46,6 +47,7 @@ public class ArticleKeywordEventListener {
             .filter(this::hasDeviceToken)
             .filter(subscribe -> isKeywordRegistered(event, subscribe))
             .filter(subscribe -> isNewArticle(event, subscribe))
+            .filter(subscribe -> !isMyArticle(event, subscribe))
             .map(subscribe -> createAndRecordNotification(article, board, event.keyword(), subscribe))
             .toList();
 
@@ -68,6 +70,12 @@ public class ArticleKeywordEventListener {
             .findLastNotifiedArticleIdByUserId(userId)
             .orElse(0);
         return !lastNotifiedId.equals(event.articleId());
+    }
+
+    private boolean isMyArticle(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
+        Integer authorId = event.authorId();
+        Integer subscriberId = subscribe.getUser().getId();
+        return Objects.equals(authorId, subscriberId);
     }
 
     private Notification createAndRecordNotification(

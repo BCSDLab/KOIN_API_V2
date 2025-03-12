@@ -1,11 +1,14 @@
 package in.koreatech.koin.domain.bus.service.shuttle;
 
+import static in.koreatech.koin.domain.bus.enums.ShuttleBusRegion.CHEONAN_ASAN;
+import static in.koreatech.koin.domain.version.model.VersionType.SHUTTLE;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -14,15 +17,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
-import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
-import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.service.shuttle.model.SchoolBusTimetable;
+import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
-import in.koreatech.koin.domain.bus.service.shuttle.model.BusCourse;
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
+import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.service.shuttle.dto.ShuttleBusRoutesResponse;
+import in.koreatech.koin.domain.bus.service.shuttle.dto.ShuttleBusTimetableResponse;
+import in.koreatech.koin.domain.bus.service.shuttle.model.ArrivalNode;
 import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
+import in.koreatech.koin.domain.bus.service.shuttle.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import in.koreatech.koin.domain.version.dto.VersionMessageResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
@@ -33,15 +40,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ShuttleBusService {
 
-    private final ShuttleBusRepository shuttleBusRepository;
     private final VersionService versionService;
-    private final BusRepository busRepository;
+    private final ShuttleBusRepository shuttleBusRepository;
     private final Clock clock;
 
     public List<BusCourseResponse> getBusCourses() {
-        return busRepository.findAll().stream()
-            .map(BusCourseResponse::from)
-            .toList();
+        List<BusCourseResponse> courses = new ArrayList<>();
+        for (var region : ShuttleRouteName.values()) {
+            for (var direction : BusDirection.values()) {
+                courses.add(BusCourseResponse.of(region, direction));
+            }
+        }
+        return courses;
     }
 
     public ShuttleBusRoutesResponse getShuttleBusRoutes() {
@@ -56,37 +66,30 @@ public class ShuttleBusService {
     }
 
     public List<BusRemainTime> getShuttleBusRemainTimes(BusType busType, BusStation depart, BusStation arrival) {
-        List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
+        List<Route> routes = getShuttleRoutesByBusType(busType);
 
-        return busCourses.stream()
-            .map(BusCourse::getRoutes)
-            .flatMap(routes ->
-                routes.stream()
-                    .filter(route -> route.isRunning(clock))
-                    .filter(route -> route.isCorrectRoute(depart, arrival, clock))
-                    .map(route -> route.getRemainTime(depart))
-            )
+        return routes.stream()
+            .filter(route -> route.isRunning(clock))
+            .filter(route -> route.isCorrectRoute(depart, arrival, clock))
+            .map(route -> route.getRemainTime(depart))
             .distinct()
             .sorted()
             .toList();
     }
 
     public List<SchoolBusTimetable> getSchoolBusTimetables(BusType busType, String direction, String region) {
-        BusCourse busCourse = busRepository
-            .getByBusTypeAndDirectionAndRegion(busType.getName(), direction, region);
+        ShuttleBusRegion busRegion = ShuttleBusRegion.convertFrom(region);
+        String busDirection = BusDirection.from(direction).getName();
 
-        return busCourse.getRoutes().stream()
-            .map(route -> new SchoolBusTimetable(
-                route.getRouteName(),
-                route.getArrivalInfos().stream()
-                    .map(node -> new SchoolBusTimetable.ArrivalNode(
-                        node.getNodeName(), node.getArrivalTime())
-                    ).toList())).toList();
+        return getShuttleRoutesByBusType(busType).stream()
+            .filter(route -> route.getDirection().equals(busDirection))
+            .filter(route -> route.getRegion().equals(busRegion))
+            .map(SchoolBusTimetable::new)
+            .toList();
     }
 
     public SingleBusTimeResponse searchShuttleBusTime(BusStation depart, BusStation arrival, BusType busType,
         LocalDateTime targetTime) {
-        SingleBusTimeResponse busTimeResponse;
         ZonedDateTime zonedAt = targetTime.atZone(clock.getZone());
         Clock clockAt = Clock.fixed(zonedAt.toInstant(), zonedAt.getZone());
 
@@ -94,25 +97,34 @@ public class ShuttleBusService {
             .getDisplayName(TextStyle.SHORT, Locale.US)
             .toUpperCase();
 
-        LocalTime arrivalTime = busRepository.findByBusType(busType.getName()).stream()
-            .filter(busCourse -> busCourse.getRegion().equals("천안"))
-            .map(BusCourse::getRoutes)
-            .flatMap(routes ->
-                routes.stream()
-                    .filter(route -> route.getRunningDays().contains(todayName))
-                    .filter(route -> route.isRunning(clockAt))
-                    .filter(route -> route.isCorrectRoute(depart, arrival, clockAt))
-                    .flatMap(route ->
-                        route.getArrivalInfos().stream()
-                            .filter(arrivalNode -> depart.getDisplayNames().contains(arrivalNode.getNodeName()))
-                    )
+        List<Route> routes = getShuttleRoutesByBusType(busType).stream()
+            .filter(route -> route.getRegion().equals(CHEONAN_ASAN))
+            .filter(route -> route.getRunningDays().contains(todayName))
+            .filter(route -> route.isRunning(clockAt))
+            .filter(route -> route.isCorrectRoute(depart, arrival, clockAt))
+            .toList();
+
+        LocalTime arrivalTime = routes.stream()
+            .flatMap(route ->
+                route.getArrivalNodes().stream()
+                    .filter(arrivalNode -> depart.getDisplayNames().contains(arrivalNode.getNodeName()))
             )
             .min(Comparator.comparing(o -> LocalTime.parse(o.getArrivalTime())))
-            .map(Route.ArrivalNode::getArrivalTime)
+            .map(ArrivalNode::getArrivalTime)
             .map(LocalTime::parse)
             .orElse(null);
 
-        busTimeResponse = new SingleBusTimeResponse(busType.getName(), arrivalTime);
-        return busTimeResponse;
+        return new SingleBusTimeResponse(busType.getName(), arrivalTime);
+    }
+
+    private List<Route> getShuttleRoutesByBusType(BusType busType) {
+        String semester = versionService.getVersionEntity(SHUTTLE).getTitle();
+        List<ShuttleRouteType> routeTypes = ShuttleRouteType.convertFrom(busType);
+        List<Route> routes = routeTypes.stream()
+            .flatMap(routeType ->
+                shuttleBusRepository.findAllBySemesterTypeAndRouteType(semester, routeType).stream())
+            .toList();
+        routes.forEach(Route::sortArrivalNodesByDirection);
+        return routes;
     }
 }
