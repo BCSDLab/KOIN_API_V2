@@ -98,6 +98,11 @@ naver:
     serviceId: ncp:sms:kr:test
     fromNumber: "01012331234"
 
+portal:
+  koreatech:
+    id: test
+    password: test
+    ip: 203.255.221.0
 
 OPEN_API_KEY_PUBLIC: testck
 
