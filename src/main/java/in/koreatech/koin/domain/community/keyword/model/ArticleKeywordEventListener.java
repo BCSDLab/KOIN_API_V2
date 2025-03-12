@@ -60,6 +60,7 @@ public class ArticleKeywordEventListener {
 
     private boolean isKeywordRegistered(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
         return event.keyword().getArticleKeywordUserMaps().stream()
+            .filter(map -> !map.getIsDeleted())
             .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getId()));
     }
 
