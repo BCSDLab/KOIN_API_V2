@@ -12,6 +12,8 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -66,13 +68,22 @@ public class BatchKoreatechLoginService {
     public void login() {
         List<HttpCookie> cookies;
         try {
-            checkLoginId();
+            // 통합 로그인
+            requestPost(
+                "https://tsso.koreatech.ac.kr/svc/tk/Login.do",
+                "RelayState=/exsignon/sso/main.jsp&id=testwww&targetId=testwww&" +
+                    "user_id=" + userId + "&user_password=" + userPwd
+            );
+            requestGet("https://www.koreatech.ac.kr/sso/sessionChecker.es");
 
-            setCookie("kut_login_type", "id", "/", "portal.koreatech.ac.kr");
-            checkSecondLoginCert();
+            // 아우누리 로드
+            requestGet("https://portal.koreatech.ac.kr");
 
-            ssoAssert();
-            ssoLogin();
+            // 식단 로드
+            requestGet("https://kut90.koreatech.ac.kr/ssoLogin_ext.jsp?&PGM_ID=CO::CO0998W&locale=ko");
+
+            // 학생종합경력개 로드
+            jobLogin();
 
             cookies = new ArrayList<>(cookieManager.getCookieStore().getCookies());
         } catch (IOException e) {
@@ -86,46 +97,55 @@ public class BatchKoreatechLoginService {
         httpCookieJarRepository.save(HttpCookieJar.of(COOKIE_JAR_ID, cookies));
     }
 
-    private void checkLoginId() throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://portal.koreatech.ac.kr/ktp/login/checkLoginId.do"))
+    private void jobLogin() throws IOException, InterruptedException {
+        requestGet("https://job.koreatech.ac.kr/");
+        requestGet("https://job.koreatech.ac.kr/Main/default.aspx");
+        HttpResponse<String> response = requestGet(
+            "https://tsso.koreatech.ac.kr/svc/tk/Auth.do?id=STEMS-JOB&ac=N&ifa=N&RelayState=%2fMain%2fdefault.aspx&"
+        );
+
+        log.info("Job login response: {}", response.body());
+
+        // js 코드에서 쿠키 파싱
+        Pattern cookiePattern = Pattern.compile("document\\.cookie\\s*=\\s*\"([^=]+)=([^;]+);");
+
+        Matcher matcher = cookiePattern.matcher(response.body());
+        while (matcher.find()) {
+            log.info("[SIB] {} {}", matcher.group(1), matcher.group(2));
+            setCookie(matcher.group(1), matcher.group(2), "/", "job.koreatech.ac.kr");
+        }
+
+        requestGet("https://job.koreatech.ac.kr/Career/");
+    }
+
+    private HttpResponse<String> requestPost(String url, String body) throws IOException, InterruptedException {
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+            .uri(URI.create(url))
             .header("content-type", "application/x-www-form-urlencoded; charset=UTF-8")
-            .headers(headers)
-            .POST(HttpRequest.BodyPublishers.ofString("login_id=" + userId + "&login_pwd=" + userPwd))
-            .build();
+            .headers(headers);
 
-        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpRequest request;
+        if (body == null) {
+            request = requestBuilder
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        } else {
+            request = requestBuilder
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+        }
+
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private void checkSecondLoginCert() throws IOException, InterruptedException {
+    private HttpResponse<String> requestGet(String url) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://portal.koreatech.ac.kr/ktp/login/checkSecondLoginCert.do"))
-            .header("content-type", "application/x-www-form-urlencoded; charset=UTF-8")
-            .headers(headers)
-            .POST(HttpRequest.BodyPublishers.ofString("login_id=" + userId))
-            .build();
-
-        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
-    private void ssoAssert() throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://portal.koreatech.ac.kr/exsignon/sso/sso_assert.jsp"))
-            .headers(headers)
-            .POST(HttpRequest.BodyPublishers.noBody())
-            .build();
-
-        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
-    private void ssoLogin() throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://kut90.koreatech.ac.kr/ssoLogin_ext.jsp?&PGM_ID=CO::CO0998W&locale=ko"))
+            .uri(URI.create(url))
             .headers(headers)
             .GET()
             .build();
 
-        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private void setCookie(String name, String value, String path, String domain) {
