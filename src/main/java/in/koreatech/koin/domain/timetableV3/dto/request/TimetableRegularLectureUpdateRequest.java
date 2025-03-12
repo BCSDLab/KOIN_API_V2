@@ -31,17 +31,18 @@ public record TimetableRegularLectureUpdateRequest(
         @NotNull(message = "시간표 id를 입력해주세요.")
         Integer id,
 
-        @Schema(description = "강의 id", example = "3015", requiredMode = REQUIRED)
-        @NotNull(message = "강의 id를 입력해주세요.")
+        @Schema(description = "강의 id", example = "3015", requiredMode = NOT_REQUIRED)
         Integer lectureId,
 
         @Schema(description = "정규 강의 이름", example = "정규 강의 이름", requiredMode = NOT_REQUIRED)
         @Size(max = 100, message = "정규 강의 이름의 최대 글자는 100글자 입니다.")
         String classTitle,
 
-        /*
         @Schema(description = "이수 구분", example = "교양선택", requiredMode = NOT_REQUIRED)
-        String courseType,*/
+        String courseType,
+
+        @Schema(description = "교양 이수 구분", example = "자연과인간", requiredMode = NOT_REQUIRED)
+        String generalEducationArea,
 
         @Valid
         @Schema(description = "정규 강의 장소 정보", requiredMode = REQUIRED)

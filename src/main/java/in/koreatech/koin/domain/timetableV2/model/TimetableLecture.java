@@ -3,11 +3,12 @@ package in.koreatech.koin.domain.timetableV2.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.Optional;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
-import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -114,15 +115,6 @@ public class TimetableLecture extends BaseEntity {
         this.memo = memo;
     }
 
-    public void update(TimetableUpdateRequest.InnerTimetableRequest request) {
-        this.classTitle = request.classTitle();
-        this.classTime = request.classTime().toString();
-        this.classPlace = request.classPlace();
-        this.professor = request.professor();
-        this.grades = grades;
-        this.memo = request.memo();
-    }
-
     public void delete() {
         this.isDeleted = true;
     }
@@ -138,10 +130,17 @@ public class TimetableLecture extends BaseEntity {
         this.classPlace = classPlace;
     }
 
-    public void updateRegularLecture(String classTitle, String classPlace) {
-        if (!lecture.getName().equals(classTitle)) {
+    public void updateRegularLecture(String classTitle, String classPlace, CourseType courseType,
+        GeneralEducationArea generalEducationArea) {
+        String newClassTitle = Optional.ofNullable(lecture)
+            .map(Lecture::getName)
+            .orElse(this.classTitle);
+
+        if (!newClassTitle.equals(classTitle)) {
             this.classTitle = classTitle;
         }
         this.classPlace = classPlace;
+        this.courseType = courseType;
+        this.generalEducationArea = generalEducationArea;
     }
 }

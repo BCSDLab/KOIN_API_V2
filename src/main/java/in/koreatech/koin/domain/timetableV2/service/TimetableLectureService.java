@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetableV2.service;
 
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserOwnsFrame;
 
 import java.util.List;
 
@@ -13,7 +13,6 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRe
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureCreator;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureUpdater;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -35,12 +34,11 @@ public class TimetableLectureService {
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final TimetableLectureCreator timetableLectureCreator;
-    private final TimetableLectureUpdater timetableLectureUpdater;
 
     @Transactional
     public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
         timetableLectureCreator.createTimetableLectures(request, frame, userId);
         return getTimetableLectureResponse(userId, frame);
     }
@@ -48,14 +46,24 @@ public class TimetableLectureService {
     @Transactional
     public TimetableLectureResponse updateTimetablesLectures(Integer userId, TimetableLectureUpdateRequest request) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
-        validateUserAuthorization(frame.getUser().getId(), userId);
-        timetableLectureUpdater.updateTimetablesLectures(request);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
+        for (TimetableLectureUpdateRequest.InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
+            TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
+            timetableLecture.update(
+                timetableRequest.classTitle(),
+                timetableRequest.getClassTimeToString(),
+                timetableRequest.getClassPlaceToString(),
+                timetableRequest.professor(),
+                timetableRequest.grades(),
+                timetableRequest.memo()
+            );
+        }
         return getTimetableLectureResponse(userId, frame);
     }
 
     public TimetableLectureResponse getTimetableLectures(Integer userId, Integer timetableFrameId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(timetableFrameId);
-        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        validateUserOwnsFrame(timetableFrame.getUser().getId(), userId);
         return getTimetableLectureResponse(userId, timetableFrame);
     }
 
@@ -63,7 +71,7 @@ public class TimetableLectureService {
     public void deleteTimetableLecture(Integer userId, Integer timetableLectureId) {
         TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableLectureId);
         TimetableFrame timetableFrame = timetableLecture.getTimetableFrame();
-        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        validateUserOwnsFrame(timetableFrame.getUser().getId(), userId);
         timetableLecture.delete();
     }
 
@@ -77,14 +85,14 @@ public class TimetableLectureService {
     public void deleteTimetableLectures(List<Integer> request, Integer userId) {
         request.stream()
             .map(timetableLectureRepositoryV2::getById)
-            .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
+            .peek(lecture -> validateUserOwnsFrame(lecture.getTimetableFrame().getUser().getId(), userId))
             .forEach(TimetableLecture::delete);
     }
 
     @Transactional
     public void deleteTimetableLectureByFrameId(Integer frameId, Integer lectureId, Integer userId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(frameId);
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
         TimetableLecture timetableLecture = timetableLectureRepositoryV2.getByFrameIdAndLectureId(frameId, lectureId);
         timetableLecture.delete();
     }
@@ -93,7 +101,7 @@ public class TimetableLectureService {
     public TimetableLectureResponse rollbackTimetableLecture(List<Integer> timetableLecturesId, Integer userId) {
         timetableLecturesId.stream()
             .map(timetableLectureRepositoryV2::getByIdWithDeleted)
-            .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
+            .peek(lecture -> validateUserOwnsFrame(lecture.getTimetableFrame().getUser().getId(), userId))
             .forEach(TimetableLecture::undelete);
         entityManager.flush();
         TimetableLecture timeTableLecture = timetableLectureRepositoryV2.getById(timetableLecturesId.get(0));
@@ -103,14 +111,14 @@ public class TimetableLectureService {
     @Transactional
     public TimetableLectureResponse rollbackTimetableFrame(Integer frameId, Integer userId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithDeleted(frameId);
-        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        validateUserOwnsFrame(timetableFrame.getUser().getId(), userId);
 
         User user = userRepository.getById(userId);
         boolean hasTimetableFrame = timetableFrameRepositoryV2.existsByUserAndSemester(user,
             timetableFrame.getSemester());
 
         if (!hasTimetableFrame) {
-            timetableFrame.updateMainFlag(true);
+            timetableFrame.setMain(true);
         }
         timetableFrame.undelete();
 

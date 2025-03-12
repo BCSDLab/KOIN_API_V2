@@ -8,7 +8,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.service.city.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;

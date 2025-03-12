@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.timetableV2.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -32,7 +31,8 @@ public interface TimetableLectureRepositoryV2 extends Repository<TimetableLectur
 
     default TimetableLecture getByFrameIdAndLectureId(Integer frameId, Integer lectureId) {
         return findByTimetableFrameIdAndLectureId(frameId, lectureId)
-            .orElseThrow(() -> TimetableLectureNotFoundException.withDetail("frameId: " + frameId + ", lectureId: " + lectureId));
+            .orElseThrow(() -> TimetableLectureNotFoundException.withDetail(
+                "frameId: " + frameId + ", lectureId: " + lectureId));
     }
 
     @Query(value = "SELECT * FROM timetable_lecture WHERE id = :id", nativeQuery = true)
@@ -45,4 +45,12 @@ public interface TimetableLectureRepositoryV2 extends Repository<TimetableLectur
 
     @Query(value = "SELECT * FROM timetable_lecture WHERE frame_id = :frameId", nativeQuery = true)
     List<TimetableLecture> findAllByFrameIdWithDeleted(@Param("frameId") Integer frameId);
+
+    @Query(value = """
+        SELECT DISTINCT s.year FROM timetable_lecture tl
+        JOIN timetable_frame tf ON tl.frame_id = tf.id
+        JOIN semester s ON tf.semester_id = s.id
+        WHERE tf.user_id = :userId
+        """, nativeQuery = true)
+    List<String> findYearsByUserId(@Param("userId") Integer userId);
 }

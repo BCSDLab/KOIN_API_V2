@@ -4,13 +4,16 @@ import static in.koreatech.koin.domain.timetableV2.exception.TimetableLectureCla
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.exception.TimetableLectureClassTimeNullException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
@@ -68,21 +71,22 @@ public record TimetableLectureCreateRequest(
         }
 
         public InnerTimeTableLectureRequest {
-            if (lectureId == null) {
-                for (ClassInfo classInfo : classInfos) {
-                    if (Objects.isNull(classInfo.classTime)) {
-                        throw new TimetableLectureClassTimeNullException(DEFAULT_MESSAGE);
-                    }
-                }
+            if (lectureId == null && classInfos.stream().anyMatch(info -> Objects.isNull(info.classTime))) {
+                throw new TimetableLectureClassTimeNullException(DEFAULT_MESSAGE);
             }
 
+            /**
+             * timetable 요청 값으로 grades가 없는 경우 null이 들어감
+             * 이를 방지 하기 위해 생성자에서 0으로 초기화
+             */
             if (grades == null) {
                 grades = "0";
             }
         }
 
         public TimetableLecture toTimetableLecture(
-            TimetableFrame timetableFrame, Lecture lecture
+            TimetableFrame timetableFrame, Lecture lecture, CourseType courseType,
+            GeneralEducationArea generalEducationArea
         ) {
             return TimetableLecture.builder()
                 .classTitle(classTitle)
@@ -94,36 +98,39 @@ public record TimetableLectureCreateRequest(
                 .grades(grades)
                 .lecture(lecture)
                 .timetableFrame(timetableFrame)
+                .courseType(courseType)
+                .generalEducationArea(generalEducationArea)
                 .build();
         }
 
+        /**
+         * 강의 시간에 -1 구분자를 넣기 위한 메소드
+         * -1을 기준으로 강의 시간을 구별합니다.
+         */
         private String getClassTimeToString() {
-            if (classInfos != null) {
-                List<Integer> classTimes = new ArrayList<>();
-                for (int i = 0; i < classInfos.size(); i++) {
-                    if (i > 0)
-                        classTimes.add(-1);
-                    classTimes.addAll(classInfos.get(i).classTime);
-                }
-                return classTimes.toString();
+            if (classInfos == null) {
+                return null;
             }
-            return null;
+
+            return classInfos.stream()
+                .flatMap(info -> Stream.concat(Stream.of(-1), info.classTime.stream()))
+                .skip(1)
+                .toList()
+                .toString();
         }
 
+        /**
+         * 강의 장소에 , 구분자를 넣기 위한 메소드
+         * , 를 기준으로 강의 장소를 구별합니다.
+         */
         private String getClassPlaceToString() {
-            if (classInfos != null) {
-                StringBuilder classPlaceSegment = new StringBuilder();
-                for (int i = 0; i < classInfos.size(); i++) {
-                    if (i > 0)
-                        classPlaceSegment.append(", ");
-                    if (Objects.equals(classInfos.get(i).classPlace, null)) {
-                        classPlaceSegment.append("");
-                    } else
-                        classPlaceSegment.append(classInfos.get(i).classPlace);
-                }
-                return classPlaceSegment.toString();
+            if (classInfos == null) {
+                return null;
             }
-            return null;
+
+            return classInfos.stream()
+                .map(info -> Objects.toString(info.classPlace, ""))
+                .collect(Collectors.joining(", "));
         }
     }
 }

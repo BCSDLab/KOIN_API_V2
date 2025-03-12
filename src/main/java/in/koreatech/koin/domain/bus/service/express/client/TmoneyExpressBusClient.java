@@ -24,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import in.koreatech.koin.domain.bus.dto.TmoneyOpenApiResponse;
+import in.koreatech.koin.domain.bus.service.express.dto.TmoneyOpenApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;

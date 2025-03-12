@@ -36,14 +36,11 @@ public class TimetableLectureCreator {
     public void createTimetableLectures(TimetableLectureCreateRequest request, TimetableFrame frame, Integer userId) {
         for (InnerTimeTableLectureRequest lectureRequest : request.timetableLecture()) {
             Lecture lecture = determineLecture(lectureRequest.lectureId());
-            /*
             Catalog catalog = getCatalog(lecture, userId);
             CourseType courseType = lecture == null ? null : getCourseType(catalog);
             GeneralEducationArea generalEducationArea = getGeneralEducationArea(catalog);
             TimetableLecture timetableLecture = lectureRequest.toTimetableLecture(frame, lecture, courseType,
                 generalEducationArea);
-             */
-            TimetableLecture timetableLecture = lectureRequest.toTimetableLecture(frame, lecture);
             frame.addTimeTableLecture(timetableLecture);
             timetableLectureRepositoryV2.save(timetableLecture);
         }

@@ -12,9 +12,7 @@ public interface StandardGraduationRequirementsRepository extends Repository<Sta
 
     List<StandardGraduationRequirements> findAllByMajorAndYear(Major major, String year);
 
-    List<StandardGraduationRequirements> findByMajorIdAndCourseTypeIdAndYear(Integer id, Integer id1, String studentYear);
-
-    List<StandardGraduationRequirements> findByCourseTypeIdAndYear(Integer id, String studentYear);
-
     Optional<StandardGraduationRequirements> findFirstByMajorIdAndCourseTypeIdAndYear(Integer id, Integer id1, String studentYear);
+
+    boolean existsByMajorIdAndYear(Integer id, String studentYear);
 }
