@@ -93,8 +93,6 @@ public class User extends BaseEntity {
         LocalDateTime lastLoggedAt,
         String profileImageUrl,
         Boolean isDeleted,
-        String resetToken,
-        LocalDateTime resetExpiredAt,
         String deviceToken
     ) {
         this.password = password;
