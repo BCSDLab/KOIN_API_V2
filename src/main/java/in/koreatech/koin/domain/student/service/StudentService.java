@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin._common.event.StudentEmailRequestEvent;
+import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
@@ -25,9 +29,7 @@ import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin._common.event.StudentEmailRequestEvent;
-import in.koreatech.koin._common.event.StudentRegisterEvent;
-import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
@@ -41,13 +43,12 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
+import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
-import in.koreatech.koin.domain.user.service.UserTokenService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.integration.email.form.StudentRegistrationData;
 import in.koreatech.koin.integration.email.service.MailService;
@@ -63,16 +64,17 @@ public class StudentService {
     private final UserValidationService userValidationService;
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
-    private final UserTokenService userTokenService;
-    private final UserTokenRepository userTokenRepository;
+    private final RefreshTokenService refreshTokenService;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
+    private final JwtProvider jwtProvider;
     private final DepartmentRepository departmentRepository;
     private final MajorRepository majorRepository;
     private final GraduationService graduationService;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final UserPasswordResetTokenRepository passwordResetTokenRepository;
+    private final UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
 
     @Transactional
@@ -80,8 +82,8 @@ public class StudentService {
         studentValidationService.validateStudentRegister(request);
         String authToken = UUID.randomUUID().toString();
 
-        StudentTemporaryStatus studentTemporaryStatus = StudentTemporaryStatus.of(request, authToken);
-        studentRedisRepository.save(studentTemporaryStatus);
+        UnAuthenticatedStudentInfo unauthenticatedStudentInfo = UnAuthenticatedStudentInfo.of(request, authToken);
+        studentRedisRepository.save(unauthenticatedStudentInfo);
 
         mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, authToken));
         eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
@@ -92,9 +94,9 @@ public class StudentService {
         User user = userValidationService.checkLoginCredentials(request.email(), request.password());
         userValidationService.checkUserAuthentication(request.email());
 
-        String accessToken = userTokenService.createAccessToken(user);
-        String refreshToken = userTokenService.generateRefreshToken(user);
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user);
+        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         userService.updateLastLoginTime(user);
 
         return StudentLoginResponse.of(accessToken, savedToken.getRefreshToken());
@@ -247,7 +249,7 @@ public class StudentService {
 
     @ConcurrencyGuard(lockName = "studentAuthenticate")
     public ModelAndView authenticate(AuthTokenRequest request) {
-        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
+        Optional<UnAuthenticatedStudentInfo> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
             request.authToken());
         if (studentTemporaryStatus.isEmpty()) {
             ModelAndView modelAndView = new ModelAndView("error_config");

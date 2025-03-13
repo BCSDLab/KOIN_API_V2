@@ -54,7 +54,7 @@ public class TimetableFrame extends BaseEntity {
 
     @NotNull
     @Size(max = 255)
-    @Column(name = "name", length = 255, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @NotNull
@@ -85,13 +85,14 @@ public class TimetableFrame extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
-    public void updateTimetableFrame(Semester semester, String name, boolean isMain) {
-        this.semester = semester;
+    private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표%d";
+
+    public void renameAndSetMain(String name, boolean isMain) {
         this.name = name;
         this.isMain = isMain;
     }
 
-    public void updateMainFlag(boolean isMain) {
+    public void setMain(boolean isMain) {
         this.isMain = isMain;
     }
 
@@ -114,4 +115,16 @@ public class TimetableFrame extends BaseEntity {
     }
 
     public void cancelMain() { this.isMain = false; }
+
+    public static boolean isMainFrame(int currentFrameCount) {
+        return currentFrameCount == 0;
+    }
+
+    public static String getTimetableName(String requestName, int currentFrameCount) {
+        return (requestName != null) ? requestName : getDefaultTimetableFrameName(currentFrameCount + 1);
+    }
+
+    private static String getDefaultTimetableFrameName(int currentFrameCount) {
+        return String.format(DEFAULT_TIMETABLE_FRAME_NAME, currentFrameCount);
+    }
 }

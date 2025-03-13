@@ -39,6 +39,11 @@ import org.springframework.transaction.annotation.Transactional;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.event.DiningImageUploadEvent;
+import in.koreatech.koin._common.event.DiningSoldOutEvent;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
@@ -48,8 +53,6 @@ import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
 import in.koreatech.koin.domain.coop.exception.DuplicateExcelRequestException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
-import in.koreatech.koin._common.event.DiningImageUploadEvent;
-import in.koreatech.koin._common.event.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
@@ -60,12 +63,11 @@ import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.enums.ExcelDiningPosition;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
+import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.integration.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
@@ -81,7 +83,8 @@ public class CoopService {
     private final ExcelDownloadCacheRepository excelDownloadCacheRepository;
     private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
-    private final UserTokenRepository userTokenRepository;
+    private final UserRepository userRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -188,10 +191,15 @@ public class CoopService {
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(LocalDateTime.now());
 
         return CoopLoginResponse.of(accessToken, savedToken.getRefreshToken());
+    }
+
+    public CoopResponse getCoop(Integer userId) {
+        User user = userRepository.getById(userId);
+        return CoopResponse.from(user);
     }
 
     public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
@@ -507,7 +515,7 @@ public class CoopService {
         LocalDate date = dining.getDate();
         // ex) 2024-12-17-점심-B코너.png
         return date.getYear() + "-" + date.getMonthValue() + "-" + date.getDayOfMonth() + "-"
-            + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
+               + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
     }
 
     private String extractS3KeyFrom(String imageUrl) {

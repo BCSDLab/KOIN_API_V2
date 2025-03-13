@@ -18,9 +18,9 @@ import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
-import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
+import in.koreatech.koin.domain.bus.service.city.dto.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.service.shuttle.dto.ShuttleBusRoutesResponse;
+import in.koreatech.koin.domain.bus.service.shuttle.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.enums.BusStation;
@@ -36,6 +36,7 @@ public class BusController implements BusApi {
 
     private final BusService busService;
 
+    // Deprecated: 강제 업데이트 이후 API 삭제 예정
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
         @RequestParam(value = "bus_type") BusType busType,
@@ -46,6 +47,7 @@ public class BusController implements BusApi {
         return ResponseEntity.ok().body(busRemainTime);
     }
 
+    // 강제 업데이트 이후 BusTimetableV2 → ExpressBusTimetable 수정 예정
     @GetMapping("/timetable/v2")
     public ResponseEntity<BusTimetableResponse> getBusTimetableV2(
         @RequestParam(value = "bus_type") BusType busType,
@@ -63,6 +65,7 @@ public class BusController implements BusApi {
         return ResponseEntity.ok().body(busService.getCityBusTimetable(busNumber, direction));
     }
 
+    // Deprecated: 강제 업데이트 이후 API 삭제 예정
     @GetMapping("/search")
     public ResponseEntity<List<SingleBusTimeResponse>> getSearchTimetable(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
@@ -75,6 +78,7 @@ public class BusController implements BusApi {
         return ResponseEntity.ok().body(singleBusTimeResponses);
     }
 
+    // Deprecated: 강제 업데이트 이후 API 삭제 예정
     @GetMapping("/courses")
     public ResponseEntity<List<BusCourseResponse>> getBusCourses() {
         return ResponseEntity.ok().body(busService.getBusCourses());

@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetableV3.service;
 
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserOwnsFrame;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class TimetableLectureServiceV3 {
 
     public TimetableLectureResponseV3 getTimetableLecture(Integer timetableFrameId, Integer userId) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(timetableFrameId);
-        validateUserAuthorization(frame.getUser().getId(), userId);
+        validateUserOwnsFrame(frame.getUser().getId(), userId);
         return getTimetableLectureResponse(userId, frame);
     }
 
@@ -60,7 +60,7 @@ public class TimetableLectureServiceV3 {
     public TimetableLectureResponseV3 rollbackTimetableLecture(List<Integer> timetableLecturesId, Integer userId) {
         timetableLecturesId.stream()
             .map(timetableLectureRepositoryV3::getByIdWithDeleted)
-            .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
+            .peek(lecture -> validateUserOwnsFrame(lecture.getTimetableFrame().getUser().getId(), userId))
             .forEach(TimetableLecture::undelete);
         entityManager.flush();
         TimetableLecture timeTableLecture = timetableLectureRepositoryV3.getById(timetableLecturesId.get(0));
@@ -70,14 +70,14 @@ public class TimetableLectureServiceV3 {
     @Transactional
     public TimetableLectureResponseV3 rollbackTimetableFrame(Integer frameId, Integer userId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV3.getByIdWithDeleted(frameId);
-        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        validateUserOwnsFrame(timetableFrame.getUser().getId(), userId);
 
         User user = userRepository.getById(userId);
         boolean hasTimetableFrame = timetableFrameRepositoryV3.existsByUserAndSemester(user,
             timetableFrame.getSemester());
 
         if (!hasTimetableFrame) {
-            timetableFrame.updateMainFlag(true);
+            timetableFrame.setMain(true);
         }
         timetableFrame.undelete();
 

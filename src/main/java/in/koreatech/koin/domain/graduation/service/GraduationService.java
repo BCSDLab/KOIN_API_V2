@@ -88,7 +88,7 @@ public class GraduationService {
 
     private static final String MIDDLE_TOTAL = "소 계";
     private static final String TOTAL = "합 계";
-    private static final String RETAKE = "Y";
+    private static final String FAIL = "F";
     private static final String UNSATISFACTORY = "U";
     private static final String DEFAULT_COURSER_TYPE = "이수구분선택";
     private static final String GENERAL_EDUCATION_COURSE_TYPE = "교양선택";
@@ -140,9 +140,7 @@ public class GraduationService {
             initializeStudentCourseCalculation(student, newMajor);
 
             detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
-                .ifPresent(detectGraduationCalculation -> {
-                    detectGraduationCalculation.updatedIsChanged(true);
-                });
+                .ifPresent(detectGraduationCalculation -> detectGraduationCalculation.updatedIsChanged(true));
         }
     }
 
@@ -236,7 +234,8 @@ public class GraduationService {
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                Catalog bestCatalog = findBestMatchingCatalog(lectureName, studentYear, student.getMajor());
+                Catalog bestCatalog =
+                    findBestMatchingCatalog(lectureName, studentYear, student.getMajor(), timetableLecture);
 
                 if (bestCatalog != null) {
                     if (timetableLecture.getCourseType() != null) {
@@ -247,7 +246,7 @@ public class GraduationService {
                             .credit(bestCatalog.getCredit())
                             .major(bestCatalog.getMajor())
                             .department(bestCatalog.getDepartment())
-                            .courseType(timetableLecture.getCourseType()) // 🎯 학생이 수정한 이수구분 적용
+                            .courseType(timetableLecture.getCourseType())
                             .generalEducationArea(bestCatalog.getGeneralEducationArea())
                             .build();
                     }
@@ -258,14 +257,17 @@ public class GraduationService {
         return catalogList;
     }
 
-    private Catalog findBestMatchingCatalog(String lectureName, String studentYear, Major major) {
+    private Catalog findBestMatchingCatalog(
+        String lectureName,
+        String studentYear,
+        Major major,
+        TimetableLecture timetableLecture) {
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndMajor(lectureName, studentYear, major);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
         }
 
         List<String> attendedYears = timetableLectureRepositoryV2.findYearsByUserId(major.getId());
-
         catalogs = catalogRepository.findByLectureNameAndYearIn(lectureName, attendedYears);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
@@ -276,7 +278,18 @@ public class GraduationService {
             return catalogs.get(0);
         }
 
-        return null;
+        CourseType defaultCourseType = courseTypeRepository.getByName(DEFAULT_COURSER_TYPE);
+        return Catalog.builder()
+            .year(studentYear)
+            .code(timetableLecture.getLecture() != null ? timetableLecture.getLecture().getCode() : "UNKNOWN")
+            .lectureName(lectureName)
+            .credit(
+                Integer.parseInt(timetableLecture.getLecture() != null ? timetableLecture.getLecture().getGrades() : timetableLecture.getGrades()))
+            .major(major)
+            .department(null)
+            .courseType(defaultCourseType)
+            .generalEducationArea(null)
+            .build();
     }
 
     private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList, Student student) {
@@ -297,7 +310,17 @@ public class GraduationService {
                 .orElse(null);
 
             if (matchingCatalog == null) {
-                continue;
+                CourseType defaultCourseType = courseTypeRepository.getByName(DEFAULT_COURSER_TYPE);
+                matchingCatalog = Catalog.builder()
+                    .year(StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber()))
+                    .code("UNKNOWN")
+                    .lectureName(lectureName)
+                    .credit(0)
+                    .major(student.getMajor())
+                    .department(null)
+                    .courseType(defaultCourseType)
+                    .generalEducationArea(null)
+                    .build();
             }
 
             CourseType appliedCourseType = matchingCatalog.getCourseType();
@@ -474,8 +497,8 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-               gradeExcelData.retakeStatus().equals(RETAKE) ||
-               gradeExcelData.grade().equals(UNSATISFACTORY);
+            gradeExcelData.grade().equals(FAIL) ||
+            gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
     // 분반 문제를 해결하기 위해서, 강의들을 전부 가져오도록 했음
@@ -655,8 +678,7 @@ public class GraduationService {
         List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .filter(lecture -> lecture.getGeneralEducationArea() == null
-                               && lecture.getCourseType() == courseTypeRepository.getByName(
-                GENERAL_EDUCATION_COURSE_TYPE))
+                && lecture.getCourseType() == courseTypeRepository.getByName(GENERAL_EDUCATION_COURSE_TYPE))
             .toList();
 
         Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;

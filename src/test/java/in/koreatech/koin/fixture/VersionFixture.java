@@ -39,4 +39,38 @@ public final class VersionFixture {
         );
         return versionRepository.save(updateVersion);
     }
+
+    public Version 셔틀버스() {
+        var updateVersion = versionRepository.save(
+            Version.builder()
+                .type(VersionType.SHUTTLE.getValue())
+                .version("test_version")
+                .title("정규학기")
+                .content("2025-01-15~2025-02-28")
+                .build()
+        );
+        return versionRepository.save(updateVersion);
+    }
+
+    public Version 대성고속() {
+        var updateVersion = versionRepository.save(
+            Version.builder()
+                .type(VersionType.EXPRESS.getValue())
+                .version("test_version")
+                .content("2025-01-15~2025-02-28")
+                .build()
+        );
+        return versionRepository.save(updateVersion);
+    }
+
+    public Version 시내버스() {
+        var updateVersion = versionRepository.save(
+            Version.builder()
+                .type(VersionType.CITY.getValue())
+                .version("test_version")
+                .content("2025-01-15~2025-02-28")
+                .build()
+        );
+        return versionRepository.save(updateVersion);
+    }
 }

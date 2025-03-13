@@ -1,37 +1,39 @@
 package in.koreatech.koin.domain.owner.service;
 
-import in.koreatech.koin.domain.owner.model.Owner;
+import java.util.UUID;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
 import in.koreatech.koin._common.event.OwnerRegisterEvent;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
-import java.util.UUID;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class OwnerUtilService {
 
     private final OwnerRepository ownerRepository;
-    private final UserTokenRepository userTokenRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final ShopRepository shopRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     public void sendSlackNotification(Owner owner) {
         eventPublisher.publishEvent(new OwnerRegisterEvent(
-                owner.getUser().getName(),
-                owner.getId()
+            owner.getUser().getName(),
+            owner.getId()
         ));
     }
 
     public String saveRefreshToken(User user) {
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         return savedToken.getRefreshToken();
     }
 

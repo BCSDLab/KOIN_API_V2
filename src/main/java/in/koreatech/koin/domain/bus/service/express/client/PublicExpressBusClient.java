@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin.domain.bus.dto.PublicOpenApiResponse;
+import in.koreatech.koin.domain.bus.service.express.dto.PublicOpenApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;

@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.user.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
-import in.koreatech.koin.domain.user.dto.*;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +11,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
+import in.koreatech.koin.domain.user.dto.UserLoginRequest;
+import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
+import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
+import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -145,32 +153,16 @@ public interface UserApi {
     );
 
     @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200"),
-                    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            }
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+        }
     )
     @Operation(summary = "로그인 여부 확인")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/user/check/login")
     ResponseEntity<Void> checkLogin(
-            @ParameterObject @ModelAttribute(value = "access_token")
-            @Valid UserAccessTokenRequest request
-    );
-
-    // 추후 이동
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "영양사 정보 조회")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/user/coop/me")
-    ResponseEntity<CoopResponse> getCoop(
-        @Auth(permit = COOP) Integer userId
+        @ParameterObject @ModelAttribute(value = "access_token")
+        @Valid UserAccessTokenRequest request
     );
 }

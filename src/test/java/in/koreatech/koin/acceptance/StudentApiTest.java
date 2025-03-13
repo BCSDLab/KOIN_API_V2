@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -255,7 +255,7 @@ public class StudentApiTest extends AcceptanceTest {
     void 학생이_정보를_수정한다_토큰이_올바르지_않다면_401() throws Exception {
         Department department = departmentFixture.컴퓨터공학부();
 
-        Student student = userFixture.준호_학생(department, null);
+        userFixture.준호_학생(department, null);
         String token = "invalidToken";
 
         mockMvc.perform(
@@ -352,7 +352,7 @@ public class StudentApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-        Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
+        Optional<UnAuthenticatedStudentInfo> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
 
         assertSoftly(
             softly -> {
@@ -392,7 +392,7 @@ public class StudentApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-        Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
+        Optional<UnAuthenticatedStudentInfo> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
         mockMvc.perform(
                 get("/user/authenticate")
                     .queryParam("auth_token", student.get().getAuthToken())

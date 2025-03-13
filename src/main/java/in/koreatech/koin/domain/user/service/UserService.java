@@ -6,21 +6,21 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,20 +31,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
-    private final UserTokenRepository userTokenRepository;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final ApplicationEventPublisher eventPublisher;
     private final UserValidationService userValidationService;
-    private final UserTokenService userTokenService;
+    private final RefreshTokenService refreshTokenService;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
         User user = userValidationService.checkLoginCredentials(request.email(), request.password());
         userValidationService.checkUserAuthentication(request.email());
 
-        String accessToken = userTokenService.createAccessToken(user);
-        String refreshToken = userTokenService.generateRefreshToken(user);
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user);
+        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         updateLastLoginTime(user);
 
         return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), user.getUserType().getValue());
@@ -52,11 +53,11 @@ public class UserService {
 
     @Transactional
     public void logout(Integer userId) {
-        userTokenRepository.deleteById(userId);
+        userTokenRedisRepository.deleteById(userId);
     }
 
     public void checkLogin(String accessToken) {
-        userTokenService.checkLoginStatus(accessToken);
+        jwtProvider.getUserId(accessToken);
     }
 
     public AuthResponse getAuth(Integer userId) {
@@ -65,11 +66,12 @@ public class UserService {
     }
 
     public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
-        String userId = userTokenService.extractUserId(request.refreshToken());
-        UserToken userToken = userTokenService.validateRefreshToken(request.refreshToken(), Integer.parseInt(userId));
+        String userId = refreshTokenService.extractUserId(request.refreshToken());
+        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(),
+            Integer.parseInt(userId));
 
         User user = userRepository.getById(userToken.getId());
-        String accessToken = userTokenService.createAccessToken(user);
+        String accessToken = jwtProvider.createToken(user);
 
         return UserTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
     }
@@ -85,12 +87,6 @@ public class UserService {
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
-    }
-
-    // 이거 옮길 예정
-    public CoopResponse getCoop(Integer userId) {
-        User user = userRepository.getById(userId);
-        return CoopResponse.from(user);
     }
 
     public void updateLastLoginTime(User user) {
