@@ -2,16 +2,13 @@ package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import in.koreatech.koin._common.converter.LocalDateTimeAttributeConverter;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -80,14 +77,6 @@ public class User extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Size(max = 255)
-    @Column(name = "reset_token")
-    private String resetToken;
-
-    @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @Column(name = "reset_expired_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime resetExpiredAt;
-
     @Column(name = "device_token", nullable = true)
     private String deviceToken;
 
@@ -104,8 +93,6 @@ public class User extends BaseEntity {
         LocalDateTime lastLoggedAt,
         String profileImageUrl,
         Boolean isDeleted,
-        String resetToken,
-        LocalDateTime resetExpiredAt,
         String deviceToken
     ) {
         this.password = password;
@@ -119,16 +106,7 @@ public class User extends BaseEntity {
         this.lastLoggedAt = lastLoggedAt;
         this.profileImageUrl = profileImageUrl;
         this.isDeleted = isDeleted;
-        this.resetToken = resetToken;
-        this.resetExpiredAt = resetExpiredAt;
         this.deviceToken = deviceToken;
-    }
-
-    private static final int ONE_HOUR = 1;
-
-    public void generateResetTokenForFindPassword(Clock clock) {
-        this.resetExpiredAt = LocalDateTime.now(clock).plusHours(ONE_HOUR);
-        this.resetToken = this.email + this.resetExpiredAt;
     }
 
     public void update(String nickname, String name, String phoneNumber, UserGender gender) {
