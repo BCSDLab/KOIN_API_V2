@@ -6,6 +6,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -15,12 +17,10 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -67,7 +67,8 @@ public class UserService {
 
     public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
         String userId = refreshTokenService.extractUserId(request.refreshToken());
-        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(), Integer.parseInt(userId));
+        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(),
+            Integer.parseInt(userId));
 
         User user = userRepository.getById(userToken.getId());
         String accessToken = jwtProvider.createToken(user);

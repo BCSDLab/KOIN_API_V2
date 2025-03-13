@@ -9,8 +9,7 @@ import java.util.List;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

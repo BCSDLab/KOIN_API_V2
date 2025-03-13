@@ -18,7 +18,7 @@ import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameCreateRequ
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameUpdateRequestV3;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFrameResponseV3;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFramesResponseV3;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

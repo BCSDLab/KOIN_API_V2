@@ -12,8 +12,8 @@ import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewReportCategor
 import in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewsResponse;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

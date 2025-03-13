@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

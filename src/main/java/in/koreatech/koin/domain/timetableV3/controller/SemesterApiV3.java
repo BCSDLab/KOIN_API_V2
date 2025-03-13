@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import in.koreatech.koin.domain.timetableV3.dto.response.SemesterCheckResponseV3;
 import in.koreatech.koin.domain.timetableV3.dto.response.SemesterResponseV3;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

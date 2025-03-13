@@ -29,7 +29,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin._common.auth.JwtProvider;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")

@@ -30,7 +30,7 @@ import in.koreatech.koin.domain.bus.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.service.city.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**

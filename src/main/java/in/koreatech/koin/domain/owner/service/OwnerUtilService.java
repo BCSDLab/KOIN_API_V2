@@ -1,17 +1,19 @@
 package in.koreatech.koin.domain.owner.service;
 
+import java.util.UUID;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import in.koreatech.koin._common.event.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +26,8 @@ public class OwnerUtilService {
 
     public void sendSlackNotification(Owner owner) {
         eventPublisher.publishEvent(new OwnerRegisterEvent(
-                owner.getUser().getName(),
-                owner.getId()
+            owner.getUser().getName(),
+            owner.getId()
         ));
     }
 

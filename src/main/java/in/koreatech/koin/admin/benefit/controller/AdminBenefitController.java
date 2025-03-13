@@ -26,7 +26,7 @@ import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.service.AdminBenefitService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
 @RestController

@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GeneralEducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
@@ -61,8 +63,6 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.exception.DuplicationException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -140,9 +140,7 @@ public class GraduationService {
             initializeStudentCourseCalculation(student, newMajor);
 
             detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
-                .ifPresent(detectGraduationCalculation -> {
-                    detectGraduationCalculation.updatedIsChanged(true);
-                });
+                .ifPresent(detectGraduationCalculation -> detectGraduationCalculation.updatedIsChanged(true));
         }
     }
 
@@ -680,8 +678,7 @@ public class GraduationService {
         List<TimetableLecture> selectiveEducationTimetableLectures = timetableFrames.stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .filter(lecture -> lecture.getGeneralEducationArea() == null
-                && lecture.getCourseType() == courseTypeRepository.getByName(
-                GENERAL_EDUCATION_COURSE_TYPE))
+                && lecture.getCourseType() == courseTypeRepository.getByName(GENERAL_EDUCATION_COURSE_TYPE))
             .toList();
 
         Integer requiredCredit = SELECTIVE_EDUCATION_REQUIRED_CREDIT;

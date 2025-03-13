@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.timetableV3.dto.request.TimetableCustomLectureCr
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableCustomLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.service.TimetableCustomLectureServiceV3;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.springframework.core.convert.converter.Converter;
 
 import in.koreatech.koin.domain.bus.enums.BusType;
-import in.koreatech.koin.global.domain.upload.exception.ImageUploadDomainNotFoundException;
+import in.koreatech.koin.integration.s3.exception.ImageUploadDomainNotFoundException;
 
 public class BusTypeEnumConverter implements Converter<String, BusType> {
 

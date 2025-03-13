@@ -13,10 +13,10 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
-import in.koreatech.koin.global.validation.NotBlankElement;
-import in.koreatech.koin.global.validation.UniqueId;
-import in.koreatech.koin.global.validation.UniqueUrl;
-import in.koreatech.koin.global.validation.ValidDayOfWeek;
+import in.koreatech.koin._common.validation.NotBlankElement;
+import in.koreatech.koin._common.validation.UniqueId;
+import in.koreatech.koin._common.validation.UniqueUrl;
+import in.koreatech.koin._common.validation.DayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -115,7 +115,7 @@ public record AdminCreateShopRequest(
             요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
             """, example = "MONDAY", requiredMode = REQUIRED)
         @NotNull(message = "요일은 필수입니다.")
-        @ValidDayOfWeek(message = "요일은 올바른 값이어야 합니다.")
+        @DayOfWeek(message = "요일은 올바른 값이어야 합니다.")
         String dayOfWeek,
 
         @Schema(description = "휴무 여부", example = "false", requiredMode = REQUIRED)
