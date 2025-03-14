@@ -19,9 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.batch.campus.koreatech.model.HttpCookieJar;
 import in.koreatech.koin.batch.campus.koreatech.repository.HttpCookieJarRepository;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.batch.campus.bus.city.service.BatchCityBusService;
 import in.koreatech.koin.batch.campus.koreatech.dining.service.BatchDiningService;
 import in.koreatech.koin.batch.campus.koreatech.service.BatchKoreatechLoginService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
 @RestController
