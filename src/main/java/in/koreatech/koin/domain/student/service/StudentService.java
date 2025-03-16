@@ -93,7 +93,7 @@ public class StudentService {
         userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.saveRefreshToken(user.getId(), userAgentInfo.getType());
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
         userService.updateLastLoginTime(user);
 
         return StudentLoginResponse.of(accessToken, refreshToken);

@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.auth.exception.RefreshTokenNotFoundException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -19,13 +18,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
-    private static final String REFRESH_TOKEN_FORMAT = "%s-%d";
     private static final long REFRESH_TOKEN_EXPIRE_DAY = 90L;
 
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
-    public String saveRefreshToken(Integer userId, String platform) {
+    public String createRefreshToken(Integer userId, String platform) {
         String key = getUserKey(userId, platform);
         redisTemplate.opsForValue().set(key, UUID.randomUUID() + "-" + userId, REFRESH_TOKEN_EXPIRE_DAY, TimeUnit.DAYS);
         return redisTemplate.opsForValue().get(key);
@@ -62,10 +60,6 @@ public class RefreshTokenService {
 
     private String getUserKey(Integer userId, String platform) {
         return "refreshToken:" + userId + ":" + platform.toUpperCase();
-    }
-
-    public String createRefreshToken(User user) {
-        return String.format(REFRESH_TOKEN_FORMAT, UUID.randomUUID(), user.getId());
     }
 
     public Integer extractUserId(String refreshToken) {

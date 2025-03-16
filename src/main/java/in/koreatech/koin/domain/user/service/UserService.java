@@ -42,7 +42,7 @@ public class UserService {
         userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.saveRefreshToken(user.getId(), userAgentInfo.getType());
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
         updateLastLoginTime(user);
 
         return UserLoginResponse.of(accessToken, refreshToken, user.getUserType().getValue());
