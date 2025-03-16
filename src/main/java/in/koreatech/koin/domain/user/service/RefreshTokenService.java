@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.auth.exception.RefreshTokenNotFoundException;
@@ -14,6 +15,7 @@ import in.koreatech.koin.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
@@ -22,6 +24,7 @@ public class RefreshTokenService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
+    @Transactional
     public String saveRefreshToken(Integer userId, String platform) {
         String key = getUserKey(userId, platform);
         redisTemplate.opsForValue().set(key, UUID.randomUUID() + "-" + userId, REFRESH_TOKEN_EXPIRE_DAY, TimeUnit.DAYS);
@@ -44,11 +47,13 @@ public class RefreshTokenService {
         }
     }
 
+    @Transactional
     public void deleteRefreshToken(Integer userId, String platform) {
         String key = getUserKey(userId, platform);
         redisTemplate.delete(key);
     }
 
+    @Transactional
     public void deleteAllRefreshTokens(Integer userId) {
         redisTemplate.delete(getUserKey(userId, "PC"));
         redisTemplate.delete(getUserKey(userId, "MOBILE"));
