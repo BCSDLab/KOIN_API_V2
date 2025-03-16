@@ -47,7 +47,6 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
-import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.integration.email.form.StudentRegistrationData;
@@ -60,7 +59,6 @@ import lombok.RequiredArgsConstructor;
 public class StudentService {
 
     private final MailService mailService;
-    private final UserService userService;
     private final UserValidationService userValidationService;
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
