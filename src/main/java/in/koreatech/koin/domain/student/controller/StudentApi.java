@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
@@ -109,7 +111,8 @@ public interface StudentApi {
     @Operation(summary = "학생 로그인")
     @PostMapping("/student/login")
     ResponseEntity<StudentLoginResponse> studentLogin(
-        @RequestBody @Valid StudentLoginRequest request
+        @RequestBody @Valid StudentLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
