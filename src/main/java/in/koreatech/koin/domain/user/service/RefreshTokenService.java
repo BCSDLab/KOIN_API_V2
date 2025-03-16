@@ -8,10 +8,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.auth.exception.RefreshTokenNotFoundException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,18 +20,28 @@ public class RefreshTokenService {
     private static final String REFRESH_TOKEN_FORMAT = "%s-%d";
     private static final long REFRESH_TOKEN_EXPIRE_DAY = 90L;
 
-    private final UserTokenRedisRepository userTokenRedisRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     public String saveRefreshToken(Integer userId, String platform) {
         String key = getUserKey(userId, platform);
-        redisTemplate.opsForValue().set(key, String.valueOf(UUID.randomUUID()), REFRESH_TOKEN_EXPIRE_DAY, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(key, UUID.randomUUID() + "-" + userId, REFRESH_TOKEN_EXPIRE_DAY, TimeUnit.DAYS);
         return redisTemplate.opsForValue().get(key);
     }
 
     public String getRefreshToken(Integer userId, String platform) {
         String key = getUserKey(userId, platform);
         return redisTemplate.opsForValue().get(key);
+    }
+
+    public void verifyRefreshToken(Integer userId, String platform, String refreshToken) {
+        String key = getUserKey(userId, platform);
+        String savedRefreshToken = redisTemplate.opsForValue().get(key);
+        if (savedRefreshToken == null) {
+            throw RefreshTokenNotFoundException.withDetail("userId : " + userId + " platform : " + platform);
+        }
+        if (!Objects.equals(savedRefreshToken, refreshToken)) {
+            throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "refreshToken: " + refreshToken);
+        }
     }
 
     public void deleteRefreshToken(Integer userId, String platform) {
@@ -54,19 +63,11 @@ public class RefreshTokenService {
         return String.format(REFRESH_TOKEN_FORMAT, UUID.randomUUID(), user.getId());
     }
 
-    public UserToken verifyAndGetUserToken(String refreshToken, Integer userId) {
-        UserToken userToken = userTokenRedisRepository.getById(userId);
-        if (!Objects.equals(userToken.getRefreshToken(), refreshToken)) {
-            throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "refreshToken: " + refreshToken);
-        }
-        return userToken;
-    }
-
-    public String extractUserId(String refreshToken) {
+    public Integer extractUserId(String refreshToken) {
         String[] split = refreshToken.split("-");
         if (split.length == 0) {
             throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
         }
-        return split[split.length - 1];
+        return Integer.parseInt(split[split.length - 1]);
     }
 }

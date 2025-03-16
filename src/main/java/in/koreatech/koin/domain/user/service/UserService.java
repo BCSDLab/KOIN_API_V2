@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserDeleteEvent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -17,10 +18,8 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,7 +30,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
-    private final UserTokenRedisRepository userTokenRedisRepository;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final ApplicationEventPublisher eventPublisher;
     private final UserValidationService userValidationService;
@@ -39,21 +37,20 @@ public class UserService {
     private final JwtProvider jwtProvider;
 
     @Transactional
-    public UserLoginResponse login(UserLoginRequest request) {
+    public UserLoginResponse login(UserLoginRequest request, UserAgentInfo userAgentInfo) {
         User user = userValidationService.checkLoginCredentials(request.email(), request.password());
         userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user);
-        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
+        String refreshToken = refreshTokenService.saveRefreshToken(user.getId(), userAgentInfo.getType());
         updateLastLoginTime(user);
 
-        return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), user.getUserType().getValue());
+        return UserLoginResponse.of(accessToken, refreshToken, user.getUserType().getValue());
     }
 
     @Transactional
-    public void logout(Integer userId) {
-        userTokenRedisRepository.deleteById(userId);
+    public void logout(Integer userId, UserAgentInfo userAgentInfo) {
+        refreshTokenService.deleteRefreshToken(userId, userAgentInfo.getType());
     }
 
     public void checkLogin(String accessToken) {
@@ -65,15 +62,14 @@ public class UserService {
         return AuthResponse.from(user);
     }
 
-    public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
-        String userId = refreshTokenService.extractUserId(request.refreshToken());
-        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(),
-            Integer.parseInt(userId));
+    public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request, UserAgentInfo userAgentInfo) {
+        Integer userId = refreshTokenService.extractUserId(request.refreshToken());
+        refreshTokenService.verifyRefreshToken(userId, userAgentInfo.getType(), request.refreshToken());
 
-        User user = userRepository.getById(userToken.getId());
+        User user = userRepository.getById(userId);
         String accessToken = jwtProvider.createToken(user);
 
-        return UserTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
+        return UserTokenRefreshResponse.of(accessToken, refreshTokenService.getRefreshToken(userId, userAgentInfo.getType()));
     }
 
     @Transactional
@@ -85,6 +81,7 @@ public class UserService {
         } else if (user.getUserType() == UserType.OWNER) {
             ownerRepository.deleteByUserId(userId);
         }
+        refreshTokenService.deleteAllRefreshTokens(userId);
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
     }
