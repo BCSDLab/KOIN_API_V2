@@ -43,7 +43,7 @@ public class UserService {
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
-        updateLastLoginTime(user);
+        user.updateLastLoggedTime(LocalDateTime.now());
 
         return UserLoginResponse.of(accessToken, refreshToken, user.getUserType().getValue());
     }
@@ -84,9 +84,5 @@ public class UserService {
         refreshTokenService.deleteAllRefreshTokens(userId);
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
-    }
-
-    public void updateLastLoginTime(User user) {
-        user.updateLastLoggedTime(LocalDateTime.now());
     }
 }

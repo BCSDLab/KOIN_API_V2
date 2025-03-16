@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.student.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -94,7 +95,7 @@ public class StudentService {
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
-        userService.updateLastLoginTime(user);
+        user.updateLastLoggedTime(LocalDateTime.now());
 
         return StudentLoginResponse.of(accessToken, refreshToken);
     }
