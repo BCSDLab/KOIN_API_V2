@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.user.model.RefreshToken;
 
-public interface RefreshTokenRedisRepository extends Repository<RefreshToken, Integer> {
+public interface RefreshTokenRedisRepository extends Repository<RefreshToken, String> {
 
     RefreshToken save(RefreshToken refreshToken);
 
