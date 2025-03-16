@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.RefreshTokenRedisRepository;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 
@@ -30,7 +30,7 @@ class AuthApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     private String 맥북_userAgent_헤더;
     private String 리프레쉬_토큰_KEY;
@@ -41,7 +41,7 @@ class AuthApiTest extends AcceptanceTest {
         clear();
         맥북_userAgent_헤더 = userFixture.맥북userAgent헤더();
         코인_유저 = userFixture.코인_유저();
-        리프레쉬_토큰_KEY = "refreshToken:" + 코인_유저.getId() + ":PC";
+        리프레쉬_토큰_KEY = 코인_유저.getId() + ":PC";
     }
 
     @Test
@@ -61,7 +61,7 @@ class AuthApiTest extends AcceptanceTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.token").isNotEmpty())
             .andExpect(
-                jsonPath("$.refresh_token").value(redisTemplate.opsForValue().get(리프레쉬_토큰_KEY)))
+                jsonPath("$.refresh_token").value(refreshTokenRedisRepository.getById(리프레쉬_토큰_KEY).getToken()))
             .andExpect(jsonPath("$.user_type").value(코인_유저.getUserType().name()))
             .andReturn();
     }
@@ -92,7 +92,7 @@ class AuthApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-        Assertions.assertThat(redisTemplate.opsForValue().get(리프레쉬_토큰_KEY)).isNull();
+        Assertions.assertThat(refreshTokenRedisRepository.findById(리프레쉬_토큰_KEY)).isEmpty();
     }
 
     @Test
@@ -130,7 +130,7 @@ class AuthApiTest extends AcceptanceTest {
 
         JsonNode refreshJsonNode = JsonAssertions.convertJsonNode(refreshResult);
 
-        String refreshToken = redisTemplate.opsForValue().get(리프레쉬_토큰_KEY);
+        String refreshToken = refreshTokenRedisRepository.getById(리프레쉬_토큰_KEY).getToken();
 
         JsonAssertions.assertThat(refreshResult.getResponse().getContentAsString())
             .isEqualTo(String.format("""

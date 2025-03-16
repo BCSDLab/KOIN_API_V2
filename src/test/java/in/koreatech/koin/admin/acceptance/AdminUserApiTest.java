@@ -62,6 +62,7 @@ class AdminUserApiTest extends AcceptanceTest {
                           "password" : "%s"
                         }
                         """.formatted(email, password))
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isCreated());
     }
@@ -114,6 +115,7 @@ class AdminUserApiTest extends AcceptanceTest {
                 post("/admin/user/logout")
                     .header("Authorization", "Bearer " + token)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isOk());
     }
@@ -135,6 +137,7 @@ class AdminUserApiTest extends AcceptanceTest {
                           "password" : "%s"
                         }
                         """.formatted(email, password))
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isCreated())
             .andReturn();
@@ -150,6 +153,7 @@ class AdminUserApiTest extends AcceptanceTest {
                           "refresh_token" : "%s"
                         }
                         """.formatted(loginJsonNode.get("refresh_token").asText()))
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isCreated());
     }
