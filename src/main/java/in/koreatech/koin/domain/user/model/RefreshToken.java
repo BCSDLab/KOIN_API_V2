@@ -17,6 +17,7 @@ public class RefreshToken {
 
     private static final long REFRESH_TOKEN_EXPIRE_DAY = 90L;
     private static final String REFRESH_TOKEN_KEY_FORMAT = "%d:%s";
+    private static final String REFRESH_TOKEN_FORMAT = "%s-%d";
 
     @Id
     private String id;
@@ -27,8 +28,8 @@ public class RefreshToken {
     private Long expiration;
 
     private RefreshToken(Integer userId, String refreshToken, String platform) {
-        this.id = generateKey(userId, platform);
-        this.token = refreshToken + "-" + userId;
+        this.id = String.format(REFRESH_TOKEN_KEY_FORMAT, userId, platform);
+        this.token = String.format(REFRESH_TOKEN_FORMAT, refreshToken, userId);
         this.expiration = REFRESH_TOKEN_EXPIRE_DAY;
     }
 
