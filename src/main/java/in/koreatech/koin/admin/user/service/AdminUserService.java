@@ -28,7 +28,6 @@ import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
-import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.model.User;
@@ -96,7 +95,8 @@ public class AdminUserService {
 
         User user = adminUserRepository.getById(adminId);
         String accessToken = jwtProvider.createToken(user);
-        return AdminTokenRefreshResponse.of(accessToken, refreshTokenService.getRefreshToken(adminId, userAgentInfo.getType()));
+        return AdminTokenRefreshResponse.of(accessToken,
+            refreshTokenService.getRefreshToken(adminId, userAgentInfo.getType()));
     }
 
     public AdminResponse getAdmin(Integer id) {
