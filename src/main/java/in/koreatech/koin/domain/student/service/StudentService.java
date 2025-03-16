@@ -164,12 +164,11 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(Integer userId,
-        StudentAcademicInfoUpdateRequest request) {
+    public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(
+        Integer userId, StudentAcademicInfoUpdateRequest request
+    ) {
         studentValidationService.validateDepartment(request.department());
-        if (request.department() != null) {
-            studentValidationService.validateMajor(request.major());
-        }
+        studentValidationService.validateMajor(request.major());
 
         Student student = studentRepository.getById(userId);
 
@@ -186,18 +185,21 @@ public class StudentService {
             updateStudentNumber = isChangeStudentNumber(requestStudentNumber, oldStudentNumber);
         }
 
-        Department newDepartment = student.getDepartment();
+        Department newDepartment;
         if (request.department() != null) {
             newDepartment = departmentRepository.getByName(request.department());
+        } else {
+            newDepartment = null;
         }
 
         Major oldMajor = student.getMajor();
         Major newMajor;
         if (request.major() != null) {
             newMajor = majorRepository.getByNameAndDepartmentId(request.major(), newDepartment.getId());
+        } else if (newDepartment != null) {
+            newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newDepartment.getId()).orElse(null);
         } else {
-            newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newDepartment.getId())
-                .orElse(null);
+            newMajor = null;
         }
 
         validateMajorChange(newStudentNumber, newMajor);
@@ -229,6 +231,10 @@ public class StudentService {
     }
 
     private void validateMajorChange(String studentNumber, Major newMajor) {
+        if (newMajor == null) {
+            return;
+        }
+
         String studentYear = StudentUtil.parseStudentNumberYearAsString(studentNumber);
 
         boolean exists = standardGraduationRequirementsRepository.existsByMajorIdAndYear(

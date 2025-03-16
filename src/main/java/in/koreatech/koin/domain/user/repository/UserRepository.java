@@ -25,8 +25,6 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByNickname(String nickname);
 
-    Optional<User> findAllByResetToken(String resetToken);
-
     default User getByEmail(String email) {
         return findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));

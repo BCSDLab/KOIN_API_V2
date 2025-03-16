@@ -260,8 +260,7 @@ public class Land extends BaseEntity {
     }
 
     public void update(String internalName, String name, double size, String roomType, double latitude,
-        double longitude,
-        String phone, List<String> imageUrls, String address, String description, Integer floor,
+        double longitude, String phone, List<String> imageUrls, String address, String description, Integer floor,
         String deposit, String monthlyFee, String charterFee, String managementFee, boolean optRefrigerator,
         boolean optCloset, boolean optTv, boolean optMicrowave, boolean optGasRange, boolean optInduction,
         boolean optWaterPurifier, boolean optAirConditioner, boolean optWasher, boolean optBed, boolean optDesk,

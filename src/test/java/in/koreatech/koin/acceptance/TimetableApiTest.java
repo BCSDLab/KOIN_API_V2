@@ -16,7 +16,7 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetable.repository.TimetableRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.LectureFixture;
@@ -33,7 +33,7 @@ class TimetableApiTest extends AcceptanceTest {
     private TimeTableV2Fixture timetableV2Fixture;
 
     @Autowired
-    private TimetableRepository timetableRepository;
+    private TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
 
     @Autowired
     private UserFixture userFixture;
@@ -497,7 +497,9 @@ class TimetableApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-        assertThat(timetableRepository.findById(2)).isNotPresent();
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(timetableLectureRepositoryV2.findById(2)).isNotPresent();
     }
 
 /*    @Test
