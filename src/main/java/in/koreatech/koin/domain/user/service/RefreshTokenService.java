@@ -24,9 +24,10 @@ public class RefreshTokenService {
     private final UserTokenRedisRepository userTokenRedisRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void saveRefreshToken(Integer userId, String platform) {
+    public String saveRefreshToken(Integer userId, String platform) {
         String key = getUserKey(userId, platform);
         redisTemplate.opsForValue().set(key, String.valueOf(UUID.randomUUID()), REFRESH_TOKEN_EXPIRE_DAY, TimeUnit.DAYS);
+        return redisTemplate.opsForValue().get(key);
     }
 
     public String getRefreshToken(Integer userId, String platform) {
