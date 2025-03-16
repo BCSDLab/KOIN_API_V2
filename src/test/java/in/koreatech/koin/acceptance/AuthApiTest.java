@@ -5,9 +5,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +18,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 
@@ -30,12 +30,22 @@ class AuthApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Autowired
-    private UserTokenRedisRepository tokenRepository;
+    private RedisTemplate<String, String> redisTemplate;
+
+    private String 맥북_userAgent_헤더;
+    private String 리프레쉬_토큰_KEY;
+    private User 코인_유저;
+
+    @BeforeAll
+    void setup() {
+        clear();
+        맥북_userAgent_헤더 = userFixture.맥북userAgent헤더();
+        코인_유저 = userFixture.코인_유저();
+        리프레쉬_토큰_KEY = "refreshToken:" + 코인_유저.getId() + ":PC";
+    }
 
     @Test
     void 사용자가_로그인을_수행한다() throws Exception {
-        User user = userFixture.코인_유저();
-
         mockMvc.perform(
                 post("/user/login")
                     .content("""
@@ -45,20 +55,19 @@ class AuthApiTest extends AcceptanceTest {
                         }
                         """
                     )
+                    .header("User-Agent", 맥북_userAgent_헤더)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.token").isNotEmpty())
             .andExpect(
-                jsonPath("$.refresh_token").value(tokenRepository.findById(user.getId()).get().getRefreshToken()))
-            .andExpect(jsonPath("$.user_type").value(user.getUserType().name()))
+                jsonPath("$.refresh_token").value(redisTemplate.opsForValue().get(리프레쉬_토큰_KEY)))
+            .andExpect(jsonPath("$.user_type").value(코인_유저.getUserType().name()))
             .andReturn();
     }
 
     @Test
     void 사용자가_로그인_이후_로그아웃을_수행한다() throws Exception {
-        User user = userFixture.코인_유저();
-
         MvcResult result = mockMvc.perform(
                 post("/user/login")
                     .content("""
@@ -68,6 +77,7 @@ class AuthApiTest extends AcceptanceTest {
                         }
                         """
                     )
+                    .header("User-Agent", 맥북_userAgent_헤더)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated())
@@ -77,17 +87,16 @@ class AuthApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/user/logout")
                     .header("Authorization", "Bearer " + jsonNode.get("token").asText())
+                    .header("User-Agent", 맥북_userAgent_헤더)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
 
-        Assertions.assertThat(tokenRepository.findById(user.getId())).isEmpty();
+        Assertions.assertThat(redisTemplate.opsForValue().get(리프레쉬_토큰_KEY)).isNull();
     }
 
     @Test
     void 사용자가_로그인_이후_refreshToken을_재발급한다() throws Exception {
-        User user = userFixture.코인_유저();
-
         MvcResult loginResult = mockMvc.perform(
                 post("/user/login")
                     .content("""
@@ -97,6 +106,7 @@ class AuthApiTest extends AcceptanceTest {
                         }
                         """
                     )
+                    .header("User-Agent", 맥북_userAgent_헤더)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated())
@@ -112,6 +122,7 @@ class AuthApiTest extends AcceptanceTest {
                         }
                         """, loginJsonNode.get("refresh_token").asText())
                     )
+                    .header("User-Agent", 맥북_userAgent_헤더)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated())
@@ -119,7 +130,7 @@ class AuthApiTest extends AcceptanceTest {
 
         JsonNode refreshJsonNode = JsonAssertions.convertJsonNode(refreshResult);
 
-        UserToken token = tokenRepository.findById(user.getId()).get();
+        String refreshToken = redisTemplate.opsForValue().get(리프레쉬_토큰_KEY);
 
         JsonAssertions.assertThat(refreshResult.getResponse().getContentAsString())
             .isEqualTo(String.format("""
@@ -129,7 +140,7 @@ class AuthApiTest extends AcceptanceTest {
                     }
                     """,
                 refreshJsonNode.get("token").asText(),
-                token.getRefreshToken()
+                refreshToken
             ));
     }
 }
