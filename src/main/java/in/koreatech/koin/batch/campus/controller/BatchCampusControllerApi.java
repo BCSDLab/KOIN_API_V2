@@ -40,7 +40,7 @@ public interface BatchCampusControllerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "시내버스 시간표 업데이트")
+    @Operation(summary = "식단 업데이트")
     @PostMapping("/dining")
     ResponseEntity<Void> updateDining(
         @Auth(permit = {ADMIN}) Integer adminId

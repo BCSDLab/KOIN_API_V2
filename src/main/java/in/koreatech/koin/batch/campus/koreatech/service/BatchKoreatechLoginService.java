@@ -82,7 +82,7 @@ public class BatchKoreatechLoginService {
             // 식단 로드
             requestGet("https://kut90.koreatech.ac.kr/ssoLogin_ext.jsp?&PGM_ID=CO::CO0998W&locale=ko");
 
-            // 학생종합경력개 로드
+            // 학생종합경력개발 로드
             jobLogin();
 
             cookies = new ArrayList<>(cookieManager.getCookieStore().getCookies());

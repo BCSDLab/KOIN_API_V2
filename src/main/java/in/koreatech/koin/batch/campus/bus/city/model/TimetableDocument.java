@@ -7,7 +7,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import in.koreatech.koin.batch.campus.bus.city.dto.CityBusRouteInfo;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -31,15 +30,14 @@ public class TimetableDocument {
     private final LocalDateTime updatedAt;
 
     @Builder
-    private TimetableDocument(List<CityBusTimetable> busTimetables, CityBusRouteInfo routeInfo,
+    private TimetableDocument(
+        String routeId,
+        List<CityBusTimetable> busTimetables,
+        BusInfo busInfo,
         LocalDateTime updatedAt) {
-        this.routeId = routeInfo.routeId().toString();
+        this.routeId = routeId;
         this.busTimetables = busTimetables;
-        this.busInfo = BusInfo.builder()
-            .number(Long.parseLong(routeInfo.routeName()))
-            .departNode(routeInfo.stName())
-            .arrivalNode(routeInfo.edName())
-            .build();
+        this.busInfo = busInfo;
         this.updatedAt = updatedAt;
     }
 }

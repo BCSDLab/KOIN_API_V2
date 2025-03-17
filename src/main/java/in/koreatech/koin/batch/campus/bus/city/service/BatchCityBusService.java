@@ -20,6 +20,7 @@ import in.koreatech.koin.batch.campus.bus.city.dto.CityBusRouteApiResponse;
 import in.koreatech.koin.batch.campus.bus.city.dto.CityBusRouteInfo;
 import in.koreatech.koin.batch.campus.bus.city.dto.CityBusTimetableApiResponse;
 import in.koreatech.koin.batch.campus.bus.city.dto.CityBusTimetableApiResponse.InnerRoute;
+import in.koreatech.koin.batch.campus.bus.city.model.BusInfo;
 import in.koreatech.koin.batch.campus.bus.city.model.CityBusTimetable;
 import in.koreatech.koin.batch.campus.bus.city.model.TimetableDocument;
 import in.koreatech.koin.batch.campus.bus.city.repository.BatchCityBusTimetableRepository;
@@ -65,6 +66,7 @@ public class BatchCityBusService {
 
     private List<Long> getAvailableBus() {
         return List.of(400L, 402L, 405L);
+        // TODO : 정적으로 반환해주는거 open api로 한기대 오는 버스 번호 조회해서 반환해주기
     }
 
     private List<Long> getRouteIds(Long busNumber) {
@@ -138,8 +140,15 @@ public class BatchCityBusService {
         }
 
         return TimetableDocument.builder()
+            .routeId(cityBusRouteInfo.routeId().toString())
             .busTimetables(timetables)
-            .routeInfo(cityBusRouteInfo)
+            .busInfo(
+                BusInfo.builder()
+                    .number(Long.parseLong(cityBusRouteInfo.routeName()))
+                    .departNode(cityBusRouteInfo.stName())
+                    .arrivalNode(cityBusRouteInfo.edName())
+                    .build()
+            )
             .updatedAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
             .build();
     }
