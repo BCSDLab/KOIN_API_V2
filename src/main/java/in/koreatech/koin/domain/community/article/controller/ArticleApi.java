@@ -177,6 +177,6 @@ public interface ArticleApi {
     @DeleteMapping("/lost-item/{id}")
     ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
-        @Auth(permit = {COUNCIL}) Integer councilId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer councilId
     );
 }
