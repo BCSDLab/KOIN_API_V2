@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.student.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin._common.event.StudentEmailRequestEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
@@ -42,12 +44,9 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
-import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.integration.email.form.StudentRegistrationData;
@@ -60,12 +59,10 @@ import lombok.RequiredArgsConstructor;
 public class StudentService {
 
     private final MailService mailService;
-    private final UserService userService;
     private final UserValidationService userValidationService;
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
-    private final UserTokenRedisRepository userTokenRedisRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final JwtProvider jwtProvider;
@@ -90,16 +87,15 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentLoginResponse studentLogin(StudentLoginRequest request) {
+    public StudentLoginResponse studentLogin(StudentLoginRequest request, UserAgentInfo userAgentInfo) {
         User user = userValidationService.checkLoginCredentials(request.email(), request.password());
         userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user);
-        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
-        userService.updateLastLoginTime(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
+        user.updateLastLoggedTime(LocalDateTime.now());
 
-        return StudentLoginResponse.of(accessToken, savedToken.getRefreshToken());
+        return StudentLoginResponse.of(accessToken, refreshToken);
     }
 
     @Transactional

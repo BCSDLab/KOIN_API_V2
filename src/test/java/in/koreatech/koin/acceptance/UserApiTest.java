@@ -65,6 +65,7 @@ class UserApiTest extends AcceptanceTest {
                           "password" : "%s"
                         }
                         """.formatted(email, password))
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
@@ -85,6 +86,7 @@ class UserApiTest extends AcceptanceTest {
                           "password" : "%s"
                         }
                         """.formatted(id, password))
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
@@ -309,6 +311,7 @@ class UserApiTest extends AcceptanceTest {
                           "password": "%s"
                         }
                         """.formatted(student.getUser().getEmail(), newPassword))
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());

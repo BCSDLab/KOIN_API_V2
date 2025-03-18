@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -24,7 +27,6 @@ import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import in.koreatech.koin._common.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,27 +39,29 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(
-        @RequestBody @Valid UserLoginRequest request
+        @RequestBody @Valid UserLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        UserLoginResponse response = userService.login(request);
+        UserLoginResponse response = userService.login(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        userService.logout(userId);
+        userService.logout(userId, userAgentInfo);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/user/refresh")
     public ResponseEntity<UserTokenRefreshResponse> refresh(
-        @RequestBody @Valid UserTokenRefreshRequest request
+        @RequestBody @Valid UserTokenRefreshRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
-        return ResponseEntity.created(URI.create("/"))
-            .body(tokenGroupResponse);
+        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request, userAgentInfo);
+        return ResponseEntity.created(URI.create("/")).body(tokenGroupResponse);
     }
 
     @GetMapping("/user/auth")
