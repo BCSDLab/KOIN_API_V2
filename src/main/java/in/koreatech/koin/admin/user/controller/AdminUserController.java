@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.abtest.useragent.UserAgent;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
@@ -37,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminUserController implements AdminUserApi {
+public class AdminUserController implements AdminUserApi{
 
     private final AdminUserService adminUserService;
 
@@ -61,29 +59,28 @@ public class AdminUserController implements AdminUserApi {
 
     @PostMapping("/admin/user/login")
     public ResponseEntity<AdminLoginResponse> adminLogin(
-        @RequestBody @Valid AdminLoginRequest request,
-        @UserAgent UserAgentInfo userAgentInfo
+        @RequestBody @Valid AdminLoginRequest request
     ) {
-        AdminLoginResponse response = adminUserService.adminLogin(request, userAgentInfo);
-        return ResponseEntity.created(URI.create("/")).body(response);
+        AdminLoginResponse response = adminUserService.adminLogin(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
     }
 
     @PostMapping("admin/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {ADMIN}) Integer adminId,
-        @UserAgent UserAgentInfo userAgentInfo
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminUserService.adminLogout(adminId, userAgentInfo);
+        adminUserService.adminLogout(adminId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/admin/user/refresh")
     public ResponseEntity<AdminTokenRefreshResponse> refresh(
-        @RequestBody @Valid AdminTokenRefreshRequest request,
-        @UserAgent UserAgentInfo userAgentInfo
+        @RequestBody @Valid AdminTokenRefreshRequest request
     ) {
-        AdminTokenRefreshResponse tokenGroupResponse = adminUserService.adminRefresh(request, userAgentInfo);
-        return ResponseEntity.created(URI.create("/")).body(tokenGroupResponse);
+        AdminTokenRefreshResponse tokenGroupResponse = adminUserService.adminRefresh(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(tokenGroupResponse);
     }
 
     @GetMapping("/admin")

@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.abtest.useragent.UserAgent;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
@@ -77,8 +75,7 @@ public interface CoopApi {
     @Operation(summary = "영양사 로그인")
     @PostMapping("/coop/login")
     ResponseEntity<CoopLoginResponse> coopLogin(
-        @RequestBody @Valid CoopLoginRequest request,
-        @UserAgent UserAgentInfo userAgentInfo
+        @RequestBody @Valid CoopLoginRequest request
     );
 
     @ApiResponses(
