@@ -2,14 +2,6 @@ package in.koreatech.koin.domain.owner.service;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
-import java.time.LocalDateTime;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerLoginRequest;
@@ -28,8 +20,12 @@ import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.service.RefreshTokenService;
+import in.koreatech.koin._common.auth.JwtProvider;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,15 +41,14 @@ public class OwnerSmsService {
     private final OwnerValidator ownerValidator;
     private final OwnerUtilService ownerUtilService;
     private final OwnerVerificationService ownerVerificationService;
-    private final RefreshTokenService refreshTokenService;
 
     @Transactional
-    public OwnerLoginResponse ownerLogin(OwnerLoginRequest request, UserAgentInfo userAgentInfo) {
+    public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
         User user = ownerUtilService.extractUserByAccount(request.account());
         ownerValidator.validatePassword(user, request.password());
         ownerValidator.validateAuth(user);
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
+        String refreshToken = ownerUtilService.saveRefreshToken(user);
         user.updateLastLoggedTime(LocalDateTime.now());
         return OwnerLoginResponse.of(accessToken, refreshToken);
     }

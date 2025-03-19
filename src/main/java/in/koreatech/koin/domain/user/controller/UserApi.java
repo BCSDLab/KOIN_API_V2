@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.abtest.useragent.UserAgent;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -45,8 +43,7 @@ public interface UserApi {
     @Operation(summary = "로그인")
     @PostMapping("/user/login")
     ResponseEntity<UserLoginResponse> login(
-        @RequestBody @Valid UserLoginRequest request,
-        @UserAgent UserAgentInfo userAgentInfo
+        @RequestBody @Valid UserLoginRequest request
     );
 
     @ApiResponses(
@@ -61,8 +58,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
-        @UserAgent UserAgentInfo userAgentInfo
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -76,8 +72,7 @@ public interface UserApi {
     @Operation(summary = "토큰 갱신")
     @PostMapping("/user/refresh")
     ResponseEntity<UserTokenRefreshResponse> refresh(
-        @RequestBody @Valid UserTokenRefreshRequest request,
-        @UserAgent UserAgentInfo userAgentInfo
+        @RequestBody @Valid UserTokenRefreshRequest request
     );
 
     @ApiResponses(

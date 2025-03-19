@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.abtest.useragent.UserAgent;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
@@ -33,6 +30,7 @@ import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
+import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
@@ -80,11 +78,11 @@ public class StudentController implements StudentApi{
 
     @PostMapping("/student/login")
     public ResponseEntity<StudentLoginResponse> studentLogin(
-        @RequestBody @Valid StudentLoginRequest request,
-        @UserAgent UserAgentInfo userAgentInfo
+        @RequestBody @Valid StudentLoginRequest request
     ) {
-        StudentLoginResponse response = studentService.studentLogin(request, userAgentInfo);
-        return ResponseEntity.created(URI.create("/")).body(response);
+        StudentLoginResponse response = studentService.studentLogin(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
     }
 
     @PostMapping("/user/student/register")

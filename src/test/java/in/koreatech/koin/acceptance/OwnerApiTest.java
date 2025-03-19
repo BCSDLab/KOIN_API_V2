@@ -65,9 +65,7 @@ class OwnerApiTest extends AcceptanceTest {
                           "account" : "%s",
                           "password" : "%s"
                         }
-                        """.formatted(phoneNumber, password)
-                    )
-                    .header("User-Agent", userFixture.맥북userAgent헤더())
+                        """.formatted(phoneNumber, password))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());

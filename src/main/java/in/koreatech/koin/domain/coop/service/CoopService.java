@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -43,7 +44,6 @@ import in.koreatech.koin._common.event.DiningImageUploadEvent;
 import in.koreatech.koin._common.event.DiningSoldOutEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
@@ -65,8 +65,9 @@ import in.koreatech.koin.domain.dining.model.enums.ExcelDiningPosition;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.service.RefreshTokenService;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.integration.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
@@ -83,7 +84,7 @@ public class CoopService {
     private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
     private final UserRepository userRepository;
-    private final RefreshTokenService refreshTokenService;
+    private final UserTokenRedisRepository userTokenRedisRepository;
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -180,7 +181,7 @@ public class CoopService {
     }*/
 
     @Transactional
-    public CoopLoginResponse coopLogin(CoopLoginRequest request, UserAgentInfo userAgentInfo) {
+    public CoopLoginResponse coopLogin(CoopLoginRequest request) {
         Coop coop = coopRepository.getByCoopId(request.id());
         User user = coop.getUser();
 
@@ -189,10 +190,11 @@ public class CoopService {
         }
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(LocalDateTime.now());
 
-        return CoopLoginResponse.of(accessToken, refreshToken);
+        return CoopLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }
 
     public CoopResponse getCoop(Integer userId) {
