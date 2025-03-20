@@ -5,15 +5,18 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
+import jakarta.persistence.LockModeType;
 
 public interface ArticleSearchKeywordRepository extends Repository<ArticleSearchKeyword, Integer> {
 
     ArticleSearchKeyword save(ArticleSearchKeyword keyword);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<ArticleSearchKeyword> findByKeyword(String keywordStr);
 
     @Query("""
@@ -22,6 +25,7 @@ public interface ArticleSearchKeywordRepository extends Repository<ArticleSearch
         WHERE k.lastSearchedAt >= :fromDate
         ORDER BY k.weight DESC, k.lastSearchedAt DESC
         """)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<String> findTopKeywords(LocalDateTime fromDate, Pageable pageable);
 
     @Query("""
@@ -31,5 +35,6 @@ public interface ArticleSearchKeywordRepository extends Repository<ArticleSearch
         """)
     List<String> findTopKeywordsByLatest(Pageable pageable);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<ArticleSearchKeyword> findByUpdatedAtBetween(LocalDateTime startTime, LocalDateTime endTime);
 }
