@@ -32,7 +32,7 @@ public class ArticleScheduler {
         }
     }
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 0 */6 * * *")
     public void synchronizeKeywords() {
         try {
             articleSyncService.resetWeightsAndCounts();
