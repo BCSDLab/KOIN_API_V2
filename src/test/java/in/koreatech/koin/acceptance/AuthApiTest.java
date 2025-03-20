@@ -1,6 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,16 +34,7 @@ class AuthApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_로그인을_수행한다() throws Exception {
-        User user = userFixture.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.코인_유저();
 
         mockMvc.perform(
                 post("/user/login")
@@ -67,16 +57,7 @@ class AuthApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_로그인_이후_로그아웃을_수행한다() throws Exception {
-        User user = userFixture.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.코인_유저();
 
         MvcResult result = mockMvc.perform(
                 post("/user/login")
@@ -105,16 +86,7 @@ class AuthApiTest extends AcceptanceTest {
 
     @Test
     void 사용자가_로그인_이후_refreshToken을_재발급한다() throws Exception {
-        User user = userFixture.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.코인_유저();
 
         MvcResult loginResult = mockMvc.perform(
                 post("/user/login")

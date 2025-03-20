@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.community.keyword.model;
 
-import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
-import static in.koreatech.koin.global.fcm.MobileAppPath.KEYWORD;
+import static in.koreatech.koin.integration.fcm.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
+import static in.koreatech.koin.integration.fcm.client.MobileAppPath.KEYWORD;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import java.util.List;
@@ -12,16 +12,17 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import in.koreatech.koin._common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
-import in.koreatech.koin.global.domain.notification.model.Notification;
-import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
-import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
+import in.koreatech.koin.integration.fcm.notification.model.Notification;
+import in.koreatech.koin.integration.fcm.notification.model.NotificationFactory;
+import in.koreatech.koin.integration.fcm.notification.model.NotificationSubscribe;
+import in.koreatech.koin.integration.fcm.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.integration.fcm.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -60,6 +61,7 @@ public class ArticleKeywordEventListener {
 
     private boolean isKeywordRegistered(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
         return event.keyword().getArticleKeywordUserMaps().stream()
+            .filter(map -> !map.getIsDeleted())
             .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getId()));
     }
 

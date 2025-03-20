@@ -7,12 +7,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
-import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
-import in.koreatech.koin.domain.owner.model.dto.OwnerSmsRequestEvent;
+import in.koreatech.koin._common.event.OwnerRegisterEvent;
+import in.koreatech.koin._common.event.OwnerSmsRequestEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
-import in.koreatech.koin.global.domain.slack.SlackClient;
-import in.koreatech.koin.global.domain.slack.model.SlackNotificationFactory;
+import in.koreatech.koin.integration.slack.SlackClient;
+import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -23,12 +22,6 @@ public class OwnerEventListener {
     private final SlackClient slackClient;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final SlackNotificationFactory slackNotificationFactory;
-
-    @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onOwnerEmailRequest(OwnerEmailRequestEvent event) {
-        var notification = slackNotificationFactory.generateOwnerEmailVerificationRequestNotification(event.email());
-        slackClient.sendMessage(notification);
-    }
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerPhoneRequest(OwnerSmsRequestEvent ownerPhoneRequestEvent) {

@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin._common.event.StudentEmailRequestEvent;
+import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
@@ -25,8 +29,6 @@ import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
-import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
@@ -47,11 +49,9 @@ import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
-import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
-import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
+import in.koreatech.koin.integration.email.form.StudentRegistrationData;
+import in.koreatech.koin.integration.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -167,12 +167,11 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(Integer userId,
-        StudentAcademicInfoUpdateRequest request) {
+    public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(
+        Integer userId, StudentAcademicInfoUpdateRequest request
+    ) {
         studentValidationService.validateDepartment(request.department());
-        if (request.department() != null) {
-            studentValidationService.validateMajor(request.major());
-        }
+        studentValidationService.validateMajor(request.major());
 
         Student student = studentRepository.getById(userId);
 
@@ -189,18 +188,21 @@ public class StudentService {
             updateStudentNumber = isChangeStudentNumber(requestStudentNumber, oldStudentNumber);
         }
 
-        Department newDepartment = student.getDepartment();
+        Department newDepartment;
         if (request.department() != null) {
             newDepartment = departmentRepository.getByName(request.department());
+        } else {
+            newDepartment = null;
         }
 
         Major oldMajor = student.getMajor();
         Major newMajor;
         if (request.major() != null) {
             newMajor = majorRepository.getByNameAndDepartmentId(request.major(), newDepartment.getId());
+        } else if (newDepartment != null) {
+            newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newDepartment.getId()).orElse(null);
         } else {
-            newMajor = majorRepository.findFirstByDepartmentIdOrderByIdAsc(newDepartment.getId())
-                .orElse(null);
+            newMajor = null;
         }
 
         validateMajorChange(newStudentNumber, newMajor);
@@ -232,6 +234,10 @@ public class StudentService {
     }
 
     private void validateMajorChange(String studentNumber, Major newMajor) {
+        if (newMajor == null) {
+            return;
+        }
+
         String studentYear = StudentUtil.parseStudentNumberYearAsString(studentNumber);
 
         boolean exists = standardGraduationRequirementsRepository.existsByMajorIdAndYear(

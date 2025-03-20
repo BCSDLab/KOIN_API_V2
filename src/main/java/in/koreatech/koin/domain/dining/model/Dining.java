@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import in.koreatech.koin.global.domain.BaseEntity;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;

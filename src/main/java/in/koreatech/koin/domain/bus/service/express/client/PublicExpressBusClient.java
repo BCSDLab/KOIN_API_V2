@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin.domain.bus.dto.PublicOpenApiResponse;
+import in.koreatech.koin.domain.bus.service.express.dto.PublicOpenApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
@@ -33,8 +33,8 @@ import in.koreatech.koin.domain.bus.service.express.model.PublicOpenApiExpressBu
 import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.global.domain.callcontoller.CallControlInfo;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin._common.callcontoller.CallControl;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
@@ -42,7 +42,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
-@CallControlInfo(ratio = 2)
+@CallControl(ratio = 2)
 public class PublicExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";

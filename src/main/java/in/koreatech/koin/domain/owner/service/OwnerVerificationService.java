@@ -1,16 +1,13 @@
 package in.koreatech.koin.domain.owner.service;
 
-import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
-import in.koreatech.koin.domain.owner.model.dto.OwnerSmsRequestEvent;
+import in.koreatech.koin._common.event.OwnerSmsRequestEvent;
 import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
-import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
-import in.koreatech.koin.global.domain.email.service.MailService;
-import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
-import in.koreatech.koin.global.naver.service.NaverSmsService;
+import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.integration.naver.service.NaverSmsService;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

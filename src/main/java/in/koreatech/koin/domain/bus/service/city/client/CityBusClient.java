@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin.domain.bus.dto.CityBusApiResponse;
+import in.koreatech.koin.domain.bus.service.city.dto.CityBusApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusArrival;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusCache;
@@ -30,7 +30,7 @@ import in.koreatech.koin.domain.bus.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.service.city.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**

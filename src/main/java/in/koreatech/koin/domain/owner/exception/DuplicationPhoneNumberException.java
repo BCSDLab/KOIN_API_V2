@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.owner.exception;
 
-import in.koreatech.koin.global.exception.DuplicationException;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 
 public class DuplicationPhoneNumberException extends DuplicationException {
 

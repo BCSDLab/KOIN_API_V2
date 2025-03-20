@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GeneralEducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
@@ -61,8 +63,6 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.exception.DuplicationException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -88,7 +88,7 @@ public class GraduationService {
 
     private static final String MIDDLE_TOTAL = "소 계";
     private static final String TOTAL = "합 계";
-    private static final String RETAKE = "Y";
+    private static final String FAIL = "F";
     private static final String UNSATISFACTORY = "U";
     private static final String DEFAULT_COURSER_TYPE = "이수구분선택";
     private static final String GENERAL_EDUCATION_COURSE_TYPE = "교양선택";
@@ -133,16 +133,14 @@ public class GraduationService {
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
-        if(!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
+        if (!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
             studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
             entityManager.flush();
             entityManager.clear();
             initializeStudentCourseCalculation(student, newMajor);
 
             detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
-                .ifPresent(detectGraduationCalculation -> {
-                    detectGraduationCalculation.updatedIsChanged(true);
-                });
+                .ifPresent(detectGraduationCalculation -> detectGraduationCalculation.updatedIsChanged(true));
         }
     }
 
@@ -236,7 +234,8 @@ public class GraduationService {
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                Catalog bestCatalog = findBestMatchingCatalog(lectureName, studentYear, student.getMajor());
+                Catalog bestCatalog =
+                    findBestMatchingCatalog(lectureName, studentYear, student.getMajor(), timetableLecture);
 
                 if (bestCatalog != null) {
                     if (timetableLecture.getCourseType() != null) {
@@ -247,7 +246,7 @@ public class GraduationService {
                             .credit(bestCatalog.getCredit())
                             .major(bestCatalog.getMajor())
                             .department(bestCatalog.getDepartment())
-                            .courseType(timetableLecture.getCourseType()) // 🎯 학생이 수정한 이수구분 적용
+                            .courseType(timetableLecture.getCourseType())
                             .generalEducationArea(bestCatalog.getGeneralEducationArea())
                             .build();
                     }
@@ -258,14 +257,17 @@ public class GraduationService {
         return catalogList;
     }
 
-    private Catalog findBestMatchingCatalog(String lectureName, String studentYear, Major major) {
+    private Catalog findBestMatchingCatalog(
+        String lectureName,
+        String studentYear,
+        Major major,
+        TimetableLecture timetableLecture) {
         List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndMajor(lectureName, studentYear, major);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
         }
 
         List<String> attendedYears = timetableLectureRepositoryV2.findYearsByUserId(major.getId());
-
         catalogs = catalogRepository.findByLectureNameAndYearIn(lectureName, attendedYears);
         if (!catalogs.isEmpty()) {
             return catalogs.get(0);
@@ -276,7 +278,18 @@ public class GraduationService {
             return catalogs.get(0);
         }
 
-        return null;
+        CourseType defaultCourseType = courseTypeRepository.getByName(DEFAULT_COURSER_TYPE);
+        return Catalog.builder()
+            .year(studentYear)
+            .code(timetableLecture.getLecture() != null ? timetableLecture.getLecture().getCode() : "UNKNOWN")
+            .lectureName(lectureName)
+            .credit(
+                Integer.parseInt(timetableLecture.getLecture() != null ? timetableLecture.getLecture().getGrades() : timetableLecture.getGrades()))
+            .major(major)
+            .department(null)
+            .courseType(defaultCourseType)
+            .generalEducationArea(null)
+            .build();
     }
 
     private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList, Student student) {
@@ -297,7 +310,17 @@ public class GraduationService {
                 .orElse(null);
 
             if (matchingCatalog == null) {
-                continue;
+                CourseType defaultCourseType = courseTypeRepository.getByName(DEFAULT_COURSER_TYPE);
+                matchingCatalog = Catalog.builder()
+                    .year(StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber()))
+                    .code("UNKNOWN")
+                    .lectureName(lectureName)
+                    .credit(0)
+                    .major(student.getMajor())
+                    .department(null)
+                    .courseType(defaultCourseType)
+                    .generalEducationArea(null)
+                    .build();
             }
 
             CourseType appliedCourseType = matchingCatalog.getCourseType();
@@ -474,7 +497,7 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-            gradeExcelData.retakeStatus().equals(RETAKE) ||
+            gradeExcelData.grade().equals(FAIL) ||
             gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
@@ -700,7 +723,8 @@ public class GraduationService {
             for (TimetableLecture timetableLecture : generalEducationTimetableLectures) {
                 if (Objects.equals(timetableLecture.getGeneralEducationArea(), generalEducationArea)) {
                     Lecture lecture = timetableLecture.getLecture();
-                    completedCredit += Integer.parseInt(lecture != null ? lecture.getGrades() : timetableLecture.getGrades());
+                    completedCredit += Integer.parseInt(
+                        lecture != null ? lecture.getGrades() : timetableLecture.getGrades());
                     lectureNames.add(lecture != null ? lecture.getName() : timetableLecture.getClassTitle());
                 }
             }

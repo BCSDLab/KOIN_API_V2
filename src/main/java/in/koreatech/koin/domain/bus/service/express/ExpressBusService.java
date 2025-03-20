@@ -15,7 +15,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
+import in.koreatech.koin.domain.bus.service.express.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.service.model.BusTimetable;

@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.coop.exception;
 
-import in.koreatech.koin.global.exception.DataNotFoundException;
+import in.koreatech.koin._common.exception.custom.DataNotFoundException;
 
 public class CoopNotFoundException extends DataNotFoundException {
     private static final String DEFAULT_MESSAGE = "영양사님 계정이 존재하지 않습니다.";

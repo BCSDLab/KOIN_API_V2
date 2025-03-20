@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.shop.dto.menu.request.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.menu.response.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.menu.response.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.menu.response.ShopMenuResponse;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

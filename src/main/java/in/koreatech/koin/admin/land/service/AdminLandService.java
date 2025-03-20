@@ -12,7 +12,7 @@ import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 import in.koreatech.koin.admin.land.execption.LandNameDuplicationException;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,6 +36,11 @@ public class AdminLandService {
         return AdminLandsResponse.of(result, criteria);
     }
 
+    public AdminLandResponse getLand(Integer id) {
+        Land land = adminLandRepository.getById(id);
+        return AdminLandResponse.from(land);
+    }
+
     @Transactional
     public void createLands(AdminLandRequest adminLandRequest) {
         if (adminLandRepository.findByName(adminLandRequest.name()).isPresent()) {
@@ -43,17 +48,6 @@ public class AdminLandService {
         }
         Land land = adminLandRequest.toLand();
         adminLandRepository.save(land);
-    }
-
-    @Transactional
-    public void deleteLand(Integer id) {
-        Land land = adminLandRepository.getById(id);
-        land.delete();
-    }
-
-    public AdminLandResponse getLand(Integer id) {
-        Land land = adminLandRepository.getById(id);
-        return AdminLandResponse.from(land);
     }
 
     @Transactional
@@ -92,7 +86,12 @@ public class AdminLandService {
             request.optVeranda(),
             request.optElevator()
         );
+    }
 
+    @Transactional
+    public void deleteLand(Integer id) {
+        Land land = adminLandRepository.getById(id);
+        land.delete();
     }
 
     @Transactional

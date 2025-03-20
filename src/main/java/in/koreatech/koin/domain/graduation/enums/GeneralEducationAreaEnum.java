@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.graduation.enums;
 import java.util.Arrays;
 import java.util.Map;
 
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.Getter;
 
 @Getter
