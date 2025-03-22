@@ -45,7 +45,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         """)
     List<Article> findAllForHotArticlesByIdIn(List<Integer> ids);
 
-
     default Article getById(Integer articleId) {
         Article found = findById(articleId)
             .orElseThrow(() -> ArticleNotFoundException.withDetail("articleId: " + articleId));
@@ -154,7 +153,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             ORDER BY (a.hit + COALESCE(ka.portalHit, 0)) DESC, a.id DESC
         """)
     List<Article> findMostHitArticles(LocalDate registeredAt, Pageable pageable);
-
 
     @Query(value = "SELECT a.* FROM new_articles a "
         + "LEFT JOIN new_koreatech_articles ka ON ka.article_id = a.id "
