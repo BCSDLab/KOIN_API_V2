@@ -110,9 +110,17 @@ public class ArticleService {
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
-        List<Article> cacheList = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT).stream()
-            .map(articleRepository::getById)
-            .collect(Collectors.toList());
+        List<Integer> hotArticlesIds = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT);
+        List<Article> articles = articleRepository.findAllByIdIn(hotArticlesIds);
+
+        Map<Integer, Article> articleMap = articles.stream()
+            .collect(Collectors.toMap(Article::getId, article -> article));
+
+        List<Article> cacheList = new ArrayList<>(hotArticlesIds.stream()
+            .map(articleMap::get)
+            .filter(Objects::nonNull)
+            .toList());
+
         if (cacheList.size() < HOT_ARTICLE_LIMIT) {
             List<Article> highestHitArticles = articleRepository.findMostHitArticles(
                 LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
