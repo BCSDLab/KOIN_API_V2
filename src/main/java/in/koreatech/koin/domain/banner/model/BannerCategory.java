@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.banner.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "banner_category")
 @NoArgsConstructor(access = PROTECTED)
-public class BannerCategory {
+public class BannerCategory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
