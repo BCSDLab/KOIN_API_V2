@@ -99,7 +99,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
     @Test
     void 단일_메인_모달_배너를_조회한다() throws Exception {
         mockMvc.perform(
-                get("/admin/banner/1")
+                get("/admin/banners/1")
                     .header("Authorization", "Bearer " + 어드민_토큰)
             )
             .andExpect(status().isOk())
@@ -142,7 +142,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
     @Test
     void 메인_모달_배너를_삭제한다() throws Exception {
         mockMvc.perform(
-                delete("/admin/banner/1")
+                delete("/admin/banners/1")
                     .header("Authorization", "Bearer " + 어드민_토큰)
             )
             .andExpect(status().isNoContent());
