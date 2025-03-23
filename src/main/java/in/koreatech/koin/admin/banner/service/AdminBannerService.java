@@ -36,7 +36,7 @@ public class AdminBannerService {
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(), criteria.getLimit(),
-            Sort.by(Sort.Direction.ASC, "createdAt")
+            Sort.by(Sort.Direction.ASC, "priority")
         );
         Page<Banner> banners = adminBannerRepository.findAllByIsActiveAndBannerCategoryId(isActive,
             bannerCategory.getId(), pageRequest);
