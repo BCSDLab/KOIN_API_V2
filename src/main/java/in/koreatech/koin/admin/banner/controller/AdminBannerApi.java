@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.banner.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,6 +55,22 @@ public interface AdminBannerApi {
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
         @RequestParam(name = "is_active", defaultValue = "true") Boolean isActive,
         @RequestParam(name = "banner_category_name") String bannerCategoryName,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 배너를 삭제한다")
+    @DeleteMapping("/admin/banner/{id}")
+    ResponseEntity<Void> deleteBanner(
+        @PathVariable(name = "id") Integer bannerId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }

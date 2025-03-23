@@ -42,4 +42,8 @@ public class AdminBannerService {
 
         return AdminBannersResponse.from(banners);
     }
+
+    public void deleteBanner(Integer bannerId) {
+        adminBannerRepository.deleteById(bannerId);
+    }
 }

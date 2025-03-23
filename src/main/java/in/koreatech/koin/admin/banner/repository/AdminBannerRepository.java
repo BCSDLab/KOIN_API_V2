@@ -35,4 +35,6 @@ public interface AdminBannerRepository extends Repository<Banner, Integer> {
         """, nativeQuery = true)
     Page<Banner> findAllByIsActiveAndBannerCategoryId(@Param("isActive") boolean isActive,
         @Param("bannerCategoryId") Integer bannerCategoryId, Pageable pageable);
+
+    void deleteById(Integer id);
 }
