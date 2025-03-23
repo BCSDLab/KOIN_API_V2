@@ -54,7 +54,7 @@ public class Banner extends BaseEntity {
 
     @NotNull
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = false;
+    private Boolean isActive;
 
     @JoinColumn(name = "banner_category_id")
     @ManyToOne(fetch = LAZY)

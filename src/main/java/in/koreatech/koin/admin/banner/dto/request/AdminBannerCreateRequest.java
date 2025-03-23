@@ -49,6 +49,7 @@ public record AdminBannerCreateRequest(
             .webRedirectLink(webRedirectLink)
             .androidRedirectLink(androidRedirectLink)
             .iosRedirectLink(iosRedirectLink)
+            .isActive(false)
             .build();
     }
 }
