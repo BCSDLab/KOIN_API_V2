@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
 import in.koreatech.koin.admin.banner.repository.AdminBannerCategoryRepository;
@@ -41,6 +42,13 @@ public class AdminBannerService {
             bannerCategory.getId(), pageRequest);
 
         return AdminBannersResponse.from(banners);
+    }
+
+    @Transactional
+    public void createBanner(AdminBannerCreateRequest request) {
+        BannerCategory bannerCategory = adminBannerCategoryRepository.getByName(request.bannerCategory());
+        Banner banner = request.of(bannerCategory);
+        adminBannerRepository.save(banner);
     }
 
     public void deleteBanner(Integer bannerId) {
