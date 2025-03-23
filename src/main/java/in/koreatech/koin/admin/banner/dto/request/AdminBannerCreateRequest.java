@@ -10,7 +10,6 @@ import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -40,11 +39,7 @@ public record AdminBannerCreateRequest(
 
     @Schema(description = "ios 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "ios 리다이렉션 링크는 최대 255자 입니다.")
-    String iosRedirectLink,
-
-    @Schema(description = "배너 활성화 여부", example = "true", requiredMode = REQUIRED)
-    @NotNull(message = "배너 활성화 여부는 null일 수 없습니다.")
-    Boolean isActive
+    String iosRedirectLink
 ) {
     public Banner of(BannerCategory bannerCategory) {
         return Banner.builder()
@@ -54,7 +49,7 @@ public record AdminBannerCreateRequest(
             .webRedirectLink(webRedirectLink)
             .androidRedirectLink(androidRedirectLink)
             .iosRedirectLink(iosRedirectLink)
-            .isActive(isActive)
+            .isActive(false)
             .build();
     }
 }

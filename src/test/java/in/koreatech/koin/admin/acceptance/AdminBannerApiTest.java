@@ -136,7 +136,6 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "web_redirect_link": "https://example.com/1000won",
                                 "android_redirect_link": "https://example.com/1000won",
                                 "ios_redirect_link": "https://example.com/1000won",
-                                "is_active": "true"
                             }
                         """)
             )
