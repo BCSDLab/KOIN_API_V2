@@ -1,9 +1,9 @@
 package in.koreatech.koin.admin.banner.dto.request;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.banner.model.Banner;
@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminBannerCreateRequest(
     @Schema(description = "배너 카테고리", example = "메인 모달", requiredMode = REQUIRED)
     @NotBlank(message = "배너 카테고리는 공백일 수 없습니다")
