@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.banner.model.Banner;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminBannersResponse(
     @Schema(description = "조건에 해당하는 배너 수", example = "10", requiredMode = REQUIRED)
     Long totalCount,

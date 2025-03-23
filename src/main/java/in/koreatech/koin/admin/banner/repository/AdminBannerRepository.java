@@ -23,7 +23,7 @@ public interface AdminBannerRepository extends Repository<Banner, Integer> {
     Banner save(Banner banner);
 
     @Query(value = """
-        SELECT COUNT(*) FROM banner
+        SELECT COUNT(*) FROM banners
         WHERE is_active = :isActive
         AND banner_category_id = :bannerCategoryId
         """, nativeQuery = true)
@@ -31,7 +31,7 @@ public interface AdminBannerRepository extends Repository<Banner, Integer> {
         @Param("bannerCategoryId") Integer bannerCategoryId);
 
     @Query(value = """
-        SELECT * FROM banner
+        SELECT * FROM banners
         WHERE is_active = :isActive
         AND banner_category_id = :bannerCategoryId
         """, nativeQuery = true)

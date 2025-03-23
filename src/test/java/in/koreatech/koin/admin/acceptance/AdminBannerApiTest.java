@@ -4,11 +4,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
-import org.junit.Test;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -48,7 +45,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
         clear();
         어드민 = userFixture.코인_운영자();
         어드민_토큰 = userFixture.getToken(어드민.getUser());
-        생성일 = LocalDate.now().format(DateTimeFormatter.ofPattern("yy.MM.dd"));
+        생성일 = "24.01.15";
         배너_카테고리_메인_모달 = bannerCategoryFixture.메인_모달();
         메인_배너_1 = bannerFixture.메인_배너_1(배너_카테고리_메인_모달);
         메인_배너_2 = bannerFixture.메인_배너_2(배너_카테고리_메인_모달);
@@ -69,7 +66,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                         "current_count": 2,
                         "total_page": 1,
                         "current_page": 1,
-                        "coop_shop_semesters": [
+                        "banners": [
                             {
                                 "id": 1,
                                 "banner_category": "메인 모달",
@@ -79,19 +76,19 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "web_redirect_link": "https://example.com/1000won",
                                 "android_redirect_link": "https://example.com/1000won",
                                 "ios_redirect_link": "https://example.com/1000won",
-                                "is_active": "true",
+                                "is_active": true,
                                 "create_at": "%s"
                             },
                             {
                                 "id": 2,
                                 "banner_category": "메인 모달",
                                 "priority": 2,
-                                "title": "천원의 아침식사",
+                                "title": "코인 이벤트",
                                 "image_url": "https://example.com/koin-event.jpg",
                                 "web_redirect_link": "https://example.com/koin-event",
                                 "android_redirect_link": "https://example.com/koin-event",
                                 "ios_redirect_link": "https://example.com/koin-event",
-                                "is_active": "true",
+                                "is_active": true,
                                 "create_at": "%s"
                             }
                         ]
@@ -116,7 +113,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                         "web_redirect_link": "https://example.com/1000won",
                         "android_redirect_link": "https://example.com/1000won",
                         "ios_redirect_link": "https://example.com/1000won",
-                        "is_active": "true",
+                        "is_active": true,
                         "create_at": "%s"
                     }
                 """, 생성일)));
@@ -135,7 +132,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/1000won.jpg",
                                 "web_redirect_link": "https://example.com/1000won",
                                 "android_redirect_link": "https://example.com/1000won",
-                                "ios_redirect_link": "https://example.com/1000won",
+                                "ios_redirect_link": "https://example.com/1000won"
                             }
                         """)
             )
