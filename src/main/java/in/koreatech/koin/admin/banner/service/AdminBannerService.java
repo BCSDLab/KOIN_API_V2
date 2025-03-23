@@ -31,31 +31,22 @@ public class AdminBannerService {
 
     public AdminBannersResponse getBanners(Integer page, Integer limit, Boolean isActive, String bannerCategoryName) {
         BannerCategory bannerCategory = adminBannerCategoryRepository.getByName(bannerCategoryName);
-        Integer total;
+        Integer bannerCategoryId = bannerCategory.getId();
 
-        if (isActive != null) {
-            total = adminBannerRepository.countByIsActiveAndBannerCategoryId(isActive, bannerCategory.getId());
-        } else {
-            total = adminBannerRepository.countByBannerCategoryId(bannerCategory.getId());
-        }
+        boolean hasIsActive = isActive != null;
+
+        int total = hasIsActive
+            ? adminBannerRepository.countByIsActiveAndBannerCategoryId(isActive, bannerCategoryId)
+            : adminBannerRepository.countByBannerCategoryId(bannerCategoryId);
 
         Criteria criteria = Criteria.of(page, limit, total);
-        PageRequest pageRequest;
-        Page<Banner> banners;
 
-        // 활성화 여부에 따른 정렬 조건
-        if (isActive != null) {
-            pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-                Sort.by(Sort.Direction.ASC, "priority")
-            );
-            banners = adminBannerRepository.findAllByIsActiveAndBannerCategoryId(isActive,
-                bannerCategory.getId(), pageRequest);
-        } else {
-            pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-                Sort.by(Sort.Direction.ASC, "created_at")
-            );
-            banners = adminBannerRepository.findAllByBannerCategoryId(bannerCategory.getId(), pageRequest);
-        }
+        Sort sort = Sort.by(Sort.Direction.ASC, hasIsActive ? "priority" : "created_at");
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), sort);
+
+        Page<Banner> banners = hasIsActive
+            ? adminBannerRepository.findAllByIsActiveAndBannerCategoryId(isActive, bannerCategoryId, pageRequest)
+            : adminBannerRepository.findAllByBannerCategoryId(bannerCategoryId, pageRequest);
 
         return AdminBannersResponse.from(banners);
     }
