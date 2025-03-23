@@ -69,6 +69,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                         "banners": [
                             {
                                 "id": 1,
+                                "banner_category_id": 1,
                                 "banner_category": "메인 모달",
                                 "priority": 1,
                                 "title": "천원의 아침식사",
@@ -81,6 +82,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                             },
                             {
                                 "id": 2,
+                                "banner_category_id": 1,
                                 "banner_category": "메인 모달",
                                 "priority": 2,
                                 "title": "코인 이벤트",
@@ -106,6 +108,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
             .andExpect(content().json(String.format("""
                     {
                         "id": 1,
+                        "banner_category_id": 1,
                         "banner_category": "메인 모달",
                         "priority": 1,
                         "title": "천원의 아침식사",

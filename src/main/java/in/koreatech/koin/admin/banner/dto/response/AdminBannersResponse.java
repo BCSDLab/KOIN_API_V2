@@ -37,6 +37,9 @@ public record AdminBannersResponse(
         @Schema(description = "배너 ID", example = "1")
         Integer id,
 
+        @Schema(description = "배너 카테고리 id", example = "1")
+        Integer bannerCategoryId,
+
         @Schema(description = "배너 카테고리", example = "메인 모달")
         String bannerCategory,
 
@@ -68,6 +71,7 @@ public record AdminBannersResponse(
         public static InnerAdminBannerResponse from(Banner banner) {
             return new InnerAdminBannerResponse(
                 banner.getId(),
+                banner.getBannerCategory().getId(),
                 banner.getBannerCategory().getName(),
                 banner.getPriority(),
                 banner.getTitle(),
