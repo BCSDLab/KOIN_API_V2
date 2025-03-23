@@ -110,11 +110,7 @@ public class LostItemChatRoomInfoService {
 
     @Transactional(readOnly = true)
     public String getChatPartnerProfileImage(Integer articleId) {
-        User author = lostItemArticleReader.readByArticleId(articleId).getAuthor();
-        if (author == null) {
-            return null;
-        }
-        return author.getProfileImageUrl();
+        return lostItemArticleReader.readByArticleId(articleId).getAuthor().getProfileImageUrl();
     }
 
     private void checkSelfChat(Integer ownerId, Integer articleAuthorId) {
