@@ -59,7 +59,7 @@ public class Banner extends BaseEntity {
 
     @JoinColumn(name = "banner_category_id")
     @ManyToOne(fetch = LAZY)
-    private BannerCategories bannerCategories;
+    private BannerCategory bannerCategory;
 
     @Builder
     private Banner(
@@ -70,7 +70,7 @@ public class Banner extends BaseEntity {
         String androidRedirectLink,
         String iosRedirectLink,
         Boolean isActive,
-        BannerCategories bannerCategories
+        BannerCategory bannerCategory
     ) {
         this.title = title;
         this.priority = priority;
@@ -79,6 +79,6 @@ public class Banner extends BaseEntity {
         this.androidRedirectLink = androidRedirectLink;
         this.iosRedirectLink = iosRedirectLink;
         this.isActive = isActive;
-        this.bannerCategories = bannerCategories;
+        this.bannerCategory = bannerCategory;
     }
 }

@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "banner_categories")
 @NoArgsConstructor(access = PROTECTED)
-public class BannerCategories extends BaseEntity {
+public class BannerCategory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -29,7 +29,7 @@ public class BannerCategories extends BaseEntity {
     private String name;
 
     @Builder
-    private BannerCategories(String name) {
+    private BannerCategory(String name) {
         this.name = name;
     }
 }
