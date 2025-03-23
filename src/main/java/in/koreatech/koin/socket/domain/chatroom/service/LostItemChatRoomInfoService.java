@@ -19,6 +19,7 @@ import in.koreatech.koin.socket.domain.chatroom.service.implement.ChatRoomInfoRe
 import in.koreatech.koin.socket.domain.chatroom.service.implement.LostItemArticleReader;
 import in.koreatech.koin.socket.domain.chatroom.service.implement.UserBlockReader;
 import in.koreatech.koin.socket.domain.message.service.implement.MessageReader;
+import in.koreatech.koin.socket.domain.session.service.implement.UserReader;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +30,7 @@ public class LostItemChatRoomInfoService {
     private final ChatRoomInfoReader chatRoomInfoReader;
     private final ChatRoomInfoAppender chatRoomInfoAppender;
     private final LostItemArticleReader lostItemArticleReader;
+    private final UserReader userReader;
     private final UserBlockReader userBlockReader;
     private static final String DEFAULT_MESSAGE = "대화를 시작해보세요!";
 
@@ -65,6 +67,10 @@ public class LostItemChatRoomInfoService {
 
         return chatRoomInfoList.stream()
             .flatMap(entity -> {
+                if (userReader.readUser(entity.getOwnerId()) == null) {
+                    return Stream.empty();
+                }
+
                 var articleSummary = lostItemArticleReader.getArticleSummary(entity.getArticleId());
                 if (articleSummary == null || isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
                     return Stream.empty();
