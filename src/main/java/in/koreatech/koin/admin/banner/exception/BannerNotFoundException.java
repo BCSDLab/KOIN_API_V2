@@ -1,8 +1,8 @@
 package in.koreatech.koin.admin.banner.exception;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.DataNotFoundException;
 
-public class BannerNotFoundException extends KoinIllegalArgumentException {
+public class BannerNotFoundException extends DataNotFoundException {
 
     private static final String DEFAULT_MESSAGE = "해당 ID의 배너가 존재하지 않습니다.";
 
