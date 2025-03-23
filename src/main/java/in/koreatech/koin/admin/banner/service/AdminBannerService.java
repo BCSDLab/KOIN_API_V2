@@ -34,10 +34,19 @@ public class AdminBannerService {
         Integer total = adminBannerRepository.countByIsActiveAndBannerCategoryId(isActive, bannerCategory.getId());
 
         Criteria criteria = Criteria.of(page, limit, total);
-        PageRequest pageRequest = PageRequest.of(
-            criteria.getPage(), criteria.getLimit(),
-            Sort.by(Sort.Direction.ASC, "priority")
-        );
+        PageRequest pageRequest;
+
+        // 활성화 여부에 따른 정렬 조건
+        if (isActive) {
+            pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+                Sort.by(Sort.Direction.ASC, "priority")
+            );
+        } else {
+            pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+                Sort.by(Sort.Direction.ASC, "createAt")
+            );
+        }
+
         Page<Banner> banners = adminBannerRepository.findAllByIsActiveAndBannerCategoryId(isActive,
             bannerCategory.getId(), pageRequest);
 
