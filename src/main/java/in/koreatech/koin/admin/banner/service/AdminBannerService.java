@@ -31,24 +31,31 @@ public class AdminBannerService {
 
     public AdminBannersResponse getBanners(Integer page, Integer limit, Boolean isActive, String bannerCategoryName) {
         BannerCategory bannerCategory = adminBannerCategoryRepository.getByName(bannerCategoryName);
-        Integer total = adminBannerRepository.countByIsActiveAndBannerCategoryId(isActive, bannerCategory.getId());
+        Integer total;
+
+        if (isActive != null) {
+            total = adminBannerRepository.countByIsActiveAndBannerCategoryId(isActive, bannerCategory.getId());
+        } else {
+            total = adminBannerRepository.countByBannerCategoryId(bannerCategory.getId());
+        }
 
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest;
+        Page<Banner> banners;
 
         // 활성화 여부에 따른 정렬 조건
-        if (isActive) {
+        if (isActive != null) {
             pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
                 Sort.by(Sort.Direction.ASC, "priority")
             );
+            banners = adminBannerRepository.findAllByIsActiveAndBannerCategoryId(isActive,
+                bannerCategory.getId(), pageRequest);
         } else {
             pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-                Sort.by(Sort.Direction.ASC, "createAt")
+                Sort.by(Sort.Direction.ASC, "created_at")
             );
+            banners = adminBannerRepository.findAllByBannerCategoryId(bannerCategory.getId(), pageRequest);
         }
-
-        Page<Banner> banners = adminBannerRepository.findAllByIsActiveAndBannerCategoryId(isActive,
-            bannerCategory.getId(), pageRequest);
 
         return AdminBannersResponse.from(banners);
     }

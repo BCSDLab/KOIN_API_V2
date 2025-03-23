@@ -54,12 +54,13 @@ public interface AdminBannerApi {
     )
     @Operation(summary = "배너 정보을 페이지네이션으로 조회한다.", description = """
         banner_category_name으로 메인 모달, 모바일 가로 배너, 웹 가로 배너, 웹 세로 배너의 값을 주시면 됩니다.
+        활성화 필터를 사용하지 않을 때는 is_active 값을 안 주셔도 됩니다.
         """)
     @GetMapping
     ResponseEntity<AdminBannersResponse> getBanners(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
-        @RequestParam(name = "is_active", defaultValue = "true") Boolean isActive,
+        @RequestParam(name = "is_active", required = false) Boolean isActive,
         @RequestParam(name = "banner_category_name") String bannerCategoryName,
         @Auth(permit = {ADMIN}) Integer adminId
     );

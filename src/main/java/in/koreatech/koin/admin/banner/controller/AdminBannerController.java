@@ -41,7 +41,7 @@ public class AdminBannerController implements AdminBannerApi {
     public ResponseEntity<AdminBannersResponse> getBanners(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
-        @RequestParam(name = "is_active", defaultValue = "true") Boolean isActive,
+        @RequestParam(name = "is_active", required = false) Boolean isActive,
         @RequestParam(name = "banner_category_name") String bannerCategoryName,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {

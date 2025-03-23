@@ -31,12 +31,24 @@ public interface AdminBannerRepository extends Repository<Banner, Integer> {
         @Param("bannerCategoryId") Integer bannerCategoryId);
 
     @Query(value = """
+        SELECT COUNT(*) FROM banners
+        WHERE banner_category_id = :bannerCategoryId
+        """, nativeQuery = true)
+    Integer countByBannerCategoryId(@Param("bannerCategoryId") Integer bannerCategoryId);
+
+    @Query(value = """
         SELECT * FROM banners
         WHERE is_active = :isActive
         AND banner_category_id = :bannerCategoryId
         """, nativeQuery = true)
     Page<Banner> findAllByIsActiveAndBannerCategoryId(@Param("isActive") boolean isActive,
         @Param("bannerCategoryId") Integer bannerCategoryId, Pageable pageable);
+
+    @Query(value = """
+        SELECT * FROM banners
+        WHERE banner_category_id = :bannerCategoryId
+        """, nativeQuery = true)
+    Page<Banner> findAllByBannerCategoryId(@Param("bannerCategoryId") Integer bannerCategoryId, Pageable pageable);
 
     void deleteById(Integer id);
 }
