@@ -72,9 +72,7 @@ public interface AdminBannerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "배너를 생성한다", description = """
-        banner_category_name으로 메인 모달, 모바일 가로 배너, 웹 가로 배너, 웹 세로 배너의 값을 주시면 됩니다.
-        """)
+    @Operation(summary = "배너를 생성한다")
     @PostMapping
     ResponseEntity<Void> createBanner(
         @RequestBody @Valid AdminBannerCreateRequest request,

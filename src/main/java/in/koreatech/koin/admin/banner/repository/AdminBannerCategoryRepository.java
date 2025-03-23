@@ -17,6 +17,13 @@ public interface AdminBannerCategoryRepository extends Repository<BannerCategory
             .orElseThrow(() -> BannerCategoryNotFoundException.withDetail("name : " + name));
     }
 
+    Optional<BannerCategory> findById(Integer id);
+
+    default BannerCategory getById(Integer id) {
+        return findById(id)
+            .orElseThrow(() -> BannerCategoryNotFoundException.withDetail("id : " + id));
+    }
+
     BannerCategory save(BannerCategory bannerCategory);
 
     List<BannerCategory> findAll();

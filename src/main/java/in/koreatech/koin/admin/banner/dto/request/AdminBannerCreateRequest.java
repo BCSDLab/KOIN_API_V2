@@ -10,14 +10,14 @@ import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminBannerCreateRequest(
-    @Schema(description = "배너 카테고리", example = "메인 모달", requiredMode = REQUIRED)
-    @NotBlank(message = "배너 카테고리는 공백일 수 없습니다")
-    @Size(max = 255, message = "배너 카테고리 이름은 최대 255자 입니다.")
-    String bannerCategory,
+    @Schema(description = "배너 카테고리 id", example = "1", requiredMode = REQUIRED)
+    @NotNull(message = "배너 카테고리 id는 null일 수 없습니다")
+    Integer bannerCategoryId,
 
     @Schema(description = "배너 제목", example = "천원의 아침", requiredMode = REQUIRED)
     @NotBlank(message = "배너 제목은 공백일 수 없습니다")

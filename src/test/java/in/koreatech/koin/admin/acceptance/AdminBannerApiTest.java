@@ -122,12 +122,12 @@ public class AdminBannerApiTest extends AcceptanceTest {
     @Test
     void 메인_모달_배너를_생성한다() throws Exception {
         mockMvc.perform(
-                post("/admin/banner")
+                post("/admin/banners")
                     .header("Authorization", "Bearer " + 어드민_토큰)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             {
-                                "banner_category": "메인 모달",
+                                "banner_category_id": 1,
                                 "title": "졸업학점 계산기",
                                 "image_url": "https://example.com/1000won.jpg",
                                 "web_redirect_link": "https://example.com/1000won",

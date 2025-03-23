@@ -55,7 +55,7 @@ public class AdminBannerService {
 
     @Transactional
     public void createBanner(AdminBannerCreateRequest request) {
-        BannerCategory bannerCategory = adminBannerCategoryRepository.getByName(request.bannerCategory());
+        BannerCategory bannerCategory = adminBannerCategoryRepository.getById(request.bannerCategoryId());
         Banner banner = request.of(bannerCategory);
         adminBannerRepository.save(banner);
     }
