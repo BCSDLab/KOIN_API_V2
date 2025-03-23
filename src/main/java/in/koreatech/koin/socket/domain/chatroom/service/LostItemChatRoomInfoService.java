@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.socket.domain.chatroom.dto.ChatRoomListResponse;
 import in.koreatech.koin.socket.domain.chatroom.exception.SelfChatNotAllowedException;
 import in.koreatech.koin.socket.domain.chatroom.model.LostItemChatRoomInfoEntity;
@@ -17,6 +19,7 @@ import in.koreatech.koin.socket.domain.chatroom.service.implement.ChatRoomInfoRe
 import in.koreatech.koin.socket.domain.chatroom.service.implement.LostItemArticleReader;
 import in.koreatech.koin.socket.domain.chatroom.service.implement.UserBlockReader;
 import in.koreatech.koin.socket.domain.message.service.implement.MessageReader;
+import in.koreatech.koin.socket.domain.session.service.implement.UserReader;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,6 +30,7 @@ public class LostItemChatRoomInfoService {
     private final ChatRoomInfoReader chatRoomInfoReader;
     private final ChatRoomInfoAppender chatRoomInfoAppender;
     private final LostItemArticleReader lostItemArticleReader;
+    private final UserReader userReader;
     private final UserBlockReader userBlockReader;
     private static final String DEFAULT_MESSAGE = "대화를 시작해보세요!";
 
@@ -38,7 +42,11 @@ public class LostItemChatRoomInfoService {
         }
 
         LostItemArticle lostItemArticle = lostItemArticleReader.readByArticleId(articleId);
-        Integer articleAuthorId = lostItemArticle.getAuthor().getId();
+        User author = lostItemArticle.getAuthor();
+        if (author == null) {
+            throw UserNotFoundException.withDetail("탈퇴한 사용자입니다.");
+        }
+        Integer articleAuthorId = author.getId();
 
         checkSelfChat(ownerId, articleAuthorId);
 
@@ -59,6 +67,10 @@ public class LostItemChatRoomInfoService {
 
         return chatRoomInfoList.stream()
             .flatMap(entity -> {
+                if (userReader.readUser(entity.getOwnerId()) == null) {
+                    return Stream.empty();
+                }
+
                 var articleSummary = lostItemArticleReader.getArticleSummary(entity.getArticleId());
                 if (articleSummary == null || isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
                     return Stream.empty();
