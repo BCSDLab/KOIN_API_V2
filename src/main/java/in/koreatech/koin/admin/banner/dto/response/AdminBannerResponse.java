@@ -18,6 +18,9 @@ public record AdminBannerResponse(
     @Schema(description = "배너 카테고리", example = "메인 모달")
     String bannerCategory,
 
+    @Schema(description = "배너 우선순위", example = "1")
+    Integer priority,
+
     @Schema(description = "배너 제목", example = "천원의 아침")
     String title,
 
@@ -44,6 +47,7 @@ public record AdminBannerResponse(
         return new AdminBannerResponse(
             banner.getId(),
             banner.getBannerCategory().getName(),
+            banner.getPriority(),
             banner.getTitle(),
             banner.getImageUrl(),
             banner.getWebRedirectLink(),
