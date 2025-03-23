@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.banner.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -17,4 +18,6 @@ public interface AdminBannerCategoryRepository extends Repository<BannerCategory
     }
 
     BannerCategory save(BannerCategory bannerCategory);
+
+    List<BannerCategory> findAll();
 }
