@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminBannerResponse(
-
     @Schema(description = "배너 ID", example = "1")
     Integer id,
 
