@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,16 +37,20 @@ public class Banner extends BaseEntity {
     private Integer priority;
 
     @NotNull
-    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
+    @Size(max = 255)
+    @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
-    @Column(name = "web_redirect_link", columnDefinition = "TEXT")
+    @Size(max = 255)
+    @Column(name = "web_redirect_link")
     private String webRedirectLink;
 
-    @Column(name = "android_redirect_link", columnDefinition = "TEXT")
+    @Size(max = 255)
+    @Column(name = "android_redirect_link")
     private String androidRedirectLink;
 
-    @Column(name = "ios_redirect_link", columnDefinition = "TEXT")
+    @Size(max = 255)
+    @Column(name = "ios_redirect_link")
     private String iosRedirectLink;
 
     @NotNull
@@ -54,7 +59,7 @@ public class Banner extends BaseEntity {
 
     @JoinColumn(name = "banner_category_id")
     @ManyToOne(fetch = LAZY)
-    private BannerCategory bannerCategory;
+    private BannerCategories bannerCategories;
 
     @Builder
     private Banner(
@@ -65,7 +70,7 @@ public class Banner extends BaseEntity {
         String androidRedirectLink,
         String iosRedirectLink,
         Boolean isActive,
-        BannerCategory bannerCategory
+        BannerCategories bannerCategories
     ) {
         this.title = title;
         this.priority = priority;
@@ -74,6 +79,6 @@ public class Banner extends BaseEntity {
         this.androidRedirectLink = androidRedirectLink;
         this.iosRedirectLink = iosRedirectLink;
         this.isActive = isActive;
-        this.bannerCategory = bannerCategory;
+        this.bannerCategories = bannerCategories;
     }
 }

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `koin`.`banner_category`
+CREATE TABLE IF NOT EXISTS `koin`.`banner_categories`
 (
     `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '고유 ID',
     `name`      VARCHAR(255) NOT NULL COMMENT '배너 카테고리 이름',
