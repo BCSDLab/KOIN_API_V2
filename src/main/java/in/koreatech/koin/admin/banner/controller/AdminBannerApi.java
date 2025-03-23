@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
@@ -23,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "(Admin) Banner: 배너", description = "어드민 배너 정보를 관리한다")
+@RequestMapping("/admin/banners")
 public interface AdminBannerApi {
 
     @ApiResponses(
@@ -35,7 +37,7 @@ public interface AdminBannerApi {
         }
     )
     @Operation(summary = "특정 배너 정보를 조회한다.")
-    @GetMapping("/admin/banner/{id}")
+    @GetMapping("/{id}")
     ResponseEntity<AdminBannerResponse> getBanner(
         @PathVariable(name = "id") Integer bannerId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -53,7 +55,7 @@ public interface AdminBannerApi {
     @Operation(summary = "배너 정보을 페이지네이션으로 조회한다.", description = """
         banner_category_name으로 메인 모달, 모바일 가로 배너, 웹 가로 배너, 웹 세로 배너의 값을 주시면 됩니다.
         """)
-    @GetMapping("/admin/banners")
+    @GetMapping
     ResponseEntity<AdminBannersResponse> getBanners(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
@@ -73,7 +75,7 @@ public interface AdminBannerApi {
     @Operation(summary = "배너를 생성한다", description = """
         banner_category_name으로 메인 모달, 모바일 가로 배너, 웹 가로 배너, 웹 세로 배너의 값을 주시면 됩니다.
         """)
-    @PostMapping("/admin/banner")
+    @PostMapping
     ResponseEntity<Void> createBanner(
         @RequestBody @Valid AdminBannerCreateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -89,7 +91,7 @@ public interface AdminBannerApi {
         }
     )
     @Operation(summary = "특정 배너를 삭제한다")
-    @DeleteMapping("/admin/banner/{id}")
+    @DeleteMapping("/{id}")
     ResponseEntity<Void> deleteBanner(
         @PathVariable(name = "id") Integer bannerId,
         @Auth(permit = {ADMIN}) Integer adminId
