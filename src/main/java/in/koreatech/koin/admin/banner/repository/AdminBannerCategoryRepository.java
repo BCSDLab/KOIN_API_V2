@@ -15,4 +15,6 @@ public interface AdminBannerCategoryRepository extends Repository<BannerCategory
         return findByName(name)
             .orElseThrow(() -> BannerCategoryNotFoundException.withDetail("name : " + name));
     }
+
+    BannerCategory save(BannerCategory bannerCategory);
 }

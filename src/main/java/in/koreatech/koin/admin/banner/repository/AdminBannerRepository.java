@@ -20,7 +20,7 @@ public interface AdminBannerRepository extends Repository<Banner, Integer> {
             .orElseThrow(() -> BannerNotFoundException.withDetail("banner id : " + id));
     }
 
-    void save(Banner banner);
+    Banner save(Banner banner);
 
     @Query(value = """
         SELECT COUNT(*) FROM banner
