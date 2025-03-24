@@ -32,8 +32,7 @@ public class Banner extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @NotNull
-    @Column(name = "priority", nullable = false)
+    @Column(name = "priority")
     private Integer priority;
 
     @NotNull
