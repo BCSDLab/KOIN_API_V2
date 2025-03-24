@@ -78,7 +78,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "android_redirect_link": "https://example.com/1000won",
                                 "ios_redirect_link": "https://example.com/1000won",
                                 "is_active": true,
-                                "create_at": "%s"
+                                "created_at": "%s"
                             },
                             {
                                 "id": 2,
@@ -91,7 +91,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "android_redirect_link": "https://example.com/koin-event",
                                 "ios_redirect_link": "https://example.com/koin-event",
                                 "is_active": true,
-                                "create_at": "%s"
+                                "created_at": "%s"
                             }
                         ]
                     }
@@ -117,7 +117,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                         "android_redirect_link": "https://example.com/1000won",
                         "ios_redirect_link": "https://example.com/1000won",
                         "is_active": true,
-                        "create_at": "%s"
+                        "created_at": "%s"
                     }
                 """, 생성일)));
     }
