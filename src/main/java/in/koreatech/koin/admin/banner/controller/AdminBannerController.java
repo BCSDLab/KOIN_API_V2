@@ -1,7 +1,6 @@
 package in.koreatech.koin.admin.banner.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +23,6 @@ import in.koreatech.koin.admin.banner.dto.request.AdminBannerModifyRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
 import in.koreatech.koin.admin.banner.service.AdminBannerService;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -76,7 +74,7 @@ public class AdminBannerController implements AdminBannerApi {
 
     @PatchMapping("/{id}/priority")
     public ResponseEntity<Void> changePriority(
-        @Parameter(in = PATH) @PathVariable Integer id,
+        @PathVariable Integer id,
         @RequestBody @Valid AdminBannerPriorityChangeRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
@@ -86,7 +84,7 @@ public class AdminBannerController implements AdminBannerApi {
 
     @PatchMapping("/{id}/active")
     public ResponseEntity<Void> changeActive(
-        @Parameter(in = PATH) @PathVariable Integer id,
+        @PathVariable Integer id,
         @RequestBody @Valid AdminBannerActiveChangeRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
@@ -96,7 +94,7 @@ public class AdminBannerController implements AdminBannerApi {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> modifyBanner(
-        @Parameter(in = PATH) @PathVariable Integer id,
+        @PathVariable Integer id,
         @RequestBody @Valid AdminBannerModifyRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {

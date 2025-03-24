@@ -43,4 +43,18 @@ public class BannerFixture {
             .build()
         );
     }
+
+    public Banner 메인_배너_3(BannerCategory bannerCategory) {
+        return bannerRepository.save(Banner.builder()
+            .bannerCategory(bannerCategory)
+            .priority(null)
+            .title("코인 이벤트 누누")
+            .imageUrl("https://example.com/nunu-event.jpg")
+            .webRedirectLink("https://example.com/nunu-event")
+            .androidRedirectLink("https://example.com/nunu-event")
+            .iosRedirectLink("https://example.com/nunu-event")
+            .isActive(false)
+            .build()
+        );
+    }
 }
