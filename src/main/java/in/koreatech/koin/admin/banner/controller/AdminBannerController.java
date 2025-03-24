@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerActiveChangeRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerPriorityChangeRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerModifyRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
 import in.koreatech.koin.admin.banner.service.AdminBannerService;
@@ -65,5 +70,35 @@ public class AdminBannerController implements AdminBannerApi {
     ) {
         adminBannerService.deleteBanner(bannerId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/priority")
+    public ResponseEntity<Void> changePriority(
+        @PathVariable Integer id,
+        @RequestBody @Valid AdminBannerPriorityChangeRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminBannerService.changePriority(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/active")
+    public ResponseEntity<Void> changeActive(
+        @PathVariable Integer id,
+        @RequestBody @Valid AdminBannerActiveChangeRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminBannerService.changeActive(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> modifyBanner(
+        @PathVariable Integer id,
+        @RequestBody @Valid AdminBannerModifyRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminBannerService.modifyBanner(id, request);
+        return ResponseEntity.ok().build();
     }
 }

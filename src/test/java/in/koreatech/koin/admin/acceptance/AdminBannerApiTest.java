@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.acceptance;
 
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,8 +11,10 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.admin.banner.repository.AdminBannerRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
@@ -33,11 +36,18 @@ public class AdminBannerApiTest extends AcceptanceTest {
     @Autowired
     private UserFixture userFixture;
 
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private AdminBannerRepository adminBannerRepository;
+
     private Admin 어드민;
     private String 어드민_토큰;
     private String 생성일;
     private Banner 메인_배너_1;
     private Banner 메인_배너_2;
+    private Banner 메인_배너_3;
     private BannerCategory 배너_카테고리_메인_모달;
 
     @BeforeAll
@@ -49,6 +59,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
         배너_카테고리_메인_모달 = bannerCategoryFixture.메인_모달();
         메인_배너_1 = bannerFixture.메인_배너_1(배너_카테고리_메인_모달);
         메인_배너_2 = bannerFixture.메인_배너_2(배너_카테고리_메인_모달);
+        메인_배너_3 = bannerFixture.메인_배너_3(배너_카테고리_메인_모달);
     }
 
     @Test
@@ -62,8 +73,8 @@ public class AdminBannerApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json(String.format("""
                     {
-                        "total_count": 2,
-                        "current_count": 2,
+                        "total_count": 3,
+                        "current_count": 3,
                         "total_page": 1,
                         "current_page": 1,
                         "banners": [
@@ -92,10 +103,23 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "ios_redirect_link": "https://example.com/koin-event",
                                 "is_active": true,
                                 "created_at": "%s"
+                            },
+                            {
+                                "id": 3,
+                                "banner_category_id": 1,
+                                "banner_category": "메인 모달",
+                                "priority": null,
+                                "title": "코인 이벤트 누누",
+                                "image_url": "https://example.com/nunu-event.jpg",
+                                "web_redirect_link": "https://example.com/nunu-event",
+                                "android_redirect_link": "https://example.com/nunu-event",
+                                "ios_redirect_link": "https://example.com/nunu-event",
+                                "is_active": false,
+                                "created_at": "%s"
                             }
                         ]
                     }
-                """, 생성일, 생성일)));
+                """, 생성일, 생성일, 생성일)));
     }
 
     @Test
@@ -149,5 +173,127 @@ public class AdminBannerApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + 어드민_토큰)
             )
             .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void 배너_우선순위를_올린다() throws Exception {
+        mockMvc.perform(
+                patch("/admin/banners/{id}/priority", 메인_배너_2.getId())
+                    .header("Authorization", "Bearer " + 어드민_토큰)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                               "change_type": "UP"
+                            }
+                        """)
+            )
+            .andExpect(status().isOk());
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Banner updatedBanner = adminBannerRepository.getById(메인_배너_2.getId());
+            assertSoftly(softly -> {
+                softly.assertThat(updatedBanner.getPriority()).isEqualTo(1);
+            });
+        });
+    }
+
+    @Test
+    void 배너_우선순위를_내린다() throws Exception {
+        mockMvc.perform(
+                patch("/admin/banners/{id}/priority", 메인_배너_1.getId())
+                    .header("Authorization", "Bearer " + 어드민_토큰)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                               "change_type": "DOWN"
+                            }
+                        """)
+            )
+            .andExpect(status().isOk());
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Banner updatedBanner = adminBannerRepository.getById(메인_배너_1.getId());
+            assertSoftly(softly -> {
+                softly.assertThat(updatedBanner.getPriority()).isEqualTo(2);
+            });
+        });
+    }
+
+    @Test
+    void 배너_활성화상태에서_비활성화한다() throws Exception {
+        mockMvc.perform(
+            patch("/admin/banners/{id}/active", 메인_배너_1.getId())
+                .header("Authorization", "Bearer " + 어드민_토큰)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                               "is_active": "false"
+                            }
+                        """)
+        ).andExpect(status().isOk());
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Banner updatedBanner = adminBannerRepository.getById(메인_배너_1.getId());
+            assertSoftly(softly -> {
+                softly.assertThat(updatedBanner.getIsActive()).isEqualTo(false);
+                softly.assertThat(updatedBanner.getPriority()).isNull();
+            });
+        });
+    }
+
+    @Test
+    void 배너_비활성화상태에서_활성화한다() throws Exception {
+        mockMvc.perform(
+            patch("/admin/banners/{id}/active", 메인_배너_3.getId())
+                .header("Authorization", "Bearer " + 어드민_토큰)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                               "is_active": "true"
+                            }
+                        """)
+        ).andExpect(status().isOk());
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Banner updatedBanner = adminBannerRepository.getById(메인_배너_3.getId());
+            assertSoftly(softly -> {
+                softly.assertThat(updatedBanner.getIsActive()).isEqualTo(true);
+                softly.assertThat(updatedBanner.getPriority()).isEqualTo(3);
+            });
+        });
+    }
+
+    @Test
+    void 배너_상세를_수정한다() throws Exception {
+        mockMvc.perform(
+            put("/admin/banners/{id}", 메인_배너_3.getId())
+                .header("Authorization", "Bearer " + 어드민_토큰)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                               "title": "새제목",
+                               "image_url": "https://example.com/new1000won.jpg",
+                               "web_redirect_link": "https://example.com/new1000won.jpg",
+                               "android_redirect_link": "https://example.com/new1000won",
+                               "is_active": "true"
+                            }
+                        """)
+        ).andExpect(status().isOk());
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Banner updatedBanner = adminBannerRepository.getById(메인_배너_3.getId());
+            assertSoftly(softly -> {
+                softly.assertThat(updatedBanner.getTitle()).isEqualTo("새제목");
+                softly.assertThat(updatedBanner.getImageUrl())
+                    .isEqualTo("https://example.com/new1000won.jpg");
+                softly.assertThat(updatedBanner.getWebRedirectLink())
+                    .isEqualTo("https://example.com/new1000won.jpg");
+                softly.assertThat(updatedBanner.getAndroidRedirectLink())
+                    .isEqualTo("https://example.com/new1000won");
+                softly.assertThat(updatedBanner.getIosRedirectLink()).isNull();
+                softly.assertThat(updatedBanner.getIsActive()).isEqualTo(true);
+                softly.assertThat(updatedBanner.getPriority()).isEqualTo(3);
+            });
+        });
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.admin.banner.exception.BannerNotFoundException;
 import in.koreatech.koin.domain.banner.model.Banner;
+import in.koreatech.koin.domain.banner.model.BannerCategory;
 
 public interface AdminBannerRepository extends Repository<Banner, Integer> {
 
@@ -51,4 +52,9 @@ public interface AdminBannerRepository extends Repository<Banner, Integer> {
     Page<Banner> findAllByBannerCategoryId(@Param("bannerCategoryId") Integer bannerCategoryId, Pageable pageable);
 
     void deleteById(Integer id);
+
+    @Query("SELECT MAX(b.priority) from Banner b WHERE b.bannerCategory = :category AND b.isActive = true")
+    Integer findMaxPriorityCategory(BannerCategory category);
+
+    Optional<Banner> findByBannerCategoryAndPriorityAndIsActiveTrue(BannerCategory category, Integer priority);
 }

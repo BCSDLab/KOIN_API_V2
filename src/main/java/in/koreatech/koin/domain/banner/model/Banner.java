@@ -80,4 +80,26 @@ public class Banner extends BaseEntity {
         this.isActive = isActive;
         this.bannerCategory = bannerCategory;
     }
+
+    public void modifyBanner(
+        String title,
+        String imageUrl,
+        String webRedirectLink,
+        String androidRedirectLink,
+        String iosRedirectLink
+    ) {
+        this.title = title;
+        this.imageUrl = imageUrl;
+        this.webRedirectLink = webRedirectLink;
+        this.androidRedirectLink = androidRedirectLink;
+        this.iosRedirectLink = iosRedirectLink;
+    }
+
+    public void updatePriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public void updateIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
 }
