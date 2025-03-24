@@ -66,7 +66,7 @@ public record AdminBannersResponse(
 
         @Schema(description = "배너 생성일", example = "25.03.23")
         @JsonFormat(pattern = "yy.MM.dd")
-        LocalDate createAt
+        LocalDate createdAt
     ) {
         public static InnerAdminBannerResponse from(Banner banner) {
             return new InnerAdminBannerResponse(

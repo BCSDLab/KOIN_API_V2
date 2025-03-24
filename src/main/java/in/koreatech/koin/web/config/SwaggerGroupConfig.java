@@ -49,6 +49,7 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.coop",
             "in.koreatech.koin.domain.coopshop",
             "in.koreatech.koin.domain.dining",
+            "in.koreatech.koin.domain.banner",
             "in.koreatech.koin.global.socket.domain.chatroom"
         };
 
