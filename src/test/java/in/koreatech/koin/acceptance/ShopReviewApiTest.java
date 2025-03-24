@@ -4,12 +4,10 @@ import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -18,15 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import groovy.util.logging.Slf4j;
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.config.FixedDate;
-import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
@@ -47,11 +40,10 @@ import in.koreatech.koin.fixture.UserFixture;
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-@Slf4j
 class ShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
-        private TransactionTemplate transactionTemplate;
+    private TransactionTemplate transactionTemplate;
 
     @Autowired
     private UserFixture userFixture;
@@ -92,9 +84,6 @@ class ShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
     private ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
-
-    @Autowired
-    private TestTimeConfig testTimeConfig;
 
     private final int INITIAL_REVIEW_COUNT = 2;
 
