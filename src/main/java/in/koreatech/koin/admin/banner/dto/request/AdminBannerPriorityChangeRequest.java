@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminBannerPriorityChangeRequest(
-    @Schema(description = "변경 타입", example ="UP", requiredMode = REQUIRED)
+    @Schema(description = "변경 타입", example = "UP", requiredMode = REQUIRED)
     @NotNull(message = "변경 타입은 필수입니다.")
     PriorityChangeType changeType
 ) {
