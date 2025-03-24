@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.shop.service;
 import static in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest.InnerShopReviewReport;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ public class ShopReviewService {
     private final ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
     private final StudentRepository studentRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final Clock clock;
 
     private final EntityManager entityManager;
 
@@ -195,7 +197,7 @@ public class ShopReviewService {
     }
 
     private void checkUserLatestReviewWithin24Hours(Integer studentId, Integer shopId) {
-        shopReviewRepository.findLatestReviewByStudentIdAndShopIdWithin24Hours(studentId, shopId, LocalDateTime.now())
+        shopReviewRepository.findLatestReviewByStudentIdAndShopIdWithin24Hours(studentId, shopId, LocalDateTime.now(clock))
             .ifPresent(review -> {
                 throw OneReviewPerDayException.withDetail("한 상점에 하루에 한번만 리뷰를 남길 수 있습니다.");
             });
