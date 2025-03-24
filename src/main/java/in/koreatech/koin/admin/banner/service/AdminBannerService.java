@@ -142,8 +142,8 @@ public class AdminBannerService {
 
         if (afterPriority) {
             Integer maxPriority = adminBannerRepository.findMaxPriorityCategory(banner.getBannerCategory());
-            if (maxPriority == null) return;
-            banner.updatePriority(maxPriority + 1);
+            int newPriority = (maxPriority == null) ? 0 : maxPriority + 1;
+            banner.updatePriority(newPriority);
         } else {
             banner.updatePriority(null);
         }
