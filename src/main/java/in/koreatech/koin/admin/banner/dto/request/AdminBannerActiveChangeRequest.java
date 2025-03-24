@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminBannerActiveChangeRequest(
-    @Schema(description = "활성화 여부", example ="true", requiredMode = REQUIRED)
+    @Schema(description = "활성화 여부", example = "true", requiredMode = REQUIRED)
     @NotNull(message = "활성화 여부는 필수입니다.")
     Boolean isActive
 ) {
