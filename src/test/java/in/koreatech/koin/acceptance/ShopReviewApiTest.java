@@ -66,6 +66,7 @@ class ShopReviewApiTest extends AcceptanceTest {
     private ShopReview 준호_학생_리뷰;
     private ShopReview 익명_학생_리뷰;
     private Shop 신전_떡볶이;
+    private Shop 티바;
     private Owner 현수_사장님;
     private Student 준호_학생;
     private Student 익명_학생;
@@ -95,6 +96,7 @@ class ShopReviewApiTest extends AcceptanceTest {
         익명_학생 = userFixture.익명_학생(컴퓨터_공학부);
         현수_사장님 = userFixture.현수_사장님();
         신전_떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(현수_사장님);
+        티바 = shopFixture._24시간_영업중인_티바(현수_사장님);
         token_준호 = userFixture.getToken(준호_학생.getUser());
         준호_학생_리뷰 = shopReviewFixture.리뷰_4점(준호_학생, 신전_떡볶이);
         익명_학생_리뷰 = shopReviewFixture.리뷰_4점(익명_학생, 신전_떡볶이);
@@ -107,7 +109,7 @@ class ShopReviewApiTest extends AcceptanceTest {
     @Test
     @DisplayName("사용자가 리뷰를 등록할 수 있다.")
     void createReview() throws Exception {
-        mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+        mockMvc.perform(post("/shops/{shopId}/reviews", 티바.getId())
                 .header("Authorization", "Bearer " + token_준호)
                 .content(String.format("""
                 {
@@ -152,7 +154,7 @@ class ShopReviewApiTest extends AcceptanceTest {
 
     @Test
     void 리뷰_내용을_작성하지_않고_리뷰를_등록할_수_있다() throws Exception {
-        mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+        mockMvc.perform(post("/shops/{shopId}/reviews", 티바.getId())
                 .header("Authorization", "Bearer " + token_준호)
                 .content(String.format("""
                 {
