@@ -4,10 +4,12 @@ import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -16,10 +18,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import groovy.util.logging.Slf4j;
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.config.FixedDate;
+import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
@@ -40,6 +47,7 @@ import in.koreatech.koin.fixture.UserFixture;
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
+@Slf4j
 class ShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
@@ -84,6 +92,9 @@ class ShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
     private ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
+
+    @Autowired
+    private TestTimeConfig testTimeConfig;
 
     private final int INITIAL_REVIEW_COUNT = 2;
 
@@ -1223,4 +1234,46 @@ class ShopReviewApiTest extends AcceptanceTest {
             ));
     }
 
+    @Test
+    void 한_상점에_하루에_한번의_리뷰만_등록할_수_있다() throws Exception {
+        // 첫 번째 요청
+        transactionTemplate.execute(status -> {
+            try {
+                testTimeConfig.setCurrTime(LocalDateTime.of(2024, 1, 15, 12, 0, 0));
+                mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                        .header("Authorization", "Bearer " + token_준호)
+                        .content("""
+                        {
+                          "rating": 4,
+                          "content": "정말 맛있어요~!",
+                          "image_urls": ["https://static.koreatech.in/example.png"],
+                          "menu_names": ["치킨", "피자"]
+                        }
+                        """)
+                        .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
+
+        // 시간 이동
+        testTimeConfig.setCurrTime(LocalDateTime.of(2024, 1, 15, 12, 1));
+
+        System.out.println("테스트 시간(이동 후) : " + LocalDateTime.now());
+        // 두 번째 요청
+        mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .content("""
+                {
+                  "rating": 4,
+                  "content": "정말 맛있어요~!",
+                  "image_urls": ["https://static.koreatech.in/example.png"],
+                  "menu_names": ["치킨", "피자"]
+                }
+                """)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated());
+    }
 }
