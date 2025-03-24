@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.banner.enums;
+package in.koreatech.koin.admin.banner.enums;
 
 public enum PriorityChangeType {
     UP,
