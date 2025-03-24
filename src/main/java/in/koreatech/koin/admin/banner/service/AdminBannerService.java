@@ -58,9 +58,18 @@ public class AdminBannerService {
         adminBannerRepository.save(banner);
     }
 
-    // TODO. 우선순위 삭제 로직 추가
     @Transactional
     public void deleteBanner(Integer bannerId) {
+        Banner banner = adminBannerRepository.getById(bannerId);
+        BannerCategory bannerCategory = banner.getBannerCategory();
+
+        if (banner.getIsActive()) {
+            adminBannerRepository.findLowerPriorityBannersInCategory(true, bannerCategory.getId(), banner.getPriority())
+                .forEach(lowerPriorityBanner -> {
+                    Integer priority = lowerPriorityBanner.getPriority();
+                    lowerPriorityBanner.updatePriority(priority - 1);
+                });
+        }
         adminBannerRepository.deleteById(bannerId);
     }
 }
