@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
-import in.koreatech.koin.admin.banner.dto.request.ChangeBannerActiveRequest;
-import in.koreatech.koin.admin.banner.dto.request.ChangeBannerPriorityRequest;
-import in.koreatech.koin.admin.banner.dto.request.ModifyBannerRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerActiveChangeRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerPriorityChangeRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerModifyRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
 import in.koreatech.koin.admin.banner.service.AdminBannerService;
@@ -77,7 +77,7 @@ public class AdminBannerController implements AdminBannerApi {
     @PatchMapping("/{id}/priority")
     public ResponseEntity<Void> changePriority(
         @Parameter(in = PATH) @PathVariable Integer id,
-        @RequestBody @Valid ChangeBannerPriorityRequest request,
+        @RequestBody @Valid AdminBannerPriorityChangeRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminBannerService.changePriority(id, request);
@@ -87,7 +87,7 @@ public class AdminBannerController implements AdminBannerApi {
     @PatchMapping("/{id}/active")
     public ResponseEntity<Void> changeActive(
         @Parameter(in = PATH) @PathVariable Integer id,
-        @RequestBody @Valid ChangeBannerActiveRequest request,
+        @RequestBody @Valid AdminBannerActiveChangeRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminBannerService.changeActive(id, request);
@@ -97,10 +97,10 @@ public class AdminBannerController implements AdminBannerApi {
     @PutMapping("/{id}")
     public ResponseEntity<Void> modifyBanner(
         @Parameter(in = PATH) @PathVariable Integer id,
-        @RequestBody @Valid ModifyBannerRequest request,
+        @RequestBody @Valid AdminBannerModifyRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        // bannerService.modifyBanner(id, request);
+        adminBannerService.modifyBanner(id, request);
         return ResponseEntity.ok().build();
     }
 }

@@ -9,8 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
-import in.koreatech.koin.admin.banner.dto.request.ChangeBannerActiveRequest;
-import in.koreatech.koin.admin.banner.dto.request.ChangeBannerPriorityRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerActiveChangeRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerModifyRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerPriorityChangeRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
 import in.koreatech.koin.admin.banner.enums.PriorityChangeType;
@@ -18,6 +19,7 @@ import in.koreatech.koin.admin.banner.repository.AdminBannerCategoryRepository;
 import in.koreatech.koin.admin.banner.repository.AdminBannerRepository;
 import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -69,7 +71,7 @@ public class AdminBannerService {
     }
 
     @Transactional
-    public void changePriority(Integer bannerId, ChangeBannerPriorityRequest request) {
+    public void changePriority(Integer bannerId, AdminBannerPriorityChangeRequest request) {
         PriorityChangeType changeType = request.changeType();
         Banner banner = adminBannerRepository.getById(bannerId);
         validateBannerIsActive(bannerId, banner);
@@ -114,14 +116,33 @@ public class AdminBannerService {
     }
 
     @Transactional
-    public void changeActive(Integer bannerId, ChangeBannerActiveRequest request) {
+    public void changeActive(Integer bannerId, AdminBannerActiveChangeRequest request) {
         Banner banner = adminBannerRepository.getById(bannerId);
-        boolean before = banner.getIsActive();
-        boolean after = request.isActive();
-        if (before == after) return;
+        compareActiveAndChange(request.isActive(), banner);
+    }
 
-        if (after) {
+    @Transactional
+    public void modifyBanner(Integer bannerId, AdminBannerModifyRequest request) {
+        Banner banner = adminBannerRepository.getById(bannerId);
+        banner.modifyBanner(
+            request.title(),
+            request.imageUrl(),
+            request.webRedirectLink(),
+            request.androidRedirectLink(),
+            request.iosRedirectLink()
+        );
+        compareActiveAndChange(request.isActive(), banner);
+    }
+
+    private void compareActiveAndChange(boolean afterPriority, Banner banner) {
+        boolean before = banner.getIsActive();
+        if (before == afterPriority) return;
+
+        banner.updateIsActive(afterPriority);
+
+        if (afterPriority) {
             Integer maxPriority = adminBannerRepository.findMaxPriorityCategory(banner.getBannerCategory());
+            if (maxPriority == null) return;
             banner.updatePriority(maxPriority + 1);
         } else {
             banner.updatePriority(null);

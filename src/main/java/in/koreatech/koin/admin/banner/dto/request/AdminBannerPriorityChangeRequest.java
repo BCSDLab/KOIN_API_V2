@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record ChangeBannerPriorityRequest(
+public record AdminBannerPriorityChangeRequest(
     @Schema(description = "변경 타입", example ="UP", requiredMode = REQUIRED)
     @NotNull(message = "변경 타입은 필수입니다.")
     PriorityChangeType changeType
