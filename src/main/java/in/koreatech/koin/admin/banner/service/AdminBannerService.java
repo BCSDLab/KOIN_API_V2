@@ -63,7 +63,7 @@ public class AdminBannerService {
         Banner banner = adminBannerRepository.getById(bannerId);
         BannerCategory bannerCategory = banner.getBannerCategory();
 
-        if (banner.getIsActive()) {
+        if (banner.getIsActive() && banner.getPriority() != null) {
             adminBannerRepository.findLowerPriorityBannersInCategory(true, bannerCategory.getId(), banner.getPriority())
                 .forEach(lowerPriorityBanner -> {
                     Integer priority = lowerPriorityBanner.getPriority();
