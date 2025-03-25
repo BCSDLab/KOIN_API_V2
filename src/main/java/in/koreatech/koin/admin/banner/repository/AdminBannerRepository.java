@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.banner.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -57,4 +58,16 @@ public interface AdminBannerRepository extends Repository<Banner, Integer> {
     Integer findMaxPriorityCategory(BannerCategory category);
 
     Optional<Banner> findByBannerCategoryAndPriorityAndIsActiveTrue(BannerCategory category, Integer priority);
+
+    @Query(value = """
+        SELECT * FROM banners
+        WHERE banner_category_id = :bannerCategoryId
+        AND is_active = :isActive
+        AND priority > :priority
+        """, nativeQuery = true)
+    List<Banner> findLowerPriorityBannersInCategory(
+        @Param("isActive") Boolean isActive,
+        @Param("bannerCategoryId") Integer bannerCategoryId,
+        @Param("priority") Integer priority
+    );
 }

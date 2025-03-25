@@ -173,6 +173,13 @@ public class AdminBannerApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + 어드민_토큰)
             )
             .andExpect(status().isNoContent());
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Banner priorityUpdatedBanner = adminBannerRepository.getById(메인_배너_2.getId());
+            assertSoftly(softly -> {
+                softly.assertThat(priorityUpdatedBanner.getPriority()).isEqualTo(1);
+            });
+        });
     }
 
     @Test
