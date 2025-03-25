@@ -134,8 +134,10 @@ public class Article extends BaseEntity {
         }
         if (lostItemArticle != null) {
             User user = lostItemArticle.getAuthor();
-            author = (user != null && user.getNickname() != null) ? user.getNickname() : ANONYMOUS_USER;
-            return;
+            if (user != null) {
+                author = user.getNickname() != null ? user.getNickname() : ANONYMOUS_USER;
+                return;
+            }
         }
         author = DELETED_USER;
     }

@@ -188,7 +188,7 @@ public class ArticleService {
 
         boolean isMine = false;
         User author = article.getLostItemArticle().getAuthor();
-        if (Objects.equals(author.getId(), userId)) {
+        if (author != null && Objects.equals(author.getId(), userId)) {
             isMine = true;
         }
 
