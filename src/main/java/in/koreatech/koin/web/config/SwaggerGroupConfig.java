@@ -79,6 +79,15 @@ public class SwaggerGroupConfig {
     }
 
     @Bean
+    public GroupedOpenApi socketApi() {
+        String[] packagesPath = new String[] {
+            "in.koreatech.koin.socket"
+        };
+
+        return createGroupedOpenApi("6. socket API", packagesPath);
+    }
+
+    @Bean
     public GroupedOpenApi bcsdApi() {
         String[] packagesPath = new String[] {
             "in.koreatech.koin.domain.activity",
@@ -91,7 +100,7 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.global.domain.notification",
         };
 
-        return createGroupedOpenApi("6. bcsd API", packagesPath);
+        return createGroupedOpenApi("7. bcsd API", packagesPath);
     }
 
     private GroupedOpenApi createGroupedOpenApi(String groupName, String[] packagesPath) {
