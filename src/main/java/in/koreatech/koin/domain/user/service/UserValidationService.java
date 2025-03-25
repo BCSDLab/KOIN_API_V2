@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
@@ -36,6 +37,12 @@ public class UserValidationService {
     public void checkExistsEmail(EmailCheckExistsRequest request) {
         userRepository.findByEmail(request.email()).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("email: " + user.getEmail());
+        });
+    }
+
+    public void checkExistsPhoneNumber(PhoneCheckExistsRequest request) {
+        userRepository.findByPhoneNumber(request.phone()).ifPresent(user -> {
+            throw DuplicationEmailException.withDetail("phone: " + user.getPhoneNumber());
         });
     }
 
