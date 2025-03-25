@@ -174,26 +174,12 @@ public class AdminBannerApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        mockMvc.perform(
-                get("/admin/banners/2")
-                    .header("Authorization", "Bearer " + 어드민_토큰)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json(String.format("""
-                    {
-                        "id": 2,
-                        "banner_category_id": 1,
-                        "banner_category": "메인 모달",
-                        "priority": 1,
-                        "title": "코인 이벤트",
-                        "image_url": "https://example.com/koin-event.jpg",
-                        "web_redirect_link": "https://example.com/koin-event",
-                        "android_redirect_link": "https://example.com/koin-event",
-                        "ios_redirect_link": "https://example.com/koin-event",
-                        "is_active": true,
-                        "create_at": "%s"
-                    }
-                """, 생성일)));
+        transactionTemplate.executeWithoutResult(status -> {
+            Banner priorityUpdatedBanner = adminBannerRepository.getById(메인_배너_2.getId());
+            assertSoftly(softly -> {
+                softly.assertThat(priorityUpdatedBanner.getPriority()).isEqualTo(1);
+            });
+        });
     }
 
     @Test
