@@ -25,7 +25,6 @@ public interface ArticleSearchKeywordRepository extends Repository<ArticleSearch
         WHERE k.lastSearchedAt >= :fromDate
         ORDER BY k.weight DESC, k.lastSearchedAt DESC
         """)
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<String> findTopKeywords(LocalDateTime fromDate, Pageable pageable);
 
     @Query("""
@@ -35,6 +34,5 @@ public interface ArticleSearchKeywordRepository extends Repository<ArticleSearch
         """)
     List<String> findTopKeywordsByLatest(Pageable pageable);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<ArticleSearchKeyword> findByUpdatedAtBetween(LocalDateTime startTime, LocalDateTime endTime);
 }

@@ -112,22 +112,6 @@ public class ArticleSyncService {
             return;
         }
 
-        LocalDateTime now = LocalDateTime.now();
-
-        for (TypedTuple<Object> tuple : topKeywords) {
-            String keyword = (String) tuple.getValue();
-            Double weight = (tuple.getScore() != null) ? tuple.getScore() : 0.0;
-
-            int totalSearchCount = getTotalSearchCount(keyword);
-
-            ArticleSearchKeyword keywordEntity = articleSearchKeywordRepository.findByKeyword(keyword)
-                .map(existingKeyword -> {
-                    updateKeyword(existingKeyword, weight, now, totalSearchCount);
-                    return existingKeyword;
-                })
-                .orElseGet(() -> createKeyword(keyword, weight, totalSearchCount, now));
-        }
-
         syncAllIpSearchCounts();
         clearStoredData();
     }
@@ -167,62 +151,6 @@ public class ArticleSyncService {
             }
             redisTemplate.delete(ipKey);
         }
-    }
-
-    private int getTotalSearchCount(String keyword) {
-        Set<String> ipKeys = redisTemplate.keys(IP_SEARCH_COUNT_PREFIX + "*");
-
-        if (ipKeys == null || ipKeys.isEmpty()) {
-            return 0;
-        }
-
-        int totalSearchCount = 0;
-
-        for (String ipKey : ipKeys) {
-            Map<Object, Object> keywordSearchCounts = redisTemplate.opsForHash().entries(ipKey);
-
-            for (Map.Entry<Object, Object> entry : keywordSearchCounts.entrySet()) {
-                String searchedKeyword = (String) entry.getKey();
-                Integer searchCount = Integer.parseInt(entry.getValue().toString());
-
-                if (searchedKeyword.equals(keyword)) {
-                    totalSearchCount += searchCount;
-                }
-            }
-        }
-
-        return totalSearchCount;
-    }
-
-    @Transactional
-    public void updateKeyword(
-        ArticleSearchKeyword keyword,
-        Double weight,
-        LocalDateTime now,
-        int totalSearchCountFromRedis
-    ) {
-        keyword.updateWeight(weight);
-        keyword.updateLastSearchedAt(now);
-        keyword.increaseTotalSearchBy(totalSearchCountFromRedis);
-
-        articleSearchKeywordRepository.save(keyword);
-    }
-
-    @Transactional
-    public ArticleSearchKeyword createKeyword(
-        String keyword,
-        Double weight,
-        int totalSearchCountFromRedis,
-        LocalDateTime now
-    ) {
-        ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
-            .keyword(keyword)
-            .weight(weight)
-            .lastSearchedAt(now)
-            .totalSearch(totalSearchCountFromRedis)
-            .build();
-
-        return articleSearchKeywordRepository.save(newKeyword);
     }
 
     @Transactional

@@ -29,9 +29,9 @@ public class PopularKeywordTracker {
         String ipSearchCountKey = IP_SEARCH_COUNT_PREFIX + ipAddress;
 
         Long currentIpCount = redisTemplate.opsForHash().increment(ipSearchCountKey, keyword, 1);
-        if (currentIpCount == null) currentIpCount = 1L;
 
         double additionalWeight = calculateWeight(currentIpCount);
+
         if (additionalWeight > 0) {
             redisTemplate.opsForZSet().incrementScore(KEYWORD_SET, keyword, additionalWeight);
         }
