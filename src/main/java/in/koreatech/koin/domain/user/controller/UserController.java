@@ -46,7 +46,7 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userService.logout(userId);
         return ResponseEntity.ok().build();
@@ -63,7 +63,7 @@ public class UserController implements UserApi {
 
     @GetMapping("/user/auth")
     public ResponseEntity<AuthResponse> getAuth(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         AuthResponse authResponse = userService.getAuth(userId);
         return ResponseEntity.ok().body(authResponse);
@@ -71,7 +71,7 @@ public class UserController implements UserApi {
 
     @DeleteMapping("/user")
     public ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userService.withdraw(userId);
         return ResponseEntity.noContent().build();
@@ -116,7 +116,7 @@ public class UserController implements UserApi {
     @PostMapping("/user/check/password")
     public ResponseEntity<Void> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userValidationService.checkPassword(request, userId);
         return ResponseEntity.ok().build();
