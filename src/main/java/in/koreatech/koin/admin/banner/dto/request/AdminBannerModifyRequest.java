@@ -31,9 +31,17 @@ public record AdminBannerModifyRequest(
     @Size(max = 255, message = "안드로이드 리다이렉션 링크는 최대 255자 입니다.")
     String androidRedirectLink,
 
+    @Schema(description = "안드로이드 최소 버전", example = "3.0.14", requiredMode = NOT_REQUIRED)
+    @Size(max = 50, message = "안드로이드 최소 버전은 최대 50자 입니다.")
+    String androidMinimumVersion,
+
     @Schema(description = "ios 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "ios 리다이렉션 링크는 최대 255자 입니다.")
     String iosRedirectLink,
+
+    @Schema(description = "ios 최소 버전", example = "3.0.14", requiredMode = NOT_REQUIRED)
+    @Size(max = 50, message = "ios 최소 버전은 최대 50자 입니다.")
+    String iosMinimumVersion,
 
     @Schema(description = "활성화 여부", example ="true", requiredMode = REQUIRED)
     @NotNull(message = "활성화 여부는 필수입니다.")
