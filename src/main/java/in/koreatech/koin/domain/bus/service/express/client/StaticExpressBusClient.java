@@ -15,10 +15,10 @@ import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin._common.callcontoller.CallControl;
+import in.koreatech.koin._common.apiloadbalancer.ApiLoadBalance;
 
 @Component
-@CallControl(ratio = 0)
+@ApiLoadBalance(ratio = 0)
 public class StaticExpressBusClient extends ExpressBusClient {
 
     public StaticExpressBusClient(
