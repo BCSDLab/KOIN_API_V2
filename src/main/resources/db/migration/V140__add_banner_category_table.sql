@@ -7,3 +7,6 @@ CREATE TABLE IF NOT EXISTS `koin`.`banner_categories`
     `updated_at`    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일자',
     PRIMARY KEY (`id`)
 );
+
+INSERT INTO `koin`.`banner_categories` (`name`, `description`)
+VALUES ('메인 모달', '앱/웹 첫 화면에 뜨는 4:3 (1600x1200) 비율의 배너');
