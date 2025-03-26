@@ -168,12 +168,12 @@ public class AdminBannerService {
     private void isValidMobileField(
         String androidRedirectLink, String androidMinimumVersion, String iosRedirectLink, String iosMinimumVersion
     ) {
-        if (validMobileFieldPair(androidRedirectLink, androidMinimumVersion)) {
-            throw new BannerMobileFieldPairNotMatchException(
+        if (!validMobileFieldPair(androidRedirectLink, androidMinimumVersion)) {
+            throw BannerMobileFieldPairNotMatchException.withDetail(
                 "androidRedirectLink: " + androidRedirectLink + ", androidMinimumVersion: " + androidMinimumVersion);
         }
-        if (validMobileFieldPair(iosRedirectLink, iosMinimumVersion)) {
-            throw new BannerMobileFieldPairNotMatchException(
+        if (!validMobileFieldPair(iosRedirectLink, iosMinimumVersion)) {
+            throw BannerMobileFieldPairNotMatchException.withDetail(
                 "iosRedirectLink: " + iosRedirectLink + ", iosMinimumVersion: " + iosMinimumVersion);
         }
     }

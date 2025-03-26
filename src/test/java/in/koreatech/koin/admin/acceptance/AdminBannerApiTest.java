@@ -87,7 +87,9 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/1000won.jpg",
                                 "web_redirect_link": "https://example.com/1000won",
                                 "android_redirect_link": "https://example.com/1000won",
+                                "android_minimum_version": "3.0.14",
                                 "ios_redirect_link": "https://example.com/1000won",
+                                "ios_minimum_version": "3.0.14",
                                 "is_active": true,
                                 "created_at": "%s"
                             },
@@ -100,7 +102,9 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/koin-event.jpg",
                                 "web_redirect_link": "https://example.com/koin-event",
                                 "android_redirect_link": "https://example.com/koin-event",
+                                "android_minimum_version": "3.0.14",
                                 "ios_redirect_link": "https://example.com/koin-event",
+                                "ios_minimum_version": "3.0.14",
                                 "is_active": true,
                                 "created_at": "%s"
                             },
@@ -113,7 +117,9 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/nunu-event.jpg",
                                 "web_redirect_link": "https://example.com/nunu-event",
                                 "android_redirect_link": "https://example.com/nunu-event",
+                                "android_minimum_version": "3.0.14",
                                 "ios_redirect_link": "https://example.com/nunu-event",
+                                "ios_minimum_version": "3.0.14",
                                 "is_active": false,
                                 "created_at": "%s"
                             }
@@ -139,7 +145,9 @@ public class AdminBannerApiTest extends AcceptanceTest {
                         "image_url": "https://example.com/1000won.jpg",
                         "web_redirect_link": "https://example.com/1000won",
                         "android_redirect_link": "https://example.com/1000won",
+                        "android_minimum_version": "3.0.14",
                         "ios_redirect_link": "https://example.com/1000won",
+                        "ios_minimum_version": "3.0.14",
                         "is_active": true,
                         "created_at": "%s"
                     }
@@ -159,7 +167,9 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/1000won.jpg",
                                 "web_redirect_link": "https://example.com/1000won",
                                 "android_redirect_link": "https://example.com/1000won",
-                                "ios_redirect_link": "https://example.com/1000won"
+                                "android_minimum_version": "3.0.14",
+                                "ios_redirect_link": "https://example.com/1000won",
+                                "ios_minimum_version": "3.0.14"
                             }
                         """)
             )
@@ -233,10 +243,10 @@ public class AdminBannerApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + 어드민_토큰)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                            {
-                               "is_active": "false"
-                            }
-                        """)
+                        {
+                           "is_active": "false"
+                        }
+                    """)
         ).andExpect(status().isOk());
 
         transactionTemplate.executeWithoutResult(status -> {
@@ -255,10 +265,10 @@ public class AdminBannerApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + 어드민_토큰)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                            {
-                               "is_active": "true"
-                            }
-                        """)
+                        {
+                           "is_active": "true"
+                        }
+                    """)
         ).andExpect(status().isOk());
 
         transactionTemplate.executeWithoutResult(status -> {
@@ -277,14 +287,15 @@ public class AdminBannerApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + 어드민_토큰)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                            {
-                               "title": "새제목",
-                               "image_url": "https://example.com/new1000won.jpg",
-                               "web_redirect_link": "https://example.com/new1000won.jpg",
-                               "android_redirect_link": "https://example.com/new1000won",
-                               "is_active": "true"
-                            }
-                        """)
+                        {
+                           "title": "새제목",
+                           "image_url": "https://example.com/new1000won.jpg",
+                           "web_redirect_link": "https://example.com/new1000won.jpg",
+                           "android_redirect_link": "https://example.com/new1000won",
+                           "android_minimum_version": "3.0.14",
+                           "is_active": "true"
+                        }
+                    """)
         ).andExpect(status().isOk());
 
         transactionTemplate.executeWithoutResult(status -> {
@@ -297,6 +308,8 @@ public class AdminBannerApiTest extends AcceptanceTest {
                     .isEqualTo("https://example.com/new1000won.jpg");
                 softly.assertThat(updatedBanner.getAndroidRedirectLink())
                     .isEqualTo("https://example.com/new1000won");
+                softly.assertThat(updatedBanner.getAndroidMinimumVersion())
+                    .isEqualTo("3.0.14");
                 softly.assertThat(updatedBanner.getIosRedirectLink()).isNull();
                 softly.assertThat(updatedBanner.getIsActive()).isEqualTo(true);
                 softly.assertThat(updatedBanner.getPriority()).isEqualTo(3);
