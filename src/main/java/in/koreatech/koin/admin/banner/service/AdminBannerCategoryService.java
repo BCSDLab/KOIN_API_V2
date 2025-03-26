@@ -24,6 +24,7 @@ public class AdminBannerCategoryService {
         return AdminBannerCategoriesResponse.of(bannerCategories);
     }
 
+    @Transactional
     public AdminBannerCategoryResponse modifyBannerCategoryDescription(
         AdminBannerCategoryDescriptionModifyRequest request, Integer bannerCategoryId
     ) {
