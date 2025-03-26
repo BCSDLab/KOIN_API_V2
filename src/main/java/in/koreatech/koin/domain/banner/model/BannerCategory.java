@@ -37,4 +37,8 @@ public class BannerCategory extends BaseEntity {
         this.name = name;
         this.description = description;
     }
+
+    public void modifyDescription(String description) {
+        this.description = description;
+    }
 }
