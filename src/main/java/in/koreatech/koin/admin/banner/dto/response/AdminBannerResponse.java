@@ -36,8 +36,14 @@ public record AdminBannerResponse(
     @Schema(description = "안드로이드 리다이렉션 링크", example = "https://example.com/1000won")
     String androidRedirectLink,
 
+    @Schema(description = "안드로이드 최소 버전", example = "3.0.14")
+    String androidMinimumVersion,
+
     @Schema(description = "ios 리다이렉션 링크", example = "https://example.com/1000won")
     String iosRedirectLink,
+
+    @Schema(description = "ios 최소 버전", example = "3.0.14")
+    String iosMinimumVersion,
 
     @Schema(description = "배너 활성화 여부", example = "true")
     Boolean isActive,
@@ -56,7 +62,9 @@ public record AdminBannerResponse(
             banner.getImageUrl(),
             banner.getWebRedirectLink(),
             banner.getAndroidRedirectLink(),
+            banner.getAndroidMinimumVersion(),
             banner.getIosRedirectLink(),
+            banner.getIosMinimumVersion(),
             banner.getIsActive(),
             banner.getCreatedAt().toLocalDate()
         );

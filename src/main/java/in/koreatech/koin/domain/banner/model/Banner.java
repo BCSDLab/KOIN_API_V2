@@ -48,9 +48,17 @@ public class Banner extends BaseEntity {
     @Column(name = "android_redirect_link")
     private String androidRedirectLink;
 
+    @Size(max = 50)
+    @Column(name = "android_minimum_version")
+    private String androidMinimumVersion;
+
     @Size(max = 255)
     @Column(name = "ios_redirect_link")
     private String iosRedirectLink;
+
+    @Size(max = 50)
+    @Column(name = "ios_minimum_version")
+    private String iosMinimumVersion;
 
     @NotNull
     @Column(name = "is_active", nullable = false)
@@ -61,13 +69,15 @@ public class Banner extends BaseEntity {
     private BannerCategory bannerCategory;
 
     @Builder
-    private Banner(
+    public Banner(
         String title,
         Integer priority,
         String imageUrl,
         String webRedirectLink,
         String androidRedirectLink,
+        String androidMinimumVersion,
         String iosRedirectLink,
+        String iosMinimumVersion,
         Boolean isActive,
         BannerCategory bannerCategory
     ) {
@@ -76,7 +86,9 @@ public class Banner extends BaseEntity {
         this.imageUrl = imageUrl;
         this.webRedirectLink = webRedirectLink;
         this.androidRedirectLink = androidRedirectLink;
+        this.androidMinimumVersion = androidMinimumVersion;
         this.iosRedirectLink = iosRedirectLink;
+        this.iosMinimumVersion = iosMinimumVersion;
         this.isActive = isActive;
         this.bannerCategory = bannerCategory;
     }

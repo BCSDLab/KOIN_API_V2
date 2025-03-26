@@ -29,14 +29,18 @@ public record BannersResponse(
         String imageUrl,
 
         @Schema(description = "플랫폼에 해당하는 리다이렉션 링크", example = "https://example.com/1000won")
-        String redirectLink
+        String redirectLink,
+
+        @Schema(description = "플랫폼에 해당하는 최소 버전", example = "3.0.14")
+        String version
     ) {
 
         public static InnerBannerResponse of(Banner banner, PlatformType platformType) {
             return new InnerBannerResponse(
                 banner.getId(),
                 banner.getImageUrl(),
-                resolveRedirectLink(banner, platformType)
+                resolveRedirectLink(banner, platformType),
+                resolveVersion(banner, platformType)
             );
         }
 
@@ -45,6 +49,14 @@ public record BannersResponse(
                 case WEB -> banner.getWebRedirectLink();
                 case ANDROID -> banner.getAndroidRedirectLink();
                 case IOS -> banner.getIosRedirectLink();
+            };
+        }
+
+        private static String resolveVersion(Banner banner, PlatformType platformType) {
+            return switch (platformType) {
+                case ANDROID -> banner.getAndroidMinimumVersion();
+                case IOS -> banner.getIosMinimumVersion();
+                default -> null;
             };
         }
     }

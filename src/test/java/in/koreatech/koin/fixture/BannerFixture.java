@@ -24,7 +24,9 @@ public class BannerFixture {
                 .imageUrl("https://example.com/1000won.jpg")
                 .webRedirectLink("https://example.com/1000won")
                 .androidRedirectLink("https://example.com/1000won")
+                .androidMinimumVersion("3.0.14")
                 .iosRedirectLink("https://example.com/1000won")
+                .iosMinimumVersion("3.0.14")
                 .isActive(true)
             .build()
             );
@@ -38,7 +40,9 @@ public class BannerFixture {
             .imageUrl("https://example.com/koin-event.jpg")
             .webRedirectLink("https://example.com/koin-event")
             .androidRedirectLink("https://example.com/koin-event")
+            .androidMinimumVersion("3.0.14")
             .iosRedirectLink("https://example.com/koin-event")
+            .iosMinimumVersion("3.0.14")
             .isActive(true)
             .build()
         );
@@ -52,7 +56,9 @@ public class BannerFixture {
             .imageUrl("https://example.com/nunu-event.jpg")
             .webRedirectLink("https://example.com/nunu-event")
             .androidRedirectLink("https://example.com/nunu-event")
+            .androidMinimumVersion("3.0.14")
             .iosRedirectLink("https://example.com/nunu-event")
+            .iosMinimumVersion("3.0.14")
             .isActive(false)
             .build()
         );
