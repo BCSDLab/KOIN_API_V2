@@ -51,7 +51,8 @@ public class AdminBannerCategoryApiTest extends AcceptanceTest {
                       "banner_categories": [
                         {
                           "id": 1,
-                          "name": "메인 모달"
+                          "name": "메인 모달",
+                          "description": "140*112 앱/웹 랜딩시 뜨는 모달입니다."
                         }
                       ]
                     }
