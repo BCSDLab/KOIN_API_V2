@@ -28,8 +28,13 @@ public class BannerCategory extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotNull
+    @Column(name = "description", nullable = false)
+    private String description;
+
     @Builder
-    private BannerCategory(String name) {
+    private BannerCategory(String name, String description) {
         this.name = name;
+        this.description = description;
     }
 }
