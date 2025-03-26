@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.acceptance;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -56,6 +58,28 @@ public class AdminBannerCategoryApiTest extends AcceptanceTest {
                         }
                       ]
                     }
+                """));
+    }
+
+    @Test
+    void 배너_카테고리의_설명을_수정한다() throws Exception {
+        mockMvc.perform(
+                patch("/admin/banner-categories/1")
+                    .header("Authorization", "Bearer " + 어드민_토큰)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                                "description": "모달 설명 수정한다"
+                            }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                 {
+                          "id": 1,
+                          "name": "메인 모달",
+                          "description": "모달 설명 수정한다"
+                 }
                 """));
     }
 }
