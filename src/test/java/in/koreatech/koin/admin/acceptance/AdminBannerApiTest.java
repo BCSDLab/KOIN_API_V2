@@ -177,6 +177,27 @@ public class AdminBannerApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 모바일_리다이렉션_링크는_없고_모바일_최소버전이_있으면_예외를_발생한다() throws Exception {
+        mockMvc.perform(
+                post("/admin/banners")
+                    .header("Authorization", "Bearer " + 어드민_토큰)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                                "banner_category_id": 1,
+                                "title": "졸업학점 계산기",
+                                "image_url": "https://example.com/1000won.jpg",
+                                "web_redirect_link": "https://example.com/1000won",
+                                "android_redirect_link": "https://example.com/1000won",
+                                "ios_redirect_link": "https://example.com/1000won",
+                                "ios_minimum_version": "3.0.14"
+                            }
+                        """)
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void 메인_모달_배너를_삭제한다() throws Exception {
         mockMvc.perform(
                 delete("/admin/banners/1")
