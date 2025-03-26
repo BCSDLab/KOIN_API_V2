@@ -22,6 +22,7 @@ import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.dto.StudentRegisterV2Request;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
@@ -276,6 +277,17 @@ public class StudentService {
         studentRedisRepository.deleteById(student.getUser().getEmail());
         eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
         return new ModelAndView("success_register_config");
+    }
+
+    @Transactional
+    public void studentRegisterV2(StudentRegisterV2Request request) {
+        Student student = request.toStudent(passwordEncoder);
+        studentValidationService.validateExistPhoneNumber(student.getUser().getPhoneNumber());
+        studentValidationService.validateNicknameExist(student.getUser().getNickname());
+
+        studentRepository.save(student);
+        userRepository.save(student.getUser());
+        studentRedisRepository.deleteById(student.getUser().getPhoneNumber());
     }
 
     @Transactional
