@@ -14,6 +14,7 @@ import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -164,5 +165,10 @@ public interface UserApi {
     ResponseEntity<Void> checkLogin(
         @ParameterObject @ModelAttribute(value = "access_token")
         @Valid UserAccessTokenRequest request
+    );
+
+    @PostMapping("/user/sms/send")
+    ResponseEntity<Void> sendSignUpVerificationCode(
+        @RequestBody @Valid SendSmsVerificationRequest request
     );
 }
