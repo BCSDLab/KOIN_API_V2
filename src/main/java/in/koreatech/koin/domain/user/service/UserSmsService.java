@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.event.UserSmsRequestEvent;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationLimit;
@@ -40,7 +41,7 @@ public class UserSmsService {
             certificationCode
         );
         userVerificationStatusRedisRepository.save(userVerificationStatus);
-        // Todo: 슬랙 알림 전송
+        eventPublisher.publishEvent(new UserSmsRequestEvent(phoneNumber));
     }
 
     private void increaseUserDailyVerificationCount(String key) {

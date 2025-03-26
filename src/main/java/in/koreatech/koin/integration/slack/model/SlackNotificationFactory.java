@@ -201,4 +201,19 @@ public class SlackNotificationFactory {
             )
             .build();
     }
+
+    /**
+     * 회원 이메일 인증 요청 알림
+     */
+    public SlackNotification generateUserPhoneVerificationRequestNotification(
+        String content
+    ) {
+        return SlackNotification.builder()
+            .slackUrl(eventNotificationUrl)
+            .text(String.format("""
+                `%s(회원)님이 문자 인증을 요청하셨습니다.`
+                """, content)
+            )
+            .build();
+    }
 }
