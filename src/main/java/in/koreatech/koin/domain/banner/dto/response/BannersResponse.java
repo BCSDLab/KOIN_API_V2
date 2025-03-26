@@ -34,7 +34,6 @@ public record BannersResponse(
         @Schema(description = "플랫폼에 해당하는 최소 버전", example = "3.0.14")
         String version
     ) {
-        public static final String EMPTY_VERSION = "";
 
         public static InnerBannerResponse of(Banner banner, PlatformType platformType) {
             return new InnerBannerResponse(
@@ -57,7 +56,7 @@ public record BannersResponse(
             return switch (platformType) {
                 case ANDROID -> banner.getAndroidMinimumVersion();
                 case IOS -> banner.getIosMinimumVersion();
-                default -> EMPTY_VERSION;
+                default -> null;
             };
         }
     }
