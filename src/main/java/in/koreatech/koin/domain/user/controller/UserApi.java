@@ -21,6 +21,8 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
+import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -169,6 +171,11 @@ public interface UserApi {
 
     @PostMapping("/user/sms/send")
     ResponseEntity<Void> sendSignUpVerificationCode(
-        @RequestBody @Valid SendSmsVerificationRequest request
+        @Valid @RequestBody SendSmsVerificationRequest request
+    );
+
+    @PostMapping("/user/sms/verify")
+    ResponseEntity<VerifySmsCodeResponse> verifySignUpCode(
+        @Valid @RequestBody VerifySmsCodeRequest request
     );
 }

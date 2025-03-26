@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.integration.email.exception.VerifyNotFoundException;
 
-public interface UserVerificationStatusRedisRepository extends Repository<UserVerificationStatus, Long> {
+public interface UserVerificationStatusRedisRepository extends Repository<UserVerificationStatus, String> {
 
     UserVerificationStatus save(UserVerificationStatus userInVerification);
 

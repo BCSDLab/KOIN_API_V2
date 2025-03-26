@@ -24,12 +24,16 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
+import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserSmsService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class UserController implements UserApi {
@@ -117,17 +121,19 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/sms/send")
     public ResponseEntity<Void> sendSignUpVerificationCode(
-        @RequestBody @Valid SendSmsVerificationRequest request
+        @Valid @RequestBody SendSmsVerificationRequest request
     ) {
         userSmsService.sendSignUpVerificationCode(request);
         return ResponseEntity.ok().build();
     }
 
-    // @PostMapping("/user/sms/verify")
-    // public ResponseEntity<VerifySmsCodeResponse> verifySignUpCode(
-    //     @Valid @RequestBody VerifySmsCodeRequest request
-    // ) {
-    //     VerifySmsCodeResponse response = userSmsService.verifySignUpSmsCode(request);
-    //     return ResponseEntity.ok().body(response);
-    // }
+    @PostMapping("/user/sms/verify")
+    public ResponseEntity<VerifySmsCodeResponse> verifySignUpCode(
+        @Valid @RequestBody VerifySmsCodeRequest request
+    ) {
+        log.info(request.toString());
+        VerifySmsCodeResponse response = userSmsService.verifySignUpSmsCode(request);
+        log.info(response.toString());
+        return ResponseEntity.ok().body(response);
+    }
 }

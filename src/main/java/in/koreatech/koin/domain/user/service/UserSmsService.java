@@ -1,21 +1,30 @@
 package in.koreatech.koin.domain.user.service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserSmsRequestEvent;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
+import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
+import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
+import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
+import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationLimit;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserVerificationLimitRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.integration.naver.service.NaverSmsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -25,6 +34,7 @@ public class UserSmsService {
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserVerificationLimitRedisRepository userVerificationLimitRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public void sendSignUpVerificationCode(SendSmsVerificationRequest request) {
@@ -55,7 +65,16 @@ public class UserSmsService {
         userVerificationLimitRedisRepository.save(limit);
     }
 
-    // public VerifySmsCodeResponse verifySignUpSmsCode(VerifySmsCodeRequest request) {
-    //     // Todo: 코드 검증 로직
-    // }
+    public VerifySmsCodeResponse verifySignUpSmsCode(VerifySmsCodeRequest request) {
+        verifyCode(request.phoneNumber(), request.certificationCode());
+        return new VerifySmsCodeResponse(jwtProvider.createTemporaryToken());
+    }
+
+    private void verifyCode(String key, String code) {
+        UserVerificationStatus verify = userVerificationStatusRedisRepository.getByVerify(key);
+        log.info(verify.toString());
+        if (!Objects.equals(verify.getCertificationCode(), code)) {
+            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
+        }
+    }
 }
