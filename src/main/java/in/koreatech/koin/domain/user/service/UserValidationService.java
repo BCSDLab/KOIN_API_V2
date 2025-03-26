@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
+import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
@@ -42,7 +43,7 @@ public class UserValidationService {
 
     public void checkExistsPhoneNumber(PhoneCheckExistsRequest request) {
         userRepository.findByPhoneNumber(request.phone()).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("phone: " + user.getPhoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("phone: " + user.getPhoneNumber());
         });
     }
 
