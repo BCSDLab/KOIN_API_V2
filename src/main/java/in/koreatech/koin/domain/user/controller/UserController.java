@@ -31,9 +31,7 @@ import in.koreatech.koin.domain.user.service.UserSmsService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class UserController implements UserApi {
@@ -131,9 +129,7 @@ public class UserController implements UserApi {
     public ResponseEntity<VerifySmsCodeResponse> verifySignUpCode(
         @Valid @RequestBody VerifySmsCodeRequest request
     ) {
-        log.info(request.toString());
         VerifySmsCodeResponse response = userSmsService.verifySignUpSmsCode(request);
-        log.info(response.toString());
         return ResponseEntity.ok().body(response);
     }
 }

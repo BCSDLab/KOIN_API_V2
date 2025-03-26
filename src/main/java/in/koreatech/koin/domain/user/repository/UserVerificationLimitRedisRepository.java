@@ -10,5 +10,5 @@ public interface UserVerificationLimitRedisRepository extends Repository<UserDai
 
     UserDailyVerificationLimit save(UserDailyVerificationLimit userdailyVerificationLimit);
 
-    Optional<UserDailyVerificationLimit> findById(String key);
+    Optional<UserDailyVerificationLimit> findById(String id);
 }

@@ -7,25 +7,25 @@ import org.springframework.data.redis.core.TimeToLive;
 import lombok.Getter;
 
 @Getter
-@RedisHash(value = "userVerificationStatus@")
+@RedisHash(value = "userVerificationStatus")
 public class UserVerificationStatus {
 
     private static final long CACHE_EXPIRE_SECOND = 60 * 3L;
 
     @Id
-    private String key;
+    private String id;
     private String certificationCode;
 
     @TimeToLive
     private Long expiration;
 
-    public UserVerificationStatus(String key, String certificationCode) {
-        this.key = key;
+    public UserVerificationStatus(String id, String certificationCode) {
+        this.id = id;
         this.certificationCode = certificationCode;
         this.expiration = CACHE_EXPIRE_SECOND;
     }
 
-    public static UserVerificationStatus of(String key, String certificationCode) {
-        return new UserVerificationStatus(key, certificationCode);
+    public static UserVerificationStatus of(String id, String certificationCode) {
+        return new UserVerificationStatus(id, certificationCode);
     }
 }

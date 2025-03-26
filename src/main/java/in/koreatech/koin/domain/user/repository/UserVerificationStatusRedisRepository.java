@@ -11,15 +11,11 @@ public interface UserVerificationStatusRedisRepository extends Repository<UserVe
 
     UserVerificationStatus save(UserVerificationStatus userInVerification);
 
-    Optional<UserVerificationStatus> findById(String key);
+    Optional<UserVerificationStatus> findById(String id);
 
-    void deleteById(String key);
+    void deleteById(String id);
 
-    default void deleteByVerify(String key) {
-        deleteById(key);
-    }
-
-    default UserVerificationStatus getByVerify(String key) {
-        return findById(key).orElseThrow(() -> VerifyNotFoundException.withDetail("verify: " + key));
+    default UserVerificationStatus getById(String id) {
+        return findById(id).orElseThrow(() -> VerifyNotFoundException.withDetail("verify: " + id));
     }
 }
