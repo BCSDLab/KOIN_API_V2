@@ -20,12 +20,16 @@ public record AdminBannerCategoriesResponse(
         Integer id,
 
         @Schema(description = "배너 카테고리 이름", example = "메인 모달")
-        String name
+        String name,
+
+        @Schema(description = "배너 카테고리 설명", example = "140*112 앱/웹 랜딩시 뜨는 모달입니다.")
+        String description
     ) {
         public static InnerAdminBannerCategoriesResponse of(BannerCategory bannerCategory) {
             return new InnerAdminBannerCategoriesResponse(
                 bannerCategory.getId(),
-                bannerCategory.getName()
+                bannerCategory.getName(),
+                bannerCategory.getDescription()
             );
         }
     }
