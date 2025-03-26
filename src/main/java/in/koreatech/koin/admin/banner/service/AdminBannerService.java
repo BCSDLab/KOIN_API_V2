@@ -8,18 +8,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.model.Criteria;
-import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerActiveChangeRequest;
+import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerModifyRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerPriorityChangeRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
 import in.koreatech.koin.admin.banner.enums.PriorityChangeType;
+import in.koreatech.koin.admin.banner.exception.BannerMobileFieldPairNotMatchException;
 import in.koreatech.koin.admin.banner.repository.AdminBannerCategoryRepository;
 import in.koreatech.koin.admin.banner.repository.AdminBannerRepository;
 import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -60,6 +60,8 @@ public class AdminBannerService {
     @Transactional
     public void createBanner(AdminBannerCreateRequest request) {
         BannerCategory bannerCategory = adminBannerCategoryRepository.getById(request.bannerCategoryId());
+        isValidMobileField(request.androidRedirectLink(), request.androidMinimumVersion(), request.iosRedirectLink(),
+            request.iosMinimumVersion());
         Banner banner = request.of(bannerCategory);
         adminBannerRepository.save(banner);
     }
@@ -106,7 +108,8 @@ public class AdminBannerService {
     }
 
     private void priorityMoveUp(Integer currentPriority, BannerCategory category, Banner banner) {
-        if (currentPriority <= 0) return;
+        if (currentPriority <= 0)
+            return;
         Banner upper = adminBannerRepository
             .findByBannerCategoryAndPriorityAndIsActiveTrue(category, currentPriority - 1)
             .orElseThrow(() -> new KoinIllegalStateException("우선순위 변경 대상 배너가 존재하지 않습니다. bannerId: " + banner.getId()));
@@ -116,7 +119,8 @@ public class AdminBannerService {
 
     private void priorityMoveDown(Integer currentPriority, BannerCategory category, Banner banner) {
         Integer maxPriority = adminBannerRepository.findMaxPriorityCategory(category);
-        if (maxPriority == null || currentPriority >= maxPriority) return;
+        if (maxPriority == null || currentPriority >= maxPriority)
+            return;
         Banner lower = adminBannerRepository
             .findByBannerCategoryAndPriorityAndIsActiveTrue(category, currentPriority + 1)
             .orElseThrow(() -> new KoinIllegalStateException("우선순위 변경 대상 배너가 존재하지 않습니다. bannerId: " + banner.getId()));
@@ -132,6 +136,8 @@ public class AdminBannerService {
 
     @Transactional
     public void modifyBanner(Integer bannerId, AdminBannerModifyRequest request) {
+        isValidMobileField(request.androidRedirectLink(), request.androidMinimumVersion(), request.iosRedirectLink(),
+            request.iosMinimumVersion());
         Banner banner = adminBannerRepository.getById(bannerId);
         banner.modifyBanner(
             request.title(),
@@ -145,7 +151,8 @@ public class AdminBannerService {
 
     private void compareActiveAndChange(boolean afterPriority, Banner banner) {
         boolean before = banner.getIsActive();
-        if (before == afterPriority) return;
+        if (before == afterPriority)
+            return;
 
         banner.updateIsActive(afterPriority);
 
@@ -156,5 +163,22 @@ public class AdminBannerService {
         } else {
             banner.updatePriority(null);
         }
+    }
+
+    private void isValidMobileField(
+        String androidRedirectLink, String androidMinimumVersion, String iosRedirectLink, String iosMinimumVersion
+    ) {
+        if (validMobileFieldPair(androidRedirectLink, androidMinimumVersion)) {
+            throw new BannerMobileFieldPairNotMatchException(
+                "androidRedirectLink: " + androidRedirectLink + ", androidMinimumVersion: " + androidMinimumVersion);
+        }
+        if (validMobileFieldPair(iosRedirectLink, iosMinimumVersion)) {
+            throw new BannerMobileFieldPairNotMatchException(
+                "iosRedirectLink: " + iosRedirectLink + ", iosMinimumVersion: " + iosMinimumVersion);
+        }
+    }
+
+    public boolean validMobileFieldPair(String redirectLink, String minimumVersion) {
+        return (redirectLink != null && minimumVersion != null) || (redirectLink == null && minimumVersion == null);
     }
 }
