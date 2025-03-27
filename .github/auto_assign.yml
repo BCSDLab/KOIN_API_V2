@@ -16,3 +16,8 @@ reviewGroups: # 라벨별로 리뷰어 그룹 지정
     - Choon0414
     - Baejinho4028
     - kih1015
+filterLabels:
+  include:
+    - Team Business
+    - Team Campus
+    - Team User
