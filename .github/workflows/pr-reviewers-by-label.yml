@@ -4,7 +4,10 @@ on:
     types: [labeled, unlabeled]
 
 jobs:
-  add-reviews:
+  assign:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v2.0.0
+      - uses: toshimaru/label-actions@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          config-path: .github/label-actions.yml
