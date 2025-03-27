@@ -7,7 +7,7 @@ jobs:
   assign:
     runs-on: ubuntu-latest
     steps:
-      - uses: toshimaru/label-actions@v2
+      - uses: toshimaru/label-actions@v2.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           config-path: .github/label-actions.yml
