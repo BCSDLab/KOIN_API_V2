@@ -52,6 +52,7 @@ public interface UploadApi {
         - owners
         - coop
         - admin
+        - banner
         """)
     @PostMapping("/{domain}/upload/url")
     ResponseEntity<UploadUrlResponse> getPresignedUrl(
@@ -79,6 +80,9 @@ public interface UploadApi {
         - shops
         - members
         - owners
+        - coop
+        - admin
+        - banner
         """)
     @PostMapping(
         value = "/{domain}/upload/file",
@@ -110,6 +114,9 @@ public interface UploadApi {
         - shops
         - members
         - owners
+        - coop
+        - admin
+        - banner
         """)
     @PostMapping(
         value = "/{domain}/upload/files",
