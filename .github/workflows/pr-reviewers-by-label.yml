@@ -4,10 +4,27 @@ on:
     types: [labeled, unlabeled]
 
 jobs:
-  assign:
+  assign-team-business:
+    if: contains(toJson(github.event.pull_request.labels), '"Team Business"')
     runs-on: ubuntu-latest
     steps:
-      - uses: toshimaru/label-actions@v2.0.0
+      - uses: kentaro-m/auto-assign-action@v2.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          config-path: .github/label-actions.yml
+          configuration-path: .github/auto_assign_team_business.yml
+
+  assign-team-campus:
+    if: contains(toJson(github.event.pull_request.labels), '"Team Campus"')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kentaro-m/auto-assign-action@v2.0.0
+        with:
+          configuration-path: .github/auto_assign_team_campus.yml
+
+  assign-team-user:
+    if: contains(toJson(github.event.pull_request.labels), '"Team User"')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kentaro-m/auto-assign-action@v2.0.0
+        with:
+          configuration-path: .github/auto_assign_team_user.yml
+

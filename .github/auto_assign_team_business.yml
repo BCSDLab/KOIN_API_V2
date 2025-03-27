@@ -1,0 +1,6 @@
+addAssignees: author # 작성자를 assignee로 지정
+addReviewers: true
+reviewers:
+  - daheeParkk
+  - ImTotem
+  - DHkimgit
