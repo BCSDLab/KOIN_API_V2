@@ -1,4 +1,18 @@
-assign:
-  Team Business: [ 'daheeParkk', 'ImTotem', 'DHkimgit' ]
-  Team Campus: [ 'krSeonghyeon', 'Soundbar91', 'dradnats1012', 'duehee' ]
-  Team User: [ 'Choon0414', 'Baejinho4028', 'kih1015' ]
+addAssignees: author # 작성자를 assignee 로 지정
+
+addReviewers: true
+useReviewGroups: true
+reviewGroups: # 라벨별로 리뷰어 그룹 지정
+  Team Business:
+    - daheeParkk
+    - ImTotem
+    - DHkimgit
+  Team Campus:
+    - krSeonghyeon
+    - Soundbar91
+    - dradnats1012
+    - duehee
+  Team User:
+    - Choon0414
+    - Baejinho4028
+    - kih1015

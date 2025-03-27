@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.callcontoller;
+package in.koreatech.koin._common.apiloadbalancer;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 @Hidden
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
-public @interface CallControl { //todo : 네이밍 변경 ex) CallControlInfo -> ApiCallBalancer or ApiLoacBalancer
+public @interface ApiLoadBalance {
 
     int ratio();
 }

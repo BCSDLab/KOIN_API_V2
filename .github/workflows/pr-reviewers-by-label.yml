@@ -1,14 +1,17 @@
 name: "Assign Reviewers by Label"
 on:
   pull_request:
-    types: [labeled, unlabeled]
+    types: [opened, ready_for_review]
 
 jobs:
-  auto-assign:
+  add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Assign reviewers based on label
-        uses: totallymoney/assign-reviewers-by-labels-action@v1
+      - uses: kentaro-m/auto-assign-action@v2.0.0
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: '.github/auto_assign.yml'
+          filterLabels:
+            include:
+              - Team Business
+              - Team Campus
+              - Team User
