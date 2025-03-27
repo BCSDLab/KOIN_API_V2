@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -91,6 +92,15 @@ public class UserController implements UserApi {
         @Valid EmailCheckExistsRequest request
     ) {
         userValidationService.checkExistsEmail(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/user/check/phone")
+    public ResponseEntity<Void> checkPhoneNumberExist(
+        @ModelAttribute(value = "phone")
+        @Valid PhoneCheckExistsRequest request
+    ) {
+        userValidationService.checkExistsPhoneNumber(request);
         return ResponseEntity.ok().build();
     }
 
