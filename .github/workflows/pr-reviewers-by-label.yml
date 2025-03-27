@@ -12,6 +12,6 @@ jobs:
           configuration-path: '.github/auto_assign.yml'
           filterLabels:
             include:
-              - Team Business
-              - Team Campus
-              - Team User
+              - 'Team Business'
+              - 'Team Campus'
+              - 'Team User'
