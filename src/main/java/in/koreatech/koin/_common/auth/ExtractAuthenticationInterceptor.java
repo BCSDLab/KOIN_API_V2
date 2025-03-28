@@ -22,7 +22,7 @@ public class ExtractAuthenticationInterceptor implements HandlerInterceptor {
     private final JwtProvider jwtProvider;
     private final AuthContext authContext;
     private final UserIdContext userIdContext;
-    private final SmsAuthContext smsAuthContext;
+    private final SmsAuthedContext smsAuthedContext;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -33,7 +33,7 @@ public class ExtractAuthenticationInterceptor implements HandlerInterceptor {
 
                 authContext.setUserId(userId);
                 userIdContext.setUserId(userId);
-                smsAuthContext.setPhoneNumberAuthed(phoneNumber);
+                smsAuthedContext.setPhoneNumberAuthed(phoneNumber);
             });
         return true;
     }

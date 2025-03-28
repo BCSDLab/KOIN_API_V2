@@ -62,8 +62,6 @@ class UserApiTest extends AcceptanceTest {
     @BeforeAll
     void setup() {
         clear();
-        // SMS 서비스 모킹 설정
-        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
     }
 
     @Test
@@ -386,6 +384,8 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_SMS_인증번호_전송_및_검증한다() throws Exception {
         // given
+        // SMS 서비스 모킹 설정
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
 
         // when - SMS 인증번호 전송
@@ -421,6 +421,8 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_SMS_인증번호_전송_후_잘못된_인증번호로_검증시_에러를_반환한다() throws Exception {
         // given
+        // SMS 서비스 모킹 설정
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
 
         // when - SMS 인증번호 전송
@@ -457,6 +459,8 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_SMS_인증번호_하루_5번_이상_발송시도시_에러를_반환한다() throws Exception {
         // given
+        // SMS 서비스 모킹 설정
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
         int maxDailyLimit = 5;
 
