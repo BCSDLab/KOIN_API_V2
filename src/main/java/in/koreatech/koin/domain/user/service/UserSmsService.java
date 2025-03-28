@@ -39,6 +39,7 @@ public class UserSmsService {
         checkExistsPhoneNumber(request.phoneNumber());
         increaseUserDailyVerificationCount(request.phoneNumber());
         sendCertificationSms(request.phoneNumber());
+        eventPublisher.publishEvent(new UserSmsRequestEvent(request.phoneNumber()));
     }
 
     private void checkExistsPhoneNumber(String phoneNumber) {
@@ -65,7 +66,6 @@ public class UserSmsService {
             certificationCode
         );
         userVerificationStatusRedisRepository.save(userVerificationStatus);
-        eventPublisher.publishEvent(new UserSmsRequestEvent(phoneNumber));
     }
 
     public VerifySmsCodeResponse verifySignUpSmsCode(VerifySmsCodeRequest request) {
