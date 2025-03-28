@@ -19,6 +19,8 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByEmailAndUserType(String email, UserType userType);
 
+    Optional<User> findByPhoneNumber(String phoneNumber);
+
     Optional<User> findByPhoneNumberAndUserType(String phoneNumber, UserType userType);
 
     Optional<User> findById(Integer id);

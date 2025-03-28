@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -123,6 +123,20 @@ public interface UserApi {
     ResponseEntity<Void> checkUserEmailExist(
         @ModelAttribute("address")
         @Valid EmailCheckExistsRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "전화번호 중복 체크")
+    @GetMapping("/user/check/phone")
+    ResponseEntity<Void> checkPhoneNumberExist(
+        @ModelAttribute("phone")
+        @Valid PhoneCheckExistsRequest request
     );
 
     @ApiResponses(

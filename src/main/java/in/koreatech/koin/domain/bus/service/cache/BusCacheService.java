@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.service.city.client.CityBusClient;
 import in.koreatech.koin.domain.bus.service.city.client.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.service.express.client.ExpressBusClient;
-import in.koreatech.koin._common.callcontroller.CallController;
+import in.koreatech.koin._common.apiloadbalancer.ApiLoadBalancer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +22,7 @@ public class BusCacheService {
     private final CityBusRouteClient cityBusRouteClient;
     private final List<ExpressBusClient> expressBusTypes;
     private final List<ExpressBusClient> apiCallListByRatio = new ArrayList<>();
-    private final CallController<ExpressBusClient> callController;
+    private final ApiLoadBalancer<ExpressBusClient> apiLoadBalancer;
 
     public void cacheCityBusByOpenApi() {
         cityBusClient.storeRemainTime();
@@ -30,7 +30,7 @@ public class BusCacheService {
     }
 
     public void storeRemainTimeByRatio() {  // callController를 통해서 호출 비율을 보장해주고, 서킷브레이커를 통한 다중화
-        ExpressBusClient selectedBus = callController.getInstanceByRatio(expressBusTypes, apiCallListByRatio);
+        ExpressBusClient selectedBus = apiLoadBalancer.getInstanceByRatio(expressBusTypes, apiCallListByRatio);
         List<ExpressBusClient> fallBackableTypes = new ArrayList<>(expressBusTypes);
         while (true) {
             try {
@@ -40,7 +40,7 @@ public class BusCacheService {
                 throw new BusOpenApiException("호출할 수 있는 버스 API가 없습니다.");
             } catch (Exception e) {
                 log.warn(String.format("%s 호출 중 문제가 발생했습니다.", selectedBus));
-                selectedBus = callController.fallBack(selectedBus, fallBackableTypes);
+                selectedBus = apiLoadBalancer.fallBack(selectedBus, fallBackableTypes);
             }
         }
     }

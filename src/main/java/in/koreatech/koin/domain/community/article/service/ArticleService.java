@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -100,12 +101,22 @@ public class ArticleService {
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
-        List<Article> cacheList = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT).stream()
-            .map(articleRepository::getById)
-            .collect(Collectors.toList());
+        List<Integer> hotArticlesIds = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT);
+        List<Article> articles = articleRepository.findAllForHotArticlesByIdIn(hotArticlesIds);
+
+        Map<Integer, Article> articleMap = articles.stream()
+            .collect(Collectors.toMap(Article::getId, article -> article));
+
+        List<Article> cacheList = new ArrayList<>(hotArticlesIds.stream()
+            .map(articleMap::get)
+            .filter(Objects::nonNull)
+            .toList());
+
         if (cacheList.size() < HOT_ARTICLE_LIMIT) {
             List<Article> highestHitArticles = articleRepository.findMostHitArticles(
-                LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
+                LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS),
+                PageRequest.of(0, HOT_ARTICLE_LIMIT)
+            );
             cacheList.addAll(highestHitArticles);
             return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
                 .map(HotArticleItemResponse::from)

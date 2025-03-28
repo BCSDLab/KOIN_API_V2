@@ -1,7 +1,7 @@
-name: PR Labeler
+name: "PR Labeler & Copy Issue Labels to PR"
 on:
   pull_request:
-    types: [ opened ]
+    types: [opened]
 
 jobs:
   pr-labeler:
@@ -10,3 +10,10 @@ jobs:
       - uses: TimonVS/pr-labeler-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sync-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: michalvankodev/copy-issue-labels@v1.3.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

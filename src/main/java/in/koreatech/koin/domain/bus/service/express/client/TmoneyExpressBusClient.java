@@ -24,19 +24,19 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import in.koreatech.koin.domain.bus.service.express.dto.TmoneyOpenApiResponse;
-import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
+import in.koreatech.koin._common.apiloadbalancer.ApiLoadBalance;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.domain.bus.enums.BusStation;
+import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
+import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
+import in.koreatech.koin.domain.bus.service.express.dto.TmoneyOpenApiResponse;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusStationNode;
 import in.koreatech.koin.domain.bus.service.express.model.TmoneyOpenApiExpressBusArrival;
-import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin._common.callcontroller.CallControl;
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
@@ -44,7 +44,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://apiportal.tmoney.co.kr:18443/apiGallery/apiGalleryDetail.do?apiId=API201906241410183kp&apiPckgId=APK2024051316462950w&isTestYn=Y
  */
 @Component
-@CallControl(ratio = 9)
+@ApiLoadBalance(ratio = 9)
 public class TmoneyExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apigw.tmoney.co.kr:5556/gateway/xzzIbtListGet/v1/ibt_list";
