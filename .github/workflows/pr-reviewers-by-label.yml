@@ -1,7 +1,7 @@
 name: "Assign Reviewers by Label"
 on:
   pull_request:
-    types: [opened, labeled, unlabeled]
+    types: [labeled, unlabeled]
 
 jobs:
   assign:
