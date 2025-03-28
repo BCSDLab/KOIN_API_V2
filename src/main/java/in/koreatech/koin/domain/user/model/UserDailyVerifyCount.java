@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin.domain.owner.exception.VerificationDailyLimitExceededException;
+import in.koreatech.koin.domain.user.exception.UserVerificationDailyLimitExceededException;
 import lombok.Getter;
 
 @Getter
@@ -29,7 +29,7 @@ public class UserDailyVerifyCount {
 
     public void incrementVerificationCount() {
         if (verificationCount >= MAX_VERIFICATION_COUNT) {
-            throw VerificationDailyLimitExceededException.withDetail("limit: " + MAX_VERIFICATION_COUNT);
+            throw UserVerificationDailyLimitExceededException.withDetail("limit: " + MAX_VERIFICATION_COUNT);
         }
         verificationCount++;
     }
