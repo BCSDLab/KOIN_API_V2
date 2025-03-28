@@ -13,8 +13,10 @@ import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
 import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
+import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.model.UserDailyVerifyCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationLimitRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.integration.naver.service.NaverSmsService;
@@ -27,26 +29,22 @@ public class UserSmsService {
 
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserVerificationLimitRedisRepository userVerificationLimitRedisRepository;
+    private final UserRepository userRepository;
     private final NaverSmsService naverSmsService;
     private final ApplicationEventPublisher eventPublisher;
     private final JwtProvider jwtProvider;
 
     @Transactional
     public void sendSignUpVerificationCode(SendSmsVerificationRequest request) {
-        // Todo: 휴대폰 번호 중복 검사 로직
+        checkExistsPhoneNumber(request.phoneNumber());
+        increaseUserDailyVerificationCount(request.phoneNumber());
         sendCertificationSms(request.phoneNumber());
     }
 
-    private void sendCertificationSms(String phoneNumber) {
-        increaseUserDailyVerificationCount(phoneNumber);
-        String certificationCode = CertificateNumberGenerator.generate();
-        naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
-        UserVerificationStatus userVerificationStatus = UserVerificationStatus.of(
-            phoneNumber,
-            certificationCode
-        );
-        userVerificationStatusRedisRepository.save(userVerificationStatus);
-        eventPublisher.publishEvent(new UserSmsRequestEvent(phoneNumber));
+    private void checkExistsPhoneNumber(String phoneNumber) {
+        userRepository.findByPhoneNumber(phoneNumber).ifPresent(user -> {
+            throw DuplicationPhoneNumberException.withDetail("phone: " + user.getPhoneNumber());
+        });
     }
 
     private void increaseUserDailyVerificationCount(String phoneNumber) {
@@ -57,6 +55,17 @@ public class UserSmsService {
             })
             .orElseGet(() -> new UserDailyVerifyCount(phoneNumber));
         userVerificationLimitRedisRepository.save(limit);
+    }
+
+    private void sendCertificationSms(String phoneNumber) {
+        String certificationCode = CertificateNumberGenerator.generate();
+        naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
+        UserVerificationStatus userVerificationStatus = UserVerificationStatus.of(
+            phoneNumber,
+            certificationCode
+        );
+        userVerificationStatusRedisRepository.save(userVerificationStatus);
+        eventPublisher.publishEvent(new UserSmsRequestEvent(phoneNumber));
     }
 
     public VerifySmsCodeResponse verifySignUpSmsCode(VerifySmsCodeRequest request) {
