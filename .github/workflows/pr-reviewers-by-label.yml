@@ -5,7 +5,7 @@ on:
 
 jobs:
   assign-team-business:
-    if: contains(toJson(github.event.pull_request.labels), '"Team Business"')
+    if: contains(toJson(github.event.pull_request.labels), 'Team Business')
     runs-on: ubuntu-latest
     steps:
       - uses: kentaro-m/auto-assign-action@v2.0.0
@@ -13,7 +13,7 @@ jobs:
           configuration-path: .github/auto_assign_team_business.yml
 
   assign-team-campus:
-    if: contains(toJson(github.event.pull_request.labels), '"Team Campus"')
+    if: contains(toJson(github.event.pull_request.labels), 'Team Campus')
     runs-on: ubuntu-latest
     steps:
       - uses: kentaro-m/auto-assign-action@v2.0.0
@@ -21,7 +21,7 @@ jobs:
           configuration-path: .github/auto_assign_team_campus.yml
 
   assign-team-user:
-    if: contains(toJson(github.event.pull_request.labels), '"Team User"')
+    if: contains(toJson(github.event.pull_request.labels), 'Team User')
     runs-on: ubuntu-latest
     steps:
       - uses: kentaro-m/auto-assign-action@v2.0.0
