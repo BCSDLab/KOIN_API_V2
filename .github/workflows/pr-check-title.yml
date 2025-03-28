@@ -17,6 +17,7 @@ jobs:
         with:
           types: |
             feat
+            refactor
             fix
             docs
             design
