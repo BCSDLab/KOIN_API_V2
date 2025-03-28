@@ -24,4 +24,5 @@ jobs:
             build
             chore
             hotfix
+            release
           requireScope: false
