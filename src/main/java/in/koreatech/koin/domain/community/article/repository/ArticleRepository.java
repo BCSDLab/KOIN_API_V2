@@ -33,18 +33,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Page<Article> findAllByIdIn(List<Integer> articleIds, PageRequest pageRequest);
 
-    @Query("""
-        SELECT a
-        FROM Article a
-        LEFT JOIN FETCH a.koinArticle k
-        LEFT JOIN FETCH k.user
-        LEFT JOIN FETCH a.koreatechArticle
-        LEFT JOIN FETCH a.lostItemArticle l
-        LEFT JOIN FETCH l.author
-        WHERE a.id IN :ids
-        """)
-    List<Article> findAllForHotArticlesByIdIn(List<Integer> ids);
-
     default Article getById(Integer articleId) {
         Article found = findById(articleId)
             .orElseThrow(() -> ArticleNotFoundException.withDetail("articleId: " + articleId));
@@ -138,21 +126,15 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         return findNextAllArticle(article.getId()).orElse(null);
     }
 
-    @Query("""
-            SELECT a FROM Article a
-            LEFT JOIN FETCH a.koreatechArticle ka
-            LEFT JOIN FETCH a.koinArticle k
-            LEFT JOIN FETCH k.user
-            LEFT JOIN FETCH a.lostItemArticle l
-            LEFT JOIN FETCH l.author
-            WHERE (
-                (ka IS NOT NULL AND ka.registeredAt > :registeredAt)
-                OR (ka IS NULL AND a.createdAt > :registeredAt)
-            )
-            AND a.isDeleted = false
-            ORDER BY (a.hit + COALESCE(ka.portalHit, 0)) DESC, a.id DESC
-        """)
-    List<Article> findMostHitArticles(LocalDate registeredAt, Pageable pageable);
+    @Query(value = "SELECT a.* FROM new_articles a "
+        + "LEFT JOIN new_koreatech_articles ka ON ka.article_id = a.id "
+        + "WHERE ( "
+        + "    (ka.article_id IS NOT NULL AND ka.registered_at > :registeredAt) "
+        + "    OR (ka.article_id IS NULL AND a.created_at > :registeredAt) "
+        + ") "
+        + "AND a.is_deleted = false "
+        + "ORDER BY (a.hit + IFNULL(ka.portal_hit, 0)) DESC, a.id DESC LIMIT :limit", nativeQuery = true)
+    List<Article> findMostHitArticles(@Param("registeredAt") LocalDate registeredAt, @Param("limit") int limit);
 
     @Query(value = "SELECT a.* FROM new_articles a "
         + "LEFT JOIN new_koreatech_articles ka ON ka.article_id = a.id "
