@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -45,7 +46,7 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userService.logout(userId);
         return ResponseEntity.ok().build();
@@ -62,7 +63,7 @@ public class UserController implements UserApi {
 
     @GetMapping("/user/auth")
     public ResponseEntity<AuthResponse> getAuth(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         AuthResponse authResponse = userService.getAuth(userId);
         return ResponseEntity.ok().body(authResponse);
@@ -70,7 +71,7 @@ public class UserController implements UserApi {
 
     @DeleteMapping("/user")
     public ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userService.withdraw(userId);
         return ResponseEntity.noContent().build();
@@ -94,6 +95,15 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/user/check/phone")
+    public ResponseEntity<Void> checkPhoneNumberExist(
+        @ModelAttribute(value = "phone")
+        @Valid PhoneCheckExistsRequest request
+    ) {
+        userValidationService.checkExistsPhoneNumber(request);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/user/check/nickname")
     public ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
@@ -106,7 +116,7 @@ public class UserController implements UserApi {
     @PostMapping("/user/check/password")
     public ResponseEntity<Void> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userValidationService.checkPassword(request, userId);
         return ResponseEntity.ok().build();

@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.article.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,7 @@ public class LostItemReportController implements LostItemReportApi{
     public ResponseEntity<Void> reportLostItemArticle(
         @PathVariable Integer id,
         @RequestBody @Valid LostItemReportRequest lostItemReportRequest,
-        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer studentId
     ) {
         lostItemReportService.reportLostItemArticle(id, studentId, lostItemReportRequest);
         return ResponseEntity.noContent().build();

@@ -37,7 +37,7 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 동의 여부 조회")
     @GetMapping("/notification")
     ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -52,7 +52,7 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 동의")
     @PostMapping("/notification")
     ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @Valid @RequestBody NotificationPermitRequest request
     );
 
@@ -68,7 +68,7 @@ public interface NotificationApi {
     @Operation(summary = "특정 알림 구독")
     @PostMapping("/notification/subscribe")
     ResponseEntity<Void> permitNotificationSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     );
 
@@ -84,7 +84,7 @@ public interface NotificationApi {
     @Operation(summary = "특정 세부알림 구독")
     @PostMapping("/notification/subscribe/detail")
     ResponseEntity<Void> permitNotificationDetailSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "detail_type") NotificationDetailSubscribeType notificationSubscribeType
     );
 
@@ -100,7 +100,7 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 거절")
     @DeleteMapping("/notification")
     ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -115,7 +115,7 @@ public interface NotificationApi {
     @Operation(summary = "특정 알림 구독 취소")
     @DeleteMapping("/notification/subscribe")
     ResponseEntity<Void> rejectNotificationSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     );
 
@@ -131,7 +131,7 @@ public interface NotificationApi {
     @Operation(summary = "특정 세부알림 구독 취소")
     @DeleteMapping("/notification/subscribe/detail")
     ResponseEntity<Void> rejectNotificationDetailSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "detail_type") NotificationDetailSubscribeType notificationSubscribeType
     );
 }

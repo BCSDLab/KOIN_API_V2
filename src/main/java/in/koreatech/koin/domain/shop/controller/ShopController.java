@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.shop.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import in.koreatech.koin.domain.shop.dto.search.response.RelatedKeywordResponse;
@@ -75,7 +74,7 @@ public class ShopController implements ShopApi {
     @PostMapping("/shops/{shopId}/call-notification")
     public ResponseEntity<Void> createCallNotification(
             @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
-            @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
+            @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer studentId
     ) {
         shopService.publishCallNotification(shopId, studentId);
         return ResponseEntity.ok().build();

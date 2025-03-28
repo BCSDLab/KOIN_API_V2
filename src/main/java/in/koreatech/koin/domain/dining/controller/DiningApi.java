@@ -44,14 +44,14 @@ public interface DiningApi {
     @Operation(summary = "식단 좋아요")
     @PatchMapping("/dining/like")
     ResponseEntity<Void> likeDining(
-        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     );
 
     @Operation(summary = "식단 좋아요 취소")
     @PatchMapping("/dining/like/cancel")
     ResponseEntity<Void> likeDiningCancel(
-        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     );
 

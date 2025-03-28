@@ -155,7 +155,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 이메일이_중복인지_확인한다_중복이면_422() throws Exception {
+    void 이메일이_중복인지_확인한다_중복이면_409() throws Exception {
         Department department = departmentFixture.컴퓨터공학부();
         User user = userFixture.성빈_학생(department).getUser();
 
@@ -165,7 +165,34 @@ class UserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.message").value("존재하는 이메일입니다."));
+            .andExpect(jsonPath("$.message").value("이미 존재하는 이메일입니다."));
+    }
+
+    @Test
+    void 전화번호_중복을_확인한다() throws Exception {
+        String phoneNumber = "01012345678";
+
+        mockMvc.perform(
+                post("/user/check/phone")
+                    .param("phone", phoneNumber)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        assertThat(userRepository.findByPhoneNumber(phoneNumber)).isNotPresent();
+    }
+
+    @Test
+    void 전화번호_중복을_확인한다_중복이면_409() throws Exception {
+        User user = userFixture.코인_유저();
+
+        mockMvc.perform(
+                post("/user/check/phone")
+                    .param("phone", user.getPhoneNumber())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.message").value("이미 존재하는 전화번호입니다."));
     }
 
     @Test

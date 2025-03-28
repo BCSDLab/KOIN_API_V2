@@ -1,12 +1,15 @@
 package in.koreatech.koin.domain.shop.repository.review;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
@@ -38,4 +41,15 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
     Integer countByShopIdAndRatingAndIsDeletedFalse(Integer shopId, Integer rating);
 
     Optional<ShopReview> findById(Integer reviewId);
+
+    @Query(value = "SELECT * FROM shop_reviews "
+        + "WHERE reviewer_id = :studentId "
+        + "AND shop_id = :shopId "
+        + "AND created_at > :currentTime - INTERVAL 1 DAY "
+        + "ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
+    Optional<ShopReview> findLatestReviewByStudentIdAndShopIdWithin24Hours(
+        @Param("studentId") Integer studentId,
+        @Param("shopId") Integer shopId,
+        @Param("currentTime") LocalDateTime currentTime
+    );
 }

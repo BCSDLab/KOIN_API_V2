@@ -1,7 +1,6 @@
 package in.koreatech.koin.socket.domain.chatroom.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.util.List;
 
@@ -62,7 +61,7 @@ public interface ChatRestApi {
     )
     @PostMapping("/lost-item/{articleId}")
     ResponseEntity<ChatRoomInfoResponse> createLostItemChatRoom(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId
     );
 
@@ -87,7 +86,7 @@ public interface ChatRestApi {
     )
     @PostMapping("/lost-item/{articleId}/{chatRoomId}/block")
     ResponseEntity<?> blockChatUser(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     );
@@ -113,7 +112,7 @@ public interface ChatRestApi {
     )
     @DeleteMapping("/lost-item/{articleId}/{chatRoomId}/unblock")
     ResponseEntity<?> unblockChatUser(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     );
@@ -151,7 +150,7 @@ public interface ChatRestApi {
     )
     @GetMapping("/lost-item/{articleId}/{chatRoomId}")
     ResponseEntity<?> getLostItemChatRoom(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     );
@@ -166,7 +165,7 @@ public interface ChatRestApi {
     )
     @GetMapping("/lost-item/{articleId}/{chatRoomId}/messages")
     ResponseEntity<List<ChatMessageResponse>> getAllMessages(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     );
@@ -189,6 +188,6 @@ public interface ChatRestApi {
     )
     @GetMapping("/lost-item/")
     ResponseEntity<List<ChatRoomListResponse>> getAllChatRoomInfo(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId
     );
 }

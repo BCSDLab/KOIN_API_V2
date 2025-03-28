@@ -33,7 +33,7 @@ public class ChatRestController implements ChatRestApi {
 
     @PostMapping("/lost-item/{articleId}")
     public ResponseEntity<ChatRoomInfoResponse> createLostItemChatRoom(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId
     ) {
         Integer chatRoomId = chatRoomInfoService.createLostItemChatRoom(articleId, studentId);
@@ -46,7 +46,7 @@ public class ChatRestController implements ChatRestApi {
 
     @GetMapping("/lost-item/{articleId}/{chatRoomId}")
     public ResponseEntity<?> getLostItemChatRoom(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
@@ -60,7 +60,7 @@ public class ChatRestController implements ChatRestApi {
 
     @PostMapping("/lost-item/{articleId}/{chatRoomId}/block")
     public ResponseEntity<?> blockChatUser(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
@@ -70,7 +70,7 @@ public class ChatRestController implements ChatRestApi {
 
     @DeleteMapping("/lost-item/{articleId}/{chatRoomId}/unblock")
     public ResponseEntity<?> unblockChatUser(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
@@ -80,7 +80,7 @@ public class ChatRestController implements ChatRestApi {
 
     @GetMapping("/lost-item/{articleId}/{chatRoomId}/messages")
     public ResponseEntity<List<ChatMessageResponse>> getAllMessages(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
@@ -92,7 +92,7 @@ public class ChatRestController implements ChatRestApi {
 
     @GetMapping("/lost-item")
     public ResponseEntity<List<ChatRoomListResponse>> getAllChatRoomInfo(
-        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId
+        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId
     ) {
         return ResponseEntity.ok(chatRoomInfoService.getAllChatRoomInfo(studentId));
     }

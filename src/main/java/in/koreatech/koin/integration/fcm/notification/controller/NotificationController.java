@@ -28,14 +28,14 @@ public class NotificationController implements NotificationApi {
 
     @GetMapping("/notification")
     public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         return ResponseEntity.ok(notificationService.checkNotification(userId));
     }
 
     @PostMapping("/notification")
     public ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @Valid @RequestBody NotificationPermitRequest request
     ) {
         notificationService.permitNotification(userId, request.deviceToken());
@@ -44,7 +44,7 @@ public class NotificationController implements NotificationApi {
 
     @PostMapping("/notification/subscribe")
     public ResponseEntity<Void> permitNotificationSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     ) {
         notificationService.permitNotificationSubscribe(userId, notificationSubscribeType);
@@ -53,7 +53,7 @@ public class NotificationController implements NotificationApi {
 
     @PostMapping("/notification/subscribe/detail")
     public ResponseEntity<Void> permitNotificationDetailSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "detail_type") NotificationDetailSubscribeType detailSubscribeType
     ) {
         notificationService.permitNotificationDetailSubscribe(userId, detailSubscribeType);
@@ -62,7 +62,7 @@ public class NotificationController implements NotificationApi {
 
     @DeleteMapping("/notification")
     public ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         notificationService.rejectNotification(userId);
         return ResponseEntity.noContent().build();
@@ -70,7 +70,7 @@ public class NotificationController implements NotificationApi {
 
     @DeleteMapping("/notification/subscribe")
     public ResponseEntity<Void> rejectNotificationSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     ) {
         notificationService.rejectNotificationByType(userId, notificationSubscribeType);
@@ -79,7 +79,7 @@ public class NotificationController implements NotificationApi {
 
     @DeleteMapping("/notification/subscribe/detail")
     public ResponseEntity<Void> rejectNotificationDetailSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "detail_type") NotificationDetailSubscribeType detailSubscribeType
     ) {
         notificationService.rejectNotificationDetailSubscribe(userId, detailSubscribeType);

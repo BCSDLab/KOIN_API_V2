@@ -38,7 +38,7 @@ public class DiningController implements DiningApi {
 
     @PatchMapping("/dining/like")
     public ResponseEntity<Void> likeDining(
-        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     ) {
         diningService.likeDining(userId, diningId);
@@ -47,7 +47,7 @@ public class DiningController implements DiningApi {
 
     @PatchMapping("/dining/like/cancel")
     public ResponseEntity<Void> likeDiningCancel(
-        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     ) {
         diningService.likeDiningCancel(userId, diningId);

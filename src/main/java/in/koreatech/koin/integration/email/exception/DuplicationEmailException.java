@@ -4,7 +4,7 @@ import in.koreatech.koin._common.exception.custom.DuplicationException;
 
 public class DuplicationEmailException extends DuplicationException {
 
-    private static final String DEFAULT_MESSAGE = "존재하는 이메일입니다.";
+    private static final String DEFAULT_MESSAGE = "이미 존재하는 이메일입니다.";
 
     public DuplicationEmailException(String message) {
         super(message);

@@ -52,12 +52,13 @@ public interface UploadApi {
         - owners
         - coop
         - admin
+        - banner
         """)
     @PostMapping("/{domain}/upload/url")
     ResponseEntity<UploadUrlResponse> getPresignedUrl(
         @PathVariable ImageUploadDomain domain,
         @RequestBody @Valid UploadUrlRequest request,
-        @Auth(permit = {OWNER, STUDENT, COOP, ADMIN, COUNCIL}, anonymous = true) Integer memberId
+        @Auth(permit = {GENERAL, OWNER, STUDENT, COOP, ADMIN, COUNCIL}, anonymous = true) Integer memberId
     );
 
     @ApiResponses(
@@ -79,6 +80,9 @@ public interface UploadApi {
         - shops
         - members
         - owners
+        - coop
+        - admin
+        - banner
         """)
     @PostMapping(
         value = "/{domain}/upload/file",
@@ -88,7 +92,7 @@ public interface UploadApi {
     ResponseEntity<UploadFileResponse> uploadFile(
         @Parameter(in = PATH) @PathVariable ImageUploadDomain domain,
         @RequestPart MultipartFile multipartFile,
-        @Auth(permit = {OWNER, STUDENT, COOP, ADMIN, COUNCIL}, anonymous = true) Integer memberId
+        @Auth(permit = {GENERAL, OWNER, STUDENT, COOP, ADMIN, COUNCIL}, anonymous = true) Integer memberId
     );
 
     @ApiResponses(
@@ -110,6 +114,9 @@ public interface UploadApi {
         - shops
         - members
         - owners
+        - coop
+        - admin
+        - banner
         """)
     @PostMapping(
         value = "/{domain}/upload/files",
@@ -119,6 +126,6 @@ public interface UploadApi {
     ResponseEntity<UploadFilesResponse> uploadFiles(
         @Parameter(in = PATH) @PathVariable ImageUploadDomain domain,
         @RequestPart List<MultipartFile> files,
-        @Auth(permit = {OWNER, STUDENT, COOP, ADMIN, COUNCIL}, anonymous = true) Integer memberId
+        @Auth(permit = {GENERAL, OWNER, STUDENT, COOP, ADMIN, COUNCIL}, anonymous = true) Integer memberId
     );
 }

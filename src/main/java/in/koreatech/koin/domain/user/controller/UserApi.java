@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -58,7 +60,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -87,7 +89,7 @@ public interface UserApi {
     @Operation(summary = "사용자 권한 조회")
     @GetMapping("/user/auth")
     ResponseEntity<AuthResponse> getAuth(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -102,7 +104,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/user")
     ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -120,6 +122,20 @@ public interface UserApi {
     ResponseEntity<Void> checkUserEmailExist(
         @ModelAttribute("address")
         @Valid EmailCheckExistsRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "전화번호 중복 체크")
+    @GetMapping("/user/check/phone")
+    ResponseEntity<Void> checkPhoneNumberExist(
+        @ModelAttribute("phone")
+        @Valid PhoneCheckExistsRequest request
     );
 
     @ApiResponses(
@@ -149,7 +165,7 @@ public interface UserApi {
     @PostMapping("/user/check/password")
     ResponseEntity<Void> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
-        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(

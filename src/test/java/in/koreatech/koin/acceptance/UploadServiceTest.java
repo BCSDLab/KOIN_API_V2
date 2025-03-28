@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.domain.upload;
+package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.integration.s3.model.ImageUploadDomain.OWNERS;
 import static org.assertj.core.api.Assertions.assertThat;
