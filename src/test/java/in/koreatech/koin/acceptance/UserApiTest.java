@@ -3,27 +3,34 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin.integration.naver.service.NaverSmsService;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -44,6 +51,13 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private DepartmentFixture departmentFixture;
+
+    @Autowired
+    private UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
+
+    // mock-up 인증 서버를 사용할 경우 슬랙 알림 발송 문제로 인해 sms 인증 컴포넌트 자체를 mocking 했습니다.
+    @MockBean
+    private NaverSmsService naverSmsService;
 
     @BeforeAll
     void setup() {
@@ -365,5 +379,115 @@ class UserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
+    }
+
+    @Test
+    void 사용자가_SMS_인증번호_전송_및_검증한다() throws Exception {
+        // given
+        // SMS 서비스 모킹 설정
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
+        String phoneNumber = "01012345678";
+
+        // when - SMS 인증번호 전송
+        mockMvc.perform(
+                post("/user/sms/send")
+                    .content("""
+                        {
+                          "phone_number": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // Redis에서 인증번호 확인
+        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        String certificationCode = status.getCertificationCode();
+
+        // then - SMS 인증번호 검증
+        mockMvc.perform(
+                post("/user/sms/verify")
+                    .content("""
+                        {
+                          "phone_number": "%s",
+                          "certification_code": "%s"
+                        }
+                        """.formatted(phoneNumber, certificationCode))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void 사용자가_SMS_인증번호_전송_후_잘못된_인증번호로_검증시_에러를_반환한다() throws Exception {
+        // given
+        // SMS 서비스 모킹 설정
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
+        String phoneNumber = "01012345678";
+
+        // when - SMS 인증번호 전송
+        mockMvc.perform(
+                post("/user/sms/send")
+                    .content("""
+                        {
+                          "phone_number": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // Redis에서 인증번호 확인
+        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        String certificationCode = status.getCertificationCode();
+        String wrongCode = certificationCode.equals("123456") ? "654321" : "123456";
+
+        // then - 잘못된 인증번호로 검증
+        mockMvc.perform(
+                post("/user/sms/verify")
+                    .content("""
+                        {
+                          "phone_number": "%s",
+                          "certification_code": "%s"
+                        }
+                        """.formatted(phoneNumber, wrongCode))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 사용자가_SMS_인증번호_하루_5번_이상_발송시도시_에러를_반환한다() throws Exception {
+        // given
+        // SMS 서비스 모킹 설정
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
+        String phoneNumber = "01012345678";
+        int maxDailyLimit = 5;
+
+        // when - 5번까지 정상 발송
+        for (int i = 0; i < maxDailyLimit; i++) {
+            mockMvc.perform(
+                    post("/user/sms/send")
+                        .content("""
+                            {
+                              "phone_number": "%s"
+                            }
+                            """.formatted(phoneNumber))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+        }
+
+        // then - 6번째 발송 시도시 400 반환
+        mockMvc.perform(
+                post("/user/sms/send")
+                    .content("""
+                        {
+                          "phone_number": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 }

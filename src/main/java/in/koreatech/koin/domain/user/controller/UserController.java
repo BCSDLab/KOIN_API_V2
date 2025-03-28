@@ -13,19 +13,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
+import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
 import in.koreatech.koin.domain.user.service.UserService;
+import in.koreatech.koin.domain.user.service.UserSmsService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import in.koreatech.koin._common.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +39,7 @@ public class UserController implements UserApi {
 
     private final UserService userService;
     private final UserValidationService userValidationService;
+    private final UserSmsService userSmsService;
 
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(
@@ -120,5 +125,21 @@ public class UserController implements UserApi {
     ) {
         userValidationService.checkPassword(request, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/user/sms/send")
+    public ResponseEntity<Void> sendSignUpVerificationCode(
+        @Valid @RequestBody SendSmsVerificationRequest request
+    ) {
+        userSmsService.sendSignUpVerificationCode(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/user/sms/verify")
+    public ResponseEntity<VerifySmsCodeResponse> verifySignUpCode(
+        @Valid @RequestBody VerifySmsCodeRequest request
+    ) {
+        VerifySmsCodeResponse response = userSmsService.verifySignUpSmsCode(request);
+        return ResponseEntity.ok().body(response);
     }
 }
