@@ -4,11 +4,11 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.user.model.UserDailyVerificationLimit;
+import in.koreatech.koin.domain.user.model.UserDailyVerifyCount;
 
-public interface UserVerificationLimitRedisRepository extends Repository<UserDailyVerificationLimit, String> {
+public interface UserVerificationLimitRedisRepository extends Repository<UserDailyVerifyCount, String> {
 
-    UserDailyVerificationLimit save(UserDailyVerificationLimit userdailyVerificationLimit);
+    UserDailyVerifyCount save(UserDailyVerifyCount userdailyVerifyCount);
 
-    Optional<UserDailyVerificationLimit> findById(String id);
+    Optional<UserDailyVerifyCount> findById(String id);
 }

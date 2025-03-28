@@ -10,10 +10,11 @@ import lombok.Getter;
 @RedisHash(value = "userVerificationStatus")
 public class UserVerificationStatus {
 
-    private static final long CACHE_EXPIRE_SECOND = 60 * 3L;
+    private static final long EXPIRATION_SECONDS = 60 * 3L;
 
     @Id
     private String id;
+
     private String certificationCode;
 
     @TimeToLive
@@ -22,7 +23,7 @@ public class UserVerificationStatus {
     public UserVerificationStatus(String id, String certificationCode) {
         this.id = id;
         this.certificationCode = certificationCode;
-        this.expiration = CACHE_EXPIRE_SECOND;
+        this.expiration = EXPIRATION_SECONDS;
     }
 
     public static UserVerificationStatus of(String id, String certificationCode) {

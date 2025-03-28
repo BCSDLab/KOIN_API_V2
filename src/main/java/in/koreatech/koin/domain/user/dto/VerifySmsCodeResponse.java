@@ -16,4 +16,5 @@ public record VerifySmsCodeResponse(
     )
     String token
 ) {
+
 }

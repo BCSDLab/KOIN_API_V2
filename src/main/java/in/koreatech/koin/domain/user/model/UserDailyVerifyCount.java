@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @RedisHash(value = "userDailyVerifyCount")
-public class UserDailyVerificationLimit {
+public class UserDailyVerifyCount {
 
     private static final long EXPIRATION_SECONDS = 60 * 60 * 24L;
     private static final int MAX_VERIFICATION_COUNT = 5;
@@ -22,7 +22,7 @@ public class UserDailyVerificationLimit {
     @TimeToLive
     private Long expiration;
 
-    public UserDailyVerificationLimit(String id) {
+    public UserDailyVerifyCount(String id) {
         this.id = id;
         this.expiration = EXPIRATION_SECONDS;
     }

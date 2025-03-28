@@ -13,7 +13,7 @@ import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
 import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
-import in.koreatech.koin.domain.user.model.UserDailyVerificationLimit;
+import in.koreatech.koin.domain.user.model.UserDailyVerifyCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserVerificationLimitRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
@@ -50,24 +50,20 @@ public class UserSmsService {
     }
 
     private void increaseUserDailyVerificationCount(String phoneNumber) {
-        UserDailyVerificationLimit limit = userVerificationLimitRedisRepository.findById(phoneNumber)
+        UserDailyVerifyCount limit = userVerificationLimitRedisRepository.findById(phoneNumber)
             .map(existing -> {
                 existing.incrementVerificationCount();
                 return existing;
             })
-            .orElseGet(() -> new UserDailyVerificationLimit(phoneNumber));
+            .orElseGet(() -> new UserDailyVerifyCount(phoneNumber));
         userVerificationLimitRedisRepository.save(limit);
     }
 
     public VerifySmsCodeResponse verifySignUpSmsCode(VerifySmsCodeRequest request) {
-        verifyCode(request.phoneNumber(), request.certificationCode());
-        return new VerifySmsCodeResponse(jwtProvider.createTemporaryToken());
-    }
-
-    private void verifyCode(String phoneNumber, String code) {
-        UserVerificationStatus verify = userVerificationStatusRedisRepository.getById(phoneNumber);
-        if (!Objects.equals(verify.getCertificationCode(), code)) {
+        UserVerificationStatus verify = userVerificationStatusRedisRepository.getById(request.phoneNumber());
+        if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
+        return new VerifySmsCodeResponse(jwtProvider.createTemporaryToken());
     }
 }

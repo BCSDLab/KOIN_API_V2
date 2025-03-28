@@ -22,4 +22,5 @@ public record VerifySmsCodeRequest(
     @Schema(description = "인증 코드", example = "123456", requiredMode = REQUIRED)
     String certificationCode
 ) {
+
 }
