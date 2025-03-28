@@ -17,4 +17,4 @@ public class UserVerificationDailyLimitExceededException extends KoinException {
     public static UserVerificationDailyLimitExceededException withDetail(String detail) {
         return new UserVerificationDailyLimitExceededException(DEFAULT_MESSAGE, detail);
     }
-} 
+}

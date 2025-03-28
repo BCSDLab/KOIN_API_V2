@@ -384,7 +384,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    void SMS_인증번호_전송_및_검증_전체_과정을_확인한다() throws Exception {
+    void 사용자가_SMS_인증번호_전송_및_검증한다() throws Exception {
         // given
         String phoneNumber = "01012345678";
 
@@ -419,7 +419,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    void SMS_인증번호_전송_후_잘못된_인증번호로_검증시_400_반환한다() throws Exception {
+    void 사용자가_SMS_인증번호_전송_후_잘못된_인증번호로_검증시_에러를_반환한다() throws Exception {
         // given
         String phoneNumber = "01012345678";
 
@@ -455,7 +455,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    void SMS_인증번호_하루_5번_이상_발송시도시_400_반환한다() throws Exception {
+    void 사용자가_SMS_인증번호_하루_5번_이상_발송시도시_에러를_반환한다() throws Exception {
         // given
         String phoneNumber = "01012345678";
         int maxDailyLimit = 5;
