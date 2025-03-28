@@ -73,6 +73,6 @@ public class UserSmsService {
         if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
-        return new VerifySmsCodeResponse(jwtProvider.createTemporaryToken());
+        return new VerifySmsCodeResponse(jwtProvider.createTemporaryTokenWithPhone(request.phoneNumber()));
     }
 }
