@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.student.dto.StudentRegisterV2Request;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
@@ -141,7 +141,7 @@ public interface StudentApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/student/register")
     ResponseEntity<Void> studentRegisterV2(
-        @Valid StudentRegisterV2Request request
+        @Valid StudentRegisterRequestV2 request
     );
 
     @ApiResponses(

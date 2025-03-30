@@ -13,34 +13,43 @@ import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record StudentRegisterV2Request(
-
-    @NotBlank(message = "학번은 필수입니다.")
-    @Schema(description = "학번", example = "2025000123", requiredMode = NOT_REQUIRED)
-    String studentNumber,
-
+public record StudentRegisterRequestV2(
     @NotBlank(message = "이름은 필수입니다.")
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
     String name,
-
-    @NotBlank(message = "비밀번호는 필수입니다.")
-    @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
-    String password,
 
     @NotBlank(message = "휴대폰 번호는 필수입니다.")
     @Schema(description = "휴대폰 번호", example = "01012341234", requiredMode = REQUIRED)
     @Pattern(regexp = "^\\d{11}$", message = "전화번호 형식이 올바르지 않습니다. 11자리 숫자로 입력해 주세요.")
     String phoneNumber,
 
+    @NotBlank(message = "아이디는 필수입니다.")
+    @Size(max = 50, message = "아이디는 50자 이내여야 합니다.")
+    @Schema(description = "사용자 아이디", example = "example123", requiredMode = REQUIRED)
+    String userId,
+
+    @NotBlank(message = "비밀번호는 필수입니다.")
+    @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
+    String password,
+
     @NotBlank(message = "학부는 필수입니다.")
     @Schema(description = "학부", example = "컴퓨터공학부", requiredMode = REQUIRED)
     Department department,
+
+    @NotBlank(message = "학번은 필수입니다.")
+    @Schema(description = "학번", example = "2025000123", requiredMode = NOT_REQUIRED)
+    String studentNumber,
+
+    @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
+    @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
+    String email,
 
     @Schema(description = "닉네임", example = "캔따개", requiredMode = REQUIRED)
     String nickname
@@ -48,9 +57,11 @@ public record StudentRegisterV2Request(
 
     public Student toStudent(PasswordEncoder passwordEncoder) {
         User user = User.builder()
-            .password(passwordEncoder.encode(password))
             .name(name)
             .phoneNumber(phoneNumber)
+            .userId(userId)
+            .password(passwordEncoder.encode(password))
+            .email(email)
             .userType(STUDENT)
             .isAuthed(false)
             .isDeleted(false)

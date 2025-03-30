@@ -34,6 +34,10 @@ public class User extends BaseEntity {
     private Integer id;
 
     @NotNull
+    @Column(name = "user_id", nullable = false)
+    private String userId;
+
+    @NotNull
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -82,6 +86,7 @@ public class User extends BaseEntity {
 
     @Builder
     private User(
+        String userId,
         String password,
         String nickname,
         String name,
@@ -95,6 +100,7 @@ public class User extends BaseEntity {
         Boolean isDeleted,
         String deviceToken
     ) {
+        this.userId = userId;
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -123,6 +129,7 @@ public class User extends BaseEntity {
     public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
         lastLoggedAt = lastLoggedTime;
     }
+
     public void updatePassword(PasswordEncoder passwordEncoder, String password) {
         this.password = passwordEncoder.encode(password);
     }
