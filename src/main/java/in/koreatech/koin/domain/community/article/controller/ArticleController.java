@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.article.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.util.List;
 
@@ -119,7 +118,7 @@ public class ArticleController implements ArticleApi {
 
     @PostMapping("/lost-item")
     public ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId,
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     ) {
         LostItemArticleResponse response = articleService.createLostItemArticle(studentId, lostItemArticlesRequest);
@@ -129,7 +128,7 @@ public class ArticleController implements ArticleApi {
     @DeleteMapping("/lost-item/{id}")
     public ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     ) {
         articleService.deleteLostItemArticle(articleId, userId);
         return ResponseEntity.noContent().build();

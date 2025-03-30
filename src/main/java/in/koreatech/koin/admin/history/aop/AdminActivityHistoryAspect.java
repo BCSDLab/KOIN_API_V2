@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.history.aop;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.EnumUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -32,6 +34,7 @@ public class AdminActivityHistoryAspect {
     private static final String SEGMENT_CATEGORIES = "CATEGORIES";
     private static final String SEGMENT_CLOSE = "close";
     private static final String SEGMENT_ABTEST = "abtest";
+    private static final String SEGMENT_BANNER_CATEGORIES = "banner-categories";
 
     private final AuthContext authContext;
     private final AdminRepository adminRepository;
@@ -73,7 +76,8 @@ public class AdminActivityHistoryAspect {
             .domainId(domainInfo.domainId())
             .admin(admin)
             .requestMethod(requestMethod)
-            .domainName(DomainType.valueOf(domainInfo.domainName()))
+            .domainName(
+                Objects.equals(domainInfo.domainName, "BANNER-CATEGORIES") ? DomainType.BANNER_CATEGORIES : DomainType.valueOf(domainInfo.domainName()))
             .requestMessage(requestMessage)
             .build()
         );
@@ -88,6 +92,12 @@ public class AdminActivityHistoryAspect {
 
         for (int i = segments.length - 1; i >= 0; i--) {
             String segment = segments[i];
+
+            if (isBannerCategory(segment)) {
+                domainName = segments[i].toUpperCase();
+                domainId = getDomainId(segments, i);
+                break;
+            }
 
             if (isDomainType(segment)) {
                 domainName = getDomainName(segment, segments, i);
@@ -132,6 +142,10 @@ public class AdminActivityHistoryAspect {
 
     private boolean isCloseAbtest(String segment, String[] segments, int index) {
         return SEGMENT_CLOSE.equals(segment) && SEGMENT_ABTEST.equals(segments[index - 1]);
+    }
+
+    private boolean isBannerCategory(String segment) {
+        return SEGMENT_BANNER_CATEGORIES.equals(segment);
     }
 
     private record DomainInfo(Integer domainId, String domainName) {

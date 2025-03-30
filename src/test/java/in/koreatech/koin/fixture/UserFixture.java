@@ -64,7 +64,7 @@ public final class UserFixture {
             .password(passwordEncoder.encode("1234"))
             .nickname("주노")
             .name("최준호")
-            .phoneNumber("010-1234-5678")
+            .phoneNumber("01012345678")
             .userType(STUDENT)
             .email("test@koreatech.ac.kr")
             .isAuthed(true)

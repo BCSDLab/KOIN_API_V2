@@ -1,4 +1,4 @@
-package in.koreatech.koin._common.callcontoller;
+package in.koreatech.koin._common.apiloadbalancer;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class CallController<T> {
+public class ApiLoadBalancer<T> {
 
-    private static final Class<CallControl> CALL_CONTROL_ANNOTATION = CallControl.class;
+    private static final Class<ApiLoadBalance> CALL_CONTROL_ANNOTATION = ApiLoadBalance.class;
     private static final String RATIO = "ratio";
 
     public T getInstanceByRatio(List<T> clientTypes, List<T> apiCallListByRatio) {

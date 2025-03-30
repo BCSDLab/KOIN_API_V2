@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.shop.service;
 import static in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest.InnerShopReviewReport;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewReportCategor
 import in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewsResponse;
+import in.koreatech.koin.domain.shop.exception.OneReviewPerDayException;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin._common.event.ReviewRegisterEvent;
 import in.koreatech.koin._common.event.ReviewReportEvent;
@@ -57,6 +60,7 @@ public class ShopReviewService {
     private final ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
     private final StudentRepository studentRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final Clock clock;
 
     private final EntityManager entityManager;
 
@@ -84,6 +88,7 @@ public class ShopReviewService {
 
     @Transactional
     public void createReview(CreateReviewRequest createReviewRequest, Integer studentId, Integer shopId) {
+        checkUserLatestReviewWithin24Hours(studentId, shopId);
         Student student = studentRepository.getById(studentId);
         Shop shop = shopRepository.getById(shopId);
         ShopReview shopReview = ShopReview.builder()
@@ -189,5 +194,12 @@ public class ShopReviewService {
             sortBy.getSort()
         );
         return ShopMyReviewsResponse.from(reviews);
+    }
+
+    private void checkUserLatestReviewWithin24Hours(Integer studentId, Integer shopId) {
+        shopReviewRepository.findLatestReviewByStudentIdAndShopIdWithin24Hours(studentId, shopId, LocalDateTime.now(clock))
+            .ifPresent(review -> {
+                throw OneReviewPerDayException.withDetail("한 상점에 하루에 한번만 리뷰를 남길 수 있습니다.");
+            });
     }
 }
