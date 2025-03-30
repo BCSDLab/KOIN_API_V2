@@ -1,11 +1,8 @@
 package in.koreatech.koin.domain.student.service;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-
 import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
@@ -97,12 +94,6 @@ public class StudentValidationService {
         int studentNumberYear = StudentUtil.parseStudentNumberYear(studentNumber);
         if (studentNumberYear < MIN_YEAR || LocalDateTime.now().getYear() < studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
-        }
-    }
-
-    public void validateExistPhoneNumber(String phoneNumber) {
-        if (userRepository.findByPhoneNumberAndUserType(phoneNumber, STUDENT).isPresent()) {
-            throw DuplicationPhoneNumberException.withDetail("account: " + phoneNumber);
         }
     }
 }
