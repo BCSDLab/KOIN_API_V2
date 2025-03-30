@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import java.net.URI;
 
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
@@ -30,6 +32,7 @@ import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserSmsService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +44,16 @@ public class UserController implements UserApi {
     private final UserValidationService userValidationService;
     private final UserSmsService userSmsService;
 
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/v2/user/general/register")
+    public ResponseEntity<Void> generalUserRegisterV2(
+        @Valid GeneralUserRegisterRequest request
+    ) {
+        userService.generalUserRegister(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    //<editor-fold desc="기존 로그인 관련 코드">
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(
         @RequestBody @Valid UserLoginRequest request
@@ -126,6 +139,8 @@ public class UserController implements UserApi {
         userValidationService.checkPassword(request, userId);
         return ResponseEntity.ok().build();
     }
+
+    //</editor-fold>
 
     @PostMapping("/user/sms/send")
     public ResponseEntity<Void> sendSignUpVerificationCode(
