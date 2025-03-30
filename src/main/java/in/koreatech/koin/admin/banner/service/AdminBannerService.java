@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.banner.service;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -136,15 +138,21 @@ public class AdminBannerService {
 
     @Transactional
     public void modifyBanner(Integer bannerId, AdminBannerModifyRequest request) {
-        isValidMobileField(request.androidRedirectLink(), request.androidMinimumVersion(), request.iosRedirectLink(),
-            request.iosMinimumVersion());
         Banner banner = adminBannerRepository.getById(bannerId);
+        String androidRedirectLink = resolveMobileValue(request.androidRedirectLink(), banner.getAndroidRedirectLink());
+        String androidMinimumVersion = resolveMobileValue(request.androidMinimumVersion(), banner.getAndroidMinimumVersion());
+        String iosRedirectLink = resolveMobileValue(request.iosRedirectLink(), banner.getIosRedirectLink());
+        String iosMinimumVersion = resolveMobileValue(request.iosMinimumVersion(), banner.getIosMinimumVersion());
+
+        isValidMobileField(androidRedirectLink, androidMinimumVersion, iosRedirectLink, iosMinimumVersion);
         banner.modifyBanner(
             request.title(),
             request.imageUrl(),
             request.webRedirectLink(),
-            request.androidRedirectLink(),
-            request.iosRedirectLink()
+            androidRedirectLink,
+            androidMinimumVersion,
+            iosRedirectLink,
+            iosMinimumVersion
         );
         compareActiveAndChange(request.isActive(), banner);
     }
@@ -180,5 +188,9 @@ public class AdminBannerService {
 
     public boolean validMobileFieldPair(String redirectLink, String minimumVersion) {
         return (redirectLink != null && minimumVersion != null) || (redirectLink == null && minimumVersion == null);
+    }
+
+    private String resolveMobileValue(String newValue, String oldValue) {
+        return Optional.ofNullable(newValue).orElse(oldValue);
     }
 }
