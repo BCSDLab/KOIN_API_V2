@@ -106,7 +106,7 @@ public class StudentController implements StudentApi {
 
     @PostMapping("/v2/user/student/register")
     public ResponseEntity<Void> studentRegisterV2(
-        @Valid StudentRegisterRequestV2 request
+        @RequestBody @Valid StudentRegisterRequestV2 request
     ) {
         studentService.studentRegisterV2(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();

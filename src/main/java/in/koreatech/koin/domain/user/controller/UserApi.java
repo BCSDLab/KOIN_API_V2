@@ -49,10 +49,9 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/general/register")
     ResponseEntity<Void> generalUserRegisterV2(
-        @Valid GeneralUserRegisterRequest request
+        @RequestBody @Valid GeneralUserRegisterRequest request
     );
 
-    //<editor-fold desc="기존 로그인 관련 코드">
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "201"),
@@ -200,7 +199,6 @@ public interface UserApi {
         @ParameterObject @ModelAttribute(value = "access_token")
         @Valid UserAccessTokenRequest request
     );
-    //</editor-fold>
 
     @ApiResponses(
         value = {

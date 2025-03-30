@@ -141,7 +141,7 @@ public interface StudentApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/student/register")
     ResponseEntity<Void> studentRegisterV2(
-        @Valid StudentRegisterRequestV2 request
+        @RequestBody @Valid StudentRegisterRequestV2 request
     );
 
     @ApiResponses(

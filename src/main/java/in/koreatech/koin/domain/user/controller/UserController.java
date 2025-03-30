@@ -44,16 +44,14 @@ public class UserController implements UserApi {
     private final UserValidationService userValidationService;
     private final UserSmsService userSmsService;
 
-    @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/general/register")
     public ResponseEntity<Void> generalUserRegisterV2(
-        @Valid GeneralUserRegisterRequest request
+        @RequestBody @Valid GeneralUserRegisterRequest request
     ) {
         userService.generalUserRegister(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    //<editor-fold desc="기존 로그인 관련 코드">
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(
         @RequestBody @Valid UserLoginRequest request
@@ -139,8 +137,6 @@ public class UserController implements UserApi {
         userValidationService.checkPassword(request, userId);
         return ResponseEntity.ok().build();
     }
-
-    //</editor-fold>
 
     @PostMapping("/user/sms/send")
     public ResponseEntity<Void> sendSignUpVerificationCode(
