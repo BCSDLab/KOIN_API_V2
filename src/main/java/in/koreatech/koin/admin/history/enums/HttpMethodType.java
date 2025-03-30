@@ -7,6 +7,7 @@ public enum HttpMethodType {
     POST("생성"),
     PUT("수정"),
     DELETE("삭제"),
+    PATCH("수정"),
     ;
 
     private final String value;
