@@ -29,6 +29,7 @@ public class AdminBannerService {
 
     private final AdminBannerRepository adminBannerRepository;
     private final AdminBannerCategoryRepository adminBannerCategoryRepository;
+    private final AdminBannerValidator adminBannerValidator;
 
     public AdminBannerResponse getBanner(Integer bannerId) {
         Banner banner = adminBannerRepository.getById(bannerId);
@@ -60,8 +61,11 @@ public class AdminBannerService {
     @Transactional
     public void createBanner(AdminBannerCreateRequest request) {
         BannerCategory bannerCategory = adminBannerCategoryRepository.getById(request.bannerCategoryId());
-        isValidMobileField(request.androidRedirectLink(), request.androidMinimumVersion(), request.iosRedirectLink(),
+        adminBannerValidator.ValidateMobileField(request.isAndroidReleased(), request.androidRedirectLink(),
+            request.androidMinimumVersion());
+        adminBannerValidator.ValidateMobileField(request.isIosReleased(), request.iosRedirectLink(),
             request.iosMinimumVersion());
+        adminBannerValidator.ValidateWebField(request.isWebReleased(), request.webRedirectLink());
         Banner banner = request.of(bannerCategory);
         adminBannerRepository.save(banner);
     }
