@@ -23,7 +23,7 @@ public record AdminBannerModifyRequest(
     @Size(max = 255, message = "배너 이미지 링크는 최대 255자 입니다.")
     String imageUrl,
 
-    @Schema(description = "웹 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    @Schema(description = "웹 배포 여부", example = "true", requiredMode = REQUIRED)
     @NotNull(message = "웹 배포 여부는 필수입니다.")
     Boolean isWebReleased,
 
@@ -31,7 +31,7 @@ public record AdminBannerModifyRequest(
     @Size(max = 255, message = "웹 리다이렉션 링크는 최대 255자 입니다.")
     String webRedirectLink,
 
-    @Schema(description = "안드로이드 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    @Schema(description = "안드로이드 배포 여부", example = "true", requiredMode = REQUIRED)
     @NotNull(message = "안드로이드 배포 여부는 필수입니다.")
     Boolean isAndroidReleased,
 
@@ -43,7 +43,7 @@ public record AdminBannerModifyRequest(
     @Size(max = 50, message = "안드로이드 최소 버전은 최대 50자 입니다.")
     String androidMinimumVersion,
 
-    @Schema(description = "ios 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    @Schema(description = "ios 배포 여부", example = "true", requiredMode = REQUIRED)
     @NotNull(message = "ios 배포 여부는 필수입니다.")
     Boolean isIosReleased,
 
