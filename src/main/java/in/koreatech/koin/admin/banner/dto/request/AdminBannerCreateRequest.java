@@ -30,6 +30,7 @@ public record AdminBannerCreateRequest(
     String imageUrl,
 
     @Schema(description = "웹 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    @NotNull(message = "웹 배포 여부는 필수입니다.")
     Boolean isWebReleased,
 
     @Schema(description = "웹 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
@@ -37,6 +38,7 @@ public record AdminBannerCreateRequest(
     String webRedirectLink,
 
     @Schema(description = "안드로이드 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    @NotNull(message = "안드로이드 배포 여부는 필수입니다.")
     Boolean isAndroidReleased,
 
     @Schema(description = "안드로이드 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
@@ -48,6 +50,7 @@ public record AdminBannerCreateRequest(
     String androidMinimumVersion,
 
     @Schema(description = "ios 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    @NotNull(message = "ios 배포 여부는 필수입니다.")
     Boolean isIosReleased,
 
     @Schema(description = "ios 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
