@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -68,8 +69,17 @@ public record BannersResponse(
 
     public static BannersResponse of(List<Banner> banners, PlatformType platformType) {
         List<InnerBannerResponse> innerBannerResponses = banners.stream()
+            .filter(banner -> isNotReleasedPlatform(banner, platformType))
             .map(banner -> InnerBannerResponse.of(banner, platformType))
             .toList();
         return new BannersResponse(innerBannerResponses.size(), innerBannerResponses);
+    }
+
+    private static boolean isNotReleasedPlatform(Banner banner, PlatformType platformType) {
+        return switch (platformType) {
+            case ANDROID -> Objects.isNull(banner.getIsAndroidReleased());
+            case IOS -> Objects.isNull(banner.getIsIosReleased());
+            case WEB -> Objects.isNull(banner.getIsWebReleased());
+        };
     }
 }
