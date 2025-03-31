@@ -24,7 +24,7 @@ public class AdminBannerValidator {
 
     private void validateMobileUnreleased(String redirectLink, String minimumVersion) {
         if (isPresent(redirectLink) || isPresent(minimumVersion)) {
-            throw new KoinIllegalArgumentException("모바일 배포가 비활성화된 경우 리다이렉션 링크와 최소버전을 설정할 수 없습니다.");
+            throw new KoinIllegalArgumentException("모바일 배포가 비활성화된 경우, 리다이렉션 링크와 최소버전을 설정할 수 없습니다.");
         }
     }
 
@@ -37,7 +37,7 @@ public class AdminBannerValidator {
 
     private void validateWebUnreleased(String redirectLink) {
         if (isPresent(redirectLink)) {
-            throw new KoinIllegalArgumentException("웹 배포여부가 비활성화된 경우에, 리다이렉션 링크는 존재하면 안됩니다.");
+            throw new KoinIllegalArgumentException("웹 배포여부가 비활성화된 경우, 리다이렉션 링크는 존재하면 안됩니다.");
         }
     }
 
