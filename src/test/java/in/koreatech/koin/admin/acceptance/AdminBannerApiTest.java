@@ -331,8 +331,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                     .isEqualTo("https://example.com/new1000won");
                 softly.assertThat(updatedBanner.getAndroidMinimumVersion())
                     .isEqualTo("3.0.14");
-                softly.assertThat(updatedBanner.getIosRedirectLink())
-                    .isEqualTo("https://example.com/nunu-event");
+                softly.assertThat(updatedBanner.getIosRedirectLink()).isNull();
                 softly.assertThat(updatedBanner.getIsActive()).isEqualTo(true);
                 softly.assertThat(updatedBanner.getPriority()).isEqualTo(3);
             });

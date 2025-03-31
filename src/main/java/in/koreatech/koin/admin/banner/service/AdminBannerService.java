@@ -139,21 +139,24 @@ public class AdminBannerService {
     @Transactional
     public void modifyBanner(Integer bannerId, AdminBannerModifyRequest request) {
         Banner banner = adminBannerRepository.getById(bannerId);
-        String androidRedirectLink = resolveMobileValue(request.androidRedirectLink(), banner.getAndroidRedirectLink());
-        String androidMinimumVersion = resolveMobileValue(request.androidMinimumVersion(), banner.getAndroidMinimumVersion());
-        String iosRedirectLink = resolveMobileValue(request.iosRedirectLink(), banner.getIosRedirectLink());
-        String iosMinimumVersion = resolveMobileValue(request.iosMinimumVersion(), banner.getIosMinimumVersion());
 
-        isValidMobileField(androidRedirectLink, androidMinimumVersion, iosRedirectLink, iosMinimumVersion);
         banner.modifyBanner(
             request.title(),
             request.imageUrl(),
             request.webRedirectLink(),
-            androidRedirectLink,
-            androidMinimumVersion,
-            iosRedirectLink,
-            iosMinimumVersion
+            request.androidRedirectLink(),
+            request.androidMinimumVersion(),
+            request.iosRedirectLink(),
+            request.iosMinimumVersion()
         );
+
+        isValidMobileField(
+            banner.getAndroidRedirectLink(),
+            banner.getAndroidMinimumVersion(),
+            banner.getIosRedirectLink(),
+            banner.getIosMinimumVersion()
+        );
+
         compareActiveAndChange(request.isActive(), banner);
     }
 
@@ -188,9 +191,5 @@ public class AdminBannerService {
 
     public boolean validMobileFieldPair(String redirectLink, String minimumVersion) {
         return (redirectLink != null && minimumVersion != null) || (redirectLink == null && minimumVersion == null);
-    }
-
-    private String resolveMobileValue(String newValue, String oldValue) {
-        return Optional.ofNullable(newValue).orElse(oldValue);
     }
 }
