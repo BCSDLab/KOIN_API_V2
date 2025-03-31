@@ -59,12 +59,12 @@ public class BannerApiTest extends AcceptanceTest {
                             {
                                 "id": 1,
                                 "image_url": "https://example.com/1000won.jpg",
-                                "redirect_link": "https://example.com/1000won"
+                                "redirect_link": "koin://1000won"
                             },
                             {
                                 "id": 2,
                                 "image_url": "https://example.com/koin-event.jpg",
-                                "redirect_link": "https://example.com/koin-event"
+                                "redirect_link": "koin://koin-event"
                             }
                         ]
                     }

@@ -39,7 +39,7 @@ public class BannerFixture {
             .title("코인 이벤트")
             .imageUrl("https://example.com/koin-event.jpg")
             .webRedirectLink("https://example.com/koin-event")
-            .androidRedirectLink("koin://1000won")
+            .androidRedirectLink("koin://koin-event")
             .androidMinimumVersion("3.0.14")
             .iosRedirectLink("https://example.com/koin-event")
             .iosMinimumVersion("3.0.14")
