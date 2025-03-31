@@ -36,7 +36,7 @@ public record AdminBannerCreateRequest(
     String webRedirectLink,
 
     @Pattern(regexp = "^[\\w\\-_.:/?=&%]+$", message = "유효하지 않은 안드로이드 리다이렉트 링크 형식입니다.")
-    @Schema(description = "안드로이드 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
+    @Schema(description = "안드로이드 리다이렉션 링크", example = "koin://example", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "안드로이드 리다이렉션 링크는 최대 255자 입니다.")
     String androidRedirectLink,
 
@@ -45,7 +45,6 @@ public record AdminBannerCreateRequest(
     @Size(max = 50, message = "안드로이드 최소 버전은 최대 50자 입니다.")
     String androidMinimumVersion,
 
-    @Pattern(regexp = "^[\\w\\-_.:/?=&%]+$", message = "유효하지 않은 ios 리다이렉트 링크 형식입니다.")
     @Schema(description = "ios 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "ios 리다이렉션 링크는 최대 255자 입니다.")
     String iosRedirectLink,
