@@ -100,7 +100,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/check/phone")
+    @GetMapping("/user/check/phone")
     public ResponseEntity<Void> checkPhoneNumberExist(
         @ModelAttribute(value = "phone")
         @Valid PhoneCheckExistsRequest request
