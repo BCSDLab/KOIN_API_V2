@@ -29,9 +29,15 @@ public record AdminBannerCreateRequest(
     @Size(max = 255, message = "배너 이미지 링크는 최대 255자 입니다.")
     String imageUrl,
 
+    @Schema(description = "웹 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    Boolean isWebReleased,
+
     @Schema(description = "웹 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "웹 리다이렉션 링크는 최대 255자 입니다.")
     String webRedirectLink,
+
+    @Schema(description = "안드로이드 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    Boolean isAndroidReleased,
 
     @Schema(description = "안드로이드 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "안드로이드 리다이렉션 링크는 최대 255자 입니다.")
@@ -40,6 +46,9 @@ public record AdminBannerCreateRequest(
     @Schema(description = "안드로이드 최소 버전", example = "3.0.14", requiredMode = NOT_REQUIRED)
     @Size(max = 50, message = "안드로이드 최소 버전은 최대 50자 입니다.")
     String androidMinimumVersion,
+
+    @Schema(description = "ios 배포 여부", example = "true", requiredMode = NOT_REQUIRED)
+    Boolean isIosReleased,
 
     @Schema(description = "ios 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "ios 리다이렉션 링크는 최대 255자 입니다.")
