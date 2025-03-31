@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
 import in.koreatech.koin.fixture.BannerCategoryFixture;
 import in.koreatech.koin.fixture.BannerFixture;
-import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -27,9 +26,6 @@ public class BannerApiTest extends AcceptanceTest {
 
     @Autowired
     private BannerCategoryFixture bannerCategoryFixture;
-
-    @Autowired
-    private UserFixture userFixture;
 
     private Banner 메인_배너_1;
     private Banner 메인_배너_2;
@@ -58,11 +54,13 @@ public class BannerApiTest extends AcceptanceTest {
                         "banners": [
                             {
                                 "id": 1,
+                                "title": "천원의 아침식사",
                                 "image_url": "https://example.com/1000won.jpg",
                                 "redirect_link": "https://example.com/1000won"
                             },
                             {
                                 "id": 2,
+                                "title": "코인 이벤트",
                                 "image_url": "https://example.com/koin-event.jpg",
                                 "redirect_link": "https://example.com/koin-event"
                             }
