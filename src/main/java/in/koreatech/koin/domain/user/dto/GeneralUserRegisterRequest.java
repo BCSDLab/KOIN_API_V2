@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.user.dto;
 
 import static in.koreatech.koin.domain.user.model.UserType.GENERAL;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -36,6 +38,9 @@ public record GeneralUserRegisterRequest(
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
     String password,
 
+    @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
+    UserGender gender,
+
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
     String email,
@@ -51,6 +56,7 @@ public record GeneralUserRegisterRequest(
             .userId(userId)
             .password(passwordEncoder.encode(password))
             .email(email)
+            .gender(gender)
             .userType(GENERAL)
             .isAuthed(false)
             .isDeleted(false)

@@ -71,6 +71,8 @@ public record OwnerRegisterByPhoneRequest(
             .isAuthed(false)
             .isDeleted(false)
             .build();
+        user.setUserIdByPhoneNumber();
+
         Owner owner = Owner.builder()
             .user(user)
             .companyRegistrationNumber(companyNumber)

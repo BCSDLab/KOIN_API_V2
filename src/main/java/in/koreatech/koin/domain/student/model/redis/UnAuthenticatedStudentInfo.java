@@ -101,6 +101,7 @@ public class UnAuthenticatedStudentInfo {
             .isDeleted(false)
             .userType(UserType.STUDENT)
             .build();
+        user.setUserIdByEmail();
 
         return Student.builder()
             .user(user)

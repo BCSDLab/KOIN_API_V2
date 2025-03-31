@@ -155,6 +155,14 @@ public class User extends BaseEntity {
         this.deviceToken = null;
     }
 
+    public void setUserIdByEmail() {
+        this.userId = this.email.substring(0, this.email.indexOf("@"));
+    }
+
+    public void setUserIdByPhoneNumber() {
+        this.userId = this.phoneNumber;
+    }
+
     // 어드민 측에서 코드 삭제시 이 쪽도 삭제
     public void undelete() {
         this.isDeleted = false;

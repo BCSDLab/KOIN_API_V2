@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -47,6 +48,9 @@ public record StudentRegisterRequestV2(
     @Schema(description = "학번", example = "2025000123", requiredMode = NOT_REQUIRED)
     String studentNumber,
 
+    @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
+    UserGender gender,
+
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
     String email,
@@ -62,6 +66,7 @@ public record StudentRegisterRequestV2(
             .userId(userId)
             .password(passwordEncoder.encode(password))
             .email(email)
+            .gender(gender)
             .userType(STUDENT)
             .isAuthed(false)
             .isDeleted(false)
