@@ -55,7 +55,7 @@ public class BannerFixture {
             .title("코인 이벤트 누누")
             .imageUrl("https://example.com/nunu-event.jpg")
             .webRedirectLink("https://example.com/nunu-event")
-            .androidRedirectLink("koin://1000won")
+            .androidRedirectLink("koin://nunu-event")
             .androidMinimumVersion("3.0.14")
             .iosRedirectLink("https://example.com/nunu-event")
             .iosMinimumVersion("3.0.14")
