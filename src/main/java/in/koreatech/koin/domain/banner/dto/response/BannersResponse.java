@@ -1,11 +1,10 @@
 package in.koreatech.koin.domain.banner.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -77,9 +76,9 @@ public record BannersResponse(
 
     private static boolean isNotReleasedPlatform(Banner banner, PlatformType platformType) {
         return switch (platformType) {
-            case ANDROID -> Objects.isNull(banner.getIsAndroidReleased());
-            case IOS -> Objects.isNull(banner.getIsIosReleased());
-            case WEB -> Objects.isNull(banner.getIsWebReleased());
+            case ANDROID -> banner.getIsAndroidReleased();
+            case IOS -> banner.getIsIosReleased();
+            case WEB -> banner.getIsWebReleased();
         };
     }
 }
