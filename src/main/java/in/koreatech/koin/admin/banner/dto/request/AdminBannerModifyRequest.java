@@ -24,12 +24,12 @@ public record AdminBannerModifyRequest(
     @Size(max = 255, message = "배너 이미지 링크는 최대 255자 입니다.")
     String imageUrl,
 
-    @Pattern(regexp = "^[\\w\\-_.:/?=&%]+$", message = "유효하지 않은 웹 리다이렉트 링크 형식입니다.")
+    @Pattern(regexp = "^https://[\\w\\-_.:/?=&%]+$", message = "웹 리다이렉션 링크는 https://로 시작해야 합니다.")
     @Schema(description = "웹 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "웹 리다이렉션 링크는 최대 255자 입니다.")
     String webRedirectLink,
 
-    @Pattern(regexp = "^[\\w\\-_.:/?=&%]+$", message = "유효하지 않은 안드로이드 리다이렉트 링크 형식입니다.")
+    @Pattern(regexp = "^koin://[\\w\\-_.:/?=&%]+", message = "안드로이드 딥링크는 koin://으로 시작해야 합니다.")
     @Schema(description = "안드로이드 리다이렉션 링크", example = "koin://example", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "안드로이드 리다이렉션 링크는 최대 255자 입니다.")
     String androidRedirectLink,
