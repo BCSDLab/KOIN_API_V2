@@ -87,8 +87,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/1000won.jpg",
                                 "is_web_released": true,
                                 "web_redirect_link": "https://example.com/1000won",
-                                "is_android_released": true,
-                                "android_redirect_link": "https://example.com/1000won",
+                                "android_redirect_link": "koin://1000won",
                                 "android_minimum_version": "3.0.14",
                                 "is_ios_released": true,
                                 "ios_redirect_link": "https://example.com/1000won",
@@ -105,8 +104,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/koin-event.jpg",
                                 "is_web_released": true,
                                 "web_redirect_link": "https://example.com/koin-event",
-                                "is_android_released": true,
-                                "android_redirect_link": "https://example.com/koin-event",
+                                "android_redirect_link": "koin://koin-event",
                                 "android_minimum_version": "3.0.14",
                                 "is_ios_released": true,
                                 "ios_redirect_link": "https://example.com/koin-event",
@@ -123,8 +121,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/nunu-event.jpg",
                                 "is_web_released": true,
                                 "web_redirect_link": "https://example.com/nunu-event",
-                                "is_android_released": true,
-                                "android_redirect_link": "https://example.com/nunu-event",
+                                "android_redirect_link": "koin://nunu-event",
                                 "android_minimum_version": "3.0.14",
                                 "is_ios_released": true,
                                 "ios_redirect_link": "https://example.com/nunu-event",
@@ -154,8 +151,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                         "image_url": "https://example.com/1000won.jpg",
                         "is_web_released": true,
                         "web_redirect_link": "https://example.com/1000won",
-                        "is_android_released": true,
-                        "android_redirect_link": "https://example.com/1000won",
+                        "android_redirect_link": "koin://1000won",
                         "android_minimum_version": "3.0.14",
                         "is_ios_released": true,
                         "ios_redirect_link": "https://example.com/1000won",
@@ -179,8 +175,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "image_url": "https://example.com/1000won.jpg",
                                 "is_web_released": true,
                                 "web_redirect_link": "https://example.com/1000won",
-                                "is_android_released": true,
-                                "android_redirect_link": "https://example.com/1000won",
+                                "android_redirect_link": "koin://1000won",
                                 "android_minimum_version": "3.0.14",
                                 "is_ios_released": true,
                                 "ios_redirect_link": "https://example.com/1000won",
@@ -205,7 +200,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                                 "is_web_released": true,
                                 "web_redirect_link": "https://example.com/1000won",
                                 "is_android_released": true,
-                                "android_redirect_link": "https://example.com/1000won",
+                                "android_redirect_link": "koin://1000won",
                                 "is_ios_released": true,
                                 "ios_redirect_link": "https://example.com/1000won",
                                 "ios_minimum_version": "3.0.14"
@@ -331,8 +326,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                            "image_url": "https://example.com/new1000won.jpg",
                            "is_web_released": "true",
                            "web_redirect_link": "https://example.com/new1000won.jpg",
-                           "is_android_released": "true",
-                           "android_redirect_link": "https://example.com/new1000won",
+                           "android_redirect_link": "koin://new1000won",
                            "android_minimum_version": "3.0.14",
                            "is_ios_released": "false",
                            "is_active": "true"
@@ -349,7 +343,7 @@ public class AdminBannerApiTest extends AcceptanceTest {
                 softly.assertThat(updatedBanner.getWebRedirectLink())
                     .isEqualTo("https://example.com/new1000won.jpg");
                 softly.assertThat(updatedBanner.getAndroidRedirectLink())
-                    .isEqualTo("https://example.com/new1000won");
+                    .isEqualTo("koin://new1000won");
                 softly.assertThat(updatedBanner.getAndroidMinimumVersion())
                     .isEqualTo("3.0.14");
                 softly.assertThat(updatedBanner.getIosRedirectLink()).isNull();
