@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.banner.service;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -136,16 +138,25 @@ public class AdminBannerService {
 
     @Transactional
     public void modifyBanner(Integer bannerId, AdminBannerModifyRequest request) {
-        isValidMobileField(request.androidRedirectLink(), request.androidMinimumVersion(), request.iosRedirectLink(),
-            request.iosMinimumVersion());
         Banner banner = adminBannerRepository.getById(bannerId);
+
+        isValidMobileField(
+            request.androidRedirectLink(),
+            request.androidMinimumVersion(),
+            request.iosRedirectLink(),
+            request.iosMinimumVersion()
+        );
+
         banner.modifyBanner(
             request.title(),
             request.imageUrl(),
             request.webRedirectLink(),
             request.androidRedirectLink(),
-            request.iosRedirectLink()
+            request.androidMinimumVersion(),
+            request.iosRedirectLink(),
+            request.iosMinimumVersion()
         );
+
         compareActiveAndChange(request.isActive(), banner);
     }
 

@@ -98,13 +98,17 @@ public class Banner extends BaseEntity {
         String imageUrl,
         String webRedirectLink,
         String androidRedirectLink,
-        String iosRedirectLink
+        String androidMinimumVersion,
+        String iosRedirectLink,
+        String iosMinimumVersion
     ) {
         this.title = title;
         this.imageUrl = imageUrl;
         this.webRedirectLink = webRedirectLink;
         this.androidRedirectLink = androidRedirectLink;
+        this.androidMinimumVersion = androidMinimumVersion;
         this.iosRedirectLink = iosRedirectLink;
+        this.iosMinimumVersion = iosMinimumVersion;
     }
 
     public void updatePriority(Integer priority) {
