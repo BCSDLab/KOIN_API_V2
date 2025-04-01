@@ -140,6 +140,13 @@ public class AdminBannerService {
     public void modifyBanner(Integer bannerId, AdminBannerModifyRequest request) {
         Banner banner = adminBannerRepository.getById(bannerId);
 
+        isValidMobileField(
+            request.androidRedirectLink(),
+            request.androidMinimumVersion(),
+            request.iosRedirectLink(),
+            request.iosMinimumVersion()
+        );
+
         banner.modifyBanner(
             request.title(),
             request.imageUrl(),
@@ -148,13 +155,6 @@ public class AdminBannerService {
             request.androidMinimumVersion(),
             request.iosRedirectLink(),
             request.iosMinimumVersion()
-        );
-
-        isValidMobileField(
-            banner.getAndroidRedirectLink(),
-            banner.getAndroidMinimumVersion(),
-            banner.getIosRedirectLink(),
-            banner.getIosMinimumVersion()
         );
 
         compareActiveAndChange(request.isActive(), banner);
