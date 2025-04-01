@@ -30,7 +30,12 @@ public interface BannerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 카테고리, 플랫폼의 활성화된 배너들을 조회한다.")
+    @Operation(summary = "특정 카테고리, 플랫폼의 활성화된 배너들을 조회한다.", description = """
+        - 단순 광고
+            - redirect_link와 version 값이 모두 null 입니다.
+        - 기능 광고
+            - redirect_link와 version 값이 모두 null이 아닙니다.
+        """)
     @GetMapping("/{categoryId}")
     ResponseEntity<BannersResponse> getBannersByCategoryAndPlatform(
         @Parameter(in = PATH) @PathVariable Integer categoryId,
