@@ -40,9 +40,17 @@ public class Banner extends BaseEntity {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
+    @NotNull
+    @Column(name = "is_web_released", nullable = false)
+    private Boolean isWebReleased;
+
     @Size(max = 255)
     @Column(name = "web_redirect_link")
     private String webRedirectLink;
+
+    @NotNull
+    @Column(name = "is_android_released", nullable = false)
+    private Boolean isAndroidReleased;
 
     @Size(max = 255)
     @Column(name = "android_redirect_link")
@@ -51,6 +59,10 @@ public class Banner extends BaseEntity {
     @Size(max = 50)
     @Column(name = "android_minimum_version")
     private String androidMinimumVersion;
+
+    @NotNull
+    @Column(name = "is_ios_released", nullable = false)
+    private Boolean isIosReleased;
 
     @Size(max = 255)
     @Column(name = "ios_redirect_link")
@@ -73,9 +85,12 @@ public class Banner extends BaseEntity {
         String title,
         Integer priority,
         String imageUrl,
+        Boolean isWebReleased,
         String webRedirectLink,
+        Boolean isAndroidReleased,
         String androidRedirectLink,
         String androidMinimumVersion,
+        Boolean isIosReleased,
         String iosRedirectLink,
         String iosMinimumVersion,
         Boolean isActive,
@@ -84,9 +99,12 @@ public class Banner extends BaseEntity {
         this.title = title;
         this.priority = priority;
         this.imageUrl = imageUrl;
+        this.isWebReleased = isWebReleased;
         this.webRedirectLink = webRedirectLink;
+        this.isAndroidReleased = isAndroidReleased;
         this.androidRedirectLink = androidRedirectLink;
         this.androidMinimumVersion = androidMinimumVersion;
+        this.isIosReleased = isIosReleased;
         this.iosRedirectLink = iosRedirectLink;
         this.iosMinimumVersion = iosMinimumVersion;
         this.isActive = isActive;
@@ -96,17 +114,23 @@ public class Banner extends BaseEntity {
     public void modifyBanner(
         String title,
         String imageUrl,
+        Boolean isWebReleased,
         String webRedirectLink,
+        Boolean isAndroidReleased,
         String androidRedirectLink,
         String androidMinimumVersion,
+        Boolean isIosReleased,
         String iosRedirectLink,
         String iosMinimumVersion
     ) {
         this.title = title;
         this.imageUrl = imageUrl;
+        this.isWebReleased = isWebReleased;
         this.webRedirectLink = webRedirectLink;
+        this.isAndroidReleased = isAndroidReleased;
         this.androidRedirectLink = androidRedirectLink;
         this.androidMinimumVersion = androidMinimumVersion;
+        this.isIosReleased = isIosReleased;
         this.iosRedirectLink = iosRedirectLink;
         this.iosMinimumVersion = iosMinimumVersion;
     }

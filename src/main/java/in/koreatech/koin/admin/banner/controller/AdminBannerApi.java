@@ -80,7 +80,13 @@ public interface AdminBannerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "배너를 생성한다")
+    @Operation(summary = "배너를 생성한다", description = """
+        - 웹 배포 여부
+            - 웹 배포여부가 비활성화된 경우, 리다이렉션 링크는 존재하면 안됩니다.
+        - 모바일 배포 여부
+            - 모바일 배포가 활성화된 경우, 리다이렉션 링크와 최소 버전은 모두 존재하거나 모두 없어야 합니다.
+            - 모바일 배포가 비활성화된 경우, 리다이렉션 링크와 최소버전을 설정할 수 없습니다.
+        """)
     @PostMapping
     ResponseEntity<Void> createBanner(
         @RequestBody @Valid AdminBannerCreateRequest request,
@@ -112,7 +118,18 @@ public interface AdminBannerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 배너의 우선순위를 조정한다")
+    @Operation(summary = "특정 배너의 우선순위를 조정한다", description = """
+        - 배너의 우선순위를 올리고 싶으면 UP, 내리고 싶으면 DOWN 값을 보내주시면 됩니다.
+            - is_active가 false인 배너에 해당 API를 호출하면 에러가 발생합니다.
+            - is_active가 true인데 priority가 null인 배너에 해당 API를 호출하면 에러가 발생합니다.
+            - priority가 0인 배너에 해당 API의 값을 UP으로 호출하면 에러가 발생합니다.
+            - priority가 해당 카테고리에서 마지막 값인 배너에 해당 API의 값을 DOWN으로 호출하면 에러가 발생합니다.
+        - UP
+            - 이전 우선순위를 가진 배너와 우선순위가 변경 됩니다. (명세서 기준 화살표 윗방향)
+                - ex. 위에 우선순위2, 지금꺼가 우선순위 3이면 UP 사용시 지금꺼가 우선순위2, 위에꺼가 우선순위3으로 변경됨
+        - DOWN
+            - 이후 우선순위를 가진 배너와 우선순위가 변경 됩니다. (명세서 기준 화살표 아랫방향)
+        """)
     @PatchMapping("/{id}/priority")
     ResponseEntity<Void> changePriority(
         @Parameter(in = PATH) @PathVariable Integer id,
@@ -146,7 +163,13 @@ public interface AdminBannerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 배너를 수정한다")
+    @Operation(summary = "특정 배너를 수정한다", description = """
+        - 웹 배포 여부
+            - 웹 배포여부가 비활성화된 경우, 리다이렉션 링크는 존재하면 안됩니다.
+        - 모바일 배포 여부
+            - 모바일 배포가 활성화된 경우, 리다이렉션 링크와 최소 버전은 모두 존재하거나 모두 없어야 합니다.
+            - 모바일 배포가 비활성화된 경우, 리다이렉션 링크와 최소버전을 설정할 수 없습니다.
+        """)
     @PutMapping("/{id}")
     ResponseEntity<Void> modifyBanner(
         @Parameter(in = PATH) @PathVariable Integer id,

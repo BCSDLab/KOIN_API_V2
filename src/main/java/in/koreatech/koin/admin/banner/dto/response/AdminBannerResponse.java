@@ -30,14 +30,23 @@ public record AdminBannerResponse(
     @Schema(description = "배너 이미지 링크", example = "https://example.com/1000won.jpg")
     String imageUrl,
 
+    @Schema(description = "웹 배포 여부", example = "true")
+    Boolean isWebReleased,
+
     @Schema(description = "웹 리다이렉션 링크", example = "https://example.com/1000won")
     String webRedirectLink,
+
+    @Schema(description = "안드로이드 배포 여부", example = "true")
+    Boolean isAndroidReleased,
 
     @Schema(description = "안드로이드 리다이렉션 링크", example = "https://example.com/1000won")
     String androidRedirectLink,
 
     @Schema(description = "안드로이드 최소 버전", example = "3.0.14")
     String androidMinimumVersion,
+
+    @Schema(description = "ios 배포 여부", example = "true")
+    Boolean isIosReleased,
 
     @Schema(description = "ios 리다이렉션 링크", example = "https://example.com/1000won")
     String iosRedirectLink,
@@ -60,9 +69,12 @@ public record AdminBannerResponse(
             banner.getPriority(),
             banner.getTitle(),
             banner.getImageUrl(),
+            banner.getIsWebReleased(),
             banner.getWebRedirectLink(),
+            banner.getIsAndroidReleased(),
             banner.getAndroidRedirectLink(),
             banner.getAndroidMinimumVersion(),
+            banner.getIsIosReleased(),
             banner.getIosRedirectLink(),
             banner.getIosMinimumVersion(),
             banner.getIsActive(),

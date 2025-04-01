@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.banner.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -68,8 +68,17 @@ public record BannersResponse(
 
     public static BannersResponse of(List<Banner> banners, PlatformType platformType) {
         List<InnerBannerResponse> innerBannerResponses = banners.stream()
+            .filter(banner -> isNotReleasedPlatform(banner, platformType))
             .map(banner -> InnerBannerResponse.of(banner, platformType))
             .toList();
         return new BannersResponse(innerBannerResponses.size(), innerBannerResponses);
+    }
+
+    private static boolean isNotReleasedPlatform(Banner banner, PlatformType platformType) {
+        return switch (platformType) {
+            case ANDROID -> banner.getIsAndroidReleased();
+            case IOS -> banner.getIsIosReleased();
+            case WEB -> banner.getIsWebReleased();
+        };
     }
 }
