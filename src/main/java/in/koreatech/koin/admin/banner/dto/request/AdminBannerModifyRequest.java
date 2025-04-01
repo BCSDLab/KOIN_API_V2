@@ -24,11 +24,11 @@ public record AdminBannerModifyRequest(
     @Size(max = 255, message = "배너 이미지 링크는 최대 255자 입니다.")
     String imageUrl,
 
-    @Pattern(regexp = "^https://[\\w\\-_.:/?=&%]+$", message = "웹 리다이렉션 링크는 https://로 시작해야 합니다.")
     @Schema(description = "웹 배포 여부", example = "true", requiredMode = REQUIRED)
     @NotNull(message = "웹 배포 여부는 필수입니다.")
     Boolean isWebReleased,
 
+    @Pattern(regexp = "^https://[\\w\\-_.:/?=&%]+$", message = "웹 리다이렉션 링크는 https://로 시작해야 합니다.")
     @Schema(description = "웹 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "웹 리다이렉션 링크는 최대 255자 입니다.")
     String webRedirectLink,
