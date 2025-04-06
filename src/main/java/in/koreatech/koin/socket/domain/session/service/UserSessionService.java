@@ -24,7 +24,7 @@ public class UserSessionService {
         return userSessionRepository.findUserSession(userId);
     }
 
-    public boolean isExists(Integer userId) {
+    public boolean exists(Integer userId) {
         return userSessionRepository.exists(userId);
     }
 

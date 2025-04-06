@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -23,22 +24,38 @@ public record AdminBannerModifyRequest(
     @Size(max = 255, message = "배너 이미지 링크는 최대 255자 입니다.")
     String imageUrl,
 
+    @Schema(description = "웹 배포 여부", example = "true", requiredMode = REQUIRED)
+    @NotNull(message = "웹 배포 여부는 필수입니다.")
+    Boolean isWebReleased,
+
+    @Pattern(regexp = "^https://[\\w\\-_.:/?=&%]+$", message = "웹 리다이렉션 링크는 https://로 시작해야 합니다.")
     @Schema(description = "웹 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "웹 리다이렉션 링크는 최대 255자 입니다.")
     String webRedirectLink,
 
-    @Schema(description = "안드로이드 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
+    @Schema(description = "안드로이드 배포 여부", example = "true", requiredMode = REQUIRED)
+    @NotNull(message = "안드로이드 배포 여부는 필수입니다.")
+    Boolean isAndroidReleased,
+
+    @Pattern(regexp = "^koin://[\\w\\-_.:/?=&%]+", message = "안드로이드 딥링크는 koin://으로 시작해야 합니다.")
+    @Schema(description = "안드로이드 리다이렉션 링크", example = "koin://example", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "안드로이드 리다이렉션 링크는 최대 255자 입니다.")
     String androidRedirectLink,
 
+    @Pattern(regexp = "^[0-9.]+$", message = "버전은 숫자와 점(.)만 입력 가능합니다.")
     @Schema(description = "안드로이드 최소 버전", example = "3.0.14", requiredMode = NOT_REQUIRED)
     @Size(max = 50, message = "안드로이드 최소 버전은 최대 50자 입니다.")
     String androidMinimumVersion,
+
+    @Schema(description = "ios 배포 여부", example = "true", requiredMode = REQUIRED)
+    @NotNull(message = "ios 배포 여부는 필수입니다.")
+    Boolean isIosReleased,
 
     @Schema(description = "ios 리다이렉션 링크", example = "https://example.com/1000won", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "ios 리다이렉션 링크는 최대 255자 입니다.")
     String iosRedirectLink,
 
+    @Pattern(regexp = "^[0-9.]+$", message = "버전은 숫자와 점(.)만 입력 가능합니다.")
     @Schema(description = "ios 최소 버전", example = "3.0.14", requiredMode = NOT_REQUIRED)
     @Size(max = 50, message = "ios 최소 버전은 최대 50자 입니다.")
     String iosMinimumVersion,

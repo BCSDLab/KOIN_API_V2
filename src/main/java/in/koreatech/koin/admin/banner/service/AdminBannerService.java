@@ -15,7 +15,6 @@ import in.koreatech.koin.admin.banner.dto.request.AdminBannerPriorityChangeReque
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
 import in.koreatech.koin.admin.banner.enums.PriorityChangeType;
-import in.koreatech.koin.admin.banner.exception.BannerMobileFieldPairNotMatchException;
 import in.koreatech.koin.admin.banner.repository.AdminBannerCategoryRepository;
 import in.koreatech.koin.admin.banner.repository.AdminBannerRepository;
 import in.koreatech.koin.domain.banner.model.Banner;
@@ -29,6 +28,7 @@ public class AdminBannerService {
 
     private final AdminBannerRepository adminBannerRepository;
     private final AdminBannerCategoryRepository adminBannerCategoryRepository;
+    private final AdminBannerValidator adminBannerValidator;
 
     public AdminBannerResponse getBanner(Integer bannerId) {
         Banner banner = adminBannerRepository.getById(bannerId);
@@ -60,8 +60,11 @@ public class AdminBannerService {
     @Transactional
     public void createBanner(AdminBannerCreateRequest request) {
         BannerCategory bannerCategory = adminBannerCategoryRepository.getById(request.bannerCategoryId());
-        isValidMobileField(request.androidRedirectLink(), request.androidMinimumVersion(), request.iosRedirectLink(),
+        adminBannerValidator.ValidateMobileField(request.isAndroidReleased(), request.androidRedirectLink(),
+            request.androidMinimumVersion());
+        adminBannerValidator.ValidateMobileField(request.isIosReleased(), request.iosRedirectLink(),
             request.iosMinimumVersion());
+        adminBannerValidator.ValidateWebField(request.isWebReleased(), request.webRedirectLink());
         Banner banner = request.of(bannerCategory);
         adminBannerRepository.save(banner);
     }
@@ -136,15 +139,23 @@ public class AdminBannerService {
 
     @Transactional
     public void modifyBanner(Integer bannerId, AdminBannerModifyRequest request) {
-        isValidMobileField(request.androidRedirectLink(), request.androidMinimumVersion(), request.iosRedirectLink(),
+        adminBannerValidator.ValidateMobileField(request.isAndroidReleased(), request.androidRedirectLink(),
+            request.androidMinimumVersion());
+        adminBannerValidator.ValidateMobileField(request.isIosReleased(), request.iosRedirectLink(),
             request.iosMinimumVersion());
+        adminBannerValidator.ValidateWebField(request.isWebReleased(), request.webRedirectLink());
         Banner banner = adminBannerRepository.getById(bannerId);
         banner.modifyBanner(
             request.title(),
             request.imageUrl(),
+            request.isWebReleased(),
             request.webRedirectLink(),
+            request.isAndroidReleased(),
             request.androidRedirectLink(),
-            request.iosRedirectLink()
+            request.androidMinimumVersion(),
+            request.isIosReleased(),
+            request.iosRedirectLink(),
+            request.iosMinimumVersion()
         );
         compareActiveAndChange(request.isActive(), banner);
     }
@@ -163,22 +174,5 @@ public class AdminBannerService {
         } else {
             banner.updatePriority(null);
         }
-    }
-
-    private void isValidMobileField(
-        String androidRedirectLink, String androidMinimumVersion, String iosRedirectLink, String iosMinimumVersion
-    ) {
-        if (!validMobileFieldPair(androidRedirectLink, androidMinimumVersion)) {
-            throw BannerMobileFieldPairNotMatchException.withDetail(
-                "androidRedirectLink: " + androidRedirectLink + ", androidMinimumVersion: " + androidMinimumVersion);
-        }
-        if (!validMobileFieldPair(iosRedirectLink, iosMinimumVersion)) {
-            throw BannerMobileFieldPairNotMatchException.withDetail(
-                "iosRedirectLink: " + iosRedirectLink + ", iosMinimumVersion: " + iosMinimumVersion);
-        }
-    }
-
-    public boolean validMobileFieldPair(String redirectLink, String minimumVersion) {
-        return (redirectLink != null && minimumVersion != null) || (redirectLink == null && minimumVersion == null);
     }
 }

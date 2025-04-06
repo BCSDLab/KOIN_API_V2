@@ -187,7 +187,7 @@ class UserApiTest extends AcceptanceTest {
         String phoneNumber = "01012345678";
 
         mockMvc.perform(
-                post("/user/check/phone")
+                get("/user/check/phone")
                     .param("phone", phoneNumber)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -201,7 +201,7 @@ class UserApiTest extends AcceptanceTest {
         User user = userFixture.코인_유저();
 
         mockMvc.perform(
-                post("/user/check/phone")
+                get("/user/check/phone")
                     .param("phone", user.getPhoneNumber())
                     .contentType(MediaType.APPLICATION_JSON)
             )
