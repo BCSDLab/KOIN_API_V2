@@ -3,7 +3,7 @@ ALTER TABLE `users`
 
 UPDATE `users`
 SET `user_id` = SUBSTRING_INDEX(`email`, '@', 1)
-WHERE `user_type` = 'STUDENT'
+WHERE `user_type` IN ('STUDENT', 'ADMIN', 'COUNCIL')
   AND `email` IS NOT NULL
   AND `id` > 0;
 

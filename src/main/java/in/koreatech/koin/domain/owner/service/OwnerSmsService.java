@@ -57,18 +57,20 @@ public class OwnerSmsService {
     public void registerByPhone(OwnerRegisterByPhoneRequest request) {
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         ownerValidator.validateExistCompanyNumber(request.companyNumber());
-        Owner savedOwner = ownerRepository.save(request.toOwner(passwordEncoder));
+        Owner newOwner = request.toOwner(passwordEncoder);
+        setUserIdByPhoneNumber(newOwner);
+        ownerRepository.save(newOwner);
 
         ownerUtilService.validateExistShopId(request.shopId());
         OwnerShop ownerShop = OwnerShop.builder()
-            .ownerId(savedOwner.getId())
+            .ownerId(newOwner.getId())
             .shopId(request.shopId())
             .shopName(request.shopName())
             .shopNumber(request.shopNumber())
             .build();
         ownerShopRedisRepository.save(ownerShop);
-        ownerInVerificationRedisRepository.deleteByVerify(savedOwner.getUser().getPhoneNumber());
-        ownerUtilService.sendSlackNotification(savedOwner);
+        ownerInVerificationRedisRepository.deleteByVerify(newOwner.getUser().getPhoneNumber());
+        ownerUtilService.sendSlackNotification(newOwner);
     }
 
     @Transactional
@@ -104,5 +106,10 @@ public class OwnerSmsService {
         ownerRepository.findByAccount(request.account()).ifPresent(user -> {
             throw DuplicationPhoneNumberException.withDetail("account: " + request.account());
         });
+    }
+
+    private void setUserIdByPhoneNumber(Owner owner) {
+        String phoneNumber = owner.getUser().getPhoneNumber();
+        owner.getUser().setUserId(phoneNumber);
     }
 }

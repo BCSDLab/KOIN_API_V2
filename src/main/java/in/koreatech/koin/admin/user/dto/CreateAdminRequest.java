@@ -49,7 +49,6 @@ public record CreateAdminRequest(
             .isAuthed(false)
             .isDeleted(false)
             .build();
-        user.setUserIdByEmail();
 
         return Admin.builder()
             .user(user)

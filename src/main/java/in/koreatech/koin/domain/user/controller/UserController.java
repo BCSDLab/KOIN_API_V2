@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.SmsAuthed;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
@@ -32,7 +33,6 @@ import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserSmsService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -44,8 +44,9 @@ public class UserController implements UserApi {
     private final UserValidationService userValidationService;
     private final UserSmsService userSmsService;
 
-    @PostMapping("/v2/user/general/register")
-    public ResponseEntity<Void> generalUserRegisterV2(
+    @PostMapping("/user/general/register")
+    public ResponseEntity<Void> generalUserRegister(
+        @SmsAuthed String phoneNumber,
         @RequestBody @Valid GeneralUserRegisterRequest request
     ) {
         userService.generalUserRegister(request);

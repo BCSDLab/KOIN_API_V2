@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.SmsAuthed;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
@@ -47,8 +48,9 @@ public interface UserApi {
         }
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/v2/user/general/register")
-    ResponseEntity<Void> generalUserRegisterV2(
+    @PostMapping("/user/general/register")
+    ResponseEntity<Void> generalUserRegister(
+        @SmsAuthed String phoneNumber,
         @RequestBody @Valid GeneralUserRegisterRequest request
     );
 

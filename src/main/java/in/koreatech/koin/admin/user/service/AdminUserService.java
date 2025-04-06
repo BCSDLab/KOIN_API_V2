@@ -59,7 +59,9 @@ public class AdminUserService {
         }
 
         adminUserValidation.validateEmailForAdminCreated(request.email());
-        Admin createAdmin = adminRepository.save(request.toEntity(passwordEncoder));
+        Admin createAdmin = request.toEntity(passwordEncoder);
+        setUserIdByEmail(createAdmin);
+        adminRepository.save(createAdmin);
 
         return AdminResponse.from(createAdmin);
     }
@@ -177,5 +179,10 @@ public class AdminUserService {
     public void undeleteUser(Integer id) {
         User user = adminUserRepository.getById(id);
         user.undelete();
+    }
+
+    private void setUserIdByEmail(Admin admin) {
+        String email = admin.getUser().getEmail();
+        admin.getUser().setUserId(email);
     }
 }
