@@ -219,6 +219,7 @@ public class AdminOwnerApiTest extends AcceptanceTest {
                 .userType(OWNER)
                 .gender(MAN)
                 .email("testchulsu@gmail.com" + i)
+                .userId("test" + i)
                 .isAuthed(false)
                 .isDeleted(false)
                 .build();
@@ -275,6 +276,7 @@ public class AdminOwnerApiTest extends AcceptanceTest {
                 .userType(OWNER)
                 .gender(MAN)
                 .email("testchulsu@gmail.com" + i)
+                .userId("testchulsu" + i)
                 .isAuthed(true)
                 .isDeleted(false)
                 .build();

@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.SmsAuthed;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
@@ -35,6 +37,22 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) User: 회원", description = "회원 관련 API")
 public interface UserApi {
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/v2/user/general/register")
+    ResponseEntity<Void> generalUserRegisterV2(
+        @SmsAuthed String phoneNumber,
+        @RequestBody @Valid GeneralUserRegisterRequest request
+    );
 
     @ApiResponses(
         value = {

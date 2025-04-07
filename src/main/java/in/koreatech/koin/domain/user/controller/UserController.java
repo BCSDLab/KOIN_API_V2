@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import java.net.URI;
 
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.SmsAuthed;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
@@ -40,6 +43,15 @@ public class UserController implements UserApi {
     private final UserService userService;
     private final UserValidationService userValidationService;
     private final UserSmsService userSmsService;
+
+    @PostMapping("/v2/user/general/register")
+    public ResponseEntity<Void> generalUserRegisterV2(
+        @SmsAuthed String phoneNumber,
+        @RequestBody @Valid GeneralUserRegisterRequest request
+    ) {
+        userService.generalUserRegister(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(

@@ -265,6 +265,7 @@ class UserApiTest extends AcceptanceTest {
             .userType(STUDENT)
             .gender(UserGender.MAN)
             .email("test@koreatech.ac.kr")
+            .userId("test")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -304,6 +305,7 @@ class UserApiTest extends AcceptanceTest {
                     .userType(STUDENT)
                     .gender(UserGender.MAN)
                     .email("test@koreatech.ac.kr")
+                    .userId("test")
                     .isAuthed(true)
                     .isDeleted(false)
                     .build()

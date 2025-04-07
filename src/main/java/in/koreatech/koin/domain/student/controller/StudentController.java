@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.net.URI;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,11 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.SmsAuthed;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
@@ -30,7 +34,6 @@ import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
-import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
@@ -38,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class StudentController implements StudentApi{
+public class StudentController implements StudentApi {
 
     private final StudentService studentService;
 
@@ -100,6 +103,15 @@ public class StudentController implements StudentApi{
         @Valid AuthTokenRequest request
     ) {
         return studentService.authenticate(request);
+    }
+
+    @PostMapping("/v2/user/student/register")
+    public ResponseEntity<Void> studentRegisterV2(
+        @SmsAuthed String phoneNumber,
+        @RequestBody @Valid StudentRegisterRequestV2 request
+    ) {
+        studentService.studentRegisterV2(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/user/find/password")

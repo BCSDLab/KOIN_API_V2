@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.user.service;
 import java.time.LocalDateTime;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -21,6 +23,7 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,11 +35,20 @@ public class UserService {
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
     private final UserTokenRedisRepository userTokenRedisRepository;
+    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final ApplicationEventPublisher eventPublisher;
     private final UserValidationService userValidationService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProvider jwtProvider;
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public void generalUserRegister(GeneralUserRegisterRequest request) {
+        User user = request.toUser(passwordEncoder);
+        userRepository.save(user);
+        userVerificationStatusRedisRepository.deleteById(user.getPhoneNumber());
+    }
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {

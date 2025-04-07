@@ -9,18 +9,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.SmsAuthed;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
-import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -126,6 +128,22 @@ public interface StudentApi {
     ResponseEntity<Void> studentRegister(
         @RequestBody @Valid StudentRegisterRequest studentRegisterRequest,
         @ServerURL String serverURL
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/v2/user/student/register")
+    ResponseEntity<Void> studentRegisterV2(
+        @SmsAuthed String phoneNumber,
+        @RequestBody @Valid StudentRegisterRequestV2 request
     );
 
     @ApiResponses(
