@@ -44,8 +44,8 @@ public class UserController implements UserApi {
     private final UserValidationService userValidationService;
     private final UserSmsService userSmsService;
 
-    @PostMapping("/user/general/register")
-    public ResponseEntity<Void> generalUserRegister(
+    @PostMapping("/v2/user/general/register")
+    public ResponseEntity<Void> generalUserRegisterV2(
         @SmsAuthed String phoneNumber,
         @RequestBody @Valid GeneralUserRegisterRequest request
     ) {

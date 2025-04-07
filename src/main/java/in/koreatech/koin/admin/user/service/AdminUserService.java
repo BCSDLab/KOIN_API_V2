@@ -59,11 +59,9 @@ public class AdminUserService {
         }
 
         adminUserValidation.validateEmailForAdminCreated(request.email());
-        Admin createAdmin = request.toEntity(passwordEncoder);
-        setUserIdByEmail(createAdmin);
-        adminRepository.save(createAdmin);
+        Admin savedAdmin = adminRepository.save(request.toAdmin(passwordEncoder));
 
-        return AdminResponse.from(createAdmin);
+        return AdminResponse.from(savedAdmin);
     }
 
     @Transactional
@@ -179,10 +177,5 @@ public class AdminUserService {
     public void undeleteUser(Integer id) {
         User user = adminUserRepository.getById(id);
         user.undelete();
-    }
-
-    private void setUserIdByEmail(Admin admin) {
-        String email = admin.getUser().getEmail();
-        admin.getUser().setUserId(email);
     }
 }

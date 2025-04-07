@@ -274,7 +274,6 @@ public class StudentService {
             major = majorRepository.findByDepartmentId(department.getId()).get(0);
         }
         Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department, major);
-        setUserIdByEmail(student);
         studentRepository.save(student);
         userRepository.save(student.getUser());
         studentRedisRepository.deleteById(student.getUser().getEmail());
@@ -328,10 +327,5 @@ public class StudentService {
         modelAndView.addObject("contextPath", serverUrl);
         modelAndView.addObject("resetToken", resetToken);
         return modelAndView;
-    }
-
-    private void setUserIdByEmail(Student student) {
-        String email = student.getUser().getEmail();
-        student.getUser().setUserId(email);
     }
 }

@@ -48,8 +48,8 @@ public interface UserApi {
         }
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/user/general/register")
-    ResponseEntity<Void> generalUserRegister(
+    @PostMapping("/v2/user/general/register")
+    ResponseEntity<Void> generalUserRegisterV2(
         @SmsAuthed String phoneNumber,
         @RequestBody @Valid GeneralUserRegisterRequest request
     );

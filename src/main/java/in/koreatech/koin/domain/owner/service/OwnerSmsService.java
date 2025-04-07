@@ -58,7 +58,6 @@ public class OwnerSmsService {
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         ownerValidator.validateExistCompanyNumber(request.companyNumber());
         Owner newOwner = request.toOwner(passwordEncoder);
-        setUserIdByPhoneNumber(newOwner);
         ownerRepository.save(newOwner);
 
         ownerUtilService.validateExistShopId(request.shopId());
@@ -106,10 +105,5 @@ public class OwnerSmsService {
         ownerRepository.findByAccount(request.account()).ifPresent(user -> {
             throw DuplicationPhoneNumberException.withDetail("account: " + request.account());
         });
-    }
-
-    private void setUserIdByPhoneNumber(Owner owner) {
-        String phoneNumber = owner.getUser().getPhoneNumber();
-        owner.getUser().setUserId(phoneNumber);
     }
 }
