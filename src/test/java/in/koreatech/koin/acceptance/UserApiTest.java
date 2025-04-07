@@ -23,10 +23,10 @@ import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.domain.user.model.SmsVerificationStatus;
+import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.repository.SmsVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -53,7 +53,7 @@ class UserApiTest extends AcceptanceTest {
     private DepartmentFixture departmentFixture;
 
     @Autowired
-    private SmsVerificationStatusRedisRepository smsVerificationStatusRedisRepository;
+    private UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
 
     // mock-up 인증 서버를 사용할 경우 슬랙 알림 발송 문제로 인해 sms 인증 컴포넌트 자체를 mocking 했습니다.
     @MockBean
@@ -403,7 +403,7 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        SmsVerificationStatus status = smsVerificationStatusRedisRepository.getByPhoneNumber(phoneNumber);
+        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
         String certificationCode = status.getVerificationCode();
 
         // then - SMS 인증번호 검증
@@ -440,7 +440,7 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        SmsVerificationStatus status = smsVerificationStatusRedisRepository.getByPhoneNumber(phoneNumber);
+        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
         String certificationCode = status.getVerificationCode();
         String wrongCode = certificationCode.equals("123456") ? "654321" : "123456";
 

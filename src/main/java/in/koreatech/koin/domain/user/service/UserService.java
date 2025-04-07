@@ -21,7 +21,7 @@ import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.user.repository.SmsVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class UserService {
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
     private final UserTokenRedisRepository userTokenRedisRepository;
-    private final SmsVerificationStatusRedisRepository smsVerificationStatusRedisRepository;
+    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final ApplicationEventPublisher eventPublisher;
     private final UserValidationService userValidationService;

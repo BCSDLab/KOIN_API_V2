@@ -5,30 +5,34 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin.domain.user.exception.UserVerificationDailyLimitExceededException;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash(value = "smsDailyVerificationCount")
-public class SmsDailyVerificationCount {
+@RedisHash(value = "userDailyVerificationCount")
+public class UserDailyVerificationCount {
 
     private static final long EXPIRATION_SECONDS = 60 * 60 * 24L;
     private static final int MAX_VERIFICATION_COUNT = 5;
 
     @Id
-    private String phoneNumber;
+    private String id;
 
     private int verificationCount = 1;
 
     @TimeToLive
     private Long expiration;
 
-    public SmsDailyVerificationCount(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    @Builder
+    public UserDailyVerificationCount(String id) {
+        this.id = id;
         this.expiration = EXPIRATION_SECONDS;
     }
 
-    public static SmsDailyVerificationCount from(String phoneNumber) {
-        return new SmsDailyVerificationCount(phoneNumber);
+    public static UserDailyVerificationCount from(String id) {
+        return UserDailyVerificationCount.builder()
+            .id(id)
+            .build();
     }
 
     public void incrementVerificationCount() {
