@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.user.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserDeleteEvent;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -21,9 +23,12 @@ import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.user.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.model.VerificationType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.user.service.verification.VerificationTypeDetector;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -102,5 +107,32 @@ public class UserService {
 
     public void updateLastLoginTime(User user) {
         user.updateLastLoggedTime(LocalDateTime.now());
+    }
+
+    public String getIdByVerification(String verification) {
+        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(verification);
+
+        // 어뷰징 방지
+        if (!userVerificationStatus.isVerified()) {
+            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
+        }
+
+        VerificationType verificationType = VerificationTypeDetector.detect(verification);
+        User user;
+
+        if (verificationType == VerificationType.EMAIL) {
+            // 이메일로 사용자 조회 (GENERAL 또는 STUDENT 타입만)
+            user = userRepository.getByEmailAndUserTypeIn(verification, List.of(UserType.GENERAL, UserType.STUDENT));
+            return user.getUserId();
+        }
+
+        if (verificationType == VerificationType.SMS) {
+            // 전화번호로 사용자 조회 (GENERAL 또는 STUDENT 타입만)
+            user = userRepository.getByPhoneNumberAndUserTypeIn(verification,
+                List.of(UserType.GENERAL, UserType.STUDENT));
+            return user.getUserId();
+        }
+
+        throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
     }
 }

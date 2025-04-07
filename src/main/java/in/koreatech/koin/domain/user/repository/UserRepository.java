@@ -19,9 +19,13 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByEmailAndUserType(String email, UserType userType);
 
+    Optional<User> findByEmailAndUserTypeIn(String email, List<UserType> userTypes);
+
     Optional<User> findByPhoneNumber(String phoneNumber);
 
     Optional<User> findByPhoneNumberAndUserType(String phoneNumber, UserType userType);
+
+    Optional<User> findByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
 
     Optional<User> findById(Integer id);
 
@@ -58,5 +62,15 @@ public interface UserRepository extends Repository<User, Integer> {
     default Map<Integer, User> findAllByIdInMap(List<Integer> ids) {
         return findAllByIdIn(ids).stream()
             .collect(Collectors.toMap(User::getId, user -> user));
+    }
+
+    default User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
+        return findByEmailAndUserTypeIn(email, userTypes)
+            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+    }
+
+    default User getByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes) {
+        return findByPhoneNumberAndUserTypeIn(phoneNumber, userTypes)
+            .orElseThrow(() -> UserNotFoundException.withDetail("phoneNumber: " + phoneNumber));
     }
 }

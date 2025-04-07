@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.FindIdRequest;
+import in.koreatech.koin.domain.user.dto.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
@@ -37,7 +39,6 @@ public class UserController implements UserApi {
 
     private final UserService userService;
     private final UserValidationService userValidationService;
-
 
     @PostMapping("/v2/user/general/register")
     public ResponseEntity<Void> generalUserRegisterV2(
@@ -131,5 +132,13 @@ public class UserController implements UserApi {
     ) {
         userValidationService.checkPassword(request, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/user/id/find")
+    public ResponseEntity<FindIdResponse> getIdByVerification(
+        @Valid @RequestBody FindIdRequest request
+    ) {
+        String userId = userService.getIdByVerification(request.verification());
+        return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.model.VerificationType;
 import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.service.verification.VerificationSender;
@@ -27,8 +28,8 @@ public class UserVerificationService {
     @Transactional
     public void sendCode(String target) {
         // 타겟의 형식으로 부터 sms or email 여부 판단
-        String type = detect(target);
-        VerificationSender verificationSender = verificationSenderMap.get(type);
+        VerificationType verificationType = detect(target);
+        VerificationSender verificationSender = verificationSenderMap.get(verificationType.getValue());
 
         // 인증 횟수 증가 및 횟수 초과 시 400 반환
         increaseUserDailyVerificationCount(target);
