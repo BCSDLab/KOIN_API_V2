@@ -1,8 +1,9 @@
 package in.koreatech.koin.domain.user.service;
 
+import static in.koreatech.koin.domain.user.service.verification.VerificationTypeDetector.detect;
+
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +19,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserVerificationService {
-
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\d{11}$");
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@koreatech.ac.kr$");
 
     private final Map<String, VerificationSender> verificationSenderMap;
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
@@ -53,15 +51,6 @@ public class UserVerificationService {
         // 인증 성공 처리 (verified = true, TTL 1시간)
         verificationStatus.markAsVerified();
         userVerificationStatusRedisRepository.save(verificationStatus);
-    }
-
-    private String detect(String target) {
-        if (PHONE_PATTERN.matcher(target).matches())
-            return "sms";
-        if (EMAIL_PATTERN.matcher(target).matches())
-            return "email";
-
-        throw new KoinIllegalArgumentException("유효하지 않은 이메일 또는 전화번호 형식입니다: " + target);
     }
 
     private void increaseUserDailyVerificationCount(String target) {
