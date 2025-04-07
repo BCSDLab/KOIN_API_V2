@@ -6,16 +6,16 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserSmsRequestEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
-import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
+import in.koreatech.koin.domain.user.dto.SendSmsCodeRequest;
 import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
-import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
 import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
+import in.koreatech.koin.domain.user.model.SmsAuthedStatus;
 import in.koreatech.koin.domain.user.model.UserDailyVerifyCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.repository.SmsAuthedStatusRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationLimitRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
@@ -29,13 +29,13 @@ public class UserSmsService {
 
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserVerificationLimitRedisRepository userVerificationLimitRedisRepository;
+    private final SmsAuthedStatusRedisRepository smsAuthedStatusRedisRepository;
     private final UserRepository userRepository;
     private final NaverSmsService naverSmsService;
     private final ApplicationEventPublisher eventPublisher;
-    private final JwtProvider jwtProvider;
 
     @Transactional
-    public void sendSignUpVerificationCode(SendSmsVerificationRequest request) {
+    public void sendSmsCode(SendSmsCodeRequest request) {
         checkExistsPhoneNumber(request.phoneNumber());
         increaseUserDailyVerificationCount(request.phoneNumber());
         sendCertificationSms(request.phoneNumber());
@@ -54,7 +54,7 @@ public class UserSmsService {
                 existing.incrementVerificationCount();
                 return existing;
             })
-            .orElseGet(() -> new UserDailyVerifyCount(phoneNumber));
+            .orElseGet(() -> UserDailyVerifyCount.from(phoneNumber));
         userVerificationLimitRedisRepository.save(limit);
     }
 
@@ -68,11 +68,13 @@ public class UserSmsService {
         userVerificationStatusRedisRepository.save(userVerificationStatus);
     }
 
-    public VerifySmsCodeResponse verifySignUpSmsCode(VerifySmsCodeRequest request) {
+    public void verifySmsCode(VerifySmsCodeRequest request) {
         UserVerificationStatus verify = userVerificationStatusRedisRepository.getById(request.phoneNumber());
         if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
-        return new VerifySmsCodeResponse(jwtProvider.createTemporaryTokenWithPhone(request.phoneNumber()));
+        userVerificationStatusRedisRepository.deleteById(request.phoneNumber());
+        SmsAuthedStatus smsAuthedStatus = SmsAuthedStatus.from(request.phoneNumber());
+        smsAuthedStatusRedisRepository.save(smsAuthedStatus);
     }
 }

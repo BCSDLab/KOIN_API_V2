@@ -27,6 +27,10 @@ public class UserDailyVerifyCount {
         this.expiration = EXPIRATION_SECONDS;
     }
 
+    public static UserDailyVerifyCount from(String id) {
+        return new UserDailyVerifyCount(id);
+    }
+
     public void incrementVerificationCount() {
         if (verificationCount >= MAX_VERIFICATION_COUNT) {
             throw UserVerificationDailyLimitExceededException.withDetail("limit: " + MAX_VERIFICATION_COUNT);

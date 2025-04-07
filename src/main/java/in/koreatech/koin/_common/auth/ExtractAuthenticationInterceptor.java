@@ -22,18 +22,14 @@ public class ExtractAuthenticationInterceptor implements HandlerInterceptor {
     private final JwtProvider jwtProvider;
     private final AuthContext authContext;
     private final UserIdContext userIdContext;
-    private final SmsAuthedContext smsAuthedContext;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         Optional.ofNullable(extractAccessToken(request))
             .ifPresent(token -> {
                 Integer userId = jwtProvider.getUserId(token);
-                String phoneNumber = jwtProvider.getPhoneNumber(token);
-
                 authContext.setUserId(userId);
                 userIdContext.setUserId(userId);
-                smsAuthedContext.setPhoneNumberAuthed(phoneNumber);
             });
         return true;
     }

@@ -11,13 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin._common.auth.SmsAuthed;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.SendSmsVerificationRequest;
+import in.koreatech.koin.domain.user.dto.SendSmsCodeRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -25,7 +24,6 @@ import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
-import in.koreatech.koin.domain.user.dto.VerifySmsCodeResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -50,7 +48,6 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/general/register")
     ResponseEntity<Void> generalUserRegisterV2(
-        @SmsAuthed String phoneNumber,
         @RequestBody @Valid GeneralUserRegisterRequest request
     );
 
@@ -224,8 +221,8 @@ public interface UserApi {
             """
     )
     @PostMapping("/user/sms/send")
-    ResponseEntity<Void> sendSignUpVerificationCode(
-        @Valid @RequestBody SendSmsVerificationRequest request
+    ResponseEntity<Void> sendSmsCode(
+        @Valid @RequestBody SendSmsCodeRequest request
     );
 
     @ApiResponses(
@@ -234,12 +231,11 @@ public interface UserApi {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
     @Operation(summary = "회원가입 문자 인증번호 입력")
     @PostMapping("/user/sms/verify")
-    ResponseEntity<VerifySmsCodeResponse> verifySignUpCode(
+    ResponseEntity<Void> verifySmsCode(
         @Valid @RequestBody VerifySmsCodeRequest request
     );
 }
