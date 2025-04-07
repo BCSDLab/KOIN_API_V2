@@ -24,7 +24,7 @@ public class UserDailyVerificationCount {
     private Long expiration;
 
     @Builder
-    public UserDailyVerificationCount(String id) {
+    private UserDailyVerificationCount(String id) {
         this.id = id;
         this.expiration = EXPIRATION_SECONDS;
     }

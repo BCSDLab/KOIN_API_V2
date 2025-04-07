@@ -20,16 +20,13 @@ import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.SendSmsCodeRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-import in.koreatech.koin.domain.user.dto.VerifySmsCodeRequest;
 import in.koreatech.koin.domain.user.service.UserService;
-import in.koreatech.koin.domain.user.service.UserSmsService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +37,7 @@ public class UserController implements UserApi {
 
     private final UserService userService;
     private final UserValidationService userValidationService;
-    private final UserSmsService userSmsService;
+
 
     @PostMapping("/v2/user/general/register")
     public ResponseEntity<Void> generalUserRegisterV2(
@@ -133,22 +130,6 @@ public class UserController implements UserApi {
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userValidationService.checkPassword(request, userId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/sms/send")
-    public ResponseEntity<Void> sendSmsCode(
-        @Valid @RequestBody SendSmsCodeRequest request
-    ) {
-        userSmsService.sendSmsCode(request);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/sms/verify")
-    public ResponseEntity<Void> verifySmsCode(
-        @Valid @RequestBody VerifySmsCodeRequest request
-    ) {
-        userSmsService.verifySmsCode(request);
         return ResponseEntity.ok().build();
     }
 }
