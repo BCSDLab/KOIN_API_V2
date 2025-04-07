@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -212,5 +213,19 @@ public interface UserApi {
     ResponseEntity<FindIdResponse> getIdByVerification(
         @RequestBody
         @Valid FindIdRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "패스워드 리셋")
+    @PostMapping("/user/password/reset")
+    ResponseEntity<Void> resetPassword(
+        @RequestBody
+        @Valid ResetPasswordRequest request
     );
 }

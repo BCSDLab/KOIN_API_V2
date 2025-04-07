@@ -109,30 +109,31 @@ public class UserService {
         user.updateLastLoggedTime(LocalDateTime.now());
     }
 
-    public String getIdByVerification(String verification) {
-        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(verification);
+    public String findIdByVerification(String verification) {
+        User user = findUserByVerification(verification);
+        return user.getUserId();
+    }
 
-        // 어뷰징 방지
+    @Transactional
+    public void resetPasswordByVerification(String verification, String newPassword) {
+        User user = findUserByVerification(verification);
+        user.updatePassword(passwordEncoder, newPassword);
+        userRepository.save(user);
+    }
+
+    private User findUserByVerification(String verification) {
+        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(verification);
         if (!userVerificationStatus.isVerified()) {
             throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
         }
-
         VerificationType verificationType = VerificationTypeDetector.detect(verification);
-        User user;
-
         if (verificationType == VerificationType.EMAIL) {
-            // 이메일로 사용자 조회 (GENERAL 또는 STUDENT 타입만)
-            user = userRepository.getByEmailAndUserTypeIn(verification, List.of(UserType.GENERAL, UserType.STUDENT));
-            return user.getUserId();
-        }
-
-        if (verificationType == VerificationType.SMS) {
-            // 전화번호로 사용자 조회 (GENERAL 또는 STUDENT 타입만)
-            user = userRepository.getByPhoneNumberAndUserTypeIn(verification,
+            return userRepository.getByEmailAndUserTypeIn(verification, List.of(UserType.GENERAL, UserType.STUDENT));
+        } else if (verificationType == VerificationType.SMS) {
+            return userRepository.getByPhoneNumberAndUserTypeIn(verification,
                 List.of(UserType.GENERAL, UserType.STUDENT));
-            return user.getUserId();
+        } else {
+            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
         }
-
-        throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
     }
 }
