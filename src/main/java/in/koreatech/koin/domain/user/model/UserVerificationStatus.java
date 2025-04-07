@@ -11,7 +11,6 @@ import lombok.Getter;
 @RedisHash(value = "userVerificationStatus")
 public class UserVerificationStatus {
 
-    private static final long INITIAL_EXPIRATION_SECONDS = 60 * 3L; // 3분
     private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 60L; // 1시간
 
     @Id
@@ -25,16 +24,17 @@ public class UserVerificationStatus {
     private Long expiration;
 
     @Builder
-    public UserVerificationStatus(String id, String verificationCode) {
+    private UserVerificationStatus(String id, String verificationCode, Long expiration) {
         this.id = id;
         this.verificationCode = verificationCode;
-        this.expiration = INITIAL_EXPIRATION_SECONDS;
+        this.expiration = expiration;
     }
 
-    public static UserVerificationStatus of(String id, String verificationCode) {
+    public static UserVerificationStatus of(String id, String verificationCode, Long expiration) {
         return UserVerificationStatus.builder()
             .id(id)
             .verificationCode(verificationCode)
+            .expiration(expiration)
             .build();
     }
 
