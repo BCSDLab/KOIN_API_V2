@@ -10,7 +10,7 @@ import lombok.Getter;
 @RedisHash(value = "smsAuthStatus")
 public class SmsAuthedStatus {
 
-    private static final long EXPIRATION_SECONDS = 60 * 60 * 1L; // 1시간
+    private static final long EXPIRATION_SECONDS = 60 * 60L; // 1시간
 
     @Id
     private String phoneNumber;

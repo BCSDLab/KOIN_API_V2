@@ -8,27 +8,27 @@ import in.koreatech.koin.domain.user.exception.UserVerificationDailyLimitExceede
 import lombok.Getter;
 
 @Getter
-@RedisHash(value = "userDailyVerifyCount")
-public class UserDailyVerifyCount {
+@RedisHash(value = "smsDailyVerificationCount")
+public class SmsDailyVerificationCount {
 
     private static final long EXPIRATION_SECONDS = 60 * 60 * 24L;
     private static final int MAX_VERIFICATION_COUNT = 5;
 
     @Id
-    private String id;
+    private String phoneNumber;
 
     private int verificationCount = 1;
 
     @TimeToLive
     private Long expiration;
 
-    public UserDailyVerifyCount(String id) {
-        this.id = id;
+    public SmsDailyVerificationCount(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
         this.expiration = EXPIRATION_SECONDS;
     }
 
-    public static UserDailyVerifyCount from(String id) {
-        return new UserDailyVerifyCount(id);
+    public static SmsDailyVerificationCount from(String phoneNumber) {
+        return new SmsDailyVerificationCount(phoneNumber);
     }
 
     public void incrementVerificationCount() {
