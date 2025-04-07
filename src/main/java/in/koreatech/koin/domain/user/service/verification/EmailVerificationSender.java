@@ -1,8 +1,10 @@
 package in.koreatech.koin.domain.user.service.verification;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.event.UserSmsRequestEvent;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
@@ -19,6 +21,7 @@ public class EmailVerificationSender implements VerificationSender {
 
     private final MailService mailService;
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -33,5 +36,8 @@ public class EmailVerificationSender implements VerificationSender {
         // 인증 정보 저장
         userVerificationStatusRedisRepository.save(
             UserVerificationStatus.of(email, verificationCode, INITIAL_EXPIRATION_SECONDS));
+
+        // 슬랙으로 메시지 전송
+        eventPublisher.publishEvent(new UserSmsRequestEvent(email));
     }
 }
