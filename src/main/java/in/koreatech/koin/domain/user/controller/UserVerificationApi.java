@@ -34,7 +34,7 @@ public interface UserVerificationApi {
         summary = "문자 또는 코리아텍 이메일 인증번호 발송",
         description = """
             ### 프로덕션
-            - 같은 번호 기준 하루 최대 5회 인증번호 발송 가능하다.
+            - 같은 번호 또는 이메일 기준 하루 최대 5회 인증번호 발송 가능하다.
             - 문자 또는 이메일로 인증번호를 발송한다.
             ### 스테이지
             - 같은 번호 또는 이메일 기준 하루 최대 5회 인증번호를 발송 가능하다.
@@ -58,7 +58,7 @@ public interface UserVerificationApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "문자 또는 이메일 인증번호 검증")
+    @Operation(summary = "문자 또는 코리아텍 이메일 인증번호 검증")
     @PostMapping("/user/verification/verify")
     ResponseEntity<Void> verifyVerificationCode(
         @Valid @RequestBody VerifyVerificationCodeRequest request
@@ -70,7 +70,7 @@ public interface UserVerificationApi {
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "인증 횟수 조회", description = "총 인증 횟수, 남은 인증 횟수, 현재 인증 횟수를 조회한다.")
+    @Operation(summary = "24시간 인증 횟수 조회", description = "총 인증 횟수, 남은 인증 횟수, 현재 인증 횟수를 조회한다.")
     @GetMapping("/user/verification/count")
     ResponseEntity<VerificationCountResponse> getVerificationCount(
         @Valid @ParameterObject VerificationCountRequest request

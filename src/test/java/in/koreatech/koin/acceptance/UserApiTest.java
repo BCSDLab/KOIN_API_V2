@@ -502,8 +502,6 @@ class UserApiTest extends AcceptanceTest {
 
         // 사용자 생성
         User user = userFixture.코인_유저();
-        user.update(user.getNickname(), user.getName(), phoneNumber, user.getGender());
-        userRepository.save(user);
 
         // when - SMS 인증번호 전송
         mockMvc.perform(
@@ -553,13 +551,11 @@ class UserApiTest extends AcceptanceTest {
         // given
         // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
-        String phoneNumber = "01012345678";
-        String newPassword = "71848878b759cce064131e4b717ee07cd24b88e1ac8ba17c5ca317674eca25b7";
 
         // 사용자 생성
         User user = userFixture.코인_유저();
-        user.update(user.getNickname(), user.getName(), phoneNumber, user.getGender());
-        userRepository.save(user);
+        String phoneNumber = user.getPhoneNumber();
+        String newPassword = "12345";
 
         // when - SMS 인증번호 전송
         mockMvc.perform(
@@ -595,10 +591,11 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/password/reset")
                     .content("""
                         {
+                          "user_id": "%s",
                           "target": "%s",
-                          "password": "%s"
+                          "new_password": "%s"
                         }
-                        """.formatted(phoneNumber, newPassword))
+                        """.formatted(user.getUserId(), phoneNumber, newPassword))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());

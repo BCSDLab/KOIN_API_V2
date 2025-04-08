@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -120,16 +121,22 @@ public class UserService {
     }
 
     @Transactional
-    public void resetPasswordByVerification(String target, String newPassword) {
+    public void resetPasswordByVerification(String userId, String target, String newPassword) {
         checkVerified(target);
         User user = findUserByVerification(target);
+        // SMS 인증인 경우만 사용자 ID 일치 여부 검사
+        boolean isSmsVerification = VerificationTypeDetector.detect(target) == VerificationType.SMS;
+        boolean isUserIdMismatch = !Objects.equals(user.getUserId(), userId);
+        if (isSmsVerification && isUserIdMismatch) {
+            throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
+        }
         user.updatePassword(passwordEncoder, newPassword);
         userRepository.save(user);
         userVerificationStatusRedisRepository.deleteById(target);
     }
 
-    private void checkVerified(String verification) {
-        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(verification);
+    private void checkVerified(String target) {
+        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(target);
         if (!userVerificationStatus.isVerified()) {
             throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
         }

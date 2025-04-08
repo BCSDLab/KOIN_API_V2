@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record VerifyVerificationCodeRequest(
     @EmailOrPhone
-    @Schema(description = "전화번호 또는 코리아텍 이메일", example = "01000000000 or test@koreatech.ac.kr")
+    @Schema(description = "전화번호 또는 코리아텍 이메일", example = "01000000000 or test@koreatech.ac.kr", requiredMode = REQUIRED)
     String target,
 
     @NotBlank(message = "인증 코드는 필수입니다.")

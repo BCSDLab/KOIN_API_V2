@@ -62,7 +62,7 @@ public class UserVerificationController implements UserVerificationApi {
     public ResponseEntity<Void> resetPassword(
         @Valid @RequestBody ResetPasswordRequest request
     ) {
-        userService.resetPasswordByVerification(request.target(), request.password());
+        userService.resetPasswordByVerification(request.userId(), request.target(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 }
