@@ -23,11 +23,11 @@ import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.integration.naver.service.NaverSmsService;
@@ -491,5 +491,129 @@ class UserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 사용자가_인증을_통해_ID를_찾는다() throws Exception {
+        // given
+        // SMS 서비스 모킹 설정
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
+        String phoneNumber = "01012345678";
+
+        // 사용자 생성
+        User user = userFixture.코인_유저();
+        user.update(user.getNickname(), user.getName(), phoneNumber, user.getGender());
+        userRepository.save(user);
+
+        // when - SMS 인증번호 전송
+        mockMvc.perform(
+                post("/user/verification/send")
+                    .content("""
+                        {
+                          "target": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // Redis에서 인증번호 확인
+        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        String certificationCode = status.getVerificationCode();
+
+        // 인증번호 검증
+        mockMvc.perform(
+                post("/user/verification/verify")
+                    .content("""
+                        {
+                          "target": "%s",
+                          "code": "%s"
+                        }
+                        """.formatted(phoneNumber, certificationCode))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // ID 찾기
+        mockMvc.perform(
+                post("/user/id/find")
+                    .content("""
+                        {
+                          "target": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.user_id").value(user.getUserId()));
+    }
+
+    @Test
+    void 사용자가_인증을_통해_비밀번호를_변경한다() throws Exception {
+        // given
+        // SMS 서비스 모킹 설정
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
+        String phoneNumber = "01012345678";
+        String newPassword = "71848878b759cce064131e4b717ee07cd24b88e1ac8ba17c5ca317674eca25b7";
+
+        // 사용자 생성
+        User user = userFixture.코인_유저();
+        user.update(user.getNickname(), user.getName(), phoneNumber, user.getGender());
+        userRepository.save(user);
+
+        // when - SMS 인증번호 전송
+        mockMvc.perform(
+                post("/user/verification/send")
+                    .content("""
+                        {
+                          "target": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // Redis에서 인증번호 확인
+        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        String certificationCode = status.getVerificationCode();
+
+        // 인증번호 검증
+        mockMvc.perform(
+                post("/user/verification/verify")
+                    .content("""
+                        {
+                          "target": "%s",
+                          "code": "%s"
+                        }
+                        """.formatted(phoneNumber, certificationCode))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // 비밀번호 변경
+        mockMvc.perform(
+                post("/user/password/reset")
+                    .content("""
+                        {
+                          "target": "%s",
+                          "password": "%s"
+                        }
+                        """.formatted(phoneNumber, newPassword))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // 변경된 비밀번호로 로그인 확인
+        mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                        {
+                          "email": "%s",
+                          "password": "%s"
+                        }
+                        """.formatted(user.getEmail(), newPassword))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
     }
 }
