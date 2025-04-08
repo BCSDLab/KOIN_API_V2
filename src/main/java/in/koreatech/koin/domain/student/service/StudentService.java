@@ -289,7 +289,7 @@ public class StudentService {
         Student student = request.toStudent(passwordEncoder);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-        studentRedisRepository.deleteById(request.phoneNumber());
+        userVerificationStatusRedisRepository.deleteById(request.phoneNumber());
     }
 
     @Transactional
