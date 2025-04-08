@@ -14,7 +14,6 @@ import in.koreatech.koin.domain.user.dto.SendVerificationCodeRequest;
 import in.koreatech.koin.domain.user.dto.VerificationCountRequest;
 import in.koreatech.koin.domain.user.dto.VerificationCountResponse;
 import in.koreatech.koin.domain.user.dto.VerifyVerificationCodeRequest;
-import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserVerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class UserVerificationController implements UserVerificationApi {
 
     private final UserVerificationService userVerificationService;
-    private final UserService userService;
 
     @PostMapping("/user/verification/send")
     public ResponseEntity<Void> sendVerificationCode(
@@ -54,7 +52,7 @@ public class UserVerificationController implements UserVerificationApi {
     public ResponseEntity<FindIdResponse> findIdByVerification(
         @Valid @RequestBody FindIdRequest request
     ) {
-        String userId = userService.findIdByVerification(request.target());
+        String userId = userVerificationService.findIdByVerification(request.target());
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
@@ -62,7 +60,7 @@ public class UserVerificationController implements UserVerificationApi {
     public ResponseEntity<Void> resetPassword(
         @Valid @RequestBody ResetPasswordRequest request
     ) {
-        userService.resetPasswordByVerification(request.userId(), request.target(), request.newPassword());
+        userVerificationService.resetPasswordByVerification(request.userId(), request.target(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 }

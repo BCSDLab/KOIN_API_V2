@@ -292,6 +292,13 @@ public class StudentService {
         userVerificationStatusRedisRepository.deleteById(request.phoneNumber());
     }
 
+    private void checkVerified(String target) {
+        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(target);
+        if (!userVerificationStatus.isVerified()) {
+            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
+        }
+    }
+
     @Transactional
     public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
@@ -330,12 +337,5 @@ public class StudentService {
         modelAndView.addObject("contextPath", serverUrl);
         modelAndView.addObject("resetToken", resetToken);
         return modelAndView;
-    }
-
-    private void checkVerified(String verification) {
-        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(verification);
-        if (!userVerificationStatus.isVerified()) {
-            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
-        }
     }
 }

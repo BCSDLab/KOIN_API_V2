@@ -1,8 +1,6 @@
 package in.koreatech.koin.domain.user.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,11 +23,9 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
-import in.koreatech.koin.domain.user.model.VerificationType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
-import in.koreatech.koin.domain.user.service.verification.VerificationTypeDetector;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -55,6 +51,13 @@ public class UserService {
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
         userVerificationStatusRedisRepository.deleteById(request.phoneNumber());
+    }
+
+    private void checkVerified(String target) {
+        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(target);
+        if (!userVerificationStatus.isVerified()) {
+            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
+        }
     }
 
     @Transactional
@@ -110,47 +113,5 @@ public class UserService {
 
     public void updateLastLoginTime(User user) {
         user.updateLastLoggedTime(LocalDateTime.now());
-    }
-
-    @Transactional
-    public String findIdByVerification(String target) {
-        checkVerified(target);
-        User user = findUserByVerification(target);
-        userVerificationStatusRedisRepository.deleteById(target);
-        return user.getUserId();
-    }
-
-    @Transactional
-    public void resetPasswordByVerification(String userId, String target, String newPassword) {
-        checkVerified(target);
-        User user = findUserByVerification(target);
-        // SMS 인증인 경우만 사용자 ID 일치 여부 검사
-        boolean isSmsVerification = VerificationTypeDetector.detect(target) == VerificationType.SMS;
-        boolean isUserIdMismatch = !Objects.equals(user.getUserId(), userId);
-        if (isSmsVerification && isUserIdMismatch) {
-            throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
-        }
-        user.updatePassword(passwordEncoder, newPassword);
-        userRepository.save(user);
-        userVerificationStatusRedisRepository.deleteById(target);
-    }
-
-    private void checkVerified(String target) {
-        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(target);
-        if (!userVerificationStatus.isVerified()) {
-            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
-        }
-    }
-
-    private User findUserByVerification(String target) {
-        VerificationType verificationType = VerificationTypeDetector.detect(target);
-        if (verificationType == VerificationType.EMAIL) {
-            return userRepository.getByEmailAndUserTypeIn(target, List.of(UserType.GENERAL, UserType.STUDENT));
-        } else if (verificationType == VerificationType.SMS) {
-            return userRepository.getByPhoneNumberAndUserTypeIn(target,
-                List.of(UserType.GENERAL, UserType.STUDENT));
-        } else {
-            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
-        }
     }
 }

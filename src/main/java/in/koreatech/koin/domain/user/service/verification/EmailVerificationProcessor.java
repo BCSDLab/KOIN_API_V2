@@ -1,12 +1,18 @@
 package in.koreatech.koin.domain.user.service.verification;
 
+import java.util.List;
+
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.event.UserSmsRequestEvent;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.integration.email.form.MailFormData;
 import in.koreatech.koin.integration.email.form.UserEmailVerificationData;
@@ -15,29 +21,39 @@ import lombok.RequiredArgsConstructor;
 
 @Component("email")
 @RequiredArgsConstructor
-public class EmailVerificationSender implements VerificationSender {
+public class EmailVerificationProcessor implements VerificationProcessor {
 
     private static final long INITIAL_EXPIRATION_SECONDS = 60 * 5L;
 
     private final MailService mailService;
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
     public void sendCode(String email) {
-        // 인증번호 생성
         String verificationCode = CertificateNumberGenerator.generate();
-
-        // 이메일 전송
         MailFormData mailFormData = new UserEmailVerificationData(verificationCode);
         mailService.sendMail(email, mailFormData);
-
-        // 인증 정보 저장
         userVerificationStatusRedisRepository.save(
             UserVerificationStatus.of(email, verificationCode, INITIAL_EXPIRATION_SECONDS));
-
-        // 슬랙으로 메시지 전송
         eventPublisher.publishEvent(new UserSmsRequestEvent(email));
+    }
+
+    @Transactional
+    @Override
+    public String findId(String email) {
+        User user = userRepository.getByEmailAndUserTypeIn(email, List.of(UserType.GENERAL, UserType.STUDENT));
+        return user.getUserId();
+    }
+
+    @Transactional
+    @Override
+    public void resetPassword(String userId, String email, String newPassword) {
+        User user = userRepository.getByEmailAndUserTypeIn(email, List.of(UserType.GENERAL, UserType.STUDENT));
+        user.updatePassword(passwordEncoder, newPassword);
+        userRepository.save(user);
     }
 }
