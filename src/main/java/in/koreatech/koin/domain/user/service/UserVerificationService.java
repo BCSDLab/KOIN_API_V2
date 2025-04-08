@@ -44,6 +44,10 @@ public class UserVerificationService {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(
             target);
 
+        if(verificationStatus.isVerified()) {
+            throw new KoinIllegalArgumentException("해당 코드는 이미 인증되었습니다.");
+        }
+
         // 인증 번호 일치 확인
         if (!Objects.equals(verificationStatus.getVerificationCode(), code)) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");

@@ -4,8 +4,8 @@ import java.util.Map;
 
 public class UserEmailVerificationData implements MailFormData {
 
-    private static final String SUBJECT = "코인 이메일 인증번호";
-    private static final String PATH = "user-email-verification";
+    private static final String SUBJECT = "코인 이메일 인증";
+    private static final String PATH = "user_email_verification";
 
     private final String verificationCode;
 

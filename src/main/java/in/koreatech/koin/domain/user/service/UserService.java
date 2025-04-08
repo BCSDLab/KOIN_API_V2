@@ -50,8 +50,10 @@ public class UserService {
 
     @Transactional
     public void generalUserRegister(GeneralUserRegisterRequest request) {
+        checkVerified(request.phoneNumber());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
+        userVerificationStatusRedisRepository.deleteById(request.phoneNumber());
     }
 
     @Transactional
@@ -109,23 +111,31 @@ public class UserService {
         user.updateLastLoggedTime(LocalDateTime.now());
     }
 
+    @Transactional
     public String findIdByVerification(String verification) {
+        checkVerified(verification);
         User user = findUserByVerification(verification);
+        userVerificationStatusRedisRepository.deleteById(verification);
         return user.getUserId();
     }
 
     @Transactional
     public void resetPasswordByVerification(String verification, String newPassword) {
+        checkVerified(verification);
         User user = findUserByVerification(verification);
         user.updatePassword(passwordEncoder, newPassword);
         userRepository.save(user);
+        userVerificationStatusRedisRepository.deleteById(verification);
     }
 
-    private User findUserByVerification(String verification) {
+    private void checkVerified(String verification) {
         UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(verification);
         if (!userVerificationStatus.isVerified()) {
             throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
         }
+    }
+
+    private User findUserByVerification(String verification) {
         VerificationType verificationType = VerificationTypeDetector.detect(verification);
         if (verificationType == VerificationType.EMAIL) {
             return userRepository.getByEmailAndUserTypeIn(verification, List.of(UserType.GENERAL, UserType.STUDENT));

@@ -15,6 +15,7 @@ import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin._common.event.StudentEmailRequestEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
@@ -44,9 +45,11 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
+import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
@@ -77,6 +80,7 @@ public class StudentService {
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
+    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
@@ -281,9 +285,11 @@ public class StudentService {
 
     @Transactional
     public void studentRegisterV2(StudentRegisterRequestV2 request) {
+        checkVerified(request.phoneNumber());
         Student student = request.toStudent(passwordEncoder);
         studentRepository.save(student);
         userRepository.save(student.getUser());
+        studentRedisRepository.deleteById(request.phoneNumber());
     }
 
     @Transactional
@@ -324,5 +330,12 @@ public class StudentService {
         modelAndView.addObject("contextPath", serverUrl);
         modelAndView.addObject("resetToken", resetToken);
         return modelAndView;
+    }
+
+    private void checkVerified(String verification) {
+        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(verification);
+        if (!userVerificationStatus.isVerified()) {
+            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
+        }
     }
 }
