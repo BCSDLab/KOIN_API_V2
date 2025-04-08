@@ -13,12 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.FindIdRequest;
-import in.koreatech.koin.domain.user.dto.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -199,31 +196,5 @@ public interface UserApi {
     ResponseEntity<Void> checkLogin(
         @ParameterObject @ModelAttribute(value = "access_token")
         @Valid UserAccessTokenRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "ID 찾기", description = "휴대폰 또는 이메일 인증이 완료된 후 1시간 이내로 사용이 가능하다.")
-    @PostMapping("/user/id/find")
-    ResponseEntity<FindIdResponse> findIdByVerification(
-        @Valid @RequestBody FindIdRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "패스워드 리셋", description = "휴대폰 또는 이메일 인증이 완료된 후 1시간 이내로 사용이 가능하다.")
-    @PostMapping("/user/password/reset")
-    ResponseEntity<Void> resetPassword(
-        @Valid @RequestBody ResetPasswordRequest request
     );
 }

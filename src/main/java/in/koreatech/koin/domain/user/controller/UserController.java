@@ -17,12 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.FindIdRequest;
-import in.koreatech.koin.domain.user.dto.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -132,22 +129,6 @@ public class UserController implements UserApi {
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userValidationService.checkPassword(request, userId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/id/find")
-    public ResponseEntity<FindIdResponse> findIdByVerification(
-        @Valid @RequestBody FindIdRequest request
-    ) {
-        String userId = userService.findIdByVerification(request.target());
-        return ResponseEntity.ok().body(FindIdResponse.from(userId));
-    }
-
-    @PostMapping("/user/password/reset")
-    public ResponseEntity<Void> resetPassword(
-        @Valid @RequestBody ResetPasswordRequest request
-    ) {
-        userService.resetPasswordByVerification(request.target(), request.password());
         return ResponseEntity.ok().build();
     }
 }

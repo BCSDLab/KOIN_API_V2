@@ -5,25 +5,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.user.dto.FindIdRequest;
+import in.koreatech.koin.domain.user.dto.FindIdResponse;
+import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import in.koreatech.koin.domain.user.dto.SendVerificationCodeRequest;
 import in.koreatech.koin.domain.user.dto.VerificationCountRequest;
 import in.koreatech.koin.domain.user.dto.VerificationCountResponse;
 import in.koreatech.koin.domain.user.dto.VerifyVerificationCodeRequest;
+import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserVerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/verification")
 public class UserVerificationController implements UserVerificationApi {
 
     private final UserVerificationService userVerificationService;
+    private final UserService userService;
 
-    @PostMapping("/send")
+    @PostMapping("/user/verification/send")
     public ResponseEntity<Void> sendVerificationCode(
         @Valid @RequestBody SendVerificationCodeRequest request
     ) {
@@ -31,7 +34,7 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/verify")
+    @PostMapping("/user/verification/verify")
     public ResponseEntity<Void> verifyVerificationCode(
         @Valid @RequestBody VerifyVerificationCodeRequest request
     ) {
@@ -39,11 +42,27 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/count")
+    @GetMapping("/user/verification/count")
     public ResponseEntity<VerificationCountResponse> getVerificationCount(
         @Valid @ParameterObject VerificationCountRequest request
     ) {
         VerificationCountResponse response = userVerificationService.getVerificationCount(request.target());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/user/id/find")
+    public ResponseEntity<FindIdResponse> findIdByVerification(
+        @Valid @RequestBody FindIdRequest request
+    ) {
+        String userId = userService.findIdByVerification(request.target());
+        return ResponseEntity.ok().body(FindIdResponse.from(userId));
+    }
+
+    @PostMapping("/user/password/reset")
+    public ResponseEntity<Void> resetPassword(
+        @Valid @RequestBody ResetPasswordRequest request
+    ) {
+        userService.resetPasswordByVerification(request.target(), request.password());
+        return ResponseEntity.ok().build();
     }
 }

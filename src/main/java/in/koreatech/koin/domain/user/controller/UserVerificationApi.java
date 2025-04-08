@@ -5,8 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
+import in.koreatech.koin.domain.user.dto.FindIdRequest;
+import in.koreatech.koin.domain.user.dto.FindIdResponse;
+import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import in.koreatech.koin.domain.user.dto.SendVerificationCodeRequest;
 import in.koreatech.koin.domain.user.dto.VerificationCountRequest;
 import in.koreatech.koin.domain.user.dto.VerificationCountResponse;
@@ -19,8 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "(Normal) User: 회원", description = "회원 관련 API")
-@RequestMapping("/user/verification")
+@Tag(name = "(Normal) User(본인인증): 회원", description = "본인인증 기반으로 회원 정보를 관리한다.")
 public interface UserVerificationApi {
     @ApiResponses(
         value = {
@@ -45,7 +46,7 @@ public interface UserVerificationApi {
             - 코리아텍 이메일 형식의 경우: 코리아텍 이메일로 인증 코드를 전송한다.
             """
     )
-    @PostMapping("/send")
+    @PostMapping("/user/verification/send")
     ResponseEntity<Void> sendVerificationCode(
         @Valid @RequestBody SendVerificationCodeRequest request
     );
@@ -58,7 +59,7 @@ public interface UserVerificationApi {
         }
     )
     @Operation(summary = "문자 또는 이메일 인증번호 검증")
-    @PostMapping("/verify")
+    @PostMapping("/user/verification/verify")
     ResponseEntity<Void> verifyVerificationCode(
         @Valid @RequestBody VerifyVerificationCodeRequest request
     );
@@ -70,8 +71,34 @@ public interface UserVerificationApi {
         }
     )
     @Operation(summary = "인증 횟수 조회", description = "총 인증 횟수, 남은 인증 횟수, 현재 인증 횟수를 조회한다.")
-    @GetMapping("/count")
+    @GetMapping("/user/verification/count")
     ResponseEntity<VerificationCountResponse> getVerificationCount(
         @Valid @ParameterObject VerificationCountRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "ID 찾기", description = "휴대폰 또는 이메일 인증이 완료된 후 1시간 이내로 사용이 가능하다.")
+    @PostMapping("/user/id/find")
+    ResponseEntity<FindIdResponse> findIdByVerification(
+        @Valid @RequestBody FindIdRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "패스워드 리셋", description = "휴대폰 또는 이메일 인증이 완료된 후 1시간 이내로 사용이 가능하다.")
+    @PostMapping("/user/password/reset")
+    ResponseEntity<Void> resetPassword(
+        @Valid @RequestBody ResetPasswordRequest request
     );
 }
