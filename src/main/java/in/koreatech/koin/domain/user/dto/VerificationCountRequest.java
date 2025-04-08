@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.user.dto;
 import in.koreatech.koin._common.validation.EmailOrPhone;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record SendVerificationCodeRequest(
+public record VerificationCountRequest(
     @EmailOrPhone
     @Schema(description = "전화번호 또는 코리아텍 이메일", example = "01000000000 or test@koreatech.ac.kr")
     String target

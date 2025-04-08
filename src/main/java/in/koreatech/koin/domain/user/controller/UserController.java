@@ -22,13 +22,13 @@ import in.koreatech.koin.domain.user.dto.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import jakarta.validation.Valid;
@@ -136,10 +136,10 @@ public class UserController implements UserApi {
     }
 
     @PostMapping("/user/id/find")
-    public ResponseEntity<FindIdResponse> getIdByVerification(
+    public ResponseEntity<FindIdResponse> findIdByVerification(
         @Valid @RequestBody FindIdRequest request
     ) {
-        String userId = userService.findIdByVerification(request.verification());
+        String userId = userService.findIdByVerification(request.target());
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
@@ -147,7 +147,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> resetPassword(
         @Valid @RequestBody ResetPasswordRequest request
     ) {
-        userService.resetPasswordByVerification(request.verification(), request.password());
+        userService.resetPasswordByVerification(request.target(), request.password());
         return ResponseEntity.ok().build();
     }
 }

@@ -112,20 +112,20 @@ public class UserService {
     }
 
     @Transactional
-    public String findIdByVerification(String verification) {
-        checkVerified(verification);
-        User user = findUserByVerification(verification);
-        userVerificationStatusRedisRepository.deleteById(verification);
+    public String findIdByVerification(String target) {
+        checkVerified(target);
+        User user = findUserByVerification(target);
+        userVerificationStatusRedisRepository.deleteById(target);
         return user.getUserId();
     }
 
     @Transactional
-    public void resetPasswordByVerification(String verification, String newPassword) {
-        checkVerified(verification);
-        User user = findUserByVerification(verification);
+    public void resetPasswordByVerification(String target, String newPassword) {
+        checkVerified(target);
+        User user = findUserByVerification(target);
         user.updatePassword(passwordEncoder, newPassword);
         userRepository.save(user);
-        userVerificationStatusRedisRepository.deleteById(verification);
+        userVerificationStatusRedisRepository.deleteById(target);
     }
 
     private void checkVerified(String verification) {
@@ -135,12 +135,12 @@ public class UserService {
         }
     }
 
-    private User findUserByVerification(String verification) {
-        VerificationType verificationType = VerificationTypeDetector.detect(verification);
+    private User findUserByVerification(String target) {
+        VerificationType verificationType = VerificationTypeDetector.detect(target);
         if (verificationType == VerificationType.EMAIL) {
-            return userRepository.getByEmailAndUserTypeIn(verification, List.of(UserType.GENERAL, UserType.STUDENT));
+            return userRepository.getByEmailAndUserTypeIn(target, List.of(UserType.GENERAL, UserType.STUDENT));
         } else if (verificationType == VerificationType.SMS) {
-            return userRepository.getByPhoneNumberAndUserTypeIn(verification,
+            return userRepository.getByPhoneNumberAndUserTypeIn(target,
                 List.of(UserType.GENERAL, UserType.STUDENT));
         } else {
             throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");

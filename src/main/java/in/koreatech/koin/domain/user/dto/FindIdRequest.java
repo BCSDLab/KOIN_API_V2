@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record FindIdRequest(
     @EmailOrPhone
     @Schema(description = "전화번호 또는 코리아텍 이메일", example = "01000000000 or test@koreatech.ac.kr")
-    String verification
+    String target
 ) {
 
 }

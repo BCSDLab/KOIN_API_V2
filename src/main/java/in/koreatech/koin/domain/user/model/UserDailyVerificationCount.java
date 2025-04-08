@@ -13,7 +13,7 @@ import lombok.Getter;
 public class UserDailyVerificationCount {
 
     private static final long EXPIRATION_SECONDS = 60 * 60 * 24L;
-    private static final int MAX_VERIFICATION_COUNT = 5;
+    public static final int MAX_VERIFICATION_COUNT = 5;
 
     @Id
     private String id;

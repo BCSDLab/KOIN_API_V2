@@ -1,11 +1,15 @@
 package in.koreatech.koin.domain.user.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import in.koreatech.koin.domain.user.dto.SendVerificationCodeRequest;
+import in.koreatech.koin.domain.user.dto.VerificationCountRequest;
+import in.koreatech.koin.domain.user.dto.VerificationCountResponse;
 import in.koreatech.koin.domain.user.dto.VerifyVerificationCodeRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +25,7 @@ public interface UserVerificationApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
@@ -48,8 +53,7 @@ public interface UserVerificationApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
@@ -57,5 +61,17 @@ public interface UserVerificationApi {
     @PostMapping("/verify")
     ResponseEntity<Void> verifyVerificationCode(
         @Valid @RequestBody VerifyVerificationCodeRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "인증 횟수 조회", description = "총 인증 횟수, 남은 인증 횟수, 현재 인증 횟수를 조회한다.")
+    @GetMapping("/count")
+    ResponseEntity<VerificationCountResponse> getVerificationCount(
+        @Valid @ParameterObject VerificationCountRequest request
     );
 }

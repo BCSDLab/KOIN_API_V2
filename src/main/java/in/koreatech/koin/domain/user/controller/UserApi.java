@@ -18,13 +18,13 @@ import in.koreatech.koin.domain.user.dto.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-import in.koreatech.koin.domain.user.dto.ResetPasswordRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -208,11 +208,10 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "ID 찾기")
+    @Operation(summary = "ID 찾기", description = "휴대폰 또는 이메일 인증이 완료된 후 1시간 이내로 사용이 가능하다.")
     @PostMapping("/user/id/find")
-    ResponseEntity<FindIdResponse> getIdByVerification(
-        @RequestBody
-        @Valid FindIdRequest request
+    ResponseEntity<FindIdResponse> findIdByVerification(
+        @Valid @RequestBody FindIdRequest request
     );
 
     @ApiResponses(
@@ -222,10 +221,9 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "패스워드 리셋")
+    @Operation(summary = "패스워드 리셋", description = "휴대폰 또는 이메일 인증이 완료된 후 1시간 이내로 사용이 가능하다.")
     @PostMapping("/user/password/reset")
     ResponseEntity<Void> resetPassword(
-        @RequestBody
-        @Valid ResetPasswordRequest request
+        @Valid @RequestBody ResetPasswordRequest request
     );
 }
