@@ -392,10 +392,10 @@ class UserApiTest extends AcceptanceTest {
 
         // when - SMS 인증번호 전송
         mockMvc.perform(
-                post("/user/sms/send")
+                post("/user/verification/send")
                     .content("""
                         {
-                          "phone_number": "%s"
+                          "target": "%s"
                         }
                         """.formatted(phoneNumber))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -408,11 +408,11 @@ class UserApiTest extends AcceptanceTest {
 
         // then - SMS 인증번호 검증
         mockMvc.perform(
-                post("/user/sms/verify")
+                post("/user/verification/verify")
                     .content("""
                         {
-                          "phone_number": "%s",
-                          "certification_code": "%s"
+                          "target": "%s",
+                          "code": "%s"
                         }
                         """.formatted(phoneNumber, certificationCode))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -429,10 +429,10 @@ class UserApiTest extends AcceptanceTest {
 
         // when - SMS 인증번호 전송
         mockMvc.perform(
-                post("/user/sms/send")
+                post("/user/verification/send")
                     .content("""
                         {
-                          "phone_number": "%s"
+                          "target": "%s"
                         }
                         """.formatted(phoneNumber))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -446,11 +446,11 @@ class UserApiTest extends AcceptanceTest {
 
         // then - 잘못된 인증번호로 검증
         mockMvc.perform(
-                post("/user/sms/verify")
+                post("/user/verification/verify")
                     .content("""
                         {
-                          "phone_number": "%s",
-                          "certification_code": "%s"
+                          "target": "%s",
+                          "code": "%s"
                         }
                         """.formatted(phoneNumber, wrongCode))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -469,10 +469,10 @@ class UserApiTest extends AcceptanceTest {
         // when - 5번까지 정상 발송
         for (int i = 0; i < maxDailyLimit; i++) {
             mockMvc.perform(
-                    post("/user/sms/send")
+                    post("/user/verification/send")
                         .content("""
                             {
-                              "phone_number": "%s"
+                              "target": "%s"
                             }
                             """.formatted(phoneNumber))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -482,10 +482,10 @@ class UserApiTest extends AcceptanceTest {
 
         // then - 6번째 발송 시도시 400 반환
         mockMvc.perform(
-                post("/user/sms/send")
+                post("/user/verification/send")
                     .content("""
                         {
-                          "phone_number": "%s"
+                          "target": "%s"
                         }
                         """.formatted(phoneNumber))
                     .contentType(MediaType.APPLICATION_JSON)
