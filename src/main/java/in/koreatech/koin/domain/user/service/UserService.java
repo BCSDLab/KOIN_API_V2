@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.UnAuthorizedException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -54,10 +55,9 @@ public class UserService {
     }
 
     private void checkVerified(String phoneNumber) {
-        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(phoneNumber);
-        if (!userVerificationStatus.isVerified()) {
-            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
-        }
+        userVerificationStatusRedisRepository.findById(phoneNumber)
+            .filter(UserVerificationStatus::isVerified)
+            .orElseThrow(() -> new UnAuthorizedException("본인 인증 후 다시 시도해주십시오."));
     }
 
     @Transactional

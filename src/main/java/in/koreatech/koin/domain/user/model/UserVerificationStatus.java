@@ -20,6 +20,7 @@ public class UserVerificationStatus {
 
     private boolean verified = false;
 
+    @Getter
     @TimeToLive
     private Long expiration;
 
@@ -36,6 +37,10 @@ public class UserVerificationStatus {
             .verificationCode(verificationCode)
             .expiration(expiration)
             .build();
+    }
+
+    public boolean isNotVerified() {
+        return !verified;
     }
 
     public void markAsVerified() {

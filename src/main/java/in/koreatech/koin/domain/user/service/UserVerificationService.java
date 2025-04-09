@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.UnAuthorizedException;
 import in.koreatech.koin.domain.user.dto.verification.VerificationCountResponse;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
@@ -15,6 +16,7 @@ import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisR
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.service.verification.VerificationProcessor;
 import in.koreatech.koin.domain.user.service.verification.VerificationTypeDetector;
+import in.koreatech.koin.integration.email.exception.VerifyNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -39,7 +41,8 @@ public class UserVerificationService {
     }
 
     private void increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
+        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(
+                phoneNumberOrEmail)
             .map(existing -> {
                 existing.incrementVerificationCount();
                 return existing;
@@ -50,13 +53,14 @@ public class UserVerificationService {
 
     @Transactional
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
-        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(
-            phoneNumberOrEmail);
+        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(
+                phoneNumberOrEmail)
+            .orElseThrow(() -> VerifyNotFoundException.withDetail("verification: " + phoneNumberOrEmail));
         if (verificationStatus.isVerified()) {
             return;
         }
         if (!Objects.equals(verificationStatus.getVerificationCode(), verificationCode)) {
-            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
+            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
         }
         verificationStatus.markAsVerified();
         userVerificationStatusRedisRepository.save(verificationStatus);
@@ -99,9 +103,8 @@ public class UserVerificationService {
     }
 
     private void checkVerified(String phoneNumberOrEmail) {
-        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
-        if (!userVerificationStatus.isVerified()) {
-            throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
-        }
+        userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
+            .filter(UserVerificationStatus::isVerified)
+            .orElseThrow(() -> new UnAuthorizedException("본인 인증 후 다시 시도해주십시오."));
     }
 }
