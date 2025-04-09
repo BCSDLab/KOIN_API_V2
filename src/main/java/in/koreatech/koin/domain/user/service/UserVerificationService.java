@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin.domain.user.dto.VerificationCountResponse;
+import in.koreatech.koin.domain.user.dto.verification.VerificationCountResponse;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.model.VerificationType;

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.dto;
+package in.koreatech.koin.domain.user.dto.verification;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
