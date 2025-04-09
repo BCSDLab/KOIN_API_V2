@@ -292,8 +292,8 @@ public class StudentService {
         userVerificationStatusRedisRepository.deleteById(request.phoneNumber());
     }
 
-    private void checkVerified(String target) {
-        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(target);
+    private void checkVerified(String phoneNumber) {
+        UserVerificationStatus userVerificationStatus = userVerificationStatusRedisRepository.getById(phoneNumber);
         if (!userVerificationStatus.isVerified()) {
             throw new KoinIllegalArgumentException("유효하지 않은 인증 정보입니다.");
         }
