@@ -14,15 +14,17 @@ import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.model.VerificationType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.integration.naver.service.NaverSmsService;
 import lombok.RequiredArgsConstructor;
 
-@Component("sms")
+@Component
 @RequiredArgsConstructor
 public class SmsVerificationProcessor implements VerificationProcessor {
 
+    private static final VerificationType VERIFICATION_TYPE = VerificationType.SMS;
     private static final long INITIAL_EXPIRATION_SECONDS = 60 * 3L;
 
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
@@ -30,6 +32,11 @@ public class SmsVerificationProcessor implements VerificationProcessor {
     private final ApplicationEventPublisher eventPublisher;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public VerificationType getType() {
+        return VERIFICATION_TYPE;
+    }
 
     @Transactional
     @Override

@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.user.service;
 
-import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
@@ -11,31 +10,23 @@ import in.koreatech.koin._common.exception.custom.UnAuthorizedException;
 import in.koreatech.koin.domain.user.dto.verification.VerificationCountResponse;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
-import in.koreatech.koin.domain.user.model.VerificationType;
 import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.service.verification.VerificationProcessor;
-import in.koreatech.koin.domain.user.service.verification.VerificationTypeDetector;
-import in.koreatech.koin.integration.email.exception.VerifyNotFoundException;
+import in.koreatech.koin.domain.user.service.verification.VerificationProcessorFactory;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class UserVerificationService {
 
-    private final Map<String, VerificationProcessor> verificationSenderMap;
+    private final VerificationProcessorFactory verificationProcessorFactory;
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
 
-    // 인증수단(휴대폰 or 이메일)에 따른 구현체 반환 메서드
-    private VerificationProcessor getVerificationProcessor(String phoneNumberOrEmail) {
-        VerificationType verificationType = VerificationTypeDetector.detect(phoneNumberOrEmail);
-        return verificationSenderMap.get(verificationType.getValue());
-    }
-
     @Transactional
     public void sendCode(String phoneNumberOrEmail) {
-        VerificationProcessor verificationProcessor = getVerificationProcessor(phoneNumberOrEmail);
+        VerificationProcessor verificationProcessor = verificationProcessorFactory.getProcessor(phoneNumberOrEmail);
         increaseUserDailyVerificationCount(phoneNumberOrEmail);
         verificationProcessor.sendCode(phoneNumberOrEmail);
     }
@@ -53,9 +44,7 @@ public class UserVerificationService {
 
     @Transactional
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
-        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(
-                phoneNumberOrEmail)
-            .orElseThrow(() -> VerifyNotFoundException.withDetail("verification: " + phoneNumberOrEmail));
+        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
         if (verificationStatus.isVerified()) {
             return;
         }
@@ -88,23 +77,21 @@ public class UserVerificationService {
     @Transactional
     public String findIdByVerification(String phoneNumberOrEmail) {
         checkVerified(phoneNumberOrEmail);
-        VerificationProcessor verificationProcessor = getVerificationProcessor(phoneNumberOrEmail);
-        String userId = verificationProcessor.findId(phoneNumberOrEmail);
-        userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
-        return userId;
+        VerificationProcessor verificationProcessor = verificationProcessorFactory.getProcessor(phoneNumberOrEmail);
+        return verificationProcessor.findId(phoneNumberOrEmail);
     }
 
     @Transactional
     public void resetPasswordByVerification(String userId, String phoneNumberOrEmail, String newPassword) {
         checkVerified(phoneNumberOrEmail);
-        VerificationProcessor verificationProcessor = getVerificationProcessor(phoneNumberOrEmail);
+        VerificationProcessor verificationProcessor = verificationProcessorFactory.getProcessor(phoneNumberOrEmail);
         verificationProcessor.resetPassword(userId, phoneNumberOrEmail, newPassword);
-        userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
 
     private void checkVerified(String phoneNumberOrEmail) {
         userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
             .filter(UserVerificationStatus::isVerified)
             .orElseThrow(() -> new UnAuthorizedException("본인 인증 후 다시 시도해주십시오."));
+        userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
 }

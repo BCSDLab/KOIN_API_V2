@@ -289,13 +289,13 @@ public class StudentService {
         Student student = request.toStudent(passwordEncoder);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-        userVerificationStatusRedisRepository.deleteById(request.phoneNumber());
     }
 
     private void checkVerified(String phoneNumber) {
         userVerificationStatusRedisRepository.findById(phoneNumber)
             .filter(UserVerificationStatus::isVerified)
             .orElseThrow(() -> new UnAuthorizedException("본인 인증 후 다시 시도해주십시오."));
+        userVerificationStatusRedisRepository.deleteById(phoneNumber);
     }
 
     @Transactional
