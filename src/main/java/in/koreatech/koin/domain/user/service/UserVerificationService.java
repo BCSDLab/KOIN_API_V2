@@ -25,10 +25,11 @@ public class UserVerificationService {
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
 
     @Transactional
-    public void sendCode(String phoneNumberOrEmail) {
+    public VerificationCountResponse sendCode(String phoneNumberOrEmail) {
         VerificationProcessor verificationProcessor = verificationProcessorFactory.getProcessor(phoneNumberOrEmail);
         increaseUserDailyVerificationCount(phoneNumberOrEmail);
         verificationProcessor.sendCode(phoneNumberOrEmail);
+        return getVerificationCount(phoneNumberOrEmail);
     }
 
     private void increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
@@ -42,20 +43,7 @@ public class UserVerificationService {
         userDailyVerificationCountRedisRepository.save(verificationCount);
     }
 
-    @Transactional
-    public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
-        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
-        if (verificationStatus.isVerified()) {
-            return;
-        }
-        if (!Objects.equals(verificationStatus.getVerificationCode(), verificationCode)) {
-            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
-        }
-        verificationStatus.markAsVerified();
-        userVerificationStatusRedisRepository.save(verificationStatus);
-    }
-
-    public VerificationCountResponse getVerificationCount(String phoneNumberOrEmail) {
+    private VerificationCountResponse getVerificationCount(String phoneNumberOrEmail) {
         return userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
             .map(verificationCount -> createVerificationCountResponse(phoneNumberOrEmail, verificationCount))
             .orElseGet(() -> createEmptyVerificationCountResponse(phoneNumberOrEmail));
@@ -72,6 +60,19 @@ public class UserVerificationService {
     private VerificationCountResponse createEmptyVerificationCountResponse(String phoneNumberOrEmail) {
         int maxCount = UserDailyVerificationCount.MAX_VERIFICATION_COUNT;
         return VerificationCountResponse.of(phoneNumberOrEmail, maxCount, maxCount, 0);
+    }
+
+    @Transactional
+    public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
+        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
+        if (verificationStatus.isVerified()) {
+            return;
+        }
+        if (!Objects.equals(verificationStatus.getVerificationCode(), verificationCode)) {
+            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+        }
+        verificationStatus.markAsVerified();
+        userVerificationStatusRedisRepository.save(verificationStatus);
     }
 
     @Transactional

@@ -459,7 +459,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 사용자가_SMS_인증번호_하루_5번_이상_발송시도시_에러를_반환한다() throws Exception {
+    void 사용자가_SMS_인증번호_하루_5번_이상_발송시도시_429_에러를_반환한다() throws Exception {
         // given
         // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
@@ -490,7 +490,7 @@ class UserApiTest extends AcceptanceTest {
                         """.formatted(phoneNumber))
                     .contentType(MediaType.APPLICATION_JSON)
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isTooManyRequests());
     }
 
     @Test
