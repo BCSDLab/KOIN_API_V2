@@ -11,6 +11,7 @@ import in.koreatech.koin.admin.shop.dto.menu.*;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
+import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.model.menu.*;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
@@ -52,6 +53,7 @@ public class AdminShopMenuService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void createMenu(Integer shopId, AdminCreateMenuRequest request) {
         Shop shop = adminShopRepository.getById(shopId);
         Menu menu = request.toEntity(shop);
@@ -111,6 +113,7 @@ public class AdminShopMenuService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyMenu(Integer shopId, Integer menuId, AdminModifyMenuRequest request) {
         Menu menu = adminMenuRepository.getById(menuId);
         adminShopRepository.getById(shopId);
@@ -130,6 +133,7 @@ public class AdminShopMenuService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void deleteMenu(Integer shopId, Integer menuId) {
         Menu menu = adminMenuRepository.getById(menuId);
         if (!Objects.equals(menu.getShop().getId(), shopId)) {
