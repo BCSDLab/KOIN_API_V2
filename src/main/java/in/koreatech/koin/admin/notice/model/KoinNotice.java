@@ -59,6 +59,10 @@ public class KoinNotice extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
+    public void setArticle(Article article) {
+        this.article = article;
+    }
+
     public void delete() {
         this.isDeleted = true;
     }
