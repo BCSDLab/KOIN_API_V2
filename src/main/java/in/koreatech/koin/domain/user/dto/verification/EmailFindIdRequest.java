@@ -11,9 +11,9 @@ import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record EmailFindIdRequest(
-    @NotBlank(message = "이메일을 입력해주세요.")
-    @Email(message = "이메일 형식이 올바르지 않습니다.")
-    @Schema(description = "이메일", example = "test@koreatech.ac.kr", requiredMode = REQUIRED)
+    @Schema(description = "이메일", example = "user@example.com", requiredMode = REQUIRED)
+    @NotBlank(message = "이메일은 필수입니다.")
+    @Email(message = "올바른 이메일 형식이 아닙니다.")
     String email
 ) {
 

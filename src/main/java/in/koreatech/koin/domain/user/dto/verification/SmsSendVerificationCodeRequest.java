@@ -11,9 +11,9 @@ import jakarta.validation.constraints.Pattern;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record SmsSendVerificationCodeRequest(
-    @NotBlank(message = "전화번호를 입력해주세요.")
-    @Pattern(regexp = "^\\d{11}$", message = "전화번호 형식이 올바르지 않습니다. 11자리 숫자로 입력해 주세요.")
     @Schema(description = "전화번호", example = "01012345678", requiredMode = REQUIRED)
+    @NotBlank(message = "전화번호는 필수입니다.")
+    @Pattern(regexp = "^010[0-9]{8}$", message = "올바른 전화번호 형식이 아닙니다.")
     String phoneNumber
 ) {
 
