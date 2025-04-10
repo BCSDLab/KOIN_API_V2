@@ -148,7 +148,7 @@ public interface UserVerificationApi {
         summary = "사용자 ID 존재 여부 확인",
         description = "입력한 사용자 ID가 존재하는지 확인합니다."
     )
-    @PostMapping("/user/check/user-id")
+    @PostMapping("/user/id/exists")
     ResponseEntity<Void> checkUserIdExists(@Valid @RequestBody CheckUserIdRequest request);
 
     @ApiResponses({
@@ -159,7 +159,7 @@ public interface UserVerificationApi {
         summary = "전화번호 존재 여부 확인",
         description = "입력한 전화번호로 가입된 계정이 존재하는지 확인합니다."
     )
-    @PostMapping("/user/id/exists")
+    @PostMapping("/user/phone/exists")
     ResponseEntity<Void> checkPhoneNumberExists(@Valid @RequestBody CheckPhoneNumberRequest request);
 
     @ApiResponses({
@@ -170,7 +170,7 @@ public interface UserVerificationApi {
         summary = "이메일 존재 여부 확인",
         description = "입력한 이메일 주소로 가입된 계정이 존재하는지 확인합니다."
     )
-    @PostMapping("/user/phone/exists")
+    @PostMapping("/user/email/exists")
     ResponseEntity<Void> checkEmailExists(@Valid @RequestBody CheckEmailRequest request);
 
     @ApiResponses({
