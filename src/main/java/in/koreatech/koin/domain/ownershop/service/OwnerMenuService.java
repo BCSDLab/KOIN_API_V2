@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.ownershop.service;
 
+import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.dto.menu.request.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.menu.request.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.menu.request.ModifyCategoryRequest;
@@ -54,6 +55,7 @@ public class OwnerMenuService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void deleteMenuByMenuId(Integer ownerId, Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
         ownerShopUtilService.getOwnerShopById(menu.getShop().getId(), ownerId);
@@ -68,6 +70,7 @@ public class OwnerMenuService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void createMenu(Integer shopId, Integer ownerId, CreateMenuRequest createMenuRequest) {
         Shop shop = ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         Menu savedMenu = menuRepository.save(createMenuRequest.toEntity(shop));
@@ -88,6 +91,7 @@ public class OwnerMenuService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyMenu(Integer ownerId, Integer menuId, ModifyMenuRequest modifyMenuRequest) {
         Menu menu = menuRepository.getById(menuId);
         ownerShopUtilService.getOwnerShopById(menu.getShop().getId(), ownerId);

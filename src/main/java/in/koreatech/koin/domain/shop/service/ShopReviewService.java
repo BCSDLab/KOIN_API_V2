@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.dto.review.request.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.review.request.ModifyReviewRequest;
 import in.koreatech.koin.domain.shop.dto.review.ReviewsSortCriteria;
@@ -87,6 +88,7 @@ public class ShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void createReview(CreateReviewRequest createReviewRequest, Integer studentId, Integer shopId) {
         checkUserLatestReviewWithin24Hours(studentId, shopId);
         Student student = studentRepository.getById(studentId);
@@ -114,6 +116,7 @@ public class ShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void deleteReview(Integer reviewId, Integer studentId) {
         ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
         if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
@@ -123,6 +126,7 @@ public class ShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyReview(ModifyReviewRequest modifyReviewRequest, Integer reviewId, Integer studentId) {
         ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
         if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
@@ -137,6 +141,7 @@ public class ShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void reportReview(
         Integer shopId,
         Integer reviewId,
