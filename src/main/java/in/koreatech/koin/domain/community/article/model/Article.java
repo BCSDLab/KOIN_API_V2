@@ -14,10 +14,12 @@ import java.util.Objects;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
+import in.koreatech.koin.admin.notice.model.KoinNotice;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleRequest;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -87,6 +89,9 @@ public class Article extends BaseEntity {
 
     @OneToOne(mappedBy = "article", fetch = LAZY, cascade = ALL)
     private LostItemArticle lostItemArticle;
+
+    @OneToOne(mappedBy = "article", fetch = LAZY, cascade = ALL)
+    private KoinNotice koinNotice;
 
     @Transient
     private Integer prevId;
@@ -194,7 +199,8 @@ public class Article extends BaseEntity {
         boolean isNotice,
         KoreatechArticle koreatechArticle,
         KoinArticle koinArticle,
-        LostItemArticle lostItemArticle
+        LostItemArticle lostItemArticle,
+        KoinNotice koinNotice
     ) {
         this.id = id;
         this.board = board;
@@ -207,15 +213,16 @@ public class Article extends BaseEntity {
         this.koreatechArticle = koreatechArticle;
         this.koinArticle = koinArticle;
         this.lostItemArticle = lostItemArticle;
+        this.koinNotice = koinNotice;
     }
 
-    public static Article createKoinNoticeArticleByAdmin(
+    public static Article createKoinNotice(
         AdminNoticeRequest request,
         Board adminNoticeBoard,
-        User adminUser
+        Admin adminUser
     ) {
-        KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser)
+        KoinNotice koinNotice = KoinNotice.builder()
+            .admin(adminUser)
             .isDeleted(false)
             .build();
 
@@ -224,12 +231,11 @@ public class Article extends BaseEntity {
             .title(request.title())
             .content(request.content())
             .isNotice(true)
-            .koinArticle(koinArticle)
-            .koreatechArticle(null)
+            .koinNotice(koinNotice)
             .isDeleted(false)
             .build();
 
-        koinArticle.setArticle(article);
+        koinNotice.setArticle(article);
         return article;
     }
 

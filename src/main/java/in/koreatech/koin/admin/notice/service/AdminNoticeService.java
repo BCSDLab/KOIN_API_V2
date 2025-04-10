@@ -10,18 +10,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeResponse;
 import in.koreatech.koin.admin.notice.dto.AdminNoticesResponse;
 import in.koreatech.koin.admin.notice.repository.AdminKoinArticleRepository;
 import in.koreatech.koin.admin.notice.repository.AdminKoreatechArticleRepository;
 import in.koreatech.koin.admin.notice.repository.AdminNoticeRepository;
-import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminNoticeService {
 
     private final AdminNoticeRepository adminNoticeRepository;
-    private final AdminUserRepository adminUserRepository;
+    private final AdminRepository adminRepository;
     private final BoardRepository boardRepository;
 
     private static final Sort NOTICES_SORT = Sort.by(
@@ -42,8 +42,8 @@ public class AdminNoticeService {
     @Transactional
     public void createNotice(AdminNoticeRequest request, Integer adminUserId) {
         Board adminNoticeBoard = boardRepository.getById(KOIN_ADMIN_NOTICE_BOARD_ID);
-        User adminUser = adminUserRepository.getById(adminUserId);
-        Article adminNoticeArticle = Article.createKoinNoticeArticleByAdmin(request, adminNoticeBoard, adminUser);
+        Admin adminUser = adminRepository.getById(adminUserId);
+        Article adminNoticeArticle = Article.createKoinNotice(request, adminNoticeBoard, adminUser);
         adminNoticeRepository.save(adminNoticeArticle);
     }
 

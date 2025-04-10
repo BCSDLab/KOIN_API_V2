@@ -2,8 +2,8 @@ package in.koreatech.koin.admin.notice.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
+import static org.springframework.http.HttpStatus.CREATED;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeResponse;
 import in.koreatech.koin.admin.notice.dto.AdminNoticesResponse;
 import in.koreatech.koin.admin.notice.service.AdminNoticeService;
-import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,7 @@ public class AdminNoticeController implements AdminNoticeApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminNoticeService.createNotice(adminNoticeRequest, adminId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(CREATED).build();
     }
 
     @DeleteMapping("/{id}")
