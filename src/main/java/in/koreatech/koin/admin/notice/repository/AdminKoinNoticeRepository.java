@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.community.article.model.Article;
 
 public interface AdminKoinNoticeRepository extends Repository<Article, Integer> {
 
-    void save(Article article);
+    Article save(Article article);
 
     Optional<Article> findByIdAndIsDeleted(Integer noticeId, boolean isDeleted);
 
