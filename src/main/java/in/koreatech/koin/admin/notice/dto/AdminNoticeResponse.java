@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminNoticeResponse(
-
     @Schema(description = "공지사항 글번호", requiredMode = REQUIRED)
     Integer id,
 
@@ -27,12 +26,13 @@ public record AdminNoticeResponse(
     String content,
 
     @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime createdAt,
 
     @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime updatedAt
 ) {
-
     public static AdminNoticeResponse from(Article article) {
         return new AdminNoticeResponse(
             article.getId(),

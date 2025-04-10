@@ -1,7 +1,6 @@
 package in.koreatech.koin.admin.notice.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import static org.springframework.http.HttpStatus.CREATED;
 
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,6 @@ import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeResponse;
 import in.koreatech.koin.admin.notice.dto.AdminNoticesResponse;
 import in.koreatech.koin.admin.notice.service.AdminNoticeService;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -38,15 +36,17 @@ public class AdminNoticeController implements AdminNoticeApi {
         @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminNoticeService.getNotices(page, limit, isDeleted));
+        AdminNoticesResponse response = adminNoticeService.getNotices(page, limit, isDeleted);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AdminNoticeResponse> getNotice(
-        @Parameter(in = PATH) @PathVariable Integer id,
+        @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminNoticeService.getNotice(id));
+        AdminNoticeResponse response = adminNoticeService.getNotice(id);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping

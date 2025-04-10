@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.community.article.model;
 
-import static in.koreatech.koin.domain.community.article.model.Board.KOIN_ADMIN_NOTICE_BOARD_ID;
+import static in.koreatech.koin.domain.community.article.model.Board.KOIN_NOTICE_BOARD_ID;
 import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.FetchType.LAZY;
@@ -125,7 +125,7 @@ public class Article extends BaseEntity {
     @PostPersist
     @PostLoad
     public void updateAuthor() {
-        if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
+        if (Objects.equals(board.getId(), KOIN_NOTICE_BOARD_ID)) {
             author = ADMIN_NOTICE_AUTHOR;
             return;
         }
