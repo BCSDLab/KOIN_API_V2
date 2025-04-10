@@ -14,7 +14,7 @@ import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeResponse;
 import in.koreatech.koin.admin.notice.dto.AdminNoticesResponse;
-import in.koreatech.koin.admin.notice.repository.AdminNoticeRepository;
+import in.koreatech.koin.admin.notice.repository.AdminKoinNoticeRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AdminNoticeService {
 
-    private final AdminNoticeRepository adminNoticeRepository;
+    private final AdminKoinNoticeRepository adminKoinNoticeRepository;
     private final AdminRepository adminRepository;
     private final BoardRepository boardRepository;
 
@@ -40,14 +40,14 @@ public class AdminNoticeService {
         Board adminNoticeBoard = boardRepository.getById(KOIN_NOTICE_BOARD_ID);
         Admin adminUser = adminRepository.getById(adminUserId);
         Article adminNoticeArticle = Article.createKoinNotice(request, adminNoticeBoard, adminUser);
-        adminNoticeRepository.save(adminNoticeArticle);
+        adminKoinNoticeRepository.save(adminNoticeArticle);
     }
 
     public AdminNoticesResponse getNotices(Integer page, Integer limit, Boolean isDeleted) {
-        Integer total = adminNoticeRepository.countAllByIsDeletedAndBoardId(isDeleted, KOIN_NOTICE_BOARD_ID);
+        Integer total = adminKoinNoticeRepository.countAllByIsDeletedAndBoardId(isDeleted, KOIN_NOTICE_BOARD_ID);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NOTICES_SORT);
-        Page<Article> result = adminNoticeRepository.findAllByBoardIdAndIsDeleted(KOIN_NOTICE_BOARD_ID, isDeleted,
+        Page<Article> result = adminKoinNoticeRepository.findAllByBoardIdAndIsDeleted(KOIN_NOTICE_BOARD_ID, isDeleted,
             pageRequest);
         result.forEach(this::setAuthorName);
         return AdminNoticesResponse.of(result, criteria);
@@ -59,19 +59,19 @@ public class AdminNoticeService {
     }
 
     public AdminNoticeResponse getNotice(Integer noticeId) {
-        Article article = adminNoticeRepository.getNoticeById(noticeId);
+        Article article = adminKoinNoticeRepository.getNoticeById(noticeId);
         setAuthorName(article);
         return AdminNoticeResponse.from(article);
     }
 
     @Transactional
     public void deleteNotice(Integer noticeId) {
-        adminNoticeRepository.findByIdAndIsDeleted(noticeId, false).ifPresent(Article::delete);
+        adminKoinNoticeRepository.findByIdAndIsDeleted(noticeId, false).ifPresent(Article::delete);
     }
 
     @Transactional
     public void updateNotice(Integer noticeId, AdminNoticeRequest request) {
-        Article notice = adminNoticeRepository.getNoticeById(noticeId);
+        Article notice = adminKoinNoticeRepository.getNoticeById(noticeId);
         notice.updateKoinNoticeArticle(request.title(), request.content());
     }
 }

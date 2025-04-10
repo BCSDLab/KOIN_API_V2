@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
 
-public interface AdminNoticeRepository extends Repository<Article, Integer> {
+public interface AdminKoinNoticeRepository extends Repository<Article, Integer> {
 
     void save(Article article);
 
