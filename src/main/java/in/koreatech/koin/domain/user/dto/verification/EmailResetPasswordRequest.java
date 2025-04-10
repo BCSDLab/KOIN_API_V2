@@ -21,4 +21,4 @@ public record EmailResetPasswordRequest(
     String newPassword
 ) {
 
-} 
+}

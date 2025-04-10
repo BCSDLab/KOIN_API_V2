@@ -17,4 +17,4 @@ public record EmailFindIdRequest(
     String email
 ) {
 
-} 
+}

@@ -17,4 +17,4 @@ public record SmsFindIdRequest(
     String phoneNumber
 ) {
 
-} 
+}
