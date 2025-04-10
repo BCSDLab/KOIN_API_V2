@@ -5,6 +5,7 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
+import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -45,6 +46,7 @@ public class OwnerShopService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void createOwnerShops(Integer ownerId, OwnerShopsRequest ownerShopsRequest) {
         Owner owner = ownerRepository.getById(ownerId);
         ShopCategory shopMainCategory = shopCategoryRepository.getById(ownerShopsRequest.mainCategoryId());
@@ -62,6 +64,7 @@ public class OwnerShopService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyShop(Integer ownerId, Integer shopId, ModifyShopRequest modifyShopRequest) {
         Shop shop = ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         ShopCategory shopCategory = shopCategoryRepository.getById(modifyShopRequest.mainCategoryId());
