@@ -76,5 +76,4 @@ public class AdminNoticeController implements AdminNoticeApi {
         adminNoticeService.updateNotice(noticeId, request);
         return ResponseEntity.ok().build();
     }
-
 }
