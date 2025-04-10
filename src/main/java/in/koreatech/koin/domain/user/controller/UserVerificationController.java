@@ -32,7 +32,7 @@ public class UserVerificationController implements UserVerificationApi {
     private final UserVerificationService userVerificationService;
     private final UserValidationService userValidationService;
 
-    @PostMapping("/user/sms/send-code")
+    @PostMapping("/user/sms/send")
     public ResponseEntity<VerificationCountResponse> sendSmsVerificationCode(
         @Valid @RequestBody SmsSendVerificationCodeRequest request
     ) {
@@ -40,7 +40,7 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/user/sms/verify-code")
+    @PostMapping("/user/sms/verify")
     public ResponseEntity<Void> verifySmsVerificationCode(
         @Valid @RequestBody SmsVerifyVerificationCodeRequest request
     ) {
@@ -48,7 +48,7 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/sms/find-id")
+    @PostMapping("/user/sms/id/find")
     public ResponseEntity<FindIdResponse> findIdBySmsVerification(
         @Valid @RequestBody SmsFindIdRequest request
     ) {
@@ -56,7 +56,7 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
-    @PostMapping("/user/sms/reset-password")
+    @PostMapping("/user/sms/password/reset")
     public ResponseEntity<Void> resetPasswordBySmsVerification(
         @Valid @RequestBody SmsResetPasswordRequest request
     ) {
@@ -65,7 +65,7 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/email/send-code")
+    @PostMapping("/user/email/send")
     public ResponseEntity<VerificationCountResponse> sendEmailVerificationCode(
         @Valid @RequestBody EmailSendVerificationCodeRequest request
     ) {
@@ -73,7 +73,7 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/user/email/verify-code")
+    @PostMapping("/user/email/verify")
     public ResponseEntity<Void> verifyEmailVerificationCode(
         @Valid @RequestBody EmailVerifyVerificationCodeRequest request
     ) {
@@ -81,7 +81,7 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/email/find-id")
+    @PostMapping("/user/email/id/find")
     public ResponseEntity<FindIdResponse> findIdByEmailVerification(
         @Valid @RequestBody EmailFindIdRequest request
     ) {
@@ -89,7 +89,7 @@ public class UserVerificationController implements UserVerificationApi {
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
-    @PostMapping("/user/email/reset-password")
+    @PostMapping("/user/email/password/reset")
     public ResponseEntity<Void> resetPasswordByEmailVerification(
         @Valid @RequestBody EmailResetPasswordRequest request
     ) {

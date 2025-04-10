@@ -50,7 +50,7 @@ public interface UserVerificationApi {
             하루 인증 횟수 초과 시 `429 TooManyRequests` 반환한다.
             """
     )
-    @PostMapping("/user/sms/send-code")
+    @PostMapping("/user/sms/send")
     ResponseEntity<VerificationCountResponse> sendSmsVerificationCode(
         @Valid @RequestBody SmsSendVerificationCodeRequest request
     );
@@ -63,7 +63,7 @@ public interface UserVerificationApi {
         }
     )
     @Operation(summary = "SMS 인증번호 검증")
-    @PostMapping("/user/sms/verify-code")
+    @PostMapping("/user/sms/verify")
     ResponseEntity<Void> verifySmsVerificationCode(
         @Valid @RequestBody SmsVerifyVerificationCodeRequest request
     );
@@ -83,7 +83,7 @@ public interface UserVerificationApi {
             인증을 하지 않고 사용하거나, 1시간이 지난 후 사용하면 `401 UnAuthorized` 반환한다.
             해당 휴대폰으로 생성된 계정이 없다면 `404 NotFound` 반환한다.
             """)
-    @PostMapping("/user/sms/find-id")
+    @PostMapping("/user/sms/id/find")
     ResponseEntity<FindIdResponse> findIdBySmsVerification(
         @Valid @RequestBody SmsFindIdRequest request
     );
@@ -103,7 +103,7 @@ public interface UserVerificationApi {
             인증을 하지 않고 사용하거나, 1시간이 지난 후 사용하면 `401 UnAuthorized` 반환한다.
             해당 휴대폰으로 생성된 계정이 없다면 `404 NotFound` 반환한다.
             """)
-    @PostMapping("/user/sms/reset-password")
+    @PostMapping("/user/sms/password/reset")
     ResponseEntity<Void> resetPasswordBySmsVerification(
         @Valid @RequestBody SmsResetPasswordRequest request
     );
@@ -128,7 +128,7 @@ public interface UserVerificationApi {
             하루 인증 횟수 초과 시 `429 TooManyRequests` 반환한다.
             """
     )
-    @PostMapping("/user/email/send-code")
+    @PostMapping("/user/email/send")
     ResponseEntity<VerificationCountResponse> sendEmailVerificationCode(
         @Valid @RequestBody EmailSendVerificationCodeRequest request
     );
@@ -141,7 +141,7 @@ public interface UserVerificationApi {
         }
     )
     @Operation(summary = "이메일 인증번호 검증")
-    @PostMapping("/user/email/verify-code")
+    @PostMapping("/user/email/verify")
     ResponseEntity<Void> verifyEmailVerificationCode(
         @Valid @RequestBody EmailVerifyVerificationCodeRequest request
     );
@@ -161,7 +161,7 @@ public interface UserVerificationApi {
             인증을 하지 않고 사용하거나, 1시간이 지난 후 사용하면 `401 UnAuthorized` 반환한다.
             해당 이메일로 생성된 계정이 없다면 `404 NotFound` 반환한다.
             """)
-    @PostMapping("/user/email/find-id")
+    @PostMapping("/user/email/id/find")
     ResponseEntity<FindIdResponse> findIdByEmailVerification(
         @Valid @RequestBody EmailFindIdRequest request
     );
@@ -181,7 +181,7 @@ public interface UserVerificationApi {
             인증을 하지 않고 사용하거나, 1시간이 지난 후 사용하면 `401 UnAuthorized` 반환한다.
             해당 이메일로 생성된 계정이 없다면 `404 NotFound` 반환한다.
             """)
-    @PostMapping("/user/email/reset-password")
+    @PostMapping("/user/email/password/reset")
     ResponseEntity<Void> resetPasswordByEmailVerification(
         @Valid @RequestBody EmailResetPasswordRequest request
     );
