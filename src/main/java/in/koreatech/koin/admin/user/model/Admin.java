@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.user.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.admin.user.enums.TeamType;
@@ -9,9 +10,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -26,13 +27,8 @@ import lombok.NoArgsConstructor;
 public class Admin {
 
     @Id
-    @Column(name = "user_id", nullable = false)
+    @GeneratedValue(strategy = IDENTITY)
     private Integer id;
-
-    @MapsId
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -50,21 +46,25 @@ public class Admin {
     @Column(name = "super_admin", columnDefinition = "TINYINT")
     private boolean superAdmin = false;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     @Builder
     private Admin(
         Integer id,
-        User user,
         TeamType teamType,
         TrackType trackType,
         boolean canCreateAdmin,
-        boolean superAdmin
+        boolean superAdmin,
+        User user
     ) {
         this.id = id;
-        this.user = user;
         this.teamType = teamType;
         this.trackType = trackType;
         this.canCreateAdmin = canCreateAdmin;
         this.superAdmin = superAdmin;
+        this.user = user;
     }
 
     public void updateTeamTrack(TeamType teamName, TrackType trackName) {
