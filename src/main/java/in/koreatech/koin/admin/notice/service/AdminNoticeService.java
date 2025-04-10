@@ -66,11 +66,7 @@ public class AdminNoticeService {
 
     @Transactional
     public void deleteNotice(Integer noticeId) {
-        Optional<Article> foundArticle = adminNoticeRepository.findByIdAndIsDeleted(noticeId, false);
-        if (foundArticle.isEmpty()) {
-            return;
-        }
-        foundArticle.get().delete();
+        adminNoticeRepository.findByIdAndIsDeleted(noticeId, false).ifPresent(Article::delete);
     }
 
     @Transactional
