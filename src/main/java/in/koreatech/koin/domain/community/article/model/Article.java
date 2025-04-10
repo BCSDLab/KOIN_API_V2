@@ -182,7 +182,7 @@ public class Article extends BaseEntity {
         }
     }
 
-    public void updateKoinAdminArticle(String title, String content) {
+    public void updateKoinNoticeArticle(String title, String content) {
         this.title = title;
         this.content = content;
     }

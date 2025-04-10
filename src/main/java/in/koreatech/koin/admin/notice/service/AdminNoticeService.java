@@ -72,6 +72,6 @@ public class AdminNoticeService {
     @Transactional
     public void updateNotice(Integer noticeId, AdminNoticeRequest request) {
         Article notice = adminNoticeRepository.getNoticeById(noticeId);
-        notice.updateKoinAdminArticle(request.title(), request.content());
+        notice.updateKoinNoticeArticle(request.title(), request.content());
     }
 }
