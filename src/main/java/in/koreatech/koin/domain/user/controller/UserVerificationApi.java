@@ -42,7 +42,7 @@ public interface UserVerificationApi {
             - 같은 번호 기준 하루 최대 5회 인증번호를 발송 가능하다.
             - 문자의 경우 슬랙으로 인증번호 발송한다.(발송채널: 코인_이벤트알림_stage)
             
-            하루 인증 횟수 초과 시 [429 TooManyRequests] 반환한다.
+            하루 인증 횟수 초과 시 `429 TooManyRequests` 반환한다.
             """
     )
     @PostMapping("/user/sms/send-code")
