@@ -392,7 +392,7 @@ class UserApiTest extends AcceptanceTest {
 
         // when - SMS 인증번호 전송
         mockMvc.perform(
-                post("/user/sms/send-code")
+                post("/user/sms/send")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -408,7 +408,7 @@ class UserApiTest extends AcceptanceTest {
 
         // then - SMS 인증번호 검증
         mockMvc.perform(
-                post("/user/sms/verify-code")
+                post("/user/sms/verify")
                     .content("""
                         {
                           "phone_number": "%s",
@@ -429,7 +429,7 @@ class UserApiTest extends AcceptanceTest {
 
         // when - SMS 인증번호 전송
         mockMvc.perform(
-                post("/user/sms/send-code")
+                post("/user/sms/send")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -446,7 +446,7 @@ class UserApiTest extends AcceptanceTest {
 
         // then - 잘못된 인증번호로 검증
         mockMvc.perform(
-                post("/user/sms/verify-code")
+                post("/user/sms/verify")
                     .content("""
                         {
                           "phone_number": "%s",
@@ -469,7 +469,7 @@ class UserApiTest extends AcceptanceTest {
         // when - 5번까지 정상 발송
         for (int i = 0; i < maxDailyLimit; i++) {
             mockMvc.perform(
-                    post("/user/sms/send-code")
+                    post("/user/sms/send")
                         .content("""
                             {
                               "phone_number": "%s"
@@ -482,7 +482,7 @@ class UserApiTest extends AcceptanceTest {
 
         // then - 6번째 발송 시도시 400 반환
         mockMvc.perform(
-                post("/user/sms/send-code")
+                post("/user/sms/send")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -505,7 +505,7 @@ class UserApiTest extends AcceptanceTest {
 
         // when - SMS 인증번호 전송
         mockMvc.perform(
-                post("/user/sms/send-code")
+                post("/user/sms/send")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -521,7 +521,7 @@ class UserApiTest extends AcceptanceTest {
 
         // 인증번호 검증
         mockMvc.perform(
-                post("/user/sms/verify-code")
+                post("/user/sms/verify")
                     .content("""
                         {
                           "phone_number": "%s",
@@ -534,7 +534,7 @@ class UserApiTest extends AcceptanceTest {
 
         // ID 찾기
         mockMvc.perform(
-                post("/user/sms/find-id")
+                post("/user/sms/id/find")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -559,7 +559,7 @@ class UserApiTest extends AcceptanceTest {
 
         // when - SMS 인증번호 전송
         mockMvc.perform(
-                post("/user/sms/send-code")
+                post("/user/sms/send")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -575,7 +575,7 @@ class UserApiTest extends AcceptanceTest {
 
         // 인증번호 검증
         mockMvc.perform(
-                post("/user/sms/verify-code")
+                post("/user/sms/verify")
                     .content("""
                         {
                           "phone_number": "%s",
@@ -588,7 +588,7 @@ class UserApiTest extends AcceptanceTest {
 
         // 비밀번호 변경
         mockMvc.perform(
-                post("/user/sms/reset-password")
+                post("/user/sms/password/reset")
                     .content("""
                         {
                           "user_id": "%s",
