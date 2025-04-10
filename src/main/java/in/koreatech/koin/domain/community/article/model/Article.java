@@ -180,6 +180,9 @@ public class Article extends BaseEntity {
         if (this.lostItemArticle != null) {
             this.lostItemArticle.delete();
         }
+        if (this.koinNotice != null) {
+            this.koinNotice.delete();
+        }
     }
 
     public void updateKoinNoticeArticle(String title, String content) {
