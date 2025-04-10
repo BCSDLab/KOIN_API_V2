@@ -1,9 +1,11 @@
 package in.koreatech.koin.domain.user.service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
@@ -13,6 +15,7 @@ import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
@@ -65,6 +68,43 @@ public class UserValidationService {
         Optional<UnAuthenticatedStudentInfo> studentTemporaryStatus = studentRedisRepository.findById(email);
         if (studentTemporaryStatus.isPresent()) {
             throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void existsByUserId(String userId) {
+        if (!userRepository.existsByUserId(userId)) {
+            throw UserNotFoundException.withDetail("userId: " + userId);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void existsByPhoneNumber(String phoneNumber) {
+        if (!userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw UserNotFoundException.withDetail("userId: " + phoneNumber);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void existsByEmail(String email) {
+        if (!userRepository.existsByEmail(email)) {
+            throw UserNotFoundException.withDetail("userId: " + email);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void existsByUserIdAndPhoneNumber(String userId, String phoneNumber) {
+        User user = userRepository.getByUserId(userId);
+        if(!Objects.equals(user.getPhoneNumber(), phoneNumber)) {
+            throw new KoinIllegalArgumentException("입력한 아이디의 휴대폰 번호와 일치하지 않습니다.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void existsByUserIdAndEmail(String userId, String email) {
+        User user = userRepository.getByUserId(userId);
+        if(!Objects.equals(user.getEmail(), email)) {
+            throw new KoinIllegalArgumentException("입력한 아이디의 이메일과 일치하지 않습니다.");
         }
     }
 }

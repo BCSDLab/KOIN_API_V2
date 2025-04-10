@@ -8,9 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.UnAuthorizedException;
 import in.koreatech.koin.domain.user.dto.verification.VerificationCountResponse;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.service.verification.VerificationProcessor;
 import in.koreatech.koin.domain.user.service.verification.VerificationProcessorFactory;
@@ -23,6 +26,7 @@ public class UserVerificationService {
     private final VerificationProcessorFactory verificationProcessorFactory;
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public VerificationCountResponse sendCode(String phoneNumberOrEmail) {

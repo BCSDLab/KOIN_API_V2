@@ -4,6 +4,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.domain.user.dto.verification.CheckEmailRequest;
+import in.koreatech.koin.domain.user.dto.verification.CheckPhoneNumberRequest;
+import in.koreatech.koin.domain.user.dto.verification.CheckUserIdRequest;
+import in.koreatech.koin.domain.user.dto.verification.CheckUserIdWithEmailRequest;
+import in.koreatech.koin.domain.user.dto.verification.CheckUserIdWithPhoneNumberRequest;
 import in.koreatech.koin.domain.user.dto.verification.EmailFindIdRequest;
 import in.koreatech.koin.domain.user.dto.verification.EmailResetPasswordRequest;
 import in.koreatech.koin.domain.user.dto.verification.EmailSendVerificationCodeRequest;
@@ -180,4 +185,86 @@ public interface UserVerificationApi {
     ResponseEntity<Void> resetPasswordByEmailVerification(
         @Valid @RequestBody EmailResetPasswordRequest request
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "사용자 ID 존재 여부 확인",
+        description = """
+            비밀번호 찾기 전 사용자 ID가 존재하는지 확인한다.
+            
+            사용자 ID가 존재할 경우 `200 OK` 반환한다.
+            사용자 ID가 존재하지 않을 경우 `404 NotFound` 반환한다.
+            """)
+    @PostMapping("/user/check/user-id")
+    ResponseEntity<Void> checkUserIdExists(@Valid @RequestBody CheckUserIdRequest request);
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "전화번호 존재 여부 확인",
+        description = """
+            인증번호 전송 전 전화번호가 존재하는지 확인한다.
+            
+            전화번호가 존재할 경우 `200 OK` 반환한다.
+            전화번호가 존재하지 않을 경우 `404 NotFound` 반환한다.
+            """)
+    @PostMapping("/user/id/exists")
+    ResponseEntity<Void> checkPhoneNumberExists(@Valid @RequestBody CheckPhoneNumberRequest request);
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "이메일 존재 여부 확인",
+        description = """
+            인증번호 전송 전 이메일이 존재하는지 확인한다.
+            
+            이메일이 존재할 경우 `200 OK` 반환한다.
+            이메일이 존재하지 않을 경우 `404 NotFound` 반환한다.
+            """)
+    @PostMapping("/user/phone/exists")
+    ResponseEntity<Void> checkEmailExists(@Valid @RequestBody CheckEmailRequest request);
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "사용자 ID와 전화번호 일치 여부 확인",
+        description = """
+            인증번호 전송 전 사용자 ID와 전화번호 일치 여부를 확인한다.
+            
+            일치할 경우 `200 OK` 반환한다.
+            일치하지 않을 경우 `400 Bad Request` 반환한다.
+            입력한 ID가 존재하지 않을 경우 `404 NotFound` 반환한다.
+            """)
+    @PostMapping("/user/id-with-phone/exists")
+    ResponseEntity<Void> checkUserIdWithPhoneNumber(@Valid @RequestBody CheckUserIdWithPhoneNumberRequest request);
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "사용자 ID와 이메일 일치 여부 확인",
+        description = """
+            인증번호 전송 전 사용자 ID와 이메일 일치 여부를 확인한다.
+            
+            일치할 경우 `200 OK` 반환한다.
+            일치하지 않을 경우 `400 Bad Request` 반환한다.
+            입력한 ID가 존재하지 않을 경우 `404 NotFound` 반환한다.
+            """)
+    @PostMapping("/user/id-with-email/exists")
+    ResponseEntity<Void> checkUserIdWithEmail(@Valid @RequestBody CheckUserIdWithEmailRequest request);
 }

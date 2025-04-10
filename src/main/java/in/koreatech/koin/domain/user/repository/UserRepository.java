@@ -33,6 +33,8 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByNickname(String nickname);
 
+    Optional<User> findByUserId(String userId);
+
     default User getByEmail(String email) {
         return findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));
@@ -40,6 +42,11 @@ public interface UserRepository extends Repository<User, Integer> {
 
     default User getByPhoneNumber(String phoneNumber, UserType userType) {
         return findByPhoneNumberAndUserType(phoneNumber, userType)
+            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
+    }
+
+    default User getByPhoneNumber(String phoneNumber) {
+        return findByPhoneNumber(phoneNumber)
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
     }
 
@@ -53,7 +60,18 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("id: " + id));
     }
 
+    default User getByUserId(String userId) {
+        return findByUserId(userId)
+            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+    }
+
     boolean existsByNickname(String nickname);
+
+    boolean existsByUserId(String userId);
+
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    boolean existsByEmail(String email);
 
     void delete(User user);
 
