@@ -41,18 +41,18 @@ public class AdminUserController implements AdminUserApi{
     @PostMapping("/admin")
     public ResponseEntity<Void> createAdmin(
         @RequestBody @Valid CreateAdminRequest request,
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
-        AdminResponse response = adminUserService.createAdmin(request, adminId);
+        AdminResponse response = adminUserService.createAdmin(request, userId);
         return ResponseEntity.created(URI.create("/" + response.id())).build();
     }
 
     @PutMapping("/admin/password")
     public ResponseEntity<Void> adminPasswordChange(
         @RequestBody @Valid AdminPasswordChangeRequest request,
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
-        adminUserService.adminPasswordChange(request, adminId);
+        adminUserService.adminPasswordChange(request, userId);
         return ResponseEntity.ok().build();
     }
 
@@ -67,9 +67,9 @@ public class AdminUserController implements AdminUserApi{
 
     @PostMapping("admin/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
-        adminUserService.adminLogout(adminId);
+        adminUserService.adminLogout(userId);
         return ResponseEntity.ok().build();
     }
 
@@ -84,16 +84,16 @@ public class AdminUserController implements AdminUserApi{
 
     @GetMapping("/admin")
     public ResponseEntity<AdminResponse> getLoginAdminInfo(
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
-        AdminResponse adminResponse = adminUserService.getAdmin(adminId);
+        AdminResponse adminResponse = adminUserService.getAdmin(userId);
         return ResponseEntity.ok(adminResponse);
     }
 
     @GetMapping("/admin/{id}")
     public ResponseEntity<AdminResponse> getAdmin(
         @PathVariable("id") Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
         AdminResponse adminResponse = adminUserService.getAdmin(id);
         return ResponseEntity.ok(adminResponse);
@@ -106,7 +106,7 @@ public class AdminUserController implements AdminUserApi{
         @RequestParam(required = false) Boolean isAuthed,
         @RequestParam(required = false) TrackType trackName,
         @RequestParam(required = false) TeamType teamName,
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
         AdminsCondition adminsCondition = new AdminsCondition(page, limit, isAuthed, trackName, teamName);
         AdminsResponse adminsResponse = adminUserService.getAdmins(adminsCondition);
@@ -117,7 +117,7 @@ public class AdminUserController implements AdminUserApi{
     public ResponseEntity<Void> updateAdmin(
         @RequestBody @Valid AdminUpdateRequest request,
         @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
         adminUserService.updateAdmin(request, id);
         return ResponseEntity.ok().build();
@@ -126,7 +126,7 @@ public class AdminUserController implements AdminUserApi{
     @GetMapping("/admin/users/{id}")
     public ResponseEntity<User> getUser(
         @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
         return ResponseEntity.ok().body(adminUserService.getUser(id));
     }
@@ -134,7 +134,7 @@ public class AdminUserController implements AdminUserApi{
     @DeleteMapping("/admin/users/{id}")
     public ResponseEntity<Void> deleteUser(
         @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
         adminUserService.deleteUser(id);
         return ResponseEntity.ok().build();
@@ -143,7 +143,7 @@ public class AdminUserController implements AdminUserApi{
     @PostMapping("/admin/users/{id}/undelete")
     public ResponseEntity<Void> undeleteUser(
         @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer userId
     ) {
         adminUserService.undeleteUser(id);
         return ResponseEntity.ok().build();
