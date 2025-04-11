@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
-import in.koreatech.koin._common.exception.custom.UnAuthorizedException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -55,7 +55,7 @@ public class UserService {
     private void checkVerified(String phoneNumber) {
         userVerificationStatusRedisRepository.findById(phoneNumber)
             .filter(UserVerificationStatus::isVerified)
-            .orElseThrow(() -> new UnAuthorizedException("본인 인증 후 다시 시도해주십시오."));
+            .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));
         userVerificationStatusRedisRepository.deleteById(phoneNumber);
     }
 

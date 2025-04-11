@@ -5,8 +5,8 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.exception.custom.UnAuthorizedException;
 import in.koreatech.koin.domain.user.dto.verification.VerificationCountResponse;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
@@ -92,7 +92,7 @@ public class UserVerificationService {
     private void checkVerified(String phoneNumberOrEmail) {
         userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
             .filter(UserVerificationStatus::isVerified)
-            .orElseThrow(() -> new UnAuthorizedException("본인 인증 후 다시 시도해주십시오."));
+            .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));
         userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
 }

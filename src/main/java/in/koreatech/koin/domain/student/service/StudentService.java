@@ -12,10 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin._common.event.StudentEmailRequestEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
-import in.koreatech.koin._common.exception.custom.UnAuthorizedException;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
@@ -294,7 +294,7 @@ public class StudentService {
     private void checkVerified(String phoneNumber) {
         userVerificationStatusRedisRepository.findById(phoneNumber)
             .filter(UserVerificationStatus::isVerified)
-            .orElseThrow(() -> new UnAuthorizedException("본인 인증 후 다시 시도해주십시오."));
+            .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));
         userVerificationStatusRedisRepository.deleteById(phoneNumber);
     }
 
