@@ -69,7 +69,7 @@ public class AdminActivityHistoryAspect {
 
         Object result = joinPoint.proceed();
 
-        Admin admin = adminRepository.getById(authContext.getUserId());
+        Admin admin = adminRepository.getByUserId(authContext.getUserId());
         DomainInfo domainInfo = getDomainInfo(requestURI);
 
         adminActivityHistoryRepository.save(AdminActivityHistory.builder()

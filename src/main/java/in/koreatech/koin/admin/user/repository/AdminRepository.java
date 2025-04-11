@@ -22,6 +22,13 @@ public interface AdminRepository extends Repository<Admin, Integer> {
             .orElseThrow(() -> AdminNotFoundException.withDetail("adminId : " + id));
     }
 
+    Optional<Admin> findByUserId(Integer userId);
+
+    default Admin getByUserId(Integer userId) {
+        return findByUserId(userId)
+            .orElseThrow(() -> AdminNotFoundException.withDetail("userId : " + userId));
+    }
+
     @Query("SELECT COUNT(*) FROM Admin")
     Integer countAdmins();
 

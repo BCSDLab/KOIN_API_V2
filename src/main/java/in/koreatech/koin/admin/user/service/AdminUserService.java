@@ -52,7 +52,7 @@ public class AdminUserService {
 
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
-        Admin admin = adminRepository.getById(adminId);
+        Admin admin = adminRepository.getByUserId(adminId);
         if (!admin.getRole().getCanCreateAdmin()) {
             throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
@@ -65,7 +65,7 @@ public class AdminUserService {
 
     @Transactional
     public void adminPasswordChange(AdminPasswordChangeRequest request, Integer adminId) {
-        Admin admin = adminRepository.getById(adminId);
+        Admin admin = adminRepository.getByUserId(adminId);
         User user = admin.getUser();
         if (!user.isSamePassword(passwordEncoder, request.oldPassword())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
@@ -112,7 +112,7 @@ public class AdminUserService {
     }
 
     public AdminResponse getAdmin(Integer id) {
-        Admin admin = adminRepository.getById(id);
+        Admin admin = adminRepository.getByUserId(id);
         return AdminResponse.from(admin);
     }
 
@@ -127,19 +127,8 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void adminAuthenticate(Integer id, Integer adminId) {
-        Admin admin = adminRepository.getById(adminId);
-        if (!admin.getRole().getCanCreateAdmin()) {
-            throw new AuthorizationException("어드민 승인 권한이 없습니다.");
-        }
-
-        User user = adminRepository.getById(id).getUser();
-        user.auth();
-    }
-
-    @Transactional
     public void updateAdmin(AdminUpdateRequest request, Integer id) {
-        Admin admin = adminRepository.getById(id);
+        Admin admin = adminRepository.getByUserId(id);
         User user = admin.getUser();
 
         user.updateName(request.name());

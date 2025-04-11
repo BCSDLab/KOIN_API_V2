@@ -38,7 +38,7 @@ public class AdminNoticeService {
     @Transactional
     public void createNotice(AdminNoticeRequest request, Integer adminUserId) {
         Board adminNoticeBoard = boardRepository.getById(KOIN_NOTICE_BOARD_ID);
-        Admin adminUser = adminRepository.getById(adminUserId);
+        Admin adminUser = adminRepository.getByUserId(adminUserId);
         Article adminNoticeArticle = Article.createKoinNotice(request, adminNoticeBoard, adminUser);
         adminKoinNoticeRepository.save(adminNoticeArticle);
     }

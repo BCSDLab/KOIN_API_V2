@@ -45,7 +45,7 @@ public class AdminUserValidation {
             throw UserNotFoundException.withDetail("account" + request.email());
         }
 
-        if (adminRepository.findById(user.getId()).isEmpty()) {
+        if (adminRepository.findByUserId(user.getId()).isEmpty()) {
             throw UserNotFoundException.withDetail("account" + request.email());
         }
 
