@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.admin.user.enums.Role;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.model.Admin;
@@ -38,12 +39,25 @@ public record CreateAdminRequest(
 
     @Schema(description = "팀 타입", example = "USER", requiredMode = REQUIRED)
     @NotNull(message = "팀 타입을 입력해주세요.")
-    TeamType teamType
+    TeamType teamType,
+
+    @Schema(description = "직함", example = "TRACK_REGULAR", requiredMode = REQUIRED)
+    @NotNull(message = "직함을 입력해주세요.")
+    Role role
 ) {
 
-    public Admin toAdmin(PasswordEncoder passwordEncoder) {
+    public Admin toAdmin(User user) {
+        return Admin.builder()
+            .trackType(trackType)
+            .teamType(teamType)
+            .role(role)
+            .user(user)
+            .build();
+    }
+
+    public User toUser(PasswordEncoder passwordEncoder) {
         String userId = email.substring(0, email.indexOf("@"));
-        User user = User.builder()
+        return User.builder()
             .email(email)
             .password(passwordEncoder.encode(password))
             .userId(userId)
@@ -51,12 +65,6 @@ public record CreateAdminRequest(
             .userType(ADMIN)
             .isAuthed(true)
             .isDeleted(false)
-            .build();
-
-        return Admin.builder()
-            .user(user)
-            .trackType(trackType)
-            .teamType(teamType)
             .build();
     }
 }

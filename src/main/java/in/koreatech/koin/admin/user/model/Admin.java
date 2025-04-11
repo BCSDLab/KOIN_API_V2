@@ -87,4 +87,8 @@ public class Admin {
         this.teamType = teamName;
         this.trackType = trackName;
     }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

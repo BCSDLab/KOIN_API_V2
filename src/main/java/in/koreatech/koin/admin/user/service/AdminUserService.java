@@ -58,7 +58,8 @@ public class AdminUserService {
         }
 
         adminUserValidation.validateEmailForAdminCreated(request.email());
-        Admin savedAdmin = adminRepository.save(request.toAdmin(passwordEncoder));
+        User user = adminUserRepository.save(request.toUser(passwordEncoder));
+        Admin savedAdmin = adminRepository.save(request.toAdmin(user));
 
         return AdminResponse.from(savedAdmin);
     }
