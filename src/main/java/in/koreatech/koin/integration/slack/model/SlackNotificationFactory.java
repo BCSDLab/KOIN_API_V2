@@ -205,7 +205,7 @@ public class SlackNotificationFactory {
     /**
      * 회원 전화번호 인증 요청 알림
      */
-    public SlackNotification generateUserPhoneVerificationRequestNotification(
+    public SlackNotification generateUserPhoneVerificationSendNotification(
         String content
     ) {
         return SlackNotification.builder()
@@ -220,7 +220,7 @@ public class SlackNotificationFactory {
     /**
      * 회원 이메일 인증 요청 알림
      */
-    public SlackNotification generateUserEmailVerificationRequestNotification(
+    public SlackNotification generateUserEmailVerificationSendNotification(
         String content
     ) {
         return SlackNotification.builder()

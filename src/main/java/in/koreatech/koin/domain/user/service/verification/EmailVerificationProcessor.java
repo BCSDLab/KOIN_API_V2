@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.event.UserSmsRequestEvent;
+import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -46,7 +46,7 @@ public class EmailVerificationProcessor implements VerificationProcessor {
         mailService.sendMail(email, mailFormData);
         userVerificationStatusRedisRepository.save(
             UserVerificationStatus.of(email, verificationCode, INITIAL_EXPIRATION_SECONDS));
-        eventPublisher.publishEvent(new UserSmsRequestEvent(email));
+        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(email));
     }
 
     @Transactional

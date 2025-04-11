@@ -1,6 +1,6 @@
 package in.koreatech.koin._common.event;
 
-public record UserEmailRequestEvent(
+public record UserEmailVerificationSendEvent(
     String email
 ) {
 

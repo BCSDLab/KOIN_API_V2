@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.event.UserSmsRequestEvent;
+import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.model.User;
@@ -45,7 +45,7 @@ public class SmsVerificationProcessor implements VerificationProcessor {
         naverSmsService.sendVerificationCode(verificationCode, phoneNumber);
         userVerificationStatusRedisRepository.save(
             UserVerificationStatus.of(phoneNumber, verificationCode, INITIAL_EXPIRATION_SECONDS));
-        eventPublisher.publishEvent(new UserSmsRequestEvent(phoneNumber));
+        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(phoneNumber));
     }
 
     @Transactional
