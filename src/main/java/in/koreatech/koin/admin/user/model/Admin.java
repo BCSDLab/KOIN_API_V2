@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,12 +32,15 @@ public class Admin {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
+    @Size(max = 10)
     @Column(name = "name")
     private String name;
 
+    @Size(max = 100)
     @Column(name = "email")
     private String email;
 
+    @Size(max = 20)
     @Column(name = "phone_number")
     private String phoneNumber;
 
