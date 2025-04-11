@@ -201,7 +201,8 @@ class AdminUserApiTest extends AcceptanceTest {
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
                           "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "team_type": "USER",
+                          "role": "TRACK_REGULAR
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -223,7 +224,8 @@ class AdminUserApiTest extends AcceptanceTest {
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
                           "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "team_type": "USER",
+                          "role": "TRACK_REGULAR"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
