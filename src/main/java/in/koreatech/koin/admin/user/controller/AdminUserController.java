@@ -113,15 +113,6 @@ public class AdminUserController implements AdminUserApi{
         return ResponseEntity.ok(adminsResponse);
     }
 
-    @PutMapping("/admin/{id}/authed")
-    public ResponseEntity<Void> adminAuthenticate(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        adminUserService.adminAuthenticate(id, adminId);
-        return ResponseEntity.ok().build();
-    }
-
     @PutMapping("/admin/{id}")
     public ResponseEntity<Void> updateAdmin(
         @RequestBody @Valid AdminUpdateRequest request,

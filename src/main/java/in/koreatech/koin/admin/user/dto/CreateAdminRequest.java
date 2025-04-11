@@ -49,7 +49,7 @@ public record CreateAdminRequest(
             .userId(userId)
             .name(name)
             .userType(ADMIN)
-            .isAuthed(false)
+            .isAuthed(true)
             .isDeleted(false)
             .build();
 
