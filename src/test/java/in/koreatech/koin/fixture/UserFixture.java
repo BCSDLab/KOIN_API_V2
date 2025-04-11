@@ -1,5 +1,6 @@
 package in.koreatech.koin.fixture;
 
+import static in.koreatech.koin.admin.user.enums.Role.*;
 import static in.koreatech.koin.admin.user.enums.TeamType.*;
 import static in.koreatech.koin.admin.user.enums.TrackType.BACKEND;
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
@@ -79,8 +80,7 @@ public final class UserFixture {
             Admin.builder()
                 .trackType(BACKEND)
                 .teamType(USER)
-                .canCreateAdmin(true)
-                .superAdmin(true)
+                .role(TRACK_LEADER)
                 .user(
                     User.builder()
                         .password(passwordEncoder.encode("1234"))
@@ -104,8 +104,7 @@ public final class UserFixture {
             Admin.builder()
                 .trackType(BACKEND)
                 .teamType(BUSINESS)
-                .canCreateAdmin(false)
-                .superAdmin(false)
+                .role(TRACK_REGULAR)
                 .user(
                     User.builder()
                         .password(passwordEncoder.encode("1234"))
@@ -129,8 +128,7 @@ public final class UserFixture {
             Admin.builder()
                 .trackType(BACKEND)
                 .teamType(CAMPUS)
-                .canCreateAdmin(true)
-                .superAdmin(false)
+                .role(BCSD_PRESIDENT)
                 .user(
                     User.builder()
                         .password(passwordEncoder.encode("1234"))
