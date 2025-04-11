@@ -213,8 +213,8 @@ public interface UserApi {
         @ApiResponse(responseCode = "404", description = "사용자 ID 없음", content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-        summary = "사용자 ID 존재 여부 확인",
-        description = "입력한 사용자 ID가 존재하는지 확인합니다."
+        summary = "로그인 ID 존재 여부 확인",
+        description = "입력한 로그인 ID가 존재하는지 확인합니다."
     )
     @PostMapping("/user/id/exists")
     ResponseEntity<Void> existsByUserId(@Valid @RequestBody CheckUserIdRequest request);
@@ -247,8 +247,8 @@ public interface UserApi {
         @ApiResponse(responseCode = "404", description = "ID 없음", content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-        summary = "사용자 ID와 전화번호 일치 여부 확인",
-        description = "입력한 사용자 ID와 전화번호가 일치하는지 확인합니다."
+        summary = "로그인 ID와 전화번호 일치 여부 확인",
+        description = "입력한 로그인 ID와 전화번호가 일치하는지 확인합니다."
     )
     @PostMapping("/user/id/match/phone")
     ResponseEntity<Void> matchUserIdWithPhoneNumber(@Valid @RequestBody CheckUserIdWithPhoneNumberRequest request);
@@ -259,8 +259,8 @@ public interface UserApi {
         @ApiResponse(responseCode = "404", description = "ID 없음", content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-        summary = "사용자 ID와 이메일 일치 여부 확인",
-        description = "입력한 사용자 ID와 이메일 주소가 일치하는지 확인합니다."
+        summary = "로그인 ID와 이메일 일치 여부 확인",
+        description = "입력한 로그인 ID와 이메일 주소가 일치하는지 확인합니다."
     )
     @PostMapping("/user/id/match/email")
     ResponseEntity<Void> matchUserIdWithEmail(@Valid @RequestBody CheckUserIdWithEmailRequest request);
@@ -272,7 +272,7 @@ public interface UserApi {
         @ApiResponse(responseCode = "404", description = "해당 전화번호로 계정 없음", content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-        summary = "SMS 인증으로 ID 찾기",
+        summary = "SMS 인증으로 로그인 ID 찾기",
         description = "SMS 인증 완료 후 1시간 이내에 ID를 찾을 수 있습니다."
     )
     @PostMapping("/user/id/find/sms")
@@ -285,7 +285,7 @@ public interface UserApi {
         @ApiResponse(responseCode = "404", description = "해당 이메일로 계정 없음", content = @Content(schema = @Schema(hidden = true)))
     })
     @Operation(
-        summary = "이메일 인증으로 ID 찾기",
+        summary = "이메일 인증으로 로그인 ID 찾기",
         description = "이메일 인증 완료 후 1시간 이내에 ID를 찾을 수 있습니다."
     )
     @PostMapping("/user/id/find/email")
