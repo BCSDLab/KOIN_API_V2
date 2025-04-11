@@ -66,11 +66,13 @@ public record OwnerRegisterByPhoneRequest(
             .password(passwordEncoder.encode(password))
             .name(name)
             .email(null)
+            .userId(phoneNumber)
             .phoneNumber(phoneNumber)
             .userType(OWNER)
             .isAuthed(false)
             .isDeleted(false)
             .build();
+
         Owner owner = Owner.builder()
             .user(user)
             .companyRegistrationNumber(companyNumber)

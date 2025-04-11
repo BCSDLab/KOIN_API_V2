@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin._common.event.StudentEmailRequestEvent;
+import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
@@ -18,6 +22,7 @@ import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
@@ -25,8 +30,6 @@ import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
-import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
@@ -44,14 +47,13 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
+import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
-import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
-import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
+import in.koreatech.koin.integration.email.form.StudentRegistrationData;
+import in.koreatech.koin.integration.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -66,6 +68,7 @@ public class StudentService {
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final UserTokenRedisRepository userTokenRedisRepository;
+    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final JwtProvider jwtProvider;
@@ -276,6 +279,14 @@ public class StudentService {
         studentRedisRepository.deleteById(student.getUser().getEmail());
         eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
         return new ModelAndView("success_register_config");
+    }
+
+    @Transactional
+    public void studentRegisterV2(StudentRegisterRequestV2 request) {
+        Student student = request.toStudent(passwordEncoder);
+        studentRepository.save(student);
+        userRepository.save(student.getUser());
+        userVerificationStatusRedisRepository.deleteById(student.getUser().getPhoneNumber());
     }
 
     @Transactional

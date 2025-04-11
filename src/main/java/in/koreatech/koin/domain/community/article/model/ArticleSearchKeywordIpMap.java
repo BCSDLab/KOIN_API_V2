@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.community.article.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -49,6 +49,13 @@ public class ArticleSearchKeywordIpMap extends BaseEntity {
 
     public void incrementSearchCount() {
         this.searchCount++;
+    }
+
+    public void incrementSearchCountBy(Integer additionalCount) {
+        if (additionalCount == null || additionalCount <= 0) {
+            return;
+        }
+        this.searchCount += additionalCount;
     }
 
     public void resetSearchCount() {

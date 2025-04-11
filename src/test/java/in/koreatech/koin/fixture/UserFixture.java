@@ -7,13 +7,13 @@ import static in.koreatech.koin.domain.user.model.UserGender.WOMAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.domain.coop.model.Coop;
@@ -26,18 +26,15 @@ import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
 public final class UserFixture {
 
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
     private final OwnerRepository ownerRepository;
+    private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final CoopRepository coopRepository;
     private final AdminRepository adminRepository;
@@ -54,12 +51,27 @@ public final class UserFixture {
         JwtProvider jwtProvider
     ) {
         this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
         this.ownerRepository = ownerRepository;
+        this.userRepository = userRepository;
         this.studentRepository = studentRepository;
         this.coopRepository = coopRepository;
         this.adminRepository = adminRepository;
         this.jwtProvider = jwtProvider;
+    }
+
+    public User 코인_유저() {
+        return userRepository.save(User.builder()
+            .password(passwordEncoder.encode("1234"))
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("01012345678")
+            .userType(STUDENT)
+            .email("test@koreatech.ac.kr")
+            .userId("test")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build()
+        );
     }
 
     public Admin 코인_운영자() {
@@ -78,6 +90,7 @@ public final class UserFixture {
                         .userType(ADMIN)
                         .gender(MAN)
                         .email("juno@koreatech.ac.kr")
+                        .userId("juno")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -102,6 +115,7 @@ public final class UserFixture {
                         .userType(ADMIN)
                         .gender(WOMAN)
                         .email("koinadmin1@koreatech.ac.kr")
+                        .userId("koinadmin1")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -126,6 +140,7 @@ public final class UserFixture {
                         .userType(ADMIN)
                         .gender(WOMAN)
                         .email("koinadmin2@koreatech.ac.kr")
+                        .userId("koinadmin2")
                         .isAuthed(false)
                         .isDeleted(false)
                         .build()
@@ -152,6 +167,7 @@ public final class UserFixture {
                         .userType(STUDENT)
                         .gender(MAN)
                         .email("juno@koreatech.ac.kr")
+                        .userId("juno")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -176,6 +192,7 @@ public final class UserFixture {
                         .userType(STUDENT)
                         .gender(MAN)
                         .email("lyw4888@koreatech.ac.kr")
+                        .userId("lyw4888")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -201,6 +218,7 @@ public final class UserFixture {
                         .userType(STUDENT)
                         .gender(MAN)
                         .email("testsungbeen@koreatech.ac.kr")
+                        .userId("testsungbeen")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -218,6 +236,7 @@ public final class UserFixture {
             .userType(OWNER)
             .gender(MAN)
             .email("testsungbeenowner@naver.com")
+            .userId("testsungbeen")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -258,6 +277,7 @@ public final class UserFixture {
             .userType(OWNER)
             .gender(MAN)
             .email("hysoo@naver.com")
+            .userId("hysoo")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -299,6 +319,7 @@ public final class UserFixture {
             .userType(OWNER)
             .gender(MAN)
             .email("testjoonyoung@gmail.com")
+            .userId("testjoonyoung")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -340,6 +361,7 @@ public final class UserFixture {
             .userType(OWNER)
             .gender(MAN)
             .email("testchulsu@gmail.com")
+            .userId("testchulsu")
             .isAuthed(false)
             .isDeleted(false)
             .build();
@@ -380,6 +402,7 @@ public final class UserFixture {
             .userType(OWNER)
             .gender(MAN)
             .email("wongyeong@naver.com")
+            .userId("wongyeong")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -420,6 +443,7 @@ public final class UserFixture {
             .userType(COOP)
             .gender(MAN)
             .email("coop@koreatech.ac.kr")
+            .userId("coop")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -432,122 +456,7 @@ public final class UserFixture {
         return coopRepository.save(coop);
     }
 
-    public String 맥북userAgent헤더() {
-        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/123.45 (KHTML, like Gecko) Chrome/127.0.0"
-            + ".0 Safari/123.45, sec-fetch-dest=empty}";
-    }
-
-    public String 아이피() {
-        return "127.0.0.1";
-    }
-
     public String getToken(User user) {
         return jwtProvider.createToken(user);
-    }
-
-    public UserFixtureBuilder builder() {
-        return new UserFixtureBuilder();
-    }
-
-    public final class UserFixtureBuilder {
-
-        private String password;
-        private String nickname;
-        private String name;
-        private String phoneNumber;
-        private UserType userType;
-        private String email;
-        private UserGender gender;
-        private boolean isAuthed;
-        private LocalDateTime lastLoggedAt;
-        private String profileImageUrl;
-        private Boolean isDeleted;
-        private String resetToken;
-        private LocalDateTime resetExpiredAt;
-
-        public UserFixtureBuilder password(String password) {
-            this.password = passwordEncoder.encode(password);
-            return this;
-        }
-
-        public UserFixtureBuilder nickname(String nickname) {
-            this.nickname = nickname;
-            return this;
-        }
-
-        public UserFixtureBuilder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public UserFixtureBuilder phoneNumber(String phoneNumber) {
-            this.phoneNumber = phoneNumber;
-            return this;
-        }
-
-        public UserFixtureBuilder userType(UserType userType) {
-            this.userType = userType;
-            return this;
-        }
-
-        public UserFixtureBuilder email(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public UserFixtureBuilder gender(UserGender gender) {
-            this.gender = gender;
-            return this;
-        }
-
-        public UserFixtureBuilder isAuthed(boolean isAuthed) {
-            this.isAuthed = isAuthed;
-            return this;
-        }
-
-        public UserFixtureBuilder lastLoggedAt(LocalDateTime lastLoggedAt) {
-            this.lastLoggedAt = lastLoggedAt;
-            return this;
-        }
-
-        public UserFixtureBuilder profileImageUrl(String profileImageUrl) {
-            this.profileImageUrl = profileImageUrl;
-            return this;
-        }
-
-        public UserFixtureBuilder isDeleted(Boolean isDeleted) {
-            this.isDeleted = isDeleted;
-            return this;
-        }
-
-        public UserFixtureBuilder resetToken(String resetToken) {
-            this.resetToken = resetToken;
-            return this;
-        }
-
-        public UserFixtureBuilder resetExpiredAt(LocalDateTime resetExpiredAt) {
-            this.resetExpiredAt = resetExpiredAt;
-            return this;
-        }
-
-        public User build() {
-            return userRepository.save(
-                User.builder()
-                    .phoneNumber(phoneNumber)
-                    .lastLoggedAt(lastLoggedAt)
-                    .isAuthed(isAuthed)
-                    .resetExpiredAt(resetExpiredAt)
-                    .resetToken(resetToken)
-                    .nickname(nickname)
-                    .isDeleted(isDeleted)
-                    .email(email)
-                    .profileImageUrl(profileImageUrl)
-                    .gender(gender)
-                    .password(password)
-                    .userType(userType)
-                    .name(name)
-                    .build()
-            );
-        }
     }
 }

@@ -14,11 +14,12 @@ import in.koreatech.koin.admin.shop.dto.review.AdminModifyShopReviewReportStatus
 import in.koreatech.koin.admin.shop.dto.review.AdminShopsReviewsResponse;
 import in.koreatech.koin.admin.shop.repository.review.AdminShopReviewCustomRepository;
 import in.koreatech.koin.admin.shop.repository.review.AdminShopReviewRepository;
+import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -54,6 +55,7 @@ public class AdminShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyShopReviewReportStatus(Integer reviewId, AdminModifyShopReviewReportStatusRequest request) {
         ShopReview shopReview = adminShopReviewRepository.findById(reviewId)
             .orElseThrow(() -> ReviewNotFoundException.withDetail("해당 리뷰를 찾을 수 없습니다.: " + reviewId));
@@ -66,6 +68,7 @@ public class AdminShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void deleteShopReview(Integer reviewId) {
         ShopReview shopReview = adminShopReviewRepository.findById(reviewId)
             .orElseThrow(() -> ReviewNotFoundException.withDetail("해당 리뷰를 찾을 수 없습니다.: " + reviewId));

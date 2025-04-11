@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.dining.dto.DiningResponse;
 import in.koreatech.koin.domain.dining.dto.DiningSearchResponse;
 import in.koreatech.koin.domain.dining.model.DiningPlace;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,14 +44,14 @@ public interface DiningApi {
     @Operation(summary = "식단 좋아요")
     @PatchMapping("/dining/like")
     ResponseEntity<Void> likeDining(
-        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     );
 
     @Operation(summary = "식단 좋아요 취소")
     @PatchMapping("/dining/like/cancel")
     ResponseEntity<Void> likeDiningCancel(
-        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     );
 

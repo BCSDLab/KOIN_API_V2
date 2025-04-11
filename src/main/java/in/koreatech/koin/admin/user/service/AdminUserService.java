@@ -31,10 +31,10 @@ import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -59,9 +59,9 @@ public class AdminUserService {
         }
 
         adminUserValidation.validateEmailForAdminCreated(request.email());
-        Admin createAdmin = adminRepository.save(request.toEntity(passwordEncoder));
+        Admin savedAdmin = adminRepository.save(request.toAdmin(passwordEncoder));
 
-        return AdminResponse.from(createAdmin);
+        return AdminResponse.from(savedAdmin);
     }
 
     @Transactional

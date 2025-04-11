@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.community.keyword.exception;
 
-import in.koreatech.koin.global.exception.DuplicationException;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
 
 public class KeywordDuplicationException extends DuplicationException {
 

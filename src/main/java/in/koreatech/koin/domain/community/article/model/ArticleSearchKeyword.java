@@ -5,7 +5,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
 
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -59,7 +59,11 @@ public class ArticleSearchKeyword extends BaseEntity {
         this.weight = 1.0;
     }
 
-    public void incrementTotalSearch() {
-        this.totalSearch++;
+    public void updateLastSearchedAt(LocalDateTime now) {
+        this.lastSearchedAt = now;
+    }
+
+    public void increaseTotalSearchBy(int count) {
+        this.totalSearch += count;
     }
 }

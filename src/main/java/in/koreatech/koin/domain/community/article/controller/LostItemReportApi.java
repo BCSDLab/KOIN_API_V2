@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.article.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
@@ -10,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemReportRequest;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +23,6 @@ public interface LostItemReportApi {
     ResponseEntity<Void> reportLostItemArticle(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid LostItemReportRequest lostItemReportRequest,
-        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer studentId
     );
 }

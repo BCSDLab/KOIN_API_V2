@@ -51,8 +51,8 @@ public class AdminBenefitService {
             throw BenefitLimitException.withDetail("최대 혜택 수는 " + BenefitCategory.MAX_BENEFIT_CATEGORIES + "개 입니다.");
         }
 
-        boolean isExistCategory = adminBenefitCategoryRepository.existsByTitle(request.title());
-        if (isExistCategory) {
+        boolean existsCategory = adminBenefitCategoryRepository.existsByTitle(request.title());
+        if (existsCategory) {
             throw BenefitDuplicationException.withDetail("이미 존재하는 혜택 카테고리입니다.");
         }
 
@@ -66,8 +66,8 @@ public class AdminBenefitService {
         Integer categoryId,
         AdminModifyBenefitCategoryRequest request
     ) {
-        boolean isExistCategory = adminBenefitCategoryRepository.existsByTitleAndIdNot(request.title(), categoryId);
-        if (isExistCategory) {
+        boolean existsCategory = adminBenefitCategoryRepository.existsByTitleAndIdNot(request.title(), categoryId);
+        if (existsCategory) {
             throw BenefitDuplicationException.withDetail("이미 존재하는 혜택 카테고리입니다.");
         }
         BenefitCategory benefitCategory = adminBenefitCategoryRepository.getById(categoryId);

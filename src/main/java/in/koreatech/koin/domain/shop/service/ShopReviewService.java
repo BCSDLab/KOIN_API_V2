@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.shop.service;
 import static in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest.InnerShopReviewReport;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.dto.review.request.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.review.request.ModifyReviewRequest;
 import in.koreatech.koin.domain.shop.dto.review.ReviewsSortCriteria;
@@ -22,9 +25,10 @@ import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewReportCategor
 import in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewsResponse;
+import in.koreatech.koin.domain.shop.exception.OneReviewPerDayException;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
-import in.koreatech.koin.domain.shop.model.dto.ReviewRegisterEvent;
-import in.koreatech.koin.domain.shop.model.dto.ReviewReportEvent;
+import in.koreatech.koin._common.event.ReviewRegisterEvent;
+import in.koreatech.koin._common.event.ReviewReportEvent;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewImage;
@@ -39,8 +43,8 @@ import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepositor
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.global.auth.exception.AuthenticationException;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
+import in.koreatech.koin._common.model.Criteria;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -57,6 +61,7 @@ public class ShopReviewService {
     private final ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
     private final StudentRepository studentRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final Clock clock;
 
     private final EntityManager entityManager;
 
@@ -83,7 +88,9 @@ public class ShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void createReview(CreateReviewRequest createReviewRequest, Integer studentId, Integer shopId) {
+        checkUserLatestReviewWithin24Hours(studentId, shopId);
         Student student = studentRepository.getById(studentId);
         Shop shop = shopRepository.getById(shopId);
         ShopReview shopReview = ShopReview.builder()
@@ -109,6 +116,7 @@ public class ShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void deleteReview(Integer reviewId, Integer studentId) {
         ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
         if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
@@ -118,6 +126,7 @@ public class ShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyReview(ModifyReviewRequest modifyReviewRequest, Integer reviewId, Integer studentId) {
         ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
         if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
@@ -132,6 +141,7 @@ public class ShopReviewService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void reportReview(
         Integer shopId,
         Integer reviewId,
@@ -189,5 +199,12 @@ public class ShopReviewService {
             sortBy.getSort()
         );
         return ShopMyReviewsResponse.from(reviews);
+    }
+
+    private void checkUserLatestReviewWithin24Hours(Integer studentId, Integer shopId) {
+        shopReviewRepository.findLatestReviewByStudentIdAndShopIdWithin24Hours(studentId, shopId, LocalDateTime.now(clock))
+            .ifPresent(review -> {
+                throw OneReviewPerDayException.withDetail("한 상점에 하루에 한번만 리뷰를 남길 수 있습니다.");
+            });
     }
 }

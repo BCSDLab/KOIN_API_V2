@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 public class Board extends BaseEntity {
 
-    public static final Integer KOIN_ADMIN_NOTICE_BOARD_ID = 9;
+    public static final Integer KOIN_NOTICE_BOARD_ID = 9;
 
     @Id
     @GeneratedValue(strategy = IDENTITY)

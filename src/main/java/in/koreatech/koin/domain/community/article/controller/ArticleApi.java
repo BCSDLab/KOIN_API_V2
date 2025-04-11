@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.article.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
@@ -22,9 +21,9 @@ import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
-import in.koreatech.koin.global.ipaddress.IpAddress;
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
+import in.koreatech.koin.web.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -160,7 +159,7 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 등록")
     @PostMapping("/lost-item")
     ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     );
 
@@ -177,6 +176,6 @@ public interface ArticleApi {
     @DeleteMapping("/lost-item/{id}")
     ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
-        @Auth(permit = {COUNCIL}) Integer councilId
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer councilId
     );
 }

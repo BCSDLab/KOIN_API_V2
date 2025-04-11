@@ -2,17 +2,13 @@ package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import in.koreatech.koin.domain.user.exception.UserResetTokenExpiredException;
-import in.koreatech.koin.global.config.LocalDateTimeAttributeConverter;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -36,6 +32,10 @@ public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @NotNull
+    @Column(name = "user_id", nullable = false)
+    private String userId;
 
     @NotNull
     @Column(name = "password", nullable = false)
@@ -81,19 +81,12 @@ public class User extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Size(max = 255)
-    @Column(name = "reset_token")
-    private String resetToken;
-
-    @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @Column(name = "reset_expired_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime resetExpiredAt;
-
     @Column(name = "device_token", nullable = true)
     private String deviceToken;
 
     @Builder
     private User(
+        String userId,
         String password,
         String nickname,
         String name,
@@ -105,10 +98,9 @@ public class User extends BaseEntity {
         LocalDateTime lastLoggedAt,
         String profileImageUrl,
         Boolean isDeleted,
-        String resetToken,
-        LocalDateTime resetExpiredAt,
         String deviceToken
     ) {
+        this.userId = userId;
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -120,16 +112,7 @@ public class User extends BaseEntity {
         this.lastLoggedAt = lastLoggedAt;
         this.profileImageUrl = profileImageUrl;
         this.isDeleted = isDeleted;
-        this.resetToken = resetToken;
-        this.resetExpiredAt = resetExpiredAt;
         this.deviceToken = deviceToken;
-    }
-
-    private static final int ONE_HOUR = 1;
-
-    public void generateResetTokenForFindPassword(Clock clock) {
-        this.resetExpiredAt = LocalDateTime.now(clock).plusHours(ONE_HOUR);
-        this.resetToken = this.email + this.resetExpiredAt;
     }
 
     public void update(String nickname, String name, String phoneNumber, UserGender gender) {
@@ -146,6 +129,7 @@ public class User extends BaseEntity {
     public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
         lastLoggedAt = lastLoggedTime;
     }
+
     public void updatePassword(PasswordEncoder passwordEncoder, String password) {
         this.password = passwordEncoder.encode(password);
     }

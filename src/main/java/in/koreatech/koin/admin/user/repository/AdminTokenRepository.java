@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 
 public interface AdminTokenRepository extends Repository<UserToken, Integer> {
 

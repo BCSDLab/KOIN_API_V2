@@ -90,9 +90,11 @@ public class UnAuthenticatedStudentInfo {
     }
 
     public Student toStudent(PasswordEncoder passwordEncoder, Department department, Major major) {
+        String userId = email.substring(0, email.indexOf("@"));
         User user = User.builder()
             .password(passwordEncoder.encode(password))
             .email(email)
+            .userId(userId)
             .name(name)
             .nickname(nickname)
             .gender(gender)

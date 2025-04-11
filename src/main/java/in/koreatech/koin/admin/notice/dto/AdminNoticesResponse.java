@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.domain.community.article.model.Article;
-import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record AdminNoticesResponse(
@@ -31,22 +31,8 @@ public record AdminNoticesResponse(
     @Schema(description = "현재 페이지", example = "2", requiredMode = REQUIRED)
     Integer currentPage
 ) {
-
-    public static AdminNoticesResponse of(Page<Article> pagedResult, Criteria criteria) {
-        return new AdminNoticesResponse(
-            pagedResult.stream()
-                .map(AdminNoticesResponse.InnerAdminNoticeResponse::from)
-                .toList(),
-            pagedResult.getTotalElements(),
-            pagedResult.getContent().size(),
-            pagedResult.getTotalPages(),
-            criteria.getPage() + 1
-        );
-    }
-
     @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerAdminNoticeResponse(
-
         @Schema(description = "공지사항 글번호", requiredMode = REQUIRED)
         Integer id,
 
@@ -57,12 +43,13 @@ public record AdminNoticesResponse(
         String author,
 
         @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime createdAt,
 
         @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime updatedAt
     ) {
-
         public static InnerAdminNoticeResponse from(Article article) {
             return new InnerAdminNoticeResponse(
                 article.getId(),
@@ -72,5 +59,15 @@ public record AdminNoticesResponse(
                 article.getUpdatedAt()
             );
         }
+    }
+
+    public static AdminNoticesResponse of(Page<Article> pagedResult, Criteria criteria) {
+        return new AdminNoticesResponse(
+            pagedResult.stream().map(InnerAdminNoticeResponse::from).toList(),
+            pagedResult.getTotalElements(),
+            pagedResult.getContent().size(),
+            pagedResult.getTotalPages(),
+            criteria.getPage() + 1
+        );
     }
 }

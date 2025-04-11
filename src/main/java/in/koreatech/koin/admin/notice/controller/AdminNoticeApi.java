@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeResponse;
 import in.koreatech.koin.admin.notice.dto.AdminNoticesResponse;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

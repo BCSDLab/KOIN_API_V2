@@ -10,7 +10,7 @@ import org.hibernate.annotations.Where;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

@@ -1,8 +1,11 @@
 package in.koreatech.koin.admin.acceptance;
 
+import static in.koreatech.koin.domain.community.article.model.Board.*;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,19 +18,18 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
-import in.koreatech.koin.domain.community.article.model.KoinArticle;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
+import in.koreatech.koin.fixture.KoinNoticeFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
+@Transactional
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 public class AdminNoticeApiTest extends AcceptanceTest {
 
     @Autowired
-    private ArticleFixture articleFixture;
+    private KoinNoticeFixture koinNoticeFixture;
 
     @Autowired
     private UserFixture userFixture;
@@ -38,32 +40,27 @@ public class AdminNoticeApiTest extends AcceptanceTest {
     @Autowired
     private ArticleRepository articleRepository;
 
-    Admin adminUser;
-    Board boardId1, boardId2, boardId3, boardId4, boardId5, boardId6, boardId7, boardId8, boardId9;
-    Article article1, article2, article3, article4;
+    Admin 어드민;
+    String 엑세스_토큰;
+    List<Board> 코인_게시판_리스트;
+    Board 공지사항_게시판;
+    Article 캠퍼스팀_공지, 유저팀_공지, 비즈니스팀_공지, 코인_공지;
 
     @BeforeAll
     void setup() {
         clear();
-        adminUser = userFixture.코인_운영자();
-        boardId1 = boardFixture.자유게시판();
-        boardId2 = boardFixture.취업게시판();
-        boardId3 = boardFixture.익명게시판();
-        boardId4 = boardFixture.공지사항();
-        boardId5 = boardFixture.일반공지();
-        boardId6 = boardFixture.장학공지();
-        boardId7 = boardFixture.학사공지();
-        boardId8 = boardFixture.취업공지();
-        boardId9 = boardFixture.코인공지();
-
-        article1 =
-            articleFixture.코인_공지_게시글("[캠퍼스팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser.getUser());
-        article2 =
-            articleFixture.코인_공지_게시글("[유저팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser.getUser());
-        article3 =
-            articleFixture.코인_공지_게시글("[비즈니스팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser.getUser());
-        article4 =
-            articleFixture.코인_공지_게시글("[KOIN] 공지 테스트", "<p>내용</p>", boardId9, adminUser.getUser());
+        어드민 = userFixture.코인_운영자();
+        엑세스_토큰 = userFixture.getToken(어드민.getUser());
+        코인_게시판_리스트 = boardFixture.코인_게시판_리스트();
+        공지사항_게시판 = 코인_게시판_리스트.get(KOIN_NOTICE_BOARD_ID - 1);
+        캠퍼스팀_공지 =
+            koinNoticeFixture.코인_공지_게시글("[코인 캠퍼스팀] 공지사항 테스트", "<p>내용</p>", 어드민, 공지사항_게시판);
+        유저팀_공지 =
+            koinNoticeFixture.코인_공지_게시글("[코인 유저팀] 공지사항 테스트", "<p>내용</p>", 어드민, 공지사항_게시판);
+        비즈니스팀_공지 =
+            koinNoticeFixture.코인_공지_게시글("[코인 비즈니스팀] 공지사항 테스트", "<p>내용</p>", 어드민, 공지사항_게시판);
+        코인_공지 =
+            koinNoticeFixture.코인_공지_게시글("[KOIN] 공지사항 테스트", "<p>내용</p>", 어드민, 공지사항_게시판);
     }
 
     @Test
@@ -75,11 +72,9 @@ public class AdminNoticeApiTest extends AcceptanceTest {
         }
         """;
 
-        String token = userFixture.getToken(adminUser.getUser());
-
         mockMvc.perform(
                 post("/admin/notice")
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + 엑세스_토큰)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonBody)
             )
@@ -88,11 +83,9 @@ public class AdminNoticeApiTest extends AcceptanceTest {
 
     @Test
     void 관리자_권한으로_삭제_되지_않은_코인_공지사항_목록을_조회한다() throws Exception {
-        String token = userFixture.getToken(adminUser.getUser());
-
         mockMvc.perform(
                 get("/admin/notice")
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + 엑세스_토큰)
                     .param("page", "1")
                     .param("is_deleted", "false")
             )
@@ -106,32 +99,11 @@ public class AdminNoticeApiTest extends AcceptanceTest {
 
     @Test
     void 관리자_권한으로_코인_공지사항_게시글을_단건_조회한다() throws Exception {
-        // 코인 공지사항 게시글 생성
-        KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser.getUser())
-            .isDeleted(false)
-            .build();
-
-        Article adminNoticeArticle = Article.builder()
-            .board(boardId9)
-            .title("[코인 캠퍼스팀] 공지사항 테스트")
-            .content("<p>내용</p>")
-            .koinArticle(koinArticle)
-            .koreatechArticle(null)
-            .isNotice(true)
-            .isDeleted(false)
-            .build();
-
-        koinArticle.setArticle(adminNoticeArticle);
-
-        Article saveNotice = articleRepository.save(adminNoticeArticle);
-        Integer noticeId = saveNotice.getId();
-
-        String token = userFixture.getToken(adminUser.getUser());
+        Integer noticeId = 캠퍼스팀_공지.getId();
 
         mockMvc.perform(
                 get("/admin/notice/{id}", noticeId)
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + 엑세스_토큰)
             )
             .andExpect(status().isOk())
             .andExpect(content().json(String.format("""
@@ -148,32 +120,11 @@ public class AdminNoticeApiTest extends AcceptanceTest {
 
     @Test
     void 관리자_권한으로_코인_공지사항_게시글을_삭제한다() throws Exception {
-        // 코인 공지사항 게시글 생성
-        KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser.getUser())
-            .isDeleted(false)
-            .build();
-
-        Article adminNoticeArticle = Article.builder()
-            .board(boardId9)
-            .title("[코인 캠퍼스팀] 공지사항 테스트")
-            .content("<p>내용</p>")
-            .koinArticle(koinArticle)
-            .koreatechArticle(null)
-            .isNotice(true)
-            .isDeleted(false)
-            .build();
-
-        koinArticle.setArticle(adminNoticeArticle);
-
-        Article saveNotice = articleRepository.save(adminNoticeArticle);
-        Integer noticeId = saveNotice.getId();
-
-        String token = userFixture.getToken(adminUser.getUser());
+        Integer noticeId = 캠퍼스팀_공지.getId();
 
         mockMvc.perform(
                 delete("/admin/notice/{id}", noticeId)
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + 엑세스_토큰)
             )
             .andExpect(status().isNoContent());
 
@@ -187,28 +138,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
 
     @Test
     void 관리자_권한으로_코인_공지사항_게시글을_수정한다() throws Exception {
-        // 코인 공지사항 게시글 생성
-        KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser.getUser())
-            .isDeleted(false)
-            .build();
-
-        Article adminNoticeArticle = Article.builder()
-            .board(boardId9)
-            .title("[코인 캠퍼스팀] 공지사항 테스트")
-            .content("<p>내용</p>")
-            .koinArticle(koinArticle)
-            .koreatechArticle(null)
-            .isNotice(true)
-            .isDeleted(false)
-            .build();
-
-        koinArticle.setArticle(adminNoticeArticle);
-
-        Article saveNotice = articleRepository.save(adminNoticeArticle);
-        Integer noticeId = saveNotice.getId();
-
-        String token = userFixture.getToken(adminUser.getUser());
+        Integer noticeId = 코인_공지.getId();
 
         // 코인 공지사항 게시글 수정
         String jsonBody = """
@@ -220,7 +150,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
 
         mockMvc.perform(
                 put("/admin/notice/{id}", noticeId)
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + 엑세스_토큰)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonBody)
             )

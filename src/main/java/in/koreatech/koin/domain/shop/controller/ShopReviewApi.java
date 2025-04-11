@@ -12,11 +12,12 @@ import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewReportCategor
 import in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewsResponse;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -80,7 +81,15 @@ public interface ShopReviewApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "일일 리뷰 등록 횟수 초과", value = """
+                {
+                  "code": "",
+                  "message": "한 상점에 하루에 한번만 리뷰를 남길 수 있습니다.",
+                  "errorTraceId": "d4955051-bbc3-45fb-80d7-350eda9a81bd"
+                }
+                """)
+            }), description = "잘못된 요청"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),

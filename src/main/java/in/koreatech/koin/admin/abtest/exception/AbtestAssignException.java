@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.abtest.exception;
 
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 
 public class AbtestAssignException extends KoinIllegalStateException {
 

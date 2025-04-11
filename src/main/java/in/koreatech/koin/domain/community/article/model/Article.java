@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.community.article.model;
 
-import static in.koreatech.koin.domain.community.article.model.Board.KOIN_ADMIN_NOTICE_BOARD_ID;
+import static in.koreatech.koin.domain.community.article.model.Board.KOIN_NOTICE_BOARD_ID;
 import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.FetchType.LAZY;
@@ -14,10 +14,12 @@ import java.util.Objects;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
+import in.koreatech.koin.admin.notice.model.KoinNotice;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleRequest;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -88,6 +90,9 @@ public class Article extends BaseEntity {
     @OneToOne(mappedBy = "article", fetch = LAZY, cascade = ALL)
     private LostItemArticle lostItemArticle;
 
+    @OneToOne(mappedBy = "article", fetch = LAZY, cascade = ALL)
+    private KoinNotice koinNotice;
+
     @Transient
     private Integer prevId;
 
@@ -120,7 +125,7 @@ public class Article extends BaseEntity {
     @PostPersist
     @PostLoad
     public void updateAuthor() {
-        if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
+        if (Objects.equals(board.getId(), KOIN_NOTICE_BOARD_ID)) {
             author = ADMIN_NOTICE_AUTHOR;
             return;
         }
@@ -134,8 +139,10 @@ public class Article extends BaseEntity {
         }
         if (lostItemArticle != null) {
             User user = lostItemArticle.getAuthor();
-            author = (user != null && user.getNickname() != null) ? user.getNickname() : ANONYMOUS_USER;
-            return;
+            if (user != null) {
+                author = user.getNickname() != null ? user.getNickname() : ANONYMOUS_USER;
+                return;
+            }
         }
         author = DELETED_USER;
     }
@@ -173,9 +180,12 @@ public class Article extends BaseEntity {
         if (this.lostItemArticle != null) {
             this.lostItemArticle.delete();
         }
+        if (this.koinNotice != null) {
+            this.koinNotice.delete();
+        }
     }
 
-    public void updateKoinAdminArticle(String title, String content) {
+    public void updateKoinNoticeArticle(String title, String content) {
         this.title = title;
         this.content = content;
     }
@@ -192,7 +202,8 @@ public class Article extends BaseEntity {
         boolean isNotice,
         KoreatechArticle koreatechArticle,
         KoinArticle koinArticle,
-        LostItemArticle lostItemArticle
+        LostItemArticle lostItemArticle,
+        KoinNotice koinNotice
     ) {
         this.id = id;
         this.board = board;
@@ -205,15 +216,16 @@ public class Article extends BaseEntity {
         this.koreatechArticle = koreatechArticle;
         this.koinArticle = koinArticle;
         this.lostItemArticle = lostItemArticle;
+        this.koinNotice = koinNotice;
     }
 
-    public static Article createKoinNoticeArticleByAdmin(
+    public static Article createKoinNotice(
         AdminNoticeRequest request,
         Board adminNoticeBoard,
-        User adminUser
+        Admin adminUser
     ) {
-        KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser)
+        KoinNotice koinNotice = KoinNotice.builder()
+            .admin(adminUser)
             .isDeleted(false)
             .build();
 
@@ -222,12 +234,11 @@ public class Article extends BaseEntity {
             .title(request.title())
             .content(request.content())
             .isNotice(true)
-            .koinArticle(koinArticle)
-            .koreatechArticle(null)
+            .koinNotice(koinNotice)
             .isDeleted(false)
             .build();
 
-        koinArticle.setArticle(article);
+        koinNotice.setArticle(article);
         return article;
     }
 

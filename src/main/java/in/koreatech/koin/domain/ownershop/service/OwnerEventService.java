@@ -1,9 +1,10 @@
 package in.koreatech.koin.domain.ownershop.service;
 
-import in.koreatech.koin.domain.ownershop.dto.EventArticleCreateShopEvent;
+import in.koreatech.koin._common.event.EventArticleCreateShopEvent;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
+import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -27,6 +28,7 @@ public class OwnerEventService {
     private final OwnerShopUtilService ownerShopUtilService;
 
     @Transactional
+    @RefreshShopsCache
     public void createEvent(Integer ownerId, Integer shopId, CreateEventRequest createEventRequest) {
         Shop shop = ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         EventArticle savedEventArticle = createEventArticle(createEventRequest, shop);
@@ -40,6 +42,7 @@ public class OwnerEventService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyEvent(Integer ownerId, Integer shopId, Integer eventId, ModifyEventRequest modifyEventRequest) {
         ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = eventArticleRepository.getById(eventId);
@@ -54,6 +57,7 @@ public class OwnerEventService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void deleteEvent(Integer ownerId, Integer shopId, Integer eventId) {
         ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         eventArticleRepository.deleteById(eventId);

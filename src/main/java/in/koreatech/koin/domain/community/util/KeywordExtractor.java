@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
+import in.koreatech.koin._common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import lombok.RequiredArgsConstructor;
 

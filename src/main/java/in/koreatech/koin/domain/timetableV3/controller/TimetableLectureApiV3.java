@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetableV3.dto.response.TakeAllTimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

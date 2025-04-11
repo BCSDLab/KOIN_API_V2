@@ -32,6 +32,7 @@ import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryMapReposito
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopParentCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
+import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -40,7 +41,7 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.ShopImage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
-import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin._common.model.Criteria;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -95,6 +96,7 @@ public class AdminShopService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void createShop(AdminCreateShopRequest request) {
         ShopCategory shopMainCategory = adminShopCategoryRepository.getById(request.mainCategoryId());
         Shop shop = request.toShop(shopMainCategory);
@@ -151,6 +153,7 @@ public class AdminShopService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void cancelShopDelete(Integer shopId) {
         Shop shop = adminShopRepository.findDeletedShopById(shopId)
             .orElseThrow(() -> new ShopNotFoundException("해당 상점이 존재하지 않습니다.: " + shopId));
@@ -158,6 +161,7 @@ public class AdminShopService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyShop(Integer shopId, AdminModifyShopRequest request) {
         Shop shop = adminShopRepository.getById(shopId);
         ShopCategory shopMainCategory = adminShopCategoryRepository.getById(request.mainCategoryId());
@@ -183,6 +187,7 @@ public class AdminShopService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void modifyShopCategory(Integer categoryId, AdminModifyShopCategoryRequest request) {
         validateExistCategoryName(request.name(), categoryId);
         ShopCategory shopCategory = adminShopCategoryRepository.getById(categoryId);
@@ -213,12 +218,14 @@ public class AdminShopService {
     }
 
     @Transactional
+    @RefreshShopsCache
     public void deleteShop(Integer shopId) {
         Shop shop = adminShopRepository.getById(shopId);
         shop.delete();
     }
 
     @Transactional
+    @RefreshShopsCache
     public void deleteShopCategory(Integer categoryId) {
         validateHasShops(categoryId);
         adminShopCategoryRepository.deleteById(categoryId);

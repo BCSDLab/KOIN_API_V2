@@ -1,0 +1,7 @@
+addAssignees: author # 작성자를 assignee로 지정
+numberOfReviewers: 0 # 전원 리뷰어로 지정
+addReviewers: true
+reviewers:
+  - Choon0414
+  - Baejinho4028
+  - kih1015

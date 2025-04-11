@@ -115,6 +115,7 @@ public class AdminStudentApiTest extends AcceptanceTest {
                         .userType(STUDENT)
                         .gender(MAN)
                         .email("seongjae@koreatech.ac.kr")
+                        .userId("seongjae")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()

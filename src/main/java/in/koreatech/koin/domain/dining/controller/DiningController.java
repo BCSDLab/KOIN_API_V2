@@ -16,8 +16,8 @@ import in.koreatech.koin.domain.dining.dto.DiningResponse;
 import in.koreatech.koin.domain.dining.dto.DiningSearchResponse;
 import in.koreatech.koin.domain.dining.model.DiningPlace;
 import in.koreatech.koin.domain.dining.service.DiningService;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,7 +38,7 @@ public class DiningController implements DiningApi {
 
     @PatchMapping("/dining/like")
     public ResponseEntity<Void> likeDining(
-        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     ) {
         diningService.likeDining(userId, diningId);
@@ -47,7 +47,7 @@ public class DiningController implements DiningApi {
 
     @PatchMapping("/dining/like/cancel")
     public ResponseEntity<Void> likeDiningCancel(
-        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     ) {
         diningService.likeDiningCancel(userId, diningId);
