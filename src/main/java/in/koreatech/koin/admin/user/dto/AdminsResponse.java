@@ -48,11 +48,8 @@ public record AdminsResponse(
         @Schema(description = "팀 이름", example = "User", requiredMode = REQUIRED)
         String teamName,
 
-        @Schema(description = "어드민 생성 권한", example = "false", requiredMode = REQUIRED)
-        Boolean canCreateAdmin,
-
-        @Schema(description = "슈퍼 어드민 권한", example = "false", requiredMode = REQUIRED)
-        Boolean superAdmin
+        @Schema(description = "직함", example = "레귤러", requiredMode = REQUIRED)
+        String role
     ) {
         public static InnerAdminsResponse from(Admin admin) {
             User user = admin.getUser();
@@ -63,8 +60,7 @@ public record AdminsResponse(
                 user.getName(),
                 admin.getTrackType().getValue(),
                 admin.getTeamType().getValue(),
-                admin.isCanCreateAdmin(),
-                admin.isSuperAdmin()
+                admin.getRole().getName()
             );
         }
     }
