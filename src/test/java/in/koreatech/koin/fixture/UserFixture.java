@@ -76,73 +76,79 @@ public final class UserFixture {
     }
 
     public Admin 코인_운영자() {
+        User user = userRepository.save(
+            User.builder()
+                .password(passwordEncoder.encode("1234"))
+                .nickname("코인운영자")
+                .name("테스트용_코인운영자")
+                .phoneNumber("01012342344")
+                .userType(ADMIN)
+                .gender(MAN)
+                .email("juno@koreatech.ac.kr")
+                .userId("juno")
+                .isAuthed(true)
+                .isDeleted(false)
+                .build()
+        );
+
         return adminRepository.save(
             Admin.builder()
                 .trackType(BACKEND)
                 .teamType(USER)
                 .role(TRACK_LEADER)
-                .user(
-                    User.builder()
-                        .password(passwordEncoder.encode("1234"))
-                        .nickname("코인운영자")
-                        .name("테스트용_코인운영자")
-                        .phoneNumber("01012342344")
-                        .userType(ADMIN)
-                        .gender(MAN)
-                        .email("juno@koreatech.ac.kr")
-                        .userId("juno")
-                        .isAuthed(true)
-                        .isDeleted(false)
-                        .build()
-                )
+                .user(user)
                 .build()
         );
     }
 
     public Admin 영희_운영자() {
+        User user = userRepository.save(
+            User.builder()
+                .password(passwordEncoder.encode("1234"))
+                .nickname("코인운영자1")
+                .name("테스트용_코인운영자")
+                .phoneNumber("01012342347")
+                .userType(ADMIN)
+                .gender(WOMAN)
+                .email("koinadmin1@koreatech.ac.kr")
+                .userId("koinadmin1")
+                .isAuthed(true)
+                .isDeleted(false)
+                .build()
+        );
+
         return adminRepository.save(
             Admin.builder()
                 .trackType(BACKEND)
                 .teamType(BUSINESS)
                 .role(TRACK_REGULAR)
-                .user(
-                    User.builder()
-                        .password(passwordEncoder.encode("1234"))
-                        .nickname("코인운영자1")
-                        .name("테스트용_코인운영자")
-                        .phoneNumber("01012342347")
-                        .userType(ADMIN)
-                        .gender(WOMAN)
-                        .email("koinadmin1@koreatech.ac.kr")
-                        .userId("koinadmin1")
-                        .isAuthed(true)
-                        .isDeleted(false)
-                        .build()
-                )
+                .user(user)
                 .build()
         );
     }
 
     public Admin 진구_운영자() {
+        User user = userRepository.save(
+            User.builder()
+                .password(passwordEncoder.encode("1234"))
+                .nickname("코인운영자2")
+                .name("테스트용_코인운영자")
+                .phoneNumber("01012342347")
+                .userType(ADMIN)
+                .gender(WOMAN)
+                .email("koinadmin2@koreatech.ac.kr")
+                .userId("koinadmin2")
+                .isAuthed(false)
+                .isDeleted(false)
+                .build()
+        );
+
         return adminRepository.save(
             Admin.builder()
                 .trackType(BACKEND)
                 .teamType(CAMPUS)
                 .role(BCSD_PRESIDENT)
-                .user(
-                    User.builder()
-                        .password(passwordEncoder.encode("1234"))
-                        .nickname("코인운영자2")
-                        .name("테스트용_코인운영자")
-                        .phoneNumber("01012342347")
-                        .userType(ADMIN)
-                        .gender(WOMAN)
-                        .email("koinadmin2@koreatech.ac.kr")
-                        .userId("koinadmin2")
-                        .isAuthed(false)
-                        .isDeleted(false)
-                        .build()
-                )
+                .user(user)
                 .build()
         );
     }
