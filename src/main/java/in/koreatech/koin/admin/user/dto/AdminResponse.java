@@ -24,10 +24,7 @@ public record AdminResponse(
     String trackName,
 
     @Schema(description = "팀 이름", example = "User", requiredMode = REQUIRED)
-    String teamName,
-
-    @Schema(description = "직함", example = "레귤러", requiredMode = REQUIRED)
-    String role
+    String teamName
 ) {
     public static AdminResponse from(Admin admin) {
         User user = admin.getUser();
@@ -37,8 +34,7 @@ public record AdminResponse(
             user.getEmail(),
             user.getName(),
             admin.getTrackType().getValue(),
-            admin.getTeamType().getValue(),
-            admin.getRole().getName()
+            admin.getTeamType().getValue()
         );
     }
 }
