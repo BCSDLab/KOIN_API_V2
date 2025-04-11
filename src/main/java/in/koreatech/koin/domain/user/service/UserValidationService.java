@@ -7,6 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
@@ -18,9 +20,7 @@ import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin.integration.email.exception.DuplicationEmailException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -93,17 +93,17 @@ public class UserValidationService {
     }
 
     @Transactional(readOnly = true)
-    public void existsByUserIdAndPhoneNumber(String userId, String phoneNumber) {
+    public void matchUserIdWithPhoneNumber(String userId, String phoneNumber) {
         User user = userRepository.getByUserId(userId);
-        if(!Objects.equals(user.getPhoneNumber(), phoneNumber)) {
+        if (!Objects.equals(user.getPhoneNumber(), phoneNumber)) {
             throw new KoinIllegalArgumentException("입력한 아이디의 휴대폰 번호와 일치하지 않습니다.");
         }
     }
 
     @Transactional(readOnly = true)
-    public void existsByUserIdAndEmail(String userId, String email) {
+    public void matchUserIdWithEmail(String userId, String email) {
         User user = userRepository.getByUserId(userId);
-        if(!Objects.equals(user.getEmail(), email)) {
+        if (!Objects.equals(user.getEmail(), email)) {
             throw new KoinIllegalArgumentException("입력한 아이디의 이메일과 일치하지 않습니다.");
         }
     }
