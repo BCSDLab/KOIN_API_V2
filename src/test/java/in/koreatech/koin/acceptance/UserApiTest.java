@@ -386,11 +386,11 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_SMS_인증번호_전송_및_검증한다() throws Exception {
         // given
-        // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
 
-        // when - SMS 인증번호 전송
+        // when
+        // SMS 인증번호 전송
         mockMvc.perform(
                 post("/user/sms/send")
                     .content("""
@@ -406,7 +406,8 @@ class UserApiTest extends AcceptanceTest {
         UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
         String certificationCode = status.getVerificationCode();
 
-        // then - SMS 인증번호 검증
+        // then
+        // SMS 인증번호 검증
         mockMvc.perform(
                 post("/user/sms/verify")
                     .content("""
@@ -423,11 +424,11 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_SMS_인증번호_전송_후_잘못된_인증번호로_검증시_에러를_반환한다() throws Exception {
         // given
-        // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
 
-        // when - SMS 인증번호 전송
+        // when
+        // SMS 인증번호 전송
         mockMvc.perform(
                 post("/user/sms/send")
                     .content("""
@@ -444,7 +445,8 @@ class UserApiTest extends AcceptanceTest {
         String certificationCode = status.getVerificationCode();
         String wrongCode = certificationCode.equals("123456") ? "654321" : "123456";
 
-        // then - 잘못된 인증번호로 검증
+        // then
+        // 잘못된 인증번호로 검증
         mockMvc.perform(
                 post("/user/sms/verify")
                     .content("""
@@ -461,12 +463,12 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_SMS_인증번호_하루_5번_이상_발송시도시_429_에러를_반환한다() throws Exception {
         // given
-        // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
         int maxDailyLimit = 5;
 
-        // when - 5번까지 정상 발송
+        // when
+        // 5번까지 정상 발송
         for (int i = 0; i < maxDailyLimit; i++) {
             mockMvc.perform(
                     post("/user/sms/send")
@@ -480,7 +482,8 @@ class UserApiTest extends AcceptanceTest {
                 .andExpect(status().isOk());
         }
 
-        // then - 6번째 발송 시도시 400 반환
+        // then
+        // 6번째 발송 시도시 400 반환
         mockMvc.perform(
                 post("/user/sms/send")
                     .content("""
@@ -496,14 +499,12 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_인증을_통해_ID를_찾는다() throws Exception {
         // given
-        // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
-        String phoneNumber = "01012345678";
-
-        // 사용자 생성
         User user = userFixture.코인_유저();
+        String phoneNumber = user.getPhoneNumber();
 
-        // when - SMS 인증번호 전송
+        // when
+        // SMS 인증번호 전송
         mockMvc.perform(
                 post("/user/sms/send")
                     .content("""
@@ -549,15 +550,13 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_인증을_통해_비밀번호를_변경한다() throws Exception {
         // given
-        // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
-
-        // 사용자 생성
         User user = userFixture.코인_유저();
         String phoneNumber = user.getPhoneNumber();
         String newPassword = "12345";
 
-        // when - SMS 인증번호 전송
+        // when
+        // SMS 인증번호 전송
         mockMvc.perform(
                 post("/user/sms/send")
                     .content("""
