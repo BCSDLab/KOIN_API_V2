@@ -2,7 +2,6 @@ package in.koreatech.koin.fixture;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -12,8 +11,6 @@ import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.KoinArticle;
 import in.koreatech.koin.domain.community.article.model.KoreatechArticle;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.article.repository.KoinArticleRepository;
-import in.koreatech.koin.domain.community.article.repository.KoreatechArticleRepository;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component
@@ -113,27 +110,5 @@ public class ArticleFixture {
         koreatechArticle.setArticle(article);
 
         return articleRepository.save(article);
-    }
-
-    public Article 코인_공지_게시글(String title, String content, Board board, User user) {
-
-        KoinArticle koinArticle = KoinArticle.builder()
-            .user(user)
-            .isDeleted(false)
-            .build();
-
-        Article adminNoticeArticle = Article.builder()
-            .board(board)
-            .title(title)
-            .content(content)
-            .koinArticle(koinArticle)
-            .koreatechArticle(null)
-            .isNotice(true)
-            .isDeleted(false)
-            .build();
-
-        koinArticle.setArticle(adminNoticeArticle);
-
-        return articleRepository.save(adminNoticeArticle);
     }
 }

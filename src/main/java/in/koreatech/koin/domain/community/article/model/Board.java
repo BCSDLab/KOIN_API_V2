@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 public class Board extends BaseEntity {
 
-    public static final Integer KOIN_ADMIN_NOTICE_BOARD_ID = 9;
+    public static final Integer KOIN_NOTICE_BOARD_ID = 9;
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
