@@ -54,7 +54,7 @@ public class AdminUserValidation {
         }
 
         if (!user.isAuthed()) {
-            throw new AuthorizationException("PL 인증 대기중입니다.");
+            throw new AuthorizationException("어드민 비활성화 상태입니다.");
         }
     }
 }

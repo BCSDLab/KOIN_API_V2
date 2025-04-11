@@ -54,7 +54,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
                     throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
                 }
                 if (user.getUserType() == ADMIN) {
-                    throw new AuthorizationException("PL 인증 대기중입니다.");
+                    throw new AuthorizationException("어드민 비활성화 상태입니다.");
                 }
                 throw AuthorizationException.withDetail("userId: " + user.getId());
             }
