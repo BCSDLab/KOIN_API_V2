@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
@@ -32,9 +31,6 @@ class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminUserRepository adminUserRepository;
-
-    @Autowired
-    private AdminRepository adminRepository;
 
     @Autowired
     private UserFixture userFixture;
