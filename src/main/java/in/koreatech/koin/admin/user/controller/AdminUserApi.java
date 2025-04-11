@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
-import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
@@ -24,7 +24,6 @@ import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -189,23 +188,6 @@ public interface AdminUserApi {
     @PutMapping("/admin/{id}")
     ResponseEntity<Void> updateAdmin(
         @RequestBody @Valid AdminUpdateRequest request,
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "어드민 계정 권한 수정")
-    @PutMapping("/admin/{id}/permission")
-    ResponseEntity<Void> updateAdminPermission(
-        @RequestBody @Valid AdminPermissionUpdateRequest request,
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     );

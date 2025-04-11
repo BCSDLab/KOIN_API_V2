@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
-import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
@@ -29,7 +29,6 @@ import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -130,16 +129,6 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminUserService.updateAdmin(request, id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/admin/{id}/permission")
-    public ResponseEntity<Void> updateAdminPermission(
-        @RequestBody @Valid AdminPermissionUpdateRequest request,
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        adminUserService.updateAdminPermission(request, id, adminId);
         return ResponseEntity.ok().build();
     }
 

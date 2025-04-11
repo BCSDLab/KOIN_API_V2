@@ -10,12 +10,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
-import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
@@ -31,10 +34,6 @@ import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -54,7 +53,7 @@ public class AdminUserService {
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
-        if (!admin.isCanCreateAdmin() || !admin.isSuperAdmin()) {
+        if (!admin.getRole().getCanCreateAdmin()) {
             throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
 
@@ -130,7 +129,7 @@ public class AdminUserService {
     @Transactional
     public void adminAuthenticate(Integer id, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
-        if (!admin.isSuperAdmin()) {
+        if (!admin.getRole().getCanCreateAdmin()) {
             throw new AuthorizationException("어드민 승인 권한이 없습니다.");
         }
 
@@ -145,16 +144,6 @@ public class AdminUserService {
 
         user.updateName(request.name());
         admin.updateTeamTrack(request.teamType(), request.trackType());
-    }
-
-    @Transactional
-    public void updateAdminPermission(AdminPermissionUpdateRequest request, Integer id, Integer adminId) {
-        Admin admin = adminRepository.getById(adminId);
-        if (!admin.isSuperAdmin()) {
-            throw new AuthorizationException("슈퍼 어드민 권한이 없습니다.");
-        }
-
-        adminRepository.getById(id).updatePermission(request.canCreateAdmin(), request.superAdmin());
     }
 
     @Transactional

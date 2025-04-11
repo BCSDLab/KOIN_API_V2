@@ -50,12 +50,6 @@ public class Admin {
     @Column(name = "track_type", nullable = false)
     private TrackType trackType;
 
-    @Column(name = "can_create_admin", columnDefinition = "TINYINT")
-    private boolean canCreateAdmin = false;
-
-    @Column(name = "super_admin", columnDefinition = "TINYINT")
-    private boolean superAdmin = false;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role;
@@ -72,8 +66,6 @@ public class Admin {
         String phoneNumber,
         TeamType teamType,
         TrackType trackType,
-        boolean canCreateAdmin,
-        boolean superAdmin,
         Role role,
         User user
     ) {
@@ -83,8 +75,6 @@ public class Admin {
         this.phoneNumber = phoneNumber;
         this.teamType = teamType;
         this.trackType = trackType;
-        this.canCreateAdmin = canCreateAdmin;
-        this.superAdmin = superAdmin;
         this.role = role;
         this.user = user;
     }
@@ -92,11 +82,5 @@ public class Admin {
     public void updateTeamTrack(TeamType teamName, TrackType trackName) {
         this.teamType = teamName;
         this.trackType = trackName;
-    }
-
-    /* 어드민 권한이 추가 되면, 해당 메소드에도 추가해야 합니다. */
-    public void updatePermission(boolean canCreateAdmin, boolean superAdmin) {
-        this.canCreateAdmin = canCreateAdmin;
-        this.superAdmin = superAdmin;
     }
 }
