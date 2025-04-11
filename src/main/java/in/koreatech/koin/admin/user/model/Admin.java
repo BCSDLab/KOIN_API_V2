@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.user.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.admin.user.enums.Role;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
@@ -30,6 +31,15 @@ public class Admin {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "team_type", nullable = false)
@@ -46,6 +56,10 @@ public class Admin {
     @Column(name = "super_admin", columnDefinition = "TINYINT")
     private boolean superAdmin = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
+
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
@@ -53,17 +67,25 @@ public class Admin {
     @Builder
     private Admin(
         Integer id,
+        String name,
+        String email,
+        String phoneNumber,
         TeamType teamType,
         TrackType trackType,
         boolean canCreateAdmin,
         boolean superAdmin,
+        Role role,
         User user
     ) {
         this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
         this.teamType = teamType;
         this.trackType = trackType;
         this.canCreateAdmin = canCreateAdmin;
         this.superAdmin = superAdmin;
+        this.role = role;
         this.user = user;
     }
 
