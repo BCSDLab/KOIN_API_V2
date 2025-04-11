@@ -202,7 +202,7 @@ class AdminUserApiTest extends AcceptanceTest {
                           "name": "신관규",
                           "track_type": "BACKEND",
                           "team_type": "USER",
-                          "role": "TRACK_REGULAR
+                          "role": "TRACK_REGULAR"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
