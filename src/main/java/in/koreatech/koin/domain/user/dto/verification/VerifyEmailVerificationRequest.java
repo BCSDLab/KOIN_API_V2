@@ -6,21 +6,21 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record CheckUserIdWithEmailRequest(
-    @Schema(description = "로그인 ID", example = "user123", requiredMode = REQUIRED)
-    @NotBlank(message = "로그인 ID는 필수입니다.")
-    @Pattern(regexp = "^[a-z0-9_.-]{1,13}$", message = "로그인 ID는 영소문자, 숫자, 밑줄(_), 하이픈(-), 마침표(.)로 이루어진 1~13자여야 합니다.")
-    String userId,
-
+public record VerifyEmailVerificationRequest(
     @Schema(description = "이메일", example = "user@example.com", requiredMode = REQUIRED)
     @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "올바른 이메일 형식이 아닙니다.")
-    String email
+    String email,
+
+    @NotBlank(message = "인증번호를 입력해주세요.")
+    @Digits(integer = 6, fraction = 0, message = "인증번호는 6자리 숫자여야 합니다.")
+    @Schema(description = "인증번호", example = "123456", requiredMode = REQUIRED)
+    String verificationCode
 ) {
 
 }

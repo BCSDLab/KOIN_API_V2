@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record EmailSendVerificationCodeRequest(
+public record SendEmailVerificationRequest(
     @Schema(description = "이메일", example = "user@example.com", requiredMode = REQUIRED)
     @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "올바른 이메일 형식이 아닙니다.")

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record VerificationCountResponse(
+public record SendVerificationResponse(
     @Schema(description = "전화번호 또는 코리아텍 이메일", example = "01000000000 or test@koreatech.ac.kr", requiredMode = REQUIRED)
     String target,
 
@@ -22,7 +22,7 @@ public record VerificationCountResponse(
     int currentCount
 ) {
 
-    public static VerificationCountResponse of(String target, int totalCount, int remainingCount, int currentCount) {
-        return new VerificationCountResponse(target, totalCount, remainingCount, currentCount);
+    public static SendVerificationResponse of(String target, int totalCount, int remainingCount, int currentCount) {
+        return new SendVerificationResponse(target, totalCount, remainingCount, currentCount);
     }
 }

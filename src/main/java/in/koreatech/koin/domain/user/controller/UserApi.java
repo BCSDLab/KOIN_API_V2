@@ -12,26 +12,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.CheckEmailDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
-import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.CheckNicknameDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.CheckPhoneDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
+import in.koreatech.koin.domain.user.dto.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-import in.koreatech.koin.domain.user.dto.verification.CheckEmailRequest;
-import in.koreatech.koin.domain.user.dto.verification.CheckPhoneNumberRequest;
-import in.koreatech.koin.domain.user.dto.verification.CheckUserIdRequest;
-import in.koreatech.koin.domain.user.dto.verification.CheckUserIdWithEmailRequest;
-import in.koreatech.koin.domain.user.dto.verification.CheckUserIdWithPhoneNumberRequest;
-import in.koreatech.koin.domain.user.dto.verification.EmailFindIdRequest;
-import in.koreatech.koin.domain.user.dto.verification.EmailResetPasswordRequest;
+import in.koreatech.koin.domain.user.dto.verification.ExistsByPhoneRequest;
+import in.koreatech.koin.domain.user.dto.verification.ExistsByUserIdRequest;
+import in.koreatech.koin.domain.user.dto.verification.ExistsByEmailRequest;
+import in.koreatech.koin.domain.user.dto.verification.MatchUserIdWithEmailRequest;
+import in.koreatech.koin.domain.user.dto.verification.MatchUserIdWithPhoneNumberRequest;
+import in.koreatech.koin.domain.user.dto.verification.FindIdByEmailRequest;
+import in.koreatech.koin.domain.user.dto.verification.ResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.verification.FindIdResponse;
-import in.koreatech.koin.domain.user.dto.verification.SmsFindIdRequest;
-import in.koreatech.koin.domain.user.dto.verification.SmsResetPasswordRequest;
+import in.koreatech.koin.domain.user.dto.verification.FindIdBySmsRequest;
+import in.koreatech.koin.domain.user.dto.verification.ResetPasswordBySmsRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -146,7 +146,7 @@ public interface UserApi {
     @GetMapping("/user/check/email")
     ResponseEntity<Void> checkUserEmailExist(
         @ModelAttribute("address")
-        @Valid EmailCheckExistsRequest request
+        @Valid CheckEmailDuplicationRequest request
     );
 
     @ApiResponses(
@@ -163,7 +163,7 @@ public interface UserApi {
     @GetMapping("/user/check/phone")
     ResponseEntity<Void> checkPhoneNumberExist(
         @ModelAttribute("phone")
-        @Valid PhoneCheckExistsRequest request
+        @Valid CheckPhoneDuplicationRequest request
     );
 
     @ApiResponses(
@@ -180,7 +180,7 @@ public interface UserApi {
     @GetMapping("/user/check/nickname")
     ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
-        @Valid NicknameCheckExistsRequest request
+        @Valid CheckNicknameDuplicationRequest request
     );
 
     @ApiResponses(
@@ -198,7 +198,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/check/password")
     ResponseEntity<Void> checkPassword(
-        @Valid @RequestBody UserPasswordCheckRequest request,
+        @Valid @RequestBody CheckUserPasswordRequest request,
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
@@ -228,7 +228,7 @@ public interface UserApi {
         description = "입력한 로그인 ID가 존재하는지 확인합니다."
     )
     @PostMapping("/user/id/exists")
-    ResponseEntity<Void> existsByUserId(@Valid @RequestBody CheckUserIdRequest request);
+    ResponseEntity<Void> existsByUserId(@Valid @RequestBody ExistsByUserIdRequest request);
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "전화번호 존재"),
@@ -239,7 +239,7 @@ public interface UserApi {
         description = "입력한 전화번호로 가입된 계정이 존재하는지 확인합니다."
     )
     @PostMapping("/user/phone/exists")
-    ResponseEntity<Void> existsByPhoneNumber(@Valid @RequestBody CheckPhoneNumberRequest request);
+    ResponseEntity<Void> existsByPhoneNumber(@Valid @RequestBody ExistsByPhoneRequest request);
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "이메일 존재"),
@@ -250,7 +250,7 @@ public interface UserApi {
         description = "입력한 이메일 주소로 가입된 계정이 존재하는지 확인합니다."
     )
     @PostMapping("/user/email/exists")
-    ResponseEntity<Void> existsByEmail(@Valid @RequestBody CheckEmailRequest request);
+    ResponseEntity<Void> existsByEmail(@Valid @RequestBody ExistsByEmailRequest request);
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "ID와 전화번호 일치"),
@@ -262,7 +262,7 @@ public interface UserApi {
         description = "입력한 로그인 ID와 전화번호가 일치하는지 확인합니다."
     )
     @PostMapping("/user/id/match/phone")
-    ResponseEntity<Void> matchUserIdWithPhoneNumber(@Valid @RequestBody CheckUserIdWithPhoneNumberRequest request);
+    ResponseEntity<Void> matchUserIdWithPhoneNumber(@Valid @RequestBody MatchUserIdWithPhoneNumberRequest request);
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "ID와 이메일 일치"),
@@ -274,7 +274,7 @@ public interface UserApi {
         description = "입력한 로그인 ID와 이메일 주소가 일치하는지 확인합니다."
     )
     @PostMapping("/user/id/match/email")
-    ResponseEntity<Void> matchUserIdWithEmail(@Valid @RequestBody CheckUserIdWithEmailRequest request);
+    ResponseEntity<Void> matchUserIdWithEmail(@Valid @RequestBody MatchUserIdWithEmailRequest request);
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "ID 조회 성공"),
@@ -287,7 +287,7 @@ public interface UserApi {
         description = "SMS 인증 완료 후 1시간 이내에 ID를 찾을 수 있습니다."
     )
     @PostMapping("/user/id/find/sms")
-    ResponseEntity<FindIdResponse> findIdBySmsVerification(@Valid @RequestBody SmsFindIdRequest request);
+    ResponseEntity<FindIdResponse> findIdBySmsVerification(@Valid @RequestBody FindIdBySmsRequest request);
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "ID 조회 성공"),
@@ -300,7 +300,7 @@ public interface UserApi {
         description = "이메일 인증 완료 후 1시간 이내에 ID를 찾을 수 있습니다."
     )
     @PostMapping("/user/id/find/email")
-    ResponseEntity<FindIdResponse> findIdByEmailVerification(@Valid @RequestBody EmailFindIdRequest request);
+    ResponseEntity<FindIdResponse> findIdByEmailVerification(@Valid @RequestBody FindIdByEmailRequest request);
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "비밀번호 재설정 성공"),
@@ -313,7 +313,7 @@ public interface UserApi {
         description = "SMS 인증 완료 후 1시간 이내에 비밀번호를 재설정할 수 있습니다."
     )
     @PostMapping("/user/password/reset/sms")
-    ResponseEntity<Void> resetPasswordBySmsVerification(@Valid @RequestBody SmsResetPasswordRequest request);
+    ResponseEntity<Void> resetPasswordBySmsVerification(@Valid @RequestBody ResetPasswordBySmsRequest request);
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "비밀번호 재설정 성공"),
@@ -326,5 +326,5 @@ public interface UserApi {
         description = "이메일 인증 완료 후 1시간 이내에 비밀번호를 재설정할 수 있습니다."
     )
     @PostMapping("/user/password/reset/email")
-    ResponseEntity<Void> resetPasswordByEmailVerification(@Valid @RequestBody EmailResetPasswordRequest request);
+    ResponseEntity<Void> resetPasswordByEmailVerification(@Valid @RequestBody ResetPasswordByEmailRequest request);
 }

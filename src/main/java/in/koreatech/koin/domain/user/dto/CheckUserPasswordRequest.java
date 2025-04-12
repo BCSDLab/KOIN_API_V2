@@ -7,14 +7,15 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record NicknameCheckExistsRequest(
-    @Schema(description = "닉네임", example = "홍길동", requiredMode = REQUIRED)
-    @Size(max = 10, message = "닉네임은 최대 10자입니다.")
-    @NotBlank(message = "닉네임을 입력해주세요.")
-    String nickname
+public record CheckUserPasswordRequest(
+    @Schema(
+        description = "확인할 비밀번호 (SHA 256 해싱된 값)",
+        example = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+        requiredMode = REQUIRED)
+    @NotBlank(message = "비밀번호를 입력해주세요.")
+    String password
 ) {
 
 }

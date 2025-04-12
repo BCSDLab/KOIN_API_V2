@@ -11,10 +11,10 @@ import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
-import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.PhoneCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
+import in.koreatech.koin.domain.user.dto.CheckEmailDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.CheckNicknameDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.CheckPhoneDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
@@ -32,26 +32,26 @@ public class UserValidationService {
     private final PasswordEncoder passwordEncoder;
     private final StudentRedisRepository studentRedisRepository;
 
-    public void checkPassword(UserPasswordCheckRequest request, Integer userId) {
+    public void checkPassword(CheckUserPasswordRequest request, Integer userId) {
         User user = userRepository.getById(userId);
         if (!user.isSamePassword(passwordEncoder, request.password())) {
             throw new KoinIllegalArgumentException("올바르지 않은 비밀번호입니다.");
         }
     }
 
-    public void checkExistsEmail(EmailCheckExistsRequest request) {
+    public void checkExistsEmail(CheckEmailDuplicationRequest request) {
         userRepository.findByEmail(request.email()).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("email: " + user.getEmail());
         });
     }
 
-    public void checkExistsPhoneNumber(PhoneCheckExistsRequest request) {
+    public void checkExistsPhoneNumber(CheckPhoneDuplicationRequest request) {
         userRepository.findByPhoneNumber(request.phone()).ifPresent(user -> {
             throw DuplicationPhoneNumberException.withDetail("phone: " + user.getPhoneNumber());
         });
     }
 
-    public void checkUserNickname(NicknameCheckExistsRequest request) {
+    public void checkUserNickname(CheckNicknameDuplicationRequest request) {
         userRepository.findByNickname(request.nickname()).ifPresent(user -> {
             throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
         });

@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin.domain.user.dto.verification.VerificationCountResponse;
+import in.koreatech.koin.domain.user.dto.verification.SendVerificationResponse;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
@@ -25,7 +25,7 @@ public class UserVerificationService {
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
 
     @Transactional
-    public VerificationCountResponse sendCode(String phoneNumberOrEmail) {
+    public SendVerificationResponse sendCode(String phoneNumberOrEmail) {
         VerificationProcessor verificationProcessor = verificationProcessorFactory.getProcessor(phoneNumberOrEmail);
         increaseUserDailyVerificationCount(phoneNumberOrEmail);
         verificationProcessor.sendCode(phoneNumberOrEmail);
@@ -43,23 +43,23 @@ public class UserVerificationService {
         userDailyVerificationCountRedisRepository.save(verificationCount);
     }
 
-    private VerificationCountResponse getVerificationCount(String phoneNumberOrEmail) {
+    private SendVerificationResponse getVerificationCount(String phoneNumberOrEmail) {
         return userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
             .map(verificationCount -> createVerificationCountResponse(phoneNumberOrEmail, verificationCount))
             .orElseGet(() -> createEmptyVerificationCountResponse(phoneNumberOrEmail));
     }
 
-    private VerificationCountResponse createVerificationCountResponse(String phoneNumberOrEmail,
+    private SendVerificationResponse createVerificationCountResponse(String phoneNumberOrEmail,
         UserDailyVerificationCount verificationCount) {
         int currentCount = verificationCount.getVerificationCount();
         int totalCount = UserDailyVerificationCount.MAX_VERIFICATION_COUNT;
         int remainingCount = totalCount - currentCount;
-        return VerificationCountResponse.of(phoneNumberOrEmail, totalCount, remainingCount, currentCount);
+        return SendVerificationResponse.of(phoneNumberOrEmail, totalCount, remainingCount, currentCount);
     }
 
-    private VerificationCountResponse createEmptyVerificationCountResponse(String phoneNumberOrEmail) {
+    private SendVerificationResponse createEmptyVerificationCountResponse(String phoneNumberOrEmail) {
         int maxCount = UserDailyVerificationCount.MAX_VERIFICATION_COUNT;
-        return VerificationCountResponse.of(phoneNumberOrEmail, maxCount, maxCount, 0);
+        return SendVerificationResponse.of(phoneNumberOrEmail, maxCount, maxCount, 0);
     }
 
     @Transactional
