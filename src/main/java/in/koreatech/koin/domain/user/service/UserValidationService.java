@@ -73,34 +73,39 @@ public class UserValidationService {
     }
 
     public void existsByUserId(String userId) {
-        if (!userRepository.existsByUserId(userId)) {
-            throw UserNotFoundException.withDetail("userId: " + userId);
+        if (userRepository.existsByUserId(userId)) {
+            return;
         }
+        throw UserNotFoundException.withDetail("userId: " + userId);
     }
 
     public void existsByPhoneNumber(String phoneNumber) {
-        if (!userRepository.existsByPhoneNumber(phoneNumber)) {
-            throw UserNotFoundException.withDetail("userId: " + phoneNumber);
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            return;
         }
+        throw UserNotFoundException.withDetail("phoneNumber: " + phoneNumber);
     }
 
     public void existsByEmail(String email) {
-        if (!userRepository.existsByEmail(email)) {
-            throw UserNotFoundException.withDetail("userId: " + email);
+        if (userRepository.existsByEmail(email)) {
+            return;
         }
+        throw UserNotFoundException.withDetail("email: " + email);
     }
 
     public void matchUserIdWithPhoneNumber(String userId, String phoneNumber) {
         User user = userRepository.getByUserId(userId);
-        if (!Objects.equals(user.getPhoneNumber(), phoneNumber)) {
-            throw new KoinIllegalArgumentException("입력한 아이디의 휴대폰 번호와 일치하지 않습니다.");
+        if (Objects.equals(user.getPhoneNumber(), phoneNumber)) {
+            return;
         }
+        throw new KoinIllegalArgumentException("입력한 아이디의 휴대폰 번호와 일치하지 않습니다.");
     }
 
     public void matchUserIdWithEmail(String userId, String email) {
         User user = userRepository.getByUserId(userId);
-        if (!Objects.equals(user.getEmail(), email)) {
-            throw new KoinIllegalArgumentException("입력한 아이디의 이메일과 일치하지 않습니다.");
+        if (Objects.equals(user.getEmail(), email)) {
+            return;
         }
+        throw new KoinIllegalArgumentException("입력한 아이디의 이메일과 일치하지 않습니다.");
     }
 }
