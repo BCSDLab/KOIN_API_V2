@@ -32,51 +32,32 @@ public class UserVerificationService {
     private final MailService mailService;
 
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
-        increaseUserDailyVerificationCount(phoneNumber);
+        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         String verificationCode = CertificateNumberGenerator.generate();
         naverSmsService.sendVerificationCode(verificationCode, phoneNumber);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofSms(phoneNumber, verificationCode));
         eventPublisher.publishEvent(new UserSmsVerificationSendEvent(phoneNumber));
-        return getVerificationCount(phoneNumber);
+        return SendVerificationResponse.from(verificationCount);
     }
 
     public SendVerificationResponse sendEmailVerification(String email) {
-        increaseUserDailyVerificationCount(email);
+        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         String verificationCode = CertificateNumberGenerator.generate();
         MailFormData mailFormData = new UserEmailVerificationData(verificationCode);
         mailService.sendMail(email, mailFormData);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofEmail(email, verificationCode));
         eventPublisher.publishEvent(new UserEmailVerificationSendEvent(email));
-        return getVerificationCount(email);
+        return SendVerificationResponse.from(verificationCount);
     }
 
-    private void increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
+    private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
         UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
             .map(existing -> {
                 existing.incrementVerificationCount();
                 return existing;
             })
             .orElseGet(() -> UserDailyVerificationCount.from(phoneNumberOrEmail));
-        userDailyVerificationCountRedisRepository.save(verificationCount);
-    }
-
-    private SendVerificationResponse getVerificationCount(String phoneNumberOrEmail) {
-        return userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
-            .map(verificationCount -> createVerificationCountResponse(phoneNumberOrEmail, verificationCount))
-            .orElseGet(() -> createEmptyVerificationCountResponse(phoneNumberOrEmail));
-    }
-
-    private SendVerificationResponse createVerificationCountResponse(String phoneNumberOrEmail,
-        UserDailyVerificationCount verificationCount) {
-        int currentCount = verificationCount.getVerificationCount();
-        int totalCount = UserDailyVerificationCount.MAX_VERIFICATION_COUNT;
-        int remainingCount = totalCount - currentCount;
-        return SendVerificationResponse.of(phoneNumberOrEmail, totalCount, remainingCount, currentCount);
-    }
-
-    private SendVerificationResponse createEmptyVerificationCountResponse(String phoneNumberOrEmail) {
-        int maxCount = UserDailyVerificationCount.MAX_VERIFICATION_COUNT;
-        return SendVerificationResponse.of(phoneNumberOrEmail, maxCount, maxCount, 0);
+        return userDailyVerificationCountRedisRepository.save(verificationCount);
     }
 
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
