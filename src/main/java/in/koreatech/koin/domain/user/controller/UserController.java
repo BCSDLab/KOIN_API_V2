@@ -145,32 +145,41 @@ public class UserController implements UserApi {
     }
 
     @PostMapping("/user/id/exists")
-    public ResponseEntity<Void> existsByUserId(@Valid @RequestBody CheckUserIdRequest request) {
+    public ResponseEntity<Void> existsByUserId(
+        @Valid @RequestBody CheckUserIdRequest request
+    ) {
         userValidationService.existsByUserId(request.userId());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/user/phone/exists")
-    public ResponseEntity<Void> existsByPhoneNumber(@Valid @RequestBody CheckPhoneNumberRequest request) {
+    public ResponseEntity<Void> existsByPhoneNumber(
+        @Valid @RequestBody CheckPhoneNumberRequest request
+    ) {
         userValidationService.existsByPhoneNumber(request.phoneNumber());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/user/email/exists")
-    public ResponseEntity<Void> existsByEmail(@Valid @RequestBody CheckEmailRequest request) {
+    public ResponseEntity<Void> existsByEmail(
+        @Valid @RequestBody CheckEmailRequest request
+    ) {
         userValidationService.existsByEmail(request.email());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/user/id/match/phone")
     public ResponseEntity<Void> matchUserIdWithPhoneNumber(
-        @Valid @RequestBody CheckUserIdWithPhoneNumberRequest request) {
+        @Valid @RequestBody CheckUserIdWithPhoneNumberRequest request
+    ) {
         userValidationService.matchUserIdWithPhoneNumber(request.userId(), request.phoneNumber());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/user/id/match/email")
-    public ResponseEntity<Void> matchUserIdWithEmail(@Valid @RequestBody CheckUserIdWithEmailRequest request) {
+    public ResponseEntity<Void> matchUserIdWithEmail(
+        @Valid @RequestBody CheckUserIdWithEmailRequest request
+    ) {
         userValidationService.matchUserIdWithEmail(request.userId(), request.email());
         return ResponseEntity.ok().build();
     }
@@ -195,8 +204,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> resetPasswordBySmsVerification(
         @Valid @RequestBody SmsResetPasswordRequest request
     ) {
-        userVerificationService.resetPasswordByVerification(request.userId(), request.phoneNumber(),
-            request.newPassword());
+        userVerificationService.resetPasswordByVerification(request.userId(), request.phoneNumber(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 

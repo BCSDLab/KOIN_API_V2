@@ -135,14 +135,14 @@ public interface UserApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "400", description = "이메일 양식 오류", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "이메일 중복 체크")
+    @Operation(
+        summary = "이메일 중복 체크",
+        description = "입력한 이메일이 중복인지 확인합니다."
+    )
     @GetMapping("/user/check/email")
     ResponseEntity<Void> checkUserEmailExist(
         @ModelAttribute("address")
@@ -152,12 +152,14 @@ public interface UserApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "전화번호 양식 오류", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "전화번호 중복", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "전화번호 중복 체크")
+    @Operation(
+        summary = "전화번호 중복 체크",
+        description = "입력한 전화번호가 중복인지 확인합니다."
+    )
     @GetMapping("/user/check/phone")
     ResponseEntity<Void> checkPhoneNumberExist(
         @ModelAttribute("phone")
@@ -167,11 +169,14 @@ public interface UserApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "닉네임 양식 오류", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "닉네임 중복", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "닉네임 중복 체크")
+    @Operation(
+        summary = "닉네임 중복 체크",
+        description = "입력한 닉네임이 중복인지 확인합니다."
+    )
     @GetMapping("/user/check/nickname")
     ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
@@ -181,12 +186,15 @@ public interface UserApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "적절한 비밀번호가 아님", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "로그인 하지 않음", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "권한 없음", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "비밀번호 검증")
+    @Operation(
+        summary = "비밀번호 검증",
+        description = "적절한 비밀번호인지 검증합니다."
+    )
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/check/password")
     ResponseEntity<Void> checkPassword(
@@ -196,11 +204,14 @@ public interface UserApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "200", description = "로그인 확인"),
+            @ApiResponse(responseCode = "401", description = "로그인 하지 않음", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "로그인 여부 확인")
+    @Operation(
+        summary = "로그인 여부 확인",
+        description = "액세스 토큰을 통해 로그인 여부를 확인합니다."
+    )
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/user/check/login")
     ResponseEntity<Void> checkLogin(

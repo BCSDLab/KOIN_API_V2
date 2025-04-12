@@ -31,7 +31,6 @@ public interface UserVerificationApi {
         summary = "SMS 인증번호 발송",
         description = """
             요청한 전화번호로 하루 최대 5회까지 인증번호를 전송할 수 있습니다.
-            
             스테이지 환경에서는 `코인_이벤트알림_STAGE` 채널로 인증번호를 전송합니다.
             """
     )
@@ -60,7 +59,6 @@ public interface UserVerificationApi {
         summary = "이메일 인증번호 발송",
         description = """
             요청한 이메일 주소로 하루 최대 5회까지 인증번호를 전송할 수 있습니다.
-            
             스테이지 환경에서도 전송합니다.
             """
     )

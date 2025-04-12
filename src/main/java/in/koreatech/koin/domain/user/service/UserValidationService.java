@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserValidationService {
 
     private final UserRepository userRepository;
@@ -71,28 +72,24 @@ public class UserValidationService {
         }
     }
 
-    @Transactional(readOnly = true)
     public void existsByUserId(String userId) {
         if (!userRepository.existsByUserId(userId)) {
             throw UserNotFoundException.withDetail("userId: " + userId);
         }
     }
 
-    @Transactional(readOnly = true)
     public void existsByPhoneNumber(String phoneNumber) {
         if (!userRepository.existsByPhoneNumber(phoneNumber)) {
             throw UserNotFoundException.withDetail("userId: " + phoneNumber);
         }
     }
 
-    @Transactional(readOnly = true)
     public void existsByEmail(String email) {
         if (!userRepository.existsByEmail(email)) {
             throw UserNotFoundException.withDetail("userId: " + email);
         }
     }
 
-    @Transactional(readOnly = true)
     public void matchUserIdWithPhoneNumber(String userId, String phoneNumber) {
         User user = userRepository.getByUserId(userId);
         if (!Objects.equals(user.getPhoneNumber(), phoneNumber)) {
@@ -100,7 +97,6 @@ public class UserValidationService {
         }
     }
 
-    @Transactional(readOnly = true)
     public void matchUserIdWithEmail(String userId, String email) {
         User user = userRepository.getByUserId(userId);
         if (!Objects.equals(user.getEmail(), email)) {
