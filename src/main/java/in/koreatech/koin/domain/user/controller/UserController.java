@@ -17,28 +17,27 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.CheckEmailDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.CheckNicknameDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.CheckPhoneDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.CheckUserPasswordRequest;
+import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.verification.ExistsByEmailRequest;
 import in.koreatech.koin.domain.user.dto.verification.ExistsByPhoneRequest;
 import in.koreatech.koin.domain.user.dto.verification.ExistsByUserIdRequest;
-import in.koreatech.koin.domain.user.dto.verification.ExistsByEmailRequest;
+import in.koreatech.koin.domain.user.dto.verification.FindIdByEmailRequest;
+import in.koreatech.koin.domain.user.dto.verification.FindIdBySmsRequest;
+import in.koreatech.koin.domain.user.dto.verification.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.verification.MatchUserIdWithEmailRequest;
 import in.koreatech.koin.domain.user.dto.verification.MatchUserIdWithPhoneNumberRequest;
-import in.koreatech.koin.domain.user.dto.verification.FindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.verification.ResetPasswordByEmailRequest;
-import in.koreatech.koin.domain.user.dto.verification.FindIdResponse;
-import in.koreatech.koin.domain.user.dto.verification.FindIdBySmsRequest;
 import in.koreatech.koin.domain.user.dto.verification.ResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import in.koreatech.koin.domain.user.service.UserVerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -48,7 +47,6 @@ public class UserController implements UserApi {
 
     private final UserService userService;
     private final UserValidationService userValidationService;
-    private final UserVerificationService userVerificationService;
 
     @PostMapping("/v2/user/general/register")
     public ResponseEntity<Void> generalUserRegisterV2(
@@ -188,7 +186,7 @@ public class UserController implements UserApi {
     public ResponseEntity<FindIdResponse> findIdBySmsVerification(
         @Valid @RequestBody FindIdBySmsRequest request
     ) {
-        String userId = userVerificationService.findIdByVerification(request.phoneNumber());
+        String userId = userService.findIdBySms(request.phoneNumber());
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
@@ -196,7 +194,7 @@ public class UserController implements UserApi {
     public ResponseEntity<FindIdResponse> findIdByEmailVerification(
         @Valid @RequestBody FindIdByEmailRequest request
     ) {
-        String userId = userVerificationService.findIdByVerification(request.email());
+        String userId = userService.findIdByEmail(request.email());
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
@@ -204,7 +202,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> resetPasswordBySmsVerification(
         @Valid @RequestBody ResetPasswordBySmsRequest request
     ) {
-        userVerificationService.resetPasswordByVerification(request.userId(), request.phoneNumber(), request.newPassword());
+        userService.resetPasswordBySms(request.userId(), request.phoneNumber(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 
@@ -212,7 +210,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> resetPasswordByEmailVerification(
         @Valid @RequestBody ResetPasswordByEmailRequest request
     ) {
-        userVerificationService.resetPasswordByVerification(request.userId(), request.email(), request.newPassword());
+        userService.resetPasswordByEmail(request.userId(), request.email(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 }

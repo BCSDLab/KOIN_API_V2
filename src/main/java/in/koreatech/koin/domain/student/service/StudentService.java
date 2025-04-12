@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin._common.event.StudentEmailRequestEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
@@ -45,7 +44,6 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
@@ -53,6 +51,7 @@ import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepos
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
+import in.koreatech.koin.domain.user.service.UserVerificationService;
 import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.integration.email.form.StudentRegistrationData;
 import in.koreatech.koin.integration.email.service.MailService;
@@ -65,6 +64,7 @@ public class StudentService {
 
     private final MailService mailService;
     private final UserService userService;
+    private final UserVerificationService userVerificationService;
     private final UserValidationService userValidationService;
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
@@ -285,17 +285,10 @@ public class StudentService {
 
     @Transactional
     public void studentRegisterV2(StudentRegisterRequestV2 request) {
-        checkVerified(request.phoneNumber());
+        userVerificationService.checkVerified(request.phoneNumber());
         Student student = request.toStudent(passwordEncoder);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-    }
-
-    private void checkVerified(String phoneNumber) {
-        userVerificationStatusRedisRepository.findById(phoneNumber)
-            .filter(UserVerificationStatus::isVerified)
-            .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));
-        userVerificationStatusRedisRepository.deleteById(phoneNumber);
     }
 
     @Transactional

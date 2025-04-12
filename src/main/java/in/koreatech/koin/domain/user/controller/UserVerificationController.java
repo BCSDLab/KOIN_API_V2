@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.dto.verification.SendEmailVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.VerifyEmailVerificationRequest;
 import in.koreatech.koin.domain.user.dto.verification.SendSmsVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.VerifySmsVerificationRequest;
 import in.koreatech.koin.domain.user.dto.verification.SendVerificationResponse;
+import in.koreatech.koin.domain.user.dto.verification.VerifyEmailVerificationRequest;
+import in.koreatech.koin.domain.user.dto.verification.VerifySmsVerificationRequest;
 import in.koreatech.koin.domain.user.service.UserVerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class UserVerificationController implements UserVerificationApi {
     public ResponseEntity<SendVerificationResponse> sendSmsVerificationCode(
         @Valid @RequestBody SendSmsVerificationRequest request
     ) {
-        SendVerificationResponse response = userVerificationService.sendCode(request.phoneNumber());
+        SendVerificationResponse response = userVerificationService.sendSmsVerification(request.phoneNumber());
         return ResponseEntity.ok().body(response);
     }
 
@@ -42,7 +42,7 @@ public class UserVerificationController implements UserVerificationApi {
     public ResponseEntity<SendVerificationResponse> sendEmailVerificationCode(
         @Valid @RequestBody SendEmailVerificationRequest request
     ) {
-        SendVerificationResponse response = userVerificationService.sendCode(request.email());
+        SendVerificationResponse response = userVerificationService.sendEmailVerification(request.email());
         return ResponseEntity.ok().body(response);
     }
 

@@ -2,39 +2,56 @@ package in.koreatech.koin.domain.user.service;
 
 import java.util.Objects;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
+import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
+import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.dto.verification.SendVerificationResponse;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
-import in.koreatech.koin.domain.user.service.verification.VerificationProcessor;
-import in.koreatech.koin.domain.user.service.verification.VerificationProcessorFactory;
+import in.koreatech.koin.integration.email.form.MailFormData;
+import in.koreatech.koin.integration.email.form.UserEmailVerificationData;
+import in.koreatech.koin.integration.email.service.MailService;
+import in.koreatech.koin.integration.naver.service.NaverSmsService;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class UserVerificationService {
 
-    private final VerificationProcessorFactory verificationProcessorFactory;
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final NaverSmsService naverSmsService;
+    private final MailService mailService;
 
-    @Transactional
-    public SendVerificationResponse sendCode(String phoneNumberOrEmail) {
-        VerificationProcessor verificationProcessor = verificationProcessorFactory.getProcessor(phoneNumberOrEmail);
-        increaseUserDailyVerificationCount(phoneNumberOrEmail);
-        verificationProcessor.sendCode(phoneNumberOrEmail);
-        return getVerificationCount(phoneNumberOrEmail);
+    public SendVerificationResponse sendSmsVerification(String phoneNumber) {
+        increaseUserDailyVerificationCount(phoneNumber);
+        String verificationCode = CertificateNumberGenerator.generate();
+        naverSmsService.sendVerificationCode(verificationCode, phoneNumber);
+        userVerificationStatusRedisRepository.save(UserVerificationStatus.ofSms(phoneNumber, verificationCode));
+        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(phoneNumber));
+        return getVerificationCount(phoneNumber);
+    }
+
+    public SendVerificationResponse sendEmailVerification(String email) {
+        increaseUserDailyVerificationCount(email);
+        String verificationCode = CertificateNumberGenerator.generate();
+        MailFormData mailFormData = new UserEmailVerificationData(verificationCode);
+        mailService.sendMail(email, mailFormData);
+        userVerificationStatusRedisRepository.save(UserVerificationStatus.ofEmail(email, verificationCode));
+        eventPublisher.publishEvent(new UserEmailVerificationSendEvent(email));
+        return getVerificationCount(email);
     }
 
     private void increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(
-                phoneNumberOrEmail)
+        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
             .map(existing -> {
                 existing.incrementVerificationCount();
                 return existing;
@@ -62,37 +79,23 @@ public class UserVerificationService {
         return SendVerificationResponse.of(phoneNumberOrEmail, maxCount, maxCount, 0);
     }
 
-    @Transactional
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
         if (verificationStatus.isVerified()) {
             return;
         }
-        if (!Objects.equals(verificationStatus.getVerificationCode(), verificationCode)) {
-            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+        if (Objects.equals(verificationStatus.getVerificationCode(), verificationCode)) {
+            verificationStatus.markAsVerified();
+            userVerificationStatusRedisRepository.save(verificationStatus);
+            return;
         }
-        verificationStatus.markAsVerified();
-        userVerificationStatusRedisRepository.save(verificationStatus);
+        throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
     }
 
-    @Transactional
-    public String findIdByVerification(String phoneNumberOrEmail) {
-        checkVerified(phoneNumberOrEmail);
-        VerificationProcessor verificationProcessor = verificationProcessorFactory.getProcessor(phoneNumberOrEmail);
-        return verificationProcessor.findId(phoneNumberOrEmail);
-    }
-
-    @Transactional
-    public void resetPasswordByVerification(String userId, String phoneNumberOrEmail, String newPassword) {
-        checkVerified(phoneNumberOrEmail);
-        VerificationProcessor verificationProcessor = verificationProcessorFactory.getProcessor(phoneNumberOrEmail);
-        verificationProcessor.resetPassword(userId, phoneNumberOrEmail, newPassword);
-    }
-
-    private void checkVerified(String phoneNumberOrEmail) {
-        userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
+    public void checkVerified(String phoneNumber) {
+        userVerificationStatusRedisRepository.findById(phoneNumber)
             .filter(UserVerificationStatus::isVerified)
             .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));
-        userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
+        userVerificationStatusRedisRepository.deleteById(phoneNumber);
     }
 }

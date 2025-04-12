@@ -5,14 +5,13 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @RedisHash(value = "userDailyVerificationCount")
 public class UserDailyVerificationCount {
 
-    private static final long EXPIRATION_SECONDS = 60 * 60 * 24L;
+    private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 60 * 24L; // 24시간
     public static final int MAX_VERIFICATION_COUNT = 5;
 
     @Id
@@ -23,16 +22,13 @@ public class UserDailyVerificationCount {
     @TimeToLive
     private Long expiration;
 
-    @Builder
     private UserDailyVerificationCount(String id) {
         this.id = id;
-        this.expiration = EXPIRATION_SECONDS;
+        this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 
     public static UserDailyVerificationCount from(String id) {
-        return UserDailyVerificationCount.builder()
-            .id(id)
-            .build();
+        return new UserDailyVerificationCount(id);
     }
 
     public void incrementVerificationCount() {
