@@ -10,23 +10,36 @@ import lombok.Getter;
 @RedisHash(value = "userVerificationStatus")
 public class UserVerificationStatus {
 
-    private static final long EXPIRATION_SECONDS = 60 * 3L;
+    private static final long SMS_VERIFICATION_EXPIRATION_SECONDS = 60 * 3L; // 3분
+    private static final long EMAIL_VERIFICATION_EXPIRATION_SECONDS = 60 * 5L; // 5분
+    private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 60L; // 1시간
 
     @Id
     private String id;
 
-    private String certificationCode;
+    private String verificationCode;
+
+    private boolean verified = false;
 
     @TimeToLive
     private Long expiration;
 
-    public UserVerificationStatus(String id, String certificationCode) {
+    private UserVerificationStatus(String id, String verificationCode, Long expiration) {
         this.id = id;
-        this.certificationCode = certificationCode;
-        this.expiration = EXPIRATION_SECONDS;
+        this.verificationCode = verificationCode;
+        this.expiration = expiration;
     }
 
-    public static UserVerificationStatus of(String id, String certificationCode) {
-        return new UserVerificationStatus(id, certificationCode);
+    public static UserVerificationStatus ofSms(String id, String verificationCode) {
+        return new UserVerificationStatus(id, verificationCode, SMS_VERIFICATION_EXPIRATION_SECONDS);
+    }
+
+    public static UserVerificationStatus ofEmail(String id, String verificationCode) {
+        return new UserVerificationStatus(id, verificationCode, EMAIL_VERIFICATION_EXPIRATION_SECONDS);
+    }
+
+    public void markAsVerified() {
+        this.verified = true;
+        this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 }

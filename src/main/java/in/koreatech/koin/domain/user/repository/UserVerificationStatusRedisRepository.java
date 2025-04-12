@@ -16,6 +16,6 @@ public interface UserVerificationStatusRedisRepository extends Repository<UserVe
     void deleteById(String id);
 
     default UserVerificationStatus getById(String id) {
-        return findById(id).orElseThrow(() -> VerifyNotFoundException.withDetail("verify: " + id));
+        return findById(id).orElseThrow(() -> VerifyNotFoundException.withDetail("verification: " + id));
     }
 }

@@ -205,13 +205,28 @@ public class SlackNotificationFactory {
     /**
      * 회원 전화번호 인증 요청 알림
      */
-    public SlackNotification generateUserPhoneVerificationRequestNotification(
+    public SlackNotification generateUserPhoneVerificationSendNotification(
         String content
     ) {
         return SlackNotification.builder()
             .slackUrl(eventNotificationUrl)
             .text(String.format("""
                 `%s(회원)님이 문자 인증을 요청하셨습니다.`
+                """, content)
+            )
+            .build();
+    }
+
+    /**
+     * 회원 이메일 인증 요청 알림
+     */
+    public SlackNotification generateUserEmailVerificationSendNotification(
+        String content
+    ) {
+        return SlackNotification.builder()
+            .slackUrl(eventNotificationUrl)
+            .text(String.format("""
+                `%s(회원)님이 이메일 인증을 요청하셨습니다.`
                 """, content)
             )
             .build();

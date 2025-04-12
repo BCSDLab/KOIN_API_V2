@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin._common.auth.SmsAuthed;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
@@ -142,7 +141,6 @@ public interface StudentApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/student/register")
     ResponseEntity<Void> studentRegisterV2(
-        @SmsAuthed String phoneNumber,
         @RequestBody @Valid StudentRegisterRequestV2 request
     );
 
