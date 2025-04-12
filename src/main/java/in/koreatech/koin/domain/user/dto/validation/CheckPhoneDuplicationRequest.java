@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.dto;
+package in.koreatech.koin.domain.user.dto.validation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

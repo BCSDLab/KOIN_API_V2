@@ -109,8 +109,7 @@ public class UserService {
 
     public String findIdBySms(String phoneNumber) {
         userVerificationService.checkVerified(phoneNumber);
-        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber,
-            List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(UserType.GENERAL, UserType.STUDENT));
         return user.getUserId();
     }
 
