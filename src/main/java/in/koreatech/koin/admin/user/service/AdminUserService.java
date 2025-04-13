@@ -131,8 +131,8 @@ public class AdminUserService {
     @Transactional
     public void updateAdmin(AdminUpdateRequest request, Integer id) {
         Admin admin = adminRepository.getByUserId(id);
-        admin.rename(request.name());
-        admin.updateTeamTrack(request.teamType(), request.trackType());
+        admin.updatePersonalInfo(request.name(), request.email(), request.phoneNumber());
+        admin.updateTeamInfo(request.teamType(), request.trackType());
     }
 
     @Transactional

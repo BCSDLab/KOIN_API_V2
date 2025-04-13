@@ -87,11 +87,13 @@ public class Admin {
         this.user = user;
     }
 
-    public void rename(String name) {
+    public void updatePersonalInfo(String name, String email, String phoneNumber) {
         this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
     }
 
-    public void updateTeamTrack(TeamType teamName, TrackType trackName) {
+    public void updateTeamInfo(TeamType teamName, TrackType trackName) {
         this.teamType = teamName;
         this.trackType = trackName;
     }

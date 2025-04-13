@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -32,6 +33,10 @@ public record CreateAdminRequest(
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
     @NotBlank(message = "이름을 입력해주세요.")
     String name,
+
+    @Schema(description = "전화번호", example = "010-4255-1540", requiredMode = REQUIRED)
+    @Pattern(regexp = "^010-[0-9]{4}-[0-9]{4}$", message = "전화번호는 010-XXXX-XXXX 형식이어야 합니다.")
+    String phoneNumber,
 
     @Schema(description = "트랙 타입", example = "BACKEND", requiredMode = REQUIRED)
     @NotNull(message = "트랙 타입을 입력해주세요.")
@@ -51,6 +56,9 @@ public record CreateAdminRequest(
             .trackType(trackType)
             .teamType(teamType)
             .role(role)
+            .email(email)
+            .name(name)
+            .phoneNumber(phoneNumber)
             .user(user)
             .build();
     }

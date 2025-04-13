@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -46,7 +45,10 @@ public record AdminsResponse(
         String trackName,
 
         @Schema(description = "팀 이름", example = "User", requiredMode = REQUIRED)
-        String teamName
+        String teamName,
+
+        @Schema(description = "직위", example = "레귤러", requiredMode = REQUIRED)
+        String role
     ) {
         public static InnerAdminsResponse from(Admin admin) {
             return new InnerAdminsResponse(
@@ -54,7 +56,8 @@ public record AdminsResponse(
                 admin.getEmail(),
                 admin.getName(),
                 admin.getTrackType().getValue(),
-                admin.getTeamType().getValue()
+                admin.getTeamType().getValue(),
+                admin.getRole().getName()
             );
         }
     }
