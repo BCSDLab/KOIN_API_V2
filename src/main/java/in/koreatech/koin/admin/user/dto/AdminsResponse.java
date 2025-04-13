@@ -49,12 +49,10 @@ public record AdminsResponse(
         String teamName
     ) {
         public static InnerAdminsResponse from(Admin admin) {
-            User user = admin.getUser();
-
             return new InnerAdminsResponse(
                 admin.getId(),
-                user.getEmail(),
-                user.getName(),
+                admin.getEmail(),
+                admin.getName(),
                 admin.getTrackType().getValue(),
                 admin.getTeamType().getValue()
             );

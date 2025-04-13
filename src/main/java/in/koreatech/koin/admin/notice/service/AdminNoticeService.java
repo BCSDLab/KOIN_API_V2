@@ -55,7 +55,7 @@ public class AdminNoticeService {
 
     private void setAuthorName(Article article) {
         Optional.ofNullable(article.getKoinNotice())
-            .ifPresent(notice -> article.setAuthor(notice.getAdmin().getUser().getName()));
+            .ifPresent(notice -> article.setAuthor(notice.getAdmin().getName()));
     }
 
     public AdminNoticeResponse getNotice(Integer noticeId) {

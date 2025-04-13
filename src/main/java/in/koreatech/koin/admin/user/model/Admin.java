@@ -87,6 +87,10 @@ public class Admin {
         this.user = user;
     }
 
+    public void rename(String name) {
+        this.name = name;
+    }
+
     public void updateTeamTrack(TeamType teamName, TrackType trackName) {
         this.teamType = teamName;
         this.trackType = trackName;

@@ -92,6 +92,7 @@ public class AdminUserService {
         adminTokenRepository.deleteById(userId);
     }
 
+    @Transactional
     public AdminTokenRefreshResponse adminRefresh(AdminTokenRefreshRequest request) {
         String adminId = getAdminId(request.refreshToken());
         UserToken userToken = adminTokenRepository.getById(Integer.parseInt(adminId));
@@ -130,9 +131,7 @@ public class AdminUserService {
     @Transactional
     public void updateAdmin(AdminUpdateRequest request, Integer id) {
         Admin admin = adminRepository.getByUserId(id);
-        User user = admin.getUser();
-
-        user.updateName(request.name());
+        admin.rename(request.name());
         admin.updateTeamTrack(request.teamType(), request.trackType());
     }
 

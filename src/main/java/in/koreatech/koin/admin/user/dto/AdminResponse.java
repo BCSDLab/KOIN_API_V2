@@ -6,7 +6,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -27,12 +26,10 @@ public record AdminResponse(
     String teamName
 ) {
     public static AdminResponse from(Admin admin) {
-        User user = admin.getUser();
-
         return new AdminResponse(
             admin.getId(),
-            user.getEmail(),
-            user.getName(),
+            admin.getEmail(),
+            admin.getName(),
             admin.getTrackType().getValue(),
             admin.getTeamType().getValue()
         );
