@@ -200,6 +200,7 @@ class AdminUserApiTest extends AcceptanceTest {
                           "email": "koin01234@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
+                          "phone_number": "010-1234-4567",
                           "track_type": "BACKEND",
                           "team_type": "USER",
                           "role": "TRACK_REGULAR"
@@ -223,6 +224,7 @@ class AdminUserApiTest extends AcceptanceTest {
                           "email": "koin12345@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
+                          "phone_number": "010-1234-4567",
                           "track_type": "BACKEND",
                           "team_type": "USER",
                           "role": "TRACK_REGULAR"
@@ -246,8 +248,10 @@ class AdminUserApiTest extends AcceptanceTest {
                           "account": "admin123456@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
+                          "phone_number": "010-1234-4567",
                           "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "team_type": "USER",
+                          "role": "TRACK_REGULAR"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -273,7 +277,8 @@ class AdminUserApiTest extends AcceptanceTest {
                     "email": "koinadmin1@koreatech.ac.kr",
                     "name": "테스트용_코인운영자",
                     "track_name": "Backend",
-                    "team_name": "Business"
+                    "team_name": "Business",
+                    "role": "레귤러"
                 }
                 """, admin1.getId())));
     }
@@ -303,21 +308,24 @@ class AdminUserApiTest extends AcceptanceTest {
                       "email": "juno@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
                       "team_name": "User",
-                      "track_name": "Backend"
+                      "track_name": "Backend",
+                      "role": "트랙장"
                     },
                     {
                       "id": %d,
                       "email": "koinadmin1@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
                       "team_name": "Business",
-                      "track_name": "Backend"
+                      "track_name": "Backend",
+                      "role": "레귤러"
                     },
                     {
                       "id": %d,
                       "email": "koinadmin2@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
                       "team_name": "Campus",
-                      "track_name": "Backend"
+                      "track_name": "Backend",
+                      "role": "BCSD 회장"
                     }
                   ]
                 }

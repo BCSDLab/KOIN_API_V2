@@ -96,6 +96,9 @@ public final class UserFixture {
                 .trackType(BACKEND)
                 .teamType(USER)
                 .role(TRACK_LEADER)
+                .name("테스트용_코인운영자")
+                .phoneNumber("01012342344")
+                .email("juno@koreatech.ac.kr")
                 .user(user)
                 .build()
         );
@@ -122,6 +125,9 @@ public final class UserFixture {
                 .trackType(BACKEND)
                 .teamType(BUSINESS)
                 .role(TRACK_REGULAR)
+                .name("테스트용_코인운영자")
+                .phoneNumber("01012342347")
+                .email("koinadmin1@koreatech.ac.kr")
                 .user(user)
                 .build()
         );
@@ -148,6 +154,9 @@ public final class UserFixture {
                 .trackType(BACKEND)
                 .teamType(CAMPUS)
                 .role(BCSD_PRESIDENT)
+                .name("테스트용_코인운영자")
+                .phoneNumber("01012342347")
+                .email("koinadmin2@koreatech.ac.kr")
                 .user(user)
                 .build()
         );
