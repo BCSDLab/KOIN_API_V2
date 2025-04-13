@@ -32,16 +32,19 @@ public class Admin {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
+    @NotNull
     @Size(max = 10)
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, length = 10)
     private String name;
 
+    @NotNull
     @Size(max = 100)
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, length = 100)
     private String email;
 
+    @NotNull
     @Size(max = 20)
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
 
     @NotNull
@@ -54,8 +57,9 @@ public class Admin {
     @Column(name = "track_type", nullable = false)
     private TrackType trackType;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     private Role role;
 
     @OneToOne
