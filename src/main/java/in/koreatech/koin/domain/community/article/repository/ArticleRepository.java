@@ -41,6 +41,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         LEFT JOIN FETCH a.koreatechArticle
         LEFT JOIN FETCH a.lostItemArticle l
         LEFT JOIN FETCH l.author
+        LEFT JOIN FETCH a.koinNotice
         WHERE a.id IN :ids
         """)
     List<Article> findAllForHotArticlesByIdIn(List<Integer> ids);
