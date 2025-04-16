@@ -146,6 +146,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             LEFT JOIN FETCH k.user
             LEFT JOIN FETCH a.lostItemArticle l
             LEFT JOIN FETCH l.author
+            LEFT JOIN FETCH a.koinNotice
             WHERE (
                 (ka IS NOT NULL AND ka.registeredAt > :registeredAt)
                 OR (ka IS NULL AND a.createdAt > :registeredAt)
