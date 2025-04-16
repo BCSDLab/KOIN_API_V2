@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
@@ -32,9 +31,6 @@ class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminUserRepository adminUserRepository;
-
-    @Autowired
-    private AdminRepository adminRepository;
 
     @Autowired
     private UserFixture userFixture;
@@ -204,8 +200,10 @@ class AdminUserApiTest extends AcceptanceTest {
                           "email": "koin01234@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
+                          "phone_number": "010-1234-4567",
                           "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "team_type": "USER",
+                          "role": "TRACK_REGULAR"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -226,8 +224,10 @@ class AdminUserApiTest extends AcceptanceTest {
                           "email": "koin12345@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
+                          "phone_number": "010-1234-4567",
                           "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "team_type": "USER",
+                          "role": "TRACK_REGULAR"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -248,8 +248,10 @@ class AdminUserApiTest extends AcceptanceTest {
                           "account": "admin123456@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
+                          "phone_number": "010-1234-4567",
                           "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "team_type": "USER",
+                          "role": "TRACK_REGULAR"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -276,8 +278,7 @@ class AdminUserApiTest extends AcceptanceTest {
                     "name": "테스트용_코인운영자",
                     "track_name": "Backend",
                     "team_name": "Business",
-                    "can_create_admin": false,
-                    "super_admin": false
+                    "role": "레귤러"
                 }
                 """, admin1.getId())));
     }
@@ -308,8 +309,7 @@ class AdminUserApiTest extends AcceptanceTest {
                       "name": "테스트용_코인운영자",
                       "team_name": "User",
                       "track_name": "Backend",
-                      "can_create_admin": true,
-                      "super_admin": true
+                      "role": "트랙장"
                     },
                     {
                       "id": %d,
@@ -317,8 +317,7 @@ class AdminUserApiTest extends AcceptanceTest {
                       "name": "테스트용_코인운영자",
                       "team_name": "Business",
                       "track_name": "Backend",
-                      "can_create_admin": false,
-                      "super_admin": false
+                      "role": "레귤러"
                     },
                     {
                       "id": %d,
@@ -326,40 +325,10 @@ class AdminUserApiTest extends AcceptanceTest {
                       "name": "테스트용_코인운영자",
                       "team_name": "Campus",
                       "track_name": "Backend",
-                      "can_create_admin": true,
-                      "super_admin": false
+                      "role": "BCSD 회장"
                     }
                   ]
                 }
                 """, admin.getId(), admin1.getId(), admin2.getId())));
-    }
-
-    @Test
-    void 슈퍼_관리자가_관리자_계정_권한을_승인한다() throws Exception {
-        Admin admin = userFixture.코인_운영자();
-        String token = userFixture.getToken(admin.getUser());
-        Admin admin1 = userFixture.진구_운영자();
-
-        mockMvc.perform(
-                put("/admin/{id}/authed", admin1.getId())
-                    .header("Authorization", "Bearer " + token)
-            )
-            .andExpect(status().isOk());
-
-        Admin updateAdmin = adminRepository.getById(admin1.getId());
-        assertThat(updateAdmin.getUser().isAuthed()).isTrue();
-    }
-
-    @Test
-    void 관리자가_관리자_계정_권한을_승인한다() throws Exception {
-        Admin admin = userFixture.영희_운영자();
-        String token = userFixture.getToken(admin.getUser());
-        Admin admin1 = userFixture.진구_운영자();
-
-        mockMvc.perform(
-                put("/admin/{id}/authed", admin1.getId())
-                    .header("Authorization", "Bearer " + token)
-            )
-            .andExpect(status().isForbidden());
     }
 }

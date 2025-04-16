@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.admin.user.enums.Role;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.model.Admin;
@@ -15,6 +16,7 @@ import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -32,31 +34,45 @@ public record CreateAdminRequest(
     @NotBlank(message = "이름을 입력해주세요.")
     String name,
 
+    @Schema(description = "전화번호", example = "010-4255-1540", requiredMode = REQUIRED)
+    @Pattern(regexp = "^010-[0-9]{4}-[0-9]{4}$", message = "전화번호는 010-XXXX-XXXX 형식이어야 합니다.")
+    String phoneNumber,
+
     @Schema(description = "트랙 타입", example = "BACKEND", requiredMode = REQUIRED)
     @NotNull(message = "트랙 타입을 입력해주세요.")
     TrackType trackType,
 
     @Schema(description = "팀 타입", example = "USER", requiredMode = REQUIRED)
     @NotNull(message = "팀 타입을 입력해주세요.")
-    TeamType teamType
+    TeamType teamType,
+
+    @Schema(description = "직함", example = "TRACK_REGULAR", requiredMode = REQUIRED)
+    @NotNull(message = "직함을 입력해주세요.")
+    Role role
 ) {
 
-    public Admin toAdmin(PasswordEncoder passwordEncoder) {
+    public Admin toAdmin(User user) {
+        return Admin.builder()
+            .trackType(trackType)
+            .teamType(teamType)
+            .role(role)
+            .email(email)
+            .name(name)
+            .phoneNumber(phoneNumber)
+            .user(user)
+            .build();
+    }
+
+    public User toUser(PasswordEncoder passwordEncoder) {
         String userId = email.substring(0, email.indexOf("@"));
-        User user = User.builder()
+        return User.builder()
             .email(email)
             .password(passwordEncoder.encode(password))
             .userId(userId)
             .name(name)
             .userType(ADMIN)
-            .isAuthed(false)
+            .isAuthed(true)
             .isDeleted(false)
-            .build();
-
-        return Admin.builder()
-            .user(user)
-            .trackType(trackType)
-            .teamType(teamType)
             .build();
     }
 }

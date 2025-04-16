@@ -38,7 +38,7 @@ public class AdminNoticeService {
     @Transactional
     public void createNotice(AdminNoticeRequest request, Integer adminUserId) {
         Board adminNoticeBoard = boardRepository.getById(KOIN_NOTICE_BOARD_ID);
-        Admin adminUser = adminRepository.getById(adminUserId);
+        Admin adminUser = adminRepository.getByUserId(adminUserId);
         Article adminNoticeArticle = Article.createKoinNotice(request, adminNoticeBoard, adminUser);
         adminKoinNoticeRepository.save(adminNoticeArticle);
     }
@@ -55,7 +55,7 @@ public class AdminNoticeService {
 
     private void setAuthorName(Article article) {
         Optional.ofNullable(article.getKoinNotice())
-            .ifPresent(notice -> article.setAuthor(notice.getAdmin().getUser().getName()));
+            .ifPresent(notice -> article.setAuthor(notice.getAdmin().getName()));
     }
 
     public AdminNoticeResponse getNotice(Integer noticeId) {

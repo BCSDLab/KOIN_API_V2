@@ -67,7 +67,7 @@ public record AdminHistoriesResponse(
             return new InnerAdminHistoriesResponse(
                 adminActivityHistory.getId(),
                 adminActivityHistory.getDomainId(),
-                adminActivityHistory.getAdmin().getUser().getName(),
+                adminActivityHistory.getAdmin().getName(),
                 adminActivityHistory.getDomainName().getDescription(),
                 adminActivityHistory.getRequestMethod().getValue(),
                 adminActivityHistory.getRequestMessage(),

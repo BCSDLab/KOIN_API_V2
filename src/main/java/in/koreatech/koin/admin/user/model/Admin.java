@@ -1,7 +1,9 @@
 package in.koreatech.koin.admin.user.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.admin.user.enums.Role;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
@@ -9,12 +11,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,13 +29,23 @@ import lombok.NoArgsConstructor;
 public class Admin {
 
     @Id
-    @Column(name = "user_id", nullable = false)
+    @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @MapsId
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @NotNull
+    @Size(max = 10)
+    @Column(name = "name", nullable = false, length = 10)
+    private String name;
+
+    @NotNull
+    @Size(max = 100)
+    @Column(name = "email", nullable = false, length = 100)
+    private String email;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "phone_number", nullable = false, length = 20)
+    private String phoneNumber;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -44,37 +57,44 @@ public class Admin {
     @Column(name = "track_type", nullable = false)
     private TrackType trackType;
 
-    @Column(name = "can_create_admin", columnDefinition = "TINYINT")
-    private boolean canCreateAdmin = false;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
 
-    @Column(name = "super_admin", columnDefinition = "TINYINT")
-    private boolean superAdmin = false;
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @Builder
     private Admin(
         Integer id,
-        User user,
+        String name,
+        String email,
+        String phoneNumber,
         TeamType teamType,
         TrackType trackType,
-        boolean canCreateAdmin,
-        boolean superAdmin
+        Role role,
+        User user
     ) {
         this.id = id;
-        this.user = user;
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
         this.teamType = teamType;
         this.trackType = trackType;
-        this.canCreateAdmin = canCreateAdmin;
-        this.superAdmin = superAdmin;
+        this.role = role;
+        this.user = user;
     }
 
-    public void updateTeamTrack(TeamType teamName, TrackType trackName) {
+    public void updatePersonalInfo(String name, String email, String phoneNumber) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void updateTeamInfo(TeamType teamName, TrackType trackName) {
         this.teamType = teamName;
         this.trackType = trackName;
-    }
-
-    /* 어드민 권한이 추가 되면, 해당 메소드에도 추가해야 합니다. */
-    public void updatePermission(boolean canCreateAdmin, boolean superAdmin) {
-        this.canCreateAdmin = canCreateAdmin;
-        this.superAdmin = superAdmin;
     }
 }
