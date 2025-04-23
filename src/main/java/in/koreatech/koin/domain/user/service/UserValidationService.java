@@ -65,6 +65,19 @@ public class UserValidationService {
         return user;
     }
 
+    public User checkLoginCredentialsV2(String userId, String password) {
+        User user;
+        if (userId.matches("^\\d{11}$")) {
+            user = userRepository.getByPhoneNumber(userId);
+        } else {
+            user = userRepository.getByUserId(userId);
+        }
+        if (!user.isSamePassword(passwordEncoder, password)) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+        return user;
+    }
+
     public void checkUserAuthentication(String email) {
         Optional<UnAuthenticatedStudentInfo> studentTemporaryStatus = studentRedisRepository.findById(email);
         if (studentTemporaryStatus.isPresent()) {

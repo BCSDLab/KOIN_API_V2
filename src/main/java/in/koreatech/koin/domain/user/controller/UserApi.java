@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequ
 import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
+import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -53,10 +54,38 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
+    @Operation(
+        summary = "일반인 회원가입(문자 인증)",
+        description = """
+            ### 프로덕션
+            - 같은 번호 기준 하루 최대 5회 인증번호를 발송 가능.
+            - 문자로 인증번호 발송.
+            ### 스테이지
+            - 같은 번호 기준 하루 최대 5회 인증번호를 발송 가능.
+            - 슬랙으로 인증번호 발송.(발송채널: 코인_이벤트알림_stage)
+            ### 클라이언트 사용 설명
+            - 해당 api를 사용하면 위의 내용들이 자동으로 적용된다.
+            - 클라이언트는 해당 api를 사용하기만 하면 된다.
+            """
+    )
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/general/register")
     ResponseEntity<Void> generalUserRegisterV2(
         @RequestBody @Valid GeneralUserRegisterRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "로그인")
+    @PostMapping("/v2/user/login")
+    ResponseEntity<UserLoginResponse> loginV2(
+        @RequestBody @Valid UserLoginRequestV2 request
     );
 
     @ApiResponses(
