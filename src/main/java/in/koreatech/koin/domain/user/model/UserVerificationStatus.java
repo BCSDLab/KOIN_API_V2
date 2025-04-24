@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.model;
 
+import java.util.Objects;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
@@ -41,5 +43,9 @@ public class UserVerificationStatus {
     public void markAsVerified() {
         this.verified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
+    }
+
+    public boolean isCodeMismatched(String inputCode) {
+        return !Objects.equals(this.verificationCode, inputCode);
     }
 }

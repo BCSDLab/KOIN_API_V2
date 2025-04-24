@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.user.service;
 
-import java.util.Objects;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +49,8 @@ public class UserVerificationService {
     }
 
     private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
+        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(
+                phoneNumberOrEmail)
             .map(existing -> {
                 existing.incrementVerificationCount();
                 return existing;
@@ -62,15 +61,20 @@ public class UserVerificationService {
 
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
+
+        // 인증 코드가 틀릴 경우 (무조건 비교함)
+        if (verificationStatus.isCodeMismatched(verificationCode)) {
+            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+        }
+
+        // 이미 인증 완료 상태라면 아무 작업도 하지 않음 (조기 리턴)
         if (verificationStatus.isVerified()) {
             return;
         }
-        if (Objects.equals(verificationStatus.getVerificationCode(), verificationCode)) {
-            verificationStatus.markAsVerified();
-            userVerificationStatusRedisRepository.save(verificationStatus);
-            return;
-        }
-        throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+
+        // 코드가 맞고, 아직 인증되지 않은 경우만 인증 처리
+        verificationStatus.markAsVerified();
+        userVerificationStatusRedisRepository.save(verificationStatus);
     }
 
     public void checkVerified(String phoneNumber) {
