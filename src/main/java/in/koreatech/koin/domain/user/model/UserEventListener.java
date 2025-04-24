@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.user.model;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,14 +28,14 @@ public class UserEventListener {
         slackClient.sendMessage(notification);
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onUserSmsVerificationSendEvent(UserSmsVerificationSendEvent userSmsVerificationSendEvent) {
         var notification = slackNotificationFactory.generateUserPhoneVerificationSendNotification(
             userSmsVerificationSendEvent.phoneNumber());
         slackClient.sendMessage(notification);
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onUserEmailVerificationSendEvent(UserEmailVerificationSendEvent userEmailVerificationSendEvent) {
         var notification = slackNotificationFactory.generateUserEmailVerificationSendNotification(
             userEmailVerificationSendEvent.email());

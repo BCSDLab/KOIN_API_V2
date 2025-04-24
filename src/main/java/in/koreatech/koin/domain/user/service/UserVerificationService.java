@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.service;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserVerificationService {
 
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
