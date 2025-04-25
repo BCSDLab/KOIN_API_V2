@@ -67,6 +67,9 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         return found;
     }
 
+    @Query(value = "SELECT * FROM new_articles WHERE id = :articleId", nativeQuery = true)
+    Article findIncludingDeleted(Integer articleId);
+
     @Query(
         value = "SELECT a.* FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type AND a.is_deleted = 0",
         countQuery = "SELECT COUNT(*) FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type AND a.is_deleted = 0",
