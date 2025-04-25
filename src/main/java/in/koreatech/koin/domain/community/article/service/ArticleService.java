@@ -233,17 +233,16 @@ public class ArticleService {
     }
 
     private void setPrevNextArticle(Integer boardId, Article article) {
-        Article prevArticle;
-        Article nextArticle;
+        Integer prevId, nextId;
         if (boardId != null) {
             Board board = getBoard(boardId, article);
-            prevArticle = articleRepository.getPreviousArticle(board, article);
-            nextArticle = articleRepository.getNextArticle(board, article);
+            prevId = articleRepository.getPreviousArticleId(board, article);
+            nextId = articleRepository.getNextArticleId(board, article);
         } else {
-            prevArticle = articleRepository.getPreviousAllArticle(article);
-            nextArticle = articleRepository.getNextAllArticle(article);
+            prevId = articleRepository.getPreviousAllArticleId(article);
+            nextId = articleRepository.getNextAllArticleId(article);
         }
-        article.setPrevNextArticles(prevArticle, nextArticle);
+        article.setPrevNextArticles(prevId, nextId);
     }
 
     private Board getBoard(Integer boardId, Article article) {
