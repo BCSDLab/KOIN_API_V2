@@ -86,7 +86,7 @@ public class OwnerSmsService {
 
     @Transactional
     public void sendResetPasswordBySms(OwnerSendSmsRequest request) {
-        User user = userRepository.getByPhoneNumber(request.phoneNumber(), OWNER);
+        User user = userRepository.getByPhoneNumberAndUserType(request.phoneNumber(), OWNER);
         ownerVerificationService.sendCertificationSms(user.getPhoneNumber());
     }
 
@@ -97,7 +97,7 @@ public class OwnerSmsService {
 
     @Transactional
     public void updatePasswordBySms(OwnerPasswordUpdateSmsRequest request) {
-        User user = userRepository.getByPhoneNumber(request.phoneNumber(), OWNER);
+        User user = userRepository.getByPhoneNumberAndUserType(request.phoneNumber(), OWNER);
         user.updatePassword(passwordEncoder, request.password());
     }
 

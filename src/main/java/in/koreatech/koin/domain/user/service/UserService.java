@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
+import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
@@ -53,10 +54,21 @@ public class UserService {
     }
 
     @Transactional
+    public UserLoginResponse loginV2(UserLoginRequestV2 request) {
+        User user = userValidationService.checkLoginCredentialsV2(request.loginId(), request.loginPw());
+
+        return createLoginResponse(user);
+    }
+
+    @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
         User user = userValidationService.checkLoginCredentials(request.email(), request.password());
         userValidationService.checkUserAuthentication(request.email());
 
+        return createLoginResponse(user);
+    }
+
+    private UserLoginResponse createLoginResponse(User user) {
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = refreshTokenService.createRefreshToken(user);
         UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));

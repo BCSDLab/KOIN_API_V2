@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequ
 import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
+import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -53,10 +54,25 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
+    @Operation(summary = "일반인 회원가입(문자 인증)")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/general/register")
     ResponseEntity<Void> generalUserRegisterV2(
         @RequestBody @Valid GeneralUserRegisterRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "로그인")
+    @PostMapping("/v2/user/login")
+    ResponseEntity<UserLoginResponse> loginV2(
+        @RequestBody @Valid UserLoginRequestV2 request
     );
 
     @ApiResponses(

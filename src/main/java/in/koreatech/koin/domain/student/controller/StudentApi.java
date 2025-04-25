@@ -138,6 +138,7 @@ public interface StudentApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
+    @Operation(summary = "학생 회원가입(문자 인증)")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/user/student/register")
     ResponseEntity<Void> studentRegisterV2(

@@ -23,6 +23,7 @@ import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
+import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
@@ -54,6 +55,14 @@ public class UserController implements UserApi {
     ) {
         userService.generalUserRegister(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/v2/user/login")
+    public ResponseEntity<UserLoginResponse> loginV2(
+        @RequestBody @Valid UserLoginRequestV2 request
+    ) {
+        UserLoginResponse response = userService.loginV2(request);
+        return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/login")
