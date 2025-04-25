@@ -97,46 +97,52 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Long countBy();
 
-    @Query("""
-                SELECT a.id FROM Article a
-                WHERE a.id < :articleId AND a.isNotice = true AND a.isDeleted = false
-                ORDER BY a.id DESC
-        """)
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id < :articleId AND is_notice = true AND is_deleted = false
+            ORDER BY id DESC
+            LIMIT 1
+        """, nativeQuery = true)
     Optional<Integer> findPreviousNoticeArticleId(Integer articleId);
 
-    @Query("""
-            SELECT a.id FROM Article a
-            WHERE a.id < :articleId AND a.board.id = :boardId AND a.isDeleted = false
-            ORDER BY a.id DESC
-        """)
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id < :articleId AND board_id = :boardId AND is_deleted = false
+            ORDER BY id DESC
+            LIMIT 1
+        """, nativeQuery = true)
     Optional<Integer> findPreviousArticleId(Integer articleId, Integer boardId);
 
-    @Query("""
-            SELECT a.id FROM Article a
-            WHERE a.id < :articleId AND a.isDeleted = false
-            ORDER BY a.id DESC
-        """)
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id < :articleId AND is_deleted = false
+            ORDER BY id DESC
+            LIMIT 1
+        """, nativeQuery = true)
     Optional<Integer> findPreviousAllArticleId(Integer articleId);
 
-    @Query("""
-            SELECT a.id FROM Article a
-            WHERE a.id > :articleId AND a.isNotice = true AND a.isDeleted = false
-            ORDER BY a.id ASC
-        """)
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id > :articleId AND is_notice = true AND is_deleted = false
+            ORDER BY id ASC
+            LIMIT 1
+        """, nativeQuery = true)
     Optional<Integer> findNextNoticeArticleId(Integer articleId);
 
-    @Query("""
-            SELECT a.id FROM Article a
-            WHERE a.id > :articleId AND a.board.id = :boardId AND a.isDeleted = false
-            ORDER BY a.id ASC
-        """)
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id > :articleId AND board_id = :boardId AND is_deleted = false
+            ORDER BY id ASC
+            LIMIT 1
+        """, nativeQuery = true)
     Optional<Integer> findNextArticleId(Integer articleId, Integer boardId);
 
-    @Query("""
-            SELECT a.id FROM Article a
-            WHERE a.id > :articleId AND a.isDeleted = false
-            ORDER BY a.id ASC
-        """)
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id > :articleId AND is_deleted = false
+            ORDER BY id ASC
+            LIMIT 1
+        """, nativeQuery = true)
     Optional<Integer> findNextAllArticleId(Integer articleId);
 
     default Integer getPreviousArticleId(Board board, Article article) {
