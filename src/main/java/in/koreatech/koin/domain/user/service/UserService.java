@@ -55,7 +55,7 @@ public class UserService {
 
     @Transactional
     public UserLoginResponse loginV2(UserLoginRequestV2 request) {
-        User user = userValidationService.checkLoginCredentialsV2(request.userId(), request.password());
+        User user = userValidationService.checkLoginCredentialsV2(request.loginId(), request.loginPw());
 
         return createLoginResponse(user);
     }

@@ -65,14 +65,14 @@ public class UserValidationService {
         return user;
     }
 
-    public User checkLoginCredentialsV2(String userId, String password) {
+    public User checkLoginCredentialsV2(String loginId, String loginPw) {
         User user;
-        if (userId.matches("^\\d{11}$")) {
-            user = userRepository.getByPhoneNumber(userId);
+        if (loginId.matches("^\\d{11}$")) {
+            user = userRepository.getByPhoneNumber(loginId);
         } else {
-            user = userRepository.getByUserId(userId);
+            user = userRepository.getByUserId(loginId);
         }
-        if (!user.isSamePassword(passwordEncoder, password)) {
+        if (!user.isSamePassword(passwordEncoder, loginPw)) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
         return user;

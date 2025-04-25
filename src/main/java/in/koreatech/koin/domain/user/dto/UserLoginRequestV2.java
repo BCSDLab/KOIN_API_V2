@@ -14,7 +14,7 @@ public record UserLoginRequestV2(
     @Schema(description = "로그인 id", example = "example1 or 01012345678", requiredMode = REQUIRED)
     @NotBlank(message = "아이디 또는 전화번호를 입력해주세요.")
     @NotEmoji
-    String userId,
+    String loginId,
 
     @Schema(
         description = "SHA 256 해시 알고리즘으로 암호화된 비밀번호",
@@ -22,7 +22,7 @@ public record UserLoginRequestV2(
         requiredMode = REQUIRED
     )
     @NotBlank(message = "비밀번호를 입력해주세요.")
-    String password
+    String loginPw
 ) {
 
 }
