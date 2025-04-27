@@ -31,7 +31,7 @@ public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id; //테스트
 
     @NotNull
     @Column(name = "user_id", nullable = false)
