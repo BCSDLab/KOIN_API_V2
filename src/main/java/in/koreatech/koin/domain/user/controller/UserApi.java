@@ -12,28 +12,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.FindIdByEmailRequest;
+import in.koreatech.koin.domain.user.dto.FindIdBySmsRequest;
+import in.koreatech.koin.domain.user.dto.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.ResetPasswordByEmailRequest;
+import in.koreatech.koin.domain.user.dto.ResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
+import in.koreatech.koin.domain.user.dto.validation.ExistsByEmailRequest;
 import in.koreatech.koin.domain.user.dto.validation.ExistsByPhoneRequest;
 import in.koreatech.koin.domain.user.dto.validation.ExistsByUserIdRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByEmailRequest;
 import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithEmailRequest;
 import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithPhoneNumberRequest;
-import in.koreatech.koin.domain.user.dto.FindIdByEmailRequest;
-import in.koreatech.koin.domain.user.dto.ResetPasswordByEmailRequest;
-import in.koreatech.koin.domain.user.dto.FindIdResponse;
-import in.koreatech.koin.domain.user.dto.FindIdBySmsRequest;
-import in.koreatech.koin.domain.user.dto.ResetPasswordBySmsRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -162,7 +162,7 @@ public interface UserApi {
     )
     @GetMapping("/user/check/email")
     ResponseEntity<Void> checkUserEmailExist(
-        @ModelAttribute("address")
+        @ParameterObject @ModelAttribute("address")
         @Valid CheckEmailDuplicationRequest request
     );
 
@@ -179,7 +179,7 @@ public interface UserApi {
     )
     @GetMapping("/user/check/phone")
     ResponseEntity<Void> checkPhoneNumberExist(
-        @ModelAttribute("phone")
+        @ParameterObject @ModelAttribute("phone")
         @Valid CheckPhoneDuplicationRequest request
     );
 
@@ -196,7 +196,7 @@ public interface UserApi {
     )
     @GetMapping("/user/check/id")
     ResponseEntity<Void> checkDuplicatedLoginId(
-        @ModelAttribute("id")
+        @ParameterObject @ModelAttribute("id")
         @Valid CheckLoginIdDuplicationRequest request
     );
 
@@ -213,7 +213,7 @@ public interface UserApi {
     )
     @GetMapping("/user/check/nickname")
     ResponseEntity<Void> checkDuplicationOfNickname(
-        @ModelAttribute("nickname")
+        @ParameterObject @ModelAttribute("nickname")
         @Valid CheckNicknameDuplicationRequest request
     );
 
