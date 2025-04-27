@@ -23,14 +23,14 @@ jobs:
               ${{ github.event.pull_request.head.sha }}
           )
           NON_FLYWAY_FILES_CHANGES=$(
-            echo "$CHANGED_FILES" | grep -v '^src/main/resources/db.migration/' || true
+            echo "$CHANGED_FILES" | grep -v '^src/main/resources/db/migration/' || true
           )
           
           DANGEROUS_SQL_COMMANDS=$(
             git diff --unified=0 \
               ${{ github.event.pull_request.base.sha }} \
               ${{ github.event.pull_request.head.sha }} \
-              -- 'src/main/resources/db.migration/**/*.sql' | \
+              -- 'src/main/resources/db/migration/**/*.sql' | \
               grep -i -wE "^\+.*\b(DROP|TRUNCATE|RENAME|CONSTRAINT|MODIFY|CHANGE)\b" || true
           )
           
