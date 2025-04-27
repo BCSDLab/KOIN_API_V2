@@ -128,7 +128,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        Article deleteArticle = articleRepository.getById(noticeId);
+        Article deleteArticle = articleRepository.findIncludingDeleted(noticeId);
 
         assertSoftly(softly -> {
             softly.assertThat(deleteArticle.getTitle()).isEqualTo("[코인 캠퍼스팀] 공지사항 테스트");
