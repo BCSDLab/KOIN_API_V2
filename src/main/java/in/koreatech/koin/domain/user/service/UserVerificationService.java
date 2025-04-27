@@ -1,9 +1,8 @@
 package in.koreatech.koin.domain.user.service;
 
-import java.util.Objects;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
@@ -23,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserVerificationService {
 
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
@@ -51,7 +51,8 @@ public class UserVerificationService {
     }
 
     private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
+        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(
+                phoneNumberOrEmail)
             .map(existing -> {
                 existing.incrementVerificationCount();
                 return existing;
@@ -62,15 +63,11 @@ public class UserVerificationService {
 
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
-        if (verificationStatus.isVerified()) {
-            return;
+        if (verificationStatus.isCodeMismatched(verificationCode)) {
+            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
         }
-        if (Objects.equals(verificationStatus.getVerificationCode(), verificationCode)) {
-            verificationStatus.markAsVerified();
-            userVerificationStatusRedisRepository.save(verificationStatus);
-            return;
-        }
-        throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+        verificationStatus.markAsVerified();
+        userVerificationStatusRedisRepository.save(verificationStatus);
     }
 
     public void checkVerified(String phoneNumber) {
