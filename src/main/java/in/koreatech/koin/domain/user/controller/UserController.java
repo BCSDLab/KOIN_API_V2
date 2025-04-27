@@ -16,27 +16,28 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
+import in.koreatech.koin.domain.user.dto.FindIdByEmailRequest;
+import in.koreatech.koin.domain.user.dto.FindIdBySmsRequest;
+import in.koreatech.koin.domain.user.dto.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.ResetPasswordByEmailRequest;
+import in.koreatech.koin.domain.user.dto.ResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.dto.validation.ExistsByEmailRequest;
 import in.koreatech.koin.domain.user.dto.validation.ExistsByPhoneRequest;
 import in.koreatech.koin.domain.user.dto.validation.ExistsByUserIdRequest;
-import in.koreatech.koin.domain.user.dto.FindIdByEmailRequest;
-import in.koreatech.koin.domain.user.dto.FindIdBySmsRequest;
-import in.koreatech.koin.domain.user.dto.FindIdResponse;
 import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithEmailRequest;
 import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithPhoneNumberRequest;
-import in.koreatech.koin.domain.user.dto.ResetPasswordByEmailRequest;
-import in.koreatech.koin.domain.user.dto.ResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import jakarta.validation.Valid;
@@ -117,28 +118,37 @@ public class UserController implements UserApi {
 
     @GetMapping("/user/check/email")
     public ResponseEntity<Void> checkUserEmailExist(
-        @ModelAttribute(value = "address")
+        @ParameterObject @ModelAttribute(value = "address")
         @Valid CheckEmailDuplicationRequest request
     ) {
-        userValidationService.checkExistsEmail(request);
+        userValidationService.checkDuplicatedEmail(request);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/user/check/phone")
     public ResponseEntity<Void> checkPhoneNumberExist(
-        @ModelAttribute(value = "phone")
+        @ParameterObject @ModelAttribute(value = "phone")
         @Valid CheckPhoneDuplicationRequest request
     ) {
-        userValidationService.checkExistsPhoneNumber(request);
+        userValidationService.checkDuplicatedPhoneNumber(request);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/user/check/nickname")
     public ResponseEntity<Void> checkDuplicationOfNickname(
-        @ModelAttribute("nickname")
+        @ParameterObject @ModelAttribute("nickname")
         @Valid CheckNicknameDuplicationRequest request
     ) {
-        userValidationService.checkUserNickname(request);
+        userValidationService.checkDuplicatedNickname(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user/check/id")
+    public ResponseEntity<Void> checkDuplicatedLoginId(
+        @ParameterObject @ModelAttribute("id")
+        @Valid CheckLoginIdDuplicationRequest request
+    ) {
+        userValidationService.checkDuplicatedLoginId(request);
         return ResponseEntity.ok().build();
     }
 
