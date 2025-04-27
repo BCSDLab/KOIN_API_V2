@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
@@ -120,7 +121,7 @@ public class UserController implements UserApi {
         @ModelAttribute(value = "address")
         @Valid CheckEmailDuplicationRequest request
     ) {
-        userValidationService.checkExistsEmail(request);
+        userValidationService.checkDuplicatedEmail(request);
         return ResponseEntity.ok().build();
     }
 
@@ -129,7 +130,7 @@ public class UserController implements UserApi {
         @ModelAttribute(value = "phone")
         @Valid CheckPhoneDuplicationRequest request
     ) {
-        userValidationService.checkExistsPhoneNumber(request);
+        userValidationService.checkDuplicatedPhoneNumber(request);
         return ResponseEntity.ok().build();
     }
 
@@ -138,7 +139,16 @@ public class UserController implements UserApi {
         @ModelAttribute("nickname")
         @Valid CheckNicknameDuplicationRequest request
     ) {
-        userValidationService.checkUserNickname(request);
+        userValidationService.checkDuplicatedNickname(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user/check/id")
+    public ResponseEntity<Void> checkDuplicatedLoginId(
+        @ModelAttribute("id")
+        @Valid CheckLoginIdDuplicationRequest request
+    ) {
+        userValidationService.checkDuplicatedLoginId(request);
         return ResponseEntity.ok().build();
     }
 

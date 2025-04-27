@@ -12,9 +12,11 @@ import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
+import in.koreatech.koin.domain.user.exception.DuplicationLoginIdException;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
@@ -39,21 +41,27 @@ public class UserValidationService {
         }
     }
 
-    public void checkExistsEmail(CheckEmailDuplicationRequest request) {
+    public void checkDuplicatedEmail(CheckEmailDuplicationRequest request) {
         userRepository.findByEmail(request.email()).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("email: " + user.getEmail());
         });
     }
 
-    public void checkExistsPhoneNumber(CheckPhoneDuplicationRequest request) {
+    public void checkDuplicatedPhoneNumber(CheckPhoneDuplicationRequest request) {
         userRepository.findByPhoneNumber(request.phone()).ifPresent(user -> {
             throw DuplicationPhoneNumberException.withDetail("phone: " + user.getPhoneNumber());
         });
     }
 
-    public void checkUserNickname(CheckNicknameDuplicationRequest request) {
+    public void checkDuplicatedNickname(CheckNicknameDuplicationRequest request) {
         userRepository.findByNickname(request.nickname()).ifPresent(user -> {
             throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
+        });
+    }
+
+    public void checkDuplicatedLoginId(CheckLoginIdDuplicationRequest request) {
+        userRepository.findByUserId(request.loginId()).ifPresent(user -> {
+            throw DuplicationLoginIdException.withDetail("loginId: " + request.loginId());
         });
     }
 

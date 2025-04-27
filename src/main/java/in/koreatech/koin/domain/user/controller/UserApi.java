@@ -14,6 +14,7 @@ import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
@@ -180,6 +181,23 @@ public interface UserApi {
     ResponseEntity<Void> checkPhoneNumberExist(
         @ModelAttribute("phone")
         @Valid CheckPhoneDuplicationRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", description = "아이디 양식 오류", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "아이디 중복", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(
+        summary = "아이디 중복 체크",
+        description = "입력한 아이디가 중복인지 확인합니다."
+    )
+    @GetMapping("/user/check/id")
+    ResponseEntity<Void> checkDuplicatedLoginId(
+        @ModelAttribute("id")
+        @Valid CheckLoginIdDuplicationRequest request
     );
 
     @ApiResponses(
