@@ -85,8 +85,8 @@ public class ArticleService {
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
-        Long total = getTotalByBoardId(boardId);
-        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        Long totalCount = getTotalByBoardId(boardId);
+        Criteria criteria = Criteria.of(page, limit, totalCount.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         Page<Article> articles = getArticlesByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles, criteria, userId);
