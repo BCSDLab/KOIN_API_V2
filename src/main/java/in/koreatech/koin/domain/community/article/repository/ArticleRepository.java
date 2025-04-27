@@ -114,7 +114,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             ORDER BY id DESC
             LIMIT 1
         """, nativeQuery = true)
-    Optional<Integer> findPreviousArticleId(Integer articleId, Integer boardId);
+    Optional<Integer> findPreviousArticleIdWithBoardId(Integer articleId, Integer boardId);
 
     @Query(value = """
             SELECT id FROM new_articles
@@ -122,7 +122,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             ORDER BY id DESC
             LIMIT 1
         """, nativeQuery = true)
-    Optional<Integer> findPreviousAllArticleId(Integer articleId);
+    Optional<Integer> findPreviousArticleId(Integer articleId);
 
     @Query(value = """
             SELECT id FROM new_articles
@@ -138,7 +138,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             ORDER BY id ASC
             LIMIT 1
         """, nativeQuery = true)
-    Optional<Integer> findNextArticleId(Integer articleId, Integer boardId);
+    Optional<Integer> findNextArticleIdWithBoardId(Integer articleId, Integer boardId);
 
     @Query(value = """
             SELECT id FROM new_articles
@@ -146,28 +146,28 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             ORDER BY id ASC
             LIMIT 1
         """, nativeQuery = true)
-    Optional<Integer> findNextAllArticleId(Integer articleId);
+    Optional<Integer> findNextArticleId(Integer articleId);
 
     default Integer getPreviousArticleId(Board board, Article article) {
         if (board.isNotice() && board.getId().equals(NOTICE_BOARD_ID)) {
             return findPreviousNoticeArticleId(article.getId()).orElse(null);
         }
-        return findPreviousArticleId(article.getId(), board.getId()).orElse(null);
+        return findPreviousArticleIdWithBoardId(article.getId(), board.getId()).orElse(null);
     }
 
     default Integer getPreviousAllArticleId(Article article) {
-        return findPreviousAllArticleId(article.getId()).orElse(null);
+        return findPreviousArticleId(article.getId()).orElse(null);
     }
 
     default Integer getNextArticleId(Board board, Article article) {
         if (board.isNotice() && board.getId().equals(NOTICE_BOARD_ID)) {
             return findNextNoticeArticleId(article.getId()).orElse(null);
         }
-        return findNextArticleId(article.getId(), board.getId()).orElse(null);
+        return findNextArticleIdWithBoardId(article.getId(), board.getId()).orElse(null);
     }
 
     default Integer getNextAllArticleId(Article article) {
-        return findNextAllArticleId(article.getId()).orElse(null);
+        return findNextArticleId(article.getId()).orElse(null);
     }
 
     @Query("""
