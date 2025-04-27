@@ -86,7 +86,7 @@ public class ArticleService {
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
         Long total = articleRepository.countBy();
-        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        Criteria criteria = Criteria.of(page, limit);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         if (boardId == null) {
             Page<Article> articles = articleRepository.findAll(pageRequest);
