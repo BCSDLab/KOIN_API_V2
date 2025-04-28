@@ -63,6 +63,7 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.timetable",
             "in.koreatech.koin.domain.timetableV2",
             "in.koreatech.koin.domain.timetableV3",
+            "in.koreatech.koin.domain.dept",
             "in.koreatech.koin.domain.graduation"
         };
 
