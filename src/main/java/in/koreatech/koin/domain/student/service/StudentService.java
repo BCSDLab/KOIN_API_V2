@@ -51,6 +51,7 @@ import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepos
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
+import in.koreatech.koin.domain.user.service.UserVerificationService;
 import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.integration.email.form.StudentRegistrationData;
 import in.koreatech.koin.integration.email.service.MailService;
@@ -63,12 +64,12 @@ public class StudentService {
 
     private final MailService mailService;
     private final UserService userService;
+    private final UserVerificationService userVerificationService;
     private final UserValidationService userValidationService;
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final UserTokenRedisRepository userTokenRedisRepository;
-    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final JwtProvider jwtProvider;
@@ -79,6 +80,7 @@ public class StudentService {
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
+    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
@@ -283,10 +285,10 @@ public class StudentService {
 
     @Transactional
     public void studentRegisterV2(StudentRegisterRequestV2 request) {
+        userVerificationService.checkVerified(request.phoneNumber());
         Student student = request.toStudent(passwordEncoder);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-        userVerificationStatusRedisRepository.deleteById(student.getUser().getPhoneNumber());
     }
 
     @Transactional

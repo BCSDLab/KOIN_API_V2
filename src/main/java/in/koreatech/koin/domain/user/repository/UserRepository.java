@@ -19,21 +19,34 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByEmailAndUserType(String email, UserType userType);
 
+    Optional<User> findByEmailAndUserTypeIn(String email, List<UserType> userTypes);
+
     Optional<User> findByPhoneNumber(String phoneNumber);
 
     Optional<User> findByPhoneNumberAndUserType(String phoneNumber, UserType userType);
 
+    Optional<User> findByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
+
     Optional<User> findById(Integer id);
 
+    Optional<User> findByUserIdAndUserTypeIn(String userId, List<UserType> userTypes);
+
     Optional<User> findByNickname(String nickname);
+
+    Optional<User> findByUserId(String userId);
 
     default User getByEmail(String email) {
         return findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));
     }
 
-    default User getByPhoneNumber(String phoneNumber, UserType userType) {
+    default User getByPhoneNumberAndUserType(String phoneNumber, UserType userType) {
         return findByPhoneNumberAndUserType(phoneNumber, userType)
+            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
+    }
+
+    default User getByPhoneNumber(String phoneNumber) {
+        return findByPhoneNumber(phoneNumber)
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
     }
 
@@ -47,7 +60,18 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("id: " + id));
     }
 
+    default User getByUserId(String userId) {
+        return findByUserId(userId)
+            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+    }
+
     boolean existsByNickname(String nickname);
+
+    boolean existsByUserId(String userId);
+
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    boolean existsByEmail(String email);
 
     void delete(User user);
 
@@ -58,5 +82,20 @@ public interface UserRepository extends Repository<User, Integer> {
     default Map<Integer, User> findAllByIdInMap(List<Integer> ids) {
         return findAllByIdIn(ids).stream()
             .collect(Collectors.toMap(User::getId, user -> user));
+    }
+
+    default User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
+        return findByEmailAndUserTypeIn(email, userTypes)
+            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+    }
+
+    default User getByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes) {
+        return findByPhoneNumberAndUserTypeIn(phoneNumber, userTypes)
+            .orElseThrow(() -> UserNotFoundException.withDetail("phoneNumber: " + phoneNumber));
+    }
+
+    default User getByUserIdAndUserTypeIn(String userId, List<UserType> userTypes) {
+        return findByUserIdAndUserTypeIn(userId, userTypes)
+            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 }

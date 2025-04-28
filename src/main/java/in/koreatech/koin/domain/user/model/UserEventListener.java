@@ -8,7 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.UserDeleteEvent;
-import in.koreatech.koin._common.event.UserSmsRequestEvent;
+import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
+import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin.integration.slack.SlackClient;
 import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,16 @@ public class UserEventListener {
     }
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onUserPhoneRequest(UserSmsRequestEvent userSmsRequestEvent) {
-        var notification = slackNotificationFactory.generateUserPhoneVerificationRequestNotification(
-            userSmsRequestEvent.phoneNumber());
+    public void onUserSmsVerificationSendEvent(UserSmsVerificationSendEvent userSmsVerificationSendEvent) {
+        var notification = slackNotificationFactory.generateUserPhoneVerificationSendNotification(
+            userSmsVerificationSendEvent.phoneNumber());
+        slackClient.sendMessage(notification);
+    }
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    public void onUserEmailVerificationSendEvent(UserEmailVerificationSendEvent userEmailVerificationSendEvent) {
+        var notification = slackNotificationFactory.generateUserEmailVerificationSendNotification(
+            userEmailVerificationSendEvent.email());
         slackClient.sendMessage(notification);
     }
 }

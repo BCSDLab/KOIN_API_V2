@@ -23,15 +23,54 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Article save(Article article);
 
-    Page<Article> findAllByIsNoticeIsTrue(Pageable pageable);
-
-    Optional<Article> findById(Integer articleId);
-
-    Page<Article> findAll(Pageable pageable);
+    @Query("""
+            SELECT a FROM Article a
+            LEFT JOIN FETCH a.board
+            LEFT JOIN FETCH a.attachments
+            LEFT JOIN FETCH a.koreatechArticle
+            LEFT JOIN FETCH a.koinArticle
+            LEFT JOIN FETCH a.lostItemArticle
+            LEFT JOIN FETCH a.koinNotice
+            WHERE a.id = :articleId
+        """)
+    Optional<Article> findByIdWithAllRelations(Integer articleId);
 
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
     Page<Article> findAllByIdIn(List<Integer> articleIds, PageRequest pageRequest);
+
+    @Query("""
+        SELECT a FROM Article a
+        LEFT JOIN FETCH a.board
+        LEFT JOIN FETCH a.koinArticle
+        LEFT JOIN FETCH a.koreatechArticle
+        LEFT JOIN FETCH a.lostItemArticle
+        LEFT JOIN FETCH a.koinNotice
+        WHERE a.isDeleted = false
+        """)
+    Page<Article> findAllWithRelations(Pageable pageable);
+
+    @Query("""
+            SELECT a FROM Article a
+            LEFT JOIN FETCH a.board
+            LEFT JOIN FETCH a.koinArticle
+            LEFT JOIN FETCH a.koreatechArticle
+            LEFT JOIN FETCH a.lostItemArticle
+            LEFT JOIN FETCH a.koinNotice
+            WHERE a.isDeleted = false AND a.isNotice = true
+        """)
+    Page<Article> findAllByIsNoticeIsTrueWithRelations(Pageable pageable);
+
+    @Query("""
+            SELECT a FROM Article a
+            LEFT JOIN FETCH a.board
+            LEFT JOIN FETCH a.koinArticle
+            LEFT JOIN FETCH a.koreatechArticle
+            LEFT JOIN FETCH a.lostItemArticle
+            LEFT JOIN FETCH a.koinNotice
+            WHERE a.isDeleted = false AND a.board.id = :boardId
+        """)
+    Page<Article> findAllByBoardIdWithRelations(Integer boardId, Pageable pageable);
 
     @Query("""
         SELECT a
@@ -41,12 +80,13 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         LEFT JOIN FETCH a.koreatechArticle
         LEFT JOIN FETCH a.lostItemArticle l
         LEFT JOIN FETCH l.author
+        LEFT JOIN FETCH a.koinNotice
         WHERE a.id IN :ids
         """)
     List<Article> findAllForHotArticlesByIdIn(List<Integer> ids);
 
     default Article getById(Integer articleId) {
-        Article found = findById(articleId)
+        Article found = findByIdWithAllRelations(articleId)
             .orElseThrow(() -> ArticleNotFoundException.withDetail("articleId: " + articleId));
         try {
             found.getBoard().getName();
@@ -55,6 +95,9 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         }
         return found;
     }
+
+    @Query(value = "SELECT * FROM new_articles WHERE id = :articleId", nativeQuery = true)
+    Article findIncludingDeleted(Integer articleId);
 
     @Query(
         value = "SELECT a.* FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type AND a.is_deleted = 0",
@@ -86,56 +129,78 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Long countBy();
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.is_notice = true AND a.is_deleted = false "
-        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
-    Optional<Article> findPreviousNoticeArticle(@Param("articleId") Integer articleId);
+    Long countByIsNoticeIsTrue();
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.board_id = :boardId AND a.is_deleted = false "
-        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
-    Optional<Article> findPreviousArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
+    Long countByBoardId(Integer boardId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.is_deleted = false "
-        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
-    Optional<Article> findPreviousAllArticle(@Param("articleId") Integer articleId);
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id < :articleId AND is_notice = true AND is_deleted = false
+            ORDER BY id DESC
+            LIMIT 1
+        """, nativeQuery = true)
+    Optional<Integer> findPreviousNoticeArticleId(Integer articleId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.is_notice = true AND a.is_deleted = false "
-        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
-    Optional<Article> findNextNoticeArticle(@Param("articleId") Integer articleId);
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id < :articleId AND board_id = :boardId AND is_deleted = false
+            ORDER BY id DESC
+            LIMIT 1
+        """, nativeQuery = true)
+    Optional<Integer> findPreviousArticleIdWithBoardId(Integer articleId, Integer boardId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.board_id = :boardId AND a.is_deleted = false "
-        + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
-    Optional<Article> findNextArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id < :articleId AND is_deleted = false
+            ORDER BY id DESC
+            LIMIT 1
+        """, nativeQuery = true)
+    Optional<Integer> findPreviousArticleId(Integer articleId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.is_deleted = false "
-        + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
-    Optional<Article> findNextAllArticle(@Param("articleId") Integer articleId);
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id > :articleId AND is_notice = true AND is_deleted = false
+            ORDER BY id ASC
+            LIMIT 1
+        """, nativeQuery = true)
+    Optional<Integer> findNextNoticeArticleId(Integer articleId);
 
-    default Article getPreviousArticle(Board board, Article article) {
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id > :articleId AND board_id = :boardId AND is_deleted = false
+            ORDER BY id ASC
+            LIMIT 1
+        """, nativeQuery = true)
+    Optional<Integer> findNextArticleIdWithBoardId(Integer articleId, Integer boardId);
+
+    @Query(value = """
+            SELECT id FROM new_articles
+            WHERE id > :articleId AND is_deleted = false
+            ORDER BY id ASC
+            LIMIT 1
+        """, nativeQuery = true)
+    Optional<Integer> findNextArticleId(Integer articleId);
+
+    default Integer getPreviousArticleId(Board board, Article article) {
         if (board.isNotice() && board.getId().equals(NOTICE_BOARD_ID)) {
-            return findPreviousNoticeArticle(article.getId()).orElse(null);
+            return findPreviousNoticeArticleId(article.getId()).orElse(null);
         }
-        return findPreviousArticle(article.getId(), board.getId()).orElse(null);
+        return findPreviousArticleIdWithBoardId(article.getId(), board.getId()).orElse(null);
     }
 
-    default Article getPreviousAllArticle(Article article) {
-        return findPreviousAllArticle(article.getId()).orElse(null);
+    default Integer getPreviousAllArticleId(Article article) {
+        return findPreviousArticleId(article.getId()).orElse(null);
     }
 
-    default Article getNextArticle(Board board, Article article) {
+    default Integer getNextArticleId(Board board, Article article) {
         if (board.isNotice() && board.getId().equals(NOTICE_BOARD_ID)) {
-            return findNextNoticeArticle(article.getId()).orElse(null);
+            return findNextNoticeArticleId(article.getId()).orElse(null);
         }
-        return findNextArticle(article.getId(), board.getId()).orElse(null);
+        return findNextArticleIdWithBoardId(article.getId(), board.getId()).orElse(null);
     }
 
-    default Article getNextAllArticle(Article article) {
-        return findNextAllArticle(article.getId()).orElse(null);
+    default Integer getNextAllArticleId(Article article) {
+        return findNextArticleId(article.getId()).orElse(null);
     }
 
     @Query("""
@@ -145,6 +210,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             LEFT JOIN FETCH k.user
             LEFT JOIN FETCH a.lostItemArticle l
             LEFT JOIN FETCH l.author
+            LEFT JOIN FETCH a.koinNotice
             WHERE (
                 (ka IS NOT NULL AND ka.registeredAt > :registeredAt)
                 OR (ka IS NULL AND a.createdAt > :registeredAt)

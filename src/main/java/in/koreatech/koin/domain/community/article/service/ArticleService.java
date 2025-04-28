@@ -85,19 +85,31 @@ public class ArticleService {
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
-        Long total = articleRepository.countBy();
-        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        Long totalCount = getTotalByBoardId(boardId);
+        Criteria criteria = Criteria.of(page, limit, totalCount.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles = getArticlesByBoardId(boardId, pageRequest);
+        return ArticlesResponse.of(articles, criteria, userId);
+    }
+
+    private Page<Article> getArticlesByBoardId(Integer boardId, PageRequest pageRequest) {
         if (boardId == null) {
-            Page<Article> articles = articleRepository.findAll(pageRequest);
-            return ArticlesResponse.of(articles, criteria, userId);
+            return articleRepository.findAllWithRelations(pageRequest);
         }
         if (boardId == NOTICE_BOARD_ID) {
-            Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
-            return ArticlesResponse.of(articles, criteria, userId);
+            return articleRepository.findAllByIsNoticeIsTrueWithRelations(pageRequest);
         }
-        Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
-        return ArticlesResponse.of(articles, criteria, userId);
+        return articleRepository.findAllByBoardIdWithRelations(boardId, pageRequest);
+    }
+
+    private Long getTotalByBoardId(Integer boardId) {
+        if (boardId == null) {
+            return articleRepository.countBy();
+        }
+        if (boardId == NOTICE_BOARD_ID) {
+            return articleRepository.countByIsNoticeIsTrue();
+        }
+        return articleRepository.countByBoardId(boardId);
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
@@ -233,17 +245,16 @@ public class ArticleService {
     }
 
     private void setPrevNextArticle(Integer boardId, Article article) {
-        Article prevArticle;
-        Article nextArticle;
+        Integer prevId, nextId;
         if (boardId != null) {
             Board board = getBoard(boardId, article);
-            prevArticle = articleRepository.getPreviousArticle(board, article);
-            nextArticle = articleRepository.getNextArticle(board, article);
+            prevId = articleRepository.getPreviousArticleId(board, article);
+            nextId = articleRepository.getNextArticleId(board, article);
         } else {
-            prevArticle = articleRepository.getPreviousAllArticle(article);
-            nextArticle = articleRepository.getNextAllArticle(article);
+            prevId = articleRepository.getPreviousAllArticleId(article);
+            nextId = articleRepository.getNextAllArticleId(article);
         }
-        article.setPrevNextArticles(prevArticle, nextArticle);
+        article.setPrevNextArticles(prevId, nextId);
     }
 
     private Board getBoard(Integer boardId, Article article) {
