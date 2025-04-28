@@ -27,10 +27,10 @@ import in.koreatech.koin.domain.bus.service.express.client.StaticExpressBusClien
 import in.koreatech.koin.domain.bus.service.express.client.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
-import in.koreatech.koin.domain.owner.model.OwnerEventListener;
-import in.koreatech.koin.domain.shop.model.review.ReviewEventListener;
+import in.koreatech.koin.integration.slack.eventlistener.OwnerEventListener;
+import in.koreatech.koin.integration.slack.eventlistener.ReviewEventListener;
 import in.koreatech.koin.domain.shop.model.shop.ShopEventListener;
-import in.koreatech.koin.domain.student.model.StudentEventListener;
+import in.koreatech.koin.integration.slack.eventlistener.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import in.koreatech.koin.util.TestCircuitBreakerClient;
 import jakarta.persistence.EntityManager;

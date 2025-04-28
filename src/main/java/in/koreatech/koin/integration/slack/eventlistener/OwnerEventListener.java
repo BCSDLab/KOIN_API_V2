@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.owner.model;
+package in.koreatech.koin.integration.slack.eventlistener;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
@@ -10,7 +10,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import in.koreatech.koin._common.event.OwnerRegisterEvent;
 import in.koreatech.koin._common.event.OwnerSmsRequestEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
-import in.koreatech.koin.integration.slack.SlackClient;
+import in.koreatech.koin.integration.slack.client.SlackClient;
 import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
 

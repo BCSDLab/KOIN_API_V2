@@ -1,4 +1,4 @@
-package in.koreatech.koin.integration.slack;
+package in.koreatech.koin.integration.slack.client;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 

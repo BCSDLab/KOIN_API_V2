@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.model.review;
+package in.koreatech.koin.integration.slack.eventlistener;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
@@ -9,7 +9,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.ReviewRegisterEvent;
 import in.koreatech.koin._common.event.ReviewReportEvent;
-import in.koreatech.koin.integration.slack.SlackClient;
+import in.koreatech.koin.integration.slack.client.SlackClient;
 import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
 

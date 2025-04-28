@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.article.model;
+package in.koreatech.koin.integration.slack.eventlistener;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.LostItemReportEvent;
-import in.koreatech.koin.integration.slack.SlackClient;
+import in.koreatech.koin.integration.slack.client.SlackClient;
 import in.koreatech.koin.integration.slack.model.SlackNotification;
 import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
