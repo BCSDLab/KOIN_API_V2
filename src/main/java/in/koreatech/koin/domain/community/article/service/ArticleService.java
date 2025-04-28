@@ -85,19 +85,31 @@ public class ArticleService {
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
-        Long total = articleRepository.countBy();
-        Criteria criteria = Criteria.of(page, limit);
+        Long totalCount = getTotalByBoardId(boardId);
+        Criteria criteria = Criteria.of(page, limit, totalCount.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles = getArticlesByBoardId(boardId, pageRequest);
+        return ArticlesResponse.of(articles, criteria, userId);
+    }
+
+    private Page<Article> getArticlesByBoardId(Integer boardId, PageRequest pageRequest) {
         if (boardId == null) {
-            Page<Article> articles = articleRepository.findAll(pageRequest);
-            return ArticlesResponse.of(articles, criteria, userId);
+            return articleRepository.findAllWithRelations(pageRequest);
         }
         if (boardId == NOTICE_BOARD_ID) {
-            Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
-            return ArticlesResponse.of(articles, criteria, userId);
+            return articleRepository.findAllByIsNoticeIsTrueWithRelations(pageRequest);
         }
-        Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
-        return ArticlesResponse.of(articles, criteria, userId);
+        return articleRepository.findAllByBoardIdWithRelations(boardId, pageRequest);
+    }
+
+    private Long getTotalByBoardId(Integer boardId) {
+        if (boardId == null) {
+            return articleRepository.countBy();
+        }
+        if (boardId == NOTICE_BOARD_ID) {
+            return articleRepository.countByIsNoticeIsTrue();
+        }
+        return articleRepository.countByBoardId(boardId);
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
