@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.user.model.UserGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -40,7 +41,7 @@ public record StudentRegisterRequestV2(
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
     String password,
 
-    @NotBlank(message = "학부는 필수입니다.")
+    @NotNull(message = "학부는 필수입니다.")
     @Schema(description = "학부", example = "컴퓨터공학부", requiredMode = REQUIRED)
     Department department,
 
