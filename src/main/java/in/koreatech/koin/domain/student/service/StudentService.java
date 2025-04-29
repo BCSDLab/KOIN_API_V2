@@ -286,7 +286,9 @@ public class StudentService {
     @Transactional
     public void studentRegisterV2(StudentRegisterRequestV2 request) {
         userVerificationService.checkVerified(request.phoneNumber());
-        Student student = request.toStudent(passwordEncoder);
+        studentValidationService.validateDepartment(request.department());
+        Department department = departmentRepository.getByName(request.department());
+        Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
     }

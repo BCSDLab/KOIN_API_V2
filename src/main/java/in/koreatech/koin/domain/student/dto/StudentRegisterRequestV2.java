@@ -16,7 +16,6 @@ import in.koreatech.koin.domain.user.model.UserGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -41,9 +40,9 @@ public record StudentRegisterRequestV2(
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
     String password,
 
-    @NotNull(message = "학부는 필수입니다.")
+    @NotBlank(message = "학부는 필수입니다.")
     @Schema(description = "학부", example = "컴퓨터공학부", requiredMode = REQUIRED)
-    Department department,
+    String department,
 
     @NotBlank(message = "학번은 필수입니다.")
     @Schema(description = "학번", example = "2025000123", requiredMode = NOT_REQUIRED)
@@ -60,7 +59,7 @@ public record StudentRegisterRequestV2(
     String nickname
 ) {
 
-    public Student toStudent(PasswordEncoder passwordEncoder) {
+    public Student toStudent(PasswordEncoder passwordEncoder, Department department) {
         User user = User.builder()
             .name(name)
             .phoneNumber(phoneNumber)
