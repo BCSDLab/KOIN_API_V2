@@ -2,6 +2,7 @@ package in.koreatech.koin.integration.slack.eventlistener;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class ReviewEventListener {
     private final SlackClient slackClient;
     private final SlackNotificationFactory slackNotificationFactory;
 
+    @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onReviewRegister(ReviewRegisterEvent event) {
         var notification = slackNotificationFactory.generateReviewRegisterNotification(
@@ -31,6 +33,7 @@ public class ReviewEventListener {
         slackClient.sendMessage(notification);
     }
 
+    @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onReviewReportRegister(ReviewReportEvent event) {
         var notification = slackNotificationFactory.generateReviewReportNotification(event.shop());

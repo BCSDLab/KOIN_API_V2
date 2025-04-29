@@ -2,6 +2,7 @@ package in.koreatech.koin.integration.slack.eventlistener;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +10,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.OwnerRegisterEvent;
 import in.koreatech.koin._common.event.OwnerSmsRequestEvent;
-import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.integration.slack.client.SlackClient;
 import in.koreatech.koin.integration.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +20,9 @@ import lombok.RequiredArgsConstructor;
 public class OwnerEventListener {
 
     private final SlackClient slackClient;
-    private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final SlackNotificationFactory slackNotificationFactory;
 
+    @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerPhoneRequest(OwnerSmsRequestEvent ownerPhoneRequestEvent) {
         var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(
@@ -30,21 +30,13 @@ public class OwnerEventListener {
         slackClient.sendMessage(notification);
     }
 
-    /**
-     * 사장님 회원가입 시 상점 id Redis 임시저장
-     * <p>
-     * 추후 어드민에서 승인 시 상점 id를 기준으로 업데이트 수행
-     */
+    @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerRegisterBySms(OwnerRegisterEvent event) {
         var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(
             event.ownerName(),
-            shopsName(event.ownerId())
+            event.shopName()
         );
         slackClient.sendMessage(notification);
-    }
-
-    private String shopsName(Integer id) {
-        return ownerShopRedisRepository.findById(id).getShopName();
     }
 }

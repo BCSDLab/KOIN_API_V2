@@ -2,6 +2,7 @@ package in.koreatech.koin.integration.slack.eventlistener;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +23,14 @@ public class UserEventListener {
     private final SlackClient slackClient;
     private final SlackNotificationFactory slackNotificationFactory;
 
+    @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onUserDeleteEvent(UserDeleteEvent event) {
         var notification = slackNotificationFactory.generateUserDeleteNotification(event.email(), event.userType());
         slackClient.sendMessage(notification);
     }
 
+    @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onUserSmsVerificationSendEvent(UserSmsVerificationSendEvent userSmsVerificationSendEvent) {
         var notification = slackNotificationFactory.generateUserPhoneVerificationSendNotification(
@@ -35,6 +38,7 @@ public class UserEventListener {
         slackClient.sendMessage(notification);
     }
 
+    @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onUserEmailVerificationSendEvent(UserEmailVerificationSendEvent userEmailVerificationSendEvent) {
         var notification = slackNotificationFactory.generateUserEmailVerificationSendNotification(
