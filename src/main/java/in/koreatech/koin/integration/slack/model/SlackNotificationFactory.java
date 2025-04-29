@@ -34,20 +34,8 @@ public class SlackNotificationFactory {
     }
 
     /**
-     * 사장님 이메일 인증 요청 알림
+     * 사장님 전화번호 인증 요청 알림
      */
-    public SlackNotification generateOwnerEmailVerificationRequestNotification(
-        String content
-    ) {
-        return SlackNotification.builder()
-            .slackUrl(ownerEventNotificationUrl)
-            .text(String.format("""
-                `%s(사장님)님이 이메일 인증을 요청하셨습니다.`
-                """, content)
-            )
-            .build();
-    }
-
     public SlackNotification generateOwnerPhoneVerificationRequestNotification(
         String content
     ) {
