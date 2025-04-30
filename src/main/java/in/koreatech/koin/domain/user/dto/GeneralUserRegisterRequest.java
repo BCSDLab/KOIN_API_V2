@@ -31,8 +31,8 @@ public record GeneralUserRegisterRequest(
 
     @NotBlank(message = "아이디는 필수입니다.")
     @Size(max = 50, message = "아이디는 50자 이내여야 합니다.")
-    @Schema(description = "사용자 아이디", example = "example123", requiredMode = REQUIRED)
-    String userId,
+    @Schema(description = "로그인 아이디", example = "example123", requiredMode = REQUIRED)
+    String loginId,
 
     @NotBlank(message = "비밀번호는 필수입니다.")
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
@@ -53,7 +53,7 @@ public record GeneralUserRegisterRequest(
         return User.builder()
             .name(name)
             .phoneNumber(phoneNumber)
-            .userId(userId)
+            .userId(loginId)
             .password(passwordEncoder.encode(password))
             .email(email)
             .gender(gender)

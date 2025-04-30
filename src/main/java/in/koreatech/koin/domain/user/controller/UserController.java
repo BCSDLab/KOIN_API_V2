@@ -165,7 +165,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> existsByUserId(
         @Valid @RequestBody ExistsByUserIdRequest request
     ) {
-        userValidationService.existsByUserId(request.userId());
+        userValidationService.existsByUserId(request.loginId());
         return ResponseEntity.ok().build();
     }
 
@@ -189,7 +189,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> matchUserIdWithPhoneNumber(
         @Valid @RequestBody MatchUserIdWithPhoneNumberRequest request
     ) {
-        userValidationService.matchUserIdWithPhoneNumber(request.userId(), request.phoneNumber());
+        userValidationService.matchUserIdWithPhoneNumber(request.loginId(), request.phoneNumber());
         return ResponseEntity.ok().build();
     }
 
@@ -197,7 +197,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> matchUserIdWithEmail(
         @Valid @RequestBody MatchUserIdWithEmailRequest request
     ) {
-        userValidationService.matchUserIdWithEmail(request.userId(), request.email());
+        userValidationService.matchUserIdWithEmail(request.loginId(), request.email());
         return ResponseEntity.ok().build();
     }
 
@@ -221,7 +221,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> resetPasswordBySmsVerification(
         @Valid @RequestBody ResetPasswordBySmsRequest request
     ) {
-        userService.resetPasswordBySms(request.userId(), request.phoneNumber(), request.newPassword());
+        userService.resetPasswordBySms(request.loginId(), request.phoneNumber(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 
@@ -229,7 +229,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> resetPasswordByEmailVerification(
         @Valid @RequestBody ResetPasswordByEmailRequest request
     ) {
-        userService.resetPasswordByEmail(request.userId(), request.email(), request.newPassword());
+        userService.resetPasswordByEmail(request.loginId(), request.email(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 }
