@@ -544,7 +544,7 @@ class UserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.user_id").value(user.getUserId()));
+            .andExpect(jsonPath("$.login_id").value(user.getUserId()));
     }
 
     @Test
@@ -590,7 +590,7 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/password/reset/sms")
                     .content("""
                         {
-                          "user_id": "%s",
+                          "login_id": "%s",
                           "phone_number": "%s",
                           "new_password": "%s"
                         }
