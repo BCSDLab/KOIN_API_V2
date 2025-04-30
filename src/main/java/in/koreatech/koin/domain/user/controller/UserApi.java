@@ -57,7 +57,7 @@ public interface UserApi {
     )
     @Operation(summary = "일반인 회원가입(문자 인증)")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/v2/user/general/register")
+    @PostMapping("/v2/user/register")
     ResponseEntity<Void> generalUserRegisterV2(
         @RequestBody @Valid GeneralUserRegisterRequest request
     );

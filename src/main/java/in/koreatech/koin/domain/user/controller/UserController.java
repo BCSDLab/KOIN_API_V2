@@ -50,7 +50,7 @@ public class UserController implements UserApi {
     private final UserService userService;
     private final UserValidationService userValidationService;
 
-    @PostMapping("/v2/user/general/register")
+    @PostMapping("/v2/user/register")
     public ResponseEntity<Void> generalUserRegisterV2(
         @RequestBody @Valid GeneralUserRegisterRequest request
     ) {
