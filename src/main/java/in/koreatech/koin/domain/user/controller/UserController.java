@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,8 +27,11 @@ import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
+import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
@@ -49,6 +53,23 @@ public class UserController implements UserApi {
 
     private final UserService userService;
     private final UserValidationService userValidationService;
+
+    @GetMapping("/v2/user/me")
+    public ResponseEntity<UserResponse> getUserV2(
+        @Auth(permit = {GENERAL}) Integer userId
+    ) {
+        UserResponse userResponse = userService.getUserV2(userId);
+        return ResponseEntity.ok().body(userResponse);
+    }
+
+    @PutMapping("/v2/user/me")
+    public ResponseEntity<UserUpdateResponse> updateUserV2(
+        @Auth(permit = {GENERAL}) Integer userId,
+        @Valid @RequestBody UserUpdateRequest request
+    ) {
+        UserUpdateResponse response = userService.updateUserV2(userId, request);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/v2/user/general/register")
     public ResponseEntity<Void> generalUserRegisterV2(
@@ -121,7 +142,7 @@ public class UserController implements UserApi {
         @ParameterObject @ModelAttribute(value = "address")
         @Valid CheckEmailDuplicationRequest request
     ) {
-        userValidationService.checkDuplicatedEmail(request);
+        userValidationService.checkDuplicatedEmail(request.email());
         return ResponseEntity.ok().build();
     }
 
@@ -139,7 +160,7 @@ public class UserController implements UserApi {
         @ParameterObject @ModelAttribute("nickname")
         @Valid CheckNicknameDuplicationRequest request
     ) {
-        userValidationService.checkDuplicatedNickname(request);
+        userValidationService.checkDuplicatedNickname(request.nickname());
         return ResponseEntity.ok().build();
     }
 

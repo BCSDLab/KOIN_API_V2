@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
@@ -22,8 +23,11 @@ import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
+import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
@@ -45,6 +49,38 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) User: 회원", description = "회원 관련 API")
 public interface UserApi {
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "일반인 정보 조회 V2")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/v2/user/me")
+    ResponseEntity<UserResponse> getUserV2(
+        @Auth(permit = {GENERAL}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "일반인 정보 수정 V2")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/v2/user/me")
+    ResponseEntity<UserUpdateResponse> updateUserV2(
+        @Auth(permit = {GENERAL}) Integer userId,
+        @Valid @RequestBody UserUpdateRequest request
+    );
 
     @ApiResponses(
         value = {

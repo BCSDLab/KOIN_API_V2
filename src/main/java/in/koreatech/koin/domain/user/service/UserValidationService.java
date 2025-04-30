@@ -13,7 +13,6 @@ import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationLoginIdException;
@@ -41,8 +40,8 @@ public class UserValidationService {
         }
     }
 
-    public void checkDuplicatedEmail(CheckEmailDuplicationRequest request) {
-        userRepository.findByEmail(request.email()).ifPresent(user -> {
+    public void checkDuplicatedEmail(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("email: " + user.getEmail());
         });
     }
@@ -53,9 +52,9 @@ public class UserValidationService {
         });
     }
 
-    public void checkDuplicatedNickname(CheckNicknameDuplicationRequest request) {
-        userRepository.findByNickname(request.nickname()).ifPresent(user -> {
-            throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
+    public void checkDuplicatedNickname(String nickname) {
+        userRepository.findByNickname(nickname).ifPresent(user -> {
+            throw DuplicationNicknameException.withDetail("nickname: " + nickname);
         });
     }
 

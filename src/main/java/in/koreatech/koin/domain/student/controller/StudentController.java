@@ -69,6 +69,15 @@ public class StudentController implements StudentApi {
         return ResponseEntity.ok(studentUpdateResponse);
     }
 
+    @PutMapping("/v2/user/student/me")
+    public ResponseEntity<StudentUpdateResponse> updateStudentV2(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @Valid @RequestBody StudentUpdateRequest request
+    ) {
+        StudentUpdateResponse studentUpdateResponse = studentService.updateStudentV2(userId, request);
+        return ResponseEntity.ok(studentUpdateResponse);
+    }
+
     @PutMapping("/user/student/academic-info")
     public ResponseEntity<StudentAcademicInfoUpdateResponse> updateStudentAcademicInfo(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,

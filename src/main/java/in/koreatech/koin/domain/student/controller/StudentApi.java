@@ -91,6 +91,23 @@ public interface StudentApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
         }
     )
+    @Operation(summary = "학생 정보 수정 V2")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/v2/user/student/me")
+    ResponseEntity<StudentUpdateResponse> updateStudentV2(
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @Valid @RequestBody StudentUpdateRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
     @Operation(summary = "학생 학적 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/user/student/academic-info")

@@ -163,6 +163,22 @@ public class StudentService {
         return StudentUpdateResponse.from(student);
     }
 
+    @Transactional
+    public StudentUpdateResponse updateStudentV2(Integer userId, StudentUpdateRequest request) {
+        Student student = studentRepository.getById(userId);
+        User user = student.getUser();
+        if (!Objects.equals(user.getPhoneNumber(), request.phoneNumber())) {
+            userVerificationService.checkVerified(request.phoneNumber());
+        }
+        if (request.email() != null && !Objects.equals(user.getEmail(), request.email())) {
+            userValidationService.checkDuplicatedEmail(request.email());
+        }
+        user.updateEmail(request.email());
+        StudentUpdateResponse response = updateStudent(userId, request);
+
+        return response;
+    }
+
     private boolean isChangeStudentNumber(String newStudentNumber, String oldStudentNumber) {
         return !Objects.equals(newStudentNumber, oldStudentNumber);
     }

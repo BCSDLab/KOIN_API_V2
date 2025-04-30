@@ -20,8 +20,11 @@ import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
+import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -45,6 +48,29 @@ public class UserService {
     private final RefreshTokenService refreshTokenService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+
+    public UserResponse getUserV2(Integer userId) {
+        User user = userRepository.getById(userId);
+
+        return UserResponse.from(user);
+    }
+
+    public UserUpdateResponse updateUserV2(Integer userId, UserUpdateRequest request) {
+        User user = userRepository.getById(userId);
+        if (!Objects.equals(user.getPhoneNumber(), request.phoneNumber())) {
+            userVerificationService.checkVerified(request.phoneNumber());
+        }
+        if (request.email() != null && !Objects.equals(user.getEmail(), request.email())) {
+            userValidationService.checkDuplicatedEmail(request.email());
+        }
+        if (request.nickname() != null && !Objects.equals(user.getNickname(), request.nickname())) {
+            userValidationService.checkDuplicatedNickname(request.nickname());
+        }
+        user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
+        user.updateEmail(request.email());
+
+        return UserUpdateResponse.from(user);
+    }
 
     @Transactional
     public void generalUserRegister(GeneralUserRegisterRequest request) {
@@ -121,7 +147,8 @@ public class UserService {
 
     public String findIdBySms(String phoneNumber) {
         userVerificationService.checkVerified(phoneNumber);
-        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber,
+            List.of(UserType.GENERAL, UserType.STUDENT));
         return user.getUserId();
     }
 
