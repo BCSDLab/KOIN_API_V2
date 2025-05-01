@@ -53,11 +53,6 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 
-    default User getById(String id, UserType userType) {
-        return findByEmailAndUserType(id, userType)
-            .orElseThrow(() -> UserNotFoundException.withDetail("id: " + id));
-    }
-
     default User getByUserId(String loginId) {
         return findByUserId(loginId)
             .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
