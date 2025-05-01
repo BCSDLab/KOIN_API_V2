@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.user.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,10 +47,10 @@ public class UserService {
 
     @Transactional
     public void generalUserRegister(GeneralUserRegisterRequest request) {
-        userVerificationService.checkVerified(request.phoneNumber());
         userValidationService.checkDuplicatedEmail(request.email());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
+        userVerificationService.checkVerified(request.phoneNumber());
     }
 
     @Transactional
@@ -118,39 +117,38 @@ public class UserService {
     }
 
     public String findIdBySms(String phoneNumber) {
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(UserType.GENERAL, UserType.STUDENT));
+        String userId = user.getUserId();
         userVerificationService.checkVerified(phoneNumber);
-        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber,
-            List.of(UserType.GENERAL, UserType.STUDENT));
-        return user.getUserId();
+        return userId;
     }
 
     public String findIdByEmail(String email) {
-        userVerificationService.checkVerified(email);
         User user = userRepository.getByEmailAndUserTypeIn(email, List.of(UserType.GENERAL, UserType.STUDENT));
-        return user.getUserId();
+        String userId = user.getUserId();
+        userVerificationService.checkVerified(email);
+        return userId;
     }
 
     @Transactional
     public void resetPasswordBySms(String userId, String phoneNumber, String newPassword) {
-        userVerificationService.checkVerified(phoneNumber);
         User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(UserType.GENERAL, UserType.STUDENT));
-        if (Objects.equals(user.getPhoneNumber(), phoneNumber)) {
-            user.updatePassword(passwordEncoder, newPassword);
-            userRepository.save(user);
-            return;
+        if (user.isNotSamePhoneNumber(phoneNumber)) {
+            throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
         }
-        throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
+        user.updatePassword(passwordEncoder, newPassword);
+        userRepository.save(user);
+        userVerificationService.checkVerified(phoneNumber);
     }
 
     @Transactional
     public void resetPasswordByEmail(String userId, String email, String newPassword) {
-        userVerificationService.checkVerified(email);
         User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(UserType.GENERAL, UserType.STUDENT));
-        if (Objects.equals(user.getEmail(), email)) {
-            user.updatePassword(passwordEncoder, newPassword);
-            userRepository.save(user);
-            return;
+        if (user.isNotSameEmail(email)) {
+            throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
         }
-        throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
+        user.updatePassword(passwordEncoder, newPassword);
+        userRepository.save(user);
+        userVerificationService.checkVerified(email);
     }
 }

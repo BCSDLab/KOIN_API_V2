@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.user.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -141,6 +142,14 @@ public class User extends BaseEntity {
 
     public boolean isNotSamePassword(PasswordEncoder passwordEncoder, String password) {
         return !passwordEncoder.matches(password, this.password);
+    }
+
+    public boolean isNotSamePhoneNumber(String phoneNumber) {
+        return !Objects.equals(this.phoneNumber, phoneNumber);
+    }
+
+    public boolean isNotSameEmail(String email) {
+        return !Objects.equals(this.email, email);
     }
 
     public void auth() {
