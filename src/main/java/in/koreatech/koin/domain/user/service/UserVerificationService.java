@@ -70,7 +70,7 @@ public class UserVerificationService {
         userVerificationStatusRedisRepository.save(verificationStatus);
     }
 
-    public void checkVerified(String phoneNumber) {
+    public void consumeVerification(String phoneNumber) {
         userVerificationStatusRedisRepository.findById(phoneNumber)
             .filter(UserVerificationStatus::isVerified)
             .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));

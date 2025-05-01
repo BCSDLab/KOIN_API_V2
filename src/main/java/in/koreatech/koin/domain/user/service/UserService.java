@@ -50,7 +50,7 @@ public class UserService {
         userValidationService.checkDuplicatedEmail(request.email());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
-        userVerificationService.checkVerified(request.phoneNumber());
+        userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
@@ -119,14 +119,14 @@ public class UserService {
     public String findIdBySms(String phoneNumber) {
         User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(UserType.GENERAL, UserType.STUDENT));
         String userId = user.getUserId();
-        userVerificationService.checkVerified(phoneNumber);
+        userVerificationService.consumeVerification(phoneNumber);
         return userId;
     }
 
     public String findIdByEmail(String email) {
         User user = userRepository.getByEmailAndUserTypeIn(email, List.of(UserType.GENERAL, UserType.STUDENT));
         String userId = user.getUserId();
-        userVerificationService.checkVerified(email);
+        userVerificationService.consumeVerification(email);
         return userId;
     }
 
@@ -138,7 +138,7 @@ public class UserService {
         }
         user.updatePassword(passwordEncoder, newPassword);
         userRepository.save(user);
-        userVerificationService.checkVerified(phoneNumber);
+        userVerificationService.consumeVerification(phoneNumber);
     }
 
     @Transactional
@@ -149,6 +149,6 @@ public class UserService {
         }
         user.updatePassword(passwordEncoder, newPassword);
         userRepository.save(user);
-        userVerificationService.checkVerified(email);
+        userVerificationService.consumeVerification(email);
     }
 }

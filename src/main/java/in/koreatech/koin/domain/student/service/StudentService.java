@@ -290,7 +290,7 @@ public class StudentService {
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-        userVerificationService.checkVerified(request.phoneNumber());
+        userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
