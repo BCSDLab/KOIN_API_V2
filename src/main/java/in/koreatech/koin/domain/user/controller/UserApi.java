@@ -57,7 +57,7 @@ public interface UserApi {
     )
     @Operation(summary = "일반인 회원가입(문자 인증)")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/v2/user/register")
+    @PostMapping("/v2/users/register")
     ResponseEntity<Void> generalUserRegisterV2(
         @RequestBody @Valid GeneralUserRegisterRequest request
     );
@@ -71,7 +71,7 @@ public interface UserApi {
         }
     )
     @Operation(summary = "로그인")
-    @PostMapping("/v2/user/login")
+    @PostMapping("/v2/users/login")
     ResponseEntity<UserLoginResponse> loginV2(
         @RequestBody @Valid UserLoginRequestV2 request
     );
@@ -295,7 +295,7 @@ public interface UserApi {
         summary = "로그인 ID와 전화번호 일치 여부 확인",
         description = "입력한 로그인 ID와 전화번호가 일치하는지 확인합니다."
     )
-    @PostMapping("/user/id/match/phone")
+    @PostMapping("/users/id/match/phone")
     ResponseEntity<Void> matchUserIdWithPhoneNumber(@Valid @RequestBody MatchUserIdWithPhoneNumberRequest request);
 
     @ApiResponses({
@@ -307,7 +307,7 @@ public interface UserApi {
         summary = "로그인 ID와 이메일 일치 여부 확인",
         description = "입력한 로그인 ID와 이메일 주소가 일치하는지 확인합니다."
     )
-    @PostMapping("/user/id/match/email")
+    @PostMapping("/users/id/match/email")
     ResponseEntity<Void> matchUserIdWithEmail(@Valid @RequestBody MatchUserIdWithEmailRequest request);
 
     @ApiResponses({
@@ -320,7 +320,7 @@ public interface UserApi {
         summary = "SMS 인증으로 로그인 ID 찾기",
         description = "SMS 인증 완료 후 1시간 이내에 ID를 찾을 수 있습니다."
     )
-    @PostMapping("/user/id/find/sms")
+    @PostMapping("/users/id/find/sms")
     ResponseEntity<FindIdResponse> findIdBySmsVerification(@Valid @RequestBody FindIdBySmsRequest request);
 
     @ApiResponses({
@@ -333,7 +333,7 @@ public interface UserApi {
         summary = "이메일 인증으로 로그인 ID 찾기",
         description = "이메일 인증 완료 후 1시간 이내에 ID를 찾을 수 있습니다."
     )
-    @PostMapping("/user/id/find/email")
+    @PostMapping("/users/id/find/email")
     ResponseEntity<FindIdResponse> findIdByEmailVerification(@Valid @RequestBody FindIdByEmailRequest request);
 
     @ApiResponses({
@@ -346,7 +346,7 @@ public interface UserApi {
         summary = "SMS 인증으로 패스워드 리셋",
         description = "SMS 인증 완료 후 1시간 이내에 비밀번호를 재설정할 수 있습니다."
     )
-    @PostMapping("/user/password/reset/sms")
+    @PostMapping("/users/password/reset/sms")
     ResponseEntity<Void> resetPasswordBySmsVerification(@Valid @RequestBody ResetPasswordBySmsRequest request);
 
     @ApiResponses({
@@ -359,6 +359,6 @@ public interface UserApi {
         summary = "이메일 인증으로 패스워드 리셋",
         description = "이메일 인증 완료 후 1시간 이내에 비밀번호를 재설정할 수 있습니다."
     )
-    @PostMapping("/user/password/reset/email")
+    @PostMapping("/users/password/reset/email")
     ResponseEntity<Void> resetPasswordByEmailVerification(@Valid @RequestBody ResetPasswordByEmailRequest request);
 }

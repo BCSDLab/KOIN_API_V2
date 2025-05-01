@@ -50,7 +50,7 @@ public class UserController implements UserApi {
     private final UserService userService;
     private final UserValidationService userValidationService;
 
-    @PostMapping("/v2/user/register")
+    @PostMapping("/v2/users/register")
     public ResponseEntity<Void> generalUserRegisterV2(
         @RequestBody @Valid GeneralUserRegisterRequest request
     ) {
@@ -58,7 +58,7 @@ public class UserController implements UserApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/v2/user/login")
+    @PostMapping("/v2/users/login")
     public ResponseEntity<UserLoginResponse> loginV2(
         @RequestBody @Valid UserLoginRequestV2 request
     ) {
@@ -185,7 +185,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/id/match/phone")
+    @PostMapping("/users/id/match/phone")
     public ResponseEntity<Void> matchUserIdWithPhoneNumber(
         @Valid @RequestBody MatchUserIdWithPhoneNumberRequest request
     ) {
@@ -193,7 +193,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/id/match/email")
+    @PostMapping("/users/id/match/email")
     public ResponseEntity<Void> matchUserIdWithEmail(
         @Valid @RequestBody MatchUserIdWithEmailRequest request
     ) {
@@ -201,7 +201,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/id/find/sms")
+    @PostMapping("/users/id/find/sms")
     public ResponseEntity<FindIdResponse> findIdBySmsVerification(
         @Valid @RequestBody FindIdBySmsRequest request
     ) {
@@ -209,7 +209,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
-    @PostMapping("/user/id/find/email")
+    @PostMapping("/users/id/find/email")
     public ResponseEntity<FindIdResponse> findIdByEmailVerification(
         @Valid @RequestBody FindIdByEmailRequest request
     ) {
@@ -217,7 +217,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
-    @PostMapping("/user/password/reset/sms")
+    @PostMapping("/users/password/reset/sms")
     public ResponseEntity<Void> resetPasswordBySmsVerification(
         @Valid @RequestBody ResetPasswordBySmsRequest request
     ) {
@@ -225,7 +225,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/password/reset/email")
+    @PostMapping("/users/password/reset/email")
     public ResponseEntity<Void> resetPasswordByEmailVerification(
         @Valid @RequestBody ResetPasswordByEmailRequest request
     ) {
