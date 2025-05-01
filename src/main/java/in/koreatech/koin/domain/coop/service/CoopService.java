@@ -185,7 +185,7 @@ public class CoopService {
         Coop coop = coopRepository.getByCoopId(request.id());
         User user = coop.getUser();
 
-        if (!user.isSamePassword(passwordEncoder, request.password())) {
+        if (user.isNotSamePassword(passwordEncoder, request.password())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 

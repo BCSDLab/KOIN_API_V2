@@ -121,7 +121,7 @@ public class UserController implements UserApi {
         @ParameterObject @ModelAttribute(value = "address")
         @Valid CheckEmailDuplicationRequest request
     ) {
-        userValidationService.checkDuplicatedEmail(request);
+        userValidationService.checkDuplicatedEmail(request.email());
         return ResponseEntity.ok().build();
     }
 
@@ -130,7 +130,7 @@ public class UserController implements UserApi {
         @ParameterObject @ModelAttribute(value = "phone")
         @Valid CheckPhoneDuplicationRequest request
     ) {
-        userValidationService.checkDuplicatedPhoneNumber(request);
+        userValidationService.checkDuplicatedPhoneNumber(request.phone());
         return ResponseEntity.ok().build();
     }
 
@@ -139,7 +139,7 @@ public class UserController implements UserApi {
         @ParameterObject @ModelAttribute("nickname")
         @Valid CheckNicknameDuplicationRequest request
     ) {
-        userValidationService.checkDuplicatedNickname(request);
+        userValidationService.checkDuplicatedNickname(request.nickname());
         return ResponseEntity.ok().build();
     }
 
@@ -148,7 +148,7 @@ public class UserController implements UserApi {
         @ParameterObject @ModelAttribute("id")
         @Valid CheckLoginIdDuplicationRequest request
     ) {
-        userValidationService.checkDuplicatedLoginId(request);
+        userValidationService.checkDuplicatedLoginId(request.loginId());
         return ResponseEntity.ok().build();
     }
 
@@ -157,7 +157,7 @@ public class UserController implements UserApi {
         @Valid @RequestBody CheckUserPasswordRequest request,
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
-        userValidationService.checkPassword(request, userId);
+        userValidationService.checkPassword(request.password(), userId);
         return ResponseEntity.ok().build();
     }
 
