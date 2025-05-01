@@ -37,6 +37,9 @@ public class UserValidationService {
     }
 
     public void checkDuplicatedEmail(String email) {
+        if (Objects.isNull(email)) {
+            return;
+        }
         if (userRepository.existsByEmail(email)) {
             throw DuplicationEmailException.withDetail("email: " + email);
         }

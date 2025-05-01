@@ -43,6 +43,7 @@ public record UserRegisterRequest(
 
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
+    @Size(min = 1, message = "빈 문자열일 수 없습니다.")
     String email,
 
     @Schema(description = "닉네임", example = "캔따개", requiredMode = REQUIRED)
