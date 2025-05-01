@@ -143,8 +143,8 @@ public class User extends BaseEntity {
             this.password = passwordEncoder.encode(password);
     }
 
-    public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {
-        return passwordEncoder.matches(password, this.password);
+    public boolean isNotSamePassword(PasswordEncoder passwordEncoder, String password) {
+        return !passwordEncoder.matches(password, this.password);
     }
 
     public void auth() {

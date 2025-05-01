@@ -75,6 +75,7 @@ public class UserService {
     @Transactional
     public void generalUserRegister(GeneralUserRegisterRequest request) {
         userVerificationService.checkVerified(request.phoneNumber());
+        userValidationService.checkDuplicatedEmail(request.email());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
     }
@@ -82,7 +83,6 @@ public class UserService {
     @Transactional
     public UserLoginResponse loginV2(UserLoginRequestV2 request) {
         User user = userValidationService.checkLoginCredentialsV2(request.loginId(), request.loginPw());
-
         return createLoginResponse(user);
     }
 
@@ -90,7 +90,6 @@ public class UserService {
     public UserLoginResponse login(UserLoginRequest request) {
         User user = userValidationService.checkLoginCredentials(request.email(), request.password());
         userValidationService.checkUserAuthentication(request.email());
-
         return createLoginResponse(user);
     }
 
@@ -99,7 +98,6 @@ public class UserService {
         String refreshToken = refreshTokenService.createRefreshToken(user);
         UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
         updateLastLoginTime(user);
-
         return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), user.getUserType().getValue());
     }
 

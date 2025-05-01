@@ -27,11 +27,8 @@ import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
-import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
@@ -71,7 +68,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/v2/user/general/register")
+    @PostMapping("/v2/users/register")
     public ResponseEntity<Void> generalUserRegisterV2(
         @RequestBody @Valid GeneralUserRegisterRequest request
     ) {
@@ -79,7 +76,7 @@ public class UserController implements UserApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/v2/user/login")
+    @PostMapping("/v2/users/login")
     public ResponseEntity<UserLoginResponse> loginV2(
         @RequestBody @Valid UserLoginRequestV2 request
     ) {
@@ -151,7 +148,7 @@ public class UserController implements UserApi {
         @ParameterObject @ModelAttribute(value = "phone")
         @Valid CheckPhoneDuplicationRequest request
     ) {
-        userValidationService.checkDuplicatedPhoneNumber(request);
+        userValidationService.checkDuplicatedPhoneNumber(request.phone());
         return ResponseEntity.ok().build();
     }
 
@@ -169,7 +166,7 @@ public class UserController implements UserApi {
         @ParameterObject @ModelAttribute("id")
         @Valid CheckLoginIdDuplicationRequest request
     ) {
-        userValidationService.checkDuplicatedLoginId(request);
+        userValidationService.checkDuplicatedLoginId(request.loginId());
         return ResponseEntity.ok().build();
     }
 
@@ -178,7 +175,7 @@ public class UserController implements UserApi {
         @Valid @RequestBody CheckUserPasswordRequest request,
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
-        userValidationService.checkPassword(request, userId);
+        userValidationService.checkPassword(request.password(), userId);
         return ResponseEntity.ok().build();
     }
 
@@ -186,7 +183,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> existsByUserId(
         @Valid @RequestBody ExistsByUserIdRequest request
     ) {
-        userValidationService.existsByUserId(request.userId());
+        userValidationService.existsByUserId(request.loginId());
         return ResponseEntity.ok().build();
     }
 
@@ -206,23 +203,23 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/id/match/phone")
+    @PostMapping("/users/id/match/phone")
     public ResponseEntity<Void> matchUserIdWithPhoneNumber(
         @Valid @RequestBody MatchUserIdWithPhoneNumberRequest request
     ) {
-        userValidationService.matchUserIdWithPhoneNumber(request.userId(), request.phoneNumber());
+        userValidationService.matchUserIdWithPhoneNumber(request.loginId(), request.phoneNumber());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/id/match/email")
+    @PostMapping("/users/id/match/email")
     public ResponseEntity<Void> matchUserIdWithEmail(
         @Valid @RequestBody MatchUserIdWithEmailRequest request
     ) {
-        userValidationService.matchUserIdWithEmail(request.userId(), request.email());
+        userValidationService.matchUserIdWithEmail(request.loginId(), request.email());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/id/find/sms")
+    @PostMapping("/users/id/find/sms")
     public ResponseEntity<FindIdResponse> findIdBySmsVerification(
         @Valid @RequestBody FindIdBySmsRequest request
     ) {
@@ -230,7 +227,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
-    @PostMapping("/user/id/find/email")
+    @PostMapping("/users/id/find/email")
     public ResponseEntity<FindIdResponse> findIdByEmailVerification(
         @Valid @RequestBody FindIdByEmailRequest request
     ) {
@@ -238,19 +235,19 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(FindIdResponse.from(userId));
     }
 
-    @PostMapping("/user/password/reset/sms")
+    @PostMapping("/users/password/reset/sms")
     public ResponseEntity<Void> resetPasswordBySmsVerification(
         @Valid @RequestBody ResetPasswordBySmsRequest request
     ) {
-        userService.resetPasswordBySms(request.userId(), request.phoneNumber(), request.newPassword());
+        userService.resetPasswordBySms(request.loginId(), request.phoneNumber(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/password/reset/email")
+    @PostMapping("/users/password/reset/email")
     public ResponseEntity<Void> resetPasswordByEmailVerification(
         @Valid @RequestBody ResetPasswordByEmailRequest request
     ) {
-        userService.resetPasswordByEmail(request.userId(), request.email(), request.newPassword());
+        userService.resetPasswordByEmail(request.loginId(), request.email(), request.newPassword());
         return ResponseEntity.ok().build();
     }
 }

@@ -113,7 +113,7 @@ public class StudentController implements StudentApi {
         return studentService.authenticate(request);
     }
 
-    @PostMapping("/v2/user/student/register")
+    @PostMapping("/v2/users/students/register")
     public ResponseEntity<Void> studentRegisterV2(
         @RequestBody @Valid StudentRegisterRequestV2 request
     ) {

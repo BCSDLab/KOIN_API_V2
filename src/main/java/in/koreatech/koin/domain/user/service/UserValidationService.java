@@ -33,40 +33,40 @@ public class UserValidationService {
     private final PasswordEncoder passwordEncoder;
     private final StudentRedisRepository studentRedisRepository;
 
-    public void checkPassword(CheckUserPasswordRequest request, Integer userId) {
+    public void checkPassword(String password, Integer userId) {
         User user = userRepository.getById(userId);
-        if (!user.isSamePassword(passwordEncoder, request.password())) {
+        if (user.isNotSamePassword(passwordEncoder, password)) {
             throw new KoinIllegalArgumentException("올바르지 않은 비밀번호입니다.");
         }
     }
 
     public void checkDuplicatedEmail(String email) {
-        userRepository.findByEmail(email).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("email: " + user.getEmail());
-        });
+        if (userRepository.existsByEmail(email)) {
+            throw DuplicationEmailException.withDetail("email: " + email);
+        }
     }
 
-    public void checkDuplicatedPhoneNumber(CheckPhoneDuplicationRequest request) {
-        userRepository.findByPhoneNumber(request.phone()).ifPresent(user -> {
-            throw DuplicationPhoneNumberException.withDetail("phone: " + user.getPhoneNumber());
-        });
+    public void checkDuplicatedPhoneNumber(String phone) {
+        if (userRepository.existsByPhoneNumber(phone)) {
+            throw DuplicationPhoneNumberException.withDetail("phone: " + phone);
+        }
     }
 
     public void checkDuplicatedNickname(String nickname) {
-        userRepository.findByNickname(nickname).ifPresent(user -> {
+        if (userRepository.existsByNickname(nickname)) {
             throw DuplicationNicknameException.withDetail("nickname: " + nickname);
-        });
+        }
     }
 
-    public void checkDuplicatedLoginId(CheckLoginIdDuplicationRequest request) {
-        userRepository.findByUserId(request.loginId()).ifPresent(user -> {
-            throw DuplicationLoginIdException.withDetail("loginId: " + request.loginId());
-        });
+    public void checkDuplicatedLoginId(String loginId) {
+        if (userRepository.existsByUserId(loginId)) {
+            throw DuplicationLoginIdException.withDetail("loginId: " + loginId);
+        }
     }
 
     public User checkLoginCredentials(String email, String password) {
         User user = userRepository.getByEmail(email);
-        if (!user.isSamePassword(passwordEncoder, password)) {
+        if (user.isNotSamePassword(passwordEncoder, password)) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
         return user;
@@ -79,7 +79,7 @@ public class UserValidationService {
         } else {
             user = userRepository.getByUserId(loginId);
         }
-        if (!user.isSamePassword(passwordEncoder, loginPw)) {
+        if (user.isNotSamePassword(passwordEncoder, loginPw)) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
         return user;
@@ -92,11 +92,11 @@ public class UserValidationService {
         }
     }
 
-    public void existsByUserId(String userId) {
-        if (userRepository.existsByUserId(userId)) {
+    public void existsByUserId(String loginId) {
+        if (userRepository.existsByUserId(loginId)) {
             return;
         }
-        throw UserNotFoundException.withDetail("userId: " + userId);
+        throw UserNotFoundException.withDetail("loginId: " + loginId);
     }
 
     public void existsByPhoneNumber(String phoneNumber) {
