@@ -41,8 +41,8 @@ public class UserValidationService {
         }
     }
 
-    public void checkDuplicatedEmail(CheckEmailDuplicationRequest request) {
-        userRepository.findByEmail(request.email()).ifPresent(user -> {
+    public void checkDuplicatedEmail(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("email: " + user.getEmail());
         });
     }
