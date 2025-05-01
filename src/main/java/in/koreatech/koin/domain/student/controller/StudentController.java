@@ -70,7 +70,7 @@ public class StudentController implements StudentApi {
         return ResponseEntity.ok(studentUpdateResponse);
     }
 
-    @PutMapping("/v2/user/student/me")
+    @PutMapping("/v2/users/students/me")
     public ResponseEntity<StudentUpdateResponse> updateStudentV2(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
         @Valid @RequestBody StudentUpdateRequestV2 request

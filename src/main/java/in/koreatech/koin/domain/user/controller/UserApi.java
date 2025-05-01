@@ -60,7 +60,7 @@ public interface UserApi {
     )
     @Operation(summary = "일반인 정보 조회 V2")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/v2/user/me")
+    @GetMapping("/v2/users/me")
     ResponseEntity<UserResponse> getUserV2(
         @Auth(permit = {GENERAL}) Integer userId
     );
@@ -76,7 +76,7 @@ public interface UserApi {
     )
     @Operation(summary = "일반인 정보 수정 V2")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/v2/user/me")
+    @PutMapping("/v2/users/me")
     ResponseEntity<UserUpdateResponse> updateUserV2(
         @Auth(permit = {GENERAL}) Integer userId,
         @Valid @RequestBody UserUpdateRequest request

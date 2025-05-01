@@ -54,7 +54,7 @@ public class UserController implements UserApi {
     private final UserService userService;
     private final UserValidationService userValidationService;
 
-    @GetMapping("/v2/user/me")
+    @GetMapping("/v2/users/me")
     public ResponseEntity<UserResponse> getUserV2(
         @Auth(permit = {GENERAL}) Integer userId
     ) {
@@ -62,7 +62,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(userResponse);
     }
 
-    @PutMapping("/v2/user/me")
+    @PutMapping("/v2/users/me")
     public ResponseEntity<UserUpdateResponse> updateUserV2(
         @Auth(permit = {GENERAL}) Integer userId,
         @Valid @RequestBody UserUpdateRequest request

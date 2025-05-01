@@ -94,7 +94,7 @@ public interface StudentApi {
     )
     @Operation(summary = "학생 정보 수정 V2")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/v2/user/student/me")
+    @PutMapping("/v2/users/students/me")
     ResponseEntity<StudentUpdateResponse> updateStudentV2(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
         @Valid @RequestBody StudentUpdateRequestV2 request
