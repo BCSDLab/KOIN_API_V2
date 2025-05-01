@@ -76,7 +76,7 @@ public class UserValidationService {
         User user = userRepository.getById(userId);
         if (updateEmail != null && !updateEmail.equals(user.getEmail())
             && userRepository.existsByEmail(updateEmail)) {
-            throw DuplicationNicknameException.withDetail("updateEmail : " + updateEmail);
+            throw DuplicationEmailException.withDetail("updateEmail : " + updateEmail);
         }
     }
 

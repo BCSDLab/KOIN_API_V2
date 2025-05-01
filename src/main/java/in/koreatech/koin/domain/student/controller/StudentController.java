@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentUpdateRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.service.StudentService;
@@ -72,7 +73,7 @@ public class StudentController implements StudentApi {
     @PutMapping("/v2/user/student/me")
     public ResponseEntity<StudentUpdateResponse> updateStudentV2(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
-        @Valid @RequestBody StudentUpdateRequest request
+        @Valid @RequestBody StudentUpdateRequestV2 request
     ) {
         StudentUpdateResponse studentUpdateResponse = studentService.updateStudentV2(userId, request);
         return ResponseEntity.ok(studentUpdateResponse);

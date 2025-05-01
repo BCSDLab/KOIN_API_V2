@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentUpdateRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.model.Department;
@@ -164,7 +165,7 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentUpdateResponse updateStudentV2(Integer userId, StudentUpdateRequest request) {
+    public StudentUpdateResponse updateStudentV2(Integer userId, StudentUpdateRequestV2 request) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
         if (!Objects.equals(user.getPhoneNumber(), request.phoneNumber())) {
@@ -172,9 +173,8 @@ public class StudentService {
         }
         userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
         user.updateEmail(request.email());
-        StudentUpdateResponse response = updateStudent(userId, request);
 
-        return response;
+        return updateStudent(userId, StudentUpdateRequest.from(request));
     }
 
     private boolean isChangeStudentNumber(String newStudentNumber, String oldStudentNumber) {
