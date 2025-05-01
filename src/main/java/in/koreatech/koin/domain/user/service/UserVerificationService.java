@@ -51,14 +51,13 @@ public class UserVerificationService {
     }
 
     private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        UserDailyVerificationCount verificationCount = userDailyVerificationCountRedisRepository.findById(
-                phoneNumberOrEmail)
-            .map(existing -> {
-                existing.incrementVerificationCount();
-                return existing;
+        UserDailyVerificationCount updatedCount = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
+            .map(count -> {
+                count.incrementVerificationCount();
+                return count;
             })
             .orElseGet(() -> UserDailyVerificationCount.from(phoneNumberOrEmail));
-        return userDailyVerificationCountRedisRepository.save(verificationCount);
+        return userDailyVerificationCountRedisRepository.save(updatedCount);
     }
 
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
@@ -70,10 +69,10 @@ public class UserVerificationService {
         userVerificationStatusRedisRepository.save(verificationStatus);
     }
 
-    public void consumeVerification(String phoneNumber) {
-        userVerificationStatusRedisRepository.findById(phoneNumber)
+    public void consumeVerification(String phoneNumberOrEmail) {
+        userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
             .filter(UserVerificationStatus::isVerified)
             .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));
-        userVerificationStatusRedisRepository.deleteById(phoneNumber);
+        userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
 }

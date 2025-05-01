@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -46,7 +46,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void generalUserRegister(GeneralUserRegisterRequest request) {
+    public void userRegister(UserRegisterRequest request) {
         userValidationService.checkDuplicatedEmail(request.email());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);

@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.FindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.FindIdBySmsRequest;
 import in.koreatech.koin.domain.user.dto.FindIdResponse;
-import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.ResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.ResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
@@ -58,8 +58,8 @@ public interface UserApi {
     @Operation(summary = "일반인 회원가입(문자 인증)")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/users/register")
-    ResponseEntity<Void> generalUserRegisterV2(
-        @RequestBody @Valid GeneralUserRegisterRequest request
+    ResponseEntity<Void> userRegisterV2(
+        @RequestBody @Valid UserRegisterRequest request
     );
 
     @ApiResponses(
