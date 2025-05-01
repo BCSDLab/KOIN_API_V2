@@ -109,7 +109,7 @@ public class StudentService {
 
     @Transactional
     public StudentUpdateResponse updateStudent(Integer userId, StudentUpdateRequest request) {
-        studentValidationService.validateUpdateNickname(request.nickname(), userId);
+        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
         studentValidationService.validateDepartment(request.major());
 
         Student student = studentRepository.getById(userId);
@@ -170,9 +170,7 @@ public class StudentService {
         if (!Objects.equals(user.getPhoneNumber(), request.phoneNumber())) {
             userVerificationService.checkVerified(request.phoneNumber());
         }
-        if (request.email() != null && !Objects.equals(user.getEmail(), request.email())) {
-            userValidationService.checkDuplicatedEmail(request.email());
-        }
+        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
         user.updateEmail(request.email());
         StudentUpdateResponse response = updateStudent(userId, request);
 

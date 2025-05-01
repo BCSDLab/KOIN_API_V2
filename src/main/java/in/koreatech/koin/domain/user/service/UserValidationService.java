@@ -64,6 +64,22 @@ public class UserValidationService {
         }
     }
 
+    public void checkDuplicatedUpdateNickname(String updateNickname, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (updateNickname != null && !updateNickname.equals(user.getNickname())
+            && userRepository.existsByNickname(updateNickname)) {
+            throw DuplicationNicknameException.withDetail("updateNickname : " + updateNickname);
+        }
+    }
+
+    public void checkDuplicatedUpdateEmail(String updateEmail, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (updateEmail != null && !updateEmail.equals(user.getEmail())
+            && userRepository.existsByEmail(updateEmail)) {
+            throw DuplicationNicknameException.withDetail("updateEmail : " + updateEmail);
+        }
+    }
+
     public User checkLoginCredentials(String email, String password) {
         User user = userRepository.getByEmail(email);
         if (user.isNotSamePassword(passwordEncoder, password)) {

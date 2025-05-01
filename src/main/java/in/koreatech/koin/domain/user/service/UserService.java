@@ -51,7 +51,6 @@ public class UserService {
 
     public UserResponse getUserV2(Integer userId) {
         User user = userRepository.getById(userId);
-
         return UserResponse.from(user);
     }
 
@@ -60,12 +59,8 @@ public class UserService {
         if (!Objects.equals(user.getPhoneNumber(), request.phoneNumber())) {
             userVerificationService.checkVerified(request.phoneNumber());
         }
-        if (request.email() != null && !Objects.equals(user.getEmail(), request.email())) {
-            userValidationService.checkDuplicatedEmail(request.email());
-        }
-        if (request.nickname() != null && !Objects.equals(user.getNickname(), request.nickname())) {
-            userValidationService.checkDuplicatedNickname(request.nickname());
-        }
+        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
+        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updateEmail(request.email());
 

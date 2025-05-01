@@ -37,14 +37,6 @@ public class StudentValidationService {
         validateDepartment(request.major());
     }
 
-    public void validateUpdateNickname(String nickname, Integer userId) {
-        User checkUser = userRepository.getById(userId);
-        if (nickname != null && !nickname.equals(checkUser.getNickname())
-            && userRepository.existsByNickname(nickname)) {
-            throw DuplicationNicknameException.withDetail("nickname : " + nickname);
-        }
-    }
-
     public void validateDepartment(String department) {
         if (department != null && !StudentDepartment.isValid(department)) {
             throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
