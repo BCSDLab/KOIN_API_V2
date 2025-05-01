@@ -88,11 +88,11 @@ public class UserValidationService {
         }
     }
 
-    public void existsByUserId(String userId) {
-        if (userRepository.existsByUserId(userId)) {
+    public void existsByUserId(String loginId) {
+        if (userRepository.existsByUserId(loginId)) {
             return;
         }
-        throw UserNotFoundException.withDetail("userId: " + userId);
+        throw UserNotFoundException.withDetail("loginId: " + loginId);
     }
 
     public void existsByPhoneNumber(String phoneNumber) {

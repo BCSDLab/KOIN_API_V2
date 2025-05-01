@@ -53,9 +53,9 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 
-    default User getByUserId(String userId) {
-        return findByUserId(userId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+    default User getByUserId(String loginId) {
+        return findByUserId(loginId)
+            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }
 
     boolean existsByNickname(String nickname);

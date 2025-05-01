@@ -140,7 +140,7 @@ public interface StudentApi {
     )
     @Operation(summary = "학생 회원가입(문자 인증)")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/v2/user/student/register")
+    @PostMapping("/v2/users/students/register")
     ResponseEntity<Void> studentRegisterV2(
         @RequestBody @Valid StudentRegisterRequestV2 request
     );

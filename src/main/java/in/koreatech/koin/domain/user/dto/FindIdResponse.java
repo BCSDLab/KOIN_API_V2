@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record FindIdResponse(
     @Schema(description = "로그인 ID", example = "user3452", requiredMode = REQUIRED)
-    String userId
+    String loginId
 ) {
 
     public static FindIdResponse from(String userId) {

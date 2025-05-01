@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/verification")
+@RequestMapping("/users/verification")
 public class UserVerificationController implements UserVerificationApi {
 
     private final UserVerificationService userVerificationService;
