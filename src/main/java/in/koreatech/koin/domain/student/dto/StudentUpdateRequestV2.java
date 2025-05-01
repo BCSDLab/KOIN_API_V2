@@ -52,7 +52,7 @@ public record StudentUpdateRequestV2(
     @Pattern(regexp = "^[0-9]{10}$", message = "학번엔 10자리 숫자만 입력 가능합니다.")
     String studentNumber,
 
-    @Schema(description = "휴대폰 번호", example = "010-1234-5678 또는 01012345678", requiredMode = NOT_REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "01012345678", requiredMode = NOT_REQUIRED)
     @Pattern(regexp = "^(\\d{3}-\\d{3,4}-\\d{4}|\\d{10,11})$", message = "전화번호 형식이 올바르지 않습니다.")
     String phoneNumber
 ) {
