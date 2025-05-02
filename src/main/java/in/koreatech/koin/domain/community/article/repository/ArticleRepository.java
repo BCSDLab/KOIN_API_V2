@@ -46,7 +46,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         LEFT JOIN FETCH a.koreatechArticle
         LEFT JOIN FETCH a.lostItemArticle
         LEFT JOIN FETCH a.koinNotice
-        WHERE a.isDeleted = false
         """)
     Page<Article> findAllWithRelations(Pageable pageable);
 
@@ -57,7 +56,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             LEFT JOIN FETCH a.koreatechArticle
             LEFT JOIN FETCH a.lostItemArticle
             LEFT JOIN FETCH a.koinNotice
-            WHERE a.isDeleted = false AND a.isNotice = true
+            WHERE a.isNotice = true
         """)
     Page<Article> findAllByIsNoticeIsTrueWithRelations(Pageable pageable);
 
@@ -68,7 +67,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             LEFT JOIN FETCH a.koreatechArticle
             LEFT JOIN FETCH a.lostItemArticle
             LEFT JOIN FETCH a.koinNotice
-            WHERE a.isDeleted = false AND a.board.id = :boardId
+            WHERE a.board.id = :boardId
         """)
     Page<Article> findAllByBoardIdWithRelations(Integer boardId, Pageable pageable);
 
@@ -215,7 +214,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
                 (ka IS NOT NULL AND ka.registeredAt > :registeredAt)
                 OR (ka IS NULL AND a.createdAt > :registeredAt)
             )
-            AND a.isDeleted = false
             ORDER BY (a.hit + COALESCE(ka.portalHit, 0)) DESC, a.id DESC
         """)
     List<Article> findMostHitArticles(LocalDate registeredAt, Pageable pageable);

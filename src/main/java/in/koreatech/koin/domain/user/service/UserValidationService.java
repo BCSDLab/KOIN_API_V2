@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.integration.email.exception.DuplicationEmailException;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -37,6 +38,9 @@ public class UserValidationService {
     }
 
     public void checkDuplicatedEmail(String email) {
+        if (StringUtils.isBlank(email)) {
+            return;
+        }
         if (userRepository.existsByEmail(email)) {
             throw DuplicationEmailException.withDetail("email: " + email);
         }

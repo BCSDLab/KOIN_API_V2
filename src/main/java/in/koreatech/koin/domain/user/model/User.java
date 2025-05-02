@@ -159,6 +159,10 @@ public class User extends BaseEntity {
         return !Objects.equals(this.phoneNumber, phoneNumber);
     }
 
+    public boolean isNotSameEmail(String email) {
+        return !Objects.equals(this.email, email);
+    }
+
     public void auth() {
         this.isAuthed = true;
     }
