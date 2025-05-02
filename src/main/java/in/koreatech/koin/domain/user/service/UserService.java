@@ -56,17 +56,19 @@ public class UserService {
     @Transactional
     public UpdateUserResponse updateUserV2(Integer userId, UpdateUserRequest request) {
         User user = userRepository.getById(userId);
-        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
         userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
+        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
+        userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
-        userVerificationService.checkVerifiedUpdatePhoneNumber(user, request.phoneNumber());
 
         return UpdateUserResponse.from(user);
     }
 
     @Transactional
     public void userRegister(RegisterUserRequest request) {
+        userValidationService.checkDuplicatedNickname(request.nickname());
         userValidationService.checkDuplicatedEmail(request.email());
+        userValidationService.checkDuplicatedPhoneNumber(request.phoneNumber());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
         userVerificationService.consumeVerification(request.phoneNumber());

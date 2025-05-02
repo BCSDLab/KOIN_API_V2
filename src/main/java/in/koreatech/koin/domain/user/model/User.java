@@ -125,9 +125,7 @@ public class User extends BaseEntity {
         String phoneNumber,
         UserGender gender
     ) {
-        if (email != null && !email.isBlank()) {
-            this.email = email;
-        }
+        this.email = email;
         this.nickname = nickname;
         this.name = name;
         this.phoneNumber = phoneNumber;

@@ -39,15 +39,14 @@ import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetableV3.exception.ChangeMajorNotExistException;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.ChangeUserPasswordSubmitRequest;
+import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
-import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
@@ -80,7 +79,6 @@ public class StudentService {
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
-    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
 
     @Transactional
     public void studentRegister(RegisterStudentRequest request, String serverURL) {
@@ -114,7 +112,7 @@ public class StudentService {
         User user = student.getUser();
 
         updateStudentInfo(student, request.studentNumber(), request.major());
-        user.update(null, request.nickname(), request.name(), request.phoneNumber(), request.gender());
+        user.update(user.getEmail(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updateStudentPassword(passwordEncoder, request.password());
 
         return UpdateStudentResponse.from(student);
@@ -128,8 +126,8 @@ public class StudentService {
         User user = student.getUser();
 
         updateStudentInfo(student, request.studentNumber(), request.major());
+        userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
-        userVerificationService.checkVerifiedUpdatePhoneNumber(user, request.phoneNumber());
 
         return UpdateStudentResponse.from(student);
     }
@@ -299,6 +297,9 @@ public class StudentService {
     @Transactional
     public void studentRegisterV2(RegisterStudentRequestV2 request) {
         studentValidationService.validateDepartment(request.department());
+        userValidationService.checkDuplicatedNickname(request.nickname());
+        userValidationService.checkDuplicatedEmail(request.email());
+        userValidationService.checkDuplicatedPhoneNumber(request.phoneNumber());
         Department department = departmentRepository.getByName(request.department());
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);

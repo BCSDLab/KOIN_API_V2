@@ -29,6 +29,7 @@ public class UserValidationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRedisRepository studentRedisRepository;
+    private final UserVerificationService userVerificationService;
 
     public void checkPassword(String password, Integer userId) {
         User user = userRepository.getById(userId);
@@ -77,6 +78,14 @@ public class UserValidationService {
         if (updateEmail != null && !updateEmail.equals(user.getEmail())
             && userRepository.existsByEmail(updateEmail)) {
             throw DuplicationEmailException.withDetail("updateEmail : " + updateEmail);
+        }
+    }
+
+    public void checkDuplicatedUpdatePhoneNumber(String updatePhoneNumber, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (user.isNotSamePhoneNumber(updatePhoneNumber)) {
+            checkDuplicatedPhoneNumber(updatePhoneNumber);
+            userVerificationService.consumeVerification(updatePhoneNumber);
         }
     }
 

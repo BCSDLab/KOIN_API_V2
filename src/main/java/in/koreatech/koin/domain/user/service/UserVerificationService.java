@@ -91,10 +91,4 @@ public class UserVerificationService {
         updatedCount.incrementVerificationCount();
         return userDailyVerificationCountRedisRepository.save(updatedCount);
     }
-
-    public void checkVerifiedUpdatePhoneNumber(User user, String updatePhoneNumber) {
-        if (user.isNotSamePhoneNumber(updatePhoneNumber)) {
-            consumeVerification(updatePhoneNumber);
-        }
-    }
 }
