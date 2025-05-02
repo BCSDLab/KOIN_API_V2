@@ -35,15 +35,11 @@ public record UserResponse(
 ) {
 
     public static UserResponse from(User user) {
-        Integer userGender = null;
-        if (user.getGender() != null) {
-            userGender = user.getGender().ordinal();
-        }
         return new UserResponse(
             user.getId(),
             user.getUserId(),
             user.getEmail(),
-            userGender,
+            user.getGender() != null ? user.getGender().ordinal() : null,
             user.getName(),
             user.getNickname(),
             user.getPhoneNumber(),
