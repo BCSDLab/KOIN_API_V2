@@ -134,10 +134,6 @@ public class User extends BaseEntity {
         this.gender = gender;
     }
 
-    public void updateEmail(String email) {
-        this.email = email;
-    }
-
     public void updateName(String name) {
         this.name = name;
     }
