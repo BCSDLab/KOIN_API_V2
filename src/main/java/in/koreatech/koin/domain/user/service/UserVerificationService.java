@@ -10,6 +10,7 @@ import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.dto.verification.SendVerificationResponse;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
@@ -68,6 +69,12 @@ public class UserVerificationService {
         }
         verificationStatus.markAsVerified();
         userVerificationStatusRedisRepository.save(verificationStatus);
+    }
+
+    public void checkVerifiedUpdatePhoneNumber(User user, String updatePhoneNumber) {
+        if (user.isNotSamePhoneNumber(updatePhoneNumber)) {
+            checkVerified(updatePhoneNumber);
+        }
     }
 
     public void checkVerified(String phoneNumber) {
