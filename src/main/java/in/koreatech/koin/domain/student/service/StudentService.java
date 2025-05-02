@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.student.service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,16 +16,17 @@ import in.koreatech.koin._common.event.StudentEmailRequestEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
-import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
-import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
+import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
@@ -38,9 +38,9 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetableV3.exception.ChangeMajorNotExistException;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
+import in.koreatech.koin.domain.user.dto.ChangeUserPasswordSubmitRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
@@ -332,7 +332,7 @@ public class StudentService {
     }
 
     @Transactional
-    public void changePasswordSubmit(UserPasswordChangeSubmitRequest request, String resetToken) {
+    public void changePasswordSubmit(ChangeUserPasswordSubmitRequest request, String resetToken) {
         PasswordResetToken passwordResetToken = passwordResetTokenRepository.getByResetToken(resetToken);
         User authedUser = userRepository.getById(passwordResetToken.getId());
         authedUser.updatePassword(passwordEncoder, request.password());

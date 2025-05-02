@@ -65,6 +65,7 @@ public record RegisterStudentRequestV2(
             .phoneNumber(phoneNumber)
             .userId(loginId)
             .password(passwordEncoder.encode(password))
+            .nickname(nickname)
             .email(email)
             .gender(gender)
             .userType(STUDENT)

@@ -47,6 +47,7 @@ public record RegisterUserRequest(
     String email,
 
     @Schema(description = "닉네임", example = "캔따개", requiredMode = REQUIRED)
+    @Pattern(regexp = "\\S+", message = "빈 문자열일 수 없습니다.")
     String nickname
 ) {
 
@@ -56,6 +57,7 @@ public record RegisterUserRequest(
             .phoneNumber(phoneNumber)
             .userId(loginId)
             .password(passwordEncoder.encode(password))
+            .nickname(nickname)
             .email(email)
             .gender(gender)
             .userType(GENERAL)

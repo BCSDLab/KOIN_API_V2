@@ -28,8 +28,8 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
 import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
 import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
@@ -104,10 +104,10 @@ public class UserController implements UserApi {
     }
 
     @PostMapping("/user/refresh")
-    public ResponseEntity<UserTokenRefreshResponse> refresh(
-        @RequestBody @Valid UserTokenRefreshRequest request
+    public ResponseEntity<RefreshUserTokenResponse> refresh(
+        @RequestBody @Valid RefreshUserTokenRequest request
     ) {
-        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
+        RefreshUserTokenResponse tokenGroupResponse = userService.refresh(request);
         return ResponseEntity.created(URI.create("/"))
             .body(tokenGroupResponse);
     }

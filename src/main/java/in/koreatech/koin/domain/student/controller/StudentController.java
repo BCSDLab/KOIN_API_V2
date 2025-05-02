@@ -33,7 +33,7 @@ import in.koreatech.koin.domain.student.service.StudentService;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
+import in.koreatech.koin.domain.user.dto.ChangeUserPasswordSubmitRequest;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
@@ -151,7 +151,7 @@ public class StudentController implements StudentApi {
     @Hidden
     @PostMapping("/user/change/password/submit")
     public ResponseEntity<Void> changePasswordSubmit(
-        @RequestBody UserPasswordChangeSubmitRequest request,
+        @RequestBody ChangeUserPasswordSubmitRequest request,
         @RequestParam("reset_token") String resetToken
     ) {
         studentService.changePasswordSubmit(request, resetToken);
