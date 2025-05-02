@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.service;
 
+import java.util.Optional;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,32 +34,22 @@ public class UserVerificationService {
     private final MailService mailService;
 
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
-        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         String verificationCode = CertificateNumberGenerator.generate();
         naverSmsService.sendVerificationCode(verificationCode, phoneNumber);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofSms(phoneNumber, verificationCode));
         eventPublisher.publishEvent(new UserSmsVerificationSendEvent(phoneNumber));
+        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         return SendVerificationResponse.from(verificationCount);
     }
 
     public SendVerificationResponse sendEmailVerification(String email) {
-        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         String verificationCode = CertificateNumberGenerator.generate();
         MailFormData mailFormData = new UserEmailVerificationData(verificationCode);
         mailService.sendMail(email, mailFormData);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofEmail(email, verificationCode));
         eventPublisher.publishEvent(new UserEmailVerificationSendEvent(email));
+        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         return SendVerificationResponse.from(verificationCount);
-    }
-
-    private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        UserDailyVerificationCount updatedCount = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
-            .map(count -> {
-                count.incrementVerificationCount();
-                return count;
-            })
-            .orElseGet(() -> UserDailyVerificationCount.from(phoneNumberOrEmail));
-        return userDailyVerificationCountRedisRepository.save(updatedCount);
     }
 
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
@@ -69,10 +61,35 @@ public class UserVerificationService {
         userVerificationStatusRedisRepository.save(verificationStatus);
     }
 
+    /**
+     * <p>
+     * 이 메서드는 지정된 전화번호 또는 이메일에 대한 본인 인증 상태가
+     * <strong>완료되었는지 확인한 후</strong> 인증 정보를 레디스에서 삭제합니다.
+     * </p>
+     *
+     * <p><b>주의:</b> 인증 정보는 이 메서드 호출 시 삭제되므로,
+     * 인증이 필요한 비즈니스 로직이 모두 <strong>완료된 후 마지막에</strong> 호출해야 합니다.
+     * 인증 상태를 1회성으로 "소비"하는 방식이며, 이후 동일한 인증 상태를 재사용할 수 없습니다.
+     * 레디스는 트랜잭션을 지원하지 않으므로 메서드 내에서 오류 발생 시 롤백되지않습니다.
+     * </p>
+     *
+     * @param phoneNumberOrEmail 인증 대상의 식별자 (전화번호 또는 이메일)
+     * @throws AuthenticationException 인증 상태가 완료되지 않았거나 존재하지 않을 경우 발생
+     */
     public void consumeVerification(String phoneNumberOrEmail) {
         userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
             .filter(UserVerificationStatus::isVerified)
             .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));
         userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
+    }
+
+    private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
+        Optional<UserDailyVerificationCount> countOptional = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail);
+        if (countOptional.isEmpty()) {
+            return UserDailyVerificationCount.from(phoneNumberOrEmail);
+        }
+        UserDailyVerificationCount count = countOptional.get();
+        count.incrementVerificationCount();
+        return userDailyVerificationCountRedisRepository.save(count);
     }
 }

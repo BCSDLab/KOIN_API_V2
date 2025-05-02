@@ -18,7 +18,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record UserRegisterRequest(
+public record RegisterUserRequest(
     @NotBlank(message = "이름은 필수입니다.")
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
