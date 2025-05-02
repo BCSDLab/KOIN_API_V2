@@ -72,9 +72,6 @@ public class UserVerificationService {
      * 인증 상태를 1회성으로 "소비"하는 방식이며, 이후 동일한 인증 상태를 재사용할 수 없습니다.
      * 레디스는 트랜잭션을 지원하지 않으므로 메서드 내에서 오류 발생 시 롤백되지않습니다.
      * </p>
-     *
-     * @param phoneNumberOrEmail 인증 대상의 식별자 (전화번호 또는 이메일)
-     * @throws AuthenticationException 인증 상태가 완료되지 않았거나 존재하지 않을 경우 발생
      */
     public void consumeVerification(String phoneNumberOrEmail) {
         userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
@@ -84,12 +81,13 @@ public class UserVerificationService {
     }
 
     private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        Optional<UserDailyVerificationCount> countOptional = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail);
-        if (countOptional.isEmpty()) {
-            return UserDailyVerificationCount.from(phoneNumberOrEmail);
+        Optional<UserDailyVerificationCount> count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail);
+        if (count.isEmpty()) {
+            UserDailyVerificationCount newCount = UserDailyVerificationCount.from(phoneNumberOrEmail);
+            return userDailyVerificationCountRedisRepository.save(newCount);
         }
-        UserDailyVerificationCount count = countOptional.get();
-        count.incrementVerificationCount();
-        return userDailyVerificationCountRedisRepository.save(count);
+        UserDailyVerificationCount updatedCount = count.get();
+        updatedCount.incrementVerificationCount();
+        return userDailyVerificationCountRedisRepository.save(updatedCount);
     }
 }
