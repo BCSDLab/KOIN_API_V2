@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record StudentUpdateResponse(
+public record UpdateStudentResponse(
     @Schema(description = "익명 닉네임", example = "익명_1676688416361")
     String anonymousNickname,
 
@@ -46,9 +46,9 @@ public record StudentUpdateResponse(
     String studentNumber
 ) {
 
-    public static StudentUpdateResponse from(Student student) {
+    public static UpdateStudentResponse from(Student student) {
         User user = student.getUser();
-        return new StudentUpdateResponse(
+        return new UpdateStudentResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
             user.getGender() != null ? user.getGender().ordinal() : null,

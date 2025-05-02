@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
-import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentUpdateRequestV2;
-import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
+import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
+import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -80,9 +80,9 @@ public interface StudentApi {
     @Operation(summary = "학생 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/user/student/me")
-    ResponseEntity<StudentUpdateResponse> updateStudent(
+    ResponseEntity<UpdateStudentResponse> updateStudent(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
-        @Valid StudentUpdateRequest studentUpdateRequest
+        @Valid UpdateStudentRequest updateStudentRequest
     );
 
     @ApiResponses(
@@ -97,9 +97,9 @@ public interface StudentApi {
     @Operation(summary = "학생 정보 수정 V2")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/v2/users/students/me")
-    ResponseEntity<StudentUpdateResponse> updateStudentV2(
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
-        @Valid @RequestBody StudentUpdateRequestV2 request
+    ResponseEntity<UpdateStudentResponse> updateStudentV2(
+        @Valid @RequestBody UpdateStudentRequestV2 request,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -114,9 +114,9 @@ public interface StudentApi {
     @Operation(summary = "학생 학적 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/user/student/academic-info")
-    ResponseEntity<StudentAcademicInfoUpdateResponse> updateStudentAcademicInfo(
+    ResponseEntity<UpdateStudentAcademicInfoResponse> updateStudentAcademicInfo(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
-        @Valid @RequestBody StudentAcademicInfoUpdateRequest request
+        @Valid @RequestBody UpdateStudentAcademicInfoRequest request
     );
 
     @ApiResponses(
@@ -145,7 +145,7 @@ public interface StudentApi {
     @Operation(summary = "회원가입")
     @PostMapping("/user/student/register")
     ResponseEntity<Void> studentRegister(
-        @RequestBody @Valid StudentRegisterRequest studentRegisterRequest,
+        @RequestBody @Valid RegisterStudentRequest registerStudentRequest,
         @ServerURL String serverURL
     );
 
@@ -162,7 +162,7 @@ public interface StudentApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/users/students/register")
     ResponseEntity<Void> studentRegisterV2(
-        @RequestBody @Valid StudentRegisterRequestV2 request
+        @RequestBody @Valid RegisterStudentRequestV2 request
     );
 
     @ApiResponses(
@@ -192,7 +192,7 @@ public interface StudentApi {
     @Operation(summary = "비밀번호 변경")
     @PutMapping("/user/change/password")
     ResponseEntity<Void> changePassword(
-        @RequestBody UserPasswordChangeRequest request,
+        @RequestBody ChangeUserPasswordRequest request,
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }

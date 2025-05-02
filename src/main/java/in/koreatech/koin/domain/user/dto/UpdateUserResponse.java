@@ -7,7 +7,7 @@ import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record UserUpdateResponse(
+public record UpdateUserResponse(
     @Schema(description = "성별(남:0, 여:1)", example = "1")
     Integer gender,
 
@@ -24,8 +24,8 @@ public record UserUpdateResponse(
     String phoneNumber
 ) {
 
-    public static UserUpdateResponse from(User user) {
-        return new UserUpdateResponse(
+    public static UpdateUserResponse from(User user) {
+        return new UpdateUserResponse(
             user.getGender() != null ? user.getGender().ordinal() : null,
             user.getEmail(),
             user.getName(),

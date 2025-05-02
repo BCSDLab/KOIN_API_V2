@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.student.service;
 import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotValidException;
@@ -12,7 +12,6 @@ import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.integration.email.exception.DuplicationEmailException;
 import in.koreatech.koin.integration.email.model.EmailAddress;
@@ -28,7 +27,7 @@ public class StudentValidationService {
 
     private static final int MIN_YEAR = 1992;
 
-    public void validateStudentRegister(StudentRegisterRequest request) {
+    public void validateStudentRegister(RegisterStudentRequest request) {
         EmailAddress emailAddress = EmailAddress.from(request.email());
         emailAddress.validateKoreatechEmail();
 
@@ -49,7 +48,7 @@ public class StudentValidationService {
         }
     }
 
-    public void validateDataExist(StudentRegisterRequest request) {
+    public void validateDataExist(RegisterStudentRequest request) {
         validateEmailExist(request.email());
         validateNicknameExist(request.nickname());
     }

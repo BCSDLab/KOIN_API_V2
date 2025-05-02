@@ -30,8 +30,8 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
-import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
+import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
+import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
@@ -63,11 +63,11 @@ public class UserController implements UserApi {
     }
 
     @PutMapping("/v2/users/me")
-    public ResponseEntity<UserUpdateResponse> updateUserV2(
+    public ResponseEntity<UpdateUserResponse> updateUserV2(
         @Auth(permit = {GENERAL}) Integer userId,
-        @Valid @RequestBody UserUpdateRequest request
+        @Valid @RequestBody UpdateUserRequest request
     ) {
-        UserUpdateResponse response = userService.updateUserV2(userId, request);
+        UpdateUserResponse response = userService.updateUserV2(userId, request);
         return ResponseEntity.ok(response);
     }
 

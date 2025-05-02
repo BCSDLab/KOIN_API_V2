@@ -11,15 +11,13 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record StudentUpdateRequest(
+public record UpdateStudentRequestV2(
     @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
     UserGender gender,
 
-    @Schema(description = "[NOT UPDATE]신원(학생 = 0, 사장님 = 1)", example = "0", requiredMode = NOT_REQUIRED)
-    Integer userIdentity,
-
-    @Schema(description = "[NOT UPDATE]졸업 여부(true, false)", example = "false", requiredMode = NOT_REQUIRED)
-    boolean isGraduated,
+    @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr", requiredMode = NOT_REQUIRED)
+    @Size(max = 30, message = "이메일의 길이는 최대 30자 입니다.")
+    String email,
 
     @Schema(
         description = """
@@ -45,9 +43,6 @@ public record StudentUpdateRequest(
     @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
     String name,
 
-    @Schema(description = "SHA 256 해시 알고리즘으로 암호화 된 비밀번호", example = "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268", requiredMode = NOT_REQUIRED)
-    String password,
-
     @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
     @Size(max = 10, message = "닉네임은 최대 10자입니다.")
     @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
@@ -57,22 +52,9 @@ public record StudentUpdateRequest(
     @Pattern(regexp = "^[0-9]{10}$", message = "학번엔 10자리 숫자만 입력 가능합니다.")
     String studentNumber,
 
-    @Schema(description = "휴대폰 번호", example = "010-1234-5678 또는 01012345678", requiredMode = NOT_REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "01012345678", requiredMode = NOT_REQUIRED)
     @Pattern(regexp = "^(\\d{3}-\\d{3,4}-\\d{4}|\\d{10,11})$", message = "전화번호 형식이 올바르지 않습니다.")
     String phoneNumber
 ) {
 
-    public static StudentUpdateRequest from(StudentUpdateRequestV2 request) {
-        return new StudentUpdateRequest(
-            request.gender(),
-            null,
-            false,
-            request.major(),
-            request.name(),
-            null,
-            request.nickname(),
-            request.studentNumber(),
-            request.phoneNumber()
-        );
-    }
 }
