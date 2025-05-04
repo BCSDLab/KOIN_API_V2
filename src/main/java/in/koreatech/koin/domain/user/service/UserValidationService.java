@@ -29,6 +29,7 @@ public class UserValidationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRedisRepository studentRedisRepository;
+    private final UserVerificationService userVerificationService;
 
     public void checkPassword(String password, Integer userId) {
         User user = userRepository.getById(userId);
@@ -62,6 +63,36 @@ public class UserValidationService {
         if (userRepository.existsByUserId(loginId)) {
             throw DuplicationLoginIdException.withDetail("loginId: " + loginId);
         }
+    }
+
+    public void checkDuplicatedUpdateNickname(String updateNickname, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (updateNickname != null && !updateNickname.equals(user.getNickname())
+            && userRepository.existsByNickname(updateNickname)) {
+            throw DuplicationNicknameException.withDetail("updateNickname : " + updateNickname);
+        }
+    }
+
+    public void checkDuplicatedUpdateEmail(String updateEmail, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (updateEmail != null && !updateEmail.equals(user.getEmail())
+            && userRepository.existsByEmail(updateEmail)) {
+            throw DuplicationEmailException.withDetail("updateEmail : " + updateEmail);
+        }
+    }
+
+    public void checkDuplicatedUpdatePhoneNumber(String updatePhoneNumber, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (user.isNotSamePhoneNumber(updatePhoneNumber)) {
+            checkDuplicatedPhoneNumber(updatePhoneNumber);
+            userVerificationService.consumeVerification(updatePhoneNumber);
+        }
+    }
+
+    public void checkDuplicationUserData(String email, String nickname, String phoneNumber) {
+        checkDuplicatedNickname(nickname);
+        checkDuplicatedEmail(email);
+        checkDuplicatedPhoneNumber(phoneNumber);
     }
 
     public User checkLoginCredentials(String email, String password) {

@@ -1,8 +1,5 @@
 package in.koreatech.koin.domain.student.dto;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -11,14 +8,14 @@ import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record StudentUpdateResponse(
-    @Schema(description = "익명 닉네임", example = "익명_1676688416361", requiredMode = NOT_REQUIRED)
+public record UpdateStudentResponse(
+    @Schema(description = "익명 닉네임", example = "익명_1676688416361")
     String anonymousNickname,
 
-    @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
+    @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr")
     String email,
 
-    @Schema(description = "성별(남:0, 여:1)", example = "1", requiredMode = NOT_REQUIRED)
+    @Schema(description = "성별(남:0, 여:1)", example = "1")
     Integer gender,
 
     @Schema(description = """
@@ -33,25 +30,25 @@ public record StudentUpdateResponse(
         - 에너지신소재공학부
         - 산업경영학부
         - 고용서비스정책학부
-        """, example = "컴퓨터공학부", requiredMode = NOT_REQUIRED)
+        """, example = "컴퓨터공학부")
     String major,
 
-    @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
+    @Schema(description = "이름", example = "최준호")
     String name,
 
-    @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
+    @Schema(description = "닉네임", example = "juno")
     String nickname,
 
-    @Schema(description = "휴대폰 번호", example = "01000000000", requiredMode = NOT_REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "01000000000")
     String phoneNumber,
 
-    @Schema(description = "학번", example = "2029136012", requiredMode = NOT_REQUIRED)
+    @Schema(description = "학번", example = "2029136012")
     String studentNumber
 ) {
 
-    public static StudentUpdateResponse from(Student student) {
+    public static UpdateStudentResponse from(Student student) {
         User user = student.getUser();
-        return new StudentUpdateResponse(
+        return new UpdateStudentResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
             user.getGender() != null ? user.getGender().ordinal() : null,

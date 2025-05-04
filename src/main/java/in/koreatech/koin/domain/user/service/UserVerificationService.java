@@ -12,6 +12,7 @@ import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.dto.verification.SendVerificationResponse;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
