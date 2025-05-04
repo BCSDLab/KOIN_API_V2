@@ -297,9 +297,7 @@ public class StudentService {
     @Transactional
     public void studentRegisterV2(RegisterStudentRequestV2 request) {
         studentValidationService.validateDepartment(request.department());
-        userValidationService.checkDuplicatedNickname(request.nickname());
-        userValidationService.checkDuplicatedEmail(request.email());
-        userValidationService.checkDuplicatedPhoneNumber(request.phoneNumber());
+        userValidationService.checkDuplicationUserData(request.email(), request.nickname(), request.phoneNumber());
         Department department = departmentRepository.getByName(request.department());
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);

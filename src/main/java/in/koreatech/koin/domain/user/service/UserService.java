@@ -66,9 +66,7 @@ public class UserService {
 
     @Transactional
     public void userRegister(RegisterUserRequest request) {
-        userValidationService.checkDuplicatedNickname(request.nickname());
-        userValidationService.checkDuplicatedEmail(request.email());
-        userValidationService.checkDuplicatedPhoneNumber(request.phoneNumber());
+        userValidationService.checkDuplicationUserData(request.email(), request.nickname(), request.phoneNumber());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
         userVerificationService.consumeVerification(request.phoneNumber());

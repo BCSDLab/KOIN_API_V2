@@ -89,6 +89,12 @@ public class UserValidationService {
         }
     }
 
+    public void checkDuplicationUserData(String email, String nickname, String phoneNumber) {
+        checkDuplicatedNickname(nickname);
+        checkDuplicatedEmail(email);
+        checkDuplicatedPhoneNumber(phoneNumber);
+    }
+
     public User checkLoginCredentials(String email, String password) {
         User user = userRepository.getByEmail(email);
         if (user.isNotSamePassword(passwordEncoder, password)) {
