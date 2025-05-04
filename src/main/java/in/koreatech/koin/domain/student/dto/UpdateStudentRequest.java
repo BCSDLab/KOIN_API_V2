@@ -5,13 +5,15 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record StudentUpdateRequest(
+public record UpdateStudentRequest(
     @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
     UserGender gender,
 
@@ -62,4 +64,18 @@ public record StudentUpdateRequest(
     String phoneNumber
 ) {
 
+    public static UpdateStudentRequest from(Student student) {
+        User user = student.getUser();
+        return new UpdateStudentRequest(
+            user.getGender(),
+            null,
+            false,
+            student.getMajor().getName(),
+            user.getName(),
+            null,
+            user.getNickname(),
+            student.getStudentNumber(),
+            user.getPhoneNumber()
+        );
+    }
 }

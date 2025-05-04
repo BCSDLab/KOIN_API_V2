@@ -1,0 +1,37 @@
+package in.koreatech.koin.domain.user.dto;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import in.koreatech.koin.domain.user.model.UserGender;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+@JsonNaming(value = SnakeCaseStrategy.class)
+public record UpdateUserRequest(
+    @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
+    UserGender gender,
+
+    @Schema(description = "이메일 주소", example = "general123@naver.com", requiredMode = NOT_REQUIRED)
+    @Size(max = 30, message = "이메일의 길이는 최대 30자 입니다.")
+    String email,
+
+    @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
+    @Size(max = 50, message = "이름의 길이는 최대 50자 입니다.")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
+    String name,
+
+    @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
+    @Size(max = 10, message = "닉네임은 최대 10자입니다.")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
+    String nickname,
+
+    @Schema(description = "휴대폰 번호", example = "010-1234-5678 또는 01012345678", requiredMode = NOT_REQUIRED)
+    @Pattern(regexp = "^(\\d{3}-\\d{3,4}-\\d{4}|\\d{10,11})$", message = "전화번호 형식이 올바르지 않습니다.")
+    String phoneNumber
+) {
+
+}

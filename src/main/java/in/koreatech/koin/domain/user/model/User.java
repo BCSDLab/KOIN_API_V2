@@ -8,6 +8,8 @@ import java.util.Objects;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.google.firebase.database.annotations.Nullable;
+
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -116,7 +118,14 @@ public class User extends BaseEntity {
         this.deviceToken = deviceToken;
     }
 
-    public void update(String nickname, String name, String phoneNumber, UserGender gender) {
+    public void update(
+        @Nullable String email,
+        String nickname,
+        String name,
+        String phoneNumber,
+        UserGender gender
+    ) {
+        this.email = email;
         this.nickname = nickname;
         this.name = name;
         this.phoneNumber = phoneNumber;

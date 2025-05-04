@@ -16,11 +16,14 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.RegisterUserRequest;
+import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
+import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.UserResponse;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -45,9 +48,25 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
+    public UserResponse getUserV2(Integer userId) {
+        User user = userRepository.getById(userId);
+        return UserResponse.from(user);
+    }
+
+    @Transactional
+    public UpdateUserResponse updateUserV2(Integer userId, UpdateUserRequest request) {
+        User user = userRepository.getById(userId);
+        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
+        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
+        userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
+        user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
+
+        return UpdateUserResponse.from(user);
+    }
+
     @Transactional
     public void userRegister(RegisterUserRequest request) {
-        userValidationService.checkDuplicatedEmail(request.email());
+        userValidationService.checkDuplicationUserData(request.email(), request.nickname(), request.phoneNumber());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
         userVerificationService.consumeVerification(request.phoneNumber());
@@ -88,7 +107,7 @@ public class UserService {
         return AuthResponse.from(user);
     }
 
-    public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
+    public RefreshUserTokenResponse refresh(RefreshUserTokenRequest request) {
         String userId = refreshTokenService.extractUserId(request.refreshToken());
         UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(),
             Integer.parseInt(userId));
@@ -96,7 +115,7 @@ public class UserService {
         User user = userRepository.getById(userToken.getId());
         String accessToken = jwtProvider.createToken(user);
 
-        return UserTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
+        return RefreshUserTokenResponse.of(accessToken, userToken.getRefreshToken());
     }
 
     @Transactional

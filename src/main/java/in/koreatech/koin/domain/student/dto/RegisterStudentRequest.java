@@ -14,7 +14,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record StudentRegisterRequest(
+public record RegisterStudentRequest(
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
     @NotBlank(message = "이메일을 입력해주세요.")

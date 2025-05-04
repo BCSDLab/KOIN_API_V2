@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record UserPasswordChangeRequest(
+public record ChangeUserPasswordRequest(
     @Schema(description = "변경할 비밀번호 (SHA 256 해싱된 값)", example = "password", requiredMode = REQUIRED)
     @NotBlank(message = "비밀번호를 입력해주세요.")
     String password
