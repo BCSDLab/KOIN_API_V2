@@ -130,6 +130,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "MARKETING",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                     ]
                 }
@@ -248,6 +255,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "MARKETING",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -362,6 +376,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "LOST_ITEM_CHAT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "MARKETING",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -492,6 +513,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "MARKETING",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -611,6 +639,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "LOST_ITEM_CHAT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "MARKETING",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s

@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) User(본인인증): 회원", description = "본인인증 기반으로 회원 정보를 관리한다.")
-@RequestMapping("/user/verification")
+@RequestMapping("/users/verification")
 public interface UserVerificationApi {
 
     @ApiResponses({

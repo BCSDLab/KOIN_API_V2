@@ -49,7 +49,7 @@ public class AdminUserValidation {
             throw UserNotFoundException.withDetail("account" + request.email());
         }
 
-        if (!user.isSamePassword(passwordEncoder, request.password())) {
+        if (user.isNotSamePassword(passwordEncoder, request.password())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 

@@ -18,7 +18,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record GeneralUserRegisterRequest(
+public record RegisterUserRequest(
     @NotBlank(message = "이름은 필수입니다.")
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
@@ -31,8 +31,8 @@ public record GeneralUserRegisterRequest(
 
     @NotBlank(message = "아이디는 필수입니다.")
     @Size(max = 50, message = "아이디는 50자 이내여야 합니다.")
-    @Schema(description = "사용자 아이디", example = "example123", requiredMode = REQUIRED)
-    String userId,
+    @Schema(description = "로그인 아이디", example = "example123", requiredMode = REQUIRED)
+    String loginId,
 
     @NotBlank(message = "비밀번호는 필수입니다.")
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
@@ -43,9 +43,11 @@ public record GeneralUserRegisterRequest(
 
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
+    @Pattern(regexp = "\\S+", message = "빈 문자열일 수 없습니다.")
     String email,
 
     @Schema(description = "닉네임", example = "캔따개", requiredMode = REQUIRED)
+    @Pattern(regexp = "\\S+", message = "빈 문자열일 수 없습니다.")
     String nickname
 ) {
 
@@ -53,8 +55,9 @@ public record GeneralUserRegisterRequest(
         return User.builder()
             .name(name)
             .phoneNumber(phoneNumber)
-            .userId(userId)
+            .userId(loginId)
             .password(passwordEncoder.encode(password))
+            .nickname(nickname)
             .email(email)
             .gender(gender)
             .userType(GENERAL)

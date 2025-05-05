@@ -11,18 +11,18 @@ import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
-import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationLoginIdException;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+<<<<<<< HEAD
 import in.koreatech.koin.infrastructure.email.exception.DuplicationEmailException;
+=======
+import in.koreatech.koin.integration.email.exception.DuplicationEmailException;
+import io.micrometer.common.util.StringUtils;
+>>>>>>> 4a874d7bda2e7743061425451b118d063f206ea4
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,41 +33,75 @@ public class UserValidationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRedisRepository studentRedisRepository;
+    private final UserVerificationService userVerificationService;
 
-    public void checkPassword(CheckUserPasswordRequest request, Integer userId) {
+    public void checkPassword(String password, Integer userId) {
         User user = userRepository.getById(userId);
-        if (!user.isSamePassword(passwordEncoder, request.password())) {
+        if (user.isNotSamePassword(passwordEncoder, password)) {
             throw new KoinIllegalArgumentException("올바르지 않은 비밀번호입니다.");
         }
     }
 
-    public void checkDuplicatedEmail(CheckEmailDuplicationRequest request) {
-        userRepository.findByEmail(request.email()).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("email: " + user.getEmail());
-        });
+    public void checkDuplicatedEmail(String email) {
+        if (StringUtils.isBlank(email)) {
+            return;
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw DuplicationEmailException.withDetail("email: " + email);
+        }
     }
 
-    public void checkDuplicatedPhoneNumber(CheckPhoneDuplicationRequest request) {
-        userRepository.findByPhoneNumber(request.phone()).ifPresent(user -> {
-            throw DuplicationPhoneNumberException.withDetail("phone: " + user.getPhoneNumber());
-        });
+    public void checkDuplicatedPhoneNumber(String phone) {
+        if (userRepository.existsByPhoneNumber(phone)) {
+            throw DuplicationPhoneNumberException.withDetail("phone: " + phone);
+        }
     }
 
-    public void checkDuplicatedNickname(CheckNicknameDuplicationRequest request) {
-        userRepository.findByNickname(request.nickname()).ifPresent(user -> {
-            throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
-        });
+    public void checkDuplicatedNickname(String nickname) {
+        if (userRepository.existsByNickname(nickname)) {
+            throw DuplicationNicknameException.withDetail("nickname: " + nickname);
+        }
     }
 
-    public void checkDuplicatedLoginId(CheckLoginIdDuplicationRequest request) {
-        userRepository.findByUserId(request.loginId()).ifPresent(user -> {
-            throw DuplicationLoginIdException.withDetail("loginId: " + request.loginId());
-        });
+    public void checkDuplicatedLoginId(String loginId) {
+        if (userRepository.existsByUserId(loginId)) {
+            throw DuplicationLoginIdException.withDetail("loginId: " + loginId);
+        }
+    }
+
+    public void checkDuplicatedUpdateNickname(String updateNickname, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (updateNickname != null && !updateNickname.equals(user.getNickname())
+            && userRepository.existsByNickname(updateNickname)) {
+            throw DuplicationNicknameException.withDetail("updateNickname : " + updateNickname);
+        }
+    }
+
+    public void checkDuplicatedUpdateEmail(String updateEmail, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (updateEmail != null && !updateEmail.equals(user.getEmail())
+            && userRepository.existsByEmail(updateEmail)) {
+            throw DuplicationEmailException.withDetail("updateEmail : " + updateEmail);
+        }
+    }
+
+    public void checkDuplicatedUpdatePhoneNumber(String updatePhoneNumber, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (user.isNotSamePhoneNumber(updatePhoneNumber)) {
+            checkDuplicatedPhoneNumber(updatePhoneNumber);
+            userVerificationService.consumeVerification(updatePhoneNumber);
+        }
+    }
+
+    public void checkDuplicationUserData(String email, String nickname, String phoneNumber) {
+        checkDuplicatedNickname(nickname);
+        checkDuplicatedEmail(email);
+        checkDuplicatedPhoneNumber(phoneNumber);
     }
 
     public User checkLoginCredentials(String email, String password) {
         User user = userRepository.getByEmail(email);
-        if (!user.isSamePassword(passwordEncoder, password)) {
+        if (user.isNotSamePassword(passwordEncoder, password)) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
         return user;
@@ -80,7 +114,7 @@ public class UserValidationService {
         } else {
             user = userRepository.getByUserId(loginId);
         }
-        if (!user.isSamePassword(passwordEncoder, loginPw)) {
+        if (user.isNotSamePassword(passwordEncoder, loginPw)) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
         return user;
@@ -93,11 +127,11 @@ public class UserValidationService {
         }
     }
 
-    public void existsByUserId(String userId) {
-        if (userRepository.existsByUserId(userId)) {
+    public void existsByUserId(String loginId) {
+        if (userRepository.existsByUserId(loginId)) {
             return;
         }
-        throw UserNotFoundException.withDetail("userId: " + userId);
+        throw UserNotFoundException.withDetail("loginId: " + loginId);
     }
 
     public void existsByPhoneNumber(String phoneNumber) {

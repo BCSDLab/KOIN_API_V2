@@ -6,7 +6,7 @@ import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
@@ -74,7 +74,7 @@ public class UnAuthenticatedStudentInfo {
         this.expiration = CACHE_EXPIRE_SECOND;
     }
 
-    public static UnAuthenticatedStudentInfo of(StudentRegisterRequest request, String authToken) {
+    public static UnAuthenticatedStudentInfo of(RegisterStudentRequest request, String authToken) {
         return new UnAuthenticatedStudentInfo(
             request.email(),
             authToken,

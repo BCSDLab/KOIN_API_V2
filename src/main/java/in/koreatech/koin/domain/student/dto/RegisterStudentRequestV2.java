@@ -20,7 +20,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record StudentRegisterRequestV2(
+public record RegisterStudentRequestV2(
     @NotBlank(message = "이름은 필수입니다.")
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
@@ -34,7 +34,7 @@ public record StudentRegisterRequestV2(
     @NotBlank(message = "아이디는 필수입니다.")
     @Size(max = 50, message = "아이디는 50자 이내여야 합니다.")
     @Schema(description = "사용자 아이디", example = "example123", requiredMode = REQUIRED)
-    String userId,
+    String loginId,
 
     @NotBlank(message = "비밀번호는 필수입니다.")
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
@@ -42,7 +42,7 @@ public record StudentRegisterRequestV2(
 
     @NotBlank(message = "학부는 필수입니다.")
     @Schema(description = "학부", example = "컴퓨터공학부", requiredMode = REQUIRED)
-    Department department,
+    String department,
 
     @NotBlank(message = "학번은 필수입니다.")
     @Schema(description = "학번", example = "2025000123", requiredMode = NOT_REQUIRED)
@@ -59,12 +59,13 @@ public record StudentRegisterRequestV2(
     String nickname
 ) {
 
-    public Student toStudent(PasswordEncoder passwordEncoder) {
+    public Student toStudent(PasswordEncoder passwordEncoder, Department department) {
         User user = User.builder()
             .name(name)
             .phoneNumber(phoneNumber)
-            .userId(userId)
+            .userId(loginId)
             .password(passwordEncoder.encode(password))
+            .nickname(nickname)
             .email(email)
             .gender(gender)
             .userType(STUDENT)
