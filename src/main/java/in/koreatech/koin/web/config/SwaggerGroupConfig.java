@@ -93,7 +93,10 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.activity",
             "in.koreatech.koin.domain.member",
             "in.koreatech.koin.domain.version",
-            "in.koreatech.koin.integration",
+            "in.koreatech.koin.domain.notification",
+            "in.koreatech.koin.domain.test",
+            "in.koreatech.koin.domain.kakaobot",
+            "in.koreatech.koin.domain.upload",
         };
 
         return createGroupedOpenApi("7. bcsd API", packagesPath);
