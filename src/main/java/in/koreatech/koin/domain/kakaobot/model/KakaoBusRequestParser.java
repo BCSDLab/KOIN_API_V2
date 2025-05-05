@@ -1,10 +1,10 @@
-package in.koreatech.koin.integration.kakao.model;
+package in.koreatech.koin.domain.kakaobot.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import in.koreatech.koin.integration.kakao.dto.KakaoBusRequest;
-import in.koreatech.koin.integration.kakao.exception.KakaoApiException;
+import in.koreatech.koin.domain.kakaobot.dto.KakaoBusRequest;
+import in.koreatech.koin.domain.kakaobot.exception.KakaoApiException;
 
 public class KakaoBusRequestParser implements KakaoSkillRequestParser<String, KakaoBusRequest> {
 

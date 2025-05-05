@@ -1,6 +1,6 @@
-package in.koreatech.koin.integration.kakao.service;
+package in.koreatech.koin.domain.kakaobot.service;
 
-import static in.koreatech.koin.integration.kakao.dto.KakaoSkillResponse.QUICK_ACTION_MESSAGE;
+import static in.koreatech.koin.domain.kakaobot.dto.KakaoSkillResponse.QUICK_ACTION_MESSAGE;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -17,9 +17,9 @@ import in.koreatech.koin.domain.bus.service.BusService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
-import in.koreatech.koin.integration.kakao.dto.KakaoBusRequest;
-import in.koreatech.koin.integration.kakao.dto.KakaoDiningRequest;
-import in.koreatech.koin.integration.kakao.dto.KakaoSkillResponse;
+import in.koreatech.koin.domain.kakaobot.dto.KakaoBusRequest;
+import in.koreatech.koin.domain.kakaobot.dto.KakaoDiningRequest;
+import in.koreatech.koin.domain.kakaobot.dto.KakaoSkillResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service

@@ -1,11 +1,11 @@
-package in.koreatech.koin.integration.kakao.dto;
+package in.koreatech.koin.domain.kakaobot.dto;
 
 import static lombok.AccessLevel.PRIVATE;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import in.koreatech.koin.integration.kakao.exception.KakaoSkillFailedException;
+import in.koreatech.koin.domain.kakaobot.exception.KakaoSkillFailedException;
 import lombok.NoArgsConstructor;
 
 /**

@@ -1,7 +1,7 @@
-package in.koreatech.koin.integration.kakao.controller;
+package in.koreatech.koin.domain.kakaobot.controller;
 
-import static in.koreatech.koin.integration.kakao.model.KakaoRequestType.BUS_TIME;
-import static in.koreatech.koin.integration.kakao.model.KakaoRequestType.DINING;
+import static in.koreatech.koin.domain.kakaobot.model.KakaoRequestType.BUS_TIME;
+import static in.koreatech.koin.domain.kakaobot.model.KakaoRequestType.DINING;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import org.springframework.http.ResponseEntity;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.integration.kakao.config.KakaoRequest;
-import in.koreatech.koin.integration.kakao.dto.KakaoBusRequest;
-import in.koreatech.koin.integration.kakao.dto.KakaoDiningRequest;
-import in.koreatech.koin.integration.kakao.service.KakaoBotService;
+import in.koreatech.koin.domain.kakaobot.web.KakaoRequest;
+import in.koreatech.koin.domain.kakaobot.dto.KakaoBusRequest;
+import in.koreatech.koin.domain.kakaobot.dto.KakaoDiningRequest;
+import in.koreatech.koin.domain.kakaobot.service.KakaoBotService;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 

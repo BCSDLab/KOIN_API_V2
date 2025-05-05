@@ -1,4 +1,4 @@
-package in.koreatech.koin.integration.kakao.config;
+package in.koreatech.koin.domain.kakaobot.web;
 
 import static java.util.Objects.requireNonNull;
 

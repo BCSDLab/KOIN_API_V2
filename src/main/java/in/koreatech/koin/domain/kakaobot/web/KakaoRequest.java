@@ -1,4 +1,4 @@
-package in.koreatech.koin.integration.kakao.config;
+package in.koreatech.koin.domain.kakaobot.web;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -6,7 +6,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import in.koreatech.koin.integration.kakao.model.KakaoRequestType;
+import in.koreatech.koin.domain.kakaobot.model.KakaoRequestType;
 import io.swagger.v3.oas.annotations.Hidden;
 
 @Hidden // Swagger 문서에 표시하지 않음

@@ -1,12 +1,12 @@
-package in.koreatech.koin.integration.kakao.model;
+package in.koreatech.koin.domain.kakaobot.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import in.koreatech.koin.domain.dining.exception.DiningTypeNotFoundException;
 import in.koreatech.koin.domain.dining.model.DiningType;
-import in.koreatech.koin.integration.kakao.dto.KakaoDiningRequest;
-import in.koreatech.koin.integration.kakao.exception.KakaoApiException;
+import in.koreatech.koin.domain.kakaobot.dto.KakaoDiningRequest;
+import in.koreatech.koin.domain.kakaobot.exception.KakaoApiException;
 
 public class KakaoDiningRequestParser implements KakaoSkillRequestParser<String, KakaoDiningRequest> {
 

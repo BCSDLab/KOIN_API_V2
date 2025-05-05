@@ -1,4 +1,4 @@
-package in.koreatech.koin.integration.kakao.model;
+package in.koreatech.koin.domain.kakaobot.model;
 
 public enum KakaoRequestType {
     DINING(new KakaoDiningRequestParser()),

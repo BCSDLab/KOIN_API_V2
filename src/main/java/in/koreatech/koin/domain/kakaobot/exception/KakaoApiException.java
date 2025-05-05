@@ -1,4 +1,4 @@
-package in.koreatech.koin.integration.kakao.exception;
+package in.koreatech.koin.domain.kakaobot.exception;
 
 import in.koreatech.koin._common.exception.custom.ExternalServiceException;
 

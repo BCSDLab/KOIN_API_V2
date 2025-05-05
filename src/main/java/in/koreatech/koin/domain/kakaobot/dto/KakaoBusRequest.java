@@ -1,4 +1,4 @@
-package in.koreatech.koin.integration.kakao.dto;
+package in.koreatech.koin.domain.kakaobot.dto;
 
 import io.swagger.v3.oas.annotations.Hidden;
 
