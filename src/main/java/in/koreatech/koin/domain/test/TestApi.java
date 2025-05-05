@@ -35,5 +35,4 @@ public interface TestApi {
         @RequestParam(defaultValue = "HOME") MobileAppPath mobileAppPath,
         @Parameter(description = "스킴 uri(ex: shop?id=1)") @RequestParam String url
     );
-
 }
