@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserDeleteEvent;
+import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -60,7 +61,6 @@ public class UserService {
         userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
         userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
-
         return UpdateUserResponse.from(user);
     }
 
@@ -69,6 +69,7 @@ public class UserService {
         userValidationService.checkDuplicationUserData(request.email(), request.nickname(), request.phoneNumber());
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
+        eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }
 
