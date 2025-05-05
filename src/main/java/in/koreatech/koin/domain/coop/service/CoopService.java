@@ -68,7 +68,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
-import in.koreatech.koin.integration.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
 @Service

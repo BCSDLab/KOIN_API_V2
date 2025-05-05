@@ -30,7 +30,7 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.integration.naver.service.NaverSmsService;
+import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
