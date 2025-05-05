@@ -51,7 +51,7 @@ public record RegisterUserRequest(
     String password,
 
     @Schema(description = "마케팅 수신 동의 여부", example = "true", requiredMode = NOT_REQUIRED)
-    Boolean marketingNotificationAgreement
+    boolean marketingNotificationAgreement
 ) {
 
     public User toUser(PasswordEncoder passwordEncoder) {
