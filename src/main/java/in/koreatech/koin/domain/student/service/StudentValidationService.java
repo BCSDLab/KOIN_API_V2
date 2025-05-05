@@ -14,8 +14,8 @@ import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.integration.email.exception.DuplicationEmailException;
-import in.koreatech.koin.integration.email.model.EmailAddress;
+import in.koreatech.koin.infrastructure.email.exception.DuplicationEmailException;
+import in.koreatech.koin.infrastructure.email.model.EmailAddress;
 import lombok.RequiredArgsConstructor;
 
 @Service

@@ -14,10 +14,10 @@ import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
-import in.koreatech.koin.integration.email.form.MailFormData;
-import in.koreatech.koin.integration.email.form.UserEmailVerificationData;
-import in.koreatech.koin.integration.email.service.MailService;
-import in.koreatech.koin.integration.naver.service.NaverSmsService;
+import in.koreatech.koin._common.model.MailFormData;
+import in.koreatech.koin.domain.user.model.UserEmailVerificationData;
+import in.koreatech.koin.infrastructure.email.service.MailService;
+import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 import lombok.RequiredArgsConstructor;
 
 @Service

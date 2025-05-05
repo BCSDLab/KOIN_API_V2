@@ -52,9 +52,9 @@ import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.domain.user.service.UserVerificationService;
-import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
-import in.koreatech.koin.integration.email.form.StudentRegistrationData;
-import in.koreatech.koin.integration.email.service.MailService;
+import in.koreatech.koin.domain.student.model.StudentPasswordChangeData;
+import in.koreatech.koin.domain.student.model.StudentRegistrationData;
+import in.koreatech.koin.infrastructure.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
