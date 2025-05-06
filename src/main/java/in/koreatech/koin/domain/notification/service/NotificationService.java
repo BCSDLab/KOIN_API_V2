@@ -5,17 +5,17 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.notification.model.Notification;
-import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
-import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import in.koreatech.koin.domain.notification.dto.NotificationStatusResponse;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.notification.exception.NotificationNotPermitException;
+import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -68,15 +68,11 @@ public class NotificationService {
         if (notificationSubscribeRepository.existsByUserIdAndSubscribeType(userId, subscribeType)) {
             return;
         }
-        if (subscribeType.getDetailTypes().isEmpty()) {
-            NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
-                .user(user)
-                .subscribeType(subscribeType)
-                .build();
-            notificationSubscribeRepository.save(notificationSubscribe);
-            return;
-        }
-        throw NotificationNotPermitException.withDetail("subscribeType: " + subscribeType);
+        NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
+            .user(user)
+            .subscribeType(subscribeType)
+            .build();
+        notificationSubscribeRepository.save(notificationSubscribe);
     }
 
     @Transactional
