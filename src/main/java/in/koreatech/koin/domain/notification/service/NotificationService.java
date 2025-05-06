@@ -48,7 +48,7 @@ public class NotificationService {
         );
     }
 
-    public NotificationStatusResponse checkNotification(Integer userId) {
+    public NotificationStatusResponse getNotificationInfo(Integer userId) {
         User user = userRepository.getById(userId);
         boolean isPermit = user.getDeviceToken() != null;
         List<NotificationSubscribe> subscribeList = notificationSubscribeRepository.findAllByUserId(userId);

@@ -30,7 +30,7 @@ public class NotificationController implements NotificationApi {
     public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
-        return ResponseEntity.ok(notificationService.checkNotification(userId));
+        return ResponseEntity.ok(notificationService.getNotificationInfo(userId));
     }
 
     @PostMapping("/notification")
