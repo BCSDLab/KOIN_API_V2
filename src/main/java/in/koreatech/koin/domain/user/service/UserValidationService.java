@@ -86,14 +86,15 @@ public class UserValidationService {
         }
     }
 
-    public void checkDuplicationUserData(String email, String nickname, String phoneNumber) {
-        checkDuplicatedPhoneNumber(phoneNumber);
+    public void checkDuplicationUserData(String nickname, String email, String phoneNumber, String loginId) {
         if (StringUtils.isNotBlank(nickname)) {
             checkDuplicatedNickname(nickname);
         }
         if (StringUtils.isNotBlank(email)) {
             checkDuplicatedEmail(email);
         }
+        checkDuplicatedPhoneNumber(phoneNumber);
+        checkDuplicatedLoginId(loginId);
     }
 
     public User checkLoginCredentials(String email, String password) {

@@ -66,7 +66,12 @@ public class UserService {
 
     @Transactional
     public void userRegister(RegisterUserRequest request) {
-        userValidationService.checkDuplicationUserData(request.email(), request.nickname(), request.phoneNumber());
+        userValidationService.checkDuplicationUserData(
+            request.nickname(),
+            request.email(),
+            request.phoneNumber(),
+            request.loginId()
+        );
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
         eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
