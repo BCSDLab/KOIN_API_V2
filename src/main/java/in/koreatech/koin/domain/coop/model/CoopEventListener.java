@@ -34,10 +34,12 @@ public class CoopEventListener {
         diningSoldOutCacheRepository.save(DiningSoldOutCache.from(event.place()));
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
         var notifications = notificationSubscribeRepository
-            .findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, null).stream()
-            .filter(subscribe -> notificationSubscribeRepository.findByUserIdAndSubscribeTypeAndDetailType(
-                subscribe.getUser().getId(), DINING_SOLD_OUT, detailType).isPresent()
-            )
+            .findAllBySubscribeType(DINING_SOLD_OUT).stream()
+            .filter(subscribe -> notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailType(
+                subscribe.getUser().getId(),
+                DINING_SOLD_OUT,
+                detailType
+            ))
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
@@ -51,7 +53,7 @@ public class CoopEventListener {
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onDiningImageUploadRequest(DiningImageUploadEvent event) {
         var notifications = notificationSubscribeRepository
-            .findAllBySubscribeTypeAndDetailType(DINING_IMAGE_UPLOAD, null).stream()
+            .findAllBySubscribeType(DINING_IMAGE_UPLOAD).stream()
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateDiningImageUploadNotification(
                 DINING,
