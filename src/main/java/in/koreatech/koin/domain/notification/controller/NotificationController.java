@@ -30,7 +30,7 @@ public class NotificationController implements NotificationApi {
     public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
-        return ResponseEntity.ok(notificationService.checkNotification(userId));
+        return ResponseEntity.ok(notificationService.getNotificationInfo(userId));
     }
 
     @PostMapping("/notification")
@@ -73,7 +73,7 @@ public class NotificationController implements NotificationApi {
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     ) {
-        notificationService.rejectNotificationByType(userId, notificationSubscribeType);
+        notificationService.rejectNotificationBySubscribeType(userId, notificationSubscribeType);
         return ResponseEntity.noContent().build();
     }
 
@@ -82,7 +82,7 @@ public class NotificationController implements NotificationApi {
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
         @RequestParam(value = "detail_type") NotificationDetailSubscribeType detailSubscribeType
     ) {
-        notificationService.rejectNotificationDetailSubscribe(userId, detailSubscribeType);
+        notificationService.rejectNotificationByDetailType(userId, detailSubscribeType);
         return ResponseEntity.noContent().build();
     }
 }

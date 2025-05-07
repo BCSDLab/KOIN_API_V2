@@ -39,9 +39,6 @@ public class UserValidationService {
     }
 
     public void checkDuplicatedEmail(String email) {
-        if (StringUtils.isBlank(email)) {
-            return;
-        }
         if (userRepository.existsByEmail(email)) {
             throw DuplicationEmailException.withDetail("email: " + email);
         }
@@ -89,10 +86,15 @@ public class UserValidationService {
         }
     }
 
-    public void checkDuplicationUserData(String email, String nickname, String phoneNumber) {
-        checkDuplicatedNickname(nickname);
-        checkDuplicatedEmail(email);
+    public void checkDuplicationUserData(String nickname, String email, String phoneNumber, String loginId) {
+        if (StringUtils.isNotBlank(nickname)) {
+            checkDuplicatedNickname(nickname);
+        }
+        if (StringUtils.isNotBlank(email)) {
+            checkDuplicatedEmail(email);
+        }
         checkDuplicatedPhoneNumber(phoneNumber);
+        checkDuplicatedLoginId(loginId);
     }
 
     public User checkLoginCredentials(String email, String password) {

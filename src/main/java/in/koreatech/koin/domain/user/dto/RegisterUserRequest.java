@@ -24,10 +24,22 @@ public record RegisterUserRequest(
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
     String name,
 
+    @Schema(description = "닉네임", example = "캔따개", requiredMode = REQUIRED)
+    @Pattern(regexp = "\\S+", message = "빈 문자열일 수 없습니다.")
+    String nickname,
+
+    @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
+    @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
+    @Pattern(regexp = "\\S+", message = "빈 문자열일 수 없습니다.")
+    String email,
+
     @NotBlank(message = "휴대폰 번호는 필수입니다.")
     @Schema(description = "휴대폰 번호", example = "01012341234", requiredMode = REQUIRED)
     @Pattern(regexp = "^\\d{11}$", message = "전화번호 형식이 올바르지 않습니다. 11자리 숫자로 입력해 주세요.")
     String phoneNumber,
+
+    @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
+    UserGender gender,
 
     @NotBlank(message = "아이디는 필수입니다.")
     @Size(max = 50, message = "아이디는 50자 이내여야 합니다.")
@@ -38,17 +50,8 @@ public record RegisterUserRequest(
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
     String password,
 
-    @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
-    UserGender gender,
-
-    @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
-    @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
-    @Pattern(regexp = "\\S+", message = "빈 문자열일 수 없습니다.")
-    String email,
-
-    @Schema(description = "닉네임", example = "캔따개", requiredMode = REQUIRED)
-    @Pattern(regexp = "\\S+", message = "빈 문자열일 수 없습니다.")
-    String nickname
+    @Schema(description = "마케팅 수신 동의 여부", example = "true", requiredMode = NOT_REQUIRED)
+    boolean marketingNotificationAgreement
 ) {
 
     public User toUser(PasswordEncoder passwordEncoder) {

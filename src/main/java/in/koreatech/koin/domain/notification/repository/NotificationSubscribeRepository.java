@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.notification.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
@@ -13,29 +12,25 @@ public interface NotificationSubscribeRepository extends Repository<Notification
 
     NotificationSubscribe save(NotificationSubscribe notificationSubscribe);
 
-    List<NotificationSubscribe> findAllBySubscribeTypeAndDetailType(
-        NotificationSubscribeType type,
-        NotificationDetailSubscribeType detailType
-    );
+    List<NotificationSubscribe> findAllBySubscribeTypeAndDetailTypeIsNull(NotificationSubscribeType type);
 
-    Optional<NotificationSubscribe> findByUserIdAndSubscribeTypeAndDetailType(
+    boolean existsByUserIdAndSubscribeType(Integer userId, NotificationSubscribeType type);
+
+    boolean existsByUserIdAndSubscribeTypeAndDetailType(
         Integer userId,
         NotificationSubscribeType type,
         NotificationDetailSubscribeType detailType
     );
 
-    void deleteByUserIdAndSubscribeTypeAndDetailType(
-        Integer userId,
-        NotificationSubscribeType type,
-        NotificationDetailSubscribeType detailType
-    );
-
-    List<NotificationSubscribe> findAllByUserId(Integer userId);
-
-    List<NotificationSubscribe> findByUserIdAndSubscribeType(
+    void deleteByUserIdAndSubscribeTypeAndDetailTypeIsNull(
         Integer userId,
         NotificationSubscribeType type
     );
 
-    boolean existsByUserIdAndSubscribeType(Integer userId, NotificationSubscribeType type);
+    void deleteByUserIdAndDetailType(
+        Integer userId,
+        NotificationDetailSubscribeType detailType
+    );
+
+    List<NotificationSubscribe> findAllByUserId(Integer userId);
 }

@@ -1,17 +1,16 @@
-package in.koreatech.koin.domain.coop.model;
+package in.koreatech.koin.domain.notification.eventlistener;
 
+import static in.koreatech.koin._common.model.MobileAppPath.DINING;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_IMAGE_UPLOAD;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
-import static in.koreatech.koin._common.model.MobileAppPath.DINING;
-import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.DiningImageUploadEvent;
 import in.koreatech.koin._common.event.DiningSoldOutEvent;
+import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
@@ -21,23 +20,24 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(propagation = Propagation.REQUIRES_NEW)
-public class CoopEventListener {
+public class CoopEventListener { // TODO : 리팩터링 필요 (비즈니스로직 제거 및 알림 책임만 갖도록)
 
     private final NotificationService notificationService;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final NotificationFactory notificationFactory;
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
 
-    @TransactionalEventListener(phase = AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
         diningSoldOutCacheRepository.save(DiningSoldOutCache.from(event.place()));
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
         var notifications = notificationSubscribeRepository
-            .findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, null).stream()
-            .filter(subscribe -> notificationSubscribeRepository.findByUserIdAndSubscribeTypeAndDetailType(
-                subscribe.getUser().getId(), DINING_SOLD_OUT, detailType).isPresent()
-            )
+            .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_SOLD_OUT).stream()
+            .filter(subscribe -> notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailType(
+                subscribe.getUser().getId(),
+                DINING_SOLD_OUT,
+                detailType
+            ))
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
@@ -48,10 +48,10 @@ public class CoopEventListener {
         notificationService.push(notifications);
     }
 
-    @TransactionalEventListener(phase = AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onDiningImageUploadRequest(DiningImageUploadEvent event) {
         var notifications = notificationSubscribeRepository
-            .findAllBySubscribeTypeAndDetailType(DINING_IMAGE_UPLOAD, null).stream()
+            .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_IMAGE_UPLOAD).stream()
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateDiningImageUploadNotification(
                 DINING,
