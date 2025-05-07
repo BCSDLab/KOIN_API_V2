@@ -1,21 +1,20 @@
-package in.koreatech.koin.domain.community.keyword.model;
+package in.koreatech.koin.domain.notification.eventlistener;
 
-import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
 import static in.koreatech.koin._common.model.MobileAppPath.KEYWORD;
-import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
 
 import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.domain.notification.model.Notification;
@@ -27,8 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(propagation = Propagation.REQUIRES_NEW)
-public class ArticleKeywordEventListener {
+public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈니스로직 제거 및 알림 책임만 갖도록)
 
     private final NotificationService notificationService;
     private final NotificationFactory notificationFactory;
@@ -37,7 +35,7 @@ public class ArticleKeywordEventListener {
     private final KeywordService keywordService;
     private final ArticleRepository articleRepository;
 
-    @TransactionalEventListener(phase = AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onKeywordRequest(ArticleKeywordEvent event) {
         Article article = articleRepository.getById(event.articleId());
         Board board = article.getBoard();
