@@ -100,14 +100,14 @@ public class NotificationService {
     }
 
     @Transactional
-    public void rejectNotificationByType(Integer userId, NotificationSubscribeType subscribeType) {
+    public void rejectNotificationBySubscribeType(Integer userId, NotificationSubscribeType subscribeType) {
         User user = userRepository.getById(userId);
         ensureUserDeviceToken(user.getDeviceToken());
-        notificationSubscribeRepository.deleteByUserIdAndSubscribeType(userId, subscribeType);
+        notificationSubscribeRepository.deleteByUserIdAndSubscribeTypeAndDetailTypeIsNull(userId, subscribeType);
     }
 
     @Transactional
-    public void rejectNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailType) {
+    public void rejectNotificationByDetailType(Integer userId, NotificationDetailSubscribeType detailType) {
         User user = userRepository.getById(userId);
         ensureUserDeviceToken(user.getDeviceToken());
         notificationSubscribeRepository.deleteByUserIdAndDetailType(userId, detailType);

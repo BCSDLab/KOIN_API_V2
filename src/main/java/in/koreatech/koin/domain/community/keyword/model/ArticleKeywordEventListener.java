@@ -43,7 +43,7 @@ public class ArticleKeywordEventListener {
         Board board = article.getBoard();
 
         List<Notification> notifications = notificationSubscribeRepository
-            .findAllBySubscribeType(ARTICLE_KEYWORD)
+            .findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD)
             .stream()
             .filter(this::hasDeviceToken)
             .filter(subscribe -> isKeywordRegistered(event, subscribe))

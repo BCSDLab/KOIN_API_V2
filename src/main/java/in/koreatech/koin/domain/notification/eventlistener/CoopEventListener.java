@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.coop.model;
+package in.koreatech.koin.domain.notification.eventlistener;
 
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_IMAGE_UPLOAD;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
@@ -12,6 +12,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.DiningImageUploadEvent;
 import in.koreatech.koin._common.event.DiningSoldOutEvent;
+import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
@@ -34,7 +35,7 @@ public class CoopEventListener {
         diningSoldOutCacheRepository.save(DiningSoldOutCache.from(event.place()));
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
         var notifications = notificationSubscribeRepository
-            .findAllBySubscribeType(DINING_SOLD_OUT).stream()
+            .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_SOLD_OUT).stream()
             .filter(subscribe -> notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailType(
                 subscribe.getUser().getId(),
                 DINING_SOLD_OUT,
@@ -53,7 +54,7 @@ public class CoopEventListener {
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onDiningImageUploadRequest(DiningImageUploadEvent event) {
         var notifications = notificationSubscribeRepository
-            .findAllBySubscribeType(DINING_IMAGE_UPLOAD).stream()
+            .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_IMAGE_UPLOAD).stream()
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateDiningImageUploadNotification(
                 DINING,

@@ -12,7 +12,7 @@ public interface NotificationSubscribeRepository extends Repository<Notification
 
     NotificationSubscribe save(NotificationSubscribe notificationSubscribe);
 
-    List<NotificationSubscribe> findAllBySubscribeType(NotificationSubscribeType type);
+    List<NotificationSubscribe> findAllBySubscribeTypeAndDetailTypeIsNull(NotificationSubscribeType type);
 
     boolean existsByUserIdAndSubscribeType(Integer userId, NotificationSubscribeType type);
 
@@ -22,7 +22,7 @@ public interface NotificationSubscribeRepository extends Repository<Notification
         NotificationDetailSubscribeType detailType
     );
 
-    void deleteByUserIdAndSubscribeType(
+    void deleteByUserIdAndSubscribeTypeAndDetailTypeIsNull(
         Integer userId,
         NotificationSubscribeType type
     );
@@ -33,9 +33,4 @@ public interface NotificationSubscribeRepository extends Repository<Notification
     );
 
     List<NotificationSubscribe> findAllByUserId(Integer userId);
-
-    List<NotificationSubscribe> findByUserIdAndSubscribeType(
-        Integer userId,
-        NotificationSubscribeType type
-    );
 }
