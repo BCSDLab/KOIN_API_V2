@@ -308,10 +308,10 @@ public class StudentService {
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-        eventPublisher.publishEvent(
-            new UserRegisterEvent(student.getUser().getId(), request.marketingNotificationAgreement())
-        );
-        userVerificationService.consumeVerification(request.phoneNumber());
+        // eventPublisher.publishEvent(
+        //     new UserRegisterEvent(student.getUser().getId(), request.marketingNotificationAgreement())
+        // );
+        //userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
