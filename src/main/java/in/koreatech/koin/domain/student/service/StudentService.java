@@ -311,7 +311,7 @@ public class StudentService {
         // eventPublisher.publishEvent(
         //     new UserRegisterEvent(student.getUser().getId(), request.marketingNotificationAgreement())
         // );
-        //userVerificationService.consumeVerification(request.phoneNumber());
+        userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
