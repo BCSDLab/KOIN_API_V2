@@ -34,21 +34,21 @@ public class UserVerificationService {
     private final MailService mailService;
 
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
+        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         String verificationCode = CertificateNumberGenerator.generate();
         naverSmsService.sendVerificationCode(verificationCode, phoneNumber);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofSms(phoneNumber, verificationCode));
         eventPublisher.publishEvent(new UserSmsVerificationSendEvent(phoneNumber));
-        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         return SendVerificationResponse.from(verificationCount);
     }
 
     public SendVerificationResponse sendEmailVerification(String email) {
+        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         String verificationCode = CertificateNumberGenerator.generate();
         MailFormData mailFormData = new UserEmailVerificationData(verificationCode);
         mailService.sendMail(email, mailFormData);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofEmail(email, verificationCode));
         eventPublisher.publishEvent(new UserEmailVerificationSendEvent(email));
-        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         return SendVerificationResponse.from(verificationCount);
     }
 
