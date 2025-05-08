@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class UserVerificationService {
 
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
@@ -33,6 +33,7 @@ public class UserVerificationService {
     private final NaverSmsService naverSmsService;
     private final MailService mailService;
 
+    @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
         UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         String verificationCode = CertificateNumberGenerator.generate();
@@ -42,6 +43,7 @@ public class UserVerificationService {
         return SendVerificationResponse.from(verificationCount);
     }
 
+    @Transactional
     public SendVerificationResponse sendEmailVerification(String email) {
         UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         String verificationCode = CertificateNumberGenerator.generate();
@@ -52,6 +54,7 @@ public class UserVerificationService {
         return SendVerificationResponse.from(verificationCount);
     }
 
+    @Transactional
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
         if (verificationStatus.isCodeMismatched(verificationCode)) {
@@ -73,6 +76,7 @@ public class UserVerificationService {
      * 레디스는 트랜잭션을 지원하지 않으므로 메서드 내에서 오류 발생 시 롤백되지않습니다.
      * </p>
      */
+    @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
         userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
             .filter(UserVerificationStatus::isVerified)
