@@ -1,6 +1,6 @@
 # Koin - 한기대 학생들을 위한 단 하나의 서비스
 
-<img src="https://github.com/user-attachments/assets/67226e2d-ae4b-4775-8075-3ec262550373" width="500"/>
+![Image](https://github.com/user-attachments/assets/67226e2d-ae4b-4775-8075-3ec262550373)
 
 ## 👋 Build Communities, Share Dreams - BCSD
 안녕하세요! 한국기술교육대학교의 BCSD, BackEnd 트랙에 오신 걸 환영합니다.
