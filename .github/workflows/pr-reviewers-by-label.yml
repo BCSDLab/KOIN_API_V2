@@ -1,7 +1,10 @@
 name: "Assign Reviewers by Label"
 on:
   pull_request:
-    types: [opened, labeled, unlabeled]
+    types: [labeled, unlabeled]
+  workflow_run:
+    workflows: ["PR Labeler"]
+    types: [completed]
 
 jobs:
   assign:
