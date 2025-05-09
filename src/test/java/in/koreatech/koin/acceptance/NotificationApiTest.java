@@ -1,8 +1,8 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.integration.fcm.notification.model.NotificationDetailSubscribeType.LUNCH;
-import static in.koreatech.koin.integration.fcm.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
-import static in.koreatech.koin.integration.fcm.notification.model.NotificationSubscribeType.SHOP_EVENT;
+import static in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType.LUNCH;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -22,10 +22,10 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.integration.fcm.notification.model.NotificationDetailSubscribeType;
-import in.koreatech.koin.integration.fcm.notification.model.NotificationSubscribe;
-import in.koreatech.koin.integration.fcm.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.integration.fcm.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -126,6 +126,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "LOST_ITEM_CHAT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "MARKETING",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -248,6 +255,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "MARKETING",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -362,6 +376,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "LOST_ITEM_CHAT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "MARKETING",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -492,6 +513,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "MARKETING",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -611,6 +639,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "LOST_ITEM_CHAT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "MARKETING",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s

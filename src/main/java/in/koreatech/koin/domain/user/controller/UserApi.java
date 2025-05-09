@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
@@ -15,15 +16,18 @@ import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.FindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.FindIdBySmsRequest;
 import in.koreatech.koin.domain.user.dto.FindIdResponse;
-import in.koreatech.koin.domain.user.dto.GeneralUserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.RegisterUserRequest;
 import in.koreatech.koin.domain.user.dto.ResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.ResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.dto.UserResponse;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
+import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
+import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
 import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
 import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
@@ -48,6 +52,39 @@ public interface UserApi {
 
     @ApiResponses(
         value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "일반인 정보 조회 V2")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/v2/users/me")
+    ResponseEntity<UserResponse> getUserV2(
+        @Auth(permit = {GENERAL}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "일반인 정보 수정 V2")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/v2/users/me")
+    ResponseEntity<UpdateUserResponse> updateUserV2(
+        @Auth(permit = {GENERAL}) Integer userId,
+        @Valid @RequestBody UpdateUserRequest request
+    );
+
+    @ApiResponses(
+        value = {
             @ApiResponse(responseCode = "201"),
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
@@ -58,8 +95,8 @@ public interface UserApi {
     @Operation(summary = "일반인 회원가입(문자 인증)")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/users/register")
-    ResponseEntity<Void> generalUserRegisterV2(
-        @RequestBody @Valid GeneralUserRegisterRequest request
+    ResponseEntity<Void> registerUserV2(
+        @RequestBody @Valid RegisterUserRequest request
     );
 
     @ApiResponses(
@@ -70,7 +107,7 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "로그인")
+    @Operation(summary = "로그인 V2")
     @PostMapping("/v2/users/login")
     ResponseEntity<UserLoginResponse> loginV2(
         @RequestBody @Valid UserLoginRequestV2 request
@@ -115,8 +152,8 @@ public interface UserApi {
     )
     @Operation(summary = "토큰 갱신")
     @PostMapping("/user/refresh")
-    ResponseEntity<UserTokenRefreshResponse> refresh(
-        @RequestBody @Valid UserTokenRefreshRequest request
+    ResponseEntity<RefreshUserTokenResponse> refresh(
+        @RequestBody @Valid RefreshUserTokenRequest request
     );
 
     @ApiResponses(

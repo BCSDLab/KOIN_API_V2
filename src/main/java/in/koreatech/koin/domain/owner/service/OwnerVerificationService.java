@@ -7,7 +7,7 @@ import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRep
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin.integration.naver.service.NaverSmsService;
+import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

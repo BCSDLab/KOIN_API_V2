@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.student.service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,18 +14,20 @@ import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin._common.event.StudentEmailRequestEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
+import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
-import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
-import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
+import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
@@ -38,23 +39,22 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetableV3.exception.ChangeMajorNotExistException;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
+import in.koreatech.koin.domain.user.dto.ChangeUserPasswordSubmitRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
-import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.domain.user.service.UserVerificationService;
-import in.koreatech.koin.integration.email.form.StudentPasswordChangeData;
-import in.koreatech.koin.integration.email.form.StudentRegistrationData;
-import in.koreatech.koin.integration.email.service.MailService;
+import in.koreatech.koin.domain.student.model.StudentPasswordChangeData;
+import in.koreatech.koin.domain.student.model.StudentRegistrationData;
+import in.koreatech.koin.infrastructure.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -80,10 +80,9 @@ public class StudentService {
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
-    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
 
     @Transactional
-    public void studentRegister(StudentRegisterRequest request, String serverURL) {
+    public void studentRegister(RegisterStudentRequest request, String serverURL) {
         studentValidationService.validateStudentRegister(request);
         String authToken = UUID.randomUUID().toString();
 
@@ -108,26 +107,50 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentUpdateResponse updateStudent(Integer userId, StudentUpdateRequest request) {
-        studentValidationService.validateUpdateNickname(request.nickname(), userId);
-        studentValidationService.validateDepartment(request.major());
-
+    public UpdateStudentResponse updateStudent(Integer userId, UpdateStudentRequest request) {
+        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
-        // 학번에 변경 사항이 생겼을 경우
-        String oldStudentNumber = student.getStudentNumber();
-        String newStudentNumber = request.studentNumber();
+        updateStudentInfo(student, request.studentNumber(), request.major());
+        user.update(user.getEmail(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
+        user.updateStudentPassword(passwordEncoder, request.password());
 
-        boolean updateStudentNumber = isChangeStudentNumber(oldStudentNumber, newStudentNumber);
-        if (updateStudentNumber) {
+        return UpdateStudentResponse.from(student);
+    }
+
+    @Transactional
+    public UpdateStudentResponse updateStudentV2(Integer userId, UpdateStudentRequestV2 request) {
+        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
+        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
+        Student student = studentRepository.getById(userId);
+        User user = student.getUser();
+
+        updateStudentInfo(student, request.studentNumber(), request.major());
+        userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
+        user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
+
+        return UpdateStudentResponse.from(student);
+    }
+
+    private void updateStudentInfo(Student student, String studentNumber, String major) {
+        boolean isUpdatedStudentNumber = updateStudentNumber(student, studentNumber);
+        boolean isUpdatedDepartment = updateDepartment(student, major);
+        updateCourseCalculation(student, isUpdatedStudentNumber, isUpdatedDepartment);
+    }
+
+    private boolean updateStudentNumber(Student student, String newStudentNumber) {
+        if (student.isNotSameStudentNumber(newStudentNumber)) {
             student.updateStudentNumber(newStudentNumber);
+            return true;
         }
+        return false;
+    }
 
-        // Department 조회
-        Department newDepartment = departmentRepository.findByName(request.major()).orElse(null);
-        Department oldDepartment = student.getDepartment();
-
+    private boolean updateDepartment(Student student, String major) {
+        studentValidationService.validateDepartment(major);
+        Department department = departmentRepository.findByName(major).orElse(null);
+        boolean isUpdatedDepartment = student.isNotSameDepartment(department);
         /**
          * 해당 API에서는 학생의 Major를 수정할 수 없음.
          * 졸업학점계산기 설계 상으로 학번, 학부, 전공이 변경되면 졸업학점 관련 메소드를 호출해야함.
@@ -135,45 +158,34 @@ public class StudentService {
          * 단, Department가 변경될 경우만 설정
          * 초기 major 설정이 안 되어 있는 경우에도 동일한 로직을 수행
          */
-        Major newMajor = null;
-        boolean updateDepartment = isChangedDepartment(oldDepartment, newDepartment);
-        if (updateDepartment && newDepartment != null) {
-            List<Major> majors = majorRepository.findByDepartmentId(newDepartment.getId());
+        Major newMajor;
+        if (department != null && isUpdatedDepartment) {
+            List<Major> majors = majorRepository.findByDepartmentId(department.getId());
             newMajor = majors.get(0);
-            student.updateDepartmentMajor(newDepartment, newMajor);
-        } else if (newDepartment == null) {
+            student.updateDepartmentMajor(department, newMajor);
+        } else if (department == null) {
             student.updateDepartmentMajor(null, null);
         }
+        return isUpdatedDepartment;
+    }
 
+    private void updateCourseCalculation(Student student, boolean isUpdatedStudentNumber, boolean isUpdatedDepartment) {
         /**
          * 1. 학생의 학변이 변경됐고, 학부 변경이 없는경우 (학부가 있냐 / 학부가 없냐)
          * 2. 학생의 학번이 변경이 안되고, 학부 변경이 있는 경우 (학번이 있냐 / 학번이 없냐)
          * 3. 학생의 학번도 변경되고, 학부 변경도 있는 경우
          */
-        if ((updateStudentNumber || updateDepartment)
+        if ((isUpdatedStudentNumber || isUpdatedDepartment)
             && student.getStudentNumber() != null
             && student.getDepartment() != null
         ) {
-            graduationService.resetStudentCourseCalculation(student, newMajor);
+            graduationService.resetStudentCourseCalculation(student, student.getMajor());
         }
-
-        user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
-        user.updateStudentPassword(passwordEncoder, request.password());
-
-        return StudentUpdateResponse.from(student);
-    }
-
-    private boolean isChangeStudentNumber(String newStudentNumber, String oldStudentNumber) {
-        return !Objects.equals(newStudentNumber, oldStudentNumber);
-    }
-
-    private boolean isChangedDepartment(Department oldDepartment, Department newDepartment) {
-        return !Objects.equals(newDepartment, oldDepartment);
     }
 
     @Transactional
-    public StudentAcademicInfoUpdateResponse updateStudentAcademicInfo(
-        Integer userId, StudentAcademicInfoUpdateRequest request
+    public UpdateStudentAcademicInfoResponse updateStudentAcademicInfo(
+        Integer userId, UpdateStudentAcademicInfoRequest request
     ) {
         studentValidationService.validateDepartment(request.department());
         studentValidationService.validateMajor(request.major());
@@ -190,7 +202,7 @@ public class StudentService {
         // 학번 변경 사항 감지
         boolean updateStudentNumber = false;
         if (requestStudentNumber != null && oldStudentNumber != null) {
-            updateStudentNumber = isChangeStudentNumber(requestStudentNumber, oldStudentNumber);
+            updateStudentNumber = student.isNotSameStudentNumber(requestStudentNumber);
         }
 
         Department newDepartment;
@@ -235,7 +247,7 @@ public class StudentService {
             }
         }
 
-        return StudentAcademicInfoUpdateResponse.from(student);
+        return UpdateStudentAcademicInfoResponse.from(student);
     }
 
     private void validateMajorChange(String studentNumber, Major newMajor) {
@@ -284,13 +296,22 @@ public class StudentService {
     }
 
     @Transactional
-    public void studentRegisterV2(StudentRegisterRequestV2 request) {
-        userVerificationService.checkVerified(request.phoneNumber());
+    public void studentRegisterV2(RegisterStudentRequestV2 request) {
         studentValidationService.validateDepartment(request.department());
+        userValidationService.checkDuplicationUserData(
+            request.nickname(),
+            request.email(),
+            request.phoneNumber(),
+            request.loginId()
+        );
         Department department = departmentRepository.getByName(request.department());
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
+        // eventPublisher.publishEvent(
+        //     new UserRegisterEvent(student.getUser().getId(), request.marketingNotificationAgreement())
+        // );
+        userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
@@ -312,14 +333,14 @@ public class StudentService {
     }
 
     @Transactional
-    public void changePassword(Integer userId, UserPasswordChangeRequest request) {
+    public void changePassword(Integer userId, ChangeUserPasswordRequest request) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
         user.updatePassword(passwordEncoder, request.password());
     }
 
     @Transactional
-    public void changePasswordSubmit(UserPasswordChangeSubmitRequest request, String resetToken) {
+    public void changePasswordSubmit(ChangeUserPasswordSubmitRequest request, String resetToken) {
         PasswordResetToken passwordResetToken = passwordResetTokenRepository.getByResetToken(resetToken);
         User authedUser = userRepository.getById(passwordResetToken.getId());
         authedUser.updatePassword(passwordEncoder, request.password());

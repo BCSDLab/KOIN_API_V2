@@ -17,7 +17,8 @@ import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.integration.email.exception.DuplicationEmailException;
+import in.koreatech.koin.infrastructure.email.exception.DuplicationEmailException;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,6 +29,7 @@ public class UserValidationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRedisRepository studentRedisRepository;
+    private final UserVerificationService userVerificationService;
 
     public void checkPassword(String password, Integer userId) {
         User user = userRepository.getById(userId);
@@ -58,6 +60,41 @@ public class UserValidationService {
         if (userRepository.existsByUserId(loginId)) {
             throw DuplicationLoginIdException.withDetail("loginId: " + loginId);
         }
+    }
+
+    public void checkDuplicatedUpdateNickname(String updateNickname, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (updateNickname != null && !updateNickname.equals(user.getNickname())
+            && userRepository.existsByNickname(updateNickname)) {
+            throw DuplicationNicknameException.withDetail("updateNickname : " + updateNickname);
+        }
+    }
+
+    public void checkDuplicatedUpdateEmail(String updateEmail, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (updateEmail != null && !updateEmail.equals(user.getEmail())
+            && userRepository.existsByEmail(updateEmail)) {
+            throw DuplicationEmailException.withDetail("updateEmail : " + updateEmail);
+        }
+    }
+
+    public void checkDuplicatedUpdatePhoneNumber(String updatePhoneNumber, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (user.isNotSamePhoneNumber(updatePhoneNumber)) {
+            checkDuplicatedPhoneNumber(updatePhoneNumber);
+            userVerificationService.consumeVerification(updatePhoneNumber);
+        }
+    }
+
+    public void checkDuplicationUserData(String nickname, String email, String phoneNumber, String loginId) {
+        if (StringUtils.isNotBlank(nickname)) {
+            checkDuplicatedNickname(nickname);
+        }
+        if (StringUtils.isNotBlank(email)) {
+            checkDuplicatedEmail(email);
+        }
+        checkDuplicatedPhoneNumber(phoneNumber);
+        checkDuplicatedLoginId(loginId);
     }
 
     public User checkLoginCredentials(String email, String password) {

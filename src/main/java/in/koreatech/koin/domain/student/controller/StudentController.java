@@ -18,21 +18,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentAcademicInfoUpdateResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequestV2;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
+import in.koreatech.koin.domain.student.dto.RegisterStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
-import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
+import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.service.StudentService;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
+import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
+import in.koreatech.koin.domain.user.dto.ChangeUserPasswordSubmitRequest;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
@@ -61,20 +62,29 @@ public class StudentController implements StudentApi {
     }
 
     @PutMapping("/user/student/me")
-    public ResponseEntity<StudentUpdateResponse> updateStudent(
+    public ResponseEntity<UpdateStudentResponse> updateStudent(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
-        @Valid @RequestBody StudentUpdateRequest request
+        @Valid @RequestBody UpdateStudentRequest request
     ) {
-        StudentUpdateResponse studentUpdateResponse = studentService.updateStudent(userId, request);
-        return ResponseEntity.ok(studentUpdateResponse);
+        UpdateStudentResponse updateStudentResponse = studentService.updateStudent(userId, request);
+        return ResponseEntity.ok(updateStudentResponse);
+    }
+
+    @PutMapping("/v2/users/students/me")
+    public ResponseEntity<UpdateStudentResponse> updateStudentV2(
+        @Valid @RequestBody UpdateStudentRequestV2 request,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    ) {
+        UpdateStudentResponse updateStudentResponse = studentService.updateStudentV2(userId, request);
+        return ResponseEntity.ok(updateStudentResponse);
     }
 
     @PutMapping("/user/student/academic-info")
-    public ResponseEntity<StudentAcademicInfoUpdateResponse> updateStudentAcademicInfo(
+    public ResponseEntity<UpdateStudentAcademicInfoResponse> updateStudentAcademicInfo(
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
-        @Valid @RequestBody StudentAcademicInfoUpdateRequest request
+        @Valid @RequestBody UpdateStudentAcademicInfoRequest request
     ) {
-        StudentAcademicInfoUpdateResponse response = studentService.updateStudentAcademicInfo(userId, request);
+        UpdateStudentAcademicInfoResponse response = studentService.updateStudentAcademicInfo(userId, request);
         return ResponseEntity.ok(response);
     }
 
@@ -89,7 +99,7 @@ public class StudentController implements StudentApi {
 
     @PostMapping("/user/student/register")
     public ResponseEntity<Void> studentRegister(
-        @Valid @RequestBody StudentRegisterRequest request,
+        @Valid @RequestBody RegisterStudentRequest request,
         @ServerURL String serverURL
     ) {
         studentService.studentRegister(request, serverURL);
@@ -106,7 +116,7 @@ public class StudentController implements StudentApi {
 
     @PostMapping("/v2/users/students/register")
     public ResponseEntity<Void> studentRegisterV2(
-        @RequestBody @Valid StudentRegisterRequestV2 request
+        @RequestBody @Valid RegisterStudentRequestV2 request
     ) {
         studentService.studentRegisterV2(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -123,7 +133,7 @@ public class StudentController implements StudentApi {
 
     @PutMapping("/user/change/password")
     public ResponseEntity<Void> changePassword(
-        @RequestBody UserPasswordChangeRequest request,
+        @RequestBody ChangeUserPasswordRequest request,
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         studentService.changePassword(userId, request);
@@ -141,7 +151,7 @@ public class StudentController implements StudentApi {
     @Hidden
     @PostMapping("/user/change/password/submit")
     public ResponseEntity<Void> changePasswordSubmit(
-        @RequestBody UserPasswordChangeSubmitRequest request,
+        @RequestBody ChangeUserPasswordSubmitRequest request,
         @RequestParam("reset_token") String resetToken
     ) {
         studentService.changePasswordSubmit(request, resetToken);
