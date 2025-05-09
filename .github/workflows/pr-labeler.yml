@@ -1,4 +1,4 @@
-name: "PR Labeler"
+name: "PR Labeler & Copy Issue Labels to PR"
 on:
   pull_request:
     types: [opened]
