@@ -26,6 +26,7 @@ jobs:
 
   # 팀라벨에 맞는 리뷰어 할당
   assign:
+    needs: sync-labels
     runs-on: ubuntu-latest
     steps:
       - name: Check if Team Business
