@@ -30,6 +30,7 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
+import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import lombok.RequiredArgsConstructor;
 
 @Service
