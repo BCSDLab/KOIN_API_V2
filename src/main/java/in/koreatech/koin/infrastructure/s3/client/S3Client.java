@@ -124,6 +124,19 @@ public class S3Client {
         }
     }
 
+    public String extractKeyFromUrl(String url) {
+        if (!url.startsWith(domainUrlPrefix)) {
+            throw new KoinIllegalStateException("잘못된 S3 URL입니다: " + url);
+        }
+        return url.substring(domainUrlPrefix.length());
+    }
+
+    public List<String> extractKeysFromUrls(List<String> urls) {
+        return urls.stream()
+            .map(this::extractKeyFromUrl)
+            .toList();
+    }
+
     public String getBucketName() {
         return bucketName;
     }
