@@ -26,24 +26,21 @@ jobs:
 
   # 팀라벨에 맞는 리뷰어 할당
   assign:
-    name: Assign Reviewers by Label
-    needs: sync-labels
-    if: github.event_name == 'pull_request' && contains(toJson(github.event.pull_request.labels), 'Team')
     runs-on: ubuntu-latest
     steps:
-      - name: Assign Team Business
+      - name: Check if Team Business
         if: contains(toJson(github.event.pull_request.labels), 'Team Business')
         uses: kentaro-m/auto-assign-action@v2.0.0
         with:
           configuration-path: .github/auto_assign_team_business.yml
 
-      - name: Assign Team Campus
+      - name: Check if Team Campus
         if: contains(toJson(github.event.pull_request.labels), 'Team Campus')
         uses: kentaro-m/auto-assign-action@v2.0.0
         with:
           configuration-path: .github/auto_assign_team_campus.yml
 
-      - name: Assign Team User
+      - name: Check if Team User
         if: contains(toJson(github.event.pull_request.labels), 'Team User')
         uses: kentaro-m/auto-assign-action@v2.0.0
         with:
