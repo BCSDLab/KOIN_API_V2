@@ -1,48 +1,57 @@
-name: "PR Automation"
+name: "PR Label & Assign Reviewers"
 
 on:
   pull_request:
-    types: [opened, labeled, unlabeled]
+    types: [opened, labeled]
 
 jobs:
-  # 이슈에 따라 라벨 추가
-  sync-labels:
-    name: Issue Labeler
-    needs: pr-labeler
+  label_and_assign:
     runs-on: ubuntu-latest
     steps:
-      - uses: michalvankodev/copy-issue-labels@v1.3.0
+      # 1. 이슈 라벨을 PR에 복사
+      - name: Sync Issue Labels to PR
+        uses: michalvankodev/copy-issue-labels@v1.3.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # 브랜치 접두사에 따라 라벨 추가
-  pr-labeler:
-    name: Branch Prefix Labeler
-    runs-on: ubuntu-latest
-    steps:
-      - uses: TimonVS/pr-labeler-action@v4
+      # 2. 브랜치 접두사에 따른 자동 라벨링
+      - name: Branch Prefix Labeler
+        uses: TimonVS/pr-labeler-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # 팀라벨에 맞는 리뷰어 할당
-  assign:
-    needs: sync-labels
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check if Team Business
-        if: contains(toJson(github.event.pull_request.labels), 'Team Business')
+      # 3. 최신 PR 라벨 목록 조회
+      - name: Fetch current PR labels
+        id: get_labels
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+            return labels.map(l => l.name);
+
+      # 4. 라벨별 리뷰어 할당
+      - name: Assign Team Business
+        if: contains(steps.get_labels.outputs.result, 'Team Business')
         uses: kentaro-m/auto-assign-action@v2.0.0
         with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/auto_assign_team_business.yml
 
-      - name: Check if Team Campus
-        if: contains(toJson(github.event.pull_request.labels), 'Team Campus')
+      - name: Assign Team Campus
+        if: contains(steps.get_labels.outputs.result, 'Team Campus')
         uses: kentaro-m/auto-assign-action@v2.0.0
         with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/auto_assign_team_campus.yml
 
-      - name: Check if Team User
-        if: contains(toJson(github.event.pull_request.labels), 'Team User')
+      - name: Assign Team User
+        if: contains(steps.get_labels.outputs.result, 'Team User')
         uses: kentaro-m/auto-assign-action@v2.0.0
         with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/auto_assign_team_user.yml
