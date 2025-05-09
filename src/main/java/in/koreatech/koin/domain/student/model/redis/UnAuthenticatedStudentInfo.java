@@ -75,6 +75,7 @@ public class UnAuthenticatedStudentInfo {
     }
 
     public static UnAuthenticatedStudentInfo of(RegisterStudentRequest request, String authToken) {
+        String normalizedPhoneNumber = request.phoneNumber() == null ? null : request.phoneNumber().replaceAll("-", "");
         return new UnAuthenticatedStudentInfo(
             request.email(),
             authToken,
@@ -85,7 +86,7 @@ public class UnAuthenticatedStudentInfo {
             request.isGraduated(),
             request.major(),
             request.studentNumber(),
-            request.phoneNumber()
+            normalizedPhoneNumber
         );
     }
 
