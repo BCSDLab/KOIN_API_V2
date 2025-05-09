@@ -64,10 +64,10 @@ BCSD가 추구하는 방향성에 대한 정보는 아래 블로그를 통해 �
 ![Image](https://github.com/user-attachments/assets/ddafef08-6b11-4fa2-af7d-c6693df05c2e)
 
 ## 🏗️ Infra Structure
-<img width="944" alt="Image" src="https://github.com/user-attachments/assets/7a45ac14-6263-4e78-bf86-fcd86559825e" />
+![Image](https://github.com/user-attachments/assets/7a45ac14-6263-4e78-bf86-fcd86559825e)
 
 ## 📦 Server Instance
-<img width="784" alt="Image" src="https://github.com/user-attachments/assets/57f12fc8-ded3-42f4-be88-ac2287d891d2" />
+![Image](https://github.com/user-attachments/assets/57f12fc8-ded3-42f4-be88-ac2287d891d2)
 
 ## 🗂️ Repository Structure
 ```
