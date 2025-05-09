@@ -10,12 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserDeleteEvent;
-import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
 import in.koreatech.koin.domain.user.dto.RegisterUserRequest;
 import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
 import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
@@ -23,8 +24,6 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -143,7 +142,8 @@ public class UserService {
     }
 
     public String findIdBySms(String phoneNumber) {
-        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber,
+            List.of(UserType.GENERAL, UserType.STUDENT));
         String userId = user.getUserId();
         userVerificationService.consumeVerification(phoneNumber);
         return userId;

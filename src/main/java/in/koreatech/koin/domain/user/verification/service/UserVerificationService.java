@@ -10,16 +10,15 @@ import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.model.MailFormData;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
+import in.koreatech.koin.domain.user.verification.model.UserEmailVerificationData;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.verification.repository.UserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
-import in.koreatech.koin._common.model.MailFormData;
-import in.koreatech.koin.domain.user.verification.model.UserEmailVerificationData;
 import in.koreatech.koin.infrastructure.email.service.MailService;
-import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,16 +29,14 @@ public class UserVerificationService {
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final NaverSmsService naverSmsService;
     private final MailService mailService;
 
     @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
         UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         String verificationCode = CertificateNumberGenerator.generate();
-        naverSmsService.sendVerificationCode(verificationCode, phoneNumber);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofSms(phoneNumber, verificationCode));
-        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(phoneNumber));
+        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(verificationCode, phoneNumber));
         return SendVerificationResponse.from(verificationCount);
     }
 
@@ -85,7 +82,8 @@ public class UserVerificationService {
     }
 
     private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        Optional<UserDailyVerificationCount> count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail);
+        Optional<UserDailyVerificationCount> count = userDailyVerificationCountRedisRepository.findById(
+            phoneNumberOrEmail);
         if (count.isEmpty()) {
             UserDailyVerificationCount newCount = UserDailyVerificationCount.from(phoneNumberOrEmail);
             return userDailyVerificationCountRedisRepository.save(newCount);
