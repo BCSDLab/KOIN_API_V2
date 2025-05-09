@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.repository;
+package in.koreatech.koin.domain.user.verification.repository;
 
 import java.util.Optional;
 

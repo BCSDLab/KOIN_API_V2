@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.service;
+package in.koreatech.koin.domain.user.verification.service;
 
 import java.util.Optional;
 
@@ -11,13 +11,13 @@ import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
-import in.koreatech.koin.domain.user.dto.verification.SendVerificationResponse;
-import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
+import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
+import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.model.UserVerificationStatus;
-import in.koreatech.koin.domain.user.repository.UserDailyVerificationCountRedisRepository;
-import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.user.verification.repository.UserDailyVerificationCountRedisRepository;
+import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin._common.model.MailFormData;
-import in.koreatech.koin.domain.user.model.UserEmailVerificationData;
+import in.koreatech.koin.domain.user.verification.model.UserEmailVerificationData;
 import in.koreatech.koin.infrastructure.email.service.MailService;
 import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 import lombok.RequiredArgsConstructor;

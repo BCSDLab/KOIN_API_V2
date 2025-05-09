@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.model;
+package in.koreatech.koin.domain.user.verification.model;
 
 import java.util.Map;
 

@@ -1,11 +1,11 @@
-package in.koreatech.koin.domain.user.dto.verification;
+package in.koreatech.koin.domain.user.verification.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.user.model.UserDailyVerificationCount;
+import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
