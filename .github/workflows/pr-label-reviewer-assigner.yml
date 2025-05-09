@@ -5,15 +5,6 @@ on:
     types: [opened, labeled, unlabeled]
 
 jobs:
-  # 브랜치 접두사에 따라 라벨 추가
-  pr-labeler:
-    name: Branch Prefix Labeler
-    runs-on: ubuntu-latest
-    steps:
-      - uses: TimonVS/pr-labeler-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   # 이슈에 따라 라벨 추가
   sync-labels:
     name: Issue Labeler
@@ -23,6 +14,15 @@ jobs:
       - uses: michalvankodev/copy-issue-labels@v1.3.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # 브랜치 접두사에 따라 라벨 추가
+  pr-labeler:
+    name: Branch Prefix Labeler
+    runs-on: ubuntu-latest
+    steps:
+      - uses: TimonVS/pr-labeler-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # 팀라벨에 맞는 리뷰어 할당
   assign:
