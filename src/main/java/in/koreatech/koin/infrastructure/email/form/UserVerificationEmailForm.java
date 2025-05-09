@@ -1,17 +1,15 @@
-package in.koreatech.koin.domain.user.verification.model;
+package in.koreatech.koin.infrastructure.email.form;
 
 import java.util.Map;
 
-import in.koreatech.koin._common.model.MailFormData;
-
-public class UserEmailVerificationData implements MailFormData {
+public class UserVerificationEmailForm implements EmailForm {
 
     private static final String SUBJECT = "코인 이메일 인증";
     private static final String PATH = "user_email_verification";
 
     private final String verificationCode;
 
-    public UserEmailVerificationData(String verificationCode) {
+    public UserVerificationEmailForm(String verificationCode) {
         this.verificationCode = verificationCode;
     }
 

@@ -10,15 +10,12 @@ import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.model.MailFormData;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
-import in.koreatech.koin.domain.user.verification.model.UserEmailVerificationData;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.verification.repository.UserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
-import in.koreatech.koin.infrastructure.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,7 +26,6 @@ public class UserVerificationService {
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final MailService mailService;
 
     @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
@@ -44,10 +40,8 @@ public class UserVerificationService {
     public SendVerificationResponse sendEmailVerification(String email) {
         UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         String verificationCode = CertificateNumberGenerator.generate();
-        MailFormData mailFormData = new UserEmailVerificationData(verificationCode);
-        mailService.sendMail(email, mailFormData);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofEmail(email, verificationCode));
-        eventPublisher.publishEvent(new UserEmailVerificationSendEvent(email));
+        eventPublisher.publishEvent(new UserEmailVerificationSendEvent(verificationCode, email));
         return SendVerificationResponse.from(verificationCount);
     }
 

@@ -12,9 +12,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
-import in.koreatech.koin._common.event.StudentEmailRequestEvent;
+import in.koreatech.koin._common.event.StudentFindPasswordEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
-import in.koreatech.koin._common.event.UserRegisterEvent;
+import in.koreatech.koin._common.event.StudentRegisterRequestEvent;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
@@ -52,9 +52,6 @@ import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
-import in.koreatech.koin.domain.student.model.StudentPasswordChangeData;
-import in.koreatech.koin.domain.student.model.StudentRegistrationData;
-import in.koreatech.koin.infrastructure.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -62,7 +59,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class StudentService {
 
-    private final MailService mailService;
     private final UserService userService;
     private final UserVerificationService userVerificationService;
     private final UserValidationService userValidationService;
@@ -89,8 +85,7 @@ public class StudentService {
         UnAuthenticatedStudentInfo unauthenticatedStudentInfo = UnAuthenticatedStudentInfo.of(request, authToken);
         studentRedisRepository.save(unauthenticatedStudentInfo);
 
-        mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, authToken));
-        eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
+        eventPublisher.publishEvent(new StudentRegisterRequestEvent(request.email(), serverURL, authToken));
     }
 
     @Transactional
@@ -319,7 +314,7 @@ public class StudentService {
         User user = userRepository.getByEmail(request.email());
         String resetToken = UUID.randomUUID().toString();
         passwordResetTokenRepository.save(PasswordResetToken.of(resetToken, user.getId()));
-        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, resetToken));
+        eventPublisher.publishEvent(new StudentFindPasswordEvent(request.email(), serverURL, resetToken));
     }
 
     public StudentResponse getStudent(Integer userId) {
