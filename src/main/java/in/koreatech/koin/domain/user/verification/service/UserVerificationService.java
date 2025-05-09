@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class UserVerificationService {
 
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
@@ -33,25 +33,28 @@ public class UserVerificationService {
     private final NaverSmsService naverSmsService;
     private final MailService mailService;
 
+    @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
+        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         String verificationCode = CertificateNumberGenerator.generate();
         naverSmsService.sendVerificationCode(verificationCode, phoneNumber);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofSms(phoneNumber, verificationCode));
         eventPublisher.publishEvent(new UserSmsVerificationSendEvent(phoneNumber));
-        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         return SendVerificationResponse.from(verificationCount);
     }
 
+    @Transactional
     public SendVerificationResponse sendEmailVerification(String email) {
+        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         String verificationCode = CertificateNumberGenerator.generate();
         MailFormData mailFormData = new UserEmailVerificationData(verificationCode);
         mailService.sendMail(email, mailFormData);
         userVerificationStatusRedisRepository.save(UserVerificationStatus.ofEmail(email, verificationCode));
         eventPublisher.publishEvent(new UserEmailVerificationSendEvent(email));
-        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         return SendVerificationResponse.from(verificationCount);
     }
 
+    @Transactional
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
         if (verificationStatus.isCodeMismatched(verificationCode)) {
@@ -73,6 +76,7 @@ public class UserVerificationService {
      * 레디스는 트랜잭션을 지원하지 않으므로 메서드 내에서 오류 발생 시 롤백되지않습니다.
      * </p>
      */
+    @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
         userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
             .filter(UserVerificationStatus::isVerified)
