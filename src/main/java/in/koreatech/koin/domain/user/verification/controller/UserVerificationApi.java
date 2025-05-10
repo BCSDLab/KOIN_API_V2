@@ -1,15 +1,15 @@
-package in.koreatech.koin.domain.user.controller;
+package in.koreatech.koin.domain.user.verification.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import in.koreatech.koin.domain.user.dto.verification.SendEmailVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.VerifyEmailVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.SendSmsVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.VerifySmsVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.SendVerificationResponse;
+import in.koreatech.koin.domain.user.verification.dto.SendEmailVerificationRequest;
+import in.koreatech.koin.domain.user.verification.dto.VerifyEmailVerificationRequest;
+import in.koreatech.koin.domain.user.verification.dto.SendSmsVerificationRequest;
+import in.koreatech.koin.domain.user.verification.dto.VerifySmsVerificationRequest;
+import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,7 +36,8 @@ public interface UserVerificationApi {
     )
     @PostMapping("/sms/send")
     ResponseEntity<SendVerificationResponse> sendSmsVerificationCode(
-        @Valid @RequestBody SendSmsVerificationRequest request);
+        @Valid @RequestBody SendSmsVerificationRequest request
+    );
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "인증 성공"),
@@ -48,7 +49,9 @@ public interface UserVerificationApi {
         description = "전화번호로 전송된 인증번호를 검증합니다."
     )
     @PostMapping("/sms/verify")
-    ResponseEntity<Void> verifySmsVerificationCode(@Valid @RequestBody VerifySmsVerificationRequest request);
+    ResponseEntity<Void> verifySmsVerificationCode(
+        @Valid @RequestBody VerifySmsVerificationRequest request
+    );
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "인증 번호 전송 성공"),
@@ -64,7 +67,8 @@ public interface UserVerificationApi {
     )
     @PostMapping("/email/send")
     ResponseEntity<SendVerificationResponse> sendEmailVerificationCode(
-        @Valid @RequestBody SendEmailVerificationRequest request);
+        @Valid @RequestBody SendEmailVerificationRequest request
+    );
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "이메일 인증 성공"),
@@ -76,5 +80,7 @@ public interface UserVerificationApi {
         description = "이메일로 전송된 인증번호를 검증합니다."
     )
     @PostMapping("/email/verify")
-    ResponseEntity<Void> verifyEmailVerificationCode(@Valid @RequestBody VerifyEmailVerificationRequest request);
+    ResponseEntity<Void> verifyEmailVerificationCode(
+        @Valid @RequestBody VerifyEmailVerificationRequest request
+    );
 }

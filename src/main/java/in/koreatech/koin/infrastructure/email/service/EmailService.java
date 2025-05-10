@@ -6,22 +6,22 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import in.koreatech.koin._common.model.MailFormData;
+import in.koreatech.koin.infrastructure.email.form.EmailForm;
 import in.koreatech.koin.infrastructure.email.model.SesMailSender;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class MailService {
+public class EmailService {
 
     private static final String NO_REPLY_EMAIL_ADDRESS = "no-reply@bcsdlab.com";
 
     private final SesMailSender sesMailSender;
     private final TemplateEngine templateEngine;
 
-    public void sendMail(String targetEmail, MailFormData mailFormData) {
-        String mailForm = generateMailForm(mailFormData.getContent(), mailFormData.getFilePath());
-        String subject = mailFormData.getSubject();
+    public void sendVerificationEmail(String targetEmail, EmailForm emailForm) {
+        String mailForm = generateMailForm(emailForm.getContent(), emailForm.getFilePath());
+        String subject = emailForm.getSubject();
         sesMailSender.sendMail(NO_REPLY_EMAIL_ADDRESS, targetEmail, subject, mailForm);
     }
 

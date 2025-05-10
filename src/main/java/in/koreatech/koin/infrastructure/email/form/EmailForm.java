@@ -1,8 +1,8 @@
-package in.koreatech.koin._common.model;
+package in.koreatech.koin.infrastructure.email.form;
 
 import java.util.Map;
 
-public interface MailFormData {
+public interface EmailForm {
 
     Map<String, String> getContent();
 

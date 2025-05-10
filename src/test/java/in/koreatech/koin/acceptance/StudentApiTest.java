@@ -363,7 +363,7 @@ public class StudentApiTest extends AcceptanceTest {
                 softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
                 softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
                 softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
-                forceVerify(() -> verify(studentEventListener).onStudentEmailRequest(any()));
+                forceVerify(() -> verify(studentEventListener).onStudentRegisterRequestEvent(any()));
                 clear();
                 setup();
             }
@@ -404,7 +404,7 @@ public class StudentApiTest extends AcceptanceTest {
         assertThat(studentRedisRepository.findById("koko123@koreatech.ac.kr")).isEmpty();
 
         assertThat(user.isAuthed()).isTrue();
-        forceVerify(() -> verify(studentEventListener).onStudentRegister(any()));
+        forceVerify(() -> verify(studentEventListener).onStudentRegisterEvent(any()));
         clear();
         setup();
     }

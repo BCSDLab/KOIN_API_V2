@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.StudentEmailRequestEvent;
+import in.koreatech.koin._common.event.StudentRegisterRequestEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin.infrastructure.slack.client.SlackClient;
 import in.koreatech.koin.infrastructure.slack.model.SlackNotificationFactory;
@@ -24,14 +24,14 @@ public class StudentEventListener {
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onStudentEmailRequest(StudentEmailRequestEvent event) {
+    public void onStudentRegisterRequestEvent(StudentRegisterRequestEvent event) {
         var notification = slackNotificationFactory.generateStudentEmailVerificationRequestNotification(event.email());
         slackClient.sendMessage(notification);
     }
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onStudentRegister(StudentRegisterEvent event) {
+    public void onStudentRegisterEvent(StudentRegisterEvent event) {
         var notification = slackNotificationFactory.generateStudentRegisterCompleteNotification(event.email());
         slackClient.sendMessage(notification);
     }

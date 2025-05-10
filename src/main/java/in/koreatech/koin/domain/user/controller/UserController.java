@@ -52,7 +52,6 @@ import lombok.RequiredArgsConstructor;
 public class UserController implements UserApi {
 
     private final UserService userService;
-    private final UserValidationService userValidationService;
 
     @GetMapping("/v2/users/me")
     public ResponseEntity<UserResponse> getUserV2(
@@ -134,91 +133,6 @@ public class UserController implements UserApi {
         @Valid UserAccessTokenRequest request
     ) {
         userService.checkLogin(request.accessToken());
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/user/check/email")
-    public ResponseEntity<Void> checkUserEmailExist(
-        @ParameterObject @ModelAttribute(value = "address")
-        @Valid CheckEmailDuplicationRequest request
-    ) {
-        userValidationService.checkDuplicatedEmail(request.email());
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/user/check/phone")
-    public ResponseEntity<Void> checkPhoneNumberExist(
-        @ParameterObject @ModelAttribute(value = "phone")
-        @Valid CheckPhoneDuplicationRequest request
-    ) {
-        userValidationService.checkDuplicatedPhoneNumber(request.phone());
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/user/check/nickname")
-    public ResponseEntity<Void> checkDuplicationOfNickname(
-        @ParameterObject @ModelAttribute("nickname")
-        @Valid CheckNicknameDuplicationRequest request
-    ) {
-        userValidationService.checkDuplicatedNickname(request.nickname());
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/user/check/id")
-    public ResponseEntity<Void> checkDuplicatedLoginId(
-        @ParameterObject @ModelAttribute("id")
-        @Valid CheckLoginIdDuplicationRequest request
-    ) {
-        userValidationService.checkDuplicatedLoginId(request.loginId());
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/check/password")
-    public ResponseEntity<Void> checkPassword(
-        @Valid @RequestBody CheckUserPasswordRequest request,
-        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
-    ) {
-        userValidationService.checkPassword(request.password(), userId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/id/exists")
-    public ResponseEntity<Void> existsByUserId(
-        @Valid @RequestBody ExistsByUserIdRequest request
-    ) {
-        userValidationService.existsByUserId(request.loginId());
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/phone/exists")
-    public ResponseEntity<Void> existsByPhoneNumber(
-        @Valid @RequestBody ExistsByPhoneRequest request
-    ) {
-        userValidationService.existsByPhoneNumber(request.phoneNumber());
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/user/email/exists")
-    public ResponseEntity<Void> existsByEmail(
-        @Valid @RequestBody ExistsByEmailRequest request
-    ) {
-        userValidationService.existsByEmail(request.email());
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/users/id/match/phone")
-    public ResponseEntity<Void> matchUserIdWithPhoneNumber(
-        @Valid @RequestBody MatchUserIdWithPhoneNumberRequest request
-    ) {
-        userValidationService.matchUserIdWithPhoneNumber(request.loginId(), request.phoneNumber());
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/users/id/match/email")
-    public ResponseEntity<Void> matchUserIdWithEmail(
-        @Valid @RequestBody MatchUserIdWithEmailRequest request
-    ) {
-        userValidationService.matchUserIdWithEmail(request.loginId(), request.email());
         return ResponseEntity.ok().build();
     }
 

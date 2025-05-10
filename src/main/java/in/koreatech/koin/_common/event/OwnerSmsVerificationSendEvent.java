@@ -1,6 +1,6 @@
 package in.koreatech.koin._common.event;
 
-public record UserSmsVerificationSendEvent(
+public record OwnerSmsVerificationSendEvent(
     String verificationCode,
     String phoneNumber
 ) {

@@ -20,7 +20,7 @@ import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
-import in.koreatech.koin.domain.user.dto.CoopResponse;
+import in.koreatech.koin.domain.coop.dto.CoopResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.OwnerRegisterEvent;
-import in.koreatech.koin._common.event.OwnerSmsRequestEvent;
+import in.koreatech.koin._common.event.OwnerSmsVerificationSendEvent;
 import in.koreatech.koin.infrastructure.slack.client.SlackClient;
 import in.koreatech.koin.infrastructure.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class OwnerEventListener {
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onOwnerPhoneRequest(OwnerSmsRequestEvent ownerPhoneRequestEvent) {
+    public void onOwnerPhoneRequest(OwnerSmsVerificationSendEvent ownerPhoneRequestEvent) {
         var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(
             ownerPhoneRequestEvent.phoneNumber());
         slackClient.sendMessage(notification);
