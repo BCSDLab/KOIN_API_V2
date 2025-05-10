@@ -35,23 +35,23 @@ BCSD가 추구하는 방향성에 대한 정보는 아래 블로그를 통해 �
 
 <br/>
 
-![Image](https://github.com/user-attachments/assets/0a259345-9ef9-46a5-8979-dd806a4dcdf5)
+![Image](https://github.com/user-attachments/assets/6a4dfe70-9168-4023-871f-2c900d5a2ea0)
 
-![Image](https://github.com/user-attachments/assets/0f0fc4a9-4cc3-453c-9180-ca1197055531)
+![Image](https://github.com/user-attachments/assets/a5b51d8a-c47f-4601-9485-0a26986096fb)
 
-![Image](https://github.com/user-attachments/assets/360d64a7-e9b6-4cf1-b1e4-b14b2fdd7770)
+![Image](https://github.com/user-attachments/assets/47893383-ba53-4854-b59a-cc1338e3fee6)
 
-![Image](https://github.com/user-attachments/assets/20013730-9d9a-4721-8280-d228dd578c46)
+![Image](https://github.com/user-attachments/assets/c361d317-a7d5-4219-91d3-6c84beb820c7)
 
-![Image](https://github.com/user-attachments/assets/f5d843d5-f965-43fb-9b3b-7a0fa155e62f)
+![Image](https://github.com/user-attachments/assets/4a1d6b6a-b773-479d-abb5-035fa46d1aae)
 
-![Image](https://github.com/user-attachments/assets/c1dbc16e-caba-45cc-8083-aa7fb108f9db)
+![Image](https://github.com/user-attachments/assets/1f32589f-d688-406a-9af7-efbe9fc70b04)
 
-![Image](https://github.com/user-attachments/assets/a9b21c01-2473-46bf-92e1-69b44c789641)
+![Image](https://github.com/user-attachments/assets/0e0be4a5-7025-463d-a95f-16c855af4db3)
 
-![Image](https://github.com/user-attachments/assets/2a50b172-2d94-4c60-a4f3-cf58fd8e80e9)
+![Image](https://github.com/user-attachments/assets/3b058da3-91ec-4d50-baed-734b29799783)
 
-![Image](https://github.com/user-attachments/assets/0a991cd2-55e5-4ec6-ac72-167b8afb3833)
+![Image](https://github.com/user-attachments/assets/dddba80d-21e3-416e-8dff-9f443d14f199)
 
 </details>
 
