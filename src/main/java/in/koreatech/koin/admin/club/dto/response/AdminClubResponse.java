@@ -30,6 +30,12 @@ public record AdminClubResponse(
     @Schema(description = "동아리 분과 카테고리", example = "학술", requiredMode = REQUIRED)
     String clubCategoryName,
 
+    @Schema(description = "동아리 좋아요 개수", example = "9999", requiredMode = REQUIRED)
+    Integer likes,
+
+    @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
+    String description,
+
     @Schema(description = "배너 생성일", example = "25.03.23", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yy.MM.dd")
     LocalDate createdAt,
@@ -62,6 +68,8 @@ public record AdminClubResponse(
                 .map(clubAdmin -> InnerClubAdminResponse.from(clubAdmin.getUser()))
                 .toList(),
             club.getClubCategory().getName(),
+            club.getLikes(),
+            club.getDescription(),
             club.getCreatedAt().toLocalDate(),
             club.getActive()
         );
