@@ -19,6 +19,6 @@ public class AdminClubCategoryService {
 
     public AdminClubCategoriesResponse getClubCategories() {
         List<ClubCategory> clubCategories = adminClubCategoryRepository.findAll();
-        return AdminClubCategoriesResponse.of(clubCategories);
+        return AdminClubCategoriesResponse.from(clubCategories);
     }
 }

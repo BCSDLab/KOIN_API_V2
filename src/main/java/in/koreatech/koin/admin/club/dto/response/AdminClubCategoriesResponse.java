@@ -23,15 +23,15 @@ public record AdminClubCategoriesResponse(
         @Schema(description = "동아리 카테고리 이름", example = "학술", requiredMode = REQUIRED)
         String name
     ) {
-        private static InnerAdminClubCategoryResponse of(ClubCategory category) {
+        private static InnerAdminClubCategoryResponse from(ClubCategory category) {
             return new InnerAdminClubCategoryResponse(category.getId(), category.getName());
         }
 
     }
 
-    public static AdminClubCategoriesResponse of(List<ClubCategory> clubCategories) {
+    public static AdminClubCategoriesResponse from(List<ClubCategory> clubCategories) {
         return new AdminClubCategoriesResponse(clubCategories.stream()
-            .map(InnerAdminClubCategoryResponse::of)
+            .map(InnerAdminClubCategoryResponse::from)
             .toList()
         );
     }
