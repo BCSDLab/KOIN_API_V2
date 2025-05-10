@@ -1,6 +1,6 @@
 # Koin - 한기대 학생들을 위한 단 하나의 서비스
 
-![Image](https://github.com/user-attachments/assets/67226e2d-ae4b-4775-8075-3ec262550373)
+![Image](https://github.com/user-attachments/assets/75742ede-7e33-435c-9330-c9b6ab232231)
 
 ## 👋 Build Communities, Share Dreams - BCSD
 안녕하세요! 한국기술교육대학교의 BCSD, BackEnd 트랙에 오신 걸 환영합니다.
@@ -58,16 +58,16 @@ BCSD가 추구하는 방향성에 대한 정보는 아래 블로그를 통해 �
 # ⚙️ Tech Stack
 
 ## 🖥️ Backend
-![Image](https://github.com/user-attachments/assets/12e777f1-975a-439b-8701-3efe50f3fb92)
+![Image](https://github.com/user-attachments/assets/7b409909-051a-4918-9374-29f654cd8ca7)
 
 ## ☁️ Infra
-![Image](https://github.com/user-attachments/assets/ddafef08-6b11-4fa2-af7d-c6693df05c2e)
+![Image](https://github.com/user-attachments/assets/747c5fab-40d0-4b69-881b-ba7335061389)
 
 ## 🏗️ Infra Structure
-![Image](https://github.com/user-attachments/assets/7a45ac14-6263-4e78-bf86-fcd86559825e)
+![Image](https://github.com/user-attachments/assets/5727bb18-242b-4edb-930a-cee08a90f2ad)
 
 ## 📦 Server Instance
-![Image](https://github.com/user-attachments/assets/57f12fc8-ded3-42f4-be88-ac2287d891d2)
+![Image](https://github.com/user-attachments/assets/5bf5c67a-b008-4652-b45e-e7606803df82)
 
 ## 🗂️ Repository Structure
 ```
