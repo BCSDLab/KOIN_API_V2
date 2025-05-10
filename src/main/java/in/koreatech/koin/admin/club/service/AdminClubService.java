@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
@@ -36,5 +37,10 @@ public class AdminClubService {
         Page<Club> clubs = adminClubRepository.findAllByClubCategoryId(clubCategoryId, pageRequest);
 
         return AdminClubsResponse.from(clubs);
+    }
+
+    public AdminClubResponse getClub(Integer clubId) {
+        Club club = adminClubRepository.getById(clubId);
+        return AdminClubResponse.from(club);
     }
 }
