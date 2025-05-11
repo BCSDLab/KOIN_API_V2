@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
+import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
@@ -64,5 +65,10 @@ public class AdminClubService {
             .toList();
 
         adminClubAdminRepository.saveAll(clubAdmins);
+    }
+
+    @Transactional
+    public void modifyClub(Integer clubId, ModifyAdminClubRequest request) {
+
     }
 }

@@ -1,11 +1,13 @@
 package in.koreatech.koin.admin.club.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
+import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.service.AdminClubService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -53,6 +57,16 @@ public class AdminClubController implements AdminClubApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.createClub(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> modifyClub(
+        @Parameter(in = PATH) @PathVariable(name = "id") Integer clubId,
+        @RequestBody @Valid ModifyAdminClubRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminClubService.modifyClub(clubId, request);
         return ResponseEntity.ok().build();
     }
 }
