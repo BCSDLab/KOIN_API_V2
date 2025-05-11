@@ -1,11 +1,9 @@
 package in.koreatech.koin.admin.club.repository;
 
-import java.util.List;
-
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.model.ClubAdmin;
 
 public interface AdminClubAdminRepository extends Repository<ClubAdmin, Integer> {
-    void saveAll(List<ClubAdmin> clubAdmins);
+    void saveAll(Iterable<ClubAdmin> clubAdmins);
 }
