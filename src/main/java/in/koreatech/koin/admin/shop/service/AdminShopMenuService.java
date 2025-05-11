@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.event.ShopImagesDeletedEvent;
+import in.koreatech.koin._common.event.ImagesDeletedEvent;
 import in.koreatech.koin.admin.shop.dto.menu.*;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
@@ -146,6 +146,6 @@ public class AdminShopMenuService {
             .map(MenuImage::getImageUrl)
             .toList();
         adminMenuRepository.deleteById(menuId);
-        eventPublisher.publishEvent(new ShopImagesDeletedEvent(imageUrls));
+        eventPublisher.publishEvent(new ImagesDeletedEvent(imageUrls));
     }
 }

@@ -9,28 +9,28 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.ShopImageDeletedEvent;
-import in.koreatech.koin._common.event.ShopImagesDeletedEvent;
+import in.koreatech.koin._common.event.ImageDeletedEvent;
+import in.koreatech.koin._common.event.ImagesDeletedEvent;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 @Profile("!test")
-public class ShopEventListener {
+public class S3EventListener {
 
     private final S3Client s3Client;
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onShopImageDeleted(ShopImageDeletedEvent event) {
+    public void onShopImageDeleted(ImageDeletedEvent event) {
         String s3Key = s3Client.extractKeyFromUrl(event.imageUrl());
         s3Client.deleteFile(s3Key);
     }
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onShopImagesDeleted(ShopImagesDeletedEvent event) {
+    public void onShopImagesDeleted(ImagesDeletedEvent event) {
         List<String> s3Keys = s3Client.extractKeysFromUrls(event.imageUrls());
         s3Client.deleteFiles(s3Keys);
     }
