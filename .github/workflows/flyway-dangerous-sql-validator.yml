@@ -1,4 +1,5 @@
-name: Flyway Dangerous SQL Check
+name: Flyway Dangerous SQL Validator
+# 블루/그린 배포 환경에서 기존 WAS와 DB의 스키마 불일치하는 오류를 방지한다.
 
 on:
   pull_request:

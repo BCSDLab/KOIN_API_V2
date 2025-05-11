@@ -1,4 +1,4 @@
-name: "Assign Reviewers by Label"
+name: Assign Reviewers by Label
 on:
   pull_request:
     types: [opened, labeled, unlabeled]
