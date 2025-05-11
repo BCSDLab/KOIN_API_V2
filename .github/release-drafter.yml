@@ -1,6 +1,6 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
-change-template: '- $TITLE @${AUTHOR} (#$NUMBER)'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 
 categories:
   - title: "🚀 스프린트가 완료되었어요."
@@ -8,7 +8,7 @@ categories:
   - title: "✨ 새로운 기능이 추가되었어요."
     labels: ["기능"]
   - title: "🩹 버그 수정 혹은 리팩토링을 진행했어요."
-    labels: ["리팩터링", "문서", "버그" "인프라", "테스트"]
+    labels: ["리팩터링", "문서", "버그", "인프라", "테스트"]
 
 version-resolver:
   major:
