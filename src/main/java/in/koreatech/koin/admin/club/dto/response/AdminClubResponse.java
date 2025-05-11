@@ -38,7 +38,7 @@ public record AdminClubResponse(
     String description,
 
     @Schema(description = "동아리 연락처 리스트", requiredMode = REQUIRED)
-    List<InnerClubSNSResponse> snsResponses,
+    List<InnerClubSNSResponse> snsContacts,
 
     @Schema(description = "배너 생성일", example = "25.03.23", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yy.MM.dd")
