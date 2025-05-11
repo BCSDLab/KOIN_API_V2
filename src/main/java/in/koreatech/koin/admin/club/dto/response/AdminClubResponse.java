@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -36,6 +37,9 @@ public record AdminClubResponse(
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
     String description,
 
+    @Schema(description = "동아리 연락처 리스트", requiredMode = REQUIRED)
+    List<InnerClubSNSResponse> snsResponses,
+
     @Schema(description = "배너 생성일", example = "25.03.23", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yy.MM.dd")
     LocalDate createdAt,
@@ -59,6 +63,22 @@ public record AdminClubResponse(
         }
     }
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
+    private record InnerClubSNSResponse(
+        @Schema(description = "동아리 SNS 종류", example = "인스타", requiredMode = REQUIRED)
+        String snsType,
+
+        @Schema(description = "동아리 SNS 연락처", example = "https://www.instagram.com/bcsdlab/", requiredMode = REQUIRED)
+        String contract
+    ) {
+        private static InnerClubSNSResponse from(ClubSNS clubSNS) {
+            return new InnerClubSNSResponse(
+                clubSNS.getSnsType().getDisplayName(),
+                clubSNS.getContact()
+            );
+        }
+    }
+
     public static AdminClubResponse from(Club club) {
         return new AdminClubResponse(
             club.getId(),
@@ -70,6 +90,9 @@ public record AdminClubResponse(
             club.getClubCategory().getName(),
             club.getLikes(),
             club.getDescription(),
+            club.getClubSNSs().stream()
+                .map(InnerClubSNSResponse::from)
+                .toList(),
             club.getCreatedAt().toLocalDate(),
             club.getActive()
         );
