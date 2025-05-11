@@ -5,14 +5,18 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.service.AdminClubService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -41,5 +45,14 @@ public class AdminClubController implements AdminClubApi {
     ) {
         AdminClubResponse response = adminClubService.getClub(clubId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> createClub(
+        @RequestBody @Valid CreateAdminClubRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminClubService.createClub(request);
+        return ResponseEntity.ok().build();
     }
 }

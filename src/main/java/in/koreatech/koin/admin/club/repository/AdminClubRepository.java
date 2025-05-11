@@ -27,4 +27,6 @@ public interface AdminClubRepository extends Repository<Club, Integer> {
         return findById(clubId)
             .orElseThrow(() -> ClubNotFound.withDetail("clubId : " + clubId));
     }
+
+    Club save(Club club);
 }

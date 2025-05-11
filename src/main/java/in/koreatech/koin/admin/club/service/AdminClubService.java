@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.club.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -7,11 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
+import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
+import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +27,9 @@ import lombok.RequiredArgsConstructor;
 public class AdminClubService {
 
     private final AdminClubCategoryRepository adminClubCategoryRepository;
+    private final AdminClubAdminRepository adminClubAdminRepository;
     private final AdminClubRepository adminClubRepository;
+    private final AdminUserRepository adminUserRepository;
 
     public AdminClubsResponse getClubs(Integer page, Integer limit, Boolean sortByLike, String clubCategoryName) {
         ClubCategory clubCategory = adminClubCategoryRepository.getByName(clubCategoryName);
@@ -42,5 +50,19 @@ public class AdminClubService {
     public AdminClubResponse getClub(Integer clubId) {
         Club club = adminClubRepository.getById(clubId);
         return AdminClubResponse.from(club);
+    }
+
+    @Transactional
+    public void createClub(CreateAdminClubRequest request) {
+        ClubCategory clubCategory = adminClubCategoryRepository.getByName(request.name());
+        Club club = adminClubRepository.save(request.toEntity(clubCategory));
+
+        List<ClubAdmin> clubAdmins = request.clubAdmins().stream()
+            .map(innerClubAdminRequest ->
+                innerClubAdminRequest.toEntity(club, adminUserRepository.getByUserId(innerClubAdminRequest.userid()))
+            )
+            .toList();
+
+        adminClubAdminRepository.saveAll(clubAdmins);
     }
 }
