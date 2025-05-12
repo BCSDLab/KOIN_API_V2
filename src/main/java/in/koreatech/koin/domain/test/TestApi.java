@@ -35,4 +35,9 @@ public interface TestApi {
         @RequestParam(defaultValue = "HOME") MobileAppPath mobileAppPath,
         @Parameter(description = "스킴 uri(ex: shop?id=1)") @RequestParam String url
     );
+
+    @ApiResponse(responseCode = "503", content = @Content(schema = @Schema(hidden = true)))
+    @Operation(summary = "Service Unavailable 테스트")
+    @GetMapping("/service-unavailable")
+    ResponseEntity<Object> testServiceUnavailable();
 }
