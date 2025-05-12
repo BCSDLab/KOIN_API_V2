@@ -1,0 +1,37 @@
+package in.koreatech.koin.domain.club.controller;
+
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.service.ClubService;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/clubs")
+public class ClubController implements ClubApi {
+
+    private final ClubService clubService;
+
+    @PostMapping("/{clubId}/qna")
+    public ResponseEntity<Void> createQna(
+        @RequestBody @Valid CreateQnaRequest request,
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ){
+        clubService.createQna(request, clubId, studentId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+}
