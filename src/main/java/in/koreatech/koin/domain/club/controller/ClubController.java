@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -25,6 +27,14 @@ import lombok.RequiredArgsConstructor;
 public class ClubController implements ClubApi {
 
     private final ClubService clubService;
+
+    @GetMapping("/{clubId}/qna")
+    public ResponseEntity<QnasResponse> getQnas(
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    ) {
+        QnasResponse response = clubService.getQnas(clubId);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/{clubId}/qna")
     public ResponseEntity<Void> createQna(

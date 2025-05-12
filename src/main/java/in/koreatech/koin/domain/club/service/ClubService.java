@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.service;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
@@ -7,13 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubQna;
 import in.koreatech.koin.domain.club.repository.ClubAdminRepository;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,15 +25,21 @@ public class ClubService {
 
     private final ClubQnaRepository clubQnaRepository;
     private final ClubRepository clubRepository;
-    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
     private final ClubAdminRepository clubAdminRepository;
+
+    public QnasResponse getQnas(Integer clubId) {
+        List<ClubQna> qnas = clubQnaRepository.findAllByClubId(clubId);
+        return QnasResponse.from(qnas);
+    }
 
     @Transactional
     public void createQna(CreateQnaRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
-        User user = userRepository.getById(studentId);
+        Student student = studentRepository.getById(studentId);
         ClubQna parentQna = request.parentId() == null ? null : clubQnaRepository.getById(request.parentId());
-        ClubQna qna = request.toClubQna(club, user, parentQna) ;
+        boolean isAdmin = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
+        ClubQna qna = request.toClubQna(club, student, parentQna, isAdmin);
         clubQnaRepository.save(qna);
     }
 
@@ -47,7 +55,7 @@ public class ClubService {
     }
 
     private void validateQnaDeleteAuthorization(Integer clubId, ClubQna qna, Integer studentId) {
-        if (Objects.equals(qna.getUser().getId(), studentId)) return;
+        if (Objects.equals(qna.getAuthor().getId(), studentId)) return;
         if (clubAdminRepository.existsByClubIdAndUserId(clubId, studentId)) return;
         throw AuthorizationException.withDetail("studentId: " + studentId);
     }

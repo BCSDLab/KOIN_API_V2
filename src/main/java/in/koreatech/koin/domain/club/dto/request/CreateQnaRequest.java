@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubQna;
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.student.model.Student;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -24,13 +24,14 @@ public record CreateQnaRequest(
     String content
 ) {
 
-    public ClubQna toClubQna(Club club, User user, ClubQna parentQna) {
+    public ClubQna toClubQna(Club club, Student student, ClubQna parentQna, boolean isAdmin) {
         return ClubQna.builder()
             .club(club)
-            .user(user)
+            .author(student)
             .parent(parentQna)
             .content(content)
             .isDeleted(false)
+            .isAdmin(isAdmin)
             .build();
     }
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,9 +40,9 @@ public class ClubQna extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     private Club club;
 
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "author_id")
     @ManyToOne(fetch = LAZY)
-    private User user;
+    private Student author;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "parent_id")
@@ -55,6 +56,10 @@ public class ClubQna extends BaseEntity {
     private String content;
 
     @NotNull
+    @Column(name = "is_admin", nullable = false)
+    private Boolean isAdmin;
+
+    @NotNull
     @Column(name = "is_deleted", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean isDeleted = FALSE;
 
@@ -62,16 +67,18 @@ public class ClubQna extends BaseEntity {
     private ClubQna(
         Integer id,
         Club club,
-        User user,
+        Student author,
         ClubQna parent,
         String content,
+        Boolean isAdmin,
         Boolean isDeleted
     ) {
         this.id = id;
         this.club = club;
-        this.user = user;
+        this.author = author;
         this.parent = parent;
         this.content = content;
+        this.isAdmin = isAdmin;
         this.isDeleted = isDeleted;
     }
 

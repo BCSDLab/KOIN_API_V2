@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -9,7 +10,7 @@ import in.koreatech.koin.domain.club.model.ClubQna;
 
 public interface ClubQnaRepository extends Repository<ClubQna, Integer> {
 
-    ClubQna save(ClubQna qna);
+    List<ClubQna> findAllByClubId(Integer clubId);
 
     Optional<ClubQna> findById(Integer id);
 
@@ -17,6 +18,8 @@ public interface ClubQnaRepository extends Repository<ClubQna, Integer> {
         return findById(id)
             .orElseThrow(() -> ClubQnaNotFoundException.withDetail("id : " + id));
     }
+
+    ClubQna save(ClubQna qna);
 
     void delete(ClubQna qna);
 }
