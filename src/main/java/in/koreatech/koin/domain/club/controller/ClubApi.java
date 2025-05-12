@@ -1,9 +1,11 @@
 package in.koreatech.koin.domain.club.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +39,23 @@ public interface ClubApi {
     ResponseEntity<Void> createQna(
         @RequestBody @Valid CreateQnaRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 동아리의 QNA를 삭제한다")
+    @DeleteMapping("/{clubId}/qna/{qnaId}")
+    ResponseEntity<Void> deleteQna(
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @Parameter(in = PATH) @PathVariable Integer qnaId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 }

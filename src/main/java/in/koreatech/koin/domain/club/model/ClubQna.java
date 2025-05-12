@@ -5,14 +5,19 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.user.model.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -42,6 +47,9 @@ public class ClubQna extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private ClubQna parent;
 
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClubQna> children = new ArrayList<>();
+
     @NotNull
     @Column(nullable = false)
     private String content;
@@ -65,5 +73,13 @@ public class ClubQna extends BaseEntity {
         this.parent = parent;
         this.content = content;
         this.isDeleted = isDeleted;
+    }
+
+    public void delete() {
+        isDeleted = true;
+    }
+
+    public boolean isRoot() {
+        return parent == null;
     }
 }

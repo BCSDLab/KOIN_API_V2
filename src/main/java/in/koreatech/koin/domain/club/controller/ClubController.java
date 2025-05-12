@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,5 +34,15 @@ public class ClubController implements ClubApi {
     ){
         clubService.createQna(request, clubId, studentId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{clubId}/qna/{qnaId}")
+    public ResponseEntity<Void> deleteQna(
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @Parameter(in = PATH) @PathVariable Integer qnaId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.deleteQna(clubId, qnaId, studentId);
+        return ResponseEntity.noContent().build();
     }
 }

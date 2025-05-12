@@ -17,4 +17,6 @@ public interface ClubQnaRepository extends Repository<ClubQna, Integer> {
         return findById(id)
             .orElseThrow(() -> ClubQnaNotFoundException.withDetail("id : " + id));
     }
+
+    void delete(ClubQna qna);
 }
