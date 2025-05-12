@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import in.koreatech.koin.domain.notification.model.NotificationType;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import lombok.RequiredArgsConstructor;
 
+@Profile("dev")
 @RestController
 @RequestMapping("/test")
 @RequiredArgsConstructor
