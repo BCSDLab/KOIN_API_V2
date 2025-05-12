@@ -76,8 +76,7 @@ public class UserVerificationService {
     }
 
     private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        Optional<UserDailyVerificationCount> count = userDailyVerificationCountRedisRepository.findById(
-            phoneNumberOrEmail);
+        Optional<UserDailyVerificationCount> count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail);
         if (count.isEmpty()) {
             UserDailyVerificationCount newCount = UserDailyVerificationCount.from(phoneNumberOrEmail);
             return userDailyVerificationCountRedisRepository.save(newCount);

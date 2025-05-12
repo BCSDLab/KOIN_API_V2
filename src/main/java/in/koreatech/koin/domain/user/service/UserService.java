@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.service;
 
+import static in.koreatech.koin.domain.user.model.UserType.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -127,10 +129,10 @@ public class UserService {
     @Transactional
     public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
-        if (user.getUserType() == UserType.STUDENT) {
+        if (user.getUserType() == STUDENT) {
             timetableFrameRepositoryV2.deleteAllByUser(user);
             studentRepository.deleteByUserId(userId);
-        } else if (user.getUserType() == UserType.OWNER) {
+        } else if (user.getUserType() == OWNER) {
             ownerRepository.deleteByUserId(userId);
         }
         userRepository.delete(user);
@@ -142,15 +144,14 @@ public class UserService {
     }
 
     public String findIdBySms(String phoneNumber) {
-        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber,
-            List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT));
         String userId = user.getUserId();
         userVerificationService.consumeVerification(phoneNumber);
         return userId;
     }
 
     public String findIdByEmail(String email) {
-        User user = userRepository.getByEmailAndUserTypeIn(email, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByEmailAndUserTypeIn(email, List.of(GENERAL, STUDENT));
         String userId = user.getUserId();
         userVerificationService.consumeVerification(email);
         return userId;
@@ -158,7 +159,7 @@ public class UserService {
 
     @Transactional
     public void resetPasswordBySms(String userId, String phoneNumber, String newPassword) {
-        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(GENERAL, STUDENT));
         if (user.isNotSamePhoneNumber(phoneNumber)) {
             throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
         }
@@ -169,7 +170,7 @@ public class UserService {
 
     @Transactional
     public void resetPasswordByEmail(String userId, String email, String newPassword) {
-        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(GENERAL, STUDENT));
         if (user.isNotSameEmail(email)) {
             throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
         }
