@@ -1,10 +1,10 @@
 package in.koreatech.koin._common.auth;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
-import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -37,30 +37,32 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
         Auth authAt = parameter.getParameterAnnotation(Auth.class);
-        requireNonNull(authAt);
+        Objects.requireNonNull(authAt);
+
         List<UserType> permitStatus = Arrays.asList(authAt.permit());
         if (authContext.isAnonymous() && authAt.anonymous()) {
             return null;
         }
         Integer userId = authContext.getUserId();
-        User user = userRepository.getById(userId);
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> AuthorizationException.withDetail("이미 탈퇴한 계정입니다. userId: " + userId));
 
         if (user.isDeleted()) {
-            throw new AuthorizationException("이미 탈퇴한 계정입니다.");
+            throw AuthorizationException.withDetail("이미 탈퇴한 계정입니다. userId: " + user.getId());
         }
 
         if (permitStatus.contains(user.getUserType())) {
             if (!user.isAuthed()) {
                 if (user.getUserType() == OWNER) {
-                    throw new AuthorizationException("관리자 인증 대기중입니다.");
+                    throw  AuthorizationException.withDetail("관리자 인증 대기중입니다. userId: " + user.getId());
                 }
                 if (user.getUserType() == STUDENT) {
-                    throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
+                    throw AuthorizationException.withDetail("아우누리에서 인증메일을 확인해주세요. userId: " + user.getId());
                 }
                 if (user.getUserType() == ADMIN) {
-                    throw new AuthorizationException("PL 인증 대기중입니다.");
+                    throw AuthorizationException.withDetail("PL 인증 대기중입니다. userId: " + user.getId());
                 }
-                throw AuthorizationException.withDetail("userId: " + user.getId());
+                throw AuthorizationException.withDetail("유효화지 않은 유저 타입 입니다. userId: " + user.getId());
             }
             return user.getId();
         }
