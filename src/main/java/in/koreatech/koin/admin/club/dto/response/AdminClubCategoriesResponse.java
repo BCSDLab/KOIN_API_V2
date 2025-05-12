@@ -16,7 +16,7 @@ public record AdminClubCategoriesResponse(
     List<InnerAdminClubCategoryResponse> clubCategories
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerAdminClubCategoryResponse(
+    public record InnerAdminClubCategoryResponse(
         @Schema(description = "동아리 카테고리 고유 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
