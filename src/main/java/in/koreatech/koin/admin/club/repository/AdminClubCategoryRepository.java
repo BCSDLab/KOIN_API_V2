@@ -17,4 +17,6 @@ public interface AdminClubCategoryRepository extends Repository<ClubCategory, In
         return findByName(name)
             .orElseThrow(() -> ClubCategoryNotFound.withDetail("name : " + name));
     }
+
+    ClubCategory save(ClubCategory category);
 }

@@ -6,4 +6,6 @@ import in.koreatech.koin.domain.club.model.ClubAdmin;
 
 public interface AdminClubAdminRepository extends Repository<ClubAdmin, Integer> {
     void saveAll(Iterable<ClubAdmin> clubAdmins);
+
+    ClubAdmin save(ClubAdmin clubAdmin);
 }
