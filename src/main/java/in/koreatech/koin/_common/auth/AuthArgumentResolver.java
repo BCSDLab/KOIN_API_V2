@@ -45,6 +45,10 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
         Integer userId = authContext.getUserId();
         User user = userRepository.getById(userId);
 
+        if (user.isDeleted()) {
+            throw new AuthorizationException("이미 탈퇴한 계정입니다.");
+        }
+
         if (permitStatus.contains(user.getUserType())) {
             if (!user.isAuthed()) {
                 if (user.getUserType() == OWNER) {
