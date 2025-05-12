@@ -1,4 +1,4 @@
-name: Check Flyway Version
+name: Flyway Version Validator
 
 on: [pull_request]
 
