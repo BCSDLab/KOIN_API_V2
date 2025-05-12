@@ -55,7 +55,7 @@ public class AdminClubService {
 
     @Transactional
     public void createClub(CreateAdminClubRequest request) {
-        ClubCategory clubCategory = adminClubCategoryRepository.getByName(request.name());
+        ClubCategory clubCategory = adminClubCategoryRepository.getByName(request.clubCategoryName());
         Club club = adminClubRepository.save(request.toEntity(clubCategory));
 
         List<ClubAdmin> clubAdmins = request.clubAdmins().stream()
@@ -69,6 +69,25 @@ public class AdminClubService {
 
     @Transactional
     public void modifyClub(Integer clubId, ModifyAdminClubRequest request) {
+        ClubCategory clubCategory = adminClubCategoryRepository.getByName(request.clubCategoryName());
+        Club club = adminClubRepository.getById(clubId);
 
+        List<ClubAdmin> clubAdmins = request.clubAdmins().stream()
+            .map(innerClubAdminUpdateRequest ->
+                innerClubAdminUpdateRequest.toEntity(club,
+                    adminUserRepository.getByUserId(innerClubAdminUpdateRequest.userid()))
+            )
+            .toList();
+
+        club.modifyClub(request.name(),
+            request.imageUrl(),
+            clubCategory,
+            request.location(),
+            request.description(),
+            request.active()
+        );
+
+        adminClubAdminRepository.deleteAllByClub(club);
+        adminClubAdminRepository.saveAll(clubAdmins);
     }
 }

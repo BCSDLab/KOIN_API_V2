@@ -104,4 +104,20 @@ public class Club extends BaseEntity {
         this.introduction = introduction;
         this.clubCategory = clubCategory;
     }
+
+    public void modifyClub(
+        String name,
+        String imageUrl,
+        ClubCategory clubCategory,
+        String location,
+        String description,
+        Boolean active
+    ) {
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.clubCategory = clubCategory;
+        this.location = location;
+        this.description = description;
+        this.active = active;
+    }
 }
