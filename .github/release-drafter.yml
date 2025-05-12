@@ -3,13 +3,14 @@ tag-template: 'v$RESOLVED_VERSION'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## 이번 버전의 변경사항은 아래와 같아요
+  $CHANGES
 
 categories:
-  - title: "✨ [Major] 새로운 기능이 추가되었어요."
+  - title: "✨ 새로운 기능이 추가되었어요."
     labels: ["기능"]
-  - title: "🩹 [Minor] 버그를 수정했어요."
+  - title: "🩹 버그를 수정했어요."
     labels: ["버그"]
-  - title: "🩹 [Patch] 리팩터링을 진행했어요."
+  - title: "🔄 리팩터링을 진행했어요."
     labels: ["리팩터링", "문서", "버그", "인프라", "DB"]
 
 version-resolver:
