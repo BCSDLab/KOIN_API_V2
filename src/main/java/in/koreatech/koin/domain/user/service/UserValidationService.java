@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import in.koreatech.koin.infrastructure.email.exception.DuplicationEmailException;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;

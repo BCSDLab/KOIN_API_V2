@@ -1,10 +1,8 @@
-package in.koreatech.koin.domain.student.model;
+package in.koreatech.koin.infrastructure.email.form;
 
 import java.util.Map;
 
-import in.koreatech.koin._common.model.MailFormData;
-
-public class StudentRegistrationData implements MailFormData {
+public class StudentRegisterRequestEmailForm implements EmailForm {
 
     private static final String SUBJECT = "학교 이메일 주소 인증";
     private static final String PATH = "student_register_certificate_number";
@@ -12,7 +10,7 @@ public class StudentRegistrationData implements MailFormData {
     private final String contextPath;
     private final String authToken;
 
-    public StudentRegistrationData(String contextPath, String authToken) {
+    public StudentRegisterRequestEmailForm(String contextPath, String authToken) {
         this.contextPath = contextPath;
         this.authToken = authToken;
     }

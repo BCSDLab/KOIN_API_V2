@@ -63,7 +63,7 @@ import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.enums.ExcelDiningPosition;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
-import in.koreatech.koin.domain.user.dto.CoopResponse;
+import in.koreatech.koin.domain.coop.dto.CoopResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;

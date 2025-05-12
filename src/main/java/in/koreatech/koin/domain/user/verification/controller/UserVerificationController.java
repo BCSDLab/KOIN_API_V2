@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.controller;
+package in.koreatech.koin.domain.user.verification.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.user.dto.verification.SendEmailVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.SendSmsVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.SendVerificationResponse;
-import in.koreatech.koin.domain.user.dto.verification.VerifyEmailVerificationRequest;
-import in.koreatech.koin.domain.user.dto.verification.VerifySmsVerificationRequest;
-import in.koreatech.koin.domain.user.service.UserVerificationService;
+import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
+import in.koreatech.koin.domain.user.verification.dto.SendEmailVerificationRequest;
+import in.koreatech.koin.domain.user.verification.dto.SendSmsVerificationRequest;
+import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
+import in.koreatech.koin.domain.user.verification.dto.VerifyEmailVerificationRequest;
+import in.koreatech.koin.domain.user.verification.dto.VerifySmsVerificationRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
