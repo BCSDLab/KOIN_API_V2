@@ -65,7 +65,7 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.timetableV2",
             "in.koreatech.koin.domain.timetableV3",
             "in.koreatech.koin.domain.dept",
-            "in.koreatech.koin.domain.graduation"
+            "in.koreatech.koin.domain.graduation",
         };
 
         return createGroupedOpenApi("4. User API", packagesPath);
