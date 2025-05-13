@@ -34,7 +34,7 @@ public record AdminClubsResponse(
     List<InnerAdminClubResponse> clubs
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerAdminClubResponse(
+    public record InnerAdminClubResponse(
         @Schema(description = "동아리 고유 ID", example = "1", requiredMode = REQUIRED)
         Integer id,
 
@@ -58,7 +58,7 @@ public record AdminClubsResponse(
         Boolean active
     ) {
         @JsonNaming(value = SnakeCaseStrategy.class)
-        private record InnerClubAdminResponse(
+        public record InnerClubAdminResponse(
             @Schema(description = "동아리 관리자 이름", example = "정해성", requiredMode = REQUIRED)
             String name,
 

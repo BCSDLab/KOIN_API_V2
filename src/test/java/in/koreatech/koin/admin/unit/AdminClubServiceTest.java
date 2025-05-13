@@ -20,11 +20,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
@@ -258,6 +264,74 @@ public class AdminClubServiceTest {
         assertAll(
             () -> assertEquals(1, updateClubAdmins.size()),
             () -> assertEquals("koin", updateClubAdmins.get(0).getUser().getUserId())
+        );
+    }
+
+    @Test
+    void adminClubsResponse_으로_동아리_페이지네이션_조회한다() {
+        // given
+        ClubCategory clubCategory = ClubCategory.builder()
+            .id(1)
+            .name("학술")
+            .build();
+        when(adminClubCategoryRepository.getByName("학술")).thenReturn(clubCategory);
+
+        Club club1 = Club.builder()
+            .id(1)
+            .name("BCSD")
+            .imageUrl("https://bcsdlab.com/static/img/logo.d89d9cc.png")
+            .likes(9999)
+            .description("즐겁게 일하고 열심히 노는 IT 특성화 동아리")
+            .clubCategory(clubCategory)
+            .location("학생회관")
+            .active(true)
+            .build();
+
+        Club club2 = Club.builder()
+            .id(2)
+            .name("seed")
+            .imageUrl("https://bcsdlab.com/static/img/logo.d89d9cc.png")
+            .likes(9999)
+            .description("즐겁게 일하고 열심히 노는 알고리즘 동아리")
+            .clubCategory(clubCategory)
+            .location("백준")
+            .active(false)
+            .build();
+
+        LocalDateTime now = LocalDateTime.now();
+        ReflectionTestUtils.setField(club1, "createdAt", now);
+        ReflectionTestUtils.setField(club1, "updatedAt", now);
+        ReflectionTestUtils.setField(club2, "createdAt", now.plusMinutes(1));
+        ReflectionTestUtils.setField(club2, "updatedAt", now.plusMinutes(1));
+
+        when(adminClubRepository.countByClubCategoryId(1)).thenReturn(2);
+
+        Criteria criteria = Criteria.of(1, 10, 2);
+        Sort sort = Sort.by(Sort.Direction.DESC, "created_at");
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), sort);
+        List<Club> clubList = List.of(club1, club2);
+        Page<Club> clubPage = new PageImpl<>(clubList, pageRequest, clubList.size());
+
+        when(adminClubRepository.findAllByClubCategoryId(1, pageRequest)).thenReturn(clubPage);
+
+        // when
+        AdminClubsResponse response = adminClubService.getClubs(1, 10, false, "학술");
+
+        // then
+        assertAll(
+            () -> assertEquals(2L, response.totalCount()),
+            () -> assertEquals(2, response.currentCount()),
+            () -> assertEquals(1, response.totalPage()),
+            () -> assertEquals(1, response.currentPage()),
+            () -> assertEquals(2, response.clubs().size()),
+
+            () -> assertEquals("BCSD", response.clubs().get(0).name()),
+            () -> assertEquals(now.toLocalDate(), response.clubs().get(0).createdAt()),
+            () -> assertEquals(true, response.clubs().get(0).active()),
+
+            () -> assertEquals("seed", response.clubs().get(1).name()),
+            () -> assertEquals(now.plusMinutes(1).toLocalDate(), response.clubs().get(1).createdAt()),
+            () -> assertEquals(false, response.clubs().get(1).active())
         );
     }
 }
