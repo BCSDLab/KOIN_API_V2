@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserDeleteEvent;
+import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -76,7 +77,7 @@ public class UserService {
         );
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
-        // eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
+        eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }
 

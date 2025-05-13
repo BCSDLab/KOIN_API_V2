@@ -79,6 +79,7 @@ public record RegisterStudentRequestV2(
             .userType(STUDENT)
             .isAuthed(false)
             .isDeleted(false)
+            .deviceToken("TEMPORARY_TOKEN")
             .build();
         Student student = Student.builder()
             .user(user)

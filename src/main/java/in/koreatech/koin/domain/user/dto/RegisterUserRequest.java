@@ -70,6 +70,7 @@ public record RegisterUserRequest(
             .userType(GENERAL)
             .isAuthed(false)
             .isDeleted(false)
+            .deviceToken("TEMPORARY_TOKEN")
             .build();
     }
 }
