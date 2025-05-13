@@ -48,7 +48,7 @@ public record AdminClubResponse(
     Boolean active
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerClubAdminResponse(
+    public record InnerClubAdminResponse(
         @Schema(description = "동아리 관리자 이름", example = "정해성", requiredMode = REQUIRED)
         String name,
 
@@ -64,7 +64,7 @@ public record AdminClubResponse(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerClubSNSResponse(
+    public record InnerClubSNSResponse(
         @Schema(description = "동아리 SNS 종류", example = "인스타", requiredMode = REQUIRED)
         String snsType,
 
