@@ -72,7 +72,8 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 동아리의 QNA를 생성한다")
+    @Operation(summary = "특정 동아리의 QNA를 생성한다",
+        description = "parentId를 null 요청 시 첫 QNA, 부모 QNA의 id를 넣어서 요청하면 대댓글 형식으로 생성")
     @PostMapping("/{clubId}/qna")
     ResponseEntity<Void> createQna(
         @RequestBody @Valid CreateQnaRequest request,
@@ -89,7 +90,12 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 동아리의 QNA를 삭제한다")
+    @Operation(summary = "특정 동아리의 QNA를 삭제한다",
+        description = """
+            - 관리자는 모든 QNA 삭제 가능, 그 외에는 본인의 QNA만 삭제 가능
+            - 부모 QNA(맨처음 QNA)인 경우, 그 아래 QNA들까지 모두 삭제
+            - 자식 QNA인 경우, 삭제 시 삭제된 댓글입니다로만 표시하고 구조를 깨지 않음
+            """)
     @DeleteMapping("/{clubId}/qna/{qnaId}")
     ResponseEntity<Void> deleteQna(
         @Parameter(in = PATH) @PathVariable Integer clubId,
