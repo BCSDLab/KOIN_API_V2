@@ -206,7 +206,6 @@ public class AdminClubServiceTest {
             .isAuthed(true)
             .isDeleted(false)
             .build();
-        when(adminUserRepository.getByUserId("bcsd")).thenReturn(perUser);
 
         User postUser = User.builder()
             .password("1234")
