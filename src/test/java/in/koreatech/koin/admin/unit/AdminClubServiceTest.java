@@ -34,7 +34,7 @@ import in.koreatech.koin.domain.user.model.User;
 
 @SuppressWarnings({"NonAsciiCharacters", "unchecked"})
 @ExtendWith(MockitoExtension.class)
-public class AdminClubTest {
+public class AdminClubServiceTest {
 
     @InjectMocks
     private AdminClubService adminClubService;
