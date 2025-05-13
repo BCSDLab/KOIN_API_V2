@@ -57,6 +57,11 @@ public record CreateAdminClubRequest(
     public Club toEntity(ClubCategory clubCategory) {
         return Club.builder()
             .name(name)
+            .lastWeekHits(0)
+            .active(false)
+            .likes(0)
+            .hits(0)
+            .introduction("")
             .imageUrl(imageUrl)
             .clubCategory(clubCategory)
             .description(description)
