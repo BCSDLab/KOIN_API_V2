@@ -34,7 +34,31 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 동아리의 모든 QNA를 조회한다")
+    @Operation(
+        summary = "특정 동아리의 모든 QNA를 조회한다",
+        description = """
+            - authorId 확인하여 작성자 본인인 경우 삭제 버튼(x) 표시.
+            - 닉네임은 존재 시 그대로 반환되며, 없는 경우 student의 익명 닉네임으로 반환.
+            - is_deleted 값이 false인 경우 "삭제된 댓글입니다"로 표현.
+            - is_admin 필드를 통해 관리자 댓글 여부를 알 수 있음.
+            - 트리 구조는 대댓글 형태로 재귀적으로 구성됩니다.
+            
+            ```java
+            예시
+            댓글 1
+            ├── 댓글 1-1
+            │   ├── 댓글 1-1-1
+            │   │   └── 댓글 1-1-1-1
+            │   └── 댓글 1-1-2
+            ├── 댓글 1-2
+            └── 댓글 1-3
+            
+            댓글 2
+            └── 댓글 2-1
+                └── 댓글 2-1-1
+            ```
+            """
+    )
     @GetMapping("/{clubId}/qna")
     ResponseEntity<QnasResponse> getQnas(
         @Parameter(in = PATH) @PathVariable Integer clubId
