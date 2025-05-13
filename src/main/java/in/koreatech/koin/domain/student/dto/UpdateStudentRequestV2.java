@@ -39,8 +39,7 @@ public record UpdateStudentRequestV2(
     String major,
 
     @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
-    @Size(max = 50, message = "이름의 길이는 최대 50자 입니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
+    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
     String name,
 
     @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)

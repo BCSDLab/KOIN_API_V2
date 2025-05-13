@@ -22,8 +22,8 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(SnakeCaseStrategy.class)
 public record RegisterStudentRequestV2(
     @NotBlank(message = "이름은 필수입니다.")
-    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
+    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
     String name,
 
     @Schema(description = "닉네임", example = "캔따개", requiredMode = REQUIRED)
@@ -40,6 +40,7 @@ public record RegisterStudentRequestV2(
 
     @NotBlank(message = "학번은 필수입니다.")
     @Schema(description = "학번", example = "2025000123", requiredMode = NOT_REQUIRED)
+    @Pattern(regexp = "^[0-9]{8,10}$", message = "학번엔 8-10자리 숫자만 입력 가능합니다.")
     String studentNumber,
 
     @NotBlank(message = "학부는 필수입니다.")
@@ -50,12 +51,16 @@ public record RegisterStudentRequestV2(
     UserGender gender,
 
     @NotBlank(message = "아이디는 필수입니다.")
-    @Size(max = 50, message = "아이디는 50자 이내여야 합니다.")
     @Schema(description = "사용자 아이디", example = "example123", requiredMode = REQUIRED)
+    @Pattern(regexp = "^[A-Za-z0-9._-]{5,13}$", message = "5-13자의 영문자, 숫자, 특수문자만 사용할 수 있습니다.")
     String loginId,
 
     @NotBlank(message = "비밀번호는 필수입니다.")
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
+    @Pattern(
+        regexp = "^(?=.*[A-Za-z])(?=.*[^A-Za-z0-9])[A-Za-z0-9!@#\\$%\\^&\\*\\-_+=]{6,18}$",
+        message = "6자 이상 18자 이내의 영문자, 숫자, 특수문자만 사용할 수 있습니다."
+    )
     String password,
 
     @Schema(description = "마케팅 수신 동의 여부", example = "true", requiredMode = NOT_REQUIRED)
