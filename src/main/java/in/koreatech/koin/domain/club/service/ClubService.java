@@ -5,10 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
-import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
-import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +30,6 @@ public class ClubService {
                 hotClubRedisRepository.save(ClubHotRedis.from(clubHot.getClub()));
                 return ClubHotResponse.from(clubHot.getClub());
             })
-            .orElseThrow(() -> ClubHotNotFoundException.withDetail("인기 동아리가 존재하지 않습니다."));
+            .orElseThrow(() -> ClubHotNotFoundException.withDetail(""));
     }
 }

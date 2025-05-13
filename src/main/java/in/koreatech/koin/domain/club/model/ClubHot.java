@@ -35,8 +35,8 @@ public class ClubHot extends BaseEntity {
     private Club club;
 
     @NotNull
-    @Column(name = "rank", nullable = false)
-    private Integer rank;
+    @Column(name = "ranking", nullable = false)
+    private Integer ranking;
 
     @NotNull
     @Column(name = "period_hits", nullable = false, columnDefinition = "INT UNSIGNED DEFAULT 0")
@@ -54,14 +54,14 @@ public class ClubHot extends BaseEntity {
     private ClubHot(
         Integer id,
         Club club,
-        Integer rank,
+        Integer ranking,
         Integer periodHits,
         LocalDate startDate,
         LocalDate endDate
     ) {
         this.id = id;
         this.club = club;
-        this.rank = rank;
+        this.ranking = ranking;
         this.periodHits = periodHits;
         this.startDate = startDate;
         this.endDate = endDate;

@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS `koin`.`club_hot`
 (
     `id`                 INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '고유 ID',
     `club_id`            INT UNSIGNED NOT NULL COMMENT '인기 동아리 고유 ID',
-    `rank`               INT UNSIGNED NOT NULL COMMENT '순위',
+    `ranking`               INT UNSIGNED NOT NULL COMMENT '순위',
     `period_hits`        INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '기간 조회수',
     `start_date`         DATE NOT NULL COMMENT '집계 시작일',
     `end_date`           DATE NOT NULL COMMENT '집계 종료일',
