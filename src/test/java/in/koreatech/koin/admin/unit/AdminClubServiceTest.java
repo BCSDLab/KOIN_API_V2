@@ -1,8 +1,12 @@
 package in.koreatech.koin.admin.unit;
 
+import static in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest.InnerClubAdminUpdateRequest;
+import static in.koreatech.koin.domain.club.enums.SNSType.INSTAGRAM;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,13 +23,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
+import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
 import in.koreatech.koin.admin.club.service.AdminClubService;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
-import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
@@ -125,7 +129,7 @@ public class AdminClubServiceTest {
             .build();
 
         ClubSNS sns = ClubSNS.builder()
-            .snsType(SNSType.INSTAGRAM)
+            .snsType(INSTAGRAM)
             .contact("https://www.instagram.com/bcsdlab/")
             .build();
 
@@ -173,5 +177,88 @@ public class AdminClubServiceTest {
         );
 
         verify(adminClubRepository).getById(1);
+    }
+
+    @Test
+    void modifyAdminClubRequest_를_이용해서_동아리_정보를_수정한다() {
+        // given
+        ModifyAdminClubRequest request = new ModifyAdminClubRequest(
+            "BCSD Lab",
+            "https://bcsdlab.com/static/img/logo.d89d9cc.png",
+            "학술",
+            List.of(new InnerClubAdminUpdateRequest("koin")),
+            "학생회관",
+            "즐겁게 일하고 열심히 노는 IT 특성화 동아리",
+            FALSE
+        );
+
+        ClubCategory clubCategory = ClubCategory.builder()
+            .name("학술")
+            .build();
+        when(adminClubCategoryRepository.getByName("학술")).thenReturn(clubCategory);
+
+        User perUser = User.builder()
+            .password("1234")
+            .name("최준호")
+            .userType(STUDENT)
+            .email("bcsd@koreatech.ac.kr")
+            .userId("bcsd")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+        when(adminUserRepository.getByUserId("bcsd")).thenReturn(perUser);
+
+        User postUser = User.builder()
+            .password("1234")
+            .name("정해성")
+            .userType(STUDENT)
+            .email("koin@koreatech.ac.kr")
+            .userId("koin")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+        when(adminUserRepository.getByUserId("koin")).thenReturn(postUser);
+
+        ClubSNS sns = ClubSNS.builder()
+            .snsType(INSTAGRAM)
+            .contact("https://www.instagram.com/bcsdlab/")
+            .build();
+
+        Club club = Club.builder()
+            .id(1)
+            .name("BCSD")
+            .imageUrl("https://bcsdlab.com/static/img/logo.d89d9cc.png")
+            .likes(9999)
+            .description("즐겁게 일하고 열심히 노는 IT 특성화 동아리")
+            .clubCategory(ClubCategory.builder().name("학술").build())
+            .location("학생회관")
+            .active(TRUE)
+            .build();
+        when(adminClubRepository.getById(1)).thenReturn(club);
+
+        List<ClubAdmin> clubAdmins = List.of(ClubAdmin.builder().club(club).user(perUser).build());
+
+        ReflectionTestUtils.setField(club, "createdAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(club, "updatedAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(club, "clubAdmins", clubAdmins);
+        ReflectionTestUtils.setField(club, "clubSNSs", List.of(sns));
+
+        // when
+        adminClubService.modifyClub(1, request);
+
+        // then
+        verify(adminClubCategoryRepository).getByName("학술");
+        verify(adminClubRepository).getById(1);
+        verify(adminUserRepository).getByUserId("koin");
+        verify(adminClubAdminRepository).deleteAllByClub(club);
+
+        ArgumentCaptor<List<ClubAdmin>> clubAdminCaptor = ArgumentCaptor.forClass(List.class);
+        verify(adminClubAdminRepository).saveAll(clubAdminCaptor.capture());
+        List<ClubAdmin> updateClubAdmins = clubAdminCaptor.getValue();
+
+        assertAll(
+            () -> assertEquals(1, updateClubAdmins.size()),
+            () -> assertEquals("koin", updateClubAdmins.get(0).getUser().getUserId())
+        );
     }
 }
