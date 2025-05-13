@@ -42,7 +42,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
         Integer userId = authContext.getUserId();
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> AuthenticationException.withDetail("이미 탈퇴한 계정입니다. userId: " + userId));
+            .orElseThrow(() -> AuthenticationException.withDetail("탈퇴한 계정입니다. userId: " + userId));
 
         return user.authorizeAndGetId(authAt.permit());
     }

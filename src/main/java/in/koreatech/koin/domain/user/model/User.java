@@ -184,7 +184,7 @@ public class User extends BaseEntity {
 
     private void ensureNotDeleted() {
         if (isDeleted) {
-            throw AuthenticationException.withDetail("이미 탈퇴한 계정입니다. userId: " + id);
+            throw AuthenticationException.withDetail("탈퇴한 계정입니다. userId: " + id);
         }
     }
 
