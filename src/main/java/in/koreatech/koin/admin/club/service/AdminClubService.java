@@ -32,18 +32,28 @@ public class AdminClubService {
     private final AdminClubRepository adminClubRepository;
     private final AdminUserRepository adminUserRepository;
 
-    public AdminClubsResponse getClubs(Integer page, Integer limit, Boolean sortByLike, String clubCategoryName) {
-        ClubCategory clubCategory = adminClubCategoryRepository.getByName(clubCategoryName);
-        Integer clubCategoryId = clubCategory.getId();
-        Integer total = adminClubRepository.countByClubCategoryId(clubCategoryId);
+    public AdminClubsResponse getClubs(Integer page, Integer limit, Boolean sortByLike, Integer clubCategoryId) {
+        boolean hasCategory = clubCategoryId != null;
+
+        if (hasCategory) {
+            adminClubCategoryRepository.getById(clubCategoryId);
+        }
+
+        Integer total = hasCategory
+            ? adminClubRepository.countByClubCategoryId(clubCategoryId)
+            : adminClubRepository.count();
 
         Criteria criteria = Criteria.of(page, limit, total);
-        Sort sort = sortByLike ?
-            Sort.by(Sort.Direction.DESC,"likes") :
-            Sort.by(Sort.Direction.DESC, "created_at");
+
+        Sort sort = sortByLike
+            ? Sort.by(Sort.Direction.DESC, "likes")
+            : Sort.by(Sort.Direction.DESC, "created_at");
+
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), sort);
 
-        Page<Club> clubs = adminClubRepository.findAllByClubCategoryId(clubCategoryId, pageRequest);
+        Page<Club> clubs = hasCategory
+            ? adminClubRepository.findAllByClubCategoryId(clubCategoryId, pageRequest)
+            : adminClubRepository.findAll(pageRequest);
 
         return AdminClubsResponse.from(clubs);
     }

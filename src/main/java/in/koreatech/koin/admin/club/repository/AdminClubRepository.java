@@ -15,11 +15,18 @@ public interface AdminClubRepository extends Repository<Club, Integer> {
 
     Integer countByClubCategoryId(Integer clubCategoryId);
 
+    Integer count();
+
     @Query(value = """
         SELECT * FROM club
         WHERE club_category_id = :clubCategoryId
         """, nativeQuery = true)
     Page<Club> findAllByClubCategoryId(@Param("clubCategoryId") Integer clubCategoryId, Pageable pageable);
+
+    @Query(value = """
+        SELECT * FROM club
+    """, nativeQuery = true)
+    Page<Club> findAll(Pageable pageable);
 
     Optional<Club> findById(Integer clubId);
 

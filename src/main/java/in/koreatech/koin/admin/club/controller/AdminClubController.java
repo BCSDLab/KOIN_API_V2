@@ -34,11 +34,11 @@ public class AdminClubController implements AdminClubApi {
     public ResponseEntity<AdminClubsResponse> getClubs(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
-        @RequestParam(name = "sort_by_like", required = false) Boolean sortByLike,
-        @RequestParam(name = "club_category_name", required = false, defaultValue = "전체") String clubCategoryName,
+        @RequestParam(name = "sort_by_like", defaultValue = "false", required = false) Boolean sortByLike,
+        @RequestParam(name = "club_category_id", required = false) Integer clubCategoryId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminClubsResponse response = adminClubService.getClubs(page, limit, sortByLike, clubCategoryName);
+        AdminClubsResponse response = adminClubService.getClubs(page, limit, sortByLike, clubCategoryId);
         return ResponseEntity.ok(response);
     }
 
