@@ -301,15 +301,15 @@ public class AdminClubServiceTest {
         LocalDateTime now = LocalDateTime.now();
         ReflectionTestUtils.setField(club1, "createdAt", now);
         ReflectionTestUtils.setField(club1, "updatedAt", now);
-        ReflectionTestUtils.setField(club2, "createdAt", now.plusMinutes(1));
-        ReflectionTestUtils.setField(club2, "updatedAt", now.plusMinutes(1));
+        ReflectionTestUtils.setField(club2, "createdAt", now.plusDays(1L));
+        ReflectionTestUtils.setField(club2, "updatedAt", now.plusDays(1L));
 
         when(adminClubRepository.countByClubCategoryId(1)).thenReturn(2);
 
         Criteria criteria = Criteria.of(1, 10, 2);
         Sort sort = Sort.by(Sort.Direction.DESC, "created_at");
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), sort);
-        List<Club> clubList = List.of(club1, club2);
+        List<Club> clubList = List.of(club2, club1);
         Page<Club> clubPage = new PageImpl<>(clubList, pageRequest, clubList.size());
 
         when(adminClubRepository.findAllByClubCategoryId(1, pageRequest)).thenReturn(clubPage);
@@ -325,13 +325,13 @@ public class AdminClubServiceTest {
             () -> assertEquals(1, response.currentPage()),
             () -> assertEquals(2, response.clubs().size()),
 
-            () -> assertEquals("BCSD", response.clubs().get(0).name()),
-            () -> assertEquals(now.toLocalDate(), response.clubs().get(0).createdAt()),
-            () -> assertEquals(true, response.clubs().get(0).active()),
+            () -> assertEquals("seed", response.clubs().get(0).name()),
+            () -> assertEquals(now.plusDays(1L).toLocalDate(), response.clubs().get(0).createdAt()),
+            () -> assertEquals(false, response.clubs().get(0).active()),
 
-            () -> assertEquals("seed", response.clubs().get(1).name()),
-            () -> assertEquals(now.plusMinutes(1).toLocalDate(), response.clubs().get(1).createdAt()),
-            () -> assertEquals(false, response.clubs().get(1).active())
+            () -> assertEquals("BCSD", response.clubs().get(1).name()),
+            () -> assertEquals(now.toLocalDate(), response.clubs().get(1).createdAt()),
+            () -> assertEquals(true, response.clubs().get(1).active())
         );
     }
 }
