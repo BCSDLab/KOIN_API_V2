@@ -16,7 +16,9 @@ import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -29,21 +31,24 @@ public class ClubScheduleService {
     @Transactional
     public void updateHotClub() {
         List<Club> clubs = clubRepository.findAll();
-        Optional<Club> topClub = clubs.stream()
-            .max(Comparator.comparingInt(Club::getHitsIncrease));
-
-        if (topClub.isPresent()) {
-            Club club = topClub.get();
-            ClubHot clubHot = ClubHot.builder()
-                .club(club)
-                .ranking(1)
-                .periodHits(club.getHitsIncrease())
-                .startDate(getStartOfLastWeek())
-                .endDate(getEndOfLastWeek())
-                .build();
-            clubHotRepository.save(clubHot);
-            hotClubRedisRepository.save(ClubHotRedis.from(club));
+        if (clubs.isEmpty()) {
+            log.info("등록된 동아리가 없어 인기 동아리 갱신이 이루어지지 않았습니다.");
+            return;
         }
+
+        Club topClub = clubs.stream()
+            .max(Comparator.comparingInt(Club::getHitsIncrease))
+            .get();
+
+        ClubHot clubHot = ClubHot.builder()
+            .club(topClub)
+            .ranking(1)
+            .periodHits(topClub.getHitsIncrease())
+            .startDate(getStartOfLastWeek())
+            .endDate(getEndOfLastWeek())
+            .build();
+        clubHotRepository.save(clubHot);
+        hotClubRedisRepository.save(ClubHotRedis.from(topClub));
 
         clubs.forEach(Club::updateLastWeekHits);
     }
