@@ -9,6 +9,7 @@ import in.koreatech.koin.admin.club.exception.ClubCategoryNotFound;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 
 public interface AdminClubCategoryRepository extends Repository<ClubCategory, Integer> {
+
     List<ClubCategory> findAll();
 
     Optional<ClubCategory> findByName(String name);
@@ -19,4 +20,11 @@ public interface AdminClubCategoryRepository extends Repository<ClubCategory, In
     }
 
     ClubCategory save(ClubCategory category);
+
+    Optional<ClubCategory> findById(Integer id);
+
+    default ClubCategory getById(Integer id) {
+        return findById(id)
+            .orElseThrow(() -> ClubCategoryNotFound.withDetail("id : " + id));
+    }
 }

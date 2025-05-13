@@ -40,7 +40,7 @@ public record AdminClubResponse(
     @Schema(description = "동아리 연락처 리스트", requiredMode = REQUIRED)
     List<InnerClubSNSResponse> snsContacts,
 
-    @Schema(description = "배너 생성일", example = "25.03.23", requiredMode = REQUIRED)
+    @Schema(description = "동아리 생성일", example = "25.03.23", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yy.MM.dd")
     LocalDate createdAt,
 
@@ -52,13 +52,17 @@ public record AdminClubResponse(
         @Schema(description = "동아리 관리자 이름", example = "정해성", requiredMode = REQUIRED)
         String name,
 
-        @Schema(description = "동아리 관리자 이메일", example = "bcsdlab@gmail.com", requiredMode = REQUIRED)
-        String email
+        @Schema(description = "동아리 관리자 ID", example = "basdlab", requiredMode = REQUIRED)
+        String userId,
+
+        @Schema(description = "동아리 관리자 전화번호", example = "01012345678", requiredMode = REQUIRED)
+        String phoneNumber
     ) {
         private static InnerClubAdminResponse from(User user) {
             return new InnerClubAdminResponse(
                 user.getName(),
-                user.getEmail()
+                user.getUserId(),
+                user.getPhoneNumber()
             );
         }
     }

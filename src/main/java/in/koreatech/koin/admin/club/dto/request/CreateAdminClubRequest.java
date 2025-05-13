@@ -29,9 +29,9 @@ public record CreateAdminClubRequest(
     @NotEmpty(message = "동아리 관리자는 필수 입력 사항입니다.")
     List<InnerClubAdminRequest> clubAdmins,
 
-    @Schema(description = "동아리 분과 카테고리", example = "학술", requiredMode = REQUIRED)
+    @Schema(description = "동아리 분과 카테고리 ID", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "동아리 분과 카테고리는 필수 입력 사항입니다.")
-    String clubCategoryName,
+    Integer clubCategoryId,
 
     @Schema(description = "동아리 위치", example = "학생회관", requiredMode = REQUIRED)
     @NotNull(message = "동아리 위치는 필수 입력 사항입니다.")

@@ -26,7 +26,6 @@ public record AdminClubCategoriesResponse(
         private static InnerAdminClubCategoryResponse from(ClubCategory category) {
             return new InnerAdminClubCategoryResponse(category.getId(), category.getName());
         }
-
     }
 
     public static AdminClubCategoriesResponse from(List<ClubCategory> clubCategories) {

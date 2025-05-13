@@ -39,7 +39,7 @@ public class AdminClubService {
 
         Criteria criteria = Criteria.of(page, limit, total);
         Sort sort = sortByLike ?
-            Sort.by(Sort.Direction.DESC, "created_at", "likes") :
+            Sort.by(Sort.Direction.DESC,"likes") :
             Sort.by(Sort.Direction.DESC, "created_at");
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), sort);
 
@@ -55,7 +55,7 @@ public class AdminClubService {
 
     @Transactional
     public void createClub(CreateAdminClubRequest request) {
-        ClubCategory clubCategory = adminClubCategoryRepository.getByName(request.clubCategoryName());
+        ClubCategory clubCategory = adminClubCategoryRepository.getById(request.clubCategoryId());
         Club club = adminClubRepository.save(request.toEntity(clubCategory));
 
         List<ClubAdmin> clubAdmins = request.clubAdmins().stream()
@@ -69,15 +69,8 @@ public class AdminClubService {
 
     @Transactional
     public void modifyClub(Integer clubId, ModifyAdminClubRequest request) {
-        ClubCategory clubCategory = adminClubCategoryRepository.getByName(request.clubCategoryName());
+        ClubCategory clubCategory = adminClubCategoryRepository.getById(request.clubCategoryId());
         Club club = adminClubRepository.getById(clubId);
-
-        List<ClubAdmin> clubAdmins = request.clubAdmins().stream()
-            .map(innerClubAdminUpdateRequest ->
-                innerClubAdminUpdateRequest.toEntity(club,
-                    adminUserRepository.getByUserId(innerClubAdminUpdateRequest.userid()))
-            )
-            .toList();
 
         club.modifyClub(request.name(),
             request.imageUrl(),
@@ -86,8 +79,5 @@ public class AdminClubService {
             request.description(),
             request.active()
         );
-
-        adminClubAdminRepository.deleteAllByClub(club);
-        adminClubAdminRepository.saveAll(clubAdmins);
     }
 }

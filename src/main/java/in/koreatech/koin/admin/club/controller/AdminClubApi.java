@@ -61,9 +61,9 @@ public interface AdminClubApi {
         }
     )
     @Operation(summary = "특정 동아리 정보를 조회한다.")
-    @GetMapping("/{id}")
+    @GetMapping("/{cludId}")
     ResponseEntity<AdminClubResponse> getClub(
-        @PathVariable(value = "id") Integer clubId,
+        @PathVariable(value = "cludId") Integer clubId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -92,9 +92,9 @@ public interface AdminClubApi {
         }
     )
     @Operation(summary = "특정 동아리를 수정한다")
-    @PutMapping("/{id}")
+    @PutMapping("/{cludId}")
     ResponseEntity<Void> modifyClub(
-        @Parameter(in = PATH) @PathVariable(name = "id") Integer clubId,
+        @Parameter(in = PATH) @PathVariable(name = "cludId") Integer clubId,
         @RequestBody @Valid ModifyAdminClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );

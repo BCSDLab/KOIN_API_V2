@@ -42,9 +42,9 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{cludId}")
     public ResponseEntity<AdminClubResponse> getClub(
-        @PathVariable(value = "id") Integer clubId,
+        @PathVariable(value = "cludId") Integer clubId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminClubResponse response = adminClubService.getClub(clubId);
@@ -60,9 +60,9 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{cludId}")
     public ResponseEntity<Void> modifyClub(
-        @Parameter(in = PATH) @PathVariable(name = "id") Integer clubId,
+        @Parameter(in = PATH) @PathVariable(name = "cludId") Integer clubId,
         @RequestBody @Valid ModifyAdminClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
