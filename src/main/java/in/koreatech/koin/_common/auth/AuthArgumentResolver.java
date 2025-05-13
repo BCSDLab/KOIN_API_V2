@@ -9,7 +9,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
         Integer userId = authContext.getUserId();
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> AuthorizationException.withDetail("이미 탈퇴한 계정입니다. userId: " + userId));
+            .orElseThrow(() -> AuthenticationException.withDetail("탈퇴한 계정입니다. userId: " + userId));
 
         return user.authorizeAndGetId(authAt.permit());
     }

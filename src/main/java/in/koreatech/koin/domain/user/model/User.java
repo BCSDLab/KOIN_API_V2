@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.google.firebase.database.annotations.Nullable;
 
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -183,7 +184,7 @@ public class User extends BaseEntity {
 
     private void ensureNotDeleted() {
         if (isDeleted) {
-            throw AuthorizationException.withDetail("이미 탈퇴한 계정입니다. userId: " + id);
+            throw AuthenticationException.withDetail("탈퇴한 계정입니다. userId: " + id);
         }
     }
 
@@ -192,7 +193,7 @@ public class User extends BaseEntity {
         if (permittedUserTypesList.contains(this.userType)) {
             return;
         }
-        throw AuthorizationException.withDetail("유효하지 않은 계정입니다. userId: " + id);
+        throw AuthorizationException.withDetail("인가되지 않은 유저 타입입니다. userId: " + id);
     }
 
     private void ensureAuthed() {
@@ -203,7 +204,7 @@ public class User extends BaseEntity {
             case OWNER -> throw AuthorizationException.withDetail("관리자 인증 대기중입니다. userId: " + id);
             case STUDENT -> throw AuthorizationException.withDetail("아우누리에서 인증메일을 확인해주세요. userId: " + id);
             case ADMIN -> throw AuthorizationException.withDetail("PL 인증 대기중입니다. userId: " + id);
-            default -> throw AuthorizationException.withDetail("유효하지 않은 계정입니다.. userId: " + id);
+            default -> throw AuthorizationException.withDetail("유효하지 않은 계정입니다. userId: " + id);
         }
     }
 
