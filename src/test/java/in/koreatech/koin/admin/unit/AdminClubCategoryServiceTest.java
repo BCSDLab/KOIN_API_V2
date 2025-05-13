@@ -19,7 +19,7 @@ import in.koreatech.koin.domain.club.model.ClubCategory;
 
 @SuppressWarnings("NonAsciiCharacters")
 @ExtendWith(MockitoExtension.class)
-public class AdminClubCategoryTest {
+public class AdminClubCategoryServiceTest {
 
     @InjectMocks
     private AdminClubCategoryService adminClubCategoryService;
@@ -29,7 +29,7 @@ public class AdminClubCategoryTest {
 
 
     @Test
-    void 등록된_동아리_카테고리를_어드민_권한으로_조회한다() {
+    void 등록된_동아리_카테고리를_조회한다() {
         //given
         List<ClubCategory> categories = List.of(
             ClubCategory.builder().id(1).name("학술").build(),
