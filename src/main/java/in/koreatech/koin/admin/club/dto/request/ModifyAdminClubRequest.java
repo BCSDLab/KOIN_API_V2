@@ -3,8 +3,13 @@ package in.koreatech.koin.admin.club.dto.request;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubAdmin;
+import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +28,10 @@ public record ModifyAdminClubRequest(
     @NotNull(message = "동아리 분과 카테고리는 필수 입력 사항입니다.")
     Integer clubCategoryId,
 
+    @Schema(description = "동아리 관리자 ID 리스트", requiredMode = REQUIRED)
+    @NotEmpty(message = "동아리 관리자는 필수 입력 사항입니다.")
+    List<InnerClubAdminUpdateRequest> clubAdmins,
+
     @Schema(description = "동아리 위치", example = "학생회관", requiredMode = REQUIRED)
     @NotNull(message = "동아리 위치는 필수 입력 사항입니다.")
     String location,
@@ -35,5 +44,16 @@ public record ModifyAdminClubRequest(
     @NotNull(message = "동아리 활성화 여부는 필수 입력 사항입니다.")
     Boolean active
 ) {
-
+    @JsonNaming(value = SnakeCaseStrategy.class)
+    public record InnerClubAdminUpdateRequest(
+        @Schema(description = "동아리 관리자 id", example = "bcsdlab", requiredMode = REQUIRED)
+        String userid
+    ) {
+        public ClubAdmin toEntity(Club club, User user) {
+            return ClubAdmin.builder()
+                .club(club)
+                .user(user)
+                .build();
+        }
+    }
 }
