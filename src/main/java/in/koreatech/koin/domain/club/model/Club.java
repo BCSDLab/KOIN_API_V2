@@ -1,9 +1,13 @@
 package in.koreatech.koin.domain.club.model;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -12,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -73,6 +78,12 @@ public class Club extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     private ClubCategory clubCategory;
 
+    @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = ALL)
+    private List<ClubAdmin> clubAdmins = new ArrayList<>();
+
+    @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = ALL)
+    private List<ClubSNS> clubSNSs = new ArrayList<>();
+
     @Builder
     private Club(
         Integer id,
@@ -106,5 +117,21 @@ public class Club extends BaseEntity {
 
     public int getHitsIncrease() {
         return hits - lastWeekHits;
+    }
+
+    public void modifyClub(
+        String name,
+        String imageUrl,
+        ClubCategory clubCategory,
+        String location,
+        String description,
+        Boolean active
+    ) {
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.clubCategory = clubCategory;
+        this.location = location;
+        this.description = description;
+        this.active = active;
     }
 }
