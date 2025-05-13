@@ -36,7 +36,7 @@ public class ClubScheduleService {
             Club club = topClub.get();
             ClubHot clubHot = ClubHot.builder()
                 .club(club)
-                .rank(1)
+                .ranking(1)
                 .periodHits(club.getHitsIncrease())
                 .startDate(getStartOfLastWeek())
                 .endDate(getEndOfLastWeek())
