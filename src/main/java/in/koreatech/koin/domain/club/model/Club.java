@@ -44,6 +44,10 @@ public class Club extends BaseEntity {
     private Integer hits = 0;
 
     @NotNull
+    @Column(name = "last_week_hits", nullable = false, columnDefinition = "INT UNSIGNED DEFAULT 0")
+    private Integer lastWeekHits = 0;
+
+    @NotNull
     @Size(max = 100)
     @Column(name = "description", length = 100, nullable = false)
     private String description;
@@ -85,6 +89,7 @@ public class Club extends BaseEntity {
         Integer id,
         String name,
         Integer hits,
+        Integer lastWeekHits,
         String description,
         Boolean active,
         String imageUrl,
@@ -96,6 +101,7 @@ public class Club extends BaseEntity {
         this.id = id;
         this.name = name;
         this.hits = hits;
+        this.lastWeekHits = lastWeekHits;
         this.description = description;
         this.active = active;
         this.imageUrl = imageUrl;
@@ -103,6 +109,14 @@ public class Club extends BaseEntity {
         this.location = location;
         this.introduction = introduction;
         this.clubCategory = clubCategory;
+    }
+
+    public void updateLastWeekHits() {
+        lastWeekHits = hits;
+    }
+
+    public int getHitsIncrease() {
+        return hits - lastWeekHits;
     }
 
     public void modifyClub(
