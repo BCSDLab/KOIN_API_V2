@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +28,12 @@ import lombok.RequiredArgsConstructor;
 public class ClubController implements ClubApi {
 
     private final ClubService clubService;
+
+    @GetMapping("/hot")
+    public ResponseEntity<ClubHotResponse> getHotClub() {
+        ClubHotResponse response = clubService.getHotClub();
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/{clubId}/qna")
     public ResponseEntity<QnasResponse> getQnas(

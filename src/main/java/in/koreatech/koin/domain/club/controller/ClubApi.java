@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
@@ -34,6 +35,11 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
+    @Operation(summary = "인기 동아리를 조회한다")
+    @GetMapping("/hot")
+    ResponseEntity<ClubHotResponse> getHotClub();
+
+
     @Operation(
         summary = "특정 동아리의 모든 QNA를 조회한다",
         description = """

@@ -6,6 +6,11 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
+import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
+import in.koreatech.koin.domain.club.repository.ClubHotRepository;
+import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
@@ -23,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class ClubService {
 
+    private final ClubHotRedisRepository hotClubRedisRepository;
+    private final ClubHotRepository clubHotRepository;
     private final ClubQnaRepository clubQnaRepository;
     private final ClubRepository clubRepository;
     private final StudentRepository studentRepository;
@@ -31,6 +38,22 @@ public class ClubService {
     public QnasResponse getQnas(Integer clubId) {
         List<ClubQna> qnas = clubQnaRepository.findAllByClubId(clubId);
         return QnasResponse.from(qnas);
+    }
+
+    public ClubHotResponse getHotClub() {
+        return hotClubRedisRepository.findById(ClubHotRedis.REDIS_KEY)
+            .map(ClubHotResponse::from)
+            .orElseGet(this::getHotClubFromDBAndCache);
+
+    }
+
+    private ClubHotResponse getHotClubFromDBAndCache() {
+        return clubHotRepository.findTopByOrderByEndDateDesc()
+            .map(clubHot -> {
+                hotClubRedisRepository.save(ClubHotRedis.from(clubHot.getClub()));
+                return ClubHotResponse.from(clubHot.getClub());
+            })
+            .orElseThrow(() -> ClubHotNotFoundException.withDetail(""));
     }
 
     @Transactional
