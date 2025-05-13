@@ -49,8 +49,8 @@ public record RegisterUserRequest(
     @NotBlank(message = "비밀번호는 필수입니다.")
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
     @Pattern(
-        regexp = "^(?=.*[A-Za-z])(?=.*[^A-Za-z0-9])[A-Za-z0-9!@#\\$%\\^&\\*\\-_+=]{6,18}$",
-        message = "6자 이상 18자 이내의 영문자, 숫자, 특수문자만 사용할 수 있습니다."
+        regexp = "^[A-Za-z0-9!@#\\$%\\^&\\*\\-_+=]{6,18}$",
+        message = "6자 이상 18자 이내의 영문자, 숫자, 특수문자(-, _, + 등)만 사용할 수 있습니다."
     )
     String password,
 
