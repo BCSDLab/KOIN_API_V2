@@ -25,7 +25,7 @@ public interface AdminClubRepository extends Repository<Club, Integer> {
     Page<Club> findAllByClubCategoryId(@Param("clubCategoryId") Integer clubCategoryId, Pageable pageable);
 
     @Query(value = """
-            SELECT * FROM club
+        SELECT * FROM club
         """, nativeQuery = true)
     Page<Club> findAll(Pageable pageable);
 
