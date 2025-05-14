@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.club.dto.ClubAdminCondition;
-import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
+import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
+import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
 import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubAdminsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
@@ -79,7 +80,7 @@ public class AdminClubController implements AdminClubApi {
     @PatchMapping("/{clubId}/active")
     public ResponseEntity<Void> changeActive(
         @PathVariable Integer clubId,
-        @RequestBody @Valid AdminClubActiveChangeRequest request,
+        @RequestBody @Valid ChangeAdminClubActiveRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.changeActive(clubId, request);
@@ -105,10 +106,10 @@ public class AdminClubController implements AdminClubApi {
     @PatchMapping("/{clubId}/decision")
     public ResponseEntity<Void> decideClubAdmin(
         @PathVariable Integer clubId,
-        @RequestParam Boolean isAccept,
+        @RequestBody DecideAdminClubAdminRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminClubService.decideClubAdmin(clubId, isAccept);
+        adminClubService.decideClubAdmin(clubId, request);
         return ResponseEntity.ok().build();
     }
 }

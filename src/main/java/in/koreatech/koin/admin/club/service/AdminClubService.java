@@ -10,8 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.club.dto.ClubAdminCondition;
-import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
+import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
+import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
 import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubAdminsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
@@ -23,7 +24,6 @@ import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
-import in.koreatech.koin.domain.club.repository.ClubAdminRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 public class AdminClubService {
 
     private final ClubRepository clubRepository;
-    private final ClubAdminRepository clubAdminRepository;
     private final AdminClubCategoryRepository adminClubCategoryRepository;
     private final AdminClubAdminRepository adminClubAdminRepository;
     private final AdminClubRepository adminClubRepository;
@@ -109,15 +108,15 @@ public class AdminClubService {
     }
 
     @Transactional
-    public void changeActive(Integer clubId, AdminClubActiveChangeRequest request) {
+    public void changeActive(Integer clubId, ChangeAdminClubActiveRequest request) {
         Club club = clubRepository.getById(clubId);
         club.updateActive(request.isActive());
     }
 
     @Transactional
-    public void decideClubAdmin(Integer clubId, boolean isAccept) {
-        if (isAccept) {
-            ClubAdmin clubAdmin = clubAdminRepository.getByClubId(clubId);
+    public void decideClubAdmin(Integer clubId, DecideAdminClubAdminRequest request) {
+        if (request.isAccept()) {
+            ClubAdmin clubAdmin = adminClubAdminRepository.findFirstAcceptedByClubId(clubId);
             clubAdmin.acceptClubAdmin();
         } else {
             clubRepository.deleteById(clubId);
@@ -125,7 +124,7 @@ public class AdminClubService {
     }
 
     public AdminClubAdminsResponse getClubAdmins(ClubAdminCondition condition) {
-        int totalCount = getTotalClubAdminsCount();
+        int totalCount = adminClubRepository.countUnacceptedAll();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
         Sort.Direction direction = condition.getDirection();
 
@@ -135,17 +134,13 @@ public class AdminClubService {
     }
 
     public AdminClubAdminsResponse getUnacceptedClubAdmins(ClubAdminCondition condition) {
-        int totalCount = getUnacceptedClubAdminsCount();
+        int totalCount = adminClubRepository.countUnacceptedAll();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
         Sort.Direction direction = condition.getDirection();
 
         Page<ClubAdmin> result = getUnacceptedClubAdminsResultPage(criteria, direction);
 
         return AdminClubAdminsResponse.of(result, criteria);
-    }
-
-    private int getTotalClubAdminsCount() {
-        return adminClubRepository.countAcceptedAll();
     }
 
     private Page<ClubAdmin> getClubAdminsResultPage(Criteria criteria, Sort.Direction direction) {
@@ -156,10 +151,6 @@ public class AdminClubService {
         );
 
         return adminClubRepository.findAcceptedPageAll(pageRequest);
-    }
-
-    private int getUnacceptedClubAdminsCount() {
-        return adminClubRepository.countUnacceptedAll();
     }
 
     private Page<ClubAdmin> getUnacceptedClubAdminsResultPage(Criteria criteria, Sort.Direction direction) {

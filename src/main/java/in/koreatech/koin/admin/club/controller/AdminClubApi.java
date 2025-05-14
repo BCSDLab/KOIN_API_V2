@@ -17,8 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.club.dto.ClubAdminCondition;
-import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
+import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
+import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
 import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubAdminsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
@@ -83,7 +84,7 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "동아리를 생성한다")
+    @Operation(summary = "동아리를 생성한다.")
     @PostMapping
     ResponseEntity<Void> createClub(
         @RequestBody @Valid CreateAdminClubRequest request,
@@ -99,7 +100,7 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 동아리를 수정한다")
+    @Operation(summary = "특정 동아리를 수정한다.")
     @PutMapping("/{clubId}")
     ResponseEntity<Void> modifyClub(
         @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
@@ -116,11 +117,11 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 동아리의 활성화 상태를 설정한다")
+    @Operation(summary = "특정 동아리의 활성화 상태를 설정한다.")
     @PatchMapping("/{clubId}/active")
     ResponseEntity<Void> changeActive(
-        @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody @Valid AdminClubActiveChangeRequest request,
+        @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
+        @RequestBody @Valid ChangeAdminClubActiveRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -132,7 +133,7 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "승인된 동아리 리스트를 페이지네이션으로 조회한다")
+    @Operation(summary = "승인된 동아리 리스트를 페이지네이션으로 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/club-admins")
     ResponseEntity<AdminClubAdminsResponse> getClubAdmins(
@@ -148,7 +149,7 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "미승인 동아리 리스트를 페이지네이션으로 조회한다")
+    @Operation(summary = "미승인 동아리 리스트를 페이지네이션으로 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/new-club-admins")
     ResponseEntity<AdminClubAdminsResponse> getNewClubAdmins(
@@ -164,7 +165,7 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "동아리 신청을 승인/반려한다", description = """
+    @Operation(summary = "동아리 신청을 승인/반려한다.", description = """
         승인을 누르면 승인된 동아리가 됩니다.
         반려를 누르면 신청한 동아리 내의 정보가 DB 내에서 삭제됩니다.
         """)
@@ -172,7 +173,7 @@ public interface AdminClubApi {
     @PatchMapping("/{clubId}/decision")
     ResponseEntity<Void> decideClubAdmin(
         @PathVariable Integer clubId,
-        @RequestParam Boolean isAccept,
+        @RequestBody DecideAdminClubAdminRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }
