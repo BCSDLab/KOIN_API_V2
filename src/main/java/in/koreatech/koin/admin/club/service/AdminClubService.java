@@ -172,4 +172,3 @@ public class AdminClubService {
         return adminClubRepository.findUnacceptedPageAll(pageRequest);
     }
 }
-
