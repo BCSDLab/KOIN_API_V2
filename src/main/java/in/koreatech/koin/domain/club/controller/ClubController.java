@@ -22,7 +22,7 @@ import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
-import in.koreatech.koin.domain.club.dto.response.GetClubByCategoryResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -65,12 +65,12 @@ public class ClubController implements ClubApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/categories/{categoryId}")
-    public ResponseEntity<GetClubByCategoryResponse> getClubByCategory(
-        @Parameter(in = PATH) @PathVariable Integer categoryId,
+    @GetMapping
+    public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
+        @RequestParam Integer categoryId,
         @RequestParam(required = false) String sort
     ) {
-        GetClubByCategoryResponse response = clubService.getClubByCategory(categoryId, sort);
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, sort);
         return ResponseEntity.ok(response);
     }
 
@@ -83,8 +83,8 @@ public class ClubController implements ClubApi {
     }
 
     @PutMapping("/like/{clubId}")
-    public ResponseEntity<Void> likeDining(
-        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
+    public ResponseEntity<Void> likeClub(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
         @Parameter(in = PATH) @PathVariable Integer clubId
     ) {
         clubService.likeClub(clubId, userId);
@@ -92,8 +92,8 @@ public class ClubController implements ClubApi {
     }
 
     @DeleteMapping("/like/cancel/{clubId}")
-    public ResponseEntity<Void> likeDiningCancel(
-        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
+    public ResponseEntity<Void> likeClubCancel(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
         @Parameter(in = PATH) @PathVariable Integer clubId
     ) {
         clubService.likeClubCancel(clubId, userId);

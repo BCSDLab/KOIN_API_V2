@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ClubCategoriesResponse(
     @Schema(description = "동아리 카테고리 리스트", requiredMode = REQUIRED)
-    List<ClubCategoriesResponse.InnerClubCategoryResponse> clubCategories
+    List<InnerClubCategoryResponse> clubCategories
 ) {
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record InnerClubCategoryResponse(
@@ -22,14 +22,14 @@ public record ClubCategoriesResponse(
         @Schema(description = "동아리 카테고리 이름", example = "학술", requiredMode = REQUIRED)
         String name
     ) {
-        private static ClubCategoriesResponse.InnerClubCategoryResponse from(ClubCategory category) {
-            return new ClubCategoriesResponse.InnerClubCategoryResponse(category.getId(), category.getName());
+        private static InnerClubCategoryResponse from(ClubCategory category) {
+            return new InnerClubCategoryResponse(category.getId(), category.getName());
         }
     }
 
     public static ClubCategoriesResponse from(List<ClubCategory> clubCategories) {
         return new ClubCategoriesResponse(clubCategories.stream()
-            .map(ClubCategoriesResponse.InnerClubCategoryResponse::from)
+            .map(InnerClubCategoryResponse::from)
             .toList()
         );
     }

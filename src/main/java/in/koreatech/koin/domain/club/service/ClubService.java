@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
-import in.koreatech.koin.domain.club.dto.response.GetClubByCategoryResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
@@ -67,9 +67,7 @@ public class ClubService {
     @Transactional
     public ClubResponse updateClub(Integer clubId, UpdateClubRequest request, Integer studentId) {
         Club club = clubRepository.getById(clubId);
-        if (!clubAdminRepository.existsByClubIdAndUserId(clubId, studentId)) {
-            throw AuthorizationException.withDetail("studentId: " + studentId);
-        }
+        isClubAdmin(clubId, studentId);
 
         ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
         club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description());
@@ -101,14 +99,18 @@ public class ClubService {
         Integer clubId, UpdateClubIntroductionRequest request, Integer studentId
     ) {
         Club club = clubRepository.getById(clubId);
-        if (!clubAdminRepository.existsByClubIdAndUserId(clubId, studentId)) {
-            throw AuthorizationException.withDetail("studentId: " + studentId);
-        }
+        isClubAdmin(clubId, studentId);
 
         club.updateIntroduction(request.introduction());
         List<ClubSNS> clubSNSs = club.getClubSNSs();
 
         return ClubResponse.from(club, clubSNSs);
+    }
+
+    private void isClubAdmin(Integer clubId, Integer studentId) {
+        if (!clubAdminRepository.existsByClubIdAndUserId(clubId, studentId)) {
+            throw AuthorizationException.withDetail("studentId: " + studentId);
+        }
     }
 
     @Transactional
@@ -120,16 +122,16 @@ public class ClubService {
         return ClubResponse.from(club, clubSNSs);
     }
 
-    public GetClubByCategoryResponse getClubByCategory(Integer categoryId, String sort) {
+    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, String sort) {
         ClubCategory category = clubCategoryRepository.getById(categoryId);
 
         if ("hits".equalsIgnoreCase(sort)) {
             List<Club> clubs = clubRepository.findByClubCategoryOrderByHitsDesc(category);
-            return GetClubByCategoryResponse.from(clubs);
+            return ClubsByCategoryResponse.from(clubs);
         }
 
         List<Club> clubs = clubRepository.findByClubCategoryOrderByIdAsc(category);
-        return GetClubByCategoryResponse.from(clubs);
+        return ClubsByCategoryResponse.from(clubs);
     }
 
     @Transactional

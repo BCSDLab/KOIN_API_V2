@@ -10,10 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash("createClub")
+@RedisHash("ClubCreateRequest")
 public class ClubCreateRedis {
-
-    public static final String REDIS_KEY = "create_club";
 
     @Id
     private String id;
@@ -71,7 +69,7 @@ public class ClubCreateRedis {
 
     public static ClubCreateRedis of(CreateClubRequest request, Integer requesterId) {
         return ClubCreateRedis.builder()
-            .id(REDIS_KEY + ":" + request.name())
+            .id(request.name())
             .name(request.name())
             .imageUrl(request.imageUrl())
             .clubAdmins(request.clubAdmins())

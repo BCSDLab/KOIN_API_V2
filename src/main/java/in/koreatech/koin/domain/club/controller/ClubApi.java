@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
-import in.koreatech.koin.domain.club.dto.response.GetClubByCategoryResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -107,7 +107,7 @@ public interface ClubApi {
     )
     @Operation(summary = "카테고리를 기준으로 동아리를 조회한다")
     @PostMapping("/categories/{categoryId}")
-    ResponseEntity<GetClubByCategoryResponse> getClubByCategory(
+    ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @Parameter(in = PATH) @PathVariable Integer categoryId,
         @RequestParam(required = false) String sort
     );
@@ -132,9 +132,9 @@ public interface ClubApi {
         }
     )
     @Operation(summary = "동아리 좋아요를 누른다")
-    @PutMapping("/like/{clubId}")
-    ResponseEntity<Void> likeDining(
-        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
+    @PutMapping("/{clubId}/like")
+    ResponseEntity<Void> likeClub(
+        @Auth(permit = {STUDENT}) Integer userId,
         @Parameter(in = PATH) @PathVariable Integer clubId
     );
 
@@ -147,9 +147,9 @@ public interface ClubApi {
         }
     )
     @Operation(summary = "동아리 좋아요를 취소한다")
-    @DeleteMapping("/like/cancel/{clubId}")
-    ResponseEntity<Void> likeDiningCancel(
-        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
+    @DeleteMapping("/{clubId}/like-cancel")
+    ResponseEntity<Void> likeClubCancel(
+        @Auth(permit = {STUDENT}) Integer userId,
         @Parameter(in = PATH) @PathVariable Integer clubId
     );
 

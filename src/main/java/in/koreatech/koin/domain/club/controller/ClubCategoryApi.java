@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Club Category: 동아리 카테고리", description = "동아리 카테고리 정보를 관리한다")
-@RequestMapping("club-categories")
+@RequestMapping("/clubs/categories")
 public interface ClubCategoryApi {
 
     @ApiResponses(
