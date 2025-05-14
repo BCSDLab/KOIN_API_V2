@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubResponse;
+import in.koreatech.koin.domain.club.dto.response.GetClubByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +31,50 @@ import jakarta.validation.Valid;
 @Tag(name = "(Normal) Club: 동아리", description = "동아리 정보를 관리한다")
 @RequestMapping("/clubs")
 public interface ClubApi {
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "동아리를 생성한다")
+    @PostMapping
+    ResponseEntity<Void> createClub(
+        @RequestBody @Valid CreateClubRequest createClubRequest,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "동아리를 상세조회한다")
+    @PostMapping("/{clubId}")
+    ResponseEntity<ClubResponse> getClub(
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "카테고리를 기준으로 동아리를 조회한다")
+    @PostMapping("/categories/{categoryId}")
+    ResponseEntity<GetClubByCategoryResponse> getClubByCategory(
+        @Parameter(in = PATH) @PathVariable Integer categoryId,
+        @RequestParam(required = false) String sort
+    );
 
     @ApiResponses(
         value = {
