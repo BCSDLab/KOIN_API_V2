@@ -146,4 +146,18 @@ public class Club extends BaseEntity {
     public void cancelLikes() {
         this.likes--;
     }
+
+    public void update(
+        String name,
+        String imageUrl,
+        ClubCategory category,
+        String location,
+        String description
+    ) {
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.clubCategory = category;
+        this.location = location;
+        this.description = description;
+    }
 }

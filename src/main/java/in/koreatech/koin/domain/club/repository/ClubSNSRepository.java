@@ -12,4 +12,6 @@ public interface ClubSNSRepository extends Repository<ClubSNS, Integer> {
     void save(ClubSNS clubSNS);
 
     List<ClubSNS> findAllByClub(Club club);
+
+    void deleteAllByClub(Club club);
 }

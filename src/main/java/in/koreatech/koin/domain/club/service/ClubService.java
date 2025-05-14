@@ -11,10 +11,12 @@ import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.GetClubByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.DuplicateClubLikiException;
@@ -66,6 +68,38 @@ public class ClubService {
     }
 
     @Transactional
+    public ClubResponse updateClub(Integer clubId, UpdateClubRequest request, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        if (!clubAdminRepository.existsByClubIdAndUserId(clubId, studentId)) {
+            throw AuthorizationException.withDetail("studentId: " + studentId);
+        }
+
+        ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
+        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description());
+
+        List<ClubSNS> newSNS = updateClubSNS(request, club);
+
+        return ClubResponse.from(club, newSNS);
+    }
+
+    private List<ClubSNS> updateClubSNS(UpdateClubRequest request, Club club) {
+        clubSNSRepository.deleteAllByClub(club);
+        List<ClubSNS> newSNS = List.of(
+                new ClubSNS(club, SNSType.INSTAGRAM, request.instagram()),
+                new ClubSNS(club, SNSType.GOOGLE_FORM, request.googleForm()),
+                new ClubSNS(club, SNSType.OPEN_CHAT, request.openChat()),
+                new ClubSNS(club, SNSType.PHONE_NUMBER, request.phoneNumber())
+            ).stream()
+            .filter(sns -> sns.getContact() != null && !sns.getContact().isBlank())
+            .toList();
+
+        for (ClubSNS sns : newSNS) {
+            clubSNSRepository.save(sns);
+        }
+        return newSNS;
+    }
+
+    @Transactional
     public ClubResponse getClub(Integer clubId) {
         Club club = clubRepository.getByIdWithPessimisticLock(clubId);
         club.increaseHits();
@@ -92,7 +126,7 @@ public class ClubService {
         User user = userRepository.getById(userId);
 
         boolean alreadyLiked = clubLikeRepository.existsByClubAndUser(club, user);
-        if (alreadyLiked){
+        if (alreadyLiked) {
             throw DuplicateClubLikiException.withDetail(clubId);
         }
 
@@ -111,7 +145,7 @@ public class ClubService {
         User user = userRepository.getById(userId);
 
         boolean alreadyLiked = clubLikeRepository.existsByClubAndUser(club, user);
-        if(!alreadyLiked){
+        if (!alreadyLiked) {
             throw ClubLikeNotFoundException.withDetail(club.getId());
         }
 

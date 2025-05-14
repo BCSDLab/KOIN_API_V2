@@ -55,4 +55,10 @@ public class ClubSNS {
         this.snsType = snsType;
         this.contact = contact;
     }
+
+    public ClubSNS(Club club, SNSType snsType, String contact) {
+        this.club = club;
+        this.snsType = snsType;
+        this.contact = contact;
+    }
 }
