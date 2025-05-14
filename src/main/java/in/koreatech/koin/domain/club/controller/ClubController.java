@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
@@ -51,6 +52,16 @@ public class ClubController implements ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
         ClubResponse response = clubService.updateClub(clubId, request, studentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{clubId}/introduction")
+    public ResponseEntity<ClubResponse> updateClubIntroduction(
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @RequestBody UpdateClubIntroductionRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        ClubResponse response = clubService.updateClubIntroduction(clubId, request, studentId);
         return ResponseEntity.ok(response);
     }
 

@@ -39,7 +39,19 @@ public record CreateAdminClubRequest(
 
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
     @NotNull(message = "동아리 소개는 필수 입력 사항입니다.")
-    String description
+    String description,
+
+    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/")
+    String instagram,
+
+    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example")
+    String googleForm,
+
+    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example")
+    String openChat,
+
+    @Schema(description = "전화번호", example = "010-1234-5678")
+    String phoneNumber
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerClubAdminRequest(

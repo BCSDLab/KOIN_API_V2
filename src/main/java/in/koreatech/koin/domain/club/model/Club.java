@@ -161,7 +161,7 @@ public class Club extends BaseEntity {
         this.description = description;
     }
 
-    public void updateIntroduction(String introduction){
+    public void updateIntroduction(String introduction) {
         this.introduction = introduction;
     }
 }

@@ -10,7 +10,6 @@ import java.util.List;
 
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
