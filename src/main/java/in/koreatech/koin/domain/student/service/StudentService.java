@@ -15,6 +15,7 @@ import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin._common.event.StudentFindPasswordEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin._common.event.StudentRegisterRequestEvent;
+import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
@@ -303,9 +304,9 @@ public class StudentService {
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-        // eventPublisher.publishEvent(
-        //     new UserRegisterEvent(student.getUser().getId(), request.marketingNotificationAgreement())
-        // );
+        eventPublisher.publishEvent(
+            new UserRegisterEvent(student.getUser().getId(), request.marketingNotificationAgreement())
+        );
         userVerificationService.consumeVerification(request.phoneNumber());
     }
 
