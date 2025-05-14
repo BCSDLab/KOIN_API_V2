@@ -55,7 +55,7 @@ public record RegisterStudentRequestV2(
     String loginId,
 
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6ec7f1...", requiredMode = REQUIRED)
     String password,
 
     @Schema(description = "마케팅 수신 동의 여부", example = "true", requiredMode = NOT_REQUIRED)
