@@ -119,6 +119,10 @@ public class Club extends BaseEntity {
         return hits - lastWeekHits;
     }
 
+    public void increaseHits() {
+        this.hits++;
+    }
+
     public void modifyClub(
         String name,
         String imageUrl,
