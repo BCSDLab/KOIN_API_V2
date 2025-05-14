@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.HttpStatus;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,7 +38,7 @@ public class ClubController implements ClubApi {
     public ResponseEntity<Void> createClub(
         @RequestBody @Valid CreateClubRequest createClubRequest,
         @Auth(permit = {STUDENT}) Integer studentId
-    ){
+    ) {
         clubService.createClub(createClubRequest);
         return ResponseEntity.ok().build();
     }
@@ -46,7 +47,7 @@ public class ClubController implements ClubApi {
     public ResponseEntity<GetClubByCategoryResponse> getClubByCategory(
         @Parameter(in = PATH) @PathVariable Integer categoryId,
         @RequestParam(required = false) String sort
-    ){
+    ) {
         GetClubByCategoryResponse response = clubService.getClubByCategory(categoryId, sort);
         return ResponseEntity.ok(response);
     }
@@ -54,9 +55,27 @@ public class ClubController implements ClubApi {
     @GetMapping("/{clubId}")
     public ResponseEntity<ClubResponse> getClub(
         @Parameter(in = PATH) @PathVariable Integer clubId
-    ){
+    ) {
         ClubResponse response = clubService.getClub(clubId);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/like/{clubId}")
+    public ResponseEntity<Void> likeDining(
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    ) {
+        clubService.likeClub(clubId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/like/cancel/{clubId}")
+    public ResponseEntity<Void> likeDiningCancel(
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    ) {
+        clubService.likeClubCancel(clubId, userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/hot")
@@ -78,7 +97,7 @@ public class ClubController implements ClubApi {
         @RequestBody @Valid CreateQnaRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
-    ){
+    ) {
         clubService.createQna(request, clubId, studentId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

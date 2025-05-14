@@ -138,4 +138,12 @@ public class Club extends BaseEntity {
         this.description = description;
         this.active = active;
     }
+
+    public void increaseLikes() {
+        this.likes++;
+    }
+
+    public void cancelLikes() {
+        this.likes--;
+    }
 }

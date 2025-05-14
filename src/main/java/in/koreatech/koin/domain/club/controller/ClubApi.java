@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -87,6 +88,35 @@ public interface ClubApi {
     @GetMapping("/hot")
     ResponseEntity<ClubHotResponse> getHotClub();
 
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "동아리 좋아요를 누른다")
+    @PutMapping("/like/{clubId}")
+    ResponseEntity<Void> likeDining(
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "동아리 좋아요를 취소한다")
+    @DeleteMapping("/like/cancel/{clubId}")
+    ResponseEntity<Void> likeDiningCancel(
+        @Auth(permit = {GENERAL, STUDENT, COOP, COUNCIL}) Integer userId,
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    );
 
     @Operation(
         summary = "특정 동아리의 모든 QNA를 조회한다",
@@ -96,7 +126,7 @@ public interface ClubApi {
             - is_deleted 값이 false인 경우 "삭제된 댓글입니다"로 표현.
             - is_admin 필드를 통해 관리자 댓글 여부를 알 수 있음.
             - 트리 구조는 대댓글 형태로 재귀적으로 구성됩니다.
-            
+                        
             ```java
             예시
             댓글 1
@@ -106,7 +136,7 @@ public interface ClubApi {
             │   └── 댓글 1-1-2
             ├── 댓글 1-2
             └── 댓글 1-3
-            
+                        
             댓글 2
             └── 댓글 2-1
                 └── 댓글 2-1-1
