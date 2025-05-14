@@ -72,7 +72,7 @@ public record RegisterStudentRequestV2(
             .email(email)
             .gender(gender)
             .userType(STUDENT)
-            .isAuthed(false)
+            .isAuthed(true)
             .isDeleted(false)
             .build();
         Student student = Student.builder()

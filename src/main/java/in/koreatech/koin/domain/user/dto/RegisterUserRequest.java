@@ -64,7 +64,7 @@ public record RegisterUserRequest(
             .email(email)
             .gender(gender)
             .userType(GENERAL)
-            .isAuthed(false)
+            .isAuthed(true)
             .isDeleted(false)
             .build();
     }
