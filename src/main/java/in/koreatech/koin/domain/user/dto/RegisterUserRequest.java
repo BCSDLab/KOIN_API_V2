@@ -47,11 +47,7 @@ public record RegisterUserRequest(
     String loginId,
 
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
-    @Pattern(
-        regexp = "^[A-Za-z0-9!@#\\$%\\^&\\*\\-_+=]{6,18}$",
-        message = "6자 이상 18자 이내의 영문자, 숫자, 특수문자(-, _, + 등)만 사용할 수 있습니다."
-    )
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6ec7f1...", requiredMode = REQUIRED)
     String password,
 
     @Schema(description = "마케팅 수신 동의 여부", example = "true", requiredMode = NOT_REQUIRED)
@@ -68,7 +64,7 @@ public record RegisterUserRequest(
             .email(email)
             .gender(gender)
             .userType(GENERAL)
-            .isAuthed(false)
+            .isAuthed(true)
             .isDeleted(false)
             .deviceToken("TEMPORARY_TOKEN")
             .build();
