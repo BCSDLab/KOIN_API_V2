@@ -117,8 +117,8 @@ public class UserService {
     }
 
     public RefreshUserTokenResponse refresh(RefreshUserTokenRequest request) {
-        String userId = refreshTokenService.extractUserId(request.refreshToken());
-        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(), Integer.parseInt(userId));
+        Integer userId = refreshTokenService.extractUserId(request.refreshToken());
+        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(), userId);
 
         User user = userRepository.findById(userToken.getId())
             .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. userId : " + userId));
