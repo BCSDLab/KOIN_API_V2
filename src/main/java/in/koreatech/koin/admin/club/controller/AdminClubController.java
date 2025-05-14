@@ -48,9 +48,9 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{cludId}")
+    @GetMapping("/{clubId}")
     public ResponseEntity<AdminClubResponse> getClub(
-        @PathVariable(value = "cludId") Integer clubId,
+        @PathVariable(value = "clubId") Integer clubId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminClubResponse response = adminClubService.getClub(clubId);

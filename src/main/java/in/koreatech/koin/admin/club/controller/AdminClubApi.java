@@ -69,9 +69,9 @@ public interface AdminClubApi {
         }
     )
     @Operation(summary = "특정 동아리 정보를 조회한다.")
-    @GetMapping("/{cludId}")
+    @GetMapping("/{clubId}")
     ResponseEntity<AdminClubResponse> getClub(
-        @PathVariable(value = "cludId") Integer clubId,
+        @PathVariable(value = "clubId") Integer clubId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -100,9 +100,9 @@ public interface AdminClubApi {
         }
     )
     @Operation(summary = "특정 동아리를 수정한다")
-    @PutMapping("/{cludId}")
+    @PutMapping("/{clubId}")
     ResponseEntity<Void> modifyClub(
-        @Parameter(in = PATH) @PathVariable(name = "cludId") Integer clubId,
+        @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
         @RequestBody @Valid ModifyAdminClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
@@ -117,9 +117,9 @@ public interface AdminClubApi {
         }
     )
     @Operation(summary = "특정 동아리의 활성화 상태를 설정한다")
-    @PatchMapping("/{id}/active")
+    @PatchMapping("/{clubId}/active")
     ResponseEntity<Void> changeActive(
-        @Parameter(in = PATH) @PathVariable Integer id,
+        @Parameter(in = PATH) @PathVariable Integer clubId,
         @RequestBody @Valid AdminClubActiveChangeRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
