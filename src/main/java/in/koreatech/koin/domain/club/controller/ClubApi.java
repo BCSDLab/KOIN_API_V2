@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
@@ -62,6 +63,23 @@ public interface ClubApi {
     ResponseEntity<ClubResponse> updateClub(
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @RequestBody UpdateClubRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "동아리 상세정보를 수정한다")
+    @PutMapping("/{clubId}/introduction")
+    ResponseEntity<ClubResponse> updateClubIntroduction(
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @RequestBody UpdateClubIntroductionRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 

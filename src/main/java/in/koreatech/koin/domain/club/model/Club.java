@@ -160,4 +160,8 @@ public class Club extends BaseEntity {
         this.location = location;
         this.description = description;
     }
+
+    public void updateIntroduction(String introduction){
+        this.introduction = introduction;
+    }
 }

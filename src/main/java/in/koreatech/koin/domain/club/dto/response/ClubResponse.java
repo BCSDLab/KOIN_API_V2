@@ -28,6 +28,9 @@ public record ClubResponse(
     @Schema(description = "좋아요 수", example = "100", requiredMode = REQUIRED)
     Integer likes,
 
+    @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
+    String description,
+
     @Schema(description = "동아리 상세 소개", example = "안녕하세요 BCSDLab입니다", requiredMode = REQUIRED)
     String introduction,
 
@@ -65,6 +68,7 @@ public record ClubResponse(
             club.getLocation(),
             club.getImageUrl(),
             club.getLikes(),
+            club.getDescription(),
             club.getIntroduction(),
             instagram,
             googleForm,

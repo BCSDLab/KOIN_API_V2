@@ -7,10 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
-import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
@@ -54,8 +53,6 @@ public class ClubService {
     private final StudentRepository studentRepository;
     private final ClubAdminRepository clubAdminRepository;
     private final ClubCategoryRepository clubCategoryRepository;
-    private final AdminClubAdminRepository adminClubAdminRepository;
-    private final AdminUserRepository adminUserRepository;
     private final ClubSNSRepository clubSNSRepository;
     private final ClubLikeRepository clubLikeRepository;
     private final UserRepository userRepository;
@@ -97,6 +94,21 @@ public class ClubService {
             clubSNSRepository.save(sns);
         }
         return newSNS;
+    }
+
+    @Transactional
+    public ClubResponse updateClubIntroduction(
+        Integer clubId, UpdateClubIntroductionRequest request, Integer studentId
+    ) {
+        Club club = clubRepository.getById(clubId);
+        if (!clubAdminRepository.existsByClubIdAndUserId(clubId, studentId)) {
+            throw AuthorizationException.withDetail("studentId: " + studentId);
+        }
+
+        club.updateIntroduction(request.introduction());
+        List<ClubSNS> clubSNSs = club.getClubSNSs();
+
+        return ClubResponse.from(club, clubSNSs);
     }
 
     @Transactional
