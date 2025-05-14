@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
@@ -98,7 +99,8 @@ public class AdminUserService {
         if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
             throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "request: " + request);
         }
-        User user = adminUserRepository.getById(userToken.getId());
+        User user = adminUserRepository.findById(userToken.getId())
+            .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. userId" + adminId));;
 
         String accessToken = jwtProvider.createToken(user);
         return AdminTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());

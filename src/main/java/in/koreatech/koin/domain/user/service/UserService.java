@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -117,12 +118,12 @@ public class UserService {
 
     public RefreshUserTokenResponse refresh(RefreshUserTokenRequest request) {
         String userId = refreshTokenService.extractUserId(request.refreshToken());
-        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(),
-            Integer.parseInt(userId));
+        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(), Integer.parseInt(userId));
 
-        User user = userRepository.getById(userToken.getId());
+        User user = userRepository.findById(userToken.getId())
+            .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. userId : " + userId));
+
         String accessToken = jwtProvider.createToken(user);
-
         return RefreshUserTokenResponse.of(accessToken, userToken.getRefreshToken());
     }
 
