@@ -7,7 +7,6 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
@@ -28,7 +27,7 @@ public record CreateClubRequest(
 
     @Schema(description = "동아리 관리자 ID 리스트", requiredMode = REQUIRED)
     @NotEmpty(message = "동아리 관리자는 필수 입력 사항입니다.")
-    List<CreateAdminClubRequest.InnerClubAdminRequest> clubAdmins,
+    List<InnerClubAdminRequest> clubAdmins,
 
     @Schema(description = "동아리 분과 카테고리 ID", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "동아리 분과 카테고리는 필수 입력 사항입니다.")

@@ -35,11 +35,11 @@ public class ClubController implements ClubApi {
     private final ClubService clubService;
 
     @PostMapping
-    public ResponseEntity<Void> createClub(
+    public ResponseEntity<Void> createClubRequest(
         @RequestBody @Valid CreateClubRequest createClubRequest,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        clubService.createClub(createClubRequest);
+        clubService.createClubRequest(createClubRequest, studentId);
         return ResponseEntity.ok().build();
     }
 

@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.club.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
@@ -16,16 +15,15 @@ import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.GetClubByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
-import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.DuplicateClubLikiException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubQna;
 import in.koreatech.koin.domain.club.model.ClubSNS;
+import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
 import in.koreatech.koin.domain.club.repository.ClubAdminRepository;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
@@ -34,6 +32,7 @@ import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
+import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -58,31 +57,12 @@ public class ClubService {
     private final ClubSNSRepository clubSNSRepository;
     private final ClubLikeRepository clubLikeRepository;
     private final UserRepository userRepository;
+    private final ClubCreateRedisRepository clubCreateRedisRepository;
 
     @Transactional
-    public void createClub(CreateClubRequest request) {
-        ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
-        Club club = clubRepository.save(request.toEntity(clubCategory));
-
-        Map<SNSType, String> snsMap = Map.of(
-            SNSType.INSTAGRAM, request.instagram(),
-            SNSType.GOOGLE_FORM, request.googleForm(),
-            SNSType.OPEN_CHAT, request.openChat(),
-            SNSType.PHONE_NUMBER, request.phoneNumber()
-        );
-
-        snsMap.entrySet().stream()
-            .filter(entry -> entry.getValue() != null && !entry.getValue().isBlank())
-            .map(entry -> new ClubSNS(club, entry.getKey(), entry.getValue()))
-            .forEach(clubSNSRepository::save);
-
-        List<ClubAdmin> clubAdmins = request.clubAdmins().stream()
-            .map(innerClubAdminRequest ->
-                innerClubAdminRequest.toEntity(club, adminUserRepository.getByUserId(innerClubAdminRequest.userid()))
-            )
-            .toList();
-
-        adminClubAdminRepository.saveAll(clubAdmins);
+    public void createClubRequest(CreateClubRequest request, Integer studentId) {
+        ClubCreateRedis createRedis = ClubCreateRedis.of(request, studentId);
+        clubCreateRedisRepository.save(createRedis);
     }
 
     @Transactional

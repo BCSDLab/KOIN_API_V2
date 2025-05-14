@@ -41,9 +41,9 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "동아리를 생성한다")
+    @Operation(summary = "동아리 생성을 요청한다")
     @PostMapping
-    ResponseEntity<Void> createClub(
+    ResponseEntity<Void> createClubRequest(
         @RequestBody @Valid CreateClubRequest createClubRequest,
         @Auth(permit = {STUDENT}) Integer studentId
     );
