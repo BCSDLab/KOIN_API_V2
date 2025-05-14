@@ -134,4 +134,8 @@ public class Club extends BaseEntity {
         this.description = description;
         this.active = active;
     }
+
+    public void updateActive(Boolean active) {
+        this.active = active;
+    }
 }
