@@ -50,6 +50,7 @@ public record CreateAdminClubRequest(
             return ClubAdmin.builder()
                 .club(club)
                 .user(user)
+                .isAccept(false)
                 .build();
         }
     }

@@ -53,6 +53,7 @@ public record ModifyAdminClubRequest(
             return ClubAdmin.builder()
                 .club(club)
                 .user(user)
+                .isAccept(true)
                 .build();
         }
     }
