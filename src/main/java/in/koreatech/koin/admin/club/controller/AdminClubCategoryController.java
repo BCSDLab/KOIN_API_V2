@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/club-categories")
+@RequestMapping("/admin/clubs/categories")
 public class AdminClubCategoryController implements AdminClubCategoryApi {
 
     private final AdminClubCategoryService adminClubCategoryService;
