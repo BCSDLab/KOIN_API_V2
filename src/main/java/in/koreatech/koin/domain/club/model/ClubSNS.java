@@ -13,7 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -22,12 +21,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(
-    name = "club_sns",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"club_id", "sns_type"})
-    }
-)
+@Table(name = "club_sns")
 @NoArgsConstructor(access = PROTECTED)
 public class ClubSNS {
 
