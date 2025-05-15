@@ -101,6 +101,13 @@ public class AdminClubService {
             )
             .toList();
 
+        List<ClubSNS> clubSNSs = List.of(
+            new ClubSNS(club, SNSType.INSTAGRAM, request.instagram()),
+            new ClubSNS(club, SNSType.GOOGLE_FORM, request.googleForm()),
+            new ClubSNS(club, SNSType.PHONE_NUMBER, request.phoneNumber()),
+            new ClubSNS(club, SNSType.OPEN_CHAT, request.openChat())
+        );
+
         club.modifyClub(request.name(),
             request.imageUrl(),
             clubCategory,
@@ -108,6 +115,9 @@ public class AdminClubService {
             request.description(),
             request.active()
         );
+
+        adminClubSnsRepository.deleteAllByClub(club);
+        adminClubSnsRepository.saveAll(clubSNSs);
 
         adminClubAdminRepository.deleteAllByClub(club);
         adminClubAdminRepository.saveAll(clubAdmins);
