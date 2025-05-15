@@ -89,7 +89,8 @@ public interface OrderShopApi {
                                     "open_time": "16:00:00",
                                     "close_time": "00:00:00"
                                   }
-                                ]
+                                ],
+                                "open_status": "OPERATING"
                               }
                             ]
                         """
@@ -118,6 +119,10 @@ public interface OrderShopApi {
                 - **TAKEOUT_AVAILABLE**: 포장 가능한 상점
                 - **FREE_DELIVERY_TIP**: 배달비 무료 상점
             - **최소 주문 금액 필터**: minimum_order_amount. 해당 최소 주문 금액 이하의 상점을 반환
+            - **open_status**: 현재 요일과 시간을 고려 하여 상점의 영업 상태를 결정.
+                - **OPERATING**: 영업중
+                - **PREPARING**: 영업 준비중
+                - **CLOSED**: 영업 종료
             """)
     @GetMapping("/order/shops")
     ResponseEntity<List<OrderableShopsResponse>> getOrderableShops(

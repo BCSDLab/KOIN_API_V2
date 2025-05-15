@@ -9,6 +9,7 @@ import static in.koreatech.koin.domain.shop.model.shop.QShopCategoryMap.shopCate
 import static in.koreatech.koin.domain.shop.model.shop.QShopImage.shopImage;
 import static in.koreatech.koin.domain.shop.model.shop.QShopOpen.shopOpen;
 
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.shop.dto.order.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse.ShopOpenInfo;
-import in.koreatech.koin.domain.shop.repository.order.dto.OrderableShopInfo;
+import in.koreatech.koin.domain.shop.dto.order.OrderableShopBaseInfo;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -35,7 +36,7 @@ public class OrderableShopCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<OrderableShopInfo> findAllOrderableShopInfo(
+    public List<OrderableShopBaseInfo> findAllOrderableShopInfo(
         List<OrderableShopsFilterCriteria> filterCriteria,
         Integer minimumAmount
     ) {
@@ -45,7 +46,7 @@ public class OrderableShopCustomRepository {
         BooleanBuilder filter = orderableShopSearchFilter(filterCriteria, minimumAmount);
 
         return queryFactory
-            .select(Projections.constructor(OrderableShopInfo.class,
+            .select(Projections.constructor(OrderableShopBaseInfo.class,
                 shop.id,
                 shop.name,
                 orderableShop.delivery,
@@ -151,5 +152,16 @@ public class OrderableShopCustomRepository {
             .stream()
             .map(opens -> new ShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(), opens.getOpenTime(), opens.getCloseTime()))
             .collect(Collectors.groupingBy(ShopOpenInfo::shopId));
+    }
+
+    public Map<Integer, ShopOpenInfo> findShopOpensByShopIdsAndDayOfWeek(List<Integer> shopIds, DayOfWeek today) {
+        return queryFactory
+            .select(shopOpen)
+            .from(shopOpen)
+            .where(shopOpen.dayOfWeek.eq(today.toString()).and(shopOpen.shop.id.in(shopIds)))
+            .fetch()
+            .stream()
+            .map(opens -> new ShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(), opens.getOpenTime(), opens.getCloseTime()))
+            .collect(Collectors.toMap(ShopOpenInfo::shopId, shopOpenInfo -> shopOpenInfo));
     }
 }
