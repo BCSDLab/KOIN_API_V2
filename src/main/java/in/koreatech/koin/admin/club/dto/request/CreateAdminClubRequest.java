@@ -1,7 +1,6 @@
 package in.koreatech.koin.admin.club.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
@@ -42,16 +41,20 @@ public record CreateAdminClubRequest(
     @NotNull(message = "동아리 소개는 필수 입력 사항입니다.")
     String description,
 
-    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = NOT_REQUIRED)
+    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = REQUIRED)
+    @NotNull(message = "인스타그램 링크는 필수 입력 사항입니다.")
     String instagram,
 
-    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example", requiredMode = NOT_REQUIRED)
+    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example", requiredMode = REQUIRED)
+    @NotNull(message = "구글 폼 링크는 필수 입력 사항입니다.")
     String googleForm,
 
-    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example", requiredMode = NOT_REQUIRED)
+    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example", requiredMode = REQUIRED)
+    @NotNull(message = "오픈 채팅 링크는 필수 입력 사항입니다.")
     String openChat,
 
-    @Schema(description = "전화번호", example = "01012345678", requiredMode = NOT_REQUIRED)
+    @Schema(description = "전화번호", example = "01012345678", requiredMode = REQUIRED)
+    @NotNull(message = "전화 번호 링크는 필수 입력 사항입니다.")
     String phoneNumber
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
