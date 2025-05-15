@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import in.koreatech.koin.infrastructure.cloudfront.client.CloudFrontClientWrapper;
+import in.koreatech.koin.infrastructure.s3.client.CloudFrontClientWrapper;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 

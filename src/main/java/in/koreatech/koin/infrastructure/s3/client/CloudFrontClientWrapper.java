@@ -1,4 +1,4 @@
-package in.koreatech.koin.infrastructure.cloudfront.client;
+package in.koreatech.koin.infrastructure.s3.client;
 
 import java.util.List;
 
