@@ -122,10 +122,10 @@ public class ClubService {
         return ClubResponse.from(club, clubSNSs);
     }
 
-    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, String sort) {
+    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, Boolean hitSort) {
         ClubCategory category = clubCategoryRepository.getById(categoryId);
 
-        if ("hits".equalsIgnoreCase(sort)) {
+        if (hitSort) {
             List<Club> clubs = clubRepository.findByClubCategoryOrderByHitsDesc(category);
             return ClubsByCategoryResponse.from(clubs);
         }

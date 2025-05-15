@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.HttpStatus;
@@ -68,9 +68,9 @@ public class ClubController implements ClubApi {
     @GetMapping
     public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam Integer categoryId,
-        @RequestParam(required = false) String sort
+        @RequestParam(required = false) Boolean hitSort
     ) {
-        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, sort);
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, hitSort);
         return ResponseEntity.ok(response);
     }
 
@@ -82,18 +82,18 @@ public class ClubController implements ClubApi {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/like/{clubId}")
+    @PutMapping("/{clubId}/like")
     public ResponseEntity<Void> likeClub(
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
+        @Auth(permit = {STUDENT}) Integer userId,
         @Parameter(in = PATH) @PathVariable Integer clubId
     ) {
         clubService.likeClub(clubId, userId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/like/cancel/{clubId}")
+    @DeleteMapping("/{clubId}/like/cancel")
     public ResponseEntity<Void> likeClubCancel(
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
+        @Auth(permit = {STUDENT}) Integer userId,
         @Parameter(in = PATH) @PathVariable Integer clubId
     ) {
         clubService.likeClubCancel(clubId, userId);

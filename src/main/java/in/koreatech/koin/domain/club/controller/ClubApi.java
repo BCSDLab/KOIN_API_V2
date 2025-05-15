@@ -106,10 +106,10 @@ public interface ClubApi {
         }
     )
     @Operation(summary = "카테고리를 기준으로 동아리를 조회한다")
-    @PostMapping("/categories/{categoryId}")
+    @PostMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
-        @Parameter(in = PATH) @PathVariable Integer categoryId,
-        @RequestParam(required = false) String sort
+        @RequestParam Integer categoryId,
+        @RequestParam(required = false) Boolean hitSort
     );
 
     @ApiResponses(
@@ -147,7 +147,7 @@ public interface ClubApi {
         }
     )
     @Operation(summary = "동아리 좋아요를 취소한다")
-    @DeleteMapping("/{clubId}/like-cancel")
+    @DeleteMapping("/{clubId}/like/cancel")
     ResponseEntity<Void> likeClubCancel(
         @Auth(permit = {STUDENT}) Integer userId,
         @Parameter(in = PATH) @PathVariable Integer clubId
