@@ -4,7 +4,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 
 import in.koreatech.koin._common.model.BaseEntity;

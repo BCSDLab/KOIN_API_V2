@@ -119,6 +119,10 @@ public class Club extends BaseEntity {
         return hits - lastWeekHits;
     }
 
+    public void increaseHits() {
+        this.hits++;
+    }
+
     public void modifyClub(
         String name,
         String imageUrl,
@@ -137,5 +141,31 @@ public class Club extends BaseEntity {
 
     public void updateActive(Boolean active) {
         this.active = active;
+    }
+
+    public void increaseLikes() {
+        this.likes++;
+    }
+
+    public void cancelLikes() {
+        this.likes--;
+    }
+
+    public void update(
+        String name,
+        String imageUrl,
+        ClubCategory category,
+        String location,
+        String description
+    ) {
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.clubCategory = category;
+        this.location = location;
+        this.description = description;
+    }
+
+    public void updateIntroduction(String introduction) {
+        this.introduction = introduction;
     }
 }

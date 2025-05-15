@@ -9,13 +9,20 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
+import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,6 +35,70 @@ import lombok.RequiredArgsConstructor;
 public class ClubController implements ClubApi {
 
     private final ClubService clubService;
+
+    @PostMapping
+    public ResponseEntity<Void> createClubRequest(
+        @RequestBody @Valid CreateClubRequest createClubRequest,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.createClubRequest(createClubRequest, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{clubId}")
+    public ResponseEntity<ClubResponse> updateClub(
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @RequestBody UpdateClubRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        ClubResponse response = clubService.updateClub(clubId, request, studentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{clubId}/introduction")
+    public ResponseEntity<ClubResponse> updateClubIntroduction(
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @RequestBody UpdateClubIntroductionRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        ClubResponse response = clubService.updateClubIntroduction(clubId, request, studentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
+        @RequestParam Integer categoryId,
+        @RequestParam(required = false) Boolean hitSort
+    ) {
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, hitSort);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{clubId}")
+    public ResponseEntity<ClubResponse> getClub(
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    ) {
+        ClubResponse response = clubService.getClub(clubId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{clubId}/like")
+    public ResponseEntity<Void> likeClub(
+        @Auth(permit = {STUDENT}) Integer userId,
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    ) {
+        clubService.likeClub(clubId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{clubId}/like/cancel")
+    public ResponseEntity<Void> likeClubCancel(
+        @Auth(permit = {STUDENT}) Integer userId,
+        @Parameter(in = PATH) @PathVariable Integer clubId
+    ) {
+        clubService.likeClubCancel(clubId, userId);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/hot")
     public ResponseEntity<ClubHotResponse> getHotClub() {
@@ -48,7 +119,7 @@ public class ClubController implements ClubApi {
         @RequestBody @Valid CreateQnaRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
-    ){
+    ) {
         clubService.createQna(request, clubId, studentId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
