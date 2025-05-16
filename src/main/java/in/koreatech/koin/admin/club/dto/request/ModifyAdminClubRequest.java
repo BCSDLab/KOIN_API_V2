@@ -45,19 +45,15 @@ public record ModifyAdminClubRequest(
     Boolean active,
 
     @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = REQUIRED)
-    @NotNull(message = "인스타그램 링크는 필수 입력 사항입니다.")
     String instagram,
 
     @Schema(description = "구글 폼 링크", example = "https://forms.gle/example", requiredMode = REQUIRED)
-    @NotNull(message = "구글 폼 링크는 필수 입력 사항입니다.")
     String googleForm,
 
     @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example", requiredMode = REQUIRED)
-    @NotNull(message = "오픈 채팅 링크는 필수 입력 사항입니다.")
     String openChat,
 
     @Schema(description = "전화번호", example = "01012345678", requiredMode = REQUIRED)
-    @NotNull(message = "전화 번호 링크는 필수 입력 사항입니다.")
     String phoneNumber
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)

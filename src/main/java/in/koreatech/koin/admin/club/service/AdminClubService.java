@@ -1,6 +1,10 @@
 package in.koreatech.koin.admin.club.service;
 
+import static in.koreatech.koin.domain.club.enums.SNSType.*;
+
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +22,6 @@ import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubSnsRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
-import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
@@ -76,12 +79,15 @@ public class AdminClubService {
             )
             .toList();
 
-        List<ClubSNS> clubSNSs = List.of(
-            new ClubSNS(club, SNSType.INSTAGRAM, request.instagram()),
-            new ClubSNS(club, SNSType.GOOGLE_FORM, request.googleForm()),
-            new ClubSNS(club, SNSType.PHONE_NUMBER, request.phoneNumber()),
-            new ClubSNS(club, SNSType.OPEN_CHAT, request.openChat())
-        );
+        List<ClubSNS> clubSNSs = Stream.of(
+                new AbstractMap.SimpleEntry<>(INSTAGRAM, request.instagram()),
+                new AbstractMap.SimpleEntry<>(GOOGLE_FORM, request.googleForm()),
+                new AbstractMap.SimpleEntry<>(PHONE_NUMBER, request.phoneNumber()),
+                new AbstractMap.SimpleEntry<>(OPEN_CHAT, request.openChat())
+            )
+            .filter(entry -> entry.getValue() != null)
+            .map(entry -> new ClubSNS(club, entry.getKey(), entry.getValue()))
+            .toList();
 
         adminClubSnsRepository.saveAll(clubSNSs);
         adminClubAdminRepository.saveAll(clubAdmins);
@@ -99,12 +105,15 @@ public class AdminClubService {
             )
             .toList();
 
-        List<ClubSNS> clubSNSs = List.of(
-            new ClubSNS(club, SNSType.INSTAGRAM, request.instagram()),
-            new ClubSNS(club, SNSType.GOOGLE_FORM, request.googleForm()),
-            new ClubSNS(club, SNSType.PHONE_NUMBER, request.phoneNumber()),
-            new ClubSNS(club, SNSType.OPEN_CHAT, request.openChat())
-        );
+        List<ClubSNS> clubSNSs = Stream.of(
+                new AbstractMap.SimpleEntry<>(INSTAGRAM, request.instagram()),
+                new AbstractMap.SimpleEntry<>(GOOGLE_FORM, request.googleForm()),
+                new AbstractMap.SimpleEntry<>(PHONE_NUMBER, request.phoneNumber()),
+                new AbstractMap.SimpleEntry<>(OPEN_CHAT, request.openChat())
+            )
+            .filter(entry -> entry.getValue() != null)
+            .map(entry -> new ClubSNS(club, entry.getKey(), entry.getValue()))
+            .toList();
 
         club.modifyClub(request.name(),
             request.imageUrl(),
