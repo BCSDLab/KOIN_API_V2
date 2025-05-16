@@ -134,7 +134,7 @@ public interface AdminClubApi {
     )
     @Operation(summary = "승인된 동아리의 관리자를 페이지네이션으로 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/club-admins")
+    @GetMapping("/admins")
     ResponseEntity<AdminClubAdminsResponse> getClubAdmins(
         @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId

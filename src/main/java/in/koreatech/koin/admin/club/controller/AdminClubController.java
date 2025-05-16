@@ -87,7 +87,7 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/club-admins")
+    @GetMapping("/admins")
     public ResponseEntity<AdminClubAdminsResponse> getClubAdmins(
         @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
