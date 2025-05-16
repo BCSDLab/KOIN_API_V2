@@ -201,28 +201,14 @@ public class AdminClubService {
         return clubAdminRepository.findPageAll(pageRequest);
     }
 
-    private void createApprovedClub(ClubCreateRedis createRequest) {
-        User requester = userRepository.getById(createRequest.getRequesterId());
-        ClubCategory category = clubCategoryRepository.getById(createRequest.getClubCategoryId());
+    private void createApprovedClub(ClubCreateRedis clubCreateRedis) {
+        User requester = userRepository.getById(clubCreateRedis.getRequesterId());
+        ClubCategory category = clubCategoryRepository.getById(clubCreateRedis.getClubCategoryId());
 
-        Club club = Club.builder()
-            .name(createRequest.getName())
-            .imageUrl(createRequest.getImageUrl())
-            .clubCategory(category)
-            .location(createRequest.getLocation())
-            .description(createRequest.getDescription())
-            .likes(0)
-            .hits(0)
-            .lastWeekHits(0)
-            .active(false)
-            .introduction("")
-            .build();
+        Club club = clubCreateRedis.toClub(category);
         clubRepository.save(club);
 
-        ClubAdmin clubAdmin = ClubAdmin.builder()
-            .club(club)
-            .user(requester)
-            .build();
+        ClubAdmin clubAdmin = clubCreateRedis.toClubAdmin(club, requester);
         clubAdminRepository.save(clubAdmin);
     }
 }
