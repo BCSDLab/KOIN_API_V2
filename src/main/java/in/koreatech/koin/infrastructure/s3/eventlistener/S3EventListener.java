@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.ImageDeletedEvent;
+import in.koreatech.koin._common.event.ImageSensitiveDeletedEvent;
 import in.koreatech.koin._common.event.ImagesDeletedEvent;
+import in.koreatech.koin._common.event.ImagesSensitiveDeletedEvent;
 import in.koreatech.koin.infrastructure.s3.client.CloudFrontClientWrapper;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +41,7 @@ public class S3EventListener {
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onSensitiveImageDeleted(ImageDeletedEvent event) {
+    public void onSensitiveImageDeleted(ImageSensitiveDeletedEvent event) {
         String s3Key = s3Client.extractKeyFromUrl(event.imageUrl());
         s3Client.deleteFile(s3Key);
         cloudFrontClientWrapper.invalidate(s3Key);
@@ -47,7 +49,7 @@ public class S3EventListener {
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onSensitiveImagesDeleted(ImagesDeletedEvent event) {
+    public void onSensitiveImagesDeleted(ImagesSensitiveDeletedEvent event) {
         List<String> s3Keys = s3Client.extractKeysFromUrls(event.imageUrls());
         s3Client.deleteFiles(s3Keys);
         cloudFrontClientWrapper.invalidateAll(s3Keys);
