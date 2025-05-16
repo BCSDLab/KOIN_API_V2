@@ -1,6 +1,10 @@
 package in.koreatech.koin.admin.club.service;
 
+import static in.koreatech.koin.domain.club.enums.SNSType.*;
+
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,10 +20,12 @@ import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
+import in.koreatech.koin.admin.club.repository.AdminClubSnsRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubSNS;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,8 +37,9 @@ public class AdminClubService {
     private final AdminClubAdminRepository adminClubAdminRepository;
     private final AdminClubRepository adminClubRepository;
     private final AdminUserRepository adminUserRepository;
+    private final AdminClubSnsRepository adminClubSnsRepository;
 
-    public AdminClubsResponse getClubs(Integer page, Integer limit, Boolean sortByLike, Integer clubCategoryId) {
+    public AdminClubsResponse getClubs(Integer page, Integer limit, Integer clubCategoryId) {
         boolean hasCategory = clubCategoryId != null;
 
         if (hasCategory) {
@@ -45,9 +52,7 @@ public class AdminClubService {
 
         Criteria criteria = Criteria.of(page, limit, total);
 
-        Sort sort = sortByLike
-            ? Sort.by(Sort.Direction.DESC, "likes")
-            : Sort.by(Sort.Direction.DESC, "created_at");
+        Sort sort = Sort.by(Sort.Direction.DESC, "created_at");
 
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), sort);
 
@@ -74,6 +79,17 @@ public class AdminClubService {
             )
             .toList();
 
+        List<ClubSNS> clubSNSs = Stream.of(
+                new AbstractMap.SimpleEntry<>(INSTAGRAM, request.instagram()),
+                new AbstractMap.SimpleEntry<>(GOOGLE_FORM, request.googleForm()),
+                new AbstractMap.SimpleEntry<>(PHONE_NUMBER, request.phoneNumber()),
+                new AbstractMap.SimpleEntry<>(OPEN_CHAT, request.openChat())
+            )
+            .filter(entry -> entry.getValue() != null)
+            .map(entry -> new ClubSNS(club, entry.getKey(), entry.getValue()))
+            .toList();
+
+        adminClubSnsRepository.saveAll(clubSNSs);
         adminClubAdminRepository.saveAll(clubAdmins);
     }
 
@@ -89,6 +105,16 @@ public class AdminClubService {
             )
             .toList();
 
+        List<ClubSNS> clubSNSs = Stream.of(
+                new AbstractMap.SimpleEntry<>(INSTAGRAM, request.instagram()),
+                new AbstractMap.SimpleEntry<>(GOOGLE_FORM, request.googleForm()),
+                new AbstractMap.SimpleEntry<>(PHONE_NUMBER, request.phoneNumber()),
+                new AbstractMap.SimpleEntry<>(OPEN_CHAT, request.openChat())
+            )
+            .filter(entry -> entry.getValue() != null)
+            .map(entry -> new ClubSNS(club, entry.getKey(), entry.getValue()))
+            .toList();
+
         club.modifyClub(request.name(),
             request.imageUrl(),
             clubCategory,
@@ -96,6 +122,9 @@ public class AdminClubService {
             request.description(),
             request.active()
         );
+
+        adminClubSnsRepository.deleteAllByClub(club);
+        adminClubSnsRepository.saveAll(clubSNSs);
 
         adminClubAdminRepository.deleteAllByClub(club);
         adminClubAdminRepository.saveAll(clubAdmins);
