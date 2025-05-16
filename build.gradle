@@ -104,6 +104,9 @@ dependencies {
 
     // Zip Compress
     implementation 'net.lingala.zip4j:zip4j:2.6.1'
+
+    // Cloudfront
+    implementation 'software.amazon.awssdk:cloudfront'
 }
 
 clean {
