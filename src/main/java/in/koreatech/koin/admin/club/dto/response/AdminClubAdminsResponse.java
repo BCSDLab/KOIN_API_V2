@@ -72,7 +72,7 @@ public record AdminClubAdminsResponse(
                 null,
                 requester.getName(),
                 requester.getPhoneNumber(),
-                LocalDateTime.now(),
+                redis.getCreatedAt(),
                 redis.getName()
             );
         }

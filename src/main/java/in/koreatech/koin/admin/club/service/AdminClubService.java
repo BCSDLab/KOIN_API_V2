@@ -165,8 +165,14 @@ public class AdminClubService {
         int totalCount = unAcceptedClubList.size();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
 
+        Comparator<ClubCreateRedis> comparator =
+            Comparator.comparing(ClubCreateRedis::getCreatedAt);
+        if (condition.getDirection() == Sort.Direction.DESC) {
+            comparator = comparator.reversed();
+        }
+
         List<ClubCreateRedis> sorted = unAcceptedClubList.stream()
-            .sorted(Comparator.comparingInt(ClubCreateRedis::getRequesterId))
+            .sorted(comparator)
             .toList();
 
         List<ClubCreateRedis> paged = sorted.stream()

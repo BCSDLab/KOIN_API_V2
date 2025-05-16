@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.model.redis;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.redis.core.RedisHash;
@@ -42,6 +43,8 @@ public class ClubCreateRedis {
 
     private Integer requesterId;
 
+    private LocalDateTime createdAt;
+
     @Builder
     private ClubCreateRedis(
         String id,
@@ -55,7 +58,8 @@ public class ClubCreateRedis {
         String googleForm,
         String openChat,
         String phoneNumber,
-        Integer requesterId
+        Integer requesterId,
+        LocalDateTime createdAt
     ) {
         this.id = id;
         this.name = name;
@@ -69,6 +73,7 @@ public class ClubCreateRedis {
         this.openChat = openChat;
         this.phoneNumber = phoneNumber;
         this.requesterId = requesterId;
+        this.createdAt = createdAt;
     }
 
     public static ClubCreateRedis of(CreateClubRequest request, Integer requesterId) {
@@ -85,6 +90,7 @@ public class ClubCreateRedis {
             .openChat(request.openChat())
             .phoneNumber(request.phoneNumber())
             .requesterId(requesterId)
+            .createdAt(LocalDateTime.now())
             .build();
     }
 
