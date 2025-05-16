@@ -35,24 +35,14 @@ public class ClubAdmin {
     @ManyToOne(fetch = LAZY)
     private User user;
 
-    @NotNull
-    @Column(name = "is_accept", nullable = false)
-    private Boolean isAccept = false;
-
     @Builder
     private ClubAdmin(
         Integer id,
         Club club,
-        User user,
-        Boolean isAccept
+        User user
     ) {
         this.id = id;
         this.club = club;
         this.user = user;
-        this.isAccept = isAccept;
-    }
-
-    public void acceptClubAdmin() {
-        this.isAccept = true;
     }
 }

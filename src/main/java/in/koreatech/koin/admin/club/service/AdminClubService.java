@@ -198,7 +198,7 @@ public class AdminClubService {
             Sort.by(direction, "club.createdAt")
         );
 
-        return clubAdminRepository.findAcceptedPageAll(pageRequest);
+        return clubAdminRepository.findPageAll(pageRequest);
     }
 
     private void createApprovedClub(ClubCreateRedis createRequest) {
@@ -222,7 +222,6 @@ public class AdminClubService {
         ClubAdmin clubAdmin = ClubAdmin.builder()
             .club(club)
             .user(requester)
-            .isAccept(true)
             .build();
         clubAdminRepository.save(clubAdmin);
     }

@@ -15,9 +15,8 @@ public interface ClubAdminRepository extends Repository<ClubAdmin, Integer> {
         SELECT ca FROM ClubAdmin ca
         JOIN FETCH ca.user u
         JOIN FETCH ca.club c
-        WHERE ca.isAccept = true
         """)
-    Page<ClubAdmin> findAcceptedPageAll(Pageable pageable);
+    Page<ClubAdmin> findPageAll(Pageable pageable);
 
     @Query("""
         SELECT COUNT(ca) 
