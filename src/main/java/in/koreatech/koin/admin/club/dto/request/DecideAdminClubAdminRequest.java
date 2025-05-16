@@ -12,7 +12,11 @@ import jakarta.validation.constraints.NotNull;
 public record DecideAdminClubAdminRequest
     (
         @NotNull
+        @Schema(description = "동아리 이름(RedisKey)", example = "BCSD", requiredMode = REQUIRED)
+        String clubName,
+
+        @NotNull
         @Schema(description = "동아리 관리자 승인 여부", example = "false", requiredMode = REQUIRED)
         Boolean isAccept
-    ){
+    ) {
 }

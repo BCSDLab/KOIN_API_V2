@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
+import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -63,6 +64,16 @@ public record AdminClubAdminsResponse(
                 user.getPhoneNumber(),
                 club.getCreatedAt(),
                 club.getName()
+            );
+        }
+
+        public static InnerClubAdminsResponse fromRedis(ClubCreateRedis redis, User requester) {
+            return new InnerClubAdminsResponse(
+                null,
+                requester.getName(),
+                requester.getPhoneNumber(),
+                LocalDateTime.now(),
+                redis.getName()
             );
         }
     }
