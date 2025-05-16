@@ -73,8 +73,9 @@ public class ClubService {
         club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description());
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
+        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, newSNS);
+        return ClubResponse.from(club, newSNS, manager);
     }
 
     private List<ClubSNS> updateClubSNS(UpdateClubRequest request, Club club) {
@@ -103,8 +104,9 @@ public class ClubService {
 
         club.updateIntroduction(request.introduction());
         List<ClubSNS> clubSNSs = club.getClubSNSs();
+        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, clubSNSs);
+        return ClubResponse.from(club, clubSNSs, manager);
     }
 
     private void isClubAdmin(Integer clubId, Integer studentId) {
@@ -114,12 +116,13 @@ public class ClubService {
     }
 
     @Transactional
-    public ClubResponse getClub(Integer clubId) {
+    public ClubResponse getClub(Integer clubId, Integer studentId) {
         Club club = clubRepository.getByIdWithPessimisticLock(clubId);
         club.increaseHits();
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
+        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, clubSNSs);
+        return ClubResponse.from(club, clubSNSs, manager);
     }
 
     public ClubsByCategoryResponse getClubByCategory(Integer categoryId, Boolean hitSort) {

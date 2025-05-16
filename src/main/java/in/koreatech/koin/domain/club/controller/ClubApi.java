@@ -94,7 +94,8 @@ public interface ClubApi {
     @Operation(summary = "동아리를 상세조회한다")
     @PostMapping("/{clubId}")
     ResponseEntity<ClubResponse> getClub(
-        @Parameter(in = PATH) @PathVariable Integer clubId
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
     );
 
     @ApiResponses(

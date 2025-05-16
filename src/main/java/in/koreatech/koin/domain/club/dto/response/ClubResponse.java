@@ -44,9 +44,12 @@ public record ClubResponse(
     Optional<String> openChat,
 
     @Schema(description = "전화번호", example = "010-1234-5678")
-    Optional<String> phoneNumber
+    Optional<String> phoneNumber,
+
+    @Schema(description = "동아리 관리자 여부", example = "true")
+    Boolean manager
 ) {
-    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs) {
+    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager) {
         Optional<String> instagram = Optional.empty();
         Optional<String> googleForm = Optional.empty();
         Optional<String> openChat = Optional.empty();
@@ -73,7 +76,8 @@ public record ClubResponse(
             instagram,
             googleForm,
             openChat,
-            phoneNumber
+            phoneNumber,
+            manager
         );
     }
 }

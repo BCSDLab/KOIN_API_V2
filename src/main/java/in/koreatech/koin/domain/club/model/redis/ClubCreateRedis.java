@@ -25,7 +25,7 @@ public class ClubCreateRedis {
 
     private String imageUrl;
 
-    private List<CreateClubRequest.InnerClubAdminRequest> clubAdmins;
+    private List<CreateClubRequest.InnerCluManagerRequest> clubAdmins;
 
     private Integer clubCategoryId;
 
@@ -50,7 +50,7 @@ public class ClubCreateRedis {
         String id,
         String name,
         String imageUrl,
-        List<CreateClubRequest.InnerClubAdminRequest> clubAdmins,
+        List<CreateClubRequest.InnerCluManagerRequest> clubAdmins,
         Integer clubCategoryId,
         String location,
         String description,

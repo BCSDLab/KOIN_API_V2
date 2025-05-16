@@ -76,9 +76,10 @@ public class ClubController implements ClubApi {
 
     @GetMapping("/{clubId}")
     public ResponseEntity<ClubResponse> getClub(
-        @Parameter(in = PATH) @PathVariable Integer clubId
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        ClubResponse response = clubService.getClub(clubId);
+        ClubResponse response = clubService.getClub(clubId, studentId);
         return ResponseEntity.ok(response);
     }
 
