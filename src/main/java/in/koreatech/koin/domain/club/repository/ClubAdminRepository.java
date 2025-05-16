@@ -1,19 +1,30 @@
 package in.koreatech.koin.domain.club.repository;
 
-import java.util.Optional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
 
 public interface ClubAdminRepository extends Repository<ClubAdmin, Integer> {
 
+    ClubAdmin save(ClubAdmin clubAdmin);
+
+    @Query("""
+        SELECT ca FROM ClubAdmin ca
+        JOIN FETCH ca.user u
+        JOIN FETCH ca.club c
+        WHERE ca.isAccept = true
+        """)
+    Page<ClubAdmin> findAcceptedPageAll(Pageable pageable);
+
+    @Query("""
+        SELECT COUNT(ca) 
+        FROM ClubAdmin ca 
+        JOIN ca.user u
+        """)
+    int countAll();
+
     boolean existsByClubIdAndUserId(Integer clubId, Integer studentId);
-
-    Optional<ClubAdmin> findByClubId(Integer clubId);
-
-    default ClubAdmin getByClubId(Integer clubId) {
-        return findByClubId(clubId).orElseThrow(() -> ClubNotFoundException.withDetail("Club Id :" + clubId));
-    }
 }
