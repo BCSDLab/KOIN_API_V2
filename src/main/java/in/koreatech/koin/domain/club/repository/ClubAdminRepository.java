@@ -5,7 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
+import in.koreatech.koin.domain.user.model.User;
 
 public interface ClubAdminRepository extends Repository<ClubAdmin, Integer> {
 
@@ -26,4 +28,8 @@ public interface ClubAdminRepository extends Repository<ClubAdmin, Integer> {
     int countAll();
 
     boolean existsByClubIdAndUserId(Integer clubId, Integer studentId);
+
+    boolean existsByClubAndUser(Club club, User user);
+
+    void deleteByClubAndUser(Club club, User user);
 }

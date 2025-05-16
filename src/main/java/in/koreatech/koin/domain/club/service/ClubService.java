@@ -11,6 +11,7 @@ import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.EmpowermentClubManagerRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -18,10 +19,12 @@ import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.enums.SNSType;
+import in.koreatech.koin.domain.club.exception.AlreadyManagerException;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.DuplicateClubLikiException;
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubQna;
@@ -229,5 +232,27 @@ public class ClubService {
         if (clubAdminRepository.existsByClubIdAndUserId(clubId, studentId))
             return;
         throw AuthorizationException.withDetail("studentId: " + studentId);
+    }
+
+    @Transactional
+    public void empowermentClubManager(EmpowermentClubManagerRequest request, Integer studentId){
+        Club club = clubRepository.getById(request.clubId());
+        User currentManager = userRepository.getById(studentId);
+        User changedManager = userRepository.getByEmail(request.changedManagerEmail());
+
+        isClubAdmin(request.clubId(), studentId);
+
+        if (clubAdminRepository.existsByClubAndUser(club, changedManager)) {
+            throw AlreadyManagerException.withDetail("");
+        }
+
+        clubAdminRepository.deleteByClubAndUser(club, currentManager);
+
+        ClubAdmin newClubManager = ClubAdmin.builder()
+            .club(club)
+            .user(changedManager)
+            .build();
+
+        clubAdminRepository.save(newClubManager);
     }
 }
