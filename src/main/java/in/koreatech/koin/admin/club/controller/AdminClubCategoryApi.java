@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Admin) Club Category: 동아리 카테고리", description = "어드민 동아리 카테고리 정보를 관리한다")
-@RequestMapping("/admin/club-categories")
+@RequestMapping("/admin/clubs/categories")
 public interface AdminClubCategoryApi {
 
     @ApiResponses(
