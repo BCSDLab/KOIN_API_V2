@@ -36,7 +36,7 @@ public class AdminClubService {
     private final AdminUserRepository adminUserRepository;
     private final AdminClubSnsRepository adminClubSnsRepository;
 
-    public AdminClubsResponse getClubs(Integer page, Integer limit, Boolean sortByLike, Integer clubCategoryId) {
+    public AdminClubsResponse getClubs(Integer page, Integer limit, Integer clubCategoryId) {
         boolean hasCategory = clubCategoryId != null;
 
         if (hasCategory) {
@@ -49,9 +49,7 @@ public class AdminClubService {
 
         Criteria criteria = Criteria.of(page, limit, total);
 
-        Sort sort = sortByLike
-            ? Sort.by(Sort.Direction.DESC, "likes")
-            : Sort.by(Sort.Direction.DESC, "created_at");
+        Sort sort = Sort.by(Sort.Direction.DESC, "created_at");
 
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), sort);
 

@@ -41,13 +41,11 @@ public interface AdminClubApi {
     )
     @Operation(summary = "동아리 정보를 페이지네이션으로 조회한다.", description = """
         club_category_id를 안 주시면, 동아리 카테고리 구분 없이 전체 조회가 됩니다.
-        is_hits 기본값은 false 입니다.
         """)
     @GetMapping
     ResponseEntity<AdminClubsResponse> getClubs(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
-        @RequestParam(name = "sort_by_like", required = false) Boolean sortByLike,
         @RequestParam(name = "club_category_id", required = false) Integer clubCategoryId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
