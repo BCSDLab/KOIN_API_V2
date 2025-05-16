@@ -24,6 +24,7 @@ import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubAdminsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -133,7 +134,7 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "승인된 동아리 리스트를 페이지네이션으로 조회한다.")
+    @Operation(summary = "승인된 동아리의 관리자를 페이지네이션으로 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/club-admins")
     ResponseEntity<AdminClubAdminsResponse> getClubAdmins(
@@ -149,9 +150,25 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
+    @Operation(summary = "미승인 동아리의 정보를 조회한다.")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/new-club")
+    ResponseEntity<AdminNewClubResponse> getNewClub(
+        @RequestParam String clubName,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
     @Operation(summary = "미승인 동아리 리스트를 페이지네이션으로 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/new-club-admins")
+    @GetMapping("/new-clubs")
     ResponseEntity<AdminClubAdminsResponse> getNewClubAdmins(
         @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -167,12 +184,11 @@ public interface AdminClubApi {
     )
     @Operation(summary = "동아리 신청을 승인/반려한다.", description = """
         승인을 누르면 승인된 동아리가 됩니다.
-        반려를 누르면 신청한 동아리 내의 정보가 DB 내에서 삭제됩니다.
+        반려를 누르면 신청한 동아리가 Redis 내에서 삭제됩니다.
         """)
     @SecurityRequirement(name = "Jwt Authentication")
-    @PatchMapping("/{clubId}/decision")
+    @PostMapping("/decision")
     ResponseEntity<Void> decideClubAdmin(
-        @PathVariable Integer clubId,
         @RequestBody DecideAdminClubAdminRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );

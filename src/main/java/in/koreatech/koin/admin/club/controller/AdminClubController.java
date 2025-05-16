@@ -25,6 +25,7 @@ import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubAdminsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
 import in.koreatech.koin.admin.club.service.AdminClubService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -95,7 +96,16 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok().body(adminClubService.getClubAdmins(ClubAdminCondition));
     }
 
-    @GetMapping("/new-club-admins")
+    @GetMapping("/new-club")
+    public ResponseEntity<AdminNewClubResponse> getNewClub(
+        @RequestParam String clubName,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminNewClubResponse response = adminClubService.getNewClub(clubName);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/new-clubs")
     public ResponseEntity<AdminClubAdminsResponse> getNewClubAdmins(
         @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -103,13 +113,12 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok().body(adminClubService.getUnacceptedClubAdmins(ClubAdminCondition));
     }
 
-    @PatchMapping("/{clubId}/decision")
+    @PostMapping("/decision")
     public ResponseEntity<Void> decideClubAdmin(
-        @PathVariable Integer clubId,
         @RequestBody DecideAdminClubAdminRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminClubService.decideClubAdmin(clubId, request);
+        adminClubService.decideClubAdmin(request.clubName(), request);
         return ResponseEntity.ok().build();
     }
 }

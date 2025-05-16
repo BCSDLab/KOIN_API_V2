@@ -1,6 +1,10 @@
 package in.koreatech.koin.admin.club.service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,14 +21,22 @@ import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubAdminsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
 import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
+import in.koreatech.koin.domain.club.repository.ClubAdminRepository;
+import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
+import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,11 +44,15 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AdminClubService {
 
+    private final UserRepository userRepository;
     private final ClubRepository clubRepository;
+    private final ClubAdminRepository clubAdminRepository;
+    private final ClubCategoryRepository clubCategoryRepository;
     private final AdminClubCategoryRepository adminClubCategoryRepository;
     private final AdminClubAdminRepository adminClubAdminRepository;
     private final AdminClubRepository adminClubRepository;
     private final AdminUserRepository adminUserRepository;
+    private final ClubCreateRedisRepository clubCreateRedisRepository;
 
     public AdminClubsResponse getClubs(Integer page, Integer limit, Boolean sortByLike, Integer clubCategoryId) {
         boolean hasCategory = clubCategoryId != null;
@@ -67,6 +83,15 @@ public class AdminClubService {
     public AdminClubResponse getClub(Integer clubId) {
         Club club = adminClubRepository.getById(clubId);
         return AdminClubResponse.from(club);
+    }
+
+    public AdminNewClubResponse getNewClub(String clubName) {
+        ClubCreateRedis clubInformation = clubCreateRedisRepository.findById(clubName)
+            .orElseThrow(() -> ClubNotFoundException.withDetail("신청한 동아리를 찾을 수 없습니다."));
+        User requester = userRepository.getById(clubInformation.getRequesterId());
+        ClubCategory clubCategory = clubCategoryRepository.getById(clubInformation.getClubCategoryId());
+
+        return AdminNewClubResponse.from(clubInformation, requester, clubCategory.getName());
     }
 
     @Transactional
@@ -114,17 +139,19 @@ public class AdminClubService {
     }
 
     @Transactional
-    public void decideClubAdmin(Integer clubId, DecideAdminClubAdminRequest request) {
+    public void decideClubAdmin(String clubName, DecideAdminClubAdminRequest request) {
+        ClubCreateRedis createRequest = clubCreateRedisRepository.findById(clubName)
+            .orElseThrow(() -> ClubNotFoundException.withDetail("신청한 동아리를 찾을 수 없습니다."));
+
         if (request.isAccept()) {
-            ClubAdmin clubAdmin = adminClubAdminRepository.findFirstAcceptedByClubId(clubId);
-            clubAdmin.acceptClubAdmin();
-        } else {
-            clubRepository.deleteById(clubId);
+            createApprovedClub(createRequest);
         }
+
+        clubCreateRedisRepository.deleteById(clubName);
     }
 
     public AdminClubAdminsResponse getClubAdmins(ClubAdminCondition condition) {
-        int totalCount = adminClubRepository.countUnacceptedAll();
+        int totalCount = clubAdminRepository.countAll();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
         Sort.Direction direction = condition.getDirection();
 
@@ -134,13 +161,34 @@ public class AdminClubService {
     }
 
     public AdminClubAdminsResponse getUnacceptedClubAdmins(ClubAdminCondition condition) {
-        int totalCount = adminClubRepository.countUnacceptedAll();
+        List<ClubCreateRedis> unAcceptedClubList = (List<ClubCreateRedis>)clubCreateRedisRepository.findAll();
+        int totalCount = unAcceptedClubList.size();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
-        Sort.Direction direction = condition.getDirection();
 
-        Page<ClubAdmin> result = getUnacceptedClubAdminsResultPage(criteria, direction);
+        List<ClubCreateRedis> sorted = unAcceptedClubList.stream()
+            .sorted(Comparator.comparingInt(ClubCreateRedis::getRequesterId))
+            .toList();
 
-        return AdminClubAdminsResponse.of(result, criteria);
+        List<ClubCreateRedis> paged = sorted.stream()
+            .skip((long)criteria.getPage() * criteria.getLimit())
+            .limit(criteria.getLimit())
+            .toList();
+
+        Map<Integer, User> userMap = userRepository.findAllByIdIn(
+            paged.stream().map(ClubCreateRedis::getRequesterId).toList()
+        ).stream().collect(Collectors.toMap(User::getId, Function.identity()));
+
+        List<AdminClubAdminsResponse.InnerClubAdminsResponse> responseList = paged.stream()
+            .map(redis -> AdminClubAdminsResponse.InnerClubAdminsResponse.fromRedis(
+                redis, userMap.get(redis.getRequesterId()))).toList();
+
+        return new AdminClubAdminsResponse(
+            (long)totalCount,
+            responseList.size(),
+            (totalCount + criteria.getLimit() - 1) / criteria.getLimit(),
+            criteria.getPage() + 1,
+            responseList
+        );
     }
 
     private Page<ClubAdmin> getClubAdminsResultPage(Criteria criteria, Sort.Direction direction) {
@@ -150,16 +198,32 @@ public class AdminClubService {
             Sort.by(direction, "club.createdAt")
         );
 
-        return adminClubRepository.findAcceptedPageAll(pageRequest);
+        return clubAdminRepository.findAcceptedPageAll(pageRequest);
     }
 
-    private Page<ClubAdmin> getUnacceptedClubAdminsResultPage(Criteria criteria, Sort.Direction direction) {
-        PageRequest pageRequest = PageRequest.of(
-            criteria.getPage(),
-            criteria.getLimit(),
-            Sort.by(direction, "club.createdAt")
-        );
+    private void createApprovedClub(ClubCreateRedis createRequest) {
+        User requester = userRepository.getById(createRequest.getRequesterId());
+        ClubCategory category = clubCategoryRepository.getById(createRequest.getClubCategoryId());
 
-        return adminClubRepository.findUnacceptedPageAll(pageRequest);
+        Club club = Club.builder()
+            .name(createRequest.getName())
+            .imageUrl(createRequest.getImageUrl())
+            .clubCategory(category)
+            .location(createRequest.getLocation())
+            .description(createRequest.getDescription())
+            .likes(0)
+            .hits(0)
+            .lastWeekHits(0)
+            .active(false)
+            .introduction("")
+            .build();
+        clubRepository.save(club);
+
+        ClubAdmin clubAdmin = ClubAdmin.builder()
+            .club(club)
+            .user(requester)
+            .isAccept(true)
+            .build();
+        clubAdminRepository.save(clubAdmin);
     }
 }
