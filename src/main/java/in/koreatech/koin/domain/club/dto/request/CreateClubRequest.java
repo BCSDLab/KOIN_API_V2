@@ -13,6 +13,7 @@ import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record CreateClubRequest(
@@ -29,7 +30,7 @@ public record CreateClubRequest(
     List<InnerClubAdminRequest> clubAdmins,
 
     @Schema(description = "동아리 분과 카테고리 ID", example = "1", requiredMode = REQUIRED)
-    @NotEmpty(message = "동아리 분과 카테고리는 필수 입력 사항입니다.")
+    @NotNull(message = "동아리 분과 카테고리 ID는 필수 입력 사항입니다.")
     Integer clubCategoryId,
 
     @Schema(description = "동아리 위치", example = "학생회관", requiredMode = REQUIRED)
