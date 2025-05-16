@@ -219,4 +219,19 @@ public class SlackNotificationFactory {
             )
             .build();
     }
+
+    /**
+     * 동아리 생성 요청 알림
+     */
+    public SlackNotification generateClubCreateSendNotification(
+        String clubName
+    ) {
+        return SlackNotification.builder()
+            .slackUrl(eventNotificationUrl)
+            .text(String.format("""
+                        `%s` 동아리 생성 요청이 들어왔습니다. 
+                        """, clubName)
+            )
+            .build();
+    }
 }

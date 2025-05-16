@@ -3,10 +3,12 @@ package in.koreatech.koin.domain.club.service;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
@@ -57,11 +59,19 @@ public class ClubService {
     private final ClubLikeRepository clubLikeRepository;
     private final UserRepository userRepository;
     private final ClubCreateRedisRepository clubCreateRedisRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void createClubRequest(CreateClubRequest request, Integer studentId) {
         ClubCreateRedis createRedis = ClubCreateRedis.of(request, studentId);
         clubCreateRedisRepository.save(createRedis);
+
+        sendSlackNotification(request.name());
+    }
+
+    public void sendSlackNotification(String clubName) {
+        ClubCreateEvent clubCreateEvent = new ClubCreateEvent(clubName);
+        eventPublisher.publishEvent(clubCreateEvent);
     }
 
     @Transactional
