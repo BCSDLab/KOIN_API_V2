@@ -16,11 +16,11 @@ import jakarta.persistence.LockModeType;
 public interface ClubRepository extends Repository<Club, Integer> {
 
     List<Club> findAll();
+
     Optional<Club> findById(Integer id);
 
     default Club getById(Integer id) {
-        return findById(id)
-            .orElseThrow(() -> ClubNotFoundException.withDetail("id : " + id));
+        return findById(id).orElseThrow(() -> ClubNotFoundException.withDetail("id : " + id));
     }
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -44,4 +44,6 @@ public interface ClubRepository extends Repository<Club, Integer> {
     List<Club> findByClubCategoryOrderByIdAsc(ClubCategory category);
 
     List<Club> findByClubCategoryOrderByHitsDesc(ClubCategory category);
+
+    void deleteById(Integer id);
 }
