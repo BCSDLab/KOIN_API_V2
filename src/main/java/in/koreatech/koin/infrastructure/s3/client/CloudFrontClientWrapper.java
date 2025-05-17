@@ -1,5 +1,7 @@
 package in.koreatech.koin.infrastructure.s3.client;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
@@ -28,6 +30,9 @@ public class CloudFrontClientWrapper {
         try {
             List<String> normalizedPaths = paths.stream()
                 .map(path -> path.startsWith("/") ? path : "/" + path)
+                .map(path -> URLEncoder.encode(path, StandardCharsets.UTF_8))
+                .map(path -> path.replace("+", "%20"))
+                .map(path -> path.replaceAll("%2F", "/"))
                 .distinct()
                 .toList();
             if (normalizedPaths.isEmpty()) return;
