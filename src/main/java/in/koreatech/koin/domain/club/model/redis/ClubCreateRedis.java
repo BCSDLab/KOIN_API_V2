@@ -1,13 +1,13 @@
 package in.koreatech.koin.domain.club.model.redis;
 
-import static in.koreatech.koin.domain.club.dto.request.CreateClubRequest.InnerClubManagerRequest;
+import static in.koreatech.koin.domain.club.dto.request.ClubCreateRequest.InnerClubManagerRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.redis.core.RedisHash;
 
-import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
@@ -78,7 +78,7 @@ public class ClubCreateRedis {
         this.createdAt = createdAt;
     }
 
-    public static ClubCreateRedis of(CreateClubRequest request, Integer requesterId) {
+    public static ClubCreateRedis of(ClubCreateRequest request, Integer requesterId) {
         return ClubCreateRedis.builder()
             .id(request.name())
             .name(request.name())

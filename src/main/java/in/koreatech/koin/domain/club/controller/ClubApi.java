@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
-import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
-import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
-import in.koreatech.koin.domain.club.dto.request.EmpowermentClubManagerRequest;
-import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
-import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
@@ -48,7 +48,7 @@ public interface ClubApi {
     @Operation(summary = "동아리 생성을 요청한다")
     @PostMapping
     ResponseEntity<Void> createClubRequest(
-        @RequestBody @Valid CreateClubRequest createClubRequest,
+        @RequestBody @Valid ClubCreateRequest clubCreateRequest,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
@@ -64,7 +64,7 @@ public interface ClubApi {
     @PutMapping("/{clubId}")
     ResponseEntity<ClubResponse> updateClub(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody UpdateClubRequest request,
+        @RequestBody ClubUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
@@ -81,7 +81,7 @@ public interface ClubApi {
     @PutMapping("/{clubId}/introduction")
     ResponseEntity<ClubResponse> updateClubIntroduction(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody UpdateClubIntroductionRequest request,
+        @RequestBody ClubIntroductionUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
@@ -200,7 +200,7 @@ public interface ClubApi {
     )
     @PostMapping("/{clubId}/qna")
     ResponseEntity<Void> createQna(
-        @RequestBody @Valid CreateQnaRequest request,
+        @RequestBody @Valid QnaCreateRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
@@ -239,7 +239,7 @@ public interface ClubApi {
     @Operation(summary = "동아리 관리자 권한을 위임한다")
     @PutMapping("/empowerment")
     ResponseEntity<Void> empowermentClubManager(
-        @RequestBody @Valid EmpowermentClubManagerRequest request,
+        @RequestBody @Valid ClubManagerEmpowermentRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 }

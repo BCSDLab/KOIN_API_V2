@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
-import in.koreatech.koin.admin.club.dto.request.AdminChangeClubActiveRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminCreateClubRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminDecideClubManagerRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminModifyClubRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubCreateRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubManagerDecideRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
@@ -60,7 +60,7 @@ public class AdminClubController implements AdminClubApi {
 
     @PostMapping
     public ResponseEntity<Void> createClub(
-        @RequestBody @Valid AdminCreateClubRequest request,
+        @RequestBody @Valid AdminClubCreateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.createClub(request);
@@ -70,7 +70,7 @@ public class AdminClubController implements AdminClubApi {
     @PutMapping("/{clubId}")
     public ResponseEntity<Void> modifyClub(
         @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
-        @RequestBody @Valid AdminModifyClubRequest request,
+        @RequestBody @Valid AdminClubModifyRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.modifyClub(clubId, request);
@@ -80,7 +80,7 @@ public class AdminClubController implements AdminClubApi {
     @PatchMapping("/{clubId}/active")
     public ResponseEntity<Void> changeActive(
         @PathVariable Integer clubId,
-        @RequestBody @Valid AdminChangeClubActiveRequest request,
+        @RequestBody @Valid AdminClubActiveChangeRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.changeActive(clubId, request);
@@ -114,7 +114,7 @@ public class AdminClubController implements AdminClubApi {
 
     @PostMapping("/decision")
     public ResponseEntity<Void> decideClubAdmin(
-        @RequestBody AdminDecideClubManagerRequest request,
+        @RequestBody AdminClubManagerDecideRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.decideClubAdmin(request.clubName(), request);

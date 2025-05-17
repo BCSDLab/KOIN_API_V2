@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
-import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
-import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
-import in.koreatech.koin.domain.club.dto.request.EmpowermentClubManagerRequest;
-import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
-import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
@@ -40,17 +40,17 @@ public class ClubController implements ClubApi {
 
     @PostMapping
     public ResponseEntity<Void> createClubRequest(
-        @RequestBody @Valid CreateClubRequest createClubRequest,
+        @RequestBody @Valid ClubCreateRequest clubCreateRequest,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        clubService.createClubRequest(createClubRequest, studentId);
+        clubService.createClubRequest(clubCreateRequest, studentId);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{clubId}")
     public ResponseEntity<ClubResponse> updateClub(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody UpdateClubRequest request,
+        @RequestBody ClubUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
         ClubResponse response = clubService.updateClub(clubId, request, studentId);
@@ -60,7 +60,7 @@ public class ClubController implements ClubApi {
     @PutMapping("/{clubId}/introduction")
     public ResponseEntity<ClubResponse> updateClubIntroduction(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody UpdateClubIntroductionRequest request,
+        @RequestBody ClubIntroductionUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
         ClubResponse response = clubService.updateClubIntroduction(clubId, request, studentId);
@@ -119,7 +119,7 @@ public class ClubController implements ClubApi {
 
     @PostMapping("/{clubId}/qna")
     public ResponseEntity<Void> createQna(
-        @RequestBody @Valid CreateQnaRequest request,
+        @RequestBody @Valid QnaCreateRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
@@ -139,7 +139,7 @@ public class ClubController implements ClubApi {
 
     @PutMapping("/empowerment")
     public ResponseEntity<Void> empowermentClubManager(
-        @RequestBody @Valid EmpowermentClubManagerRequest request,
+        @RequestBody @Valid ClubManagerEmpowermentRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
         clubService.empowermentClubManager(request, studentId);

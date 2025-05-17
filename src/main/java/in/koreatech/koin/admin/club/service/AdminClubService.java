@@ -18,10 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
-import in.koreatech.koin.admin.club.dto.request.AdminChangeClubActiveRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminCreateClubRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminDecideClubManagerRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminModifyClubRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubCreateRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubManagerDecideRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
@@ -100,7 +100,7 @@ public class AdminClubService {
     }
 
     @Transactional
-    public void createClub(AdminCreateClubRequest request) {
+    public void createClub(AdminClubCreateRequest request) {
         ClubCategory clubCategory = adminClubCategoryRepository.getById(request.clubCategoryId());
         Club club = adminClubRepository.save(request.toEntity(clubCategory));
 
@@ -125,7 +125,7 @@ public class AdminClubService {
     }
 
     @Transactional
-    public void modifyClub(Integer clubId, AdminModifyClubRequest request) {
+    public void modifyClub(Integer clubId, AdminClubModifyRequest request) {
         ClubCategory clubCategory = adminClubCategoryRepository.getById(request.clubCategoryId());
         Club club = adminClubRepository.getById(clubId);
 
@@ -162,13 +162,13 @@ public class AdminClubService {
     }
 
     @Transactional
-    public void changeActive(Integer clubId, AdminChangeClubActiveRequest request) {
+    public void changeActive(Integer clubId, AdminClubActiveChangeRequest request) {
         Club club = clubRepository.getById(clubId);
         club.updateActive(request.isActive());
     }
 
     @Transactional
-    public void decideClubAdmin(String clubName, AdminDecideClubManagerRequest request) {
+    public void decideClubAdmin(String clubName, AdminClubManagerDecideRequest request) {
         ClubCreateRedis createRequest = clubCreateRedisRepository.findById(clubName)
             .orElseThrow(() -> ClubNotFoundException.withDetail("신청한 동아리를 찾을 수 없습니다."));
 

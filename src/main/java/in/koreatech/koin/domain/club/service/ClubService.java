@@ -9,11 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
-import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
-import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
-import in.koreatech.koin.domain.club.dto.request.EmpowermentClubManagerRequest;
-import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
-import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
@@ -65,7 +65,7 @@ public class ClubService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void createClubRequest(CreateClubRequest request, Integer studentId) {
+    public void createClubRequest(ClubCreateRequest request, Integer studentId) {
         ClubCreateRedis createRedis = ClubCreateRedis.of(request, studentId);
         clubCreateRedisRepository.save(createRedis);
 
@@ -73,7 +73,7 @@ public class ClubService {
     }
 
     @Transactional
-    public ClubResponse updateClub(Integer clubId, UpdateClubRequest request, Integer studentId) {
+    public ClubResponse updateClub(Integer clubId, ClubUpdateRequest request, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         isClubManager(clubId, studentId);
 
@@ -86,7 +86,7 @@ public class ClubService {
         return ClubResponse.from(club, newSNS, manager);
     }
 
-    private List<ClubSNS> updateClubSNS(UpdateClubRequest request, Club club) {
+    private List<ClubSNS> updateClubSNS(ClubUpdateRequest request, Club club) {
         clubSNSRepository.deleteAllByClub(club);
         List<ClubSNS> newSNS = List.of(
                 new ClubSNS(club, SNSType.INSTAGRAM, request.instagram()),
@@ -105,7 +105,7 @@ public class ClubService {
 
     @Transactional
     public ClubResponse updateClubIntroduction(
-        Integer clubId, UpdateClubIntroductionRequest request, Integer studentId
+        Integer clubId, ClubIntroductionUpdateRequest request, Integer studentId
     ) {
         Club club = clubRepository.getById(clubId);
         isClubManager(clubId, studentId);
@@ -201,7 +201,7 @@ public class ClubService {
     }
 
     @Transactional
-    public void createQna(CreateQnaRequest request, Integer clubId, Integer studentId) {
+    public void createQna(QnaCreateRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
         boolean isManager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
@@ -235,7 +235,7 @@ public class ClubService {
     }
 
     @Transactional
-    public void empowermentClubManager(EmpowermentClubManagerRequest request, Integer studentId) {
+    public void empowermentClubManager(ClubManagerEmpowermentRequest request, Integer studentId) {
         Club club = clubRepository.getById(request.clubId());
         User currentManager = userRepository.getById(studentId);
         User changedManager = userRepository.getByUserId(request.changedManagerId());

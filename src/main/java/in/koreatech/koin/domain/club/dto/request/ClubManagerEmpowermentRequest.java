@@ -5,7 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 
-public record EmpowermentClubManagerRequest(
+public record ClubManagerEmpowermentRequest(
     @Schema(description = "동아리 아이디", example = "1", requiredMode = REQUIRED)
     Integer clubId,
 

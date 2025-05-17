@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record UpdateClubRequest(
+public record ClubUpdateRequest(
     @Schema(description = "동아리명", example = "BCSD", requiredMode = REQUIRED)
     @NotEmpty(message = "동아리 이름은 필수 입력 사항입니다.")
     String name,
