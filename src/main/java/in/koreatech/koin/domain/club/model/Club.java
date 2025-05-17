@@ -79,7 +79,7 @@ public class Club extends BaseEntity {
     private ClubCategory clubCategory;
 
     @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = ALL)
-    private List<ClubAdmin> clubAdmins = new ArrayList<>();
+    private List<ClubManager> clubManagers = new ArrayList<>();
 
     @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = ALL)
     private List<ClubSNS> clubSNSs = new ArrayList<>();

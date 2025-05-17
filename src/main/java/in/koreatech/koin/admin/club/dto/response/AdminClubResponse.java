@@ -88,7 +88,7 @@ public record AdminClubResponse(
             club.getId(),
             club.getName(),
             club.getImageUrl(),
-            club.getClubAdmins().stream()
+            club.getClubManagers().stream()
                 .map(clubAdmin -> InnerClubAdminResponse.from(clubAdmin.getUser()))
                 .toList(),
             club.getClubCategory().getName(),

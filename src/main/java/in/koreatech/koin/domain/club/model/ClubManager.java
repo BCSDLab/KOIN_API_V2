@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "club_admin")
+@Table(name = "club_manager")
 @NoArgsConstructor(access = PROTECTED)
-public class ClubAdmin {
+public class ClubManager {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -34,7 +34,7 @@ public class ClubAdmin {
     private User user;
 
     @Builder
-    private ClubAdmin(
+    private ClubManager(
         Integer id,
         Club club,
         User user

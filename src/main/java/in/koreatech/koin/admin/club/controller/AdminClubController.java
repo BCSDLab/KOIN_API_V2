@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.club.dto.ClubAdminCondition;
+import in.koreatech.koin.admin.club.dto.ClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
 import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
-import in.koreatech.koin.admin.club.dto.response.AdminClubAdminsResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
@@ -87,12 +87,12 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/admins")
-    public ResponseEntity<AdminClubAdminsResponse> getClubAdmins(
-        @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
+    @GetMapping("/managers")
+    public ResponseEntity<AdminClubManagersResponse> getClubManagers(
+        @ParameterObject @ModelAttribute ClubManagerCondition ClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminClubService.getClubAdmins(ClubAdminCondition));
+        return ResponseEntity.ok().body(adminClubService.getClubAdmins(ClubManagerCondition));
     }
 
     @GetMapping("/new-club")
@@ -105,11 +105,11 @@ public class AdminClubController implements AdminClubApi {
     }
 
     @GetMapping("/new-clubs")
-    public ResponseEntity<AdminClubAdminsResponse> getNewClubAdmins(
-        @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
+    public ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
+        @ParameterObject @ModelAttribute ClubManagerCondition ClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminClubService.getUnacceptedClubAdmins(ClubAdminCondition));
+        return ResponseEntity.ok().body(adminClubService.getUnacceptedClubManagers(ClubManagerCondition));
     }
 
     @PostMapping("/decision")

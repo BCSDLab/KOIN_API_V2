@@ -1,25 +1,25 @@
 package in.koreatech.koin.admin.club.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import java.time.LocalDateTime;
+import org.springframework.data.domain.Page;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import org.springframework.data.domain.Page;
 
 import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubAdmin;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record AdminClubAdminsResponse(
+public record AdminClubManagersResponse(
     @Schema(description = "조건에 해당하는 동아리 관리자의 수", example = "57", requiredMode = REQUIRED)
     Long totalCount,
 
@@ -33,11 +33,11 @@ public record AdminClubAdminsResponse(
     Integer currentPage,
 
     @Schema(description = "동아리 리스트", requiredMode = REQUIRED)
-    List<InnerClubAdminsResponse> clubs
+    List<InnerClubManagersResponse> clubs
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
-    public record InnerClubAdminsResponse(
+    public record InnerClubManagersResponse(
         @Schema(description = "동아리 아이디", example = "1", requiredMode = REQUIRED)
         Integer clubId,
 
@@ -54,11 +54,11 @@ public record AdminClubAdminsResponse(
         @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
         String clubName
     ) {
-        public static InnerClubAdminsResponse from(ClubAdmin clubAdmin) {
-            Club club = clubAdmin.getClub();
-            User user = clubAdmin.getUser();
+        public static InnerClubManagersResponse from(ClubManager clubManager) {
+            Club club = clubManager.getClub();
+            User user = clubManager.getUser();
 
-            return new InnerClubAdminsResponse(
+            return new InnerClubManagersResponse(
                 club.getId(),
                 user.getName(),
                 user.getPhoneNumber(),
@@ -67,8 +67,8 @@ public record AdminClubAdminsResponse(
             );
         }
 
-        public static InnerClubAdminsResponse fromRedis(ClubCreateRedis redis, User requester) {
-            return new InnerClubAdminsResponse(
+        public static InnerClubManagersResponse fromRedis(ClubCreateRedis redis, User requester) {
+            return new InnerClubManagersResponse(
                 null,
                 requester.getName(),
                 requester.getPhoneNumber(),
@@ -78,14 +78,14 @@ public record AdminClubAdminsResponse(
         }
     }
 
-    public static AdminClubAdminsResponse of(Page<ClubAdmin> pagedResult, Criteria criteria) {
-        return new AdminClubAdminsResponse(
+    public static AdminClubManagersResponse of(Page<ClubManager> pagedResult, Criteria criteria) {
+        return new AdminClubManagersResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
             pagedResult.getTotalPages(),
             criteria.getPage() + 1,
             pagedResult.getContent().stream()
-                .map(InnerClubAdminsResponse::from)
+                .map(InnerClubManagersResponse::from)
                 .toList()
         );
     }

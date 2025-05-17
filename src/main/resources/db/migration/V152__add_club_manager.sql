@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `koin`.`club_admin`
+CREATE TABLE IF NOT EXISTS `koin`.`club_manager`
 (
     `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '고유 ID',
     `club_id`   INT UNSIGNED NOT NULL COMMENT '동아리 고유 ID',

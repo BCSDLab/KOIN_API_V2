@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.DuplicateClubLikiException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubAdmin;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubQna;
@@ -246,7 +246,7 @@ public class ClubService {
         }
         clubAdminRepository.deleteByClubAndUser(club, currentManager);
 
-        ClubAdmin newClubManager = ClubAdmin.builder()
+        ClubManager newClubManager = ClubManager.builder()
             .club(club)
             .user(changedManager)
             .build();

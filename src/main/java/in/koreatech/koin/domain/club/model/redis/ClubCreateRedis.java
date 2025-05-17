@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.RedisHash;
 
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubAdmin;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Id;
@@ -111,8 +111,8 @@ public class ClubCreateRedis {
             .build();
     }
 
-    public ClubAdmin toClubAdmin(Club club, User requester) {
-        return ClubAdmin.builder()
+    public ClubManager toClubAdmin(Club club, User requester) {
+        return ClubManager.builder()
             .club(club)
             .user(requester)
             .build();

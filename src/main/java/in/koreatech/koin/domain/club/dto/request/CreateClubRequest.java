@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubAdmin;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -58,8 +58,8 @@ public record CreateClubRequest(
         @Schema(description = "동아리 관리자 id", example = "bcsdlab", requiredMode = REQUIRED)
         String userid
     ) {
-        public ClubAdmin toEntity(Club club, User user) {
-            return ClubAdmin.builder()
+        public ClubManager toEntity(Club club, User user) {
+            return ClubManager.builder()
                 .club(club)
                 .user(user)
                 .build();

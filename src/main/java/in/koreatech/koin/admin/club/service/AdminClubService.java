@@ -17,23 +17,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
-import in.koreatech.koin.admin.club.dto.ClubAdminCondition;
+import in.koreatech.koin.admin.club.dto.ClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
 import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
-import in.koreatech.koin.admin.club.dto.response.AdminClubAdminsResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
-import in.koreatech.koin.admin.club.repository.AdminClubAdminRepository;
+import in.koreatech.koin.admin.club.repository.AdminClubManagerRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubSnsRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubAdmin;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
@@ -55,7 +55,7 @@ public class AdminClubService {
     private final ClubAdminRepository clubAdminRepository;
     private final ClubCategoryRepository clubCategoryRepository;
     private final AdminClubCategoryRepository adminClubCategoryRepository;
-    private final AdminClubAdminRepository adminClubAdminRepository;
+    private final AdminClubManagerRepository adminClubManagerRepository;
     private final AdminClubRepository adminClubRepository;
     private final AdminUserRepository adminUserRepository;
     private final ClubCreateRedisRepository clubCreateRedisRepository;
@@ -104,7 +104,7 @@ public class AdminClubService {
         ClubCategory clubCategory = adminClubCategoryRepository.getById(request.clubCategoryId());
         Club club = adminClubRepository.save(request.toEntity(clubCategory));
 
-        List<ClubAdmin> clubAdmins = request.clubAdmins().stream()
+        List<ClubManager> clubManagers = request.clubAdmins().stream()
             .map(innerClubAdminRequest ->
                 innerClubAdminRequest.toEntity(club, adminUserRepository.getByUserId(innerClubAdminRequest.userid()))
             )
@@ -121,7 +121,7 @@ public class AdminClubService {
             .toList();
 
         adminClubSnsRepository.saveAll(clubSNSs);
-        adminClubAdminRepository.saveAll(clubAdmins);
+        adminClubManagerRepository.saveAll(clubManagers);
     }
 
     @Transactional
@@ -129,7 +129,7 @@ public class AdminClubService {
         ClubCategory clubCategory = adminClubCategoryRepository.getById(request.clubCategoryId());
         Club club = adminClubRepository.getById(clubId);
 
-        List<ClubAdmin> clubAdmins = request.clubAdmins().stream()
+        List<ClubManager> clubManagers = request.clubAdmins().stream()
             .map(innerClubAdminUpdateRequest ->
                 innerClubAdminUpdateRequest.toEntity(club,
                     adminUserRepository.getByUserId(innerClubAdminUpdateRequest.userid()))
@@ -157,8 +157,8 @@ public class AdminClubService {
         adminClubSnsRepository.deleteAllByClub(club);
         adminClubSnsRepository.saveAll(clubSNSs);
 
-        adminClubAdminRepository.deleteAllByClub(club);
-        adminClubAdminRepository.saveAll(clubAdmins);
+        adminClubManagerRepository.deleteAllByClub(club);
+        adminClubManagerRepository.saveAll(clubManagers);
     }
 
     @Transactional
@@ -179,17 +179,17 @@ public class AdminClubService {
         clubCreateRedisRepository.deleteById(clubName);
     }
 
-    public AdminClubAdminsResponse getClubAdmins(ClubAdminCondition condition) {
+    public AdminClubManagersResponse getClubAdmins(ClubManagerCondition condition) {
         int totalCount = clubAdminRepository.countAll();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
         Sort.Direction direction = condition.getDirection();
 
-        Page<ClubAdmin> result = getClubAdminsResultPage(criteria, direction);
+        Page<ClubManager> result = getClubManagersResultPage(criteria, direction);
 
-        return AdminClubAdminsResponse.of(result, criteria);
+        return AdminClubManagersResponse.of(result, criteria);
     }
 
-    public AdminClubAdminsResponse getUnacceptedClubAdmins(ClubAdminCondition condition) {
+    public AdminClubManagersResponse getUnacceptedClubManagers(ClubManagerCondition condition) {
         List<ClubCreateRedis> unAcceptedClubList = (List<ClubCreateRedis>)clubCreateRedisRepository.findAll();
         int totalCount = unAcceptedClubList.size();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
@@ -213,11 +213,11 @@ public class AdminClubService {
             paged.stream().map(ClubCreateRedis::getRequesterId).toList()
         ).stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
-        List<AdminClubAdminsResponse.InnerClubAdminsResponse> responseList = paged.stream()
-            .map(redis -> AdminClubAdminsResponse.InnerClubAdminsResponse.fromRedis(
+        List<AdminClubManagersResponse.InnerClubManagersResponse> responseList = paged.stream()
+            .map(redis -> AdminClubManagersResponse.InnerClubManagersResponse.fromRedis(
                 redis, userMap.get(redis.getRequesterId()))).toList();
 
-        return new AdminClubAdminsResponse(
+        return new AdminClubManagersResponse(
             (long)totalCount,
             responseList.size(),
             (totalCount + criteria.getLimit() - 1) / criteria.getLimit(),
@@ -226,7 +226,7 @@ public class AdminClubService {
         );
     }
 
-    private Page<ClubAdmin> getClubAdminsResultPage(Criteria criteria, Sort.Direction direction) {
+    private Page<ClubManager> getClubManagersResultPage(Criteria criteria, Sort.Direction direction) {
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
             criteria.getLimit(),
@@ -243,7 +243,7 @@ public class AdminClubService {
         Club club = clubCreateRedis.toClub(category);
         clubRepository.save(club);
 
-        ClubAdmin clubAdmin = clubCreateRedis.toClubAdmin(club, requester);
-        clubAdminRepository.save(clubAdmin);
+        ClubManager clubManager = clubCreateRedis.toClubAdmin(club, requester);
+        clubAdminRepository.save(clubManager);
     }
 }
