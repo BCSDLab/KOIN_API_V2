@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.club.dto.request.ClubManagerAdminCondition;
-import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
-import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
-import in.koreatech.koin.admin.club.dto.request.DecideClubManagerAdminRequest;
-import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
+import in.koreatech.koin.admin.club.dto.request.AdminChangeClubActiveRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminCreateClubRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminDecideClubManagerRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminModifyClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
@@ -60,7 +60,7 @@ public class AdminClubController implements AdminClubApi {
 
     @PostMapping
     public ResponseEntity<Void> createClub(
-        @RequestBody @Valid CreateAdminClubRequest request,
+        @RequestBody @Valid AdminCreateClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.createClub(request);
@@ -70,7 +70,7 @@ public class AdminClubController implements AdminClubApi {
     @PutMapping("/{clubId}")
     public ResponseEntity<Void> modifyClub(
         @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
-        @RequestBody @Valid ModifyAdminClubRequest request,
+        @RequestBody @Valid AdminModifyClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.modifyClub(clubId, request);
@@ -80,7 +80,7 @@ public class AdminClubController implements AdminClubApi {
     @PatchMapping("/{clubId}/active")
     public ResponseEntity<Void> changeActive(
         @PathVariable Integer clubId,
-        @RequestBody @Valid ChangeAdminClubActiveRequest request,
+        @RequestBody @Valid AdminChangeClubActiveRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.changeActive(clubId, request);
@@ -89,10 +89,10 @@ public class AdminClubController implements AdminClubApi {
 
     @GetMapping("/managers")
     public ResponseEntity<AdminClubManagersResponse> getClubManagers(
-        @ParameterObject @ModelAttribute ClubManagerAdminCondition ClubManagerAdminCondition,
+        @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminClubService.getClubAdmins(ClubManagerAdminCondition));
+        return ResponseEntity.ok().body(adminClubService.getClubAdmins(AdminClubManagerCondition));
     }
 
     @GetMapping("/new-club")
@@ -106,15 +106,15 @@ public class AdminClubController implements AdminClubApi {
 
     @GetMapping("/new-clubs")
     public ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
-        @ParameterObject @ModelAttribute ClubManagerAdminCondition ClubManagerAdminCondition,
+        @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminClubService.getUnacceptedClubManagers(ClubManagerAdminCondition));
+        return ResponseEntity.ok().body(adminClubService.getUnacceptedClubManagers(AdminClubManagerCondition));
     }
 
     @PostMapping("/decision")
     public ResponseEntity<Void> decideClubAdmin(
-        @RequestBody DecideClubManagerAdminRequest request,
+        @RequestBody AdminDecideClubManagerRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.decideClubAdmin(request.clubName(), request);

@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.club.dto.request.ClubManagerAdminCondition;
-import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
-import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
-import in.koreatech.koin.admin.club.dto.request.DecideClubManagerAdminRequest;
-import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
+import in.koreatech.koin.admin.club.dto.request.AdminChangeClubActiveRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminCreateClubRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminDecideClubManagerRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminModifyClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
@@ -86,7 +86,7 @@ public interface AdminClubApi {
     @Operation(summary = "동아리를 생성한다.")
     @PostMapping
     ResponseEntity<Void> createClub(
-        @RequestBody @Valid CreateAdminClubRequest request,
+        @RequestBody @Valid AdminCreateClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -103,7 +103,7 @@ public interface AdminClubApi {
     @PutMapping("/{clubId}")
     ResponseEntity<Void> modifyClub(
         @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
-        @RequestBody @Valid ModifyAdminClubRequest request,
+        @RequestBody @Valid AdminModifyClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -120,7 +120,7 @@ public interface AdminClubApi {
     @PatchMapping("/{clubId}/active")
     ResponseEntity<Void> changeActive(
         @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
-        @RequestBody @Valid ChangeAdminClubActiveRequest request,
+        @RequestBody @Valid AdminChangeClubActiveRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -136,7 +136,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/managers")
     ResponseEntity<AdminClubManagersResponse> getClubManagers(
-        @ParameterObject @ModelAttribute ClubManagerAdminCondition ClubManagerAdminCondition,
+        @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -168,7 +168,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/new-clubs")
     ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
-        @ParameterObject @ModelAttribute ClubManagerAdminCondition ClubManagerAdminCondition,
+        @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -187,7 +187,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/decision")
     ResponseEntity<Void> decideClubAdmin(
-        @RequestBody DecideClubManagerAdminRequest request,
+        @RequestBody AdminDecideClubManagerRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }
