@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
-import in.koreatech.koin.admin.club.dto.ClubManagerCondition;
+import in.koreatech.koin.admin.club.dto.request.ClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;

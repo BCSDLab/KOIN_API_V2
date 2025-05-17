@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.club.dto;
+package in.koreatech.koin.admin.club.dto.request;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 

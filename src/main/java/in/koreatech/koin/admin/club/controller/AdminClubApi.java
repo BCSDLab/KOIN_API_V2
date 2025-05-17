@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.club.dto.ClubManagerCondition;
+import in.koreatech.koin.admin.club.dto.request.ClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
