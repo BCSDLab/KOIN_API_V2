@@ -158,8 +158,6 @@ public interface ClubApi {
         description = """
             - authorId 확인하여 작성자 본인인 경우 삭제 버튼(x) 표시.
             - 닉네임은 존재 시 그대로 반환되며, 없는 경우 student의 익명 닉네임으로 반환.
-            - is_deleted 값이 false인 경우 "삭제된 댓글입니다"로 표현.
-            - is_admin 필드를 통해 관리자 댓글 여부를 알 수 있음.
             - 트리 구조는 대댓글 형태로 재귀적으로 구성됩니다.
                         
             ```java
@@ -192,7 +190,11 @@ public interface ClubApi {
         }
     )
     @Operation(summary = "특정 동아리의 QNA를 생성한다",
-        description = "parentId를 null 요청 시 첫 QNA, 부모 QNA의 id를 넣어서 요청하면 대댓글 형식으로 생성")
+        description = """
+            사용자의 경우 질문만 가능, 관리자의 경우 답변만 가능
+            parentId를 null 요청 시 질문, 질문 QNA의 id를 넣어서 요청하면 답변 형식으로 생성
+            """
+    )
     @PostMapping("/{clubId}/qna")
     ResponseEntity<Void> createQna(
         @RequestBody @Valid CreateQnaRequest request,
@@ -212,8 +214,8 @@ public interface ClubApi {
     @Operation(summary = "특정 동아리의 QNA를 삭제한다",
         description = """
             - 관리자는 모든 QNA 삭제 가능, 그 외에는 본인의 QNA만 삭제 가능
-            - 부모 QNA(맨처음 QNA)인 경우, 그 아래 QNA들까지 모두 삭제
-            - 자식 QNA인 경우, 삭제 시 삭제된 댓글입니다로만 표시하고 구조를 깨지 않음
+            - 부모 QNA(질문 QNA)인 경우, 답변 QNA까지 모두 삭제
+            - 자식 QNA(답변 QNA)인 경우, 답변 QNA만 삭제 
             """)
     @DeleteMapping("/{clubId}/qna/{qnaId}")
     ResponseEntity<Void> deleteQna(

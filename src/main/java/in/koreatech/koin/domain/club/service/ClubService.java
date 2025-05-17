@@ -67,7 +67,7 @@ public class ClubService {
     @Transactional
     public ClubResponse updateClub(Integer clubId, UpdateClubRequest request, Integer studentId) {
         Club club = clubRepository.getById(clubId);
-        isClubAdmin(clubId, studentId);
+        isClubManager(clubId, studentId);
 
         ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
         club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description());
@@ -99,7 +99,7 @@ public class ClubService {
         Integer clubId, UpdateClubIntroductionRequest request, Integer studentId
     ) {
         Club club = clubRepository.getById(clubId);
-        isClubAdmin(clubId, studentId);
+        isClubManager(clubId, studentId);
 
         club.updateIntroduction(request.introduction());
         List<ClubSNS> clubSNSs = club.getClubSNSs();
@@ -107,7 +107,7 @@ public class ClubService {
         return ClubResponse.from(club, clubSNSs);
     }
 
-    private void isClubAdmin(Integer clubId, Integer studentId) {
+    private void isClubManager(Integer clubId, Integer studentId) {
         if (!clubAdminRepository.existsByClubIdAndUserId(clubId, studentId)) {
             throw AuthorizationException.withDetail("studentId: " + studentId);
         }
@@ -193,21 +193,26 @@ public class ClubService {
     public void createQna(CreateQnaRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
+        boolean isManager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
+        boolean isQuestion = request.parentId() == null;
+        validateQnaCreateAuthorization(studentId, isQuestion, isManager);
         ClubQna parentQna = request.parentId() == null ? null : clubQnaRepository.getById(request.parentId());
-        boolean isAdmin = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
-        ClubQna qna = request.toClubQna(club, student, parentQna, isAdmin);
+        ClubQna qna = request.toClubQna(club, student, parentQna, isManager);
         clubQnaRepository.save(qna);
+    }
+
+    private static void validateQnaCreateAuthorization(Integer studentId, boolean isQuestion, boolean isManager) {
+        if (isQuestion == isManager) {
+            throw AuthorizationException.withDetail("studentId: " + studentId);
+        }
     }
 
     @Transactional
     public void deleteQna(Integer clubId, Integer qnaId, Integer studentId) {
         ClubQna qna = clubQnaRepository.getById(qnaId);
         validateQnaDeleteAuthorization(clubId, qna, studentId);
-        if (qna.isRoot()) {
-            clubQnaRepository.delete(qna);
-        } else {
-            qna.delete();
-        }
+        qna.detachFromParentIfChild();
+        clubQnaRepository.delete(qna);
     }
 
     private void validateQnaDeleteAuthorization(Integer clubId, ClubQna qna, Integer studentId) {

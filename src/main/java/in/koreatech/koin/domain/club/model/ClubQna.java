@@ -81,11 +81,26 @@ public class ClubQna extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
+    public void removeChild(ClubQna child) {
+        children.remove(child);
+        child.parent = null;
+    }
+
     public void delete() {
         isDeleted = true;
     }
 
     public boolean isRoot() {
         return parent == null;
+    }
+
+    public boolean isChild() {
+        return parent != null;
+    }
+
+    public void detachFromParentIfChild() {
+        if (isChild()) {
+            parent.removeChild(this);
+        }
     }
 }
