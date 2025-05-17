@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record DecideAdminClubAdminRequest(
+public record DecideClubManagerAdminRequest(
     @NotNull
     @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
     String clubName,

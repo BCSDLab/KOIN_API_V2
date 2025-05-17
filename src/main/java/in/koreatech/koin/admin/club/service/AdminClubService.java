@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
-import in.koreatech.koin.admin.club.dto.request.ClubAdminCondition;
+import in.koreatech.koin.admin.club.dto.request.ClubManagerAdminCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
-import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
+import in.koreatech.koin.admin.club.dto.request.DecideClubManagerAdminRequest;
 import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
@@ -168,7 +168,7 @@ public class AdminClubService {
     }
 
     @Transactional
-    public void decideClubAdmin(String clubName, DecideAdminClubAdminRequest request) {
+    public void decideClubAdmin(String clubName, DecideClubManagerAdminRequest request) {
         ClubCreateRedis createRequest = clubCreateRedisRepository.findById(clubName)
             .orElseThrow(() -> ClubNotFoundException.withDetail("신청한 동아리를 찾을 수 없습니다."));
 
@@ -179,7 +179,7 @@ public class AdminClubService {
         clubCreateRedisRepository.deleteById(clubName);
     }
 
-    public AdminClubManagersResponse getClubAdmins(ClubAdminCondition condition) {
+    public AdminClubManagersResponse getClubAdmins(ClubManagerAdminCondition condition) {
         int totalCount = clubManagerRepository.countAll();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
         Sort.Direction direction = condition.getDirection();
@@ -189,7 +189,7 @@ public class AdminClubService {
         return AdminClubManagersResponse.of(result, criteria);
     }
 
-    public AdminClubManagersResponse getUnacceptedClubManagers(ClubAdminCondition condition) {
+    public AdminClubManagersResponse getUnacceptedClubManagers(ClubManagerAdminCondition condition) {
         List<ClubCreateRedis> unAcceptedClubList = (List<ClubCreateRedis>)clubCreateRedisRepository.findAll();
         int totalCount = unAcceptedClubList.size();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
@@ -243,7 +243,7 @@ public class AdminClubService {
         Club club = clubCreateRedis.toClub(category);
         clubRepository.save(club);
 
-        ClubManager clubManager = clubCreateRedis.toClubAdmin(club, requester);
+        ClubManager clubManager = clubCreateRedis.toClubManager(club, requester);
         clubManagerRepository.save(clubManager);
     }
 }

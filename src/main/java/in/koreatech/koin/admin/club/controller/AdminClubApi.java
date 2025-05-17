@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.club.dto.request.ClubAdminCondition;
+import in.koreatech.koin.admin.club.dto.request.ClubManagerAdminCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
-import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
+import in.koreatech.koin.admin.club.dto.request.DecideClubManagerAdminRequest;
 import in.koreatech.koin.admin.club.dto.request.ModifyAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
@@ -136,7 +136,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/managers")
     ResponseEntity<AdminClubManagersResponse> getClubManagers(
-        @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
+        @ParameterObject @ModelAttribute ClubManagerAdminCondition ClubManagerAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -168,7 +168,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/new-clubs")
     ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
-        @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
+        @ParameterObject @ModelAttribute ClubManagerAdminCondition ClubManagerAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -187,7 +187,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/decision")
     ResponseEntity<Void> decideClubAdmin(
-        @RequestBody DecideAdminClubAdminRequest request,
+        @RequestBody DecideClubManagerAdminRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }

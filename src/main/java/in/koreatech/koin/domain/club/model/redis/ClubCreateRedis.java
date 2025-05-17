@@ -111,7 +111,7 @@ public class ClubCreateRedis {
             .build();
     }
 
-    public ClubManager toClubAdmin(Club club, User requester) {
+    public ClubManager toClubManager(Club club, User requester) {
         return ClubManager.builder()
             .club(club)
             .user(requester)
