@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.user.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import org.hibernate.annotations.Where;
@@ -10,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.google.firebase.database.annotations.Nullable;
 
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -176,5 +180,38 @@ public class User extends BaseEntity {
     // 어드민 측에서 코드 삭제시 이 쪽도 삭제
     public void undelete() {
         this.isDeleted = false;
+    }
+
+    private void ensureNotDeleted() {
+        if (isDeleted) {
+            throw AuthenticationException.withDetail("탈퇴한 계정입니다. userId: " + id);
+        }
+    }
+
+    private void ensurePermitted(UserType[] permittedUserTypes) {
+        List<UserType> permittedUserTypesList = Arrays.asList(permittedUserTypes);
+        if (permittedUserTypesList.contains(this.userType)) {
+            return;
+        }
+        throw AuthorizationException.withDetail("인가되지 않은 유저 타입입니다. userId: " + id);
+    }
+
+    private void ensureAuthed() {
+        if (isAuthed) {
+            return;
+        }
+        switch (this.userType) {
+            case OWNER -> throw AuthorizationException.withDetail("관리자 인증 대기중입니다. userId: " + id);
+            case STUDENT -> throw AuthorizationException.withDetail("아우누리에서 인증메일을 확인해주세요. userId: " + id);
+            case ADMIN -> throw AuthorizationException.withDetail("PL 인증 대기중입니다. userId: " + id);
+            default -> throw AuthorizationException.withDetail("유효하지 않은 계정입니다. userId: " + id);
+        }
+    }
+
+    public Integer authorizeAndGetId(UserType[] permittedUserTypes) {
+        ensureNotDeleted();
+        ensurePermitted(permittedUserTypes);
+        ensureAuthed();
+        return id;
     }
 }

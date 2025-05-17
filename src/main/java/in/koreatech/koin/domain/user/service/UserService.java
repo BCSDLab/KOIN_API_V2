@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.service;
 
+import static in.koreatech.koin.domain.user.model.UserType.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
@@ -16,6 +19,8 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
 import in.koreatech.koin.domain.user.dto.RegisterUserRequest;
 import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
 import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
@@ -23,13 +28,12 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
+import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -74,7 +78,7 @@ public class UserService {
         );
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
-        // eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
+        eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }
 
@@ -114,23 +118,23 @@ public class UserService {
     }
 
     public RefreshUserTokenResponse refresh(RefreshUserTokenRequest request) {
-        String userId = refreshTokenService.extractUserId(request.refreshToken());
-        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(),
-            Integer.parseInt(userId));
+        Integer userId = refreshTokenService.extractUserId(request.refreshToken());
+        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(), userId);
 
-        User user = userRepository.getById(userToken.getId());
+        User user = userRepository.findById(userToken.getId())
+            .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. userId : " + userId));
+
         String accessToken = jwtProvider.createToken(user);
-
         return RefreshUserTokenResponse.of(accessToken, userToken.getRefreshToken());
     }
 
     @Transactional
     public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
-        if (user.getUserType() == UserType.STUDENT) {
+        if (user.getUserType() == STUDENT) {
             timetableFrameRepositoryV2.deleteAllByUser(user);
             studentRepository.deleteByUserId(userId);
-        } else if (user.getUserType() == UserType.OWNER) {
+        } else if (user.getUserType() == OWNER) {
             ownerRepository.deleteByUserId(userId);
         }
         userRepository.delete(user);
@@ -142,14 +146,14 @@ public class UserService {
     }
 
     public String findIdBySms(String phoneNumber) {
-        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT));
         String userId = user.getUserId();
         userVerificationService.consumeVerification(phoneNumber);
         return userId;
     }
 
     public String findIdByEmail(String email) {
-        User user = userRepository.getByEmailAndUserTypeIn(email, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByEmailAndUserTypeIn(email, List.of(GENERAL, STUDENT));
         String userId = user.getUserId();
         userVerificationService.consumeVerification(email);
         return userId;
@@ -157,7 +161,7 @@ public class UserService {
 
     @Transactional
     public void resetPasswordBySms(String userId, String phoneNumber, String newPassword) {
-        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(GENERAL, STUDENT));
         if (user.isNotSamePhoneNumber(phoneNumber)) {
             throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
         }
@@ -168,7 +172,7 @@ public class UserService {
 
     @Transactional
     public void resetPasswordByEmail(String userId, String email, String newPassword) {
-        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(UserType.GENERAL, UserType.STUDENT));
+        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(GENERAL, STUDENT));
         if (user.isNotSameEmail(email)) {
             throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
         }

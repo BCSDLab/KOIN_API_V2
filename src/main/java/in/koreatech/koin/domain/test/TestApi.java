@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.test;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Profile("dev")
 @Tag(name = "(Normal) Test: 테스트", description = "테스트용 API")
 @RequestMapping("/test")
 public interface TestApi {
@@ -35,4 +37,9 @@ public interface TestApi {
         @RequestParam(defaultValue = "HOME") MobileAppPath mobileAppPath,
         @Parameter(description = "스킴 uri(ex: shop?id=1)") @RequestParam String url
     );
+
+    @ApiResponse(responseCode = "503", content = @Content(schema = @Schema(hidden = true)))
+    @Operation(summary = "Service Unavailable 테스트")
+    @GetMapping("/service-unavailable")
+    ResponseEntity<Object> testServiceUnavailable();
 }

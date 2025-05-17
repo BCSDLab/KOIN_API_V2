@@ -20,8 +20,8 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(SnakeCaseStrategy.class)
 public record RegisterUserRequest(
     @NotBlank(message = "이름은 필수입니다.")
-    @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
+    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
     String name,
 
     @Schema(description = "닉네임", example = "캔따개", requiredMode = REQUIRED)
@@ -42,12 +42,12 @@ public record RegisterUserRequest(
     UserGender gender,
 
     @NotBlank(message = "아이디는 필수입니다.")
-    @Size(max = 50, message = "아이디는 50자 이내여야 합니다.")
     @Schema(description = "로그인 아이디", example = "example123", requiredMode = REQUIRED)
+    @Pattern(regexp = "^[A-Za-z0-9._-]{5,13}$", message = "5-13자의 영문자, 숫자, 특수문자만 사용할 수 있습니다.")
     String loginId,
 
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6ec7f1...", requiredMode = REQUIRED)
     String password,
 
     @Schema(description = "마케팅 수신 동의 여부", example = "true", requiredMode = NOT_REQUIRED)
@@ -64,8 +64,9 @@ public record RegisterUserRequest(
             .email(email)
             .gender(gender)
             .userType(GENERAL)
-            .isAuthed(false)
+            .isAuthed(true)
             .isDeleted(false)
+            .deviceToken("TEMPORARY_TOKEN")
             .build();
     }
 }
