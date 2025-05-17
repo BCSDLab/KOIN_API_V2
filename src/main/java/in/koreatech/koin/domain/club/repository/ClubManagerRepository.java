@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 
-public interface ClubAdminRepository extends Repository<ClubManager, Integer> {
+public interface ClubManagerRepository extends Repository<ClubManager, Integer> {
 
     ClubManager save(ClubManager clubManager);
 

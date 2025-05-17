@@ -31,7 +31,7 @@ import in.koreatech.koin.domain.club.model.ClubQna;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.repository.ClubAdminRepository;
+import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
@@ -56,7 +56,7 @@ public class ClubService {
     private final ClubQnaRepository clubQnaRepository;
     private final ClubRepository clubRepository;
     private final StudentRepository studentRepository;
-    private final ClubAdminRepository clubAdminRepository;
+    private final ClubManagerRepository clubManagerRepository;
     private final ClubCategoryRepository clubCategoryRepository;
     private final ClubSNSRepository clubSNSRepository;
     private final ClubLikeRepository clubLikeRepository;
@@ -81,7 +81,7 @@ public class ClubService {
         club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description());
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
-        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
+        Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
 
         return ClubResponse.from(club, newSNS, manager);
     }
@@ -112,13 +112,13 @@ public class ClubService {
 
         club.updateIntroduction(request.introduction());
         List<ClubSNS> clubSNSs = club.getClubSNSs();
-        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
+        Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
 
         return ClubResponse.from(club, clubSNSs, manager);
     }
 
     private void isClubManager(Integer clubId, Integer studentId) {
-        if (!clubAdminRepository.existsByClubIdAndUserId(clubId, studentId)) {
+        if (!clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)) {
             throw AuthorizationException.withDetail("studentId: " + studentId);
         }
     }
@@ -128,7 +128,7 @@ public class ClubService {
         Club club = clubRepository.getByIdWithPessimisticLock(clubId);
         club.increaseHits();
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
-        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, userId);
+        Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
 
         return ClubResponse.from(club, clubSNSs, manager);
     }
@@ -204,7 +204,7 @@ public class ClubService {
     public void createQna(CreateQnaRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
-        boolean isManager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
+        boolean isManager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
         boolean isQuestion = request.parentId() == null;
         validateQnaCreateAuthorization(studentId, isQuestion, isManager);
         ClubQna parentQna = request.parentId() == null ? null : clubQnaRepository.getById(request.parentId());
@@ -229,7 +229,7 @@ public class ClubService {
     private void validateQnaDeleteAuthorization(Integer clubId, ClubQna qna, Integer studentId) {
         if (Objects.equals(qna.getAuthor().getId(), studentId))
             return;
-        if (clubAdminRepository.existsByClubIdAndUserId(clubId, studentId))
+        if (clubManagerRepository.existsByClubIdAndUserId(clubId, studentId))
             return;
         throw AuthorizationException.withDetail("studentId: " + studentId);
     }
@@ -241,16 +241,16 @@ public class ClubService {
         User changedManager = userRepository.getByUserId(request.changedManagerId());
 
         isClubManager(request.clubId(), studentId);
-        if (clubAdminRepository.existsByClubAndUser(club, changedManager)) {
+        if (clubManagerRepository.existsByClubAndUser(club, changedManager)) {
             throw AlreadyManagerException.withDetail("");
         }
-        clubAdminRepository.deleteByClubAndUser(club, currentManager);
+        clubManagerRepository.deleteByClubAndUser(club, currentManager);
 
         ClubManager newClubManager = ClubManager.builder()
             .club(club)
             .user(changedManager)
             .build();
 
-        clubAdminRepository.save(newClubManager);
+        clubManagerRepository.save(newClubManager);
     }
 }

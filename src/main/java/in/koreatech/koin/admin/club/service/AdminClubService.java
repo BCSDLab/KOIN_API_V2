@@ -37,7 +37,7 @@ import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
-import in.koreatech.koin.domain.club.repository.ClubAdminRepository;
+import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
@@ -52,7 +52,7 @@ public class AdminClubService {
 
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
-    private final ClubAdminRepository clubAdminRepository;
+    private final ClubManagerRepository clubManagerRepository;
     private final ClubCategoryRepository clubCategoryRepository;
     private final AdminClubCategoryRepository adminClubCategoryRepository;
     private final AdminClubManagerRepository adminClubManagerRepository;
@@ -180,7 +180,7 @@ public class AdminClubService {
     }
 
     public AdminClubManagersResponse getClubAdmins(ClubAdminCondition condition) {
-        int totalCount = clubAdminRepository.countAll();
+        int totalCount = clubManagerRepository.countAll();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
         Sort.Direction direction = condition.getDirection();
 
@@ -233,7 +233,7 @@ public class AdminClubService {
             Sort.by(direction, "club.createdAt")
         );
 
-        return clubAdminRepository.findPageAll(pageRequest);
+        return clubManagerRepository.findPageAll(pageRequest);
     }
 
     private void createApprovedClub(ClubCreateRedis clubCreateRedis) {
@@ -244,6 +244,6 @@ public class AdminClubService {
         clubRepository.save(club);
 
         ClubManager clubManager = clubCreateRedis.toClubAdmin(club, requester);
-        clubAdminRepository.save(clubManager);
+        clubManagerRepository.save(clubManager);
     }
 }
