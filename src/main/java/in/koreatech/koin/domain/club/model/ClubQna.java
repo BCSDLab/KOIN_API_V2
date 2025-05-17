@@ -55,8 +55,8 @@ public class ClubQna extends BaseEntity {
     private String content;
 
     @NotNull
-    @Column(name = "is_admin", nullable = false)
-    private Boolean isAdmin;
+    @Column(name = "is_manager", nullable = false)
+    private Boolean isManager;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
@@ -69,7 +69,7 @@ public class ClubQna extends BaseEntity {
         Student author,
         ClubQna parent,
         String content,
-        Boolean isAdmin,
+        Boolean isManager,
         Boolean isDeleted
     ) {
         this.id = id;
@@ -77,7 +77,7 @@ public class ClubQna extends BaseEntity {
         this.author = author;
         this.parent = parent;
         this.content = content;
-        this.isAdmin = isAdmin;
+        this.isManager = isManager;
         this.isDeleted = isDeleted;
     }
 

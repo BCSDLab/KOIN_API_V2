@@ -24,14 +24,14 @@ public record CreateQnaRequest(
     String content
 ) {
 
-    public ClubQna toClubQna(Club club, Student student, ClubQna parentQna, boolean isAdmin) {
+    public ClubQna toClubQna(Club club, Student student, ClubQna parentQna, boolean isManager) {
         return ClubQna.builder()
             .club(club)
             .author(student)
             .parent(parentQna)
             .content(content)
             .isDeleted(false)
-            .isAdmin(isAdmin)
+            .isManager(isManager)
             .build();
     }
 }
