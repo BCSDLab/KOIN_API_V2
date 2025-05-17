@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.admin.club.exception.ClubCategoryNotFound;
+import in.koreatech.koin.admin.club.exception.ClubCategoryNotFoundException;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 
 public interface ClubCategoryRepository extends Repository<ClubCategory, Integer> {
@@ -16,7 +16,7 @@ public interface ClubCategoryRepository extends Repository<ClubCategory, Integer
 
     default ClubCategory getByName(String name) {
         return findByName(name)
-            .orElseThrow(() -> ClubCategoryNotFound.withDetail("name : " + name));
+            .orElseThrow(() -> ClubCategoryNotFoundException.withDetail("name : " + name));
     }
 
     ClubCategory save(ClubCategory category);
@@ -25,6 +25,6 @@ public interface ClubCategoryRepository extends Repository<ClubCategory, Integer
 
     default ClubCategory getById(Integer id) {
         return findById(id)
-            .orElseThrow(() -> ClubCategoryNotFound.withDetail("id : " + id));
+            .orElseThrow(() -> ClubCategoryNotFoundException.withDetail("id : " + id));
     }
 }

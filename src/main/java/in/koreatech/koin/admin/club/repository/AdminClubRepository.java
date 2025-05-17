@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.admin.club.exception.ClubNotFound;
+import in.koreatech.koin.admin.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
 
 public interface AdminClubRepository extends Repository<Club, Integer> {
@@ -34,7 +34,7 @@ public interface AdminClubRepository extends Repository<Club, Integer> {
 
     default Club getById(Integer clubId) {
         return findById(clubId)
-            .orElseThrow(() -> ClubNotFound.withDetail("clubId : " + clubId));
+            .orElseThrow(() -> ClubNotFoundException.withDetail("clubId : " + clubId));
     }
 
     Club save(Club club);

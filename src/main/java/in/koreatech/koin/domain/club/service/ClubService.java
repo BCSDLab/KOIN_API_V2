@@ -19,10 +19,10 @@ import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.enums.SNSType;
-import in.koreatech.koin.domain.club.exception.AlreadyManagerException;
+import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
-import in.koreatech.koin.domain.club.exception.DuplicateClubLikException;
+import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
@@ -152,7 +152,7 @@ public class ClubService {
 
         boolean alreadyLiked = clubLikeRepository.existsByClubAndUser(club, user);
         if (alreadyLiked) {
-            throw DuplicateClubLikException.withDetail(clubId);
+            throw ClubLikeDuplicateException.withDetail(clubId);
         }
 
         ClubLike clubLike = ClubLike.builder()
@@ -242,7 +242,7 @@ public class ClubService {
 
         isClubManager(request.clubId(), studentId);
         if (clubManagerRepository.existsByClubAndUser(club, changedManager)) {
-            throw AlreadyManagerException.withDetail("");
+            throw ClubManagerAlreadyException.withDetail("");
         }
         clubManagerRepository.deleteByClubAndUser(club, currentManager);
 
