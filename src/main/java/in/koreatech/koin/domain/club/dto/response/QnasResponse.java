@@ -38,12 +38,6 @@ public record QnasResponse(
         @Schema(description = "내용", example = "언제 모집하나요?", requiredMode = REQUIRED)
         String content,
 
-        @Schema(description = "삭제여부", example = "false", requiredMode = REQUIRED)
-        Boolean isDeleted,
-
-        @Schema(description = "관리자여부", example = "true", requiredMode = REQUIRED)
-        Boolean isAdmin,
-
         @Schema(description = "작성 일시", example = "2025.05.12 14:00", requiredMode = REQUIRED)
         @JsonFormat(pattern = "yyyy.MM.dd HH:mm")
         LocalDateTime createdAt,
@@ -65,8 +59,6 @@ public record QnasResponse(
                 qna.getAuthor().getId(),
                 nickname,
                 qna.getContent(),
-                qna.getIsDeleted(),
-                qna.getIsAdmin(),
                 qna.getCreatedAt(),
                 children
             );
