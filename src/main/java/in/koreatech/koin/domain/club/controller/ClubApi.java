@@ -112,7 +112,7 @@ public interface ClubApi {
     @PostMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam Integer categoryId,
-        @RequestParam(required = false) Boolean hitSort
+        @RequestParam(required = false, defaultValue = "false") Boolean hitSort
     );
 
     @ApiResponses(
