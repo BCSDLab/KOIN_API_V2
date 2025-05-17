@@ -211,11 +211,8 @@ public class ClubService {
     public void deleteQna(Integer clubId, Integer qnaId, Integer studentId) {
         ClubQna qna = clubQnaRepository.getById(qnaId);
         validateQnaDeleteAuthorization(clubId, qna, studentId);
-        if (qna.isRoot()) {
-            clubQnaRepository.delete(qna);
-        } else {
-            qna.delete();
-        }
+        qna.detachFromParentIfChild();
+        clubQnaRepository.delete(qna);
     }
 
     private void validateQnaDeleteAuthorization(Integer clubId, ClubQna qna, Integer studentId) {
