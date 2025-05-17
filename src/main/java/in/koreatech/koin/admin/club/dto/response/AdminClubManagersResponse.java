@@ -42,7 +42,7 @@ public record AdminClubManagersResponse(
         Integer clubId,
 
         @Schema(description = "동아리 관리자 이름", example = "배진호", requiredMode = REQUIRED)
-        String adminName,
+        String clubManagerName,
 
         @Schema(description = "동아리 관리자 전화번호", example = "01024607469", requiredMode = REQUIRED)
         String phoneNumber,

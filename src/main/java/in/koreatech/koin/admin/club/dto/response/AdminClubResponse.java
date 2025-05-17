@@ -26,7 +26,7 @@ public record AdminClubResponse(
     String imageUrl,
 
     @Schema(description = "동아리 관리자 리스트", requiredMode = REQUIRED)
-    List<InnerClubAdminResponse> clubAdmins,
+    List<InnerClubManagerResponse> clubManagers,
 
     @Schema(description = "동아리 분과 카테고리", example = "학술", requiredMode = REQUIRED)
     String clubCategoryName,
@@ -48,7 +48,7 @@ public record AdminClubResponse(
     Boolean active
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerClubAdminResponse(
+    public record InnerClubManagerResponse(
         @Schema(description = "동아리 관리자 이름", example = "정해성", requiredMode = REQUIRED)
         String name,
 
@@ -58,8 +58,8 @@ public record AdminClubResponse(
         @Schema(description = "동아리 관리자 전화번호", example = "01012345678", requiredMode = REQUIRED)
         String phoneNumber
     ) {
-        private static InnerClubAdminResponse from(User user) {
-            return new InnerClubAdminResponse(
+        private static InnerClubManagerResponse from(User user) {
+            return new InnerClubManagerResponse(
                 user.getName(),
                 user.getUserId(),
                 user.getPhoneNumber()
@@ -89,7 +89,7 @@ public record AdminClubResponse(
             club.getName(),
             club.getImageUrl(),
             club.getClubManagers().stream()
-                .map(clubAdmin -> InnerClubAdminResponse.from(clubAdmin.getUser()))
+                .map(clubAdmin -> InnerClubManagerResponse.from(clubAdmin.getUser()))
                 .toList(),
             club.getClubCategory().getName(),
             club.getLikes(),
