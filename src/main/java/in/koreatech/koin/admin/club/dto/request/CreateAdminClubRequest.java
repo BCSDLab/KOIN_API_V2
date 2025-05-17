@@ -27,7 +27,7 @@ public record CreateAdminClubRequest(
 
     @Schema(description = "동아리 관리자 ID 리스트", requiredMode = REQUIRED)
     @NotEmpty(message = "동아리 관리자는 필수 입력 사항입니다.")
-    List<InnerClubAdminRequest> clubAdmins,
+    List<InnerClubManagerRequest> clubManagers,
 
     @Schema(description = "동아리 분과 카테고리 ID", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "동아리 분과 카테고리는 필수 입력 사항입니다.")
@@ -54,7 +54,7 @@ public record CreateAdminClubRequest(
     String phoneNumber
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerClubAdminRequest(
+    public record InnerClubManagerRequest(
         @Schema(description = "동아리 관리자 id", example = "bcsdlab", requiredMode = REQUIRED)
         String userid
     ) {

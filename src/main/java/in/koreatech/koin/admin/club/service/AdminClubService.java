@@ -104,7 +104,7 @@ public class AdminClubService {
         ClubCategory clubCategory = adminClubCategoryRepository.getById(request.clubCategoryId());
         Club club = adminClubRepository.save(request.toEntity(clubCategory));
 
-        List<ClubManager> clubManagers = request.clubAdmins().stream()
+        List<ClubManager> clubManagers = request.clubManagers().stream()
             .map(innerClubAdminRequest ->
                 innerClubAdminRequest.toEntity(club, adminUserRepository.getByUserId(innerClubAdminRequest.userid()))
             )
@@ -129,7 +129,7 @@ public class AdminClubService {
         ClubCategory clubCategory = adminClubCategoryRepository.getById(request.clubCategoryId());
         Club club = adminClubRepository.getById(clubId);
 
-        List<ClubManager> clubManagers = request.clubAdmins().stream()
+        List<ClubManager> clubManagers = request.clubManagers().stream()
             .map(innerClubAdminUpdateRequest ->
                 innerClubAdminUpdateRequest.toEntity(club,
                     adminUserRepository.getByUserId(innerClubAdminUpdateRequest.userid()))
