@@ -141,7 +141,7 @@ public class ClubController implements ClubApi {
     public ResponseEntity<Void> empowermentClubManager(
         @RequestBody @Valid EmpowermentClubManagerRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
-    ){
+    ) {
         clubService.empowermentClubManager(request, studentId);
         return ResponseEntity.ok().build();
     }
