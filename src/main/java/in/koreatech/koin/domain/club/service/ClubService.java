@@ -135,13 +135,9 @@ public class ClubService {
 
     public ClubsByCategoryResponse getClubByCategory(Integer categoryId, Boolean hitSort) {
         ClubCategory category = clubCategoryRepository.getById(categoryId);
-
-        if (hitSort) {
-            List<Club> clubs = clubRepository.findByClubCategoryOrderByHitsDesc(category);
-            return ClubsByCategoryResponse.from(clubs);
-        }
-
-        List<Club> clubs = clubRepository.findByClubCategoryOrderByIdAsc(category);
+        List<Club> clubs = hitSort
+            ? clubRepository.findByClubCategoryOrderByHitsDesc(category)
+            : clubRepository.findByClubCategoryOrderByIdAsc(category);
         return ClubsByCategoryResponse.from(clubs);
     }
 
