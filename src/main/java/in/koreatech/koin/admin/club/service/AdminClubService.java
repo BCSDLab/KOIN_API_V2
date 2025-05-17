@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
-import in.koreatech.koin.admin.club.dto.request.ClubManagerCondition;
+import in.koreatech.koin.admin.club.dto.request.ClubAdminCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
@@ -179,7 +179,7 @@ public class AdminClubService {
         clubCreateRedisRepository.deleteById(clubName);
     }
 
-    public AdminClubManagersResponse getClubAdmins(ClubManagerCondition condition) {
+    public AdminClubManagersResponse getClubAdmins(ClubAdminCondition condition) {
         int totalCount = clubAdminRepository.countAll();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
         Sort.Direction direction = condition.getDirection();
@@ -189,7 +189,7 @@ public class AdminClubService {
         return AdminClubManagersResponse.of(result, criteria);
     }
 
-    public AdminClubManagersResponse getUnacceptedClubManagers(ClubManagerCondition condition) {
+    public AdminClubManagersResponse getUnacceptedClubManagers(ClubAdminCondition condition) {
         List<ClubCreateRedis> unAcceptedClubList = (List<ClubCreateRedis>)clubCreateRedisRepository.findAll();
         int totalCount = unAcceptedClubList.size();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);

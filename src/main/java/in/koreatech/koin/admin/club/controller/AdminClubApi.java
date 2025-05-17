@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.club.dto.request.ClubManagerCondition;
+import in.koreatech.koin.admin.club.dto.request.ClubAdminCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
@@ -136,7 +136,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/managers")
     ResponseEntity<AdminClubManagersResponse> getClubManagers(
-        @ParameterObject @ModelAttribute ClubManagerCondition ClubManagerCondition,
+        @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -168,7 +168,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/new-clubs")
     ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
-        @ParameterObject @ModelAttribute ClubManagerCondition ClubManagerCondition,
+        @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

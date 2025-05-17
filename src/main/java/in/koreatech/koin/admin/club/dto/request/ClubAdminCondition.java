@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record ClubManagerCondition(
+public record ClubAdminCondition(
     @Schema(description = "페이지", example = "1", defaultValue = "1", requiredMode = NOT_REQUIRED)
     Integer page,
 
@@ -25,7 +25,7 @@ public record ClubManagerCondition(
     @Schema(description = "정렬 기준 [`CREATED_AT_ASC`, `CREATED_AT_DESC`]", example = "CREATED_AT_DESC", defaultValue = "CREATED_AT_DESC", requiredMode = NOT_REQUIRED)
     Sort sort
 ) {
-    public ClubManagerCondition {
+    public ClubAdminCondition {
         if (Objects.isNull(page))
             page = Criteria.DEFAULT_PAGE;
         if (Objects.isNull(limit))

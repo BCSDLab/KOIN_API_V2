@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.admin.club.dto.request.ClubManagerCondition;
+import in.koreatech.koin.admin.club.dto.request.ClubAdminCondition;
 import in.koreatech.koin.admin.club.dto.request.ChangeAdminClubActiveRequest;
 import in.koreatech.koin.admin.club.dto.request.CreateAdminClubRequest;
 import in.koreatech.koin.admin.club.dto.request.DecideAdminClubAdminRequest;
@@ -89,10 +89,10 @@ public class AdminClubController implements AdminClubApi {
 
     @GetMapping("/managers")
     public ResponseEntity<AdminClubManagersResponse> getClubManagers(
-        @ParameterObject @ModelAttribute ClubManagerCondition ClubManagerCondition,
+        @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminClubService.getClubAdmins(ClubManagerCondition));
+        return ResponseEntity.ok().body(adminClubService.getClubAdmins(ClubAdminCondition));
     }
 
     @GetMapping("/new-club")
@@ -106,10 +106,10 @@ public class AdminClubController implements AdminClubApi {
 
     @GetMapping("/new-clubs")
     public ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
-        @ParameterObject @ModelAttribute ClubManagerCondition ClubManagerCondition,
+        @ParameterObject @ModelAttribute ClubAdminCondition ClubAdminCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminClubService.getUnacceptedClubManagers(ClubManagerCondition));
+        return ResponseEntity.ok().body(adminClubService.getUnacceptedClubManagers(ClubAdminCondition));
     }
 
     @PostMapping("/decision")
