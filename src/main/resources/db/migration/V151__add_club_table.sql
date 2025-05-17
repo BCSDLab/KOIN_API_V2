@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `koin`.`club`
     `image_url`          VARCHAR(255) NOT NULL COMMENT '동아리 사진',
     `likes`              INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '동아리 좋아요 개수',
     `location`           VARCHAR(20) NOT NULL COMMENT '동아리 장소',
+    `last_week_hits`     INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '지난 주 조회수',
     `introduction`       TEXT NOT NULL COMMENT '동아리 상세 소개',
     `created_at`         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일자',
     `updated_at`         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일자',
