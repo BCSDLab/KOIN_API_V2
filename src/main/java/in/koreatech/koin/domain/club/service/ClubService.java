@@ -193,10 +193,18 @@ public class ClubService {
     public void createQna(CreateQnaRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
-        ClubQna parentQna = request.parentId() == null ? null : clubQnaRepository.getById(request.parentId());
         boolean isAdmin = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
+        boolean isQuestion = request.parentId() == null;
+        validateQnaCreateAuthorization(studentId, isQuestion, isAdmin);
+        ClubQna parentQna = request.parentId() == null ? null : clubQnaRepository.getById(request.parentId());
         ClubQna qna = request.toClubQna(club, student, parentQna, isAdmin);
         clubQnaRepository.save(qna);
+    }
+
+    private static void validateQnaCreateAuthorization(Integer studentId, boolean isQuestion, boolean isAdmin) {
+        if (isQuestion == isAdmin) {
+            throw AuthorizationException.withDetail("studentId: " + studentId);
+        }
     }
 
     @Transactional
