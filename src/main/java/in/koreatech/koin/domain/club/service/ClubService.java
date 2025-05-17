@@ -240,7 +240,7 @@ public class ClubService {
         User currentManager = userRepository.getById(studentId);
         User changedManager = userRepository.getByUserId(request.changedManagerId());
 
-        isClubAdmin(request.clubId(), studentId);
+        isClubManager(request.clubId(), studentId);
         if (clubAdminRepository.existsByClubAndUser(club, changedManager)) {
             throw AlreadyManagerException.withDetail("");
         }
