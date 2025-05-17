@@ -22,7 +22,7 @@ import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.AlreadyManagerException;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
-import in.koreatech.koin.domain.club.exception.DuplicateClubLikiException;
+import in.koreatech.koin.domain.club.exception.DuplicateClubLikException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
@@ -152,7 +152,7 @@ public class ClubService {
 
         boolean alreadyLiked = clubLikeRepository.existsByClubAndUser(club, user);
         if (alreadyLiked) {
-            throw DuplicateClubLikiException.withDetail(clubId);
+            throw DuplicateClubLikException.withDetail(clubId);
         }
 
         ClubLike clubLike = ClubLike.builder()
