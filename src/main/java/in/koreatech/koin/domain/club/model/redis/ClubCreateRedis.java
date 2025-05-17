@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.club.model.redis;
 
+import static in.koreatech.koin.domain.club.dto.request.CreateClubRequest.InnerClubManagerRequest;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class ClubCreateRedis {
 
     private String imageUrl;
 
-    private List<CreateClubRequest.InnerCluManagerRequest> clubAdmins;
+    private List<InnerClubManagerRequest> clubAdmins;
 
     private Integer clubCategoryId;
 
@@ -50,7 +52,7 @@ public class ClubCreateRedis {
         String id,
         String name,
         String imageUrl,
-        List<CreateClubRequest.InnerCluManagerRequest> clubAdmins,
+        List<InnerClubManagerRequest> clubAdmins,
         Integer clubCategoryId,
         String location,
         String description,
@@ -81,7 +83,7 @@ public class ClubCreateRedis {
             .id(request.name())
             .name(request.name())
             .imageUrl(request.imageUrl())
-            .clubAdmins(request.clubAdmins())
+            .clubAdmins(request.clubManagers())
             .clubCategoryId(request.clubCategoryId())
             .location(request.location())
             .description(request.description())

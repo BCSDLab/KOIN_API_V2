@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
 import in.koreatech.koin.domain.club.dto.request.EmpowermentClubManagerRequest;
@@ -96,7 +97,7 @@ public interface ClubApi {
     @PostMapping("/{clubId}")
     ResponseEntity<ClubResponse> getClub(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
+        @UserId Integer userId
     );
 
     @ApiResponses(

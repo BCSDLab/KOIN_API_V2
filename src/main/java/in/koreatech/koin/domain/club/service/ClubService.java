@@ -69,12 +69,7 @@ public class ClubService {
         ClubCreateRedis createRedis = ClubCreateRedis.of(request, studentId);
         clubCreateRedisRepository.save(createRedis);
 
-        sendSlackNotification(request.name());
-    }
-
-    public void sendSlackNotification(String clubName) {
-        ClubCreateEvent clubCreateEvent = new ClubCreateEvent(clubName);
-        eventPublisher.publishEvent(clubCreateEvent);
+        eventPublisher.publishEvent(new ClubCreateEvent(request.name()));
     }
 
     @Transactional
@@ -129,11 +124,11 @@ public class ClubService {
     }
 
     @Transactional
-    public ClubResponse getClub(Integer clubId, Integer studentId) {
+    public ClubResponse getClub(Integer clubId, Integer userId) {
         Club club = clubRepository.getByIdWithPessimisticLock(clubId);
         club.increaseHits();
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
-        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
+        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, userId);
 
         return ClubResponse.from(club, clubSNSs, manager);
     }
@@ -235,17 +230,15 @@ public class ClubService {
     }
 
     @Transactional
-    public void empowermentClubManager(EmpowermentClubManagerRequest request, Integer studentId){
+    public void empowermentClubManager(EmpowermentClubManagerRequest request, Integer studentId) {
         Club club = clubRepository.getById(request.clubId());
         User currentManager = userRepository.getById(studentId);
-        User changedManager = userRepository.getByEmail(request.changedManagerEmail());
+        User changedManager = userRepository.getByUserId(request.changedManagerId());
 
         isClubAdmin(request.clubId(), studentId);
-
         if (clubAdminRepository.existsByClubAndUser(club, changedManager)) {
             throw AlreadyManagerException.withDetail("");
         }
-
         clubAdminRepository.deleteByClubAndUser(club, currentManager);
 
         ClubAdmin newClubManager = ClubAdmin.builder()
