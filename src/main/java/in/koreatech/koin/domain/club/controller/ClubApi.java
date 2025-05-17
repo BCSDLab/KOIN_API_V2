@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.EmpowermentClubManagerRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -94,7 +96,8 @@ public interface ClubApi {
     @Operation(summary = "동아리를 상세조회한다")
     @PostMapping("/{clubId}")
     ResponseEntity<ClubResponse> getClub(
-        @Parameter(in = PATH) @PathVariable Integer clubId
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @UserId Integer userId
     );
 
     @ApiResponses(
@@ -221,6 +224,22 @@ public interface ClubApi {
     ResponseEntity<Void> deleteQna(
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Parameter(in = PATH) @PathVariable Integer qnaId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "동아리 관리자 권한을 위임한다")
+    @PutMapping("/empowerment")
+    ResponseEntity<Void> empowermentClubManager(
+        @RequestBody @Valid EmpowermentClubManagerRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 }

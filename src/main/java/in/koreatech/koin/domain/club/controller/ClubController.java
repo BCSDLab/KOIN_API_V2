@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.EmpowermentClubManagerRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -76,9 +78,10 @@ public class ClubController implements ClubApi {
 
     @GetMapping("/{clubId}")
     public ResponseEntity<ClubResponse> getClub(
-        @Parameter(in = PATH) @PathVariable Integer clubId
+        @Parameter(in = PATH) @PathVariable Integer clubId,
+        @UserId Integer userId
     ) {
-        ClubResponse response = clubService.getClub(clubId);
+        ClubResponse response = clubService.getClub(clubId, userId);
         return ResponseEntity.ok(response);
     }
 
@@ -132,5 +135,14 @@ public class ClubController implements ClubApi {
     ) {
         clubService.deleteQna(clubId, qnaId, studentId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/empowerment")
+    public ResponseEntity<Void> empowermentClubManager(
+        @RequestBody @Valid EmpowermentClubManagerRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.empowermentClubManager(request, studentId);
+        return ResponseEntity.ok().build();
     }
 }

@@ -3,12 +3,15 @@ package in.koreatech.koin.domain.club.service;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin.domain.club.dto.request.CreateClubRequest;
 import in.koreatech.koin.domain.club.dto.request.CreateQnaRequest;
+import in.koreatech.koin.domain.club.dto.request.EmpowermentClubManagerRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubIntroductionRequest;
 import in.koreatech.koin.domain.club.dto.request.UpdateClubRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -16,10 +19,12 @@ import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.enums.SNSType;
+import in.koreatech.koin.domain.club.exception.AlreadyManagerException;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.DuplicateClubLikiException;
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubAdmin;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubQna;
@@ -57,11 +62,14 @@ public class ClubService {
     private final ClubLikeRepository clubLikeRepository;
     private final UserRepository userRepository;
     private final ClubCreateRedisRepository clubCreateRedisRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void createClubRequest(CreateClubRequest request, Integer studentId) {
         ClubCreateRedis createRedis = ClubCreateRedis.of(request, studentId);
         clubCreateRedisRepository.save(createRedis);
+
+        eventPublisher.publishEvent(new ClubCreateEvent(request.name()));
     }
 
     @Transactional
@@ -73,8 +81,9 @@ public class ClubService {
         club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description());
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
+        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, newSNS);
+        return ClubResponse.from(club, newSNS, manager);
     }
 
     private List<ClubSNS> updateClubSNS(UpdateClubRequest request, Club club) {
@@ -103,8 +112,9 @@ public class ClubService {
 
         club.updateIntroduction(request.introduction());
         List<ClubSNS> clubSNSs = club.getClubSNSs();
+        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, clubSNSs);
+        return ClubResponse.from(club, clubSNSs, manager);
     }
 
     private void isClubManager(Integer clubId, Integer studentId) {
@@ -114,12 +124,13 @@ public class ClubService {
     }
 
     @Transactional
-    public ClubResponse getClub(Integer clubId) {
+    public ClubResponse getClub(Integer clubId, Integer userId) {
         Club club = clubRepository.getByIdWithPessimisticLock(clubId);
         club.increaseHits();
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
+        Boolean manager = clubAdminRepository.existsByClubIdAndUserId(clubId, userId);
 
-        return ClubResponse.from(club, clubSNSs);
+        return ClubResponse.from(club, clubSNSs, manager);
     }
 
     public ClubsByCategoryResponse getClubByCategory(Integer categoryId, Boolean hitSort) {
@@ -221,5 +232,25 @@ public class ClubService {
         if (clubAdminRepository.existsByClubIdAndUserId(clubId, studentId))
             return;
         throw AuthorizationException.withDetail("studentId: " + studentId);
+    }
+
+    @Transactional
+    public void empowermentClubManager(EmpowermentClubManagerRequest request, Integer studentId) {
+        Club club = clubRepository.getById(request.clubId());
+        User currentManager = userRepository.getById(studentId);
+        User changedManager = userRepository.getByUserId(request.changedManagerId());
+
+        isClubAdmin(request.clubId(), studentId);
+        if (clubAdminRepository.existsByClubAndUser(club, changedManager)) {
+            throw AlreadyManagerException.withDetail("");
+        }
+        clubAdminRepository.deleteByClubAndUser(club, currentManager);
+
+        ClubAdmin newClubManager = ClubAdmin.builder()
+            .club(club)
+            .user(changedManager)
+            .build();
+
+        clubAdminRepository.save(newClubManager);
     }
 }
