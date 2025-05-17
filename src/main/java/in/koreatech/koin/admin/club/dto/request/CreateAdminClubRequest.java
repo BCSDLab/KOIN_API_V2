@@ -56,7 +56,7 @@ public record CreateAdminClubRequest(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerClubManagerRequest(
         @Schema(description = "동아리 관리자 id", example = "bcsdlab", requiredMode = REQUIRED)
-        String userid
+        String userId
     ) {
         public ClubManager toEntity(Club club, User user) {
             return ClubManager.builder()
