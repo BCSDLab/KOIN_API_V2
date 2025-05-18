@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubHotResponse(
+    @Schema(description = "인기 동아리 ID", example = "1", requiredMode = REQUIRED)
+    Integer clubId,
+
     @Schema(description = "동아리명", example = "BCSD", requiredMode = REQUIRED)
     String name,
 
@@ -20,6 +23,7 @@ public record ClubHotResponse(
 
     public static ClubHotResponse from(ClubHotRedis clubHotRedis) {
         return new ClubHotResponse(
+            clubHotRedis.getClubId(),
             clubHotRedis.getName(),
             clubHotRedis.getImageUrl()
         );
@@ -27,6 +31,7 @@ public record ClubHotResponse(
 
     public static ClubHotResponse from(Club club) {
         return new ClubHotResponse(
+            club.getId(),
             club.getName(),
             club.getImageUrl()
         );
