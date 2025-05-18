@@ -90,7 +90,7 @@ public class AdminClubService {
         return AdminClubResponse.from(club);
     }
 
-    public AdminNewClubResponse getNewClub(String clubName) {
+    public AdminNewClubResponse getPendingClub(String clubName) {
         ClubCreateRedis clubInformation = clubCreateRedisRepository.findById(clubName)
             .orElseThrow(() -> ClubNotFoundException.withDetail("신청한 동아리를 찾을 수 없습니다."));
         User requester = userRepository.getById(clubInformation.getRequesterId());
@@ -168,7 +168,7 @@ public class AdminClubService {
     }
 
     @Transactional
-    public void decideClubAdmin(String clubName, AdminClubManagerDecideRequest request) {
+    public void decideClubManager(String clubName, AdminClubManagerDecideRequest request) {
         ClubCreateRedis createRequest = clubCreateRedisRepository.findById(clubName)
             .orElseThrow(() -> ClubNotFoundException.withDetail("신청한 동아리를 찾을 수 없습니다."));
 
@@ -189,7 +189,7 @@ public class AdminClubService {
         return AdminClubManagersResponse.of(result, criteria);
     }
 
-    public AdminClubManagersResponse getUnacceptedClubManagers(AdminClubManagerCondition condition) {
+    public AdminClubManagersResponse getPendingClubManagers(AdminClubManagerCondition condition) {
         List<ClubCreateRedis> unAcceptedClubList = (List<ClubCreateRedis>)clubCreateRedisRepository.findAll();
         int totalCount = unAcceptedClubList.size();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);

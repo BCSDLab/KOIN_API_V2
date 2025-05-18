@@ -100,7 +100,7 @@ public class AdminClubController implements AdminClubApi {
         @PathVariable String clubName,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminNewClubResponse response = adminClubService.getNewClub(clubName);
+        AdminNewClubResponse response = adminClubService.getPendingClub(clubName);
         return ResponseEntity.ok().body(response);
     }
 
@@ -109,7 +109,7 @@ public class AdminClubController implements AdminClubApi {
         @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminClubService.getUnacceptedClubManagers(AdminClubManagerCondition));
+        return ResponseEntity.ok().body(adminClubService.getPendingClubManagers(AdminClubManagerCondition));
     }
 
     @PostMapping("/decision")
@@ -117,7 +117,7 @@ public class AdminClubController implements AdminClubApi {
         @RequestBody AdminClubManagerDecideRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminClubService.decideClubAdmin(request.clubName(), request);
+        adminClubService.decideClubManager(request.clubName(), request);
         return ResponseEntity.ok().build();
     }
 }
