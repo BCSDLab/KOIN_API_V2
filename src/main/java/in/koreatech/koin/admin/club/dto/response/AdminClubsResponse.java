@@ -55,7 +55,7 @@ public record AdminClubsResponse(
         LocalDate createdAt,
 
         @Schema(description = "활성화 여부", example = "true", requiredMode = REQUIRED)
-        Boolean active
+        Boolean isActive
     ) {
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record InnerClubManagerResponse(

@@ -35,7 +35,6 @@ public record AdminClubManagersResponse(
     @Schema(description = "동아리 리스트", requiredMode = REQUIRED)
     List<InnerClubManagersResponse> clubs
 ) {
-
     @JsonNaming(SnakeCaseStrategy.class)
     public record InnerClubManagersResponse(
         @Schema(description = "동아리 아이디", example = "1", requiredMode = REQUIRED)
