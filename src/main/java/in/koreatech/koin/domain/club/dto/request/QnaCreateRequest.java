@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@JsonNaming(SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record QnaCreateRequest(
     @Schema(description = "부모 qna id", example = "1", requiredMode = NOT_REQUIRED)
     Integer parentId,

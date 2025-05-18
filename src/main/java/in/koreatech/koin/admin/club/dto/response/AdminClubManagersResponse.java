@@ -18,7 +18,7 @@ import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminClubManagersResponse(
     @Schema(description = "조건에 해당하는 동아리 관리자의 수", example = "57", requiredMode = REQUIRED)
     Long totalCount,
