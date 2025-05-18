@@ -95,16 +95,16 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok().body(adminClubService.getClubAdmins(AdminClubManagerCondition));
     }
 
-    @GetMapping("/new-club")
+    @GetMapping("/pending/{clubName}")
     public ResponseEntity<AdminNewClubResponse> getNewClub(
-        @RequestParam String clubName,
+        @PathVariable String clubName,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminNewClubResponse response = adminClubService.getNewClub(clubName);
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/new-clubs")
+    @GetMapping("/pending")
     public ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
         @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
