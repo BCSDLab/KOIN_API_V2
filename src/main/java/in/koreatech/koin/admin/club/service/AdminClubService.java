@@ -151,7 +151,7 @@ public class AdminClubService {
             clubCategory,
             request.location(),
             request.description(),
-            request.active()
+            request.isActive()
         );
 
         adminClubSnsRepository.deleteAllByClub(club);
