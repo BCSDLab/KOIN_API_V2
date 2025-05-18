@@ -16,13 +16,16 @@ public class ClubHotRedis {
     @Id
     private String id;
 
+    private Integer clubId;
+
     private String name;
 
     private String imageUrl;
 
     @Builder
-    private ClubHotRedis(String id, String name, String imageUrl) {
+    private ClubHotRedis(String id, Integer clubId, String name, String imageUrl) {
         this.id = id;
+        this.clubId = clubId;
         this.name = name;
         this.imageUrl = imageUrl;
     }
@@ -30,6 +33,7 @@ public class ClubHotRedis {
     public static ClubHotRedis from(Club club) {
         return ClubHotRedis.builder()
             .id(REDIS_KEY)
+            .clubId(club.getId())
             .name(club.getName())
             .imageUrl(club.getImageUrl())
             .build();
