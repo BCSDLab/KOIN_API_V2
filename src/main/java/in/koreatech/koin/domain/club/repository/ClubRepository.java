@@ -45,5 +45,9 @@ public interface ClubRepository extends Repository<Club, Integer> {
 
     List<Club> findByClubCategoryOrderByHitsDesc(ClubCategory category);
 
+    List<Club> findByOrderByHitsDesc();
+
+    List<Club> findByOrderByIdAsc();
+
     void deleteById(Integer id);
 }

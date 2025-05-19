@@ -111,7 +111,7 @@ public interface ClubApi {
     @Operation(summary = "카테고리를 기준으로 동아리를 조회한다")
     @GetMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
-        @RequestParam Integer categoryId,
+        @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "false") Boolean hitSort
     );
 
