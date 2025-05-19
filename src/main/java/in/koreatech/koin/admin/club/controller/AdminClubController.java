@@ -25,7 +25,7 @@ import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
-import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminPendingClubResponse;
 import in.koreatech.koin.admin.club.service.AdminClubService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -96,16 +96,16 @@ public class AdminClubController implements AdminClubApi {
     }
 
     @GetMapping("/pending/{clubName}")
-    public ResponseEntity<AdminNewClubResponse> getNewClub(
+    public ResponseEntity<AdminPendingClubResponse> getPendingClub(
         @PathVariable String clubName,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminNewClubResponse response = adminClubService.getPendingClub(clubName);
+        AdminPendingClubResponse response = adminClubService.getPendingClub(clubName);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
+    public ResponseEntity<AdminClubManagersResponse> getPendingClubManagers(
         @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {

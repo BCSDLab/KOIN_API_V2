@@ -12,7 +12,7 @@ import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record AdminNewClubResponse
+public record AdminPendingClubResponse
     (
         @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
         String name,
@@ -44,8 +44,8 @@ public record AdminNewClubResponse
         @Schema(description = "동아리 관리자 전화번호", example = "01098765432")
         Optional<String> phoneNumber
     ) {
-    public static AdminNewClubResponse from(ClubCreateRedis redis, User requester, String clubCategory) {
-        return new AdminNewClubResponse(
+    public static AdminPendingClubResponse from(ClubCreateRedis redis, User requester, String clubCategory) {
+        return new AdminPendingClubResponse(
             redis.getName(),
             requester.getPhoneNumber(),
             clubCategory,
