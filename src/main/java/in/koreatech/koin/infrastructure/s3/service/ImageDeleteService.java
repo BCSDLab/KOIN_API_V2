@@ -68,7 +68,7 @@ public class ImageDeleteService {
         eventPublisher.publishEvent(new ImageDeletedEvent(image));
     }
 
-    public <T> void publishSensitiveImageDeletedEvent(String image) {
+    public void publishSensitiveImageDeletedEvent(String image) {
         eventPublisher.publishEvent(new ImageSensitiveDeletedEvent(image));
     }
 
