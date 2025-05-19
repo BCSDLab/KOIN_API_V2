@@ -1,7 +1,9 @@
 package in.koreatech.koin.infrastructure.s3.service;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,9 +41,36 @@ public class ImageDeleteService {
         eventPublisher.publishEvent(new ImageSensitiveDeletedEvent(imageUrl));
     }
 
+    public <T> void publishImagesModifyEvent(
+        Collection<T> oldImages,
+        List<String> newImages,
+        Function<T, String> extractor
+    ) {
+        List<String> oldImageUrls = extractUrls(oldImages, extractor);
+        List<String> toDeleteUrls = extractDeleteUrls(newImages, oldImageUrls);
+        eventPublisher.publishEvent(new ImagesDeletedEvent(toDeleteUrls));
+    }
+
+    public <T> void publishSensitiveImagesModifyEvent(
+        Collection<T> oldImages,
+        List<String> newImages,
+        Function<T, String> extractor
+    ) {
+        List<String> oldImageUrls = extractUrls(oldImages, extractor);
+        List<String> toDeleteUrls = extractDeleteUrls(newImages, oldImageUrls);
+        eventPublisher.publishEvent(new ImagesSensitiveDeletedEvent(toDeleteUrls));
+    }
+
     private <T> List<String> extractUrls(Collection<T> images, Function<T, String> extractor) {
         return images.stream()
             .map(extractor)
+            .toList();
+    }
+
+    private static List<String> extractDeleteUrls(List<String> newImages, List<String> oldImageUrls) {
+        Set<String> newImagesSet = new HashSet<>(newImages);
+        return oldImageUrls.stream()
+            .filter(url -> !newImagesSet.contains(url))
             .toList();
     }
 }
