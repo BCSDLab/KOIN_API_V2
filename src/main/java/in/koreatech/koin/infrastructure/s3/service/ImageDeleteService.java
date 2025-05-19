@@ -21,26 +21,6 @@ public class ImageDeleteService {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    public <T> void publishImagesDeletedEvent(Collection<T> images, Function<T, String> extractor) {
-        List<String> imageUrls = extractUrls(images, extractor);
-        eventPublisher.publishEvent(new ImagesDeletedEvent(imageUrls));
-    }
-
-    public <T> void publishImageDeletedEvent(T image, Function<T, String> extractor) {
-        String imageUrl = extractor.apply(image);
-        eventPublisher.publishEvent(new ImageDeletedEvent(imageUrl));
-    }
-
-    public <T> void publishSensitiveImagesDeletedEvent(Collection<T> images, Function<T, String> extractor) {
-        List<String> imageUrls = extractUrls(images, extractor);
-        eventPublisher.publishEvent(new ImagesSensitiveDeletedEvent(imageUrls));
-    }
-
-    public <T> void publishSensitiveImageDeletedEvent(T image, Function<T, String> extractor) {
-        String imageUrl = extractor.apply(image);
-        eventPublisher.publishEvent(new ImageSensitiveDeletedEvent(imageUrl));
-    }
-
     public <T> void publishImagesModifyEvent(
         Collection<T> oldImages,
         List<String> newImages,
@@ -59,6 +39,30 @@ public class ImageDeleteService {
         List<String> oldImageUrls = extractUrls(oldImages, extractor);
         List<String> toDeleteUrls = extractDeleteUrls(newImages, oldImageUrls);
         eventPublisher.publishEvent(new ImagesSensitiveDeletedEvent(toDeleteUrls));
+    }
+
+    public <T> void publishImagesDeletedEvent(Collection<T> images, Function<T, String> extractor) {
+        List<String> imageUrls = extractUrls(images, extractor);
+        eventPublisher.publishEvent(new ImagesDeletedEvent(imageUrls));
+    }
+
+    public <T> void publishSensitiveImagesDeletedEvent(Collection<T> images, Function<T, String> extractor) {
+        List<String> imageUrls = extractUrls(images, extractor);
+        eventPublisher.publishEvent(new ImagesSensitiveDeletedEvent(imageUrls));
+    }
+
+    /*
+        추후 인자 T image, Function<T, String> extractor로 변경 필요
+    */
+    public <T> void publishImageDeletedEvent(String image) {
+        eventPublisher.publishEvent(new ImageDeletedEvent(image));
+    }
+
+    /*
+        추후 인자 T image, Function<T, String> extractor로 변경 필요
+     */
+    public <T> void publishSensitiveImageDeletedEvent(String image) {
+        eventPublisher.publishEvent(new ImageSensitiveDeletedEvent(image));
     }
 
     private <T> List<String> extractUrls(Collection<T> images, Function<T, String> extractor) {
