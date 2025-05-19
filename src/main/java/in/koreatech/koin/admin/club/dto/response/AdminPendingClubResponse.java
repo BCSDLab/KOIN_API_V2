@@ -1,14 +1,18 @@
 package in.koreatech.koin.admin.club.dto.response;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.*;
 
 import java.util.Optional;
+
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record AdminNewClubResponse
+@JsonNaming(value = SnakeCaseStrategy.class)
+public record AdminPendingClubResponse
     (
         @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
         String name,
@@ -40,8 +44,8 @@ public record AdminNewClubResponse
         @Schema(description = "동아리 관리자 전화번호", example = "01098765432")
         Optional<String> phoneNumber
     ) {
-    public static AdminNewClubResponse from(ClubCreateRedis redis, User requester, String clubCategory) {
-        return new AdminNewClubResponse(
+    public static AdminPendingClubResponse from(ClubCreateRedis redis, User requester, String clubCategory) {
+        return new AdminPendingClubResponse(
             redis.getName(),
             requester.getPhoneNumber(),
             clubCategory,

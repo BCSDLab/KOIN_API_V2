@@ -24,7 +24,7 @@ import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
-import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminPendingClubResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -150,9 +150,9 @@ public interface AdminClubApi {
     )
     @Operation(summary = "미승인 동아리의 정보를 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/new-club")
-    ResponseEntity<AdminNewClubResponse> getNewClub(
-        @RequestParam String clubName,
+    @GetMapping("/pendind/{clubName}")
+    ResponseEntity<AdminPendingClubResponse> getPendingClub(
+        @PathVariable String clubName,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -166,8 +166,8 @@ public interface AdminClubApi {
     )
     @Operation(summary = "미승인 동아리 리스트를 페이지네이션으로 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/new-clubs")
-    ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
+    @GetMapping("/pending")
+    ResponseEntity<AdminClubManagersResponse> getPendingClubManagers(
         @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );
