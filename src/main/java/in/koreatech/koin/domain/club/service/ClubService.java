@@ -10,31 +10,31 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
 import in.koreatech.koin.domain.club.enums.SNSType;
-import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
-import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
+import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
+import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubLike;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubQna;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
+import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
@@ -134,11 +134,21 @@ public class ClubService {
     }
 
     public ClubsByCategoryResponse getClubByCategory(Integer categoryId, Boolean hitSort) {
+        List<Club> clubs = getClubs(categoryId, hitSort);
+        return ClubsByCategoryResponse.from(clubs);
+    }
+
+    private List<Club> getClubs(Integer categoryId, Boolean hitSort) {
+        if (categoryId == null) {
+            return hitSort
+                ? clubRepository.findByOrderByHitsDesc()
+                : clubRepository.findByOrderByIdAsc();
+        }
+
         ClubCategory category = clubCategoryRepository.getById(categoryId);
-        List<Club> clubs = hitSort
+        return hitSort
             ? clubRepository.findByClubCategoryOrderByHitsDesc(category)
             : clubRepository.findByClubCategoryOrderByIdAsc(category);
-        return ClubsByCategoryResponse.from(clubs);
     }
 
     @Transactional
