@@ -4,19 +4,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.event.ImagesSensitiveDeletedEvent;
 import in.koreatech.koin.admin.shop.dto.menu.*;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.model.menu.*;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.infrastructure.s3.service.ImageDeleteService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +29,7 @@ public class AdminShopMenuService {
     private final AdminShopRepository adminShopRepository;
     private final AdminMenuRepository adminMenuRepository;
     private final AdminMenuCategoryRepository adminMenuCategoryRepository;
-    private final ApplicationEventPublisher eventPublisher;
+    private final ImageDeleteService imageDeleteService;
 
     public AdminShopMenuResponse getAllMenus(Integer shopId) {
         Shop shop = adminShopRepository.getById(shopId);
@@ -142,10 +142,7 @@ public class AdminShopMenuService {
         if (!Objects.equals(menu.getShop().getId(), shopId)) {
             throw new KoinIllegalArgumentException("해당 상점의 메뉴가 아닙니다.");
         }
-        List<String> imageUrls = menu.getMenuImages().stream()
-            .map(MenuImage::getImageUrl)
-            .toList();
+        imageDeleteService.publishImagesDeletedEvent(menu.getMenuImages(), MenuImage::getImageUrl);
         adminMenuRepository.deleteById(menuId);
-        eventPublisher.publishEvent(new ImagesSensitiveDeletedEvent(imageUrls));
     }
 }
