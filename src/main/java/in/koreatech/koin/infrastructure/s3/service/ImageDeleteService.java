@@ -52,15 +52,22 @@ public class ImageDeleteService {
     }
 
     /*
-        추후 인자 T image, Function<T, String> extractor로 변경 필요
+        아래 4개의 메소드는 추후 인자 T image, Function<T, String> extractor로 변경 필요
     */
-    public <T> void publishImageDeletedEvent(String image) {
+    public void publishImageModifyEvent(String oldImage, String newImage) {
+        if (oldImage.equals(newImage)) return;
+        eventPublisher.publishEvent(new ImageDeletedEvent(oldImage));
+    }
+
+    public void publishSensitiveImageModifyEvent(String oldImage, String newImage) {
+        if (oldImage.equals(newImage)) return;
+        eventPublisher.publishEvent(new ImageSensitiveDeletedEvent(oldImage));
+    }
+
+    public void publishImageDeletedEvent(String image) {
         eventPublisher.publishEvent(new ImageDeletedEvent(image));
     }
 
-    /*
-        추후 인자 T image, Function<T, String> extractor로 변경 필요
-     */
     public <T> void publishSensitiveImageDeletedEvent(String image) {
         eventPublisher.publishEvent(new ImageSensitiveDeletedEvent(image));
     }
