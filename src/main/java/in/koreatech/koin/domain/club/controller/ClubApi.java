@@ -108,7 +108,9 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "카테고리를 기준으로 동아리를 조회한다")
+    @Operation(summary = "카테고리를 기준으로 동아리를 조회한다", description = """
+        categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
+        """)
     @GetMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam(required = false) Integer categoryId,
