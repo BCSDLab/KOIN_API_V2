@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.club.service;
 
+import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -18,6 +20,7 @@ import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
@@ -133,20 +136,20 @@ public class ClubService {
         return ClubResponse.from(club, clubSNSs, manager);
     }
 
-    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, Boolean hitSort) {
-        List<Club> clubs = getClubs(categoryId, hitSort);
+    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, ClubSortType sortType) {
+        List<Club> clubs = getClubs(categoryId, sortType);
         return ClubsByCategoryResponse.from(clubs);
     }
 
-    private List<Club> getClubs(Integer categoryId, Boolean hitSort) {
+    private List<Club> getClubs(Integer categoryId, ClubSortType sortType) {
         if (categoryId == null) {
-            return hitSort
+            return sortType.equals(HITS_DESC)
                 ? clubRepository.findByOrderByHitsDesc()
                 : clubRepository.findByOrderByIdAsc();
         }
 
         ClubCategory category = clubCategoryRepository.getById(categoryId);
-        return hitSort
+        return sortType.equals(HITS_DESC)
             ? clubRepository.findByClubCategoryOrderByHitsDesc(category)
             : clubRepository.findByClubCategoryOrderByIdAsc(category);
     }
