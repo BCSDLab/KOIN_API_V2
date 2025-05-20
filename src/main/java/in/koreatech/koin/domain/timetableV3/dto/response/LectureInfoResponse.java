@@ -77,6 +77,9 @@ public record LectureInfoResponse(
         }
 
         List<Integer> classTimes = parseToIntegerList(classTime);
+        if (classTimes.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<LectureInfoResponse> response = new ArrayList<>();
 
         List<String> classPlaces = getClassPlaces(classPlace, classTimes);
