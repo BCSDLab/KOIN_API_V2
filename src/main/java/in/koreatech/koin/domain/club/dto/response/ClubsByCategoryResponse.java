@@ -16,7 +16,7 @@ public record ClubsByCategoryResponse(
     List<ClubsByCategoryResponse.InnerClubResponse> clubs
 ) {
     public record InnerClubResponse(
-        @Schema(description = "동아리 카테고리 고유 id", example = "1", requiredMode = REQUIRED)
+        @Schema(description = "동아리 고유 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
         @Schema(description = "동아리 이름", example = "학술", requiredMode = REQUIRED)
