@@ -29,19 +29,23 @@ public record ClubsByCategoryResponse(
         Integer likes,
 
         @Schema(description = "동아리 이미지 url", example = "https://static.koreatech.in/test.png", requiredMode = REQUIRED)
-        String imageUrl
+        String imageUrl,
+
+        @Schema(description = "동아리 좋아요 여부", example = "true", requiredMode = REQUIRED)
+        Boolean isLiked
     ) {
-        private static ClubsByCategoryResponse.InnerClubResponse from(Club club) {
+        private static ClubsByCategoryResponse.InnerClubResponse from(Club club, Boolean isLiked) {
             return new ClubsByCategoryResponse.InnerClubResponse(
-                club.getId(), club.getName(), club.getClubCategory().getName(), club.getLikes(), club.getImageUrl()
+                club.getId(), club.getName(), club.getClubCategory().getName(), club.getLikes(), club.getImageUrl(), isLiked
             );
         }
     }
 
-    public static ClubsByCategoryResponse from(List<Club> clubs) {
-        return new ClubsByCategoryResponse(clubs.stream()
-            .map(ClubsByCategoryResponse.InnerClubResponse::from)
-            .toList()
+    public static ClubsByCategoryResponse from(List<Club> clubs, List<Integer> likedClubIds) {
+        return new ClubsByCategoryResponse(
+            clubs.stream()
+                .map(club -> InnerClubResponse.from(club, likedClubIds.contains(club.getId())))
+                .toList()
         );
     }
 }
