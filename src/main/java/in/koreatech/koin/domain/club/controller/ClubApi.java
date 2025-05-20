@@ -16,14 +16,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -114,7 +115,7 @@ public interface ClubApi {
     @GetMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam(required = false) Integer categoryId,
-        @RequestParam(required = false, defaultValue = "false") Boolean hitSort
+        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType
     );
 
     @ApiResponses(

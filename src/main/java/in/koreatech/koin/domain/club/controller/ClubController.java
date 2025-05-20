@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -70,9 +71,9 @@ public class ClubController implements ClubApi {
     @GetMapping
     public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam(required = false) Integer categoryId,
-        @RequestParam(required = false, defaultValue = "false") Boolean hitSort
+        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType
     ) {
-        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, hitSort);
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, sortType);
         return ResponseEntity.ok(response);
     }
 
