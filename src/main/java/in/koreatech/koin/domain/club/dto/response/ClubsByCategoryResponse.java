@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubsByCategoryResponse(
     @Schema(description = "동아리 리스트", requiredMode = REQUIRED)
-    List<ClubsByCategoryResponse.InnerClubResponse> clubCategories
+    List<ClubsByCategoryResponse.InnerClubResponse> clubs
 ) {
     public record InnerClubResponse(
         @Schema(description = "동아리 카테고리 고유 id", example = "1", requiredMode = REQUIRED)
