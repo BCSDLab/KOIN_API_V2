@@ -19,10 +19,10 @@ public record ClubsByCategoryResponse(
         @Schema(description = "동아리 고유 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(description = "동아리 이름", example = "학술", requiredMode = REQUIRED)
+        @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
         String name,
 
-        @Schema(description = "카테고리", example = "학술", requiredMode = REQUIRED)
+        @Schema(description = "동아리 카테고리", example = "학술", requiredMode = REQUIRED)
         String category,
 
         @Schema(description = "동아리 이미지 url", example = "https://static.koreatech.in/test.png", requiredMode = REQUIRED)
