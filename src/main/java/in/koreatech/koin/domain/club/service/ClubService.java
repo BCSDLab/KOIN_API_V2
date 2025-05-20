@@ -85,8 +85,9 @@ public class ClubService {
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
+        Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, newSNS, manager);
+        return ClubResponse.from(club, newSNS, manager, isLiked);
     }
 
     private List<ClubSNS> updateClubSNS(ClubUpdateRequest request, Club club) {
@@ -117,7 +118,9 @@ public class ClubService {
         List<ClubSNS> clubSNSs = club.getClubSNSs();
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, clubSNSs, manager);
+        Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, studentId);
+
+        return ClubResponse.from(club, clubSNSs, manager, isLiked);
     }
 
     private void isClubManager(Integer clubId, Integer studentId) {
@@ -133,12 +136,17 @@ public class ClubService {
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
 
-        return ClubResponse.from(club, clubSNSs, manager);
+        Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, userId);
+
+        return ClubResponse.from(club, clubSNSs, manager, isLiked);
     }
 
-    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, ClubSortType sortType) {
+    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, ClubSortType sortType, Integer userId) {
         List<Club> clubs = getClubs(categoryId, sortType);
-        return ClubsByCategoryResponse.from(clubs);
+
+        List<Integer> likedClubIds = clubLikeRepository.findClubIdsByUserId(userId);
+
+        return ClubsByCategoryResponse.from(clubs, likedClubIds);
     }
 
     private List<Club> getClubs(Integer categoryId, ClubSortType sortType) {

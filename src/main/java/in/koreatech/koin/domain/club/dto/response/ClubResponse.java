@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
@@ -51,9 +51,12 @@ public record ClubResponse(
     Optional<String> phoneNumber,
 
     @Schema(description = "동아리 관리자 여부", example = "true")
-    Boolean manager
+    Boolean manager,
+
+    @Schema(description = "동아리 좋아요 여부", example = "true", requiredMode = REQUIRED)
+    Boolean isLiked
 ) {
-    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager) {
+    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked) {
         Optional<String> instagram = Optional.empty();
         Optional<String> googleForm = Optional.empty();
         Optional<String> openChat = Optional.empty();
@@ -81,7 +84,8 @@ public record ClubResponse(
             googleForm,
             openChat,
             phoneNumber,
-            manager
+            manager,
+            isLiked
         );
     }
 }
