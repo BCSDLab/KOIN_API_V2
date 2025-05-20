@@ -600,7 +600,7 @@ public class GraduationService {
         TimetableFrame graduationFrame, CourseType courseType, GeneralEducationArea generalEducationArea) {
         return TimetableLecture.builder()
             .classTitle(data.classTitle())
-            .classTime(lecture != null ? lecture.getClassTime() : null)
+            .classTime(lecture != null ? lecture.getClassTime() : "[]")
             .professor(data.professor())
             .grades(data.credit())
             .isDeleted(false)
