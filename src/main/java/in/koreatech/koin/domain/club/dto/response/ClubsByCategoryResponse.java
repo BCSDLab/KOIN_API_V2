@@ -13,24 +13,27 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubsByCategoryResponse(
     @Schema(description = "동아리 리스트", requiredMode = REQUIRED)
-    List<ClubsByCategoryResponse.InnerClubResponse> clubCategories
+    List<ClubsByCategoryResponse.InnerClubResponse> clubs
 ) {
     public record InnerClubResponse(
-        @Schema(description = "동아리 카테고리 고유 id", example = "1", requiredMode = REQUIRED)
+        @Schema(description = "동아리 고유 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(description = "동아리 이름", example = "학술", requiredMode = REQUIRED)
+        @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
         String name,
 
-        @Schema(description = "카테고리", example = "학술", requiredMode = REQUIRED)
+        @Schema(description = "동아리 카테고리", example = "학술", requiredMode = REQUIRED)
         String category,
+
+        @Schema(description = "동아리 좋아요 수", example = "9999999", requiredMode = REQUIRED)
+        Integer likes,
 
         @Schema(description = "동아리 이미지 url", example = "https://static.koreatech.in/test.png", requiredMode = REQUIRED)
         String imageUrl
     ) {
         private static ClubsByCategoryResponse.InnerClubResponse from(Club club) {
             return new ClubsByCategoryResponse.InnerClubResponse(
-                club.getId(), club.getName(), club.getClubCategory().getName(), club.getImageUrl()
+                club.getId(), club.getName(), club.getClubCategory().getName(), club.getLikes(), club.getImageUrl()
             );
         }
     }
