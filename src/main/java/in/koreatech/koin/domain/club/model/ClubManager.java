@@ -10,7 +10,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +23,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "club_manager")
 @NoArgsConstructor(access = PROTECTED)
 public class ClubManager {
+
+    private static final String NOT_REGISTER_USER_NAME = "미등록";
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -33,6 +38,9 @@ public class ClubManager {
     @ManyToOne(fetch = LAZY)
     private User user;
 
+    @Transient
+    private String clubManagerName;
+
     @Builder
     private ClubManager(
         Integer id,
@@ -42,5 +50,15 @@ public class ClubManager {
         this.id = id;
         this.club = club;
         this.user = user;
+    }
+
+    @PostPersist
+    @PostLoad
+    public void updateClubManagerName() {
+        if (user.getName() != null) {
+            clubManagerName = user.getName();
+            return;
+        }
+        clubManagerName = NOT_REGISTER_USER_NAME;
     }
 }
