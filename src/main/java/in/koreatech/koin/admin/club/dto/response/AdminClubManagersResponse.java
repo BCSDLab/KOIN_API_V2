@@ -59,7 +59,7 @@ public record AdminClubManagersResponse(
 
             return new InnerClubManagersResponse(
                 club.getId(),
-                user.getName(),
+                clubManager.getClubManagerName(),
                 user.getPhoneNumber(),
                 club.getCreatedAt(),
                 club.getName()

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -68,9 +69,11 @@ public record AdminClubsResponse(
             @Schema(description = "동아리 관리자 전화번호", example = "01012345678", requiredMode = REQUIRED)
             String phoneNumber
         ) {
-            private static InnerClubManagerResponse from(User user) {
+            private static InnerClubManagerResponse from(ClubManager clubManager) {
+                User user = clubManager.getUser();
+
                 return new InnerClubManagerResponse(
-                    user.getName(),
+                    clubManager.getClubManagerName(),
                     user.getUserId(),
                     user.getPhoneNumber()
                 );
@@ -83,7 +86,7 @@ public record AdminClubsResponse(
                 club.getName(),
                 club.getImageUrl(),
                 club.getClubManagers().stream()
-                    .map(clubAdmin -> InnerClubManagerResponse.from(clubAdmin.getUser()))
+                    .map(InnerClubManagerResponse::from)
                     .toList(),
                 club.getClubCategory().getName(),
                 club.getCreatedAt().toLocalDate(),
