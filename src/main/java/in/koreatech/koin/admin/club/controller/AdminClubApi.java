@@ -68,7 +68,9 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 동아리 정보를 조회한다.")
+    @Operation(summary = "특정 동아리 정보를 조회한다.", description = """
+        sns_contacts의 snsType값은 총 4개(인스타그램, 전화 번호, 구글 폼, 오픈 채팅)값이 내려갑니다.
+        """)
     @GetMapping("/{clubId}")
     ResponseEntity<AdminClubResponse> getClub(
         @PathVariable(value = "clubId") Integer clubId,
