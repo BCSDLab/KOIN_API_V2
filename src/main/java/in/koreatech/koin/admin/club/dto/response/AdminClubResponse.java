@@ -76,7 +76,7 @@ public record AdminClubResponse(
         String snsType,
 
         @Schema(description = "동아리 SNS 연락처", example = "https://www.instagram.com/bcsdlab/", requiredMode = REQUIRED)
-        String contract
+        String contact
     ) {
         private static InnerClubSNSResponse from(ClubSNS clubSNS) {
             return new InnerClubSNSResponse(
