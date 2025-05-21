@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 public class ClubManager {
 
-    private static final String NOT_REGISTER_USER_NAME = "미등록";
+    private static final String DEFAULT_MANAGER_NAME = "동아리 관리자";
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -59,6 +59,6 @@ public class ClubManager {
             clubManagerName = user.getName();
             return;
         }
-        clubManagerName = NOT_REGISTER_USER_NAME;
+        clubManagerName = DEFAULT_MANAGER_NAME;
     }
 }
