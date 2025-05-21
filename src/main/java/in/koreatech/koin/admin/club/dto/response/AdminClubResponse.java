@@ -37,6 +37,9 @@ public record AdminClubResponse(
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
     String description,
 
+    @Schema(description = "동아리 위치", example = "학생회괸", requiredMode = REQUIRED)
+    String location,
+
     @Schema(description = "동아리 연락처 리스트", requiredMode = REQUIRED)
     List<InnerClubSNSResponse> snsContacts,
 
@@ -94,6 +97,7 @@ public record AdminClubResponse(
             club.getClubCategory().getName(),
             club.getLikes(),
             club.getDescription(),
+            club.getLocation(),
             club.getClubSNSs().stream()
                 .map(InnerClubSNSResponse::from)
                 .toList(),
