@@ -19,6 +19,7 @@ public enum ImageUploadDomain {
     ADMIN,
     LOST_ITEMS,
     BANNER,
+    CLUB,
     ;
 
     public static ImageUploadDomain from(String domain) {
