@@ -3,9 +3,11 @@ package in.koreatech.koin.domain.club.dto.response;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
@@ -54,7 +56,11 @@ public record ClubResponse(
     Boolean manager,
 
     @Schema(description = "동아리 좋아요 여부", example = "true", requiredMode = REQUIRED)
-    Boolean isLiked
+    Boolean isLiked,
+
+    @JsonFormat(pattern = "yyyy.MM.dd.")
+    @Schema(description = "업데이트 날짜", example = "2025.05.11.", requiredMode = REQUIRED)
+    LocalDate updatedAt
 ) {
     public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked) {
         Optional<String> instagram = Optional.empty();
@@ -85,7 +91,8 @@ public record ClubResponse(
             openChat,
             phoneNumber,
             manager,
-            isLiked
+            isLiked,
+            club.getUpdatedAt().toLocalDate()
         );
     }
 }
