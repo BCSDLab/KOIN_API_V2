@@ -39,7 +39,7 @@ public record QnasResponse(
         String content,
 
         @Schema(description = "작성 일시", example = "2025.05.12 14:00", requiredMode = REQUIRED)
-        @JsonFormat(pattern = "yyyy.MM.dd HH:mm")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         LocalDateTime createdAt,
 
         @Schema(description = "해당 qna의 대댓글 정보 리스트")

@@ -58,8 +58,8 @@ public record ClubResponse(
     @Schema(description = "동아리 좋아요 여부", example = "true", requiredMode = REQUIRED)
     Boolean isLiked,
 
-    @JsonFormat(pattern = "yyyy.MM.dd.")
-    @Schema(description = "업데이트 날짜", example = "2025.05.11.", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Schema(description = "업데이트 날짜", example = "true", requiredMode = REQUIRED)
     LocalDate updatedAt
 ) {
     public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked) {
