@@ -20,7 +20,7 @@ public record AdminPendingClubResponse(
     String requesterPhoneNumber,
 
     @Schema(description = "동아리 신청자 이름", example = "정해성", requiredMode = REQUIRED)
-    String requesterNumber,
+    String requesterName,
 
     @Schema(description = "동아리 분과 카테고리", example = "학술", requiredMode = REQUIRED)
     String clubCategory,
