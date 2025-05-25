@@ -1,7 +1,7 @@
 package in.koreatech.koin.admin.club.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.Optional;
 
@@ -44,7 +44,10 @@ public record AdminPendingClubResponse(
     Optional<String> openChat,
 
     @Schema(description = "동아리 관리자 전화번호", example = "01098765432")
-    Optional<String> phoneNumber
+    Optional<String> phoneNumber,
+
+    @Schema(description = "동아리 내 역할", example = "회장")
+    String role
 ) {
     public static AdminPendingClubResponse from(ClubCreateRedis redis, User requester, String clubCategory) {
         return new AdminPendingClubResponse(
@@ -58,7 +61,8 @@ public record AdminPendingClubResponse(
             Optional.ofNullable(redis.getInstagram()),
             Optional.ofNullable(redis.getGoogleForm()),
             Optional.ofNullable(redis.getOpenChat()),
-            Optional.ofNullable(redis.getPhoneNumber())
+            Optional.ofNullable(redis.getPhoneNumber()),
+            redis.getRole()
         );
     }
 }
