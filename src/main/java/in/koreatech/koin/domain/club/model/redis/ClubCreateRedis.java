@@ -9,8 +9,8 @@ import org.springframework.data.redis.core.RedisHash;
 
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Id;
 import lombok.Builder;
@@ -47,6 +47,8 @@ public class ClubCreateRedis {
 
     private LocalDateTime createdAt;
 
+    private String role;
+
     @Builder
     private ClubCreateRedis(
         String id,
@@ -61,7 +63,8 @@ public class ClubCreateRedis {
         String openChat,
         String phoneNumber,
         Integer requesterId,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String role
     ) {
         this.id = id;
         this.name = name;
@@ -76,6 +79,7 @@ public class ClubCreateRedis {
         this.phoneNumber = phoneNumber;
         this.requesterId = requesterId;
         this.createdAt = createdAt;
+        this.role = role;
     }
 
     public static ClubCreateRedis of(ClubCreateRequest request, Integer requesterId) {
@@ -93,6 +97,7 @@ public class ClubCreateRedis {
             .phoneNumber(request.phoneNumber())
             .requesterId(requesterId)
             .createdAt(LocalDateTime.now())
+            .role(request.role())
             .build();
     }
 
