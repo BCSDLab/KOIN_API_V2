@@ -1,16 +1,15 @@
 package in.koreatech.koin.domain.club.dto.request;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
@@ -52,7 +51,10 @@ public record ClubCreateRequest(
     String openChat,
 
     @Schema(description = "전화번호", example = "010-1234-5678")
-    String phoneNumber
+    String phoneNumber,
+
+    @Schema(description = "동아리 내 역할", example = "회장")
+    String role
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerClubManagerRequest(
