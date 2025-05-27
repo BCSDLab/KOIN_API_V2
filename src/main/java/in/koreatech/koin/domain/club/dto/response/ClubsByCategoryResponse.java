@@ -13,8 +13,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubsByCategoryResponse(
     @Schema(description = "동아리 리스트", requiredMode = REQUIRED)
-    List<ClubsByCategoryResponse.InnerClubResponse> clubs
+    List<InnerClubResponse> clubs
 ) {
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerClubResponse(
         @Schema(description = "동아리 고유 id", example = "1", requiredMode = REQUIRED)
         Integer id,
@@ -34,8 +35,8 @@ public record ClubsByCategoryResponse(
         @Schema(description = "동아리 좋아요 여부", example = "true", requiredMode = REQUIRED)
         Boolean isLiked
     ) {
-        private static ClubsByCategoryResponse.InnerClubResponse from(Club club, Boolean isLiked) {
-            return new ClubsByCategoryResponse.InnerClubResponse(
+        private static InnerClubResponse from(Club club, Boolean isLiked) {
+            return new InnerClubResponse(
                 club.getId(), club.getName(), club.getClubCategory().getName(), club.getLikes(), club.getImageUrl(), isLiked
             );
         }
