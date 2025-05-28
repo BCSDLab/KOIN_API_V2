@@ -13,6 +13,10 @@ public class UserReader {
     private final UserRepository userRepository;
 
     public User readUser(Integer id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.getById(id);
+    }
+
+    public boolean isNotExistUser(Integer id) {
+        return userRepository.findById(id).isEmpty();
     }
 }
