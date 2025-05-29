@@ -67,7 +67,7 @@ public class LostItemChatRoomInfoService {
 
         return chatRoomInfoList.stream()
             .flatMap(entity -> {
-                if (userReader.readUser(entity.getOwnerId()) == null) {
+                if (userReader.isNotExistUser(entity.getOwnerId())) {
                     return Stream.empty();
                 }
 

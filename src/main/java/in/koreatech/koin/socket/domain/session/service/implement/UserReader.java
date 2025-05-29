@@ -15,4 +15,8 @@ public class UserReader {
     public User readUser(Integer id) {
         return userRepository.getById(id);
     }
+
+    public boolean isNotExistUser(Integer id) {
+        return userRepository.findById(id).isEmpty();
+    }
 }
