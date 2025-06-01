@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.club.dto.response;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -53,7 +54,7 @@ public record AdminPendingClubResponse(
         return new AdminPendingClubResponse(
             redis.getName(),
             requester.getPhoneNumber(),
-            requester.getName(),
+            Objects.requireNonNull(requester.getName(), "동아리 관리자"),
             clubCategory,
             redis.getLocation(),
             redis.getImageUrl(),
