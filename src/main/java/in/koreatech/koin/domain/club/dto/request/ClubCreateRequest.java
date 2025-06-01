@@ -55,7 +55,11 @@ public record ClubCreateRequest(
     String phoneNumber,
 
     @Schema(description = "동아리 내 역할", example = "회장")
-    String role
+    String role,
+
+    @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
+    @NotNull(message = "좋아요 숨김 여부는 필수 입력 사항입니다.")
+    Boolean isLikeHidden
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerClubManagerRequest(
