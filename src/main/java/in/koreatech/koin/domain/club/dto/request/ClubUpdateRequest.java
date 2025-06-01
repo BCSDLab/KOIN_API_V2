@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubUpdateRequest(
@@ -43,7 +44,11 @@ public record ClubUpdateRequest(
     String openChat,
 
     @Schema(description = "전화번호", example = "010-1234-5678", requiredMode = NOT_REQUIRED)
-    String phoneNumber
+    String phoneNumber,
+
+    @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
+    @NotNull(message = "좋아요 숨김 여부는 필수 입력 사항입니다.")
+    Boolean isLikeHidden
 ) {
 
     public Club toEntity(ClubCategory clubCategory) {
@@ -58,6 +63,7 @@ public record ClubUpdateRequest(
             .clubCategory(clubCategory)
             .description(description)
             .location(location)
+            .isLikeHidden(isLikeHidden)
             .build();
     }
 }
