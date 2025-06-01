@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.dto.request;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -9,6 +10,7 @@ import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubUpdateRequest(
@@ -32,17 +34,21 @@ public record ClubUpdateRequest(
     @NotEmpty(message = "동아리 소개는 필수 입력 사항입니다.")
     String description,
 
-    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/")
+    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = NOT_REQUIRED)
     String instagram,
 
-    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example")
+    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example", requiredMode = NOT_REQUIRED)
     String googleForm,
 
-    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example")
+    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example", requiredMode = NOT_REQUIRED)
     String openChat,
 
-    @Schema(description = "전화번호", example = "010-1234-5678")
-    String phoneNumber
+    @Schema(description = "전화번호", example = "010-1234-5678", requiredMode = NOT_REQUIRED)
+    String phoneNumber,
+
+    @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
+    @NotNull(message = "좋아요 숨김 여부는 필수 입력 사항입니다.")
+    Boolean isLikeHidden
 ) {
 
     public Club toEntity(ClubCategory clubCategory) {
@@ -57,6 +63,7 @@ public record ClubUpdateRequest(
             .clubCategory(clubCategory)
             .description(description)
             .location(location)
+            .isLikeHidden(isLikeHidden)
             .build();
     }
 }

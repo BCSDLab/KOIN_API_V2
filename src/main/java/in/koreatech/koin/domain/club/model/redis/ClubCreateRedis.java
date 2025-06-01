@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.club.dto.request.ClubCreateRequest.InnerC
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.redis.core.RedisHash;
 
@@ -49,6 +50,8 @@ public class ClubCreateRedis {
 
     private String role;
 
+    private Boolean isLikeHidden;
+
     @Builder
     private ClubCreateRedis(
         String id,
@@ -64,7 +67,8 @@ public class ClubCreateRedis {
         String phoneNumber,
         Integer requesterId,
         LocalDateTime createdAt,
-        String role
+        String role,
+        Boolean isLikeHidden
     ) {
         this.id = id;
         this.name = name;
@@ -80,6 +84,7 @@ public class ClubCreateRedis {
         this.requesterId = requesterId;
         this.createdAt = createdAt;
         this.role = role;
+        this.isLikeHidden = isLikeHidden;
     }
 
     public static ClubCreateRedis of(ClubCreateRequest request, Integer requesterId) {
@@ -98,6 +103,7 @@ public class ClubCreateRedis {
             .requesterId(requesterId)
             .createdAt(LocalDateTime.now())
             .role(request.role())
+            .isLikeHidden(request.isLikeHidden())
             .build();
     }
 
@@ -107,12 +113,13 @@ public class ClubCreateRedis {
             .imageUrl(this.imageUrl)
             .clubCategory(category)
             .location(this.location)
-            .description(this.description)
+            .description(Objects.requireNonNull(this.description, ""))
             .likes(0)
             .hits(0)
             .lastWeekHits(0)
             .active(false)
             .introduction("")
+            .isLikeHidden(this.isLikeHidden)
             .build();
     }
 
