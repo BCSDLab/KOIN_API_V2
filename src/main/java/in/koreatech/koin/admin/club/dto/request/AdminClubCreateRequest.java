@@ -79,6 +79,7 @@ public record AdminClubCreateRequest(
             .clubCategory(clubCategory)
             .description(Objects.requireNonNullElse(description, ""))
             .location(location)
+            .isLikeHidden(false)
             .build();
     }
 }
