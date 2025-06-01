@@ -60,7 +60,10 @@ public record ClubResponse(
 
     @JsonFormat(pattern = "yyyy.MM.dd.")
     @Schema(description = "업데이트 날짜", example = "2025.05.11.", requiredMode = REQUIRED)
-    LocalDate updatedAt
+    LocalDate updatedAt,
+
+    @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
+    Boolean isLikeHidden
 ) {
     public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked) {
         Optional<String> instagram = Optional.empty();
@@ -92,7 +95,8 @@ public record ClubResponse(
             phoneNumber,
             manager,
             isLiked,
-            club.getUpdatedAt().toLocalDate()
+            club.getUpdatedAt().toLocalDate(),
+            club.getIsLikeHidden()
         );
     }
 }
