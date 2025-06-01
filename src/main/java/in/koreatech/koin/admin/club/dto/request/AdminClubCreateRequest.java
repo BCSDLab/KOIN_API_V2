@@ -1,15 +1,17 @@
 package in.koreatech.koin.admin.club.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
@@ -37,8 +39,7 @@ public record AdminClubCreateRequest(
     @NotNull(message = "동아리 위치는 필수 입력 사항입니다.")
     String location,
 
-    @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
-    @NotNull(message = "동아리 소개는 필수 입력 사항입니다.")
+    @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = NOT_REQUIRED)
     String description,
 
     @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = REQUIRED)
@@ -76,7 +77,7 @@ public record AdminClubCreateRequest(
             .introduction("")
             .imageUrl(imageUrl)
             .clubCategory(clubCategory)
-            .description(description)
+            .description(Objects.requireNonNullElse(description, ""))
             .location(location)
             .build();
     }
