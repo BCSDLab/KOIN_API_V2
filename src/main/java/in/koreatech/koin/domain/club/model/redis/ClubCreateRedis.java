@@ -49,6 +49,8 @@ public class ClubCreateRedis {
 
     private String role;
 
+    private Boolean isLikeHidden;
+
     @Builder
     private ClubCreateRedis(
         String id,
@@ -64,7 +66,8 @@ public class ClubCreateRedis {
         String phoneNumber,
         Integer requesterId,
         LocalDateTime createdAt,
-        String role
+        String role,
+        Boolean isLikeHidden
     ) {
         this.id = id;
         this.name = name;
@@ -80,6 +83,7 @@ public class ClubCreateRedis {
         this.requesterId = requesterId;
         this.createdAt = createdAt;
         this.role = role;
+        this.isLikeHidden = isLikeHidden;
     }
 
     public static ClubCreateRedis of(ClubCreateRequest request, Integer requesterId) {
@@ -98,6 +102,7 @@ public class ClubCreateRedis {
             .requesterId(requesterId)
             .createdAt(LocalDateTime.now())
             .role(request.role())
+            .isLikeHidden(request.isLikeHidden())
             .build();
     }
 
@@ -113,6 +118,7 @@ public class ClubCreateRedis {
             .lastWeekHits(0)
             .active(false)
             .introduction("")
+            .isLikeHidden(this.isLikeHidden)
             .build();
     }
 
