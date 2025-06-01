@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.dto.request;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -32,16 +33,16 @@ public record ClubUpdateRequest(
     @NotEmpty(message = "동아리 소개는 필수 입력 사항입니다.")
     String description,
 
-    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/")
+    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = NOT_REQUIRED)
     String instagram,
 
-    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example")
+    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example", requiredMode = NOT_REQUIRED)
     String googleForm,
 
-    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example")
+    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example", requiredMode = NOT_REQUIRED)
     String openChat,
 
-    @Schema(description = "전화번호", example = "010-1234-5678")
+    @Schema(description = "전화번호", example = "010-1234-5678", requiredMode = NOT_REQUIRED)
     String phoneNumber
 ) {
 
