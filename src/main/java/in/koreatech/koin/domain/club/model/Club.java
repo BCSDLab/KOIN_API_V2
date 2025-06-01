@@ -76,7 +76,7 @@ public class Club extends BaseEntity {
 
     @NotNull
     @Column(name = "is_like_hidden", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-    private Boolean likeHidden = FALSE;
+    private Boolean isLikeHidden = FALSE;
 
     @JoinColumn(name = "club_category_id")
     @ManyToOne(fetch = LAZY)
@@ -100,7 +100,7 @@ public class Club extends BaseEntity {
         Integer likes,
         String location,
         String introduction,
-        Boolean likeHidden,
+        Boolean isLikeHidden,
         ClubCategory clubCategory
     ) {
         this.id = id;
@@ -113,7 +113,7 @@ public class Club extends BaseEntity {
         this.likes = likes;
         this.location = location;
         this.introduction = introduction;
-        this.likeHidden = likeHidden;
+        this.isLikeHidden = isLikeHidden;
         this.clubCategory = clubCategory;
     }
 
