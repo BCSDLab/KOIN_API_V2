@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.club.dto.request.ClubCreateRequest.InnerC
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.redis.core.RedisHash;
 
@@ -112,7 +113,7 @@ public class ClubCreateRedis {
             .imageUrl(this.imageUrl)
             .clubCategory(category)
             .location(this.location)
-            .description(this.description)
+            .description(Objects.requireNonNull(this.description, ""))
             .likes(0)
             .hits(0)
             .lastWeekHits(0)
