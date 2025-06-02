@@ -1,7 +1,6 @@
 package in.koreatech.koin.admin.abtest.useragent;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -44,18 +43,20 @@ public class UserAgentArgumentResolver implements HandlerMethodArgumentResolver 
 
 
     private String determineDeviceType(String userAgent) {
-        String userAgentLowerCase = userAgent.toLowerCase();
-
         // 태블릿 기기를 나타내는 패턴 검사
         String[] tabletIndicators = {"Tablet", "iPad"};
-        if (Arrays.stream(tabletIndicators).anyMatch(userAgentLowerCase::contains)) {
-            return "Tablet";
+        for (String indicator : tabletIndicators) {
+            if (userAgent.toLowerCase().contains(indicator.toLowerCase())) {
+                return "Tablet";
+            }
         }
 
         // 모바일 기기를 나타내는 패턴 검사
         String[] mobileIndicators = {"Mobile", "Mobi", "Android", "iPhone", "iOS", "Windows Phone"};
-        if (Arrays.stream(mobileIndicators).anyMatch(userAgentLowerCase::contains)) {
-            return "Mobile";
+        for (String indicator : mobileIndicators) {
+            if (userAgent.toLowerCase().contains(indicator.toLowerCase())) {
+                return "Mobile";
+            }
         }
 
         // 모바일과 태블릿 모두 해당하지 않으면 PC로 간주
