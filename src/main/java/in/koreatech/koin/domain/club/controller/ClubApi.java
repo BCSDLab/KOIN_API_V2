@@ -16,14 +16,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -108,11 +109,14 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "카테고리를 기준으로 동아리를 조회한다")
+    @Operation(summary = "카테고리를 기준으로 동아리를 조회한다", description = """
+        categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
+        """)
     @GetMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
-        @RequestParam Integer categoryId,
-        @RequestParam(required = false, defaultValue = "false") Boolean hitSort
+        @RequestParam(required = false) Integer categoryId,
+        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @UserId Integer userId
     );
 
     @ApiResponses(

@@ -25,7 +25,7 @@ import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
-import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminPendingClubResponse;
 import in.koreatech.koin.admin.club.service.AdminClubService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -95,21 +95,21 @@ public class AdminClubController implements AdminClubApi {
         return ResponseEntity.ok().body(adminClubService.getClubAdmins(AdminClubManagerCondition));
     }
 
-    @GetMapping("/new-club")
-    public ResponseEntity<AdminNewClubResponse> getNewClub(
-        @RequestParam String clubName,
+    @GetMapping("/pending/{clubName}")
+    public ResponseEntity<AdminPendingClubResponse> getPendingClub(
+        @PathVariable String clubName,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminNewClubResponse response = adminClubService.getNewClub(clubName);
+        AdminPendingClubResponse response = adminClubService.getPendingClub(clubName);
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/new-clubs")
-    public ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
+    @GetMapping("/pending")
+    public ResponseEntity<AdminClubManagersResponse> getPendingClubManagers(
         @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminClubService.getUnacceptedClubManagers(AdminClubManagerCondition));
+        return ResponseEntity.ok().body(adminClubService.getPendingClubManagers(AdminClubManagerCondition));
     }
 
     @PostMapping("/decision")
@@ -117,7 +117,7 @@ public class AdminClubController implements AdminClubApi {
         @RequestBody AdminClubManagerDecideRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminClubService.decideClubAdmin(request.clubName(), request);
+        adminClubService.decideClubManager(request.clubName(), request);
         return ResponseEntity.ok().build();
     }
 }

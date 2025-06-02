@@ -24,7 +24,7 @@ import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
-import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminPendingClubResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -68,7 +68,9 @@ public interface AdminClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 동아리 정보를 조회한다.")
+    @Operation(summary = "특정 동아리 정보를 조회한다.", description = """
+        sns_contacts의 snsType값은 총 4개(인스타그램, 전화 번호, 구글 폼, 오픈 채팅)값이 내려갑니다.
+        """)
     @GetMapping("/{clubId}")
     ResponseEntity<AdminClubResponse> getClub(
         @PathVariable(value = "clubId") Integer clubId,
@@ -150,9 +152,9 @@ public interface AdminClubApi {
     )
     @Operation(summary = "미승인 동아리의 정보를 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/new-club")
-    ResponseEntity<AdminNewClubResponse> getNewClub(
-        @RequestParam String clubName,
+    @GetMapping("/pendind/{clubName}")
+    ResponseEntity<AdminPendingClubResponse> getPendingClub(
+        @PathVariable String clubName,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -166,8 +168,8 @@ public interface AdminClubApi {
     )
     @Operation(summary = "미승인 동아리 리스트를 페이지네이션으로 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/new-clubs")
-    ResponseEntity<AdminClubManagersResponse> getNewClubManagers(
+    @GetMapping("/pending")
+    ResponseEntity<AdminClubManagersResponse> getPendingClubManagers(
         @ParameterObject @ModelAttribute AdminClubManagerCondition AdminClubManagerCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );

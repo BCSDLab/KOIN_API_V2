@@ -4,13 +4,14 @@ import static in.koreatech.koin.domain.club.dto.request.ClubCreateRequest.InnerC
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.redis.core.RedisHash;
 
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Id;
 import lombok.Builder;
@@ -47,6 +48,10 @@ public class ClubCreateRedis {
 
     private LocalDateTime createdAt;
 
+    private String role;
+
+    private Boolean isLikeHidden;
+
     @Builder
     private ClubCreateRedis(
         String id,
@@ -61,7 +66,9 @@ public class ClubCreateRedis {
         String openChat,
         String phoneNumber,
         Integer requesterId,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String role,
+        Boolean isLikeHidden
     ) {
         this.id = id;
         this.name = name;
@@ -76,6 +83,8 @@ public class ClubCreateRedis {
         this.phoneNumber = phoneNumber;
         this.requesterId = requesterId;
         this.createdAt = createdAt;
+        this.role = role;
+        this.isLikeHidden = isLikeHidden;
     }
 
     public static ClubCreateRedis of(ClubCreateRequest request, Integer requesterId) {
@@ -93,6 +102,8 @@ public class ClubCreateRedis {
             .phoneNumber(request.phoneNumber())
             .requesterId(requesterId)
             .createdAt(LocalDateTime.now())
+            .role(request.role())
+            .isLikeHidden(request.isLikeHidden())
             .build();
     }
 
@@ -102,12 +113,13 @@ public class ClubCreateRedis {
             .imageUrl(this.imageUrl)
             .clubCategory(category)
             .location(this.location)
-            .description(this.description)
+            .description(Objects.requireNonNull(this.description, ""))
             .likes(0)
             .hits(0)
             .lastWeekHits(0)
             .active(false)
             .introduction("")
+            .isLikeHidden(this.isLikeHidden)
             .build();
     }
 

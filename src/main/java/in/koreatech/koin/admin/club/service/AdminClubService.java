@@ -25,7 +25,7 @@ import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
-import in.koreatech.koin.admin.club.dto.response.AdminNewClubResponse;
+import in.koreatech.koin.admin.club.dto.response.AdminPendingClubResponse;
 import in.koreatech.koin.admin.club.repository.AdminClubManagerRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
@@ -90,13 +90,13 @@ public class AdminClubService {
         return AdminClubResponse.from(club);
     }
 
-    public AdminNewClubResponse getNewClub(String clubName) {
+    public AdminPendingClubResponse getPendingClub(String clubName) {
         ClubCreateRedis clubInformation = clubCreateRedisRepository.findById(clubName)
             .orElseThrow(() -> ClubNotFoundException.withDetail("신청한 동아리를 찾을 수 없습니다."));
         User requester = userRepository.getById(clubInformation.getRequesterId());
         ClubCategory clubCategory = clubCategoryRepository.getById(clubInformation.getClubCategoryId());
 
-        return AdminNewClubResponse.from(clubInformation, requester, clubCategory.getName());
+        return AdminPendingClubResponse.from(clubInformation, requester, clubCategory.getName());
     }
 
     @Transactional
@@ -151,7 +151,7 @@ public class AdminClubService {
             clubCategory,
             request.location(),
             request.description(),
-            request.active()
+            request.isActive()
         );
 
         adminClubSnsRepository.deleteAllByClub(club);
@@ -168,7 +168,7 @@ public class AdminClubService {
     }
 
     @Transactional
-    public void decideClubAdmin(String clubName, AdminClubManagerDecideRequest request) {
+    public void decideClubManager(String clubName, AdminClubManagerDecideRequest request) {
         ClubCreateRedis createRequest = clubCreateRedisRepository.findById(clubName)
             .orElseThrow(() -> ClubNotFoundException.withDetail("신청한 동아리를 찾을 수 없습니다."));
 
@@ -189,7 +189,7 @@ public class AdminClubService {
         return AdminClubManagersResponse.of(result, criteria);
     }
 
-    public AdminClubManagersResponse getUnacceptedClubManagers(AdminClubManagerCondition condition) {
+    public AdminClubManagersResponse getPendingClubManagers(AdminClubManagerCondition condition) {
         List<ClubCreateRedis> unAcceptedClubList = (List<ClubCreateRedis>)clubCreateRedisRepository.findAll();
         int totalCount = unAcceptedClubList.size();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);

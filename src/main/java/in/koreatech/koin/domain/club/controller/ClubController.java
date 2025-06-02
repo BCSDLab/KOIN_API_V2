@@ -18,14 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -69,10 +70,11 @@ public class ClubController implements ClubApi {
 
     @GetMapping
     public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
-        @RequestParam Integer categoryId,
-        @RequestParam(required = false, defaultValue = "false") Boolean hitSort
+        @RequestParam(required = false) Integer categoryId,
+        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @UserId Integer userId
     ) {
-        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, hitSort);
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, sortType, userId);
         return ResponseEntity.ok(response);
     }
 

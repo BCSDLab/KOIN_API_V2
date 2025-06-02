@@ -1,20 +1,21 @@
 package in.koreatech.koin.domain.club.dto.response;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubCategoriesResponse(
     @Schema(description = "동아리 카테고리 리스트", requiredMode = REQUIRED)
     List<InnerClubCategoryResponse> clubCategories
 ) {
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerClubCategoryResponse(
         @Schema(description = "동아리 카테고리 고유 id", example = "1", requiredMode = REQUIRED)
         Integer id,

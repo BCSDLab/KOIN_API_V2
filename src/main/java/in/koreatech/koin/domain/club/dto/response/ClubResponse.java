@@ -1,14 +1,20 @@
 package in.koreatech.koin.domain.club.dto.response;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubResponse(
     @Schema(description = "동아리 카테고리 고유 id", example = "1", requiredMode = REQUIRED)
     Integer id,
@@ -47,9 +53,19 @@ public record ClubResponse(
     Optional<String> phoneNumber,
 
     @Schema(description = "동아리 관리자 여부", example = "true")
-    Boolean manager
+    Boolean manager,
+
+    @Schema(description = "동아리 좋아요 여부", example = "true", requiredMode = REQUIRED)
+    Boolean isLiked,
+
+    @JsonFormat(pattern = "yyyy.MM.dd.")
+    @Schema(description = "업데이트 날짜", example = "2025.05.11.", requiredMode = REQUIRED)
+    LocalDate updatedAt,
+
+    @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
+    Boolean isLikeHidden
 ) {
-    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager) {
+    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked) {
         Optional<String> instagram = Optional.empty();
         Optional<String> googleForm = Optional.empty();
         Optional<String> openChat = Optional.empty();
@@ -77,7 +93,10 @@ public record ClubResponse(
             googleForm,
             openChat,
             phoneNumber,
-            manager
+            manager,
+            isLiked,
+            club.getUpdatedAt().toLocalDate(),
+            club.getIsLikeHidden()
         );
     }
 }

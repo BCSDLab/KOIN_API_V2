@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.club.service;
 
+import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -10,31 +12,32 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
-import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
-import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
+import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
+import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubLike;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubQna;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
+import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
@@ -82,8 +85,9 @@ public class ClubService {
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
+        Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, newSNS, manager);
+        return ClubResponse.from(club, newSNS, manager, isLiked);
     }
 
     private List<ClubSNS> updateClubSNS(ClubUpdateRequest request, Club club) {
@@ -114,7 +118,9 @@ public class ClubService {
         List<ClubSNS> clubSNSs = club.getClubSNSs();
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, clubSNSs, manager);
+        Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, studentId);
+
+        return ClubResponse.from(club, clubSNSs, manager, isLiked);
     }
 
     private void isClubManager(Integer clubId, Integer studentId) {
@@ -130,15 +136,30 @@ public class ClubService {
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
 
-        return ClubResponse.from(club, clubSNSs, manager);
+        Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, userId);
+
+        return ClubResponse.from(club, clubSNSs, manager, isLiked);
     }
 
-    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, Boolean hitSort) {
+    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, ClubSortType sortType, Integer userId) {
+        List<Club> clubs = getClubs(categoryId, sortType);
+
+        List<Integer> likedClubIds = clubLikeRepository.findClubIdsByUserId(userId);
+
+        return ClubsByCategoryResponse.from(clubs, likedClubIds);
+    }
+
+    private List<Club> getClubs(Integer categoryId, ClubSortType sortType) {
+        if (categoryId == null) {
+            return sortType.equals(HITS_DESC)
+                ? clubRepository.findByOrderByHitsDesc()
+                : clubRepository.findByOrderByIdAsc();
+        }
+
         ClubCategory category = clubCategoryRepository.getById(categoryId);
-        List<Club> clubs = hitSort
+        return sortType.equals(HITS_DESC)
             ? clubRepository.findByClubCategoryOrderByHitsDesc(category)
             : clubRepository.findByClubCategoryOrderByIdAsc(category);
-        return ClubsByCategoryResponse.from(clubs);
     }
 
     @Transactional

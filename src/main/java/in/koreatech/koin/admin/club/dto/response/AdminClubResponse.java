@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,6 +38,9 @@ public record AdminClubResponse(
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
     String description,
 
+    @Schema(description = "동아리 위치", example = "학생회관", requiredMode = REQUIRED)
+    String location,
+
     @Schema(description = "동아리 연락처 리스트", requiredMode = REQUIRED)
     List<InnerClubSNSResponse> snsContacts,
 
@@ -45,7 +49,7 @@ public record AdminClubResponse(
     LocalDate createdAt,
 
     @Schema(description = "활성화 여부", example = "true", requiredMode = REQUIRED)
-    Boolean active
+    Boolean isActive
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerClubManagerResponse(
@@ -58,9 +62,11 @@ public record AdminClubResponse(
         @Schema(description = "동아리 관리자 전화번호", example = "01012345678", requiredMode = REQUIRED)
         String phoneNumber
     ) {
-        private static InnerClubManagerResponse from(User user) {
+        private static InnerClubManagerResponse from(ClubManager clubManager) {
+            User user = clubManager.getUser();
+
             return new InnerClubManagerResponse(
-                user.getName(),
+                clubManager.getClubManagerName(),
                 user.getUserId(),
                 user.getPhoneNumber()
             );
@@ -73,7 +79,7 @@ public record AdminClubResponse(
         String snsType,
 
         @Schema(description = "동아리 SNS 연락처", example = "https://www.instagram.com/bcsdlab/", requiredMode = REQUIRED)
-        String contract
+        String contact
     ) {
         private static InnerClubSNSResponse from(ClubSNS clubSNS) {
             return new InnerClubSNSResponse(
@@ -89,11 +95,12 @@ public record AdminClubResponse(
             club.getName(),
             club.getImageUrl(),
             club.getClubManagers().stream()
-                .map(clubAdmin -> InnerClubManagerResponse.from(clubAdmin.getUser()))
+                .map(InnerClubManagerResponse::from)
                 .toList(),
             club.getClubCategory().getName(),
             club.getLikes(),
             club.getDescription(),
+            club.getLocation(),
             club.getClubSNSs().stream()
                 .map(InnerClubSNSResponse::from)
                 .toList(),
