@@ -48,7 +48,7 @@ public class KeywordController implements KeywordApi{
 
     @GetMapping("/me")
     public ResponseEntity<ArticleKeywordsResponse> getMyKeywords(
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     ) {
         ArticleKeywordsResponse response = keywordService.getMyKeywords(userId);
         return ResponseEntity.ok(response);
