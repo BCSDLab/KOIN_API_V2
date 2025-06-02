@@ -54,7 +54,7 @@ public record AdminPendingClubResponse(
         return new AdminPendingClubResponse(
             redis.getName(),
             requester.getPhoneNumber(),
-            Objects.requireNonNull(requester.getName(), "동아리 관리자"),
+            Objects.requireNonNullElse(requester.getName(), "동아리 관리자"),
             clubCategory,
             redis.getLocation(),
             redis.getImageUrl(),
