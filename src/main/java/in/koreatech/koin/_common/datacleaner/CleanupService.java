@@ -1,6 +1,8 @@
 package in.koreatech.koin._common.datacleaner;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -14,16 +16,20 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CleanupService {
 
-    private static final int RETENTION_DAYS = 60;
-
     private final EntityManager entityManager;
     private final CleanupProperties cleanupProperties;
 
     @Transactional
     public void cleanupSoftDeletedData() {
-        LocalDateTime expirationDate = LocalDateTime.now().minusDays(RETENTION_DAYS);
+        int retentionDays = Optional.ofNullable(cleanupProperties.retentionDays()).orElse(60);
+        LocalDateTime expirationDate = LocalDateTime.now().minusDays(retentionDays);
+        List<String> targetTables = cleanupProperties.targetTables();
+        if (targetTables == null || targetTables.isEmpty()) {
+            log.warn("No target tables configured for cleanup.");
+            return;
+        }
 
-        for (String table : cleanupProperties.targetTables()) {
+        for (String table : targetTables) {
             String sql = String.format(
                 "DELETE FROM %s WHERE is_deleted = 1 AND updated_at < :expirationDate", table
             );
