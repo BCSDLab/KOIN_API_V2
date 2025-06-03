@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.club.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
@@ -11,17 +12,21 @@ import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminClubModifyRequest(
     @Schema(description = "동아리 이름", example = "BCSD Lab", requiredMode = REQUIRED)
-    @NotEmpty(message = "동아리 이름은 필수 입력 사항입니다.")
+    @Size(max = 50, message = "동아리 이름은 최대 50자 입니다.")
+    @NotBlank(message = "동아리 이름은 필수 입력 사항입니다.")
     String name,
 
     @Schema(description = "동아리 사진 링크", example = "https://bcsdlab.com/static/img/logo.d89d9cc.png", requiredMode = REQUIRED)
-    @NotNull(message = "동아리 사진은 필수 입력 사항입니다.")
+    @Size(max = 255, message = "동아리 사진 링크는 최대 255자 입니다.")
+    @NotBlank(message = "동아리 사진은 필수 입력 사항입니다.")
     String imageUrl,
 
     @Schema(description = "동아리 분과 카테고리 ID", example = "1", requiredMode = REQUIRED)
@@ -33,27 +38,29 @@ public record AdminClubModifyRequest(
     List<InnerClubManagerUpdateRequest> clubManagers,
 
     @Schema(description = "동아리 위치", example = "학생회관", requiredMode = REQUIRED)
-    @NotNull(message = "동아리 위치는 필수 입력 사항입니다.")
+    @Size(max = 20, message = "동아리 위치는 최대 20자 입니다.")
+    @NotBlank(message = "동아리 위치는 필수 입력 사항입니다.")
     String location,
 
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
-    @NotNull(message = "동아리 소개는 필수 입력 사항입니다.")
+    @Size(max = 100, message = "동아리 소개는 최대 100자 입니다.")
+    @NotBlank(message = "동아리 소개는 필수 입력 사항입니다.")
     String description,
 
-    @Schema(description = "동아리 활성화 여부", example = "false", requiredMode = REQUIRED)
-    @NotNull(message = "동아리 활성화 여부는 필수 입력 사항입니다.")
-    Boolean isActive,
-
-    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = REQUIRED)
+    @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = NOT_REQUIRED)
+    @Size(max = 255, message = "인스타그램 링크는 최대 255자 입니다.")
     String instagram,
 
-    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example", requiredMode = REQUIRED)
+    @Schema(description = "구글 폼 링크", example = "https://forms.gle/example", requiredMode = NOT_REQUIRED)
+    @Size(max = 255, message = "구글폼 링크는 최대 255자 입니다.")
     String googleForm,
 
-    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example", requiredMode = REQUIRED)
+    @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example", requiredMode = NOT_REQUIRED)
+    @Size(max = 255, message = "오픈 채팅 링크는 최대 255자 입니다.")
     String openChat,
 
-    @Schema(description = "전화번호", example = "01012345678", requiredMode = REQUIRED)
+    @Schema(description = "전화번호", example = "01012345678", requiredMode = NOT_REQUIRED)
+    @Size(max = 255, message = "전화번호는 최대 255자 입니다.")
     String phoneNumber
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
