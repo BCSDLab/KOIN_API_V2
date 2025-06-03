@@ -47,6 +47,10 @@ public record AdminClubModifyRequest(
     @NotBlank(message = "동아리 소개는 필수 입력 사항입니다.")
     String description,
 
+    @Schema(description = "동아리 활성화 여부", example = "false", requiredMode = REQUIRED)
+    @NotNull(message = "동아리 활성화 여부는 필수 입력 사항입니다.")
+    Boolean isActive,
+
     @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "인스타그램 링크는 최대 255자 입니다.")
     String instagram,
