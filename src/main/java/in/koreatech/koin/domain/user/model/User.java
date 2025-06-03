@@ -147,7 +147,7 @@ public class User extends BaseEntity {
 
     public void updatePassword(PasswordEncoder passwordEncoder, String password) {
         if (StringUtils.isNotBlank(password)) {
-            this.password = passwordEncoder.encode(password);
+            this.password = passwordEncoder.encode(password.replaceAll("-", ""));
         }
     }
 
