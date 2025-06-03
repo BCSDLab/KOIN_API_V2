@@ -38,7 +38,7 @@ public record AdminStudentUpdateRequest(
     @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
     String name,
 
-    @Size(message = "SHA 256 해시 알고리즘으로 암호화 된 비밀번호")
+    @Size(message = "비밀번호 (SHA 256 해싱된 값)")
     @Schema(description = "비밀번호", example = "a0240120305812krlakdsflsa;1235", requiredMode = NOT_REQUIRED)
     String password,
 

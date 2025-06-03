@@ -62,7 +62,7 @@ public interface UserRepository extends Repository<User, Integer> {
 
     boolean existsByUserId(String userId);
 
-    boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
 
     boolean existsByEmail(String email);
 

@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.user.service;
 
+import static in.koreatech.koin.domain.user.model.UserType.GENERAL;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -45,9 +49,9 @@ public class UserValidationService {
         }
     }
 
-    public void checkDuplicatedPhoneNumber(String phone) {
-        if (userRepository.existsByPhoneNumber(phone)) {
-            throw DuplicationPhoneNumberException.withDetail("phone: " + phone);
+    public void checkDuplicatedPhoneNumber(String phoneNumber) {
+        if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT))) {
+            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + phoneNumber);
         }
     }
 
@@ -134,7 +138,7 @@ public class UserValidationService {
     }
 
     public void existsByPhoneNumber(String phoneNumber) {
-        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+        if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT))) {
             return;
         }
         throw UserNotFoundException.withDetail("phoneNumber: " + phoneNumber);

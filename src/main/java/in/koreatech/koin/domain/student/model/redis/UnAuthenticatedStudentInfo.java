@@ -80,7 +80,7 @@ public class UnAuthenticatedStudentInfo {
     }
 
     public static UnAuthenticatedStudentInfo of(RegisterStudentRequest request, String authToken) {
-        /*
+        /* TODO : 강업 시 DTO 검증 변경 및 해당 로직 삭제
         이전 회원가입 시 전화번호에 하이픈을 붙여 저장합니다.
         DB는 전화번호에 하이픈을 붙이지 않고 저장합니다.
         DB 정합성을 위해 임시로 작성한 코드입니다.

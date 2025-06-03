@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.student.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -47,7 +48,7 @@ public record UpdateStudentRequest(
     @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
     String name,
 
-    @Schema(description = "SHA 256 해시 알고리즘으로 암호화 된 비밀번호", example = "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268", requiredMode = NOT_REQUIRED)
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = NOT_REQUIRED)
     String password,
 
     @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
@@ -64,18 +65,4 @@ public record UpdateStudentRequest(
     String phoneNumber
 ) {
 
-    public static UpdateStudentRequest from(Student student) {
-        User user = student.getUser();
-        return new UpdateStudentRequest(
-            user.getGender(),
-            null,
-            false,
-            student.getMajor().getName(),
-            user.getName(),
-            null,
-            user.getNickname(),
-            student.getStudentNumber(),
-            user.getPhoneNumber()
-        );
-    }
 }
