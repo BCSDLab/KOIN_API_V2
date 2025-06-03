@@ -53,7 +53,10 @@ public record UpdateStudentRequestV2(
 
     @Schema(description = "휴대폰 번호", example = "01012345678", requiredMode = NOT_REQUIRED)
     @Pattern(regexp = "^(\\d{3}-\\d{3,4}-\\d{4}|\\d{10,11})$", message = "전화번호 형식이 올바르지 않습니다.")
-    String phoneNumber
+    String phoneNumber,
+
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = NOT_REQUIRED)
+    String password
 ) {
 
 }

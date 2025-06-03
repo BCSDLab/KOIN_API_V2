@@ -15,6 +15,7 @@ import com.google.firebase.database.annotations.Nullable;
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.model.BaseEntity;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -145,12 +146,9 @@ public class User extends BaseEntity {
     }
 
     public void updatePassword(PasswordEncoder passwordEncoder, String password) {
-        this.password = passwordEncoder.encode(password);
-    }
-
-    public void updateStudentPassword(PasswordEncoder passwordEncoder, String password) {
-        if (password != null && !password.isEmpty())
+        if (StringUtils.isNotBlank(password)) {
             this.password = passwordEncoder.encode(password);
+        }
     }
 
     public boolean isNotSamePassword(PasswordEncoder passwordEncoder, String password) {

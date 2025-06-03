@@ -30,7 +30,6 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
@@ -65,6 +64,7 @@ public class UserService {
         userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
         userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
+        user.updatePassword(passwordEncoder, request.password());
         return UpdateUserResponse.from(user);
     }
 

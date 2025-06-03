@@ -16,7 +16,7 @@ public record UserLoginRequestV2(
     @NotEmoji
     String loginId,
 
-    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6ec7f1...", requiredMode = REQUIRED)
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = REQUIRED)
     @NotBlank(message = "비밀번호를 입력해주세요.")
     String loginPw
 ) {

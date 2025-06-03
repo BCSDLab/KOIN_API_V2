@@ -110,7 +110,7 @@ public class StudentService {
 
         updateStudentInfo(student, request.studentNumber(), request.major());
         user.update(user.getEmail(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
-        user.updateStudentPassword(passwordEncoder, request.password());
+        user.updatePassword(passwordEncoder, request.password());
 
         return UpdateStudentResponse.from(student);
     }
@@ -125,6 +125,7 @@ public class StudentService {
         updateStudentInfo(student, request.studentNumber(), request.major());
         userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
+        user.updatePassword(passwordEncoder, request.password());
 
         return UpdateStudentResponse.from(student);
     }
