@@ -17,28 +17,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.model.Criteria;
-import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubCreateRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.AdminClubManagerDecideRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminPendingClubResponse;
-import in.koreatech.koin.admin.club.repository.AdminClubManagerRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
+import in.koreatech.koin.admin.club.repository.AdminClubManagerRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubSnsRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
-import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
+import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -245,5 +245,17 @@ public class AdminClubService {
 
         ClubManager clubManager = clubCreateRedis.toClubManager(club, requester);
         clubManagerRepository.save(clubManager);
+
+        List<ClubSNS> clubSNSs = Stream.of(
+                new AbstractMap.SimpleEntry<>(INSTAGRAM, clubCreateRedis.getInstagram()),
+                new AbstractMap.SimpleEntry<>(GOOGLE_FORM, clubCreateRedis.getGoogleForm()),
+                new AbstractMap.SimpleEntry<>(PHONE_NUMBER, clubCreateRedis.getPhoneNumber()),
+                new AbstractMap.SimpleEntry<>(OPEN_CHAT, clubCreateRedis.getOpenChat())
+            )
+            .filter(entry -> entry.getValue() != null)
+            .map(entry -> new ClubSNS(club, entry.getKey(), entry.getValue()))
+            .toList();
+
+        adminClubSnsRepository.saveAll(clubSNSs);
     }
 }

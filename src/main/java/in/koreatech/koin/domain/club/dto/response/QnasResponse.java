@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.ClubQna;
+import in.koreatech.koin.domain.student.model.Student;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -47,16 +48,23 @@ public record QnasResponse(
     ) {
 
         public static InnerQnaResponse from(ClubQna qna) {
-            String nickname = qna.getAuthor().getUser().getNickname();
-            if (nickname == null) {
-                nickname = qna.getAuthor().getAnonymousNickname();
+            String nickname;
+            Student author = qna.getAuthor();
+            if (author != null) {
+                nickname = qna.getAuthor().getUser().getNickname();
+                if (nickname == null) {
+                    nickname = qna.getAuthor().getAnonymousNickname();
+                }
+            } else {
+                nickname = "탈퇴한 회원";
             }
+
             List<InnerQnaResponse> children = qna.getChildren().stream()
                 .map(InnerQnaResponse::from)
                 .toList();
             return new InnerQnaResponse(
                 qna.getId(),
-                qna.getAuthor().getId(),
+                author == null ? null : author.getId(),
                 nickname,
                 qna.getContent(),
                 qna.getCreatedAt(),

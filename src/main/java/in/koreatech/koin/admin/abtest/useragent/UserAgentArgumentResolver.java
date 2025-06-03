@@ -52,7 +52,7 @@ public class UserAgentArgumentResolver implements HandlerMethodArgumentResolver 
         }
 
         // 모바일 기기를 나타내는 패턴 검사
-        String[] mobileIndicators = {"Mobile", "Mobi", "Android", "iPhone", "Windows Phone"};
+        String[] mobileIndicators = {"Mobile", "Mobi", "Android", "iPhone", "iOS", "Windows Phone"};
         for (String indicator : mobileIndicators) {
             if (userAgent.toLowerCase().contains(indicator.toLowerCase())) {
                 return "Mobile";

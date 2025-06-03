@@ -6,13 +6,15 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminClubManagerDecideRequest(
     @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
-    @NotEmpty(message = "동아리 이름은 필수 입력사항입니다.")
+    @Size(max = 50, message = "동아리 이름은 최대 50자 입니다.")
+    @NotBlank(message = "동아리 이름은 필수 입력 사항입니다.")
     String clubName,
 
     @Schema(description = "동아리 관리자 승인 여부", example = "false", requiredMode = REQUIRED)
