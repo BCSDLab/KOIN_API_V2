@@ -113,7 +113,7 @@ public class ClubCreateRedis {
             .imageUrl(this.imageUrl)
             .clubCategory(category)
             .location(this.location)
-            .description(Objects.requireNonNull(this.description, ""))
+            .description(Objects.requireNonNullElse(this.description, ""))
             .likes(0)
             .hits(0)
             .lastWeekHits(0)
