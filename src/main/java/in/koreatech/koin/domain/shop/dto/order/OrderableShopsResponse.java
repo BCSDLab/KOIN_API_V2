@@ -56,7 +56,6 @@ public record OrderableShopsResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record ShopOpenInfo(
-
         @JsonIgnore
         Integer shopId,
         String dayOfWeek,
