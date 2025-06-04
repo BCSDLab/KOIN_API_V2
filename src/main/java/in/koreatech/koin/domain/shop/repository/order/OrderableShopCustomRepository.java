@@ -153,15 +153,4 @@ public class OrderableShopCustomRepository {
             .map(opens -> new ShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(), opens.getOpenTime(), opens.getCloseTime()))
             .collect(Collectors.groupingBy(ShopOpenInfo::shopId));
     }
-
-    public Map<Integer, ShopOpenInfo> findShopOpensByShopIdsAndDayOfWeek(List<Integer> shopIds, DayOfWeek today) {
-        return queryFactory
-            .select(shopOpen)
-            .from(shopOpen)
-            .where(shopOpen.dayOfWeek.eq(today.toString()).and(shopOpen.shop.id.in(shopIds)))
-            .fetch()
-            .stream()
-            .map(opens -> new ShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(), opens.getOpenTime(), opens.getCloseTime()))
-            .collect(Collectors.toMap(ShopOpenInfo::shopId, shopOpenInfo -> shopOpenInfo));
-    }
 }
