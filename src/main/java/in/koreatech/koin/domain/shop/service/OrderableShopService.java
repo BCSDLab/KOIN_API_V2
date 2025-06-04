@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -79,18 +80,18 @@ public class OrderableShopService {
     }
 
     private Map<Integer, ShopOpenInfo> extractTodayOpenSchedule(Map<Integer, List<ShopOpenInfo>> allShopOpens) {
-        DayOfWeek today = LocalDateTime.now().getDayOfWeek();
+        String today = LocalDateTime.now().getDayOfWeek().toString();
+        Map<Integer, ShopOpenInfo> result = new HashMap<>();
 
-        return allShopOpens.entrySet().stream()
-            .flatMap(entry -> entry.getValue().stream()
-                .filter(Objects::nonNull)
-                .filter(openInfo -> today.toString().equals(openInfo.dayOfWeek()))
-                .map(openInfo -> Map.entry(entry.getKey(), openInfo))
-            )
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue
-            ));
+        for (Map.Entry<Integer, List<ShopOpenInfo>> entry : allShopOpens.entrySet()) {
+            for (ShopOpenInfo openInfo : entry.getValue()) {
+                if (openInfo != null && today.equals(openInfo.dayOfWeek())) {
+                    result.put(entry.getKey(), openInfo);
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     private Map<Integer, OrderableShopOpenStatus> extractShopOpenStatus(
