@@ -147,14 +147,14 @@ public class UserService {
 
     public String findIdBySms(String phoneNumber) {
         User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT));
-        String userId = user.getUserId();
+        String userId = user.getLoginId();
         userVerificationService.consumeVerification(phoneNumber);
         return userId;
     }
 
     public String findIdByEmail(String email) {
         User user = userRepository.getByEmailAndUserTypeIn(email, List.of(GENERAL, STUDENT));
-        String userId = user.getUserId();
+        String userId = user.getLoginId();
         userVerificationService.consumeVerification(email);
         return userId;
     }

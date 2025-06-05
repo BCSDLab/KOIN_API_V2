@@ -44,11 +44,11 @@ public class User extends BaseEntity {
 
     @NotNull
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    private String loginId;
 
     @NotNull
     @Column(name = "password", nullable = false)
-    private String password;
+    private String loginPw;
 
     @Size(max = 50)
     @Column(name = "nickname", length = 50, unique = true)
@@ -95,8 +95,8 @@ public class User extends BaseEntity {
 
     @Builder
     private User(
-        String userId,
-        String password,
+        String loginId,
+        String loginPw,
         String nickname,
         String name,
         String phoneNumber,
@@ -109,8 +109,8 @@ public class User extends BaseEntity {
         Boolean isDeleted,
         String deviceToken
     ) {
-        this.userId = userId;
-        this.password = password;
+        this.loginId = loginId;
+        this.loginPw = loginPw;
         this.nickname = nickname;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -148,12 +148,12 @@ public class User extends BaseEntity {
 
     public void updatePassword(PasswordEncoder passwordEncoder, String password) {
         if (StringUtils.isNotBlank(password)) {
-            this.password = passwordEncoder.encode(password.replaceAll("-", ""));
+            this.loginPw = passwordEncoder.encode(password.replaceAll("-", ""));
         }
     }
 
     public void validatePassword(PasswordEncoder passwordEncoder, String password) {
-        if (passwordEncoder.matches(this.password, password)) {
+        if (passwordEncoder.matches(this.loginPw, password)) {
             return;
         }
         throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");

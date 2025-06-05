@@ -544,7 +544,7 @@ class UserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.login_id").value(user.getUserId()));
+            .andExpect(jsonPath("$.login_id").value(user.getLoginId()));
     }
 
     @Test
@@ -594,7 +594,7 @@ class UserApiTest extends AcceptanceTest {
                           "phone_number": "%s",
                           "new_password": "%s"
                         }
-                        """.formatted(user.getUserId(), phoneNumber, newPassword))
+                        """.formatted(user.getLoginId(), phoneNumber, newPassword))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());

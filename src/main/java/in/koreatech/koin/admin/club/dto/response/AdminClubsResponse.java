@@ -74,7 +74,7 @@ public record AdminClubsResponse(
 
                 return new InnerClubManagerResponse(
                     clubManager.getClubManagerName(),
-                    user.getUserId(),
+                    user.getLoginId(),
                     user.getPhoneNumber()
                 );
             }
