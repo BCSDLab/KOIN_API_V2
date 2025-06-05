@@ -45,7 +45,7 @@ public record ClubCreateRequest(
     String location,
 
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = NOT_REQUIRED)
-    @NotBlank(message = "동아리 소개는 필수 입력 사항입니다.")
+    @Size(max = 100, message = "동아리 소개는 최대 100자 입니다.")
     String description,
 
     @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = NOT_REQUIRED)
