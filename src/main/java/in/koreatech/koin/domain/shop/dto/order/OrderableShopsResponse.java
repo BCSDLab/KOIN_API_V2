@@ -64,7 +64,7 @@ public record OrderableShopsResponse(
         LocalTime closeTime
     ) {
 
-        public boolean isScheduledToOpenAt(DayOfWeek currentDayOfWeek, LocalTime currentTime) {
+        public Boolean isScheduledToOpenAt(DayOfWeek currentDayOfWeek, LocalTime currentTime) {
             if (this.closed() || this.openTime == null || this.closeTime == null) {
                 return false;
             }

@@ -37,7 +37,7 @@ public enum OrderableShopsFilterCriteria {
             return JPAExpressions
                 .select(shopBaseDeliveryTip.fee.max())
                 .from(shopBaseDeliveryTip)
-                .where(shopBaseDeliveryTip.shop.id.eq(shop.id)) // shop.id는 현재 쿼리의 메인 shop 엔티티를 참조해야 함
+                .where(shopBaseDeliveryTip.shop.id.eq(shop.id)) // id는 메인 shop 엔티티를 참조해야 함(orderable shop 아님)
                 .eq(0);
         }
     }

@@ -25,7 +25,7 @@ public class OrderShopController implements OrderShopApi{
         @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsSortCriteria,
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount
     ) {
-        var orderableShops = orderableShopService.getOrderableShops(sortBy, orderableShopsSortCriteria, minimumOrderAmount);
+        List<OrderableShopsResponse> orderableShops = orderableShopService.getOrderableShops(sortBy, orderableShopsSortCriteria, minimumOrderAmount);
         return ResponseEntity.ok(orderableShops);
     }
 }

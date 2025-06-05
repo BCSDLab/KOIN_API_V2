@@ -40,10 +40,10 @@ public class OrderableShopCustomRepository {
         List<OrderableShopsFilterCriteria> filterCriteria,
         Integer minimumAmount
     ) {
-        var minimumTipSubquery = getMinimumDeliveryTipSubquery();
-        var maximumTipSubquery = getMaximumDeliveryTipSubquery();
-        var avgRatingExpression = getReviewRatingAvgExpression();
-        BooleanBuilder filter = orderableShopSearchFilter(filterCriteria, minimumAmount);
+        var minimumTipSubquery = getMinimumDeliveryTipSubquery(); // 최소 배달비 서브 쿼리
+        var maximumTipSubquery = getMaximumDeliveryTipSubquery(); // 최대 배달비 서브 쿼리
+        var avgRatingExpression = getReviewRatingAvgExpression(); // 리뷰 평균 점수 반올림 표현식
+        BooleanBuilder filter = orderableShopSearchFilter(filterCriteria, minimumAmount); // 동적 쿼리 필터
 
         return queryFactory
             .select(Projections.constructor(OrderableShopBaseInfo.class,
@@ -79,10 +79,12 @@ public class OrderableShopCustomRepository {
         Integer minimumAmount) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
+        // 상점 최소 주문 금액 필터
         if (minimumAmount != null) {
             booleanBuilder.and(orderableShop.minimumOrderAmount.loe(minimumAmount));
         }
 
+        // 영업 여부, 배달 가능, 포장 가능, 무료 배달 필터
         if (filterCriteria != null && !filterCriteria.isEmpty()) {
             for (OrderableShopsFilterCriteria criteria : filterCriteria) {
                 BooleanExpression predicate = criteria.getPredicate();
