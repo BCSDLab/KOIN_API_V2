@@ -263,5 +263,6 @@ public class AdminClubService {
             .toList();
 
         adminClubSnsRepository.saveAll(clubSNSs);
+        clubCreateRedisRepository.delete(clubCreateRedis);
     }
 }
