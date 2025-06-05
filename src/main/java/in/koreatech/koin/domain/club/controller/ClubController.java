@@ -51,7 +51,7 @@ public class ClubController implements ClubApi {
     @PutMapping("/{clubId}")
     public ResponseEntity<ClubResponse> updateClub(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody ClubUpdateRequest request,
+        @RequestBody @Valid ClubUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
         ClubResponse response = clubService.updateClub(clubId, request, studentId);
@@ -61,7 +61,7 @@ public class ClubController implements ClubApi {
     @PutMapping("/{clubId}/introduction")
     public ResponseEntity<ClubResponse> updateClubIntroduction(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody ClubIntroductionUpdateRequest request,
+        @RequestBody @Valid ClubIntroductionUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
         ClubResponse response = clubService.updateClubIntroduction(clubId, request, studentId);
