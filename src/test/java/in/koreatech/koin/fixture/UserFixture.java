@@ -459,4 +459,8 @@ public final class UserFixture {
     public String getToken(User user) {
         return jwtProvider.createToken(user);
     }
+
+    public String 맥북userAgent헤더() {
+        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/123.45 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/123.45, sec-fetch-dest=empty}";
+    }
 }
