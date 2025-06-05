@@ -64,8 +64,9 @@ public record ClubCreateRequest(
     @Size(max = 255, message = "전화번호는 최대 255자 입니다.")
     String phoneNumber,
 
-    @Schema(description = "동아리 내 역할", example = "회장", requiredMode = REQUIRED)
-    @NotBlank(message = "동아리 내 역할은 필수 입력 사항입니다.")
+    @Schema(description = "동아리 직책", example = "회장", requiredMode = REQUIRED)
+    @NotBlank(message = "동아리 직책은 필수 입력 사항입니다.")
+    @Size(max = 10, message = "동아리 직책은 최대 10자 입니다.")
     String role,
 
     @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
