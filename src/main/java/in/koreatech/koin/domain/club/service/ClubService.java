@@ -232,7 +232,7 @@ public class ClubService {
         clubQnaRepository.save(qna);
     }
 
-    private static void validateQnaCreateAuthorization(Integer studentId, boolean isQuestion, boolean isManager) {
+    private void validateQnaCreateAuthorization(Integer studentId, boolean isQuestion, boolean isManager) {
         if (isQuestion == isManager) {
             throw AuthorizationException.withDetail("studentId: " + studentId);
         }
