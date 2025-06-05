@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.springframework.data.domain.Page;
@@ -213,9 +214,14 @@ public class AdminClubService {
             paged.stream().map(ClubCreateRedis::getRequesterId).toList()
         ).stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
-        List<AdminClubManagersResponse.InnerClubManagersResponse> responseList = paged.stream()
-            .map(redis -> AdminClubManagersResponse.InnerClubManagersResponse.fromRedis(
-                redis, userMap.get(redis.getRequesterId()))).toList();
+        List<AdminClubManagersResponse.InnerClubManagersResponse> responseList =
+            IntStream.range(0, paged.size())
+                .mapToObj(i -> AdminClubManagersResponse.InnerClubManagersResponse.fromRedis(
+                    paged.get(i),
+                    userMap.get(paged.get(i).getRequesterId()),
+                    i + 1
+                ))
+                .toList();
 
         return new AdminClubManagersResponse(
             (long)totalCount,
