@@ -32,18 +32,7 @@ import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
 import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
 import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
 import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
-import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByEmailRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByPhoneRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByUserIdRequest;
-import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithEmailRequest;
-import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithPhoneNumberRequest;
 import in.koreatech.koin.domain.user.service.UserService;
-import in.koreatech.koin.domain.user.service.UserValidationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -54,10 +43,10 @@ public class UserController implements UserApi {
     private final UserService userService;
 
     @GetMapping("/v2/users/me")
-    public ResponseEntity<UserResponse> getUserV2(
+    public ResponseEntity<UserResponse> getUser(
         @Auth(permit = {GENERAL}) Integer userId
     ) {
-        UserResponse userResponse = userService.getUserV2(userId);
+        UserResponse userResponse = userService.getUser(userId);
         return ResponseEntity.ok().body(userResponse);
     }
 
@@ -74,7 +63,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> registerUserV2(
         @RequestBody @Valid RegisterUserRequest request
     ) {
-        userService.userRegister(request);
+        userService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

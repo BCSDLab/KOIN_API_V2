@@ -52,9 +52,23 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse getUserV2(Integer userId) {
+    public UserResponse getUser(Integer userId) {
         User user = userRepository.getById(userId);
         return UserResponse.from(user);
+    }
+
+    @Transactional
+    public void registerUser(RegisterUserRequest request) {
+        userValidationService.checkDuplicationUserData(
+            request.nickname(),
+            request.email(),
+            request.phoneNumber(),
+            request.loginId()
+        );
+        User user = request.toUser(passwordEncoder);
+        userRepository.save(user);
+        eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
+        userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
@@ -66,20 +80,6 @@ public class UserService {
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
         return UpdateUserResponse.from(user);
-    }
-
-    @Transactional
-    public void userRegister(RegisterUserRequest request) {
-        userValidationService.checkDuplicationUserData(
-            request.nickname(),
-            request.email(),
-            request.phoneNumber(),
-            request.loginId()
-        );
-        User user = request.toUser(passwordEncoder);
-        userRepository.save(user);
-        eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
-        userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional

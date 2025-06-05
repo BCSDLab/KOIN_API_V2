@@ -61,7 +61,7 @@ public interface UserApi {
     @Operation(summary = "일반인 정보 조회 V2")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/v2/users/me")
-    ResponseEntity<UserResponse> getUserV2(
+    ResponseEntity<UserResponse> getUser(
         @Auth(permit = {GENERAL}) Integer userId
     );
 
