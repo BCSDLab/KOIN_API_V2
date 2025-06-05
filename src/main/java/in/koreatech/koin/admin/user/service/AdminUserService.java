@@ -10,7 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
@@ -32,10 +37,6 @@ import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -76,7 +77,7 @@ public class AdminUserService {
     }
 
     @Transactional
-    public AdminLoginResponse adminLogin(AdminLoginRequest request) {
+    public AdminLoginResponse adminLogin(AdminLoginRequest request, UserAgentInfo userAgentInfo) {
         User user = adminUserRepository.getByEmail(request.email());
         adminUserValidation.validateAdminLogin(user, request);
 
@@ -89,11 +90,11 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void adminLogout(Integer adminId) {
+    public void adminLogout(Integer adminId, UserAgentInfo userAgentInfo) {
         adminTokenRepository.deleteById(adminId);
     }
 
-    public AdminTokenRefreshResponse adminRefresh(AdminTokenRefreshRequest request) {
+    public AdminTokenRefreshResponse adminRefresh(AdminTokenRefreshRequest request, UserAgentInfo userAgentInfo) {
         Integer adminId = getAdminId(request.refreshToken());
         UserToken userToken = adminTokenRepository.getById(adminId);
         if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
