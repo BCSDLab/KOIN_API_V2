@@ -64,7 +64,7 @@ public class AdminUserController implements AdminUserApi{
         @RequestBody @Valid AdminLoginRequest request,
         @UserAgent UserAgentInfo userAgentInfo
     ) {
-        AdminLoginResponse response = adminUserService.adminLogin(request);
+        AdminLoginResponse response = adminUserService.adminLogin(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }
@@ -74,7 +74,7 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId,
         @UserAgent UserAgentInfo userAgentInfo
     ) {
-        adminUserService.adminLogout(adminId);
+        adminUserService.adminLogout(adminId, userAgentInfo);
         return ResponseEntity.ok().build();
     }
 
@@ -83,7 +83,7 @@ public class AdminUserController implements AdminUserApi{
         @RequestBody @Valid AdminTokenRefreshRequest request,
         @UserAgent UserAgentInfo userAgentInfo
     ) {
-        AdminTokenRefreshResponse tokenGroupResponse = adminUserService.adminRefresh(request);
+        AdminTokenRefreshResponse tokenGroupResponse = adminUserService.adminRefresh(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/"))
             .body(tokenGroupResponse);
     }
