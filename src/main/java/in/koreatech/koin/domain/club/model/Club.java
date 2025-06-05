@@ -162,13 +162,15 @@ public class Club extends BaseEntity {
         String imageUrl,
         ClubCategory category,
         String location,
-        String description
+        String description,
+        Boolean isLikeHidden
     ) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.clubCategory = category;
         this.location = location;
         this.description = description;
+        this.isLikeHidden = isLikeHidden;
     }
 
     public void updateIntroduction(String introduction) {

@@ -81,7 +81,7 @@ public class ClubService {
         isClubManager(clubId, studentId);
 
         ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
-        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description());
+        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description(), request.isLikeHidden());
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
