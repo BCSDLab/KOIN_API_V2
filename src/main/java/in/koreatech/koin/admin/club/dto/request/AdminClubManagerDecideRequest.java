@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminClubManagerDecideRequest(
     @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
-    @Size(max = 50, message = "동아리 이름은 최대 50자 입니다.")
+    @Size(max = 20, message = "동아리 이름은 최대 20자 입니다.")
     @NotBlank(message = "동아리 이름은 필수 입력 사항입니다.")
     String clubName,
 
