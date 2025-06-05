@@ -132,6 +132,9 @@ public class ClubService {
     @Transactional
     public ClubResponse getClub(Integer clubId, Integer userId) {
         Club club = clubRepository.getByIdWithPessimisticLock(clubId);
+        if (!club.getIsActive()) {
+            throw new IllegalStateException("비활성화 동아리입니다.");
+        }
         club.increaseHits();
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
@@ -152,14 +155,14 @@ public class ClubService {
     private List<Club> getClubs(Integer categoryId, ClubSortType sortType) {
         if (categoryId == null) {
             return sortType.equals(HITS_DESC)
-                ? clubRepository.findByOrderByHitsDesc()
-                : clubRepository.findByOrderByIdAsc();
+                ? clubRepository.findByIsActiveTrueOrderByHitsDesc()
+                : clubRepository.findByIsActiveTrueOrderByIdAsc();
         }
 
         ClubCategory category = clubCategoryRepository.getById(categoryId);
         return sortType.equals(HITS_DESC)
-            ? clubRepository.findByClubCategoryOrderByHitsDesc(category)
-            : clubRepository.findByClubCategoryOrderByIdAsc(category);
+            ? clubRepository.findByIsActiveTrueAndClubCategoryOrderByHitsDesc(category)
+            : clubRepository.findByIsActiveTrueAndClubCategoryOrderByIdAsc(category);
     }
 
     @Transactional

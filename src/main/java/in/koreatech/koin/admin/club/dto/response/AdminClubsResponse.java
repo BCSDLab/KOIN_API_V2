@@ -90,7 +90,7 @@ public record AdminClubsResponse(
                     .toList(),
                 club.getClubCategory().getName(),
                 club.getCreatedAt().toLocalDate(),
-                club.getActive()
+                club.getIsActive()
             );
         }
     }

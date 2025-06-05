@@ -66,7 +66,7 @@ public record ClubUpdateRequest(
         return Club.builder()
             .name(name)
             .lastWeekHits(0)
-            .active(false)
+            .isActive(false)
             .likes(0)
             .hits(0)
             .introduction("")
