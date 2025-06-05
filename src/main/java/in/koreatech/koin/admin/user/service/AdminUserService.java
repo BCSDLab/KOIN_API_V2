@@ -1,8 +1,6 @@
 package in.koreatech.koin.admin.user.service;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.model.Criteria;
@@ -35,8 +32,8 @@ import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -52,6 +49,7 @@ public class AdminUserService {
     private final AdminTokenRepository adminTokenRepository;
     private final AdminRepository adminRepository;
     private final AdminUserValidation adminUserValidation;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
@@ -82,37 +80,24 @@ public class AdminUserService {
         adminUserValidation.validateAdminLogin(user, request);
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedtoken = adminTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
         user.updateLastLoggedTime(LocalDateTime.now());
 
-        return AdminLoginResponse.of(accessToken, savedtoken.getRefreshToken());
+        return AdminLoginResponse.of(accessToken, refreshToken);
     }
 
     @Transactional
     public void adminLogout(Integer adminId, UserAgentInfo userAgentInfo) {
-        adminTokenRepository.deleteById(adminId);
+        refreshTokenService.deleteRefreshToken(adminId, userAgentInfo.getType());
     }
 
     public AdminTokenRefreshResponse adminRefresh(AdminTokenRefreshRequest request, UserAgentInfo userAgentInfo) {
-        Integer adminId = getAdminId(request.refreshToken());
-        UserToken userToken = adminTokenRepository.getById(adminId);
-        if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
-            throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "request: " + request);
-        }
-        User user = adminUserRepository.findById(userToken.getId())
-            .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. adminId" + adminId));;
-
+        Integer adminId = refreshTokenService.extractUserId(request.refreshToken());
+        refreshTokenService.verifyRefreshToken(adminId, userAgentInfo.getType(), request.refreshToken());
+        User user = adminUserRepository.getById(adminId);
         String accessToken = jwtProvider.createToken(user);
-        return AdminTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
-    }
-
-    private Integer getAdminId(String refreshToken) {
-        String[] split = refreshToken.split("-");
-        if (split.length == 0) {
-            throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
-        }
-        return Integer.parseInt(split[split.length - 1]);
+        return AdminTokenRefreshResponse.of(accessToken,
+            refreshTokenService.getRefreshToken(adminId, userAgentInfo.getType()));
     }
 
     public AdminResponse getAdmin(Integer id) {
@@ -173,6 +158,7 @@ public class AdminUserService {
         } else if (user.getUserType() == UserType.OWNER) {
             adminOwnerRepository.deleteById(userId);
         }
+        refreshTokenService.deleteAllRefreshTokens(userId);
         adminUserRepository.delete(user);
     }
 
