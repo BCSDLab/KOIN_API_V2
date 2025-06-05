@@ -42,7 +42,6 @@ import net.lingala.zip4j.exception.ZipException;
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.DiningImageUploadEvent;
 import in.koreatech.koin._common.event.DiningSoldOutEvent;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
@@ -185,9 +184,7 @@ public class CoopService {
         Coop coop = coopRepository.getByCoopId(request.id());
         User user = coop.getUser();
 
-        if (user.isNotSamePassword(passwordEncoder, request.password())) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
+        user.validatePassword(passwordEncoder, request.password());
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());

@@ -13,7 +13,6 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin.infrastructure.email.exception.DuplicationEmailException;
 import in.koreatech.koin.infrastructure.email.model.EmailAddress;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -49,9 +48,7 @@ public class AdminUserValidation {
             throw UserNotFoundException.withDetail("account" + request.email());
         }
 
-        if (user.isNotSamePassword(passwordEncoder, request.password())) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
+        user.validatePassword(passwordEncoder, request.password());
 
         if (!user.isAuthed()) {
             throw new AuthorizationException("PL 인증 대기중입니다.");

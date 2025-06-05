@@ -38,9 +38,7 @@ public class UserValidationService {
 
     public void checkPassword(String password, Integer userId) {
         User user = userRepository.getById(userId);
-        if (user.isNotSamePassword(passwordEncoder, password)) {
-            throw new KoinIllegalArgumentException("올바르지 않은 비밀번호입니다.");
-        }
+        user.validatePassword(passwordEncoder, password);
     }
 
     public void checkDuplicatedEmail(String email) {
@@ -50,7 +48,8 @@ public class UserValidationService {
     }
 
     public void checkDuplicatedPhoneNumber(String phoneNumber) {
-        if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT))) {
+        if (StringUtils.isNotBlank(phoneNumber) &&
+            userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT))) {
             throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + phoneNumber);
         }
     }
@@ -100,9 +99,7 @@ public class UserValidationService {
 
     public User checkLoginCredentials(String email, String password) {
         User user = userRepository.getByEmail(email);
-        if (user.isNotSamePassword(passwordEncoder, password)) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
+        user.validatePassword(passwordEncoder, password);
         return user;
     }
 
@@ -113,9 +110,7 @@ public class UserValidationService {
         } else {
             user = userRepository.getByUserId(loginId);
         }
-        if (user.isNotSamePassword(passwordEncoder, loginPw)) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
+        user.validatePassword(passwordEncoder, loginPw);
         return user;
     }
 

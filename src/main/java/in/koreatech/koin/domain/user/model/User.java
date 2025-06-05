@@ -14,6 +14,7 @@ import com.google.firebase.database.annotations.Nullable;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.model.BaseEntity;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.Column;
@@ -151,8 +152,11 @@ public class User extends BaseEntity {
         }
     }
 
-    public boolean isNotSamePassword(PasswordEncoder passwordEncoder, String password) {
-        return !passwordEncoder.matches(password, this.password);
+    public void validatePassword(PasswordEncoder passwordEncoder, String password) {
+        if (passwordEncoder.matches(this.password, password)) {
+            return;
+        }
+        throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
     }
 
     public boolean isNotSamePhoneNumber(String phoneNumber) {
