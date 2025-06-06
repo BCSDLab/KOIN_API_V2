@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopsResponse(
     Integer shopId,
+    Integer orderableShopId,
     String name,
     Boolean isDeliveryAvailable,
     Boolean isTakeoutAvailable,
@@ -37,7 +38,8 @@ public record OrderableShopsResponse(
     ) {
         Integer shopId = info.shopId();
         return new OrderableShopsResponse(
-            shopId,
+            info.shopId(),
+            info.orderableShopId(),
             info.name(),
             info.isDeliveryAvailable(),
             info.isTakeoutAvailable(),

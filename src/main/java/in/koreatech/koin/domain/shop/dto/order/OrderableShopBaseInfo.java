@@ -2,12 +2,12 @@ package in.koreatech.koin.domain.shop.dto.order;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.List;
 
 import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse.ShopOpenInfo;
 
 public record OrderableShopBaseInfo(
     Integer shopId,
+    Integer orderableShopId,
     String name,
     Boolean isDeliveryAvailable,
     Boolean isTakeoutAvailable,

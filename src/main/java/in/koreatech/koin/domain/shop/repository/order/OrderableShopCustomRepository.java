@@ -9,7 +9,6 @@ import static in.koreatech.koin.domain.shop.model.shop.QShopCategoryMap.shopCate
 import static in.koreatech.koin.domain.shop.model.shop.QShopImage.shopImage;
 import static in.koreatech.koin.domain.shop.model.shop.QShopOpen.shopOpen;
 
-import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,9 +24,9 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import in.koreatech.koin.domain.shop.dto.order.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.shop.dto.order.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse.ShopOpenInfo;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopBaseInfo;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -48,6 +47,7 @@ public class OrderableShopCustomRepository {
         return queryFactory
             .select(Projections.constructor(OrderableShopBaseInfo.class,
                 shop.id,
+                orderableShop.id,
                 shop.name,
                 orderableShop.delivery,
                 orderableShop.takeout,
