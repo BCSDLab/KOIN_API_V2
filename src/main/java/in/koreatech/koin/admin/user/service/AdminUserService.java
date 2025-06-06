@@ -28,7 +28,6 @@ import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
-import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.model.User;
@@ -46,7 +45,6 @@ public class AdminUserService {
     private final AdminOwnerRepository adminOwnerRepository;
     private final AdminUserRepository adminUserRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AdminTokenRepository adminTokenRepository;
     private final AdminRepository adminRepository;
     private final AdminUserValidation adminUserValidation;
     private final RefreshTokenService refreshTokenService;
