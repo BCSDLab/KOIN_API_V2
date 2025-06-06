@@ -155,6 +155,7 @@ public class UserService {
             throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
         }
         user.updatePassword(passwordEncoder, newPassword);
+        refreshTokenService.deleteAllRefreshTokens(user.getId());
         userRepository.save(user);
         userVerificationService.consumeVerification(phoneNumber);
     }

@@ -330,6 +330,7 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
         user.updatePassword(passwordEncoder, request.password());
+        refreshTokenService.deleteAllRefreshTokens(user.getId());
     }
 
     @Transactional

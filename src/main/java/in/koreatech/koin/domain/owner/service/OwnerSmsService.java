@@ -104,6 +104,7 @@ public class OwnerSmsService {
     public void updatePasswordBySms(OwnerPasswordUpdateSmsRequest request) {
         User user = userRepository.getByPhoneNumberAndUserType(request.phoneNumber(), OWNER);
         user.updatePassword(passwordEncoder, request.password());
+        refreshTokenService.deleteAllRefreshTokens(user.getId());
     }
 
     public void checkExistsAccount(OwnerAccountCheckExistsRequest request) {
