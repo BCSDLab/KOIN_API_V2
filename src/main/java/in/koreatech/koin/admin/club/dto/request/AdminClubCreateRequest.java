@@ -81,7 +81,7 @@ public record AdminClubCreateRequest(
         return Club.builder()
             .name(name)
             .lastWeekHits(0)
-            .isActive(false)
+            .isActive(true)
             .likes(0)
             .hits(0)
             .introduction("")
