@@ -219,7 +219,7 @@ public class AdminClubService {
                 .mapToObj(i -> AdminClubManagersResponse.InnerClubManagersResponse.fromRedis(
                     paged.get(i),
                     userMap.get(paged.get(i).getRequesterId()),
-                    (paged.size() * criteria.getPage()) + (i + 1)
+                    (criteria.getLimit() * criteria.getPage()) + (i + 1)
                 ))
                 .toList();
 

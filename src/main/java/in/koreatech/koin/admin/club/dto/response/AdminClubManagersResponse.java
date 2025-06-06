@@ -97,7 +97,7 @@ public record AdminClubManagersResponse(
             criteria.getPage() + 1,
             IntStream.range(0, pagedResult.getContent().size())
                 .mapToObj(i -> InnerClubManagersResponse.from(pagedResult.getContent().get(i),
-                    (pagedResult.getContent().size() * (criteria.getPage())) + (i + 1)))
+                    (criteria.getLimit() * criteria.getPage()) + (i + 1)))
                 .toList()
         );
     }
