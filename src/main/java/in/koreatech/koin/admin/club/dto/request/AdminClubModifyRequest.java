@@ -20,7 +20,7 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminClubModifyRequest(
     @Schema(description = "동아리 이름", example = "BCSD Lab", requiredMode = REQUIRED)
-    @Size(max = 50, message = "동아리 이름은 최대 50자 입니다.")
+    @Size(max = 20, message = "동아리 이름은 최대 20자 입니다.")
     @NotBlank(message = "동아리 이름은 필수 입력 사항입니다.")
     String name,
 
@@ -43,8 +43,7 @@ public record AdminClubModifyRequest(
     String location,
 
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
-    @Size(max = 100, message = "동아리 소개는 최대 100자 입니다.")
-    @NotBlank(message = "동아리 소개는 필수 입력 사항입니다.")
+    @Size(max = 40, message = "동아리 소개는 최대 40자 입니다.")
     String description,
 
     @Schema(description = "동아리 활성화 여부", example = "false", requiredMode = REQUIRED)

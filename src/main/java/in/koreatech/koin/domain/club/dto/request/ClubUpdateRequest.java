@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.club.dto.request;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -17,7 +19,7 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubUpdateRequest(
     @Schema(description = "동아리명", example = "BCSD", requiredMode = REQUIRED)
-    @Size(max = 50, message = "동아리 이름은 최대 50자 입니다.")
+    @Size(max = 20, message = "동아리 이름은 최대 20자 입니다.")
     @NotEmpty(message = "동아리 이름은 필수 입력 사항입니다.")
     String name,
 
@@ -36,8 +38,7 @@ public record ClubUpdateRequest(
     String location,
 
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = REQUIRED)
-    @Size(max = 100, message = "동아리 소개는 최대 100자 입니다.")
-    @NotBlank(message = "동아리 소개는 필수 입력 사항입니다.")
+    @Size(max = 40, message = "동아리 소개는 최대 40자 입니다.")
     String description,
 
     @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = NOT_REQUIRED)
@@ -65,13 +66,13 @@ public record ClubUpdateRequest(
         return Club.builder()
             .name(name)
             .lastWeekHits(0)
-            .active(false)
+            .isActive(false)
             .likes(0)
             .hits(0)
             .introduction("")
             .imageUrl(imageUrl)
             .clubCategory(clubCategory)
-            .description(description)
+            .description(Objects.requireNonNullElse(description, ""))
             .location(location)
             .isLikeHidden(isLikeHidden)
             .build();

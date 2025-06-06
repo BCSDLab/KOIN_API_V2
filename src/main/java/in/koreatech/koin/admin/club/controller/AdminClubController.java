@@ -114,7 +114,7 @@ public class AdminClubController implements AdminClubApi {
 
     @PostMapping("/decision")
     public ResponseEntity<Void> decideClubAdmin(
-        @RequestBody AdminClubManagerDecideRequest request,
+        @RequestBody @Valid AdminClubManagerDecideRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminClubService.decideClubManager(request.clubName(), request);

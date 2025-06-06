@@ -41,13 +41,13 @@ public interface ClubRepository extends Repository<Club, Integer> {
 
     List<Club> findByClubCategory(ClubCategory category);
 
-    List<Club> findByClubCategoryOrderByIdAsc(ClubCategory category);
+    List<Club> findByIsActiveTrueAndClubCategoryOrderByIdAsc(ClubCategory category);
 
-    List<Club> findByClubCategoryOrderByHitsDesc(ClubCategory category);
+    List<Club> findByIsActiveTrueAndClubCategoryOrderByHitsDesc(ClubCategory category);
 
-    List<Club> findByOrderByHitsDesc();
+    List<Club> findByIsActiveTrueOrderByHitsDesc();
 
-    List<Club> findByOrderByIdAsc();
+    List<Club> findByIsActiveTrueOrderByIdAsc();
 
     void deleteById(Integer id);
 }

@@ -117,7 +117,7 @@ public class ClubCreateRedis {
             .likes(0)
             .hits(0)
             .lastWeekHits(0)
-            .active(false)
+            .isActive(false)
             .introduction("")
             .isLikeHidden(this.isLikeHidden)
             .build();
