@@ -34,10 +34,12 @@ public class ShopBaseDeliveryTip extends BaseEntity {
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    @Column(name = "is_open", nullable = false)
-    private Boolean isOpen;
+    @Column(name = "order_amount", nullable = false)
+    private Integer orderAmount;
 
     @Column(name = "fee", nullable = false)
     private Integer fee;
 
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
 }
