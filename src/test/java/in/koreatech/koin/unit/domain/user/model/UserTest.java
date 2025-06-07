@@ -107,20 +107,22 @@ class UserTest {
     }
 
     @Test
-    void requireSamePhoneNumber_비밀번호가_일치하는지_확인한다() {
+    void requireSamePhoneNumber_전화번호가_일치하는지_확인한다() {
         // given
         doReturn(false).when(user).isNotSamePhoneNumber(anyString());
         // when / then
         assertDoesNotThrow(() -> user.requireSamePhoneNumber(user.getPhoneNumber()));
+        verify(user, times(1)).isNotSamePhoneNumber(anyString());
     }
 
     @Test
-    void requireSamePhoneNumber_비밀번호가_불일치하면_예외를_던진다() {
+    void requireSamePhoneNumber_전화번호가_불일치하면_예외를_던진다() {
         // given
         doReturn(true).when(user).isNotSamePhoneNumber(anyString());
         // when / then
         assertThrows(KoinIllegalArgumentException.class,
             () -> user.requireSamePhoneNumber("01000000000"));
+        verify(user, times(1)).isNotSamePhoneNumber(anyString());
     }
 
     @Test
@@ -129,6 +131,7 @@ class UserTest {
         doReturn(false).when(user).isNotSameEmail(anyString());
         // when / then
         assertDoesNotThrow(() -> user.requireSameEmail(user.getEmail()));
+        verify(user, times(1)).isNotSameEmail(anyString());
     }
 
     @Test
@@ -138,6 +141,7 @@ class UserTest {
         // when / then
         assertThrows(KoinIllegalArgumentException.class,
             () -> user.requireSameEmail("x@y.com"));
+        verify(user, times(1)).isNotSameEmail(anyString());
     }
 
     @Test
@@ -146,6 +150,7 @@ class UserTest {
         doReturn(false).when(user).isNotSameLoginPw(passwordEncoder, "raw");
         // when / then
         assertDoesNotThrow(() -> user.requireSameLoginPw(passwordEncoder, "raw"));
+        verify(user, times(1)).isNotSameLoginPw(any(), anyString());
     }
 
     @Test
@@ -155,6 +160,7 @@ class UserTest {
         // when / then
         assertThrows(KoinIllegalArgumentException.class,
             () -> user.requireSameLoginPw(passwordEncoder, "raw"));
+        verify(user, times(1)).isNotSameLoginPw(any(), anyString());
     }
 
     @Test
