@@ -48,7 +48,7 @@ public class AdminUserValidation {
             throw UserNotFoundException.withDetail("account" + request.email());
         }
 
-        user.validatePassword(passwordEncoder, request.password());
+        user.requireSamePassword(passwordEncoder, request.password());
 
         if (!user.isAuthed()) {
             throw new AuthorizationException("PL 인증 대기중입니다.");

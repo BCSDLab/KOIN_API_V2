@@ -45,7 +45,7 @@ public class OwnerSmsService {
     @Transactional
     public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
         User user = ownerUtilService.extractUserByAccount(request.account());
-        user.validatePassword(passwordEncoder, request.password());
+        user.requireSamePassword(passwordEncoder, request.password());
         ownerValidator.validateAuth(user);
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = ownerUtilService.saveRefreshToken(user);

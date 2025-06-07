@@ -42,11 +42,11 @@ public record CreateAdminRequest(
 ) {
 
     public Admin toAdmin(PasswordEncoder passwordEncoder) {
-        String userId = email.substring(0, email.indexOf("@"));
+        String loginId = email.substring(0, email.indexOf("@"));
         User user = User.builder()
             .email(email)
-            .password(passwordEncoder.encode(password))
-            .userId(userId)
+            .loginId(loginId)
+            .loginPw(passwordEncoder.encode(password))
             .name(name)
             .userType(ADMIN)
             .isAuthed(false)

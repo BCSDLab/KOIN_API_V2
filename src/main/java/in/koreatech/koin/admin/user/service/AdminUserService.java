@@ -69,7 +69,7 @@ public class AdminUserService {
     public void adminPasswordChange(AdminPasswordChangeRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
         User user = admin.getUser();
-        user.validatePassword(passwordEncoder, request.oldPassword());
+        user.requireSamePassword(passwordEncoder, request.oldPassword());
         user.updatePassword(passwordEncoder, request.newPassword());
     }
 
@@ -135,7 +135,7 @@ public class AdminUserService {
         }
 
         User user = adminRepository.getById(id).getUser();
-        user.auth();
+        user.permitAuth();
     }
 
     @Transactional

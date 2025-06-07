@@ -10,16 +10,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByEmailRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByPhoneRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByUserIdRequest;
-import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithEmailRequest;
-import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithPhoneNumberRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserAccessTokenRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserUniqueEmailRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserUniqueLoginIdRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserUniqueNicknameRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserUniquePhoneNumberRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserCorrectPasswordRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserExistsEmailRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserExistsPhoneNumberRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserExistsLoginIdRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithEmailRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithPhoneNumberRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,36 +35,19 @@ public interface UserValidationApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", description = "이메일 양식 오류", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "200", description = "로그인 확인"),
+            @ApiResponse(responseCode = "401", description = "로그인 하지 않음", content = @Content(schema = @Schema(hidden = true))),
         }
     )
     @Operation(
-        summary = "이메일 중복 체크",
-        description = "입력한 이메일이 중복인지 확인합니다."
+        summary = "로그인 여부 확인",
+        description = "액세스 토큰을 통해 로그인 여부를 확인합니다."
     )
-    @GetMapping("/user/check/email")
-    ResponseEntity<Void> checkUserEmailExist(
-        @ParameterObject @ModelAttribute("address")
-        @Valid CheckEmailDuplicationRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", description = "전화번호 양식 오류", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", description = "전화번호 중복", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(
-        summary = "전화번호 중복 체크",
-        description = "입력한 전화번호가 중복인지 확인합니다."
-    )
-    @GetMapping("/user/check/phone")
-    ResponseEntity<Void> checkPhoneNumberExist(
-        @ParameterObject @ModelAttribute("phone")
-        @Valid CheckPhoneDuplicationRequest request
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/user/check/login")
+    ResponseEntity<Void> requireLogin(
+        @ParameterObject @ModelAttribute(value = "access_token")
+        @Valid UserAccessTokenRequest request
     );
 
     @ApiResponses(
@@ -74,13 +58,47 @@ public interface UserValidationApi {
         }
     )
     @Operation(
-        summary = "아이디 중복 체크",
-        description = "입력한 아이디가 중복인지 확인합니다."
+        summary = "로그인 아이디 중복 체크",
+        description = "입력한 로그인 아이디가 중복되지 않고, 사용 가능한지 확인합니다."
     )
     @GetMapping("/user/check/id")
-    ResponseEntity<Void> checkDuplicatedLoginId(
+    ResponseEntity<Void> requireLoginIdUnique(
         @ParameterObject @ModelAttribute("id")
-        @Valid CheckLoginIdDuplicationRequest request
+        @Valid UserUniqueLoginIdRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", description = "전화번호 양식 오류", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "전화번호 중복", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(
+        summary = "전화번호 사용 가능 체크",
+        description = "입력한 전화번호가 중복되지 않고, 사용 가능한지 확인합니다."
+    )
+    @GetMapping("/user/check/phone")
+    ResponseEntity<Void> requirePhoneNumberUnique(
+        @ParameterObject @ModelAttribute("phone")
+        @Valid UserUniquePhoneNumberRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", description = "이메일 양식 오류", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(
+        summary = "이메일 사용 가능 체크",
+        description = "입력한 이메일이 중복되지 않고, 사용 가능한지 확인합니다."
+    )
+    @GetMapping("/user/check/email")
+    ResponseEntity<Void> requireEmailUnique(
+        @ParameterObject @ModelAttribute("address")
+        @Valid UserUniqueEmailRequest request
     );
 
     @ApiResponses(
@@ -91,13 +109,13 @@ public interface UserValidationApi {
         }
     )
     @Operation(
-        summary = "닉네임 중복 체크",
-        description = "입력한 닉네임이 중복인지 확인합니다."
+        summary = "닉네임 사용 가능 체크",
+        description = "입력한 닉네임이 중복되지 않고, 사용 가능한지 확인합니다."
     )
     @GetMapping("/user/check/nickname")
-    ResponseEntity<Void> checkDuplicationOfNickname(
+    ResponseEntity<Void> requireNicknameUnique(
         @ParameterObject @ModelAttribute("nickname")
-        @Valid CheckNicknameDuplicationRequest request
+        @Valid UserUniqueNicknameRequest request
     );
 
     @ApiResponses(
@@ -109,13 +127,13 @@ public interface UserValidationApi {
         }
     )
     @Operation(
-        summary = "비밀번호 검증",
-        description = "적절한 비밀번호인지 검증합니다."
+        summary = "비밀번호 검증 (로그인 API로 대체 가능. 레거시)",
+        description = "비밀번호가 맞는지 검증합니다."
     )
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/check/password")
-    ResponseEntity<Void> checkPassword(
-        @Valid @RequestBody CheckUserPasswordRequest request,
+    ResponseEntity<Void> requireCorrectPassword(
+        @Valid @RequestBody UserCorrectPasswordRequest request,
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
@@ -128,8 +146,8 @@ public interface UserValidationApi {
         description = "입력한 로그인 ID가 존재하는지 확인합니다."
     )
     @PostMapping("/user/id/exists")
-    ResponseEntity<Void> existsByUserId(
-        @Valid @RequestBody ExistsByUserIdRequest request
+    ResponseEntity<Void> requireExistingLoginId(
+        @Valid @RequestBody UserExistsLoginIdRequest request
     );
 
     @ApiResponses({
@@ -141,8 +159,8 @@ public interface UserValidationApi {
         description = "입력한 전화번호로 가입된 계정이 존재하는지 확인합니다."
     )
     @PostMapping("/user/phone/exists")
-    ResponseEntity<Void> existsByPhoneNumber(
-        @Valid @RequestBody ExistsByPhoneRequest request
+    ResponseEntity<Void> requireExistingPhoneNumber(
+        @Valid @RequestBody UserExistsPhoneNumberRequest request
     );
 
     @ApiResponses({
@@ -154,8 +172,8 @@ public interface UserValidationApi {
         description = "입력한 이메일 주소로 가입된 계정이 존재하는지 확인합니다."
     )
     @PostMapping("/user/email/exists")
-    ResponseEntity<Void> existsByEmail(
-        @Valid @RequestBody ExistsByEmailRequest request
+    ResponseEntity<Void> requireEmailExists(
+        @Valid @RequestBody UserExistsEmailRequest request
     );
 
     @ApiResponses({
@@ -168,8 +186,8 @@ public interface UserValidationApi {
         description = "입력한 로그인 ID와 전화번호가 일치하는지 확인합니다."
     )
     @PostMapping("/users/id/match/phone")
-    ResponseEntity<Void> matchUserIdWithPhoneNumber(
-        @Valid @RequestBody MatchUserIdWithPhoneNumberRequest request
+    ResponseEntity<Void> matchLoginIdWithPhoneNumber(
+        @Valid @RequestBody UserMatchLoginIdWithPhoneNumberRequest request
     );
 
     @ApiResponses({
@@ -182,7 +200,7 @@ public interface UserValidationApi {
         description = "입력한 로그인 ID와 이메일 주소가 일치하는지 확인합니다."
     )
     @PostMapping("/users/id/match/email")
-    ResponseEntity<Void> matchUserIdWithEmail(
-        @Valid @RequestBody MatchUserIdWithEmailRequest request
+    ResponseEntity<Void> matchLoginIdWithEmail(
+        @Valid @RequestBody UserMatchLoginIdWithEmailRequest request
     );
 }

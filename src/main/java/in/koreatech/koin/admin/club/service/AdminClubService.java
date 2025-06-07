@@ -106,7 +106,7 @@ public class AdminClubService {
 
         List<ClubManager> clubManagers = request.clubManagers().stream()
             .map(innerClubAdminRequest ->
-                innerClubAdminRequest.toEntity(club, adminUserRepository.getByUserId(innerClubAdminRequest.userId()))
+                innerClubAdminRequest.toEntity(club, adminUserRepository.getByLoginId(innerClubAdminRequest.userId()))
             )
             .toList();
 
@@ -132,7 +132,7 @@ public class AdminClubService {
         List<ClubManager> clubManagers = request.clubManagers().stream()
             .map(innerClubAdminUpdateRequest ->
                 innerClubAdminUpdateRequest.toEntity(club,
-                    adminUserRepository.getByUserId(innerClubAdminUpdateRequest.userId()))
+                    adminUserRepository.getByLoginId(innerClubAdminUpdateRequest.userId()))
             )
             .toList();
 

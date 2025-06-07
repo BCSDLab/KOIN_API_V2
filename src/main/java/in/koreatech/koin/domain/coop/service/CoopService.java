@@ -184,7 +184,7 @@ public class CoopService {
         Coop coop = coopRepository.getByCoopId(request.id());
         User user = coop.getUser();
 
-        user.validatePassword(passwordEncoder, request.password());
+        user.requireSamePassword(passwordEncoder, request.password());
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());

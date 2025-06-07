@@ -9,14 +9,12 @@ import java.util.Objects;
 
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.google.firebase.database.annotations.Nullable;
+import org.springframework.util.StringUtils;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.model.BaseEntity;
-import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -42,6 +40,26 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Size(max = 50)
+    @Column(name = "name", length = 50)
+    private String name;
+
+    @Size(max = 50)
+    @Column(name = "nickname", length = 50, unique = true)
+    private String nickname;
+
+    @Size(max = 20)
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
+    @Size(max = 100)
+    @Column(name = "email", length = 100)
+    private String email;
+
+    @Size(max = 255)
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
     @NotNull
     @Column(name = "user_id", nullable = false)
     private String loginId;
@@ -50,26 +68,13 @@ public class User extends BaseEntity {
     @Column(name = "password", nullable = false)
     private String loginPw;
 
-    @Size(max = 50)
-    @Column(name = "nickname", length = 50, unique = true)
-    private String nickname;
-
-    @Size(max = 50)
-    @Column(name = "name", length = 50)
-    private String name;
-
-    @Size(max = 20)
-    @Column(name = "phone_number", length = 20)
-    private String phoneNumber;
+    @Column(name = "device_token")
+    private String deviceToken;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false, length = 20)
     private UserType userType;
-
-    @Size(max = 100)
-    @Column(name = "email", length = 100)
-    private String email;
 
     @Column(name = "gender", columnDefinition = "INT")
     @Enumerated(value = EnumType.ORDINAL)
@@ -79,19 +84,12 @@ public class User extends BaseEntity {
     @Column(name = "is_authed", nullable = false)
     private boolean isAuthed = false;
 
-    @Column(name = "last_logged_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime lastLoggedAt;
-
-    @Size(max = 255)
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
-
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Column(name = "device_token", nullable = true)
-    private String deviceToken;
+    @Column(name = "last_logged_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime lastLoggedAt;
 
     @Builder
     private User(
@@ -125,16 +123,16 @@ public class User extends BaseEntity {
     }
 
     public void update(
-        @Nullable String email,
+        String email,
         String nickname,
         String name,
         String phoneNumber,
         UserGender gender
     ) {
-        this.email = email;
-        this.nickname = nickname;
         this.name = name;
+        this.nickname = nickname;
         this.phoneNumber = phoneNumber;
+        this.email = email;
         this.gender = gender;
     }
 
@@ -143,31 +141,47 @@ public class User extends BaseEntity {
     }
 
     public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
-        lastLoggedAt = lastLoggedTime;
+        this.lastLoggedAt = lastLoggedTime;
     }
 
-    public void updatePassword(PasswordEncoder passwordEncoder, String password) {
-        if (StringUtils.isNotBlank(password)) {
-            this.loginPw = passwordEncoder.encode(password.replaceAll("-", ""));
+    public void updatePassword(PasswordEncoder passwordEncoder, String loginPw) {
+        if (StringUtils.hasText(loginPw)) {
+            this.loginPw = passwordEncoder.encode(loginPw.replaceAll("-", ""));
         }
     }
 
-    public void validatePassword(PasswordEncoder passwordEncoder, String password) {
-        if (passwordEncoder.matches(this.loginPw, password)) {
-            return;
-        }
-        throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+    public boolean isNotSameNickname(String nickname) {
+        return StringUtils.hasText(nickname) && !Objects.equals(this.nickname, nickname);
     }
 
     public boolean isNotSamePhoneNumber(String phoneNumber) {
-        return !Objects.equals(this.phoneNumber, phoneNumber);
+        return StringUtils.hasText(phoneNumber) && !Objects.equals(this.phoneNumber, phoneNumber);
     }
 
     public boolean isNotSameEmail(String email) {
-        return !Objects.equals(this.email, email);
+        return StringUtils.hasText(email) && !Objects.equals(this.email, email);
     }
 
-    public void auth() {
+    public void requireSamePassword(PasswordEncoder passwordEncoder, String password) {
+        if (StringUtils.hasText(password) && passwordEncoder.matches(this.loginPw, password)) {
+            return;
+        }
+        throw new KoinIllegalArgumentException("비밀번호가 일치하지 않습니다.");
+    }
+
+    public void requireSamePhoneNumber(String phoneNumber) {
+        if (isNotSameNickname(phoneNumber)) {
+            throw new KoinIllegalArgumentException("전화번호가 일치하지 않습니다.");
+        }
+    }
+
+    public void requireSameEmail(String email) {
+        if (isNotSameEmail(email)) {
+            throw new KoinIllegalArgumentException("이메일이 일치하지 않습니다.");
+        }
+    }
+
+    public void permitAuth() {
         this.isAuthed = true;
     }
 

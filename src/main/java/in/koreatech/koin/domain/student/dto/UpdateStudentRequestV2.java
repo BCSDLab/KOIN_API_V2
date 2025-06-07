@@ -12,12 +12,25 @@ import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record UpdateStudentRequestV2(
-    @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
-    UserGender gender,
+    @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
+    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
+    String name,
+
+    @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
+    @Size(max = 10, message = "닉네임은 최대 10자입니다.")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
+    String nickname,
+
+    @Schema(description = "휴대폰 번호", example = "01012345678", requiredMode = NOT_REQUIRED)
+    @Pattern(regexp = "^(\\d{3}-\\d{3,4}-\\d{4}|\\d{10,11})$", message = "전화번호 형식이 올바르지 않습니다.")
+    String phoneNumber,
 
     @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr", requiredMode = NOT_REQUIRED)
     @Size(max = 30, message = "이메일의 길이는 최대 30자 입니다.")
     String email,
+
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = NOT_REQUIRED)
+    String password,
 
     @Schema(
         description = """
@@ -38,25 +51,12 @@ public record UpdateStudentRequestV2(
     )
     String major,
 
-    @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
-    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
-    String name,
-
-    @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
-    @Size(max = 10, message = "닉네임은 최대 10자입니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
-    String nickname,
-
     @Schema(description = "학번", example = "2021136012", requiredMode = NOT_REQUIRED)
     @Pattern(regexp = "^[0-9]{10}$", message = "학번엔 10자리 숫자만 입력 가능합니다.")
     String studentNumber,
 
-    @Schema(description = "휴대폰 번호", example = "01012345678", requiredMode = NOT_REQUIRED)
-    @Pattern(regexp = "^(\\d{3}-\\d{3,4}-\\d{4}|\\d{10,11})$", message = "전화번호 형식이 올바르지 않습니다.")
-    String phoneNumber,
-
-    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = NOT_REQUIRED)
-    String password
+    @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
+    UserGender gender
 ) {
 
 }

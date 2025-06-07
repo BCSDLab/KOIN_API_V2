@@ -41,7 +41,7 @@ public interface AdminUserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 
-    default User getByUserId(String loginId) {
+    default User getByLoginId(String loginId) {
         return findByUserId(loginId)
             .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }

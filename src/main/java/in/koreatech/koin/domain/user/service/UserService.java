@@ -14,20 +14,24 @@ import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
-import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
-import in.koreatech.koin.domain.user.dto.RegisterUserRequest;
-import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
-import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
+import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
+import in.koreatech.koin.domain.user.dto.UserFindIdBySmsRequest;
+import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
+import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
+import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
+import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserResponse;
+import in.koreatech.koin.domain.user.dto.UserTypeResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -57,12 +61,17 @@ public class UserService {
         return UserResponse.from(user);
     }
 
+    public UserTypeResponse getUserType(Integer userId) {
+        User user = userRepository.getById(userId);
+        return UserTypeResponse.from(user);
+    }
+
     @Transactional
-    public void registerUser(RegisterUserRequest request) {
-        userValidationService.checkDuplicationUserData(
+    public void registerUser(UserRegisterRequest request) {
+        userValidationService.requireUniqueRegister(
             request.nickname(),
-            request.email(),
             request.phoneNumber(),
+            request.email(),
             request.loginId()
         );
         User user = request.toUser(passwordEncoder);
@@ -72,25 +81,36 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateUserResponse updateUserV2(Integer userId, UpdateUserRequest request) {
+    public UserUpdateResponse updateUser(Integer userId, UserUpdateRequest request) {
         User user = userRepository.getById(userId);
-        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
-        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
-        userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
+        userValidationService.requireUniqueUpdate(
+            request.nickname(),
+            request.phoneNumber(),
+            request.email(),
+            user
+        );
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
-        return UpdateUserResponse.from(user);
+        return UserUpdateResponse.from(user);
     }
 
     @Transactional
     public UserLoginResponse loginV2(UserLoginRequestV2 request) {
-        User user = userValidationService.checkLoginCredentialsV2(request.loginId(), request.loginPw());
+        User user;
+        String loginId = request.loginId();
+        if (loginId.matches("^\\d{11}$")) {
+            user = userRepository.getByPhoneNumber(loginId);
+        } else {
+            user = userRepository.getByUserId(loginId);
+        }
+        user.requireSamePassword(passwordEncoder, request.loginPw());
         return createLoginResponse(user);
     }
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
-        User user = userValidationService.checkLoginCredentials(request.email(), request.password());
+        User user = userRepository.getByEmail(request.email());
+        user.requireSamePassword(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
         return createLoginResponse(user);
     }
@@ -108,16 +128,7 @@ public class UserService {
         userTokenRedisRepository.deleteById(userId);
     }
 
-    public void checkLogin(String accessToken) {
-        jwtProvider.getUserId(accessToken);
-    }
-
-    public AuthResponse getAuth(Integer userId) {
-        User user = userRepository.getById(userId);
-        return AuthResponse.from(user);
-    }
-
-    public RefreshUserTokenResponse refresh(RefreshUserTokenRequest request) {
+    public UserRefreshTokenResponse refresh(UserRefreshTokenRequest request) {
         Integer userId = refreshTokenService.extractUserId(request.refreshToken());
         UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(), userId);
 
@@ -125,7 +136,7 @@ public class UserService {
             .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. userId : " + userId));
 
         String accessToken = jwtProvider.createToken(user);
-        return RefreshUserTokenResponse.of(accessToken, userToken.getRefreshToken());
+        return UserRefreshTokenResponse.of(accessToken, userToken.getRefreshToken());
     }
 
     @Transactional
@@ -145,39 +156,37 @@ public class UserService {
         user.updateLastLoggedTime(LocalDateTime.now());
     }
 
-    public String findIdBySms(String phoneNumber) {
+    public UserFindLoginIdResponse findIdBySms(UserFindIdBySmsRequest request) {
+        String phoneNumber = request.phoneNumber();
         User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT));
         String userId = user.getLoginId();
         userVerificationService.consumeVerification(phoneNumber);
-        return userId;
+        return UserFindLoginIdResponse.from(userId);
     }
 
-    public String findIdByEmail(String email) {
+    public UserFindLoginIdResponse findIdByEmail(UserFindIdByEmailRequest request) {
+        String email = request.email();
         User user = userRepository.getByEmailAndUserTypeIn(email, List.of(GENERAL, STUDENT));
-        String userId = user.getLoginId();
+        String loginId = user.getLoginId();
         userVerificationService.consumeVerification(email);
-        return userId;
+        return UserFindLoginIdResponse.from(loginId);
     }
 
     @Transactional
-    public void resetPasswordBySms(String userId, String phoneNumber, String newPassword) {
-        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(GENERAL, STUDENT));
-        if (user.isNotSamePhoneNumber(phoneNumber)) {
-            throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
-        }
-        user.updatePassword(passwordEncoder, newPassword);
+    public void resetPasswordBySms(UserResetPasswordBySmsRequest request) {
+        User user = userRepository.getByUserIdAndUserTypeIn(request.loginId(), List.of(GENERAL, STUDENT));
+        user.requireSamePhoneNumber(request.phoneNumber());
+        user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);
-        userVerificationService.consumeVerification(phoneNumber);
+        userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
-    public void resetPasswordByEmail(String userId, String email, String newPassword) {
-        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(GENERAL, STUDENT));
-        if (user.isNotSameEmail(email)) {
-            throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
-        }
-        user.updatePassword(passwordEncoder, newPassword);
+    public void resetPasswordByEmail(UserResetPasswordByEmailRequest request) {
+        User user = userRepository.getByUserIdAndUserTypeIn(request.loginId(), List.of(GENERAL, STUDENT));
+        user.requireSameEmail(request.email());
+        user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);
-        userVerificationService.consumeVerification(email);
+        userVerificationService.consumeVerification(request.email());
     }
 }
