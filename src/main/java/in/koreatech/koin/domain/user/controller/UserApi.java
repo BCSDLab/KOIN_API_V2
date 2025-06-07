@@ -12,32 +12,24 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.FindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.FindIdBySmsRequest;
 import in.koreatech.koin.domain.user.dto.FindIdResponse;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
+import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
 import in.koreatech.koin.domain.user.dto.RegisterUserRequest;
 import in.koreatech.koin.domain.user.dto.ResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.ResetPasswordBySmsRequest;
+import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
+import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
 import in.koreatech.koin.domain.user.dto.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
-import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
-import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
-import in.koreatech.koin.domain.user.dto.validation.CheckEmailDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckLoginIdDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckNicknameDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckPhoneDuplicationRequest;
-import in.koreatech.koin.domain.user.dto.validation.CheckUserPasswordRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByEmailRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByPhoneRequest;
-import in.koreatech.koin.domain.user.dto.validation.ExistsByUserIdRequest;
-import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithEmailRequest;
-import in.koreatech.koin.domain.user.dto.validation.MatchUserIdWithPhoneNumberRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -110,7 +102,8 @@ public interface UserApi {
     @Operation(summary = "로그인 V2")
     @PostMapping("/v2/users/login")
     ResponseEntity<UserLoginResponse> loginV2(
-        @RequestBody @Valid UserLoginRequestV2 request
+        @RequestBody @Valid UserLoginRequestV2 request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -124,7 +117,8 @@ public interface UserApi {
     @Operation(summary = "로그인")
     @PostMapping("/user/login")
     ResponseEntity<UserLoginResponse> login(
-        @RequestBody @Valid UserLoginRequest request
+        @RequestBody @Valid UserLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -139,7 +133,8 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -153,7 +148,8 @@ public interface UserApi {
     @Operation(summary = "토큰 갱신")
     @PostMapping("/user/refresh")
     ResponseEntity<RefreshUserTokenResponse> refresh(
-        @RequestBody @Valid RefreshUserTokenRequest request
+        @RequestBody @Valid RefreshUserTokenRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(

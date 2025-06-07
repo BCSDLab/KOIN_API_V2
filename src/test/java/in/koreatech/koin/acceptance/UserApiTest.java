@@ -80,6 +80,7 @@ class UserApiTest extends AcceptanceTest {
                         }
                         """.formatted(email, password))
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isCreated());
     }
@@ -100,6 +101,7 @@ class UserApiTest extends AcceptanceTest {
                         }
                         """.formatted(id, password))
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isCreated());
     }
@@ -127,6 +129,7 @@ class UserApiTest extends AcceptanceTest {
                 delete("/user")
                     .header("Authorization", "Bearer " + token)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isNoContent());
 
@@ -353,6 +356,7 @@ class UserApiTest extends AcceptanceTest {
                         }
                         """.formatted(student.getUser().getEmail(), newPassword))
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isCreated());
 
@@ -365,6 +369,7 @@ class UserApiTest extends AcceptanceTest {
                         }
                         """.formatted(student.getUser().getEmail(), "1234"))
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isBadRequest());
     }
@@ -609,6 +614,7 @@ class UserApiTest extends AcceptanceTest {
                         }
                         """.formatted(user.getEmail(), newPassword))
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isCreated());
     }

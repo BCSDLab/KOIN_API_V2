@@ -1,5 +1,18 @@
 package in.koreatech.koin.domain.owner.controller;
 
+import java.net.URI;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerLoginRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerLoginResponse;
@@ -8,19 +21,10 @@ import in.koreatech.koin.domain.owner.dto.sms.OwnerPasswordUpdateSmsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerRegisterByPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerSmsVerifyRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.sms.VerifySmsRequest;
 import in.koreatech.koin.domain.owner.service.OwnerSmsService;
 import jakarta.validation.Valid;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,9 +34,10 @@ public class SmsBasedOwnerController implements SmsBasedOwnerApi {
 
     @PostMapping("/owner/login")
     public ResponseEntity<OwnerLoginResponse> ownerLogin(
-            @RequestBody @Valid OwnerLoginRequest request
+        @RequestBody @Valid OwnerLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        OwnerLoginResponse response = ownerSmsService.ownerLogin(request);
+        OwnerLoginResponse response = ownerSmsService.ownerLogin(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/"))
                 .body(response);
     }

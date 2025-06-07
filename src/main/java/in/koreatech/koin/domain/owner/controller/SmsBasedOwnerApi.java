@@ -1,5 +1,15 @@
 package in.koreatech.koin.domain.owner.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerLoginRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerLoginResponse;
@@ -8,7 +18,6 @@ import in.koreatech.koin.domain.owner.dto.sms.OwnerPasswordUpdateSmsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerRegisterByPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerSmsVerifyRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.sms.VerifySmsRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,12 +27,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "(Normal) Owner(sms): 사장님", description = "전화번호를 기반으로 사장님 정보를 관리한다.")
 public interface SmsBasedOwnerApi {
@@ -39,7 +42,8 @@ public interface SmsBasedOwnerApi {
     @Operation(summary = "사장님 로그인")
     @PostMapping("/owner/login")
     ResponseEntity<OwnerLoginResponse> ownerLogin(
-        @RequestBody @Valid OwnerLoginRequest request
+        @RequestBody @Valid OwnerLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
