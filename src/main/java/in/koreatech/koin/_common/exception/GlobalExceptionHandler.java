@@ -267,7 +267,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         requestLogging(request);
         String errorMessages = e.getBindingResult().getAllErrors().stream()
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.joining(", "));
+            .collect(Collectors.joining("\n"));
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
     }
 
