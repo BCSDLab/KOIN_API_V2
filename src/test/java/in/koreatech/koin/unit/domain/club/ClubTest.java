@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit;
+package in.koreatech.koin.unit.domain.club;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -6,7 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.service.ClubService;
 
