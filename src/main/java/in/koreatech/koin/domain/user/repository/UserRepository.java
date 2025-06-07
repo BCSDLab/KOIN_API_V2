@@ -58,13 +58,13 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }
 
-    boolean existsByNickname(String nickname);
+    boolean existsByNicknameAndUserTypeIn(String nickname, List<UserType> userTypes);
 
-    boolean existsByLoginId(String loginId);
+    boolean existsByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes);
 
     boolean existsByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailAndUserTypeIn(String email, List<UserType> userTypes);
 
     void delete(User user);
 

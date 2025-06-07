@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithEmailReq
 import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithPhoneNumberRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationLoginIdException;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
+import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -45,25 +46,30 @@ public class UserValidationService {
     }
 
     public void requireUniqueNickname(String nickname) {
-        if (StringUtils.hasText(nickname) && userRepository.existsByNickname(nickname)) {
+        if (StringUtils.hasText(nickname)
+            && userRepository.existsByNicknameAndUserTypeIn(nickname, KOIN_USER_TYPES)) {
             throw DuplicationNicknameException.withDetail("nickname: " + nickname);
         }
     }
 
     public void requireUniquePhoneNumber(String phoneNumber) {
-        if (StringUtils.hasText(phoneNumber) && userRepository.existsByNickname(phoneNumber)) {
-            throw DuplicationNicknameException.withDetail("phoneNumber: " + phoneNumber);
+        System.out.println("########### phoneNumber = " + phoneNumber);
+        if (StringUtils.hasText(phoneNumber)
+            && userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
+            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + phoneNumber);
         }
     }
 
     public void requireUniqueEmail(String email) {
-        if (StringUtils.hasText(email) && userRepository.existsByEmail(email)) {
+        if (StringUtils.hasText(email)
+            && userRepository.existsByEmailAndUserTypeIn(email, KOIN_USER_TYPES)) {
             throw DuplicationEmailException.withDetail("email: " + email);
         }
     }
 
     public void requireUniqueLoginId(String loginId) {
-        if (StringUtils.hasText(loginId) && userRepository.existsByLoginId(loginId)) {
+        if (StringUtils.hasText(loginId)
+            && userRepository.existsByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES)) {
             throw DuplicationLoginIdException.withDetail("loginId: " + loginId);
         }
     }
@@ -76,7 +82,7 @@ public class UserValidationService {
     }
 
     public void requireLoginIdExists(String loginId) {
-        if (userRepository.existsByLoginId(loginId)) {
+        if (userRepository.existsByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES)) {
             return;
         }
         throw UserNotFoundException.withDetail("loginId: " + loginId);
@@ -90,7 +96,7 @@ public class UserValidationService {
     }
 
     public void requireEmailExists(String email) {
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmailAndUserTypeIn(email, KOIN_USER_TYPES)) {
             return;
         }
         throw UserNotFoundException.withDetail("email: " + email);
