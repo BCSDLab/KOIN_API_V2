@@ -10,8 +10,7 @@ import jakarta.validation.ConstraintValidatorContext;
 @Component
 public class SpecialCharValidator implements ConstraintValidator<SpecialCharNotAllowed, String> {
 
-    // 슬래시(/) 또는 백슬래시(\) 중 하나라도 포함되었는지 검사하는 정규식
-    private static final Pattern ILLEGAL_PATTERN = Pattern.compile("[/\\\\]");
+    private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile("[/\\\\]");
 
     @Override
     public boolean isValid(String field, ConstraintValidatorContext context) {
@@ -19,6 +18,6 @@ public class SpecialCharValidator implements ConstraintValidator<SpecialCharNotA
             return true;
         }
 
-        return !ILLEGAL_PATTERN.matcher(field).find();
+        return !SPECIAL_CHAR_PATTERN.matcher(field).find();
     }
 }
