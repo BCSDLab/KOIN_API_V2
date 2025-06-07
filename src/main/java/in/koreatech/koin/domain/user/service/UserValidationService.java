@@ -82,7 +82,7 @@ public class UserValidationService {
         throw UserNotFoundException.withDetail("loginId: " + loginId);
     }
 
-    public void requirePhoneNumberExist(String phoneNumber) {
+    public void requirePhoneNumberExists(String phoneNumber) {
         if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
             return;
         }

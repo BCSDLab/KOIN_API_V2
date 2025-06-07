@@ -132,7 +132,7 @@ public interface UserValidationApi {
     )
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/check/password")
-    ResponseEntity<Void> requireCorrectPassword(
+    ResponseEntity<Void> requirePasswordCorrect(
         @Valid @RequestBody UserCorrectPasswordRequest request,
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
@@ -146,7 +146,7 @@ public interface UserValidationApi {
         description = "입력한 로그인 ID가 존재하는지 확인합니다."
     )
     @PostMapping("/user/id/exists")
-    ResponseEntity<Void> requireExistingLoginId(
+    ResponseEntity<Void> requireLoginIdExists(
         @Valid @RequestBody UserExistsLoginIdRequest request
     );
 
@@ -159,7 +159,7 @@ public interface UserValidationApi {
         description = "입력한 전화번호로 가입된 계정이 존재하는지 확인합니다."
     )
     @PostMapping("/user/phone/exists")
-    ResponseEntity<Void> requireExistingPhoneNumber(
+    ResponseEntity<Void> requirePhoneNumberExists(
         @Valid @RequestBody UserExistsPhoneNumberRequest request
     );
 

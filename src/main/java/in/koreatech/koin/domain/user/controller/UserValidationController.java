@@ -78,7 +78,7 @@ public class UserValidationController implements UserValidationApi {
     }
 
     @PostMapping("/user/check/password")
-    public ResponseEntity<Void> requireCorrectPassword(
+    public ResponseEntity<Void> requirePasswordCorrect(
         @Valid @RequestBody UserCorrectPasswordRequest request,
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
@@ -87,7 +87,7 @@ public class UserValidationController implements UserValidationApi {
     }
 
     @PostMapping("/user/id/exists")
-    public ResponseEntity<Void> requireExistingLoginId(
+    public ResponseEntity<Void> requireLoginIdExists(
         @Valid @RequestBody UserExistsLoginIdRequest request
     ) {
         userValidationService.requireLoginIdExists(request.loginId());
@@ -95,10 +95,10 @@ public class UserValidationController implements UserValidationApi {
     }
 
     @PostMapping("/user/phone/exists")
-    public ResponseEntity<Void> requireExistingPhoneNumber(
+    public ResponseEntity<Void> requirePhoneNumberExists(
         @Valid @RequestBody UserExistsPhoneNumberRequest request
     ) {
-        userValidationService.requirePhoneNumberExist(request.phoneNumber());
+        userValidationService.requirePhoneNumberExists(request.phoneNumber());
         return ResponseEntity.ok().build();
     }
 
