@@ -212,14 +212,14 @@ public class AdminOwnerApiTest extends AcceptanceTest {
     void 관리자가_가입_신청한_사장님_리스트_조회한다_V2() throws Exception {
         for (int i = 0; i < 11; i++) {
             User user = User.builder()
-                .password(passwordEncoder.encode("1234"))
+                .loginPw(passwordEncoder.encode("1234"))
                 .nickname("사장님" + i)
                 .name("테스트용(인증X)" + i)
                 .phoneNumber("0109776511" + i)
                 .userType(OWNER)
                 .gender(MAN)
                 .email("testchulsu@gmail.com" + i)
-                .userId("test" + i)
+                .loginId("test" + i)
                 .isAuthed(false)
                 .isDeleted(false)
                 .build();
@@ -269,14 +269,14 @@ public class AdminOwnerApiTest extends AcceptanceTest {
     void 관리자가_가입_사장님_리스트_조회한다() throws Exception {
         for (int i = 0; i < 11; i++) {
             User user = User.builder()
-                .password(passwordEncoder.encode("1234"))
+                .loginPw(passwordEncoder.encode("1234"))
                 .nickname("사장님" + i)
                 .name("테스트용(인증X)" + i)
                 .phoneNumber("0109776511" + i)
                 .userType(OWNER)
                 .gender(MAN)
                 .email("testchulsu@gmail.com" + i)
-                .userId("testchulsu" + i)
+                .loginId("testchulsu" + i)
                 .isAuthed(true)
                 .isDeleted(false)
                 .build();

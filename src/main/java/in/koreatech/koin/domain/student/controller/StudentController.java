@@ -30,10 +30,10 @@ import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.service.StudentService;
-import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
-import in.koreatech.koin.domain.user.dto.ChangeUserPasswordSubmitRequest;
+import in.koreatech.koin.domain.user.dto.UserAuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserChangePasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserChangePasswordSubmitRequest;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
@@ -109,7 +109,7 @@ public class StudentController implements StudentApi {
     @GetMapping(value = "/user/authenticate")
     public ModelAndView authenticate(
         @ModelAttribute("auth_token")
-        @Valid AuthTokenRequest request
+        @Valid UserAuthTokenRequest request
     ) {
         return studentService.authenticate(request);
     }
@@ -124,7 +124,7 @@ public class StudentController implements StudentApi {
 
     @PostMapping("/user/find/password")
     public ResponseEntity<Void> findPassword(
-        @RequestBody @Valid FindPasswordRequest request,
+        @RequestBody @Valid UserFindPasswordRequest request,
         @ServerURL String serverURL
     ) {
         studentService.findPassword(request, serverURL);
@@ -133,7 +133,7 @@ public class StudentController implements StudentApi {
 
     @PutMapping("/user/change/password")
     public ResponseEntity<Void> changePassword(
-        @RequestBody ChangeUserPasswordRequest request,
+        @RequestBody UserChangePasswordRequest request,
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         studentService.changePassword(userId, request);
@@ -151,7 +151,7 @@ public class StudentController implements StudentApi {
     @Hidden
     @PostMapping("/user/change/password/submit")
     public ResponseEntity<Void> changePasswordSubmit(
-        @RequestBody ChangeUserPasswordSubmitRequest request,
+        @RequestBody UserChangePasswordSubmitRequest request,
         @RequestParam("reset_token") String resetToken
     ) {
         studentService.changePasswordSubmit(request, resetToken);
