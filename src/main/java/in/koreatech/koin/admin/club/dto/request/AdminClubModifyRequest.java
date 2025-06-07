@@ -9,6 +9,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin._common.validation.NotEmoji;
+import in.koreatech.koin._common.validation.NoSpecialCharacters;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
@@ -24,6 +25,7 @@ public record AdminClubModifyRequest(
     @Size(max = 20, message = "동아리 이름은 최대 20자 입니다.")
     @NotBlank(message = "동아리 이름은 필수 입력 사항입니다.")
     @NotEmoji(message = "동아리 이름에는 이모지가 들어갈 수 없습니다.")
+    @NoSpecialCharacters(message = "동아리 이름에는 특수문자가 들어갈 수 없습니다.")
     String name,
 
     @Schema(description = "동아리 사진 링크", example = "https://bcsdlab.com/static/img/logo.d89d9cc.png", requiredMode = REQUIRED)
