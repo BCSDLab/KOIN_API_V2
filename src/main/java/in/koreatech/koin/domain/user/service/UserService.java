@@ -102,14 +102,14 @@ public class UserService {
         } else {
             user = userRepository.getByUserId(loginId);
         }
-        user.requireSamePassword(passwordEncoder, request.loginPw());
+        user.requireSameLoginPw(passwordEncoder, request.loginPw());
         return createLoginResponse(user);
     }
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
         User user = userRepository.getByEmail(request.email());
-        user.requireSamePassword(passwordEncoder, request.password());
+        user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
         return createLoginResponse(user);
     }

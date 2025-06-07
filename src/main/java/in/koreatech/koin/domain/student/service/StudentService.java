@@ -92,7 +92,7 @@ public class StudentService {
     @Transactional
     public StudentLoginResponse studentLogin(StudentLoginRequest request) {
         User user = userRepository.getByEmail(request.email());
-        user.requireSamePassword(passwordEncoder, request.password());
+        user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);

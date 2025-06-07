@@ -41,7 +41,7 @@ public class UserValidationService {
 
     public void requirePasswordCorrect(String password, Integer userId) {
         User user = userRepository.getById(userId);
-        user.requireSamePassword(passwordEncoder, password);
+        user.requireSameLoginPw(passwordEncoder, password);
     }
 
     public void requireUniqueNickname(String nickname) {

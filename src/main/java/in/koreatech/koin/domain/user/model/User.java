@@ -162,15 +162,12 @@ public class User extends BaseEntity {
         return StringUtils.hasText(email) && !Objects.equals(this.email, email);
     }
 
-    public void requireSamePassword(PasswordEncoder passwordEncoder, String password) {
-        if (StringUtils.hasText(password) && passwordEncoder.matches(this.loginPw, password)) {
-            return;
-        }
-        throw new KoinIllegalArgumentException("비밀번호가 일치하지 않습니다.");
+    public boolean isNotSameLoginPw(PasswordEncoder passwordEncoder, String loginPw) {
+        return StringUtils.hasText(loginPw) && !passwordEncoder.matches(loginPw, this.loginPw);
     }
 
     public void requireSamePhoneNumber(String phoneNumber) {
-        if (isNotSameNickname(phoneNumber)) {
+        if (isNotSamePhoneNumber(phoneNumber)) {
             throw new KoinIllegalArgumentException("전화번호가 일치하지 않습니다.");
         }
     }
@@ -178,6 +175,12 @@ public class User extends BaseEntity {
     public void requireSameEmail(String email) {
         if (isNotSameEmail(email)) {
             throw new KoinIllegalArgumentException("이메일이 일치하지 않습니다.");
+        }
+    }
+
+    public void requireSameLoginPw(PasswordEncoder passwordEncoder, String loginPw) {
+        if (isNotSameLoginPw(passwordEncoder, loginPw)) {
+            throw new KoinIllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
     }
 
