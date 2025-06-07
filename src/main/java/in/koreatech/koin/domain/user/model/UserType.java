@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.model;
 
+import java.util.List;
+
 import lombok.Getter;
 
 @Getter
@@ -13,6 +15,8 @@ public enum UserType {
     ;
 
     public static final int ANONYMOUS_ID = 0;
+
+    public static final List<UserType> KOIN_USER_TYPES = List.of(GENERAL, STUDENT, COUNCIL);
 
     private final String value;
     private final String description;

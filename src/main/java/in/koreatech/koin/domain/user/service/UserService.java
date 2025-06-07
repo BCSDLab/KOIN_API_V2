@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.user.service;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,18 +19,18 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserFindIdBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
-import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
-import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
-import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
 import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
+import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -158,21 +157,21 @@ public class UserService {
 
     public UserFindLoginIdResponse findIdBySms(UserFindIdBySmsRequest request) {
         String phoneNumber = request.phoneNumber();
-        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT));
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES);
         userVerificationService.consumeVerification(phoneNumber);
         return UserFindLoginIdResponse.from(user.getLoginId());
     }
 
     public UserFindLoginIdResponse findIdByEmail(UserFindIdByEmailRequest request) {
         String email = request.email();
-        User user = userRepository.getByEmailAndUserTypeIn(email, List.of(GENERAL, STUDENT));
+        User user = userRepository.getByEmailAndUserTypeIn(email, KOIN_USER_TYPES);
         userVerificationService.consumeVerification(email);
         return UserFindLoginIdResponse.from(user.getLoginId());
     }
 
     @Transactional
     public void resetPasswordBySms(UserResetPasswordBySmsRequest request) {
-        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), List.of(GENERAL, STUDENT));
+        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), KOIN_USER_TYPES);
         user.requireSamePhoneNumber(request.phoneNumber());
         user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);
@@ -181,7 +180,7 @@ public class UserService {
 
     @Transactional
     public void resetPasswordByEmail(UserResetPasswordByEmailRequest request) {
-        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), List.of(GENERAL, STUDENT));
+        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), KOIN_USER_TYPES);
         user.requireSameEmail(request.email());
         user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);

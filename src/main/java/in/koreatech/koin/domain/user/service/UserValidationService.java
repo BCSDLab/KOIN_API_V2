@@ -1,9 +1,7 @@
 package in.koreatech.koin.domain.user.service;
 
-import static in.koreatech.koin.domain.user.model.UserType.GENERAL;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.KOIN_USER_TYPES;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -85,7 +83,7 @@ public class UserValidationService {
     }
 
     public void requirePhoneNumberExist(String phoneNumber) {
-        if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT))) {
+        if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
             return;
         }
         throw UserNotFoundException.withDetail("phoneNumber: " + phoneNumber);
