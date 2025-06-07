@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class SpecialCharValidator implements ConstraintValidator<SpecialCharNotAllowed, String> {
+public class NoSpecialCharactersValidator implements ConstraintValidator<NoSpecialCharacters, String> {
 
     private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile("[/\\\\]");
 

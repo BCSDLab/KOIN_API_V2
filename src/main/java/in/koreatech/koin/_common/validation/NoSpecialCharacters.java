@@ -11,10 +11,10 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = SpecialCharValidator.class)
+@Constraint(validatedBy = NoSpecialCharactersValidator.class)
 @Target({FIELD, PARAMETER, LOCAL_VARIABLE})
 @Retention(RUNTIME)
-public @interface SpecialCharNotAllowed {
+public @interface NoSpecialCharacters {
     String message() default "입력값에 허용되지 않은 특수문자가 포함되어 있습니다.";
 
     Class<?>[] groups() default {};
