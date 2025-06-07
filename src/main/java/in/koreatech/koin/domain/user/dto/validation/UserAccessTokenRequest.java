@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.dto;
+package in.koreatech.koin.domain.user.dto.validation;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 

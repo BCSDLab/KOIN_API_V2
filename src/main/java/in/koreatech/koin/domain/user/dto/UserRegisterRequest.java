@@ -15,10 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record RegisterUserRequest(
+public record UserRegisterRequest(
     @NotBlank(message = "이름은 필수입니다.")
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
     @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
@@ -58,8 +57,8 @@ public record RegisterUserRequest(
         return User.builder()
             .name(name)
             .phoneNumber(phoneNumber)
-            .userId(loginId)
-            .password(passwordEncoder.encode(password))
+            .loginId(loginId)
+            .loginPw(passwordEncoder.encode(password))
             .nickname(nickname)
             .email(email)
             .gender(gender)

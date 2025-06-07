@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.user.dto;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -9,10 +9,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record ChangeUserPasswordRequest(
-    @Schema(description = "변경할 비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = REQUIRED)
-    @NotBlank(message = "비밀번호를 입력해주세요.")
-    String password
+public record UserAuthTokenRequest(
+    @Schema(description = "인증토큰", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSJ", requiredMode = REQUIRED)
+    @NotBlank(message = "토큰은 필수입니다.")
+    String authToken
 ) {
 
 }

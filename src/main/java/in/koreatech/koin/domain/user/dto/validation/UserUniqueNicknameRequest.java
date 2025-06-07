@@ -6,15 +6,15 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record ExistsByUserIdRequest(
-    @Schema(description = "로그인 ID", example = "user123", requiredMode = REQUIRED)
-    @NotBlank(message = "로그인 ID는 필수입니다.")
-    @Pattern(regexp = "^[a-z0-9_.-]{1,13}$", message = "로그인 ID는 영소문자, 숫자, 밑줄(_), 하이픈(-), 마침표(.)로 이루어진 1~13자여야 합니다.")
-    String loginId
+public record UserUniqueNicknameRequest(
+    @Schema(description = "닉네임", example = "juno", requiredMode = REQUIRED)
+    @Size(max = 10, message = "닉네임은 최대 10자입니다.")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
+    String nickname
 ) {
 
 }

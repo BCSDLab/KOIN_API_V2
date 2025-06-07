@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.user.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -11,7 +12,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record UpdateUserRequest(
+public record UserUpdateRequest(
     @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
     UserGender gender,
 
@@ -19,7 +20,7 @@ public record UpdateUserRequest(
     @Size(max = 30, message = "이메일의 길이는 최대 30자 입니다.")
     String email,
 
-    @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
+    @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
     @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
     String name,
 
