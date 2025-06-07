@@ -159,22 +159,20 @@ public class UserService {
     public UserFindLoginIdResponse findIdBySms(UserFindIdBySmsRequest request) {
         String phoneNumber = request.phoneNumber();
         User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT));
-        String userId = user.getLoginId();
         userVerificationService.consumeVerification(phoneNumber);
-        return UserFindLoginIdResponse.from(userId);
+        return UserFindLoginIdResponse.from(user.getLoginId());
     }
 
     public UserFindLoginIdResponse findIdByEmail(UserFindIdByEmailRequest request) {
         String email = request.email();
         User user = userRepository.getByEmailAndUserTypeIn(email, List.of(GENERAL, STUDENT));
-        String loginId = user.getLoginId();
         userVerificationService.consumeVerification(email);
-        return UserFindLoginIdResponse.from(loginId);
+        return UserFindLoginIdResponse.from(user.getLoginId());
     }
 
     @Transactional
     public void resetPasswordBySms(UserResetPasswordBySmsRequest request) {
-        User user = userRepository.getByUserIdAndUserTypeIn(request.loginId(), List.of(GENERAL, STUDENT));
+        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), List.of(GENERAL, STUDENT));
         user.requireSamePhoneNumber(request.phoneNumber());
         user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);
@@ -183,7 +181,7 @@ public class UserService {
 
     @Transactional
     public void resetPasswordByEmail(UserResetPasswordByEmailRequest request) {
-        User user = userRepository.getByUserIdAndUserTypeIn(request.loginId(), List.of(GENERAL, STUDENT));
+        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), List.of(GENERAL, STUDENT));
         user.requireSameEmail(request.email());
         user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);

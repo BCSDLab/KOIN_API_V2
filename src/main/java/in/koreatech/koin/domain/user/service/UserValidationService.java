@@ -65,7 +65,7 @@ public class UserValidationService {
     }
 
     public void requireUniqueLoginId(String loginId) {
-        if (StringUtils.hasText(loginId) && userRepository.existsByUserId(loginId)) {
+        if (StringUtils.hasText(loginId) && userRepository.existsByLoginId(loginId)) {
             throw DuplicationLoginIdException.withDetail("loginId: " + loginId);
         }
     }
@@ -78,7 +78,7 @@ public class UserValidationService {
     }
 
     public void requireLoginIdExists(String loginId) {
-        if (userRepository.existsByUserId(loginId)) {
+        if (userRepository.existsByLoginId(loginId)) {
             return;
         }
         throw UserNotFoundException.withDetail("loginId: " + loginId);
