@@ -105,7 +105,7 @@ public record AdminClubResponse(
                 .map(InnerClubSNSResponse::from)
                 .toList(),
             club.getCreatedAt().toLocalDate(),
-            club.getActive()
+            club.getIsActive()
         );
     }
 }

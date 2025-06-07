@@ -65,7 +65,7 @@ public interface ClubApi {
     @PutMapping("/{clubId}")
     ResponseEntity<ClubResponse> updateClub(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody ClubUpdateRequest request,
+        @RequestBody @Valid ClubUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
@@ -82,7 +82,7 @@ public interface ClubApi {
     @PutMapping("/{clubId}/introduction")
     ResponseEntity<ClubResponse> updateClubIntroduction(
         @Parameter(in = PATH) @PathVariable Integer clubId,
-        @RequestBody ClubIntroductionUpdateRequest request,
+        @RequestBody @Valid ClubIntroductionUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
@@ -222,7 +222,7 @@ public interface ClubApi {
         description = """
             - 관리자는 모든 QNA 삭제 가능, 그 외에는 본인의 QNA만 삭제 가능
             - 부모 QNA(질문 QNA)인 경우, 답변 QNA까지 모두 삭제
-            - 자식 QNA(답변 QNA)인 경우, 답변 QNA만 삭제 
+            - 자식 QNA(답변 QNA)인 경우, 답변 QNA만 삭제
             """)
     @DeleteMapping("/{clubId}/qna/{qnaId}")
     ResponseEntity<Void> deleteQna(

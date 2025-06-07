@@ -1,10 +1,12 @@
 package in.koreatech.koin.admin.club.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.springframework.data.domain.Page;
 
@@ -37,8 +39,14 @@ public record AdminClubManagersResponse(
 ) {
     @JsonNaming(SnakeCaseStrategy.class)
     public record InnerClubManagersResponse(
-        @Schema(description = "동아리 아이디", example = "1", requiredMode = REQUIRED)
+        @Schema(description = "인덱스", example = "1", requiredMode = REQUIRED)
+        Integer index,
+
+        @Schema(description = "동아리 고유 id", example = "1", requiredMode = NOT_REQUIRED)
         Integer clubId,
+
+        @Schema(description = "동아리 관리자 고유 id", example = "1", requiredMode = REQUIRED)
+        Integer clubManagerId,
 
         @Schema(description = "동아리 관리자 이름", example = "배진호", requiredMode = REQUIRED)
         String clubManagerName,
@@ -53,12 +61,14 @@ public record AdminClubManagersResponse(
         @Schema(description = "동아리 이름", example = "BCSD", requiredMode = REQUIRED)
         String clubName
     ) {
-        public static InnerClubManagersResponse from(ClubManager clubManager) {
+        public static InnerClubManagersResponse from(ClubManager clubManager, Integer index) {
             Club club = clubManager.getClub();
             User user = clubManager.getUser();
 
             return new InnerClubManagersResponse(
+                index,
                 club.getId(),
+                user.getId(),
                 clubManager.getClubManagerName(),
                 user.getPhoneNumber(),
                 club.getCreatedAt(),
@@ -66,9 +76,11 @@ public record AdminClubManagersResponse(
             );
         }
 
-        public static InnerClubManagersResponse fromRedis(ClubCreateRedis redis, User requester) {
+        public static InnerClubManagersResponse fromRedis(ClubCreateRedis redis, User requester, Integer index) {
             return new InnerClubManagersResponse(
+                index,
                 null,
+                requester.getId(),
                 requester.getName(),
                 requester.getPhoneNumber(),
                 redis.getCreatedAt(),
@@ -83,8 +95,9 @@ public record AdminClubManagersResponse(
             pagedResult.getContent().size(),
             pagedResult.getTotalPages(),
             criteria.getPage() + 1,
-            pagedResult.getContent().stream()
-                .map(InnerClubManagersResponse::from)
+            IntStream.range(0, pagedResult.getContent().size())
+                .mapToObj(i -> InnerClubManagersResponse.from(pagedResult.getContent().get(i),
+                    (criteria.getLimit() * criteria.getPage()) + (i + 1)))
                 .toList()
         );
     }

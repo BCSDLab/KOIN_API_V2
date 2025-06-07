@@ -189,7 +189,7 @@ public interface AdminClubApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/decision")
     ResponseEntity<Void> decideClubAdmin(
-        @RequestBody AdminClubManagerDecideRequest request,
+        @RequestBody @Valid AdminClubManagerDecideRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }

@@ -54,7 +54,7 @@ public class Club extends BaseEntity {
 
     @NotNull
     @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-    private Boolean active = FALSE;
+    private Boolean isActive = FALSE;
 
     @NotNull
     @Size(max = 255)
@@ -95,7 +95,7 @@ public class Club extends BaseEntity {
         Integer hits,
         Integer lastWeekHits,
         String description,
-        Boolean active,
+        Boolean isActive,
         String imageUrl,
         Integer likes,
         String location,
@@ -108,7 +108,7 @@ public class Club extends BaseEntity {
         this.hits = hits;
         this.lastWeekHits = lastWeekHits;
         this.description = description;
-        this.active = active;
+        this.isActive = isActive;
         this.imageUrl = imageUrl;
         this.likes = likes;
         this.location = location;
@@ -135,18 +135,18 @@ public class Club extends BaseEntity {
         ClubCategory clubCategory,
         String location,
         String description,
-        Boolean active
+        Boolean isActive
     ) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.clubCategory = clubCategory;
         this.location = location;
         this.description = description;
-        this.active = active;
+        this.isActive = isActive;
     }
 
     public void updateActive(Boolean active) {
-        this.active = active;
+        this.isActive = active;
     }
 
     public void increaseLikes() {
@@ -162,13 +162,15 @@ public class Club extends BaseEntity {
         String imageUrl,
         ClubCategory category,
         String location,
-        String description
+        String description,
+        Boolean isLikeHidden
     ) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.clubCategory = category;
         this.location = location;
         this.description = description;
+        this.isLikeHidden = isLikeHidden;
     }
 
     public void updateIntroduction(String introduction) {
