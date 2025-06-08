@@ -86,7 +86,7 @@ public class ArticleService {
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
         Long total = articleRepository.countBy();
-        Criteria criteria = Criteria.of(page, limit);
+        Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         if (boardId == null) {
             Page<Article> articles = articleRepository.findAll(pageRequest);
@@ -233,16 +233,17 @@ public class ArticleService {
     }
 
     private void setPrevNextArticle(Integer boardId, Article article) {
-        Integer prevId, nextId;
+        Article prevArticle;
+        Article nextArticle;
         if (boardId != null) {
             Board board = getBoard(boardId, article);
-            prevId = articleRepository.getPreviousArticleId(board, article);
-            nextId = articleRepository.getNextArticleId(board, article);
+            prevArticle = articleRepository.getPreviousArticle(board, article);
+            nextArticle = articleRepository.getNextArticle(board, article);
         } else {
-            prevId = articleRepository.getPreviousAllArticleId(article);
-            nextId = articleRepository.getNextAllArticleId(article);
+            prevArticle = articleRepository.getPreviousAllArticle(article);
+            nextArticle = articleRepository.getNextAllArticle(article);
         }
-        article.setPrevNextArticles(prevId, nextId);
+        article.setPrevNextArticles(prevArticle, nextArticle);
     }
 
     private Board getBoard(Integer boardId, Article article) {

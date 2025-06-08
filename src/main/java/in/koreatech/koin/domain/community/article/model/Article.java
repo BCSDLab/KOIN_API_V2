@@ -113,9 +113,13 @@ public class Article extends BaseEntity {
         return this.hit;
     }
 
-    public void setPrevNextArticles(Integer prevId, Integer nextId) {
-        this.prevId = prevId;
-        this.nextId = nextId;
+    public void setPrevNextArticles(Article prev, Article next) {
+        if (prev != null) {
+            prevId = prev.getId();
+        }
+        if (next != null) {
+            nextId = next.getId();
+        }
     }
 
     @PostPersist
