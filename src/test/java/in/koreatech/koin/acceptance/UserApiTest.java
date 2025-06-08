@@ -258,14 +258,14 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 닉네임_제약조건_위반시_상태코드_400를_반환한다() throws Exception {
         User user = User.builder()
-            .password("1234")
+            .loginPw("1234")
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
             .userType(STUDENT)
             .gender(UserGender.MAN)
             .email("test@koreatech.ac.kr")
-            .userId("test")
+            .loginId("test")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -298,14 +298,14 @@ class UserApiTest extends AcceptanceTest {
             .isGraduated(false)
             .user(
                 User.builder()
-                    .password("1234")
+                    .loginPw("1234")
                     .nickname("주노")
                     .name("최준호")
                     .phoneNumber("010-1234-5678")
                     .userType(STUDENT)
                     .gender(UserGender.MAN)
                     .email("test@koreatech.ac.kr")
-                    .userId("test")
+                    .loginId("test")
                     .isAuthed(true)
                     .isDeleted(false)
                     .build()
@@ -544,7 +544,7 @@ class UserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.login_id").value(user.getUserId()));
+            .andExpect(jsonPath("$.login_id").value(user.getLoginId()));
     }
 
     @Test
@@ -594,7 +594,7 @@ class UserApiTest extends AcceptanceTest {
                           "phone_number": "%s",
                           "new_password": "%s"
                         }
-                        """.formatted(user.getUserId(), phoneNumber, newPassword))
+                        """.formatted(user.getLoginId(), phoneNumber, newPassword))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());

@@ -21,8 +21,8 @@ import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserChangePasswordRequest;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -177,7 +177,7 @@ public interface StudentApi {
     @Operation(summary = "비밀번호 초기(변경) 메일 발송")
     @PostMapping("/user/find/password")
     ResponseEntity<Void> findPassword(
-        @RequestBody @Valid FindPasswordRequest findPasswordRequest,
+        @RequestBody @Valid UserFindPasswordRequest userFindPasswordRequest,
         @ServerURL String serverURL
     );
 
@@ -192,7 +192,7 @@ public interface StudentApi {
     @Operation(summary = "비밀번호 변경")
     @PutMapping("/user/change/password")
     ResponseEntity<Void> changePassword(
-        @RequestBody ChangeUserPasswordRequest request,
+        @RequestBody UserChangePasswordRequest request,
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }

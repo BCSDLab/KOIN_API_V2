@@ -69,9 +69,7 @@ public class AdminUserService {
     public void adminPasswordChange(AdminPasswordChangeRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
         User user = admin.getUser();
-        if (user.isNotSamePassword(passwordEncoder, request.oldPassword())) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
+        user.requireSameLoginPw(passwordEncoder, request.oldPassword());
         user.updatePassword(passwordEncoder, request.newPassword());
     }
 
@@ -137,7 +135,7 @@ public class AdminUserService {
         }
 
         User user = adminRepository.getById(id).getUser();
-        user.auth();
+        user.permitAuth();
     }
 
     @Transactional

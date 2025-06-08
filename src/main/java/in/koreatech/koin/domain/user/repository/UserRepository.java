@@ -27,11 +27,11 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findById(Integer id);
 
-    Optional<User> findByUserIdAndUserTypeIn(String userId, List<UserType> userTypes);
+    Optional<User> findByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes);
 
     Optional<User> findByNickname(String nickname);
 
-    Optional<User> findByUserId(String userId);
+    Optional<User> findByLoginId(String loginId);
 
     default User getByEmail(String email) {
         return findByEmail(email)
@@ -53,18 +53,18 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 
-    default User getByUserId(String loginId) {
-        return findByUserId(loginId)
+    default User getByLoginId(String loginId) {
+        return findByLoginId(loginId)
             .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }
 
-    boolean existsByNickname(String nickname);
+    boolean existsByNicknameAndUserTypeIn(String nickname, List<UserType> userTypes);
 
-    boolean existsByUserId(String userId);
+    boolean existsByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes);
 
     boolean existsByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailAndUserTypeIn(String email, List<UserType> userTypes);
 
     void delete(User user);
 
@@ -87,8 +87,8 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("phoneNumber: " + phoneNumber));
     }
 
-    default User getByUserIdAndUserTypeIn(String userId, List<UserType> userTypes) {
-        return findByUserIdAndUserTypeIn(userId, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+    default User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
+        return findByLoginIdAndUserTypeIn(loginId, userTypes)
+            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }
 }

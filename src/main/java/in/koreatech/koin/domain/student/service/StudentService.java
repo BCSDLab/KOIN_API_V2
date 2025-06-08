@@ -39,10 +39,10 @@ import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetableV3.exception.ChangeMajorNotExistException;
-import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
-import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
-import in.koreatech.koin.domain.user.dto.ChangeUserPasswordSubmitRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserAuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.UserChangePasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserChangePasswordSubmitRequest;
+import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
@@ -91,7 +91,8 @@ public class StudentService {
 
     @Transactional
     public StudentLoginResponse studentLogin(StudentLoginRequest request) {
-        User user = userValidationService.checkLoginCredentials(request.email(), request.password());
+        User user = userRepository.getByEmail(request.email());
+        user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
@@ -104,9 +105,10 @@ public class StudentService {
 
     @Transactional
     public UpdateStudentResponse updateStudent(Integer userId, UpdateStudentRequest request) {
-        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
+        userValidationService.requireUniqueNicknameUpdate(request.nickname(), user);
+
 
         updateStudentInfo(student, request.studentNumber(), request.major());
         user.update(user.getEmail(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
@@ -117,13 +119,17 @@ public class StudentService {
 
     @Transactional
     public UpdateStudentResponse updateStudentV2(Integer userId, UpdateStudentRequestV2 request) {
-        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
-        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
+        userValidationService.requireUniqueUpdate(
+            request.nickname(),
+            request.phoneNumber(),
+            request.email(),
+            user
+        );
+
         updateStudentInfo(student, request.studentNumber(), request.major());
-        userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
 
@@ -268,7 +274,7 @@ public class StudentService {
     }
 
     @ConcurrencyGuard(lockName = "studentAuthenticate")
-    public ModelAndView authenticate(AuthTokenRequest request) {
+    public ModelAndView authenticate(UserAuthTokenRequest request) {
         Optional<UnAuthenticatedStudentInfo> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
             request.authToken());
         if (studentTemporaryStatus.isEmpty()) {
@@ -295,10 +301,10 @@ public class StudentService {
     @Transactional
     public void studentRegisterV2(RegisterStudentRequestV2 request) {
         studentValidationService.validateDepartment(request.department());
-        userValidationService.checkDuplicationUserData(
+        userValidationService.requireUniqueRegister(
             request.nickname(),
-            request.email(),
             request.phoneNumber(),
+            request.email(),
             request.loginId()
         );
         Department department = departmentRepository.getByName(request.department());
@@ -312,7 +318,7 @@ public class StudentService {
     }
 
     @Transactional
-    public void findPassword(FindPasswordRequest request, String serverURL) {
+    public void findPassword(UserFindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
         String resetToken = UUID.randomUUID().toString();
         passwordResetTokenRepository.save(PasswordResetToken.of(resetToken, user.getId()));
@@ -330,14 +336,14 @@ public class StudentService {
     }
 
     @Transactional
-    public void changePassword(Integer userId, ChangeUserPasswordRequest request) {
+    public void changePassword(Integer userId, UserChangePasswordRequest request) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
         user.updatePassword(passwordEncoder, request.password());
     }
 
     @Transactional
-    public void changePasswordSubmit(ChangeUserPasswordSubmitRequest request, String resetToken) {
+    public void changePasswordSubmit(UserChangePasswordSubmitRequest request, String resetToken) {
         PasswordResetToken passwordResetToken = passwordResetTokenRepository.getByResetToken(resetToken);
         User authedUser = userRepository.getById(passwordResetToken.getId());
         authedUser.updatePassword(passwordEncoder, request.password());

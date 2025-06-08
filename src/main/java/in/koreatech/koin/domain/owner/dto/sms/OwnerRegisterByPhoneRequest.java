@@ -63,10 +63,10 @@ public record OwnerRegisterByPhoneRequest(
 
     public Owner toOwner(PasswordEncoder passwordEncoder) {
         User user = User.builder()
-            .password(passwordEncoder.encode(password))
+            .loginId(phoneNumber)
+            .loginPw(passwordEncoder.encode(password))
             .name(name)
             .email(null)
-            .userId(phoneNumber)
             .phoneNumber(phoneNumber)
             .userType(OWNER)
             .isAuthed(false)

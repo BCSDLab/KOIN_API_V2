@@ -17,15 +17,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OwnerValidator {
 
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final OwnerRepository ownerRepository;
-
-    public void validatePassword(User user, String inputPassword) {
-        if (user.isNotSamePassword(passwordEncoder, inputPassword)) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
-    }
 
     public void validateAuth(User user) {
         if (!user.isAuthed()) {
