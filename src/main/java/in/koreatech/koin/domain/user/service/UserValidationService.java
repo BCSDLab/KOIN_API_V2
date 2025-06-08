@@ -40,7 +40,7 @@ public class UserValidationService {
         jwtProvider.getUserId(accessToken);
     }
 
-    public void requirePasswordCorrect(String password, Integer userId) {
+    public void requireCorrectPassword(String password, Integer userId) {
         User user = userRepository.getById(userId);
         user.requireSameLoginPw(passwordEncoder, password);
     }
@@ -53,7 +53,6 @@ public class UserValidationService {
     }
 
     public void requireUniquePhoneNumber(String phoneNumber) {
-        System.out.println("########### phoneNumber = " + phoneNumber);
         if (StringUtils.hasText(phoneNumber)
             && userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
             throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + phoneNumber);
@@ -119,7 +118,7 @@ public class UserValidationService {
         requireUniqueLoginId(loginId);
     }
 
-    public void requireNicknameUniqueUpdate(String newNickname, User user) {
+    public void requireUniqueNicknameUpdate(String newNickname, User user) {
         if (user.isNotSameNickname(newNickname)) {
             requireUniqueNickname(newNickname);
         }
@@ -145,7 +144,7 @@ public class UserValidationService {
         String newEmail,
         User user
     ) {
-        requireNicknameUniqueUpdate(newNickname, user);
+        requireUniqueNicknameUpdate(newNickname, user);
         requireUniquePhoneNumberUpdate(newPhoneNumber, user);
         requireUniqueEmailUpdate(newEmail, user);
     }

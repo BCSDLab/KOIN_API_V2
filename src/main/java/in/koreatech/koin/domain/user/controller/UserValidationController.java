@@ -42,7 +42,7 @@ public class UserValidationController implements UserValidationApi {
     }
 
     @GetMapping("/user/check/id")
-    public ResponseEntity<Void> requireLoginIdUnique(
+    public ResponseEntity<Void> requireUniqueLoginId(
         @ParameterObject @ModelAttribute("id")
         @Valid UserUniqueLoginIdRequest request
     ) {
@@ -51,7 +51,7 @@ public class UserValidationController implements UserValidationApi {
     }
 
     @GetMapping("/user/check/phone")
-    public ResponseEntity<Void> requirePhoneNumberUnique(
+    public ResponseEntity<Void> requireUniquePhoneNumber(
         @ParameterObject @ModelAttribute(value = "phone")
         @Valid UserUniquePhoneNumberRequest request
     ) {
@@ -60,7 +60,7 @@ public class UserValidationController implements UserValidationApi {
     }
 
     @GetMapping("/user/check/email")
-    public ResponseEntity<Void> requireEmailUnique(
+    public ResponseEntity<Void> requireUniqueEmail(
         @ParameterObject @ModelAttribute(value = "address")
         @Valid UserUniqueEmailRequest request
     ) {
@@ -69,7 +69,7 @@ public class UserValidationController implements UserValidationApi {
     }
 
     @GetMapping("/user/check/nickname")
-    public ResponseEntity<Void> requireNicknameUnique(
+    public ResponseEntity<Void> requireUniqueNickname(
         @ParameterObject @ModelAttribute("nickname")
         @Valid UserUniqueNicknameRequest request
     ) {
@@ -78,11 +78,11 @@ public class UserValidationController implements UserValidationApi {
     }
 
     @PostMapping("/user/check/password")
-    public ResponseEntity<Void> requirePasswordCorrect(
+    public ResponseEntity<Void> requireCorrectPassword(
         @Valid @RequestBody UserCorrectPasswordRequest request,
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
-        userValidationService.requirePasswordCorrect(request.password(), userId);
+        userValidationService.requireCorrectPassword(request.password(), userId);
         return ResponseEntity.ok().build();
     }
 

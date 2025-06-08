@@ -62,7 +62,7 @@ public interface UserValidationApi {
         description = "입력한 로그인 아이디가 중복되지 않고, 사용 가능한지 확인합니다."
     )
     @GetMapping("/user/check/id")
-    ResponseEntity<Void> requireLoginIdUnique(
+    ResponseEntity<Void> requireUniqueLoginId(
         @ParameterObject @ModelAttribute("id")
         @Valid UserUniqueLoginIdRequest request
     );
@@ -79,7 +79,7 @@ public interface UserValidationApi {
         description = "입력한 전화번호가 중복되지 않고, 사용 가능한지 확인합니다."
     )
     @GetMapping("/user/check/phone")
-    ResponseEntity<Void> requirePhoneNumberUnique(
+    ResponseEntity<Void> requireUniquePhoneNumber(
         @ParameterObject @ModelAttribute("phone")
         @Valid UserUniquePhoneNumberRequest request
     );
@@ -96,7 +96,7 @@ public interface UserValidationApi {
         description = "입력한 이메일이 중복되지 않고, 사용 가능한지 확인합니다."
     )
     @GetMapping("/user/check/email")
-    ResponseEntity<Void> requireEmailUnique(
+    ResponseEntity<Void> requireUniqueEmail(
         @ParameterObject @ModelAttribute("address")
         @Valid UserUniqueEmailRequest request
     );
@@ -113,7 +113,7 @@ public interface UserValidationApi {
         description = "입력한 닉네임이 중복되지 않고, 사용 가능한지 확인합니다."
     )
     @GetMapping("/user/check/nickname")
-    ResponseEntity<Void> requireNicknameUnique(
+    ResponseEntity<Void> requireUniqueNickname(
         @ParameterObject @ModelAttribute("nickname")
         @Valid UserUniqueNicknameRequest request
     );
@@ -132,7 +132,7 @@ public interface UserValidationApi {
     )
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/check/password")
-    ResponseEntity<Void> requirePasswordCorrect(
+    ResponseEntity<Void> requireCorrectPassword(
         @Valid @RequestBody UserCorrectPasswordRequest request,
         @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );

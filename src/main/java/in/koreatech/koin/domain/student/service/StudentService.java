@@ -107,7 +107,7 @@ public class StudentService {
     public UpdateStudentResponse updateStudent(Integer userId, UpdateStudentRequest request) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
-        userValidationService.requireNicknameUniqueUpdate(request.nickname(), user);
+        userValidationService.requireUniqueNicknameUpdate(request.nickname(), user);
 
 
         updateStudentInfo(student, request.studentNumber(), request.major());
