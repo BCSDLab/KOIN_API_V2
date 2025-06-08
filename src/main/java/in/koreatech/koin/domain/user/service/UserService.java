@@ -100,7 +100,7 @@ public class UserService {
         if (loginId.matches("^\\d{11}$")) {
             user = userRepository.getByPhoneNumber(loginId);
         } else {
-            user = userRepository.getByUserId(loginId);
+            user = userRepository.getByLoginId(loginId);
         }
         user.requireSameLoginPw(passwordEncoder, request.loginPw());
         return createLoginResponse(user);

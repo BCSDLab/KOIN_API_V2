@@ -103,12 +103,12 @@ public class UserValidationService {
     }
 
     public void matchLoginIdWithPhoneNumber(UserMatchLoginIdWithPhoneNumberRequest request) {
-        User user = userRepository.getByUserId(request.loginId());
+        User user = userRepository.getByLoginId(request.loginId());
         user.requireSamePhoneNumber(request.phoneNumber());
     }
 
     public void matchLoginIdWithEmail(UserMatchLoginIdWithEmailRequest request) {
-        User user = userRepository.getByUserId(request.loginId());
+        User user = userRepository.getByLoginId(request.loginId());
         user.requireSameEmail(request.email());
     }
 
