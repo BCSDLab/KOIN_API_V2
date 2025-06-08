@@ -23,6 +23,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Article save(Article article);
 
+    Page<Article> findAllByIsNoticeIsTrue(Pageable pageable);
+
     @Query("""
             SELECT a FROM Article a
             LEFT JOIN FETCH a.board
@@ -35,42 +37,11 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         """)
     Optional<Article> findByIdWithAllRelations(Integer articleId);
 
+    Page<Article> findAll(Pageable pageable);
+
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
     Page<Article> findAllByIdIn(List<Integer> articleIds, PageRequest pageRequest);
-
-    @Query("""
-        SELECT a FROM Article a
-        LEFT JOIN FETCH a.board
-        LEFT JOIN FETCH a.koinArticle
-        LEFT JOIN FETCH a.koreatechArticle
-        LEFT JOIN FETCH a.lostItemArticle
-        LEFT JOIN FETCH a.koinNotice
-        WHERE a.isDeleted = false
-        """)
-    Page<Article> findAllWithRelations(Pageable pageable);
-
-    @Query("""
-            SELECT a FROM Article a
-            LEFT JOIN FETCH a.board
-            LEFT JOIN FETCH a.koinArticle
-            LEFT JOIN FETCH a.koreatechArticle
-            LEFT JOIN FETCH a.lostItemArticle
-            LEFT JOIN FETCH a.koinNotice
-            WHERE a.isDeleted = false AND a.isNotice = true
-        """)
-    Page<Article> findAllByIsNoticeIsTrueWithRelations(Pageable pageable);
-
-    @Query("""
-            SELECT a FROM Article a
-            LEFT JOIN FETCH a.board
-            LEFT JOIN FETCH a.koinArticle
-            LEFT JOIN FETCH a.koreatechArticle
-            LEFT JOIN FETCH a.lostItemArticle
-            LEFT JOIN FETCH a.koinNotice
-            WHERE a.isDeleted = false AND a.board.id = :boardId
-        """)
-    Page<Article> findAllByBoardIdWithRelations(Integer boardId, Pageable pageable);
 
     @Query("""
         SELECT a
@@ -128,10 +99,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByIsNoticeIsTrueAndTitleContaining(@Param("query") String query, Pageable pageable);
 
     Long countBy();
-
-    Long countByIsNoticeIsTrue();
-
-    Long countByBoardId(Integer boardId);
 
     @Query(value = """
             SELECT id FROM new_articles
