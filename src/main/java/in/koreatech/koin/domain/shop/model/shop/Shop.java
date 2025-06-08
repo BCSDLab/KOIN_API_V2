@@ -142,7 +142,7 @@ public class Shop extends BaseEntity {
     private String bank;
 
     @Size(max = 20)
-    @Column(name = "accountNumber", length = 20)
+    @Column(name = "account_number", length = 20)
     private String accountNumber;
 
     @Builder

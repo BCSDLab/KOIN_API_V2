@@ -22,7 +22,7 @@ public class OwnerValidator {
     private final OwnerRepository ownerRepository;
 
     public void validatePassword(User user, String inputPassword) {
-        if (!user.isSamePassword(passwordEncoder, inputPassword)) {
+        if (user.isNotSamePassword(passwordEncoder, inputPassword)) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
     }

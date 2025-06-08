@@ -55,9 +55,9 @@ public class AdminStudentService {
         User user = student.getUser();
         validateNicknameDuplication(adminRequest.nickname(), id);
         validateDepartmentValid(adminRequest.major());
-        user.update(adminRequest.nickname(), adminRequest.name(),
+        user.update(user.getEmail(), adminRequest.nickname(), adminRequest.name(),
             adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
-        user.updateStudentPassword(passwordEncoder, adminRequest.password());
+        user.updatePassword(passwordEncoder, adminRequest.password());
         Department department = adminDepartmentRepository.getByName(adminRequest.major());
         student.updateInfo(adminRequest.studentNumber(), department);
         adminStudentRepository.save(student);

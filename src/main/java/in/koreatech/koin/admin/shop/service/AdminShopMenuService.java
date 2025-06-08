@@ -13,8 +13,10 @@ import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.model.menu.*;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.infrastructure.s3.service.ImageDeleteService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,7 @@ public class AdminShopMenuService {
     private final AdminShopRepository adminShopRepository;
     private final AdminMenuRepository adminMenuRepository;
     private final AdminMenuCategoryRepository adminMenuCategoryRepository;
+    private final ImageDeleteService imageDeleteService;
 
     public AdminShopMenuResponse getAllMenus(Integer shopId) {
         Shop shop = adminShopRepository.getById(shopId);
@@ -117,6 +120,7 @@ public class AdminShopMenuService {
     public void modifyMenu(Integer shopId, Integer menuId, AdminModifyMenuRequest request) {
         Menu menu = adminMenuRepository.getById(menuId);
         adminShopRepository.getById(shopId);
+        imageDeleteService.publishImagesModifyEvent(menu.getMenuImages(), request.imageUrls(), MenuImage::getImageUrl);
         menu.modifyMenu(request.name(), request.description());
         menu.modifyMenuImages(request.imageUrls(), entityManager);
         menu.modifyMenuCategories(adminMenuCategoryRepository.findAllByIdIn(request.categoryIds()), entityManager);
@@ -139,6 +143,7 @@ public class AdminShopMenuService {
         if (!Objects.equals(menu.getShop().getId(), shopId)) {
             throw new KoinIllegalArgumentException("해당 상점의 메뉴가 아닙니다.");
         }
+        imageDeleteService.publishImagesDeletedEvent(menu.getMenuImages(), MenuImage::getImageUrl);
         adminMenuRepository.deleteById(menuId);
     }
 }

@@ -1,7 +1,9 @@
 package in.koreatech.koin.domain.student.model;
 
-import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
+
+import java.util.Objects;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserIdentity;
@@ -94,5 +96,13 @@ public class Student {
         this.studentNumber = studentNumber;
         this.department = department;
         this.major = major;
+    }
+
+    public boolean isNotSameStudentNumber(String studentNumber) {
+        return !Objects.equals(this.studentNumber, studentNumber);
+    }
+
+    public boolean isNotSameDepartment(Department department) {
+        return !Objects.equals(this.department, department);
     }
 }

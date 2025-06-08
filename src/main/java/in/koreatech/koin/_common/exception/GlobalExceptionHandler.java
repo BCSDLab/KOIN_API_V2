@@ -28,13 +28,14 @@ import org.springframework.web.util.WebUtils;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.DataNotFoundException;
+import in.koreatech.koin._common.exception.custom.DuplicationException;
+import in.koreatech.koin._common.exception.custom.ExternalServiceException;
 import in.koreatech.koin._common.exception.custom.KoinException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.exception.custom.RequestTooFastException;
-import in.koreatech.koin._common.exception.custom.DataNotFoundException;
-import in.koreatech.koin._common.exception.custom.DuplicationException;
-import in.koreatech.koin._common.exception.custom.ExternalServiceException;
+import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -122,6 +123,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<Object> handleKoinRequestTooManyException(
+        HttpServletRequest request,
+        TooManyRequestsException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
     }
 
     // 표준 예외 및 정의되어 있는 예외
@@ -256,7 +267,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         requestLogging(request);
         String errorMessages = e.getBindingResult().getAllErrors().stream()
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.joining(", "));
+            .collect(Collectors.joining("\n"));
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
     }
 

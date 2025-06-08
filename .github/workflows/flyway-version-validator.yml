@@ -1,0 +1,17 @@
+name: Flyway Version Validator
+
+on: [pull_request]
+
+jobs:
+  check-flyway-version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Fetch all branches
+      run: git fetch --all
+
+    - name: Run Flyway version check
+      run: python .github/SCRIPT/check_flyway_version.py

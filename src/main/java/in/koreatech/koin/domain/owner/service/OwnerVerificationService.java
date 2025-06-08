@@ -1,13 +1,12 @@
 package in.koreatech.koin.domain.owner.service;
 
-import in.koreatech.koin._common.event.OwnerSmsRequestEvent;
+import in.koreatech.koin._common.event.OwnerSmsVerificationSendEvent;
 import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin.integration.naver.service.NaverSmsService;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ public class OwnerVerificationService {
     private final ApplicationEventPublisher eventPublisher;
     private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
-    private final NaverSmsService naverSmsService;
 
     private void setVerificationCount(String key) {
         Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
@@ -37,13 +35,12 @@ public class OwnerVerificationService {
     public void sendCertificationSms(String phoneNumber) {
         setVerificationCount(phoneNumber);
         String certificationCode = CertificateNumberGenerator.generate();
-        naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
         OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
                 phoneNumber,
                 certificationCode
         );
         ownerVerificationStatusRepository.save(ownerVerificationStatus);
-        eventPublisher.publishEvent(new OwnerSmsRequestEvent(phoneNumber));
+        eventPublisher.publishEvent(new OwnerSmsVerificationSendEvent(certificationCode, phoneNumber));
     }
 
     public void verifyCode(String key, String code) {

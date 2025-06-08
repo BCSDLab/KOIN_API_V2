@@ -11,11 +11,7 @@ public record CoopLoginRequest(
     @NotBlank(message = "아이디를 입력해주세요.")
     String id,
 
-    @Schema(
-        description = "SHA 256 해시 알고리즘으로 암호화된 비밀번호",
-        example = "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
-        requiredMode = REQUIRED
-    )
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = REQUIRED)
     @NotBlank(message = "비밀번호를 입력해주세요.")
     String password
 ) {

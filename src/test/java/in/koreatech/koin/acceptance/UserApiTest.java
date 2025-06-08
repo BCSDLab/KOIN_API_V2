@@ -25,12 +25,12 @@ import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
 import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.integration.naver.service.NaverSmsService;
+import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -386,13 +386,13 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_SMS_인증번호_전송_및_검증한다() throws Exception {
         // given
-        // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
 
-        // when - SMS 인증번호 전송
+        // when
+        // SMS 인증번호 전송
         mockMvc.perform(
-                post("/user/sms/send")
+                post("/users/verification/sms/send")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -404,15 +404,16 @@ class UserApiTest extends AcceptanceTest {
 
         // Redis에서 인증번호 확인
         UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
-        String certificationCode = status.getCertificationCode();
+        String certificationCode = status.getVerificationCode();
 
-        // then - SMS 인증번호 검증
+        // then
+        // SMS 인증번호 검증
         mockMvc.perform(
-                post("/user/sms/verify")
+                post("/users/verification/sms/verify")
                     .content("""
                         {
                           "phone_number": "%s",
-                          "certification_code": "%s"
+                          "verification_code": "%s"
                         }
                         """.formatted(phoneNumber, certificationCode))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -423,13 +424,13 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 사용자가_SMS_인증번호_전송_후_잘못된_인증번호로_검증시_에러를_반환한다() throws Exception {
         // given
-        // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
 
-        // when - SMS 인증번호 전송
+        // when
+        // SMS 인증번호 전송
         mockMvc.perform(
-                post("/user/sms/send")
+                post("/users/verification/sms/send")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -441,16 +442,17 @@ class UserApiTest extends AcceptanceTest {
 
         // Redis에서 인증번호 확인
         UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
-        String certificationCode = status.getCertificationCode();
+        String certificationCode = status.getVerificationCode();
         String wrongCode = certificationCode.equals("123456") ? "654321" : "123456";
 
-        // then - 잘못된 인증번호로 검증
+        // then
+        // 잘못된 인증번호로 검증
         mockMvc.perform(
-                post("/user/sms/verify")
+                post("/users/verification/sms/verify")
                     .content("""
                         {
                           "phone_number": "%s",
-                          "certification_code": "%s"
+                          "verification_code": "%s"
                         }
                         """.formatted(phoneNumber, wrongCode))
                     .contentType(MediaType.APPLICATION_JSON)
@@ -459,17 +461,17 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 사용자가_SMS_인증번호_하루_5번_이상_발송시도시_에러를_반환한다() throws Exception {
+    void 사용자가_SMS_인증번호_하루_5번_이상_발송시도시_429_에러를_반환한다() throws Exception {
         // given
-        // SMS 서비스 모킹 설정
         doNothing().when(naverSmsService).sendVerificationCode(any(), any());
         String phoneNumber = "01012345678";
         int maxDailyLimit = 5;
 
-        // when - 5번까지 정상 발송
+        // when
+        // 5번까지 정상 발송
         for (int i = 0; i < maxDailyLimit; i++) {
             mockMvc.perform(
-                    post("/user/sms/send")
+                    post("/users/verification/sms/send")
                         .content("""
                             {
                               "phone_number": "%s"
@@ -480,9 +482,10 @@ class UserApiTest extends AcceptanceTest {
                 .andExpect(status().isOk());
         }
 
-        // then - 6번째 발송 시도시 400 반환
+        // then
+        // 6번째 발송 시도시 400 반환
         mockMvc.perform(
-                post("/user/sms/send")
+                post("/users/verification/sms/send")
                     .content("""
                         {
                           "phone_number": "%s"
@@ -490,6 +493,123 @@ class UserApiTest extends AcceptanceTest {
                         """.formatted(phoneNumber))
                     .contentType(MediaType.APPLICATION_JSON)
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isTooManyRequests());
+    }
+
+    @Test
+    void 사용자가_인증을_통해_ID를_찾는다() throws Exception {
+        // given
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
+        User user = userFixture.코인_유저();
+        String phoneNumber = user.getPhoneNumber();
+
+        // when
+        // SMS 인증번호 전송
+        mockMvc.perform(
+                post("/users/verification/sms/send")
+                    .content("""
+                        {
+                          "phone_number": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // Redis에서 인증번호 확인
+        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        String certificationCode = status.getVerificationCode();
+
+        // 인증번호 검증
+        mockMvc.perform(
+                post("/users/verification/sms/verify")
+                    .content("""
+                        {
+                          "phone_number": "%s",
+                          "verification_code": "%s"
+                        }
+                        """.formatted(phoneNumber, certificationCode))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // ID 찾기
+        mockMvc.perform(
+                post("/users/id/find/sms")
+                    .content("""
+                        {
+                          "phone_number": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.login_id").value(user.getUserId()));
+    }
+
+    @Test
+    void 사용자가_인증을_통해_비밀번호를_변경한다() throws Exception {
+        // given
+        doNothing().when(naverSmsService).sendVerificationCode(any(), any());
+        User user = userFixture.코인_유저();
+        String phoneNumber = user.getPhoneNumber();
+        String newPassword = "12345";
+
+        // when
+        // SMS 인증번호 전송
+        mockMvc.perform(
+                post("/users/verification/sms/send")
+                    .content("""
+                        {
+                          "phone_number": "%s"
+                        }
+                        """.formatted(phoneNumber))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // Redis에서 인증번호 확인
+        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        String certificationCode = status.getVerificationCode();
+
+        // 인증번호 검증
+        mockMvc.perform(
+                post("/users/verification/sms/verify")
+                    .content("""
+                        {
+                          "phone_number": "%s",
+                          "verification_code": "%s"
+                        }
+                        """.formatted(phoneNumber, certificationCode))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // 비밀번호 변경
+        mockMvc.perform(
+                post("/users/password/reset/sms")
+                    .content("""
+                        {
+                          "login_id": "%s",
+                          "phone_number": "%s",
+                          "new_password": "%s"
+                        }
+                        """.formatted(user.getUserId(), phoneNumber, newPassword))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        // 변경된 비밀번호로 로그인 확인
+        mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                        {
+                          "email": "%s",
+                          "password": "%s"
+                        }
+                        """.formatted(user.getEmail(), newPassword))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
     }
 }

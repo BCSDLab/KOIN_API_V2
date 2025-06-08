@@ -32,11 +32,11 @@ public class RefreshTokenService {
         return userToken;
     }
 
-    public String extractUserId(String refreshToken) {
+    public Integer extractUserId(String refreshToken) {
         String[] split = refreshToken.split("-");
         if (split.length == 0) {
             throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
         }
-        return split[split.length - 1];
+        return Integer.valueOf(split[split.length - 1]);
     }
 }

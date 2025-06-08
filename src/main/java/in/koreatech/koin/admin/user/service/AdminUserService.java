@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
@@ -68,7 +69,7 @@ public class AdminUserService {
     public void adminPasswordChange(AdminPasswordChangeRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
         User user = admin.getUser();
-        if (!user.isSamePassword(passwordEncoder, request.oldPassword())) {
+        if (user.isNotSamePassword(passwordEncoder, request.oldPassword())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
         user.updatePassword(passwordEncoder, request.newPassword());
@@ -93,23 +94,24 @@ public class AdminUserService {
     }
 
     public AdminTokenRefreshResponse adminRefresh(AdminTokenRefreshRequest request) {
-        String adminId = getAdminId(request.refreshToken());
-        UserToken userToken = adminTokenRepository.getById(Integer.parseInt(adminId));
+        Integer adminId = getAdminId(request.refreshToken());
+        UserToken userToken = adminTokenRepository.getById(adminId);
         if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
             throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "request: " + request);
         }
-        User user = adminUserRepository.getById(userToken.getId());
+        User user = adminUserRepository.findById(userToken.getId())
+            .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. adminId" + adminId));;
 
         String accessToken = jwtProvider.createToken(user);
         return AdminTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
     }
 
-    private String getAdminId(String refreshToken) {
+    private Integer getAdminId(String refreshToken) {
         String[] split = refreshToken.split("-");
         if (split.length == 0) {
             throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
         }
-        return split[split.length - 1];
+        return Integer.parseInt(split[split.length - 1]);
     }
 
     public AdminResponse getAdmin(Integer id) {
