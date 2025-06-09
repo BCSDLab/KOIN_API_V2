@@ -21,19 +21,19 @@ public class EmailEventListener {
 
     private final EmailService emailService;
 
-    @TransactionalEventListener(phase = BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onUserEmailVerificationSendEvent(UserEmailVerificationSendEvent event) {
         EmailForm emailForm = new UserVerificationEmailForm(event.verificationCode());
         emailService.sendVerificationEmail(event.email(), emailForm);
     }
 
-    @TransactionalEventListener(phase = BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onStudentEmailRequestEvent(StudentRegisterRequestEvent event) {
         EmailForm emailForm = new StudentRegisterRequestEmailForm(event.serverUrl(), event.authToken());
         emailService.sendVerificationEmail(event.email(), emailForm);
     }
 
-    @TransactionalEventListener(phase = BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onStudentFindPasswordEvent(StudentFindPasswordEvent event) {
         EmailForm emailForm = new StudentFindPasswordEmailForm(event.serverUrl(), event.resetToken());
         emailService.sendVerificationEmail(event.email(), emailForm);

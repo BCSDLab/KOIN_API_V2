@@ -6,7 +6,6 @@ import static in.koreatech.koin.domain.notification.model.NotificationSubscribeT
 import java.util.List;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.EventArticleCreateShopEvent;
@@ -24,7 +23,7 @@ public class ShopEventListener { // TODO : 리팩터링 필요 (비즈니스로�
     private final NotificationFactory notificationFactory;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
 
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onShopEventCreate(EventArticleCreateShopEvent event) {
         List<Notification> notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailTypeIsNull(SHOP_EVENT)
@@ -38,6 +37,6 @@ public class ShopEventListener { // TODO : 리팩터링 필요 (비즈니스로�
                 event.title(),
                 subscribe.getUser()
             )).toList();
-        notificationService.push(notifications);
+        notificationService.pushNotifications(notifications);
     }
 }
