@@ -11,6 +11,8 @@ import in.koreatech.koin.domain.user.model.User;
 
 public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (ex.미인증_운영자())
 
+    private AdminFixture() {}
+
     public static Admin 코인_운영자() {
         return Admin.builder()
             .trackType(BACKEND)
@@ -57,7 +59,7 @@ public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (e
             .build();
     }
 
-    public static Admin 진구_운영자() {
+    public static Admin 미인증_진구_운영자() {
         return Admin.builder()
             .trackType(BACKEND)
             .teamType(CAMPUS)

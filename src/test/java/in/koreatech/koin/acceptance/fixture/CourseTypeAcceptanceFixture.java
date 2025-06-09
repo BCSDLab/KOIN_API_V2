@@ -7,11 +7,11 @@ import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
-public class CourseTypeAcceptanceFixture {
+public class CourseTypeFixture {
 
     private final CourseTypeRepository courseTypeRepository;
 
-    public CourseTypeAcceptanceFixture(CourseTypeRepository courseTypeRepository) {
+    public CourseTypeFixture(CourseTypeRepository courseTypeRepository) {
         this.courseTypeRepository = courseTypeRepository;
     }
 
