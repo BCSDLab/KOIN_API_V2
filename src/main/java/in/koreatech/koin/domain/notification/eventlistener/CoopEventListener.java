@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.notification.model.NotificationSubscribeT
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.DiningImageUploadEvent;
@@ -27,7 +26,7 @@ public class CoopEventListener { // TODO : 리팩터링 필요 (비즈니스로�
     private final NotificationFactory notificationFactory;
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
 
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
         diningSoldOutCacheRepository.save(DiningSoldOutCache.from(event.place()));
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
@@ -45,10 +44,10 @@ public class CoopEventListener { // TODO : 리팩터링 필요 (비즈니스로�
                 event.place(),
                 subscribe.getUser()
             )).toList();
-        notificationService.push(notifications);
+        notificationService.pushNotifications(notifications);
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onDiningImageUploadRequest(DiningImageUploadEvent event) {
         var notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_IMAGE_UPLOAD).stream()
@@ -60,6 +59,6 @@ public class CoopEventListener { // TODO : 리팩터링 필요 (비즈니스로�
                 subscribe.getUser()
             )).toList();
 
-        notificationService.push(notifications);
+        notificationService.pushNotifications(notifications);
     }
 }

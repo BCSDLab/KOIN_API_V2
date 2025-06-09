@@ -57,7 +57,7 @@ public class MessageReceivedEventListener {
             partner
         );
 
-        notificationService.push(notification);
+        notificationService.pushNotification(notification);
     }
 
     /**

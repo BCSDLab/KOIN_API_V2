@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.notification.eventlistener;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.UserRegisterEvent;
@@ -15,7 +14,7 @@ public class NotificationEventListener { // TODO : 리팩터링 필요 (비즈�
 
     private final NotificationService notificationService;
 
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onUserRegisterEvent(UserRegisterEvent event) {
         if (event.marketingNotificationAgreement()) {
             notificationService.permitNotificationSubscribe(event.userId(), NotificationSubscribeType.MARKETING);

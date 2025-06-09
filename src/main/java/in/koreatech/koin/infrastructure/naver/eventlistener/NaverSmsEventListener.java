@@ -16,12 +16,12 @@ public class NaverSmsEventListener {
 
     private final NaverSmsService naverSmsService;
 
-    @TransactionalEventListener(phase = BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onUserSmsVerificationSendEvent(UserSmsVerificationSendEvent event) {
         naverSmsService.sendVerificationCode(event.verificationCode(), event.phoneNumber());
     }
 
-    @TransactionalEventListener(phase = BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onOwnerSmsVerificationSendEvent(OwnerSmsVerificationSendEvent event) {
         naverSmsService.sendVerificationCode(event.verificationCode(), event.phoneNumber());
     }
