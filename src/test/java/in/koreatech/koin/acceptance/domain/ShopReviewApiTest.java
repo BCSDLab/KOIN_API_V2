@@ -30,12 +30,12 @@ import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepositor
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.ShopFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewReportCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewReportFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewReportCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewReportAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -46,22 +46,22 @@ class ShopReviewApiTest extends AcceptanceTest {
     private TransactionTemplate transactionTemplate;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     @Autowired
-    private ShopReviewFixture shopReviewFixture;
+    private ShopReviewAcceptanceFixture shopReviewFixture;
 
     @Autowired
-    private ShopReviewReportFixture shopReviewReportFixture;
+    private ShopReviewReportAcceptanceFixture shopReviewReportFixture;
 
     @Autowired
-    private ShopFixture shopFixture;
+    private ShopAcceptanceFixture shopFixture;
 
     @Autowired
-    private ShopReviewReportCategoryFixture shopReviewReportCategoryFixture;
+    private ShopReviewReportCategoryAcceptanceFixture shopReviewReportCategoryFixture;
 
     private ShopReview 준호_학생_리뷰;
     private ShopReview 익명_학생_리뷰;

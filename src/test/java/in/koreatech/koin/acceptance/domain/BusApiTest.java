@@ -36,8 +36,8 @@ import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
 import in.koreatech.koin.domain.version.model.Version;
-import in.koreatech.koin.acceptance.fixture.BusFixture;
-import in.koreatech.koin.acceptance.fixture.VersionFixture;
+import in.koreatech.koin.acceptance.fixture.BusAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.VersionAcceptanceFixture;
 import in.koreatech.koin.acceptance.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -46,10 +46,10 @@ import in.koreatech.koin.acceptance.support.JsonAssertions;
 class BusApiTest extends AcceptanceTest {
 
     @Autowired
-    private BusFixture busFixture;
+    private BusAcceptanceFixture busFixture;
 
     @Autowired
-    private VersionFixture versionFixture;
+    private VersionAcceptanceFixture versionFixture;
 
     @Autowired
     private CityBusCacheRepository cityBusCacheRepository;

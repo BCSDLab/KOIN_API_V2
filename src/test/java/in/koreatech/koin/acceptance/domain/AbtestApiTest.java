@@ -29,10 +29,10 @@ import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.AbtestFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.DeviceFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.AbtestAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DeviceAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -42,13 +42,13 @@ class AbtestApiTest extends AcceptanceTest {
     private TransactionTemplate transactionTemplate;
 
     @Autowired
-    private AbtestFixture abtestFixture;
+    private AbtestAcceptanceFixture abtestFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private DeviceFixture deviceFixture;
+    private DeviceAcceptanceFixture deviceFixture;
 
     @Autowired
     private AbtestRepository abtestRepository;
@@ -57,7 +57,7 @@ class AbtestApiTest extends AcceptanceTest {
     private DeviceRepository deviceRepository;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     private Admin admin;
     private String adminToken;

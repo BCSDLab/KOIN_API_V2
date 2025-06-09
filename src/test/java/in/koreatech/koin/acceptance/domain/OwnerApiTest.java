@@ -26,8 +26,8 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.acceptance.fixture.ShopFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -35,10 +35,10 @@ import in.koreatech.koin.acceptance.fixture.UserFixture;
 class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private ShopFixture shopFixture;
+    private ShopAcceptanceFixture shopFixture;
 
     @Autowired
     private OwnerRepository ownerRepository;

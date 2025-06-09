@@ -17,8 +17,8 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.land.model.Land;
-import in.koreatech.koin.acceptance.fixture.LandFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.LandAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -29,10 +29,10 @@ class AdminLandApiTest extends AcceptanceTest {
     private AdminLandRepository adminLandRepository;
 
     @Autowired
-    private LandFixture landFixture;
+    private LandAcceptanceFixture landFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @BeforeAll
     void setup() {

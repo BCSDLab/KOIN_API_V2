@@ -18,9 +18,9 @@ import in.koreatech.koin.admin.banner.repository.AdminBannerRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
-import in.koreatech.koin.acceptance.fixture.BannerCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.BannerFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.BannerCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BannerAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -28,13 +28,13 @@ import in.koreatech.koin.acceptance.fixture.UserFixture;
 public class AdminBannerApiTest extends AcceptanceTest {
 
     @Autowired
-    private BannerFixture bannerFixture;
+    private BannerAcceptanceFixture bannerFixture;
 
     @Autowired
-    private BannerCategoryFixture bannerCategoryFixture;
+    private BannerCategoryAcceptanceFixture bannerCategoryFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
     private TransactionTemplate transactionTemplate;

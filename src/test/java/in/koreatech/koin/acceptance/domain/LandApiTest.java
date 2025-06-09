@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.land.model.Land;
-import in.koreatech.koin.acceptance.fixture.LandFixture;
+import in.koreatech.koin.acceptance.fixture.LandAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -20,7 +20,7 @@ import in.koreatech.koin.acceptance.fixture.LandFixture;
 class LandApiTest extends AcceptanceTest {
 
     @Autowired
-    private LandFixture landFixture;
+    private LandAcceptanceFixture landFixture;
 
     @Test
     void 복덕방_리스트를_조회한다() throws Exception {

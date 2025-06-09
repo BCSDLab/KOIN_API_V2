@@ -22,12 +22,12 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.acceptance.fixture.CourseTypeFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.LectureFixture;
-import in.koreatech.koin.acceptance.fixture.SemesterFixture;
-import in.koreatech.koin.acceptance.fixture.TimeTableV2Fixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.CourseTypeAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.LectureAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.TimeTableV2AcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -35,16 +35,16 @@ import in.koreatech.koin.acceptance.fixture.UserFixture;
 public class TimetableFrameApiTest extends AcceptanceTest {
 
     @Autowired
-    private TimeTableV2Fixture timetableV2Fixture;
+    private TimeTableV2AcceptanceFixture timetableV2Fixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private SemesterFixture semesterFixture;
+    private SemesterAcceptanceFixture semesterFixture;
 
     @Autowired
-    private LectureFixture lectureFixture;
+    private LectureAcceptanceFixture lectureFixture;
 
     @Autowired
     private TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
@@ -53,10 +53,10 @@ public class TimetableFrameApiTest extends AcceptanceTest {
     private TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
 
     @Autowired
-    private CourseTypeFixture courseTypeFixture;
+    private CourseTypeAcceptanceFixture courseTypeFixture;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     private User user;
     private String token;

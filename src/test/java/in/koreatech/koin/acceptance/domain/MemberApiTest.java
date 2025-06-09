@@ -16,7 +16,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.member.model.Member;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.member.repository.TrackRepository;
-import in.koreatech.koin.acceptance.fixture.MemberFixture;
+import in.koreatech.koin.acceptance.fixture.MemberAcceptanceFixture;
 import in.koreatech.koin.acceptance.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -28,7 +28,7 @@ class MemberApiTest extends AcceptanceTest {
     private TrackRepository trackRepository;
 
     @Autowired
-    private MemberFixture memberFixture;
+    private MemberAcceptanceFixture memberFixture;
 
     Track backend;
     Track frontend;

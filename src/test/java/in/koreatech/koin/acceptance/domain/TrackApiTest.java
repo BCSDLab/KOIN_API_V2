@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.member.model.Track;
-import in.koreatech.koin.acceptance.fixture.MemberFixture;
-import in.koreatech.koin.acceptance.fixture.TechStackFixture;
-import in.koreatech.koin.acceptance.fixture.TrackFixture;
+import in.koreatech.koin.acceptance.fixture.MemberAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.TechStackAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.TrackAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -22,13 +22,13 @@ import in.koreatech.koin.acceptance.fixture.TrackFixture;
 class TrackApiTest extends AcceptanceTest {
 
     @Autowired
-    private TrackFixture trackFixture;
+    private TrackAcceptanceFixture trackFixture;
 
     @Autowired
-    private MemberFixture memberFixture;
+    private MemberAcceptanceFixture memberFixture;
 
     @Autowired
-    private TechStackFixture techStackFixture;
+    private TechStackAcceptanceFixture techStackFixture;
 
     @BeforeAll
     void setup() {

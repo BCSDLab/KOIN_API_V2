@@ -28,8 +28,8 @@ import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -47,10 +47,10 @@ class UserApiTest extends AcceptanceTest {
     private JwtProvider jwtProvider;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     @Autowired
     private UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;

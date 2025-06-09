@@ -29,11 +29,11 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSugge
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.ArticleFixture;
-import in.koreatech.koin.acceptance.fixture.BoardFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.KeywordFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.ArticleAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.KeywordAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -50,19 +50,19 @@ public class KeywordApiTest extends AcceptanceTest {
     private ArticleKeywordSuggestRepository articleKeywordSuggestRepository;
 
     @Autowired
-    private KeywordFixture keywordFixture;
+    private KeywordAcceptanceFixture keywordFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     @Autowired
-    private BoardFixture boardFixture;
+    private BoardAcceptanceFixture boardFixture;
 
     @Autowired
-    private ArticleFixture articleFixture;
+    private ArticleAcceptanceFixture articleFixture;
 
     private Student 준호_학생;
     private Admin 관리자;

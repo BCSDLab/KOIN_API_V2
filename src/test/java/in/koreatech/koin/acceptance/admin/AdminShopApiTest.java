@@ -38,13 +38,13 @@ import in.koreatech.koin.domain.shop.model.shop.ShopImage;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
-import in.koreatech.koin.acceptance.fixture.MenuCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.MenuFixture;
-import in.koreatech.koin.acceptance.fixture.ShopCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.ShopFixture;
-import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageFixture;
-import in.koreatech.koin.acceptance.fixture.ShopParentCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.MenuCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.MenuAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import jakarta.persistence.EntityManager;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -74,25 +74,25 @@ class AdminShopApiTest extends AcceptanceTest {
     private AdminMenuCategoryRepository adminMenuCategoryRepository;
 
     @Autowired
-    private MenuFixture menuFixture;
+    private MenuAcceptanceFixture menuFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private ShopFixture shopFixture;
+    private ShopAcceptanceFixture shopFixture;
 
     @Autowired
-    private ShopCategoryFixture shopCategoryFixture;
+    private ShopCategoryAcceptanceFixture shopCategoryFixture;
 
     @Autowired
-    private ShopParentCategoryFixture shopParentCategoryFixture;
+    private ShopParentCategoryAcceptanceFixture shopParentCategoryFixture;
 
     @Autowired
-    private ShopNotificationMessageFixture shopNotificationMessageFixture;
+    private ShopNotificationMessageAcceptanceFixture shopNotificationMessageFixture;
 
     @Autowired
-    private MenuCategoryFixture menuCategoryFixture;
+    private MenuCategoryAcceptanceFixture menuCategoryFixture;
 
     private Owner owner_현수;
     private Owner owner_준영;

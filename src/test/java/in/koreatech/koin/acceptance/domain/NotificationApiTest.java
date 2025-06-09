@@ -20,8 +20,8 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
@@ -36,13 +36,13 @@ class NotificationApiTest extends AcceptanceTest {
     private NotificationSubscribeRepository notificationSubscribeRepository;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     User user;
     String userToken;

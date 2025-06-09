@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
-import in.koreatech.koin.acceptance.fixture.BannerCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.BannerCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @Transactional
 @SuppressWarnings("NonAsciiCharacters")
@@ -24,10 +24,10 @@ import in.koreatech.koin.acceptance.fixture.UserFixture;
 public class AdminBannerCategoryApiTest extends AcceptanceTest {
 
     @Autowired
-    private BannerCategoryFixture bannerCategoryFixture;
+    private BannerCategoryAcceptanceFixture bannerCategoryFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     private Admin 어드민;
     private String 어드민_토큰;

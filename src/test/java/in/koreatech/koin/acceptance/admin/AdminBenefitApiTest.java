@@ -28,13 +28,13 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapFixture;
-import in.koreatech.koin.acceptance.fixture.ShopCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.ShopFixture;
-import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageFixture;
-import in.koreatech.koin.acceptance.fixture.ShopParentCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.BenefitCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -47,25 +47,25 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     AdminBenefitCategoryMapRepository adminBenefitCategoryMapRepository;
 
     @Autowired
-    BenefitCategoryFixture benefitCategoryFixture;
+    BenefitCategoryAcceptanceFixture benefitCategoryFixture;
 
     @Autowired
-    BenefitCategoryMapFixture benefitCategoryMapFixture;
+    BenefitCategoryMapAcceptanceFixture benefitCategoryMapFixture;
 
     @Autowired
-    ShopFixture shopFixture;
+    ShopAcceptanceFixture shopFixture;
 
     @Autowired
-    UserFixture userFixture;
+    UserAcceptanceFixture userFixture;
 
     @Autowired
-    ShopParentCategoryFixture shopParentCategoryFixture;
+    ShopParentCategoryAcceptanceFixture shopParentCategoryFixture;
 
     @Autowired
-    ShopCategoryFixture shopCategoryFixture;
+    ShopCategoryAcceptanceFixture shopCategoryFixture;
 
     @Autowired
-    ShopNotificationMessageFixture shopNotificationMessageFixture;
+    ShopNotificationMessageAcceptanceFixture shopNotificationMessageFixture;
 
     @Autowired
     private TransactionTemplate transactionTemplate;

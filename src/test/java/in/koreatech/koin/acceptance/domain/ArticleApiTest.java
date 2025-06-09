@@ -15,10 +15,10 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.ArticleFixture;
-import in.koreatech.koin.acceptance.fixture.BoardFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.ArticleAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -26,16 +26,16 @@ import in.koreatech.koin.acceptance.fixture.UserFixture;
 class ArticleApiTest extends AcceptanceTest {
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private ArticleFixture articleFixture;
+    private ArticleAcceptanceFixture articleFixture;
 
     @Autowired
-    private BoardFixture boardFixture;
+    private BoardAcceptanceFixture boardFixture;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     Student student;
     Department department;

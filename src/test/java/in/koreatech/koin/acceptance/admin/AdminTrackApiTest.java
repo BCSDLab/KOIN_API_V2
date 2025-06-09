@@ -20,11 +20,11 @@ import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.MemberFixture;
-import in.koreatech.koin.acceptance.fixture.TechStackFixture;
-import in.koreatech.koin.acceptance.fixture.TrackFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.MemberAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.TechStackAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.TrackAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -32,19 +32,19 @@ import in.koreatech.koin.acceptance.fixture.UserFixture;
 public class AdminTrackApiTest extends AcceptanceTest {
 
     @Autowired
-    private TrackFixture trackFixture;
+    private TrackAcceptanceFixture trackFixture;
 
     @Autowired
-    private MemberFixture memberFixture;
+    private MemberAcceptanceFixture memberFixture;
 
     @Autowired
-    private TechStackFixture techStackFixture;
+    private TechStackAcceptanceFixture techStackFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     @Autowired
     private AdminTrackRepository adminTrackRepository;

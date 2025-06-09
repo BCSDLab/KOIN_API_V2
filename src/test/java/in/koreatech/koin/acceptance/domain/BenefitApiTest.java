@@ -19,46 +19,46 @@ import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.ShopCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.ShopFixture;
-import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageFixture;
-import in.koreatech.koin.acceptance.fixture.ShopParentCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.BenefitCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BenefitApiTest extends AcceptanceTest {
 
     @Autowired
-    BenefitCategoryFixture benefitCategoryFixture;
+    BenefitCategoryAcceptanceFixture benefitCategoryFixture;
 
     @Autowired
-    BenefitCategoryMapFixture benefitCategoryMapFixture;
+    BenefitCategoryMapAcceptanceFixture benefitCategoryMapFixture;
 
     @Autowired
-    ShopReviewFixture shopReviewFixture;
+    ShopReviewAcceptanceFixture shopReviewFixture;
 
     @Autowired
-    ShopFixture shopFixture;
+    ShopAcceptanceFixture shopFixture;
 
     @Autowired
-    UserFixture userFixture;
+    UserAcceptanceFixture userFixture;
 
     @Autowired
-    DepartmentFixture departmentFixture;
+    DepartmentAcceptanceFixture departmentFixture;
 
     @Autowired
-    ShopCategoryFixture shopCategoryFixture;
+    ShopCategoryAcceptanceFixture shopCategoryFixture;
 
     @Autowired
-    ShopParentCategoryFixture shopParentCategoryFixture;
+    ShopParentCategoryAcceptanceFixture shopParentCategoryFixture;
 
     @Autowired
-    ShopNotificationMessageFixture shopNotificationMessageFixture;
+    ShopNotificationMessageAcceptanceFixture shopNotificationMessageFixture;
 
     BenefitCategory 배달비_무료;
     BenefitCategory 최소주문금액_무료;

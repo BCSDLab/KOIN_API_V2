@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
-import in.koreatech.koin.acceptance.fixture.CoopShopFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -25,10 +25,10 @@ class AdminCoopShopApiTest extends AcceptanceTest {
     private CoopShopRepository coopShopRepository;
 
     @Autowired
-    private CoopShopFixture coopShopFixture;
+    private CoopShopAcceptanceFixture coopShopFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     private Admin admin;
     private String token_admin;

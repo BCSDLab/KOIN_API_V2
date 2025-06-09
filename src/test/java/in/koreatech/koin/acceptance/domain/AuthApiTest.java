@@ -18,7 +18,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.acceptance.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -27,7 +27,7 @@ import in.koreatech.koin.acceptance.support.JsonAssertions;
 class AuthApiTest extends AcceptanceTest {
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
     private UserTokenRedisRepository tokenRepository;

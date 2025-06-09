@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.acceptance.fixture.LectureFixture;
-import in.koreatech.koin.acceptance.fixture.SemesterFixture;
+import in.koreatech.koin.acceptance.fixture.LectureAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -22,10 +22,10 @@ import in.koreatech.koin.acceptance.fixture.SemesterFixture;
 public class LectureApiTest extends AcceptanceTest {
 
     @Autowired
-    private LectureFixture lectureFixture;
+    private LectureAcceptanceFixture lectureFixture;
 
     @Autowired
-    private SemesterFixture semesterFixture;
+    private SemesterAcceptanceFixture semesterFixture;
 
     @BeforeAll
     void setup() {

@@ -16,9 +16,9 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.member.model.Member;
-import in.koreatech.koin.acceptance.fixture.MemberFixture;
-import in.koreatech.koin.acceptance.fixture.TrackFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.MemberAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.TrackAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -26,13 +26,13 @@ import in.koreatech.koin.acceptance.fixture.UserFixture;
 public class AdminMemberApiTest extends AcceptanceTest {
 
     @Autowired
-    private MemberFixture memberFixture;
+    private MemberAcceptanceFixture memberFixture;
 
     @Autowired
-    private TrackFixture trackFixture;
+    private TrackAcceptanceFixture trackFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
     private AdminMemberRepository adminMemberRepository;

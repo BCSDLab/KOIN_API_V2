@@ -29,14 +29,14 @@ import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.DepartmentFixture;
-import in.koreatech.koin.acceptance.fixture.ShopCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.ShopFixture;
-import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageFixture;
-import in.koreatech.koin.acceptance.fixture.ShopParentCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewReportFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewReportAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -47,28 +47,28 @@ class AdminShopReviewApiTest extends AcceptanceTest {
     private TransactionTemplate transactionTemplate;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private DepartmentFixture departmentFixture;
+    private DepartmentAcceptanceFixture departmentFixture;
 
     @Autowired
-    private ShopReviewFixture shopReviewFixture;
+    private ShopReviewAcceptanceFixture shopReviewFixture;
 
     @Autowired
-    private ShopReviewReportFixture shopReviewReportFixture;
+    private ShopReviewReportAcceptanceFixture shopReviewReportFixture;
 
     @Autowired
-    private ShopFixture shopFixture;
+    private ShopAcceptanceFixture shopFixture;
 
     @Autowired
-    private ShopNotificationMessageFixture shopNotificationMessageFixture;
+    private ShopNotificationMessageAcceptanceFixture shopNotificationMessageFixture;
 
     @Autowired
-    private ShopParentCategoryFixture shopParentCategoryFixture;
+    private ShopParentCategoryAcceptanceFixture shopParentCategoryFixture;
 
     @Autowired
-    private ShopCategoryFixture shopCategoryFixture;
+    private ShopCategoryAcceptanceFixture shopCategoryFixture;
 
     @Autowired
     private AdminShopReviewRepository adminShopReviewRepository;

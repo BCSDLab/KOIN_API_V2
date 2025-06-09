@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
-import in.koreatech.koin.acceptance.fixture.BannerCategoryFixture;
-import in.koreatech.koin.acceptance.fixture.BannerFixture;
+import in.koreatech.koin.acceptance.fixture.BannerCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BannerAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -22,10 +22,10 @@ import in.koreatech.koin.acceptance.fixture.BannerFixture;
 public class BannerApiTest extends AcceptanceTest {
 
     @Autowired
-    private BannerFixture bannerFixture;
+    private BannerAcceptanceFixture bannerFixture;
 
     @Autowired
-    private BannerCategoryFixture bannerCategoryFixture;
+    private BannerCategoryAcceptanceFixture bannerCategoryFixture;
 
     private Banner 메인_배너_1;
     private Banner 메인_배너_2;

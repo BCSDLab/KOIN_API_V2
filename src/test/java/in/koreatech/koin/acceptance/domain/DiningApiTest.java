@@ -26,9 +26,9 @@ import in.koreatech.koin.domain.coop.service.CoopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.acceptance.fixture.CoopShopFixture;
-import in.koreatech.koin.acceptance.fixture.DiningFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DiningAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -42,13 +42,13 @@ class DiningApiTest extends AcceptanceTest {
     private DiningSoldOutCacheRepository diningSoldOutCacheRepository;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private DiningFixture diningFixture;
+    private DiningAcceptanceFixture diningFixture;
 
     @Autowired
-    private CoopShopFixture coopShopFixture;
+    private CoopShopAcceptanceFixture coopShopFixture;
 
     @Autowired
     private CoopService coopService;

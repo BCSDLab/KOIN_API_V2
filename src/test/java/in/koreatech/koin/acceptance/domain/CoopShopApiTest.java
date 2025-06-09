@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
-import in.koreatech.koin.acceptance.fixture.CoopShopFixture;
+import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -24,7 +24,7 @@ class CoopShopApiTest extends AcceptanceTest {
     private CoopShopService coopShopService;
 
     @Autowired
-    private CoopShopFixture coopShopFixture;
+    private CoopShopAcceptanceFixture coopShopFixture;
 
     @BeforeAll
     void setUp() {

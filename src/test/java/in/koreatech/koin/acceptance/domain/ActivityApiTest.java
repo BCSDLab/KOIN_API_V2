@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.acceptance.fixture.ActivityFixture;
+import in.koreatech.koin.acceptance.fixture.ActivityAcceptanceFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -21,7 +21,7 @@ import in.koreatech.koin.acceptance.fixture.ActivityFixture;
 class ActivityApiTest extends AcceptanceTest {
 
     @Autowired
-    protected ActivityFixture activityFixture;
+    protected ActivityAcceptanceFixture activityFixture;
 
     @Test
     void BCSDLab_활동_내역을_조회한다() throws Exception {

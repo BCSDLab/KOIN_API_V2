@@ -17,8 +17,8 @@ import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.version.repository.AdminVersionRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
-import in.koreatech.koin.acceptance.fixture.VersionFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.VersionAcceptanceFixture;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
@@ -28,10 +28,10 @@ public class AdminVersionApiTest extends AcceptanceTest {
     private AdminVersionRepository adminVersionRepository;
 
     @Autowired
-    private VersionFixture versionFixture;
+    private VersionAcceptanceFixture versionFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     private Version android;
     private Admin admin;

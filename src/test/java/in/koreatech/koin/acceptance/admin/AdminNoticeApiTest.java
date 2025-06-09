@@ -19,9 +19,9 @@ import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.acceptance.fixture.BoardFixture;
-import in.koreatech.koin.acceptance.fixture.KoinNoticeFixture;
-import in.koreatech.koin.acceptance.fixture.UserFixture;
+import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.KoinNoticeAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
 @Transactional
 @SuppressWarnings("NonAsciiCharacters")
@@ -29,13 +29,13 @@ import in.koreatech.koin.acceptance.fixture.UserFixture;
 public class AdminNoticeApiTest extends AcceptanceTest {
 
     @Autowired
-    private KoinNoticeFixture koinNoticeFixture;
+    private KoinNoticeAcceptanceFixture koinNoticeFixture;
 
     @Autowired
-    private UserFixture userFixture;
+    private UserAcceptanceFixture userFixture;
 
     @Autowired
-    private BoardFixture boardFixture;
+    private BoardAcceptanceFixture boardFixture;
 
     @Autowired
     private ArticleRepository articleRepository;
