@@ -12,9 +12,10 @@ public interface NotificationSubscribeRepository extends Repository<Notification
 
     NotificationSubscribe save(NotificationSubscribe notificationSubscribe);
 
+    // TODO : Service 메서드로 네이밍 변경
     List<NotificationSubscribe> findAllBySubscribeTypeAndDetailTypeIsNull(NotificationSubscribeType type);
 
-    boolean existsByUserIdAndSubscribeType(Integer userId, NotificationSubscribeType type);
+    boolean existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(Integer userId, NotificationSubscribeType type);
 
     boolean existsByUserIdAndSubscribeTypeAndDetailType(
         Integer userId,
