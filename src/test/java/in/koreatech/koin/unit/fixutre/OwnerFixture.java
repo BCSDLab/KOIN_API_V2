@@ -11,6 +11,8 @@ import in.koreatech.koin.domain.user.model.User;
 
 public class OwnerFixture { // TODO : 메서드명 명확하게 변경 필요 (ex.미인증_사장님())
 
+    private OwnerFixture() {}
+
     public static Owner 성빈_사장님() {
         User user = User.builder()
             .name("박성빈")
@@ -131,7 +133,7 @@ public class OwnerFixture { // TODO : 메서드명 명확하게 변경 필요 (e
         return owner;
     }
 
-    public static Owner 철수_사장님() {
+    public static Owner 미인증_철수_사장님() {
         User user = User.builder()
             .name("테스트용_철수(인증X)")
             .nickname("철수")
