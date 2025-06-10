@@ -12,7 +12,7 @@ import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
-import in.koreatech.koin.unit.domain.user.verification.mock.FakeVerificationNumberGenerator;
+import in.koreatech.koin.unit.domain.user.verification.mock.TestVerificationNumberHolder;
 import in.koreatech.koin.unit.fixutre.UserVerificationStatusFixture;
 
 class UserVerificationStatusTest {
@@ -30,7 +30,7 @@ class UserVerificationStatusTest {
         @DisplayName("SMS 인증용 객체의 유효시간은 3분이다")
         void createBySms() {
             // given
-            VerificationNumberGenerator verificationNumberGenerator = new FakeVerificationNumberGenerator(CORRECT_CODE);
+            VerificationNumberGenerator verificationNumberGenerator = new TestVerificationNumberHolder(CORRECT_CODE);
             long expectedExpiration = 60 * 3L;
 
             // when
@@ -47,7 +47,7 @@ class UserVerificationStatusTest {
         @DisplayName("Email 인증용 객체의 유효시간은 5분이다")
         void createByEmail() {
             // given
-            VerificationNumberGenerator verificationNumberGenerator = new FakeVerificationNumberGenerator(CORRECT_CODE);
+            VerificationNumberGenerator verificationNumberGenerator = new TestVerificationNumberHolder(CORRECT_CODE);
             long expectedExpiration = 60 * 5L;
 
             // when

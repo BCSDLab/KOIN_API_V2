@@ -17,7 +17,7 @@ import in.koreatech.koin.domain.user.verification.service.UserVerificationServic
 import in.koreatech.koin.unit.domain.user.verification.mock.FakeApplicationEventPublisher;
 import in.koreatech.koin.unit.domain.user.verification.mock.FakeUserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.unit.domain.user.verification.mock.FakeUserVerificationStatusRedisRepository;
-import in.koreatech.koin.unit.domain.user.verification.mock.FakeVerificationNumberGenerator;
+import in.koreatech.koin.unit.domain.user.verification.mock.TestVerificationNumberHolder;
 
 @ExtendWith(MockitoExtension.class)
 class UserVerificationServiceTest {
@@ -34,7 +34,7 @@ class UserVerificationServiceTest {
         FakeUserVerificationStatusRedisRepository fakeStatusRepository = new FakeUserVerificationStatusRedisRepository();
         FakeUserDailyVerificationCountRedisRepository fakeCountRepository = new FakeUserDailyVerificationCountRedisRepository();
         FakeApplicationEventPublisher fakeEventPublisher = new FakeApplicationEventPublisher();
-        FakeVerificationNumberGenerator fakeGenerator = new FakeVerificationNumberGenerator(CORRECT_CODE);
+        TestVerificationNumberHolder fakeGenerator = new TestVerificationNumberHolder(CORRECT_CODE);
         userVerificationService = new UserVerificationService(
             fakeStatusRepository,
             fakeCountRepository,
