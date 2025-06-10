@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.service;
+package in.koreatech.koin.domain.order.shop.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -12,22 +12,22 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopBaseInfo;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopDetailInfo;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopOpenStatus;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse.ShopOpenInfo;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsSortCriteria;
-import in.koreatech.koin.domain.shop.repository.order.OrderableShopCustomRepository;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopDetailInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenStatus;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse.ShopOpenInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
+import in.koreatech.koin.domain.order.shop.repository.OrderableShopListCustomRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class OrderableShopService {
+public class OrderableShopListService {
 
-    private final OrderableShopCustomRepository orderableShopCustomRepository;
+    private final OrderableShopListCustomRepository orderableShopListCustomRepository;
 
     public List<OrderableShopsResponse> getOrderableShops(
         OrderableShopsSortCriteria sortCriteria,
@@ -51,7 +51,7 @@ public class OrderableShopService {
 
     private List<OrderableShopBaseInfo> findAllOrderableShopBaseInfo(List<OrderableShopsFilterCriteria> filterCriteria,
         Integer minimumAmount) {
-        return orderableShopCustomRepository.findAllOrderableShopInfo(filterCriteria, minimumAmount);
+        return orderableShopListCustomRepository.findAllOrderableShopInfo(filterCriteria, minimumAmount);
     }
 
     private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfo,
@@ -67,15 +67,15 @@ public class OrderableShopService {
     }
 
     private Map<Integer, List<Integer>> findAllShopCategoriesByShopIds(List<Integer> shopIds) {
-        return orderableShopCustomRepository.findAllCategoriesByShopIds(shopIds);
+        return orderableShopListCustomRepository.findAllCategoriesByShopIds(shopIds);
     }
 
     private Map<Integer, List<String>> findAllShopImagesByShopIds(List<Integer> shopIds) {
-        return orderableShopCustomRepository.findAllShopImagesByShopIds(shopIds);
+        return orderableShopListCustomRepository.findAllShopImagesByShopIds(shopIds);
     }
 
     private Map<Integer, List<ShopOpenInfo>> findAllShopOpensByShopIds(List<Integer> shopIds) {
-        return orderableShopCustomRepository.findAllShopOpensByShopIds(shopIds);
+        return orderableShopListCustomRepository.findAllShopOpensByShopIds(shopIds);
     }
 
     private Map<Integer, ShopOpenInfo> extractTodayOpenSchedule(Map<Integer, List<ShopOpenInfo>> allShopOpens) {

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.dto.order;
+package in.koreatech.koin.domain.order.shop.dto.shoplist;
 
 import java.util.List;
 import java.util.Map;

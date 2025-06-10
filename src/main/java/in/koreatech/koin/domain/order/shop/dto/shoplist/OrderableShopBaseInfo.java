@@ -1,9 +1,9 @@
-package in.koreatech.koin.domain.shop.dto.order;
+package in.koreatech.koin.domain.order.shop.dto.shoplist;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse.ShopOpenInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse.ShopOpenInfo;
 
 public record OrderableShopBaseInfo(
     Integer shopId,

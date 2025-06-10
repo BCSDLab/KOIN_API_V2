@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.controller;
+package in.koreatech.koin.domain.order.shop.controller;
 
 import java.util.List;
 
@@ -7,17 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsSortCriteria;
-import in.koreatech.koin.domain.shop.service.OrderableShopService;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopListService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class OrderShopController implements OrderShopApi{
+public class OrderableShopController implements OrderableShopApi {
 
-    private final OrderableShopService orderableShopService;
+    private final OrderableShopListService orderableShopListService;
 
     @GetMapping("/order/shops")
     public ResponseEntity<List<OrderableShopsResponse>> getOrderableShops(
@@ -25,7 +25,7 @@ public class OrderShopController implements OrderShopApi{
         @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsSortCriteria,
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount
     ) {
-        List<OrderableShopsResponse> orderableShops = orderableShopService.getOrderableShops(sortBy, orderableShopsSortCriteria, minimumOrderAmount);
+        List<OrderableShopsResponse> orderableShops = orderableShopListService.getOrderableShops(sortBy, orderableShopsSortCriteria, minimumOrderAmount);
         return ResponseEntity.ok(orderableShops);
     }
 }

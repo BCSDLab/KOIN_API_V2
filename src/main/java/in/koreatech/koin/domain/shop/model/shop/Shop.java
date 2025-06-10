@@ -22,6 +22,7 @@ import org.hibernate.annotations.Where;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.order.shop.model.entity.ShopBaseDeliveryTip;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -136,6 +137,9 @@ public class Shop extends BaseEntity {
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopReview> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
+    private List<ShopBaseDeliveryTip> baseDeliveryTips = new ArrayList<>();
 
     @Size(max = 10)
     @Column(name = "bank", length = 10)

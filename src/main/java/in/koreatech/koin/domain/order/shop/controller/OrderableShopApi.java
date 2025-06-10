@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.controller;
+package in.koreatech.koin.domain.order.shop.controller;
 
 import java.util.List;
 
@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsSortCriteria;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) OrderShop: 주문 가능 상점", description = "주문 가능 상점 정보를 관리한다")
-public interface OrderShopApi {
+public interface OrderableShopApi {
 
     @ApiResponses(
         value = {
