@@ -27,7 +27,7 @@ public class UserVerificationService {
     @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
         UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber);
-        var userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationNumberGenerator);
+        var userVerificationStatus = UserVerificationStatus.createBySms(phoneNumber, verificationNumberGenerator);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
         eventPublisher.publishEvent(new UserSmsVerificationSendEvent(userVerificationStatus.getVerificationCode(), phoneNumber));
         return SendVerificationResponse.from(verificationCount);
@@ -36,7 +36,7 @@ public class UserVerificationService {
     @Transactional
     public SendVerificationResponse sendEmailVerification(String email) {
         UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email);
-        var userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationNumberGenerator);
+        var userVerificationStatus = UserVerificationStatus.createByEmail(email, verificationNumberGenerator);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
         eventPublisher.publishEvent(new UserEmailVerificationSendEvent(userVerificationStatus.getVerificationCode(), email));
         return SendVerificationResponse.from(verificationCount);

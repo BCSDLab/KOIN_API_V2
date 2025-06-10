@@ -35,11 +35,11 @@ public class UserVerificationStatus {
         this.expiration = expiration;
     }
 
-    public static UserVerificationStatus ofSms(String id, VerificationNumberGenerator generator) {
+    public static UserVerificationStatus createBySms(String id, VerificationNumberGenerator generator) {
         return new UserVerificationStatus(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
     }
 
-    public static UserVerificationStatus ofEmail(String id, VerificationNumberGenerator generator) {
+    public static UserVerificationStatus createByEmail(String id, VerificationNumberGenerator generator) {
         return new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
     }
 
