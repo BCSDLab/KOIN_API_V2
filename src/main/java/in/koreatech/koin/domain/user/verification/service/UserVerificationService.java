@@ -31,7 +31,10 @@ public class UserVerificationService {
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
         UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
         String verificationCode = CertificateNumberGenerator.generate();
-        userVerificationStatusRedisRepository.save(UserVerificationStatus.ofSms(phoneNumber, verificationCode));
+
+        var userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationCode);
+        userVerificationStatusRedisRepository.save(userVerificationStatus);
+
         eventPublisher.publishEvent(new UserSmsVerificationSendEvent(verificationCode, phoneNumber));
         return SendVerificationResponse.from(verificationCount);
     }
@@ -40,7 +43,10 @@ public class UserVerificationService {
     public SendVerificationResponse sendEmailVerification(String email) {
         UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
         String verificationCode = CertificateNumberGenerator.generate();
-        userVerificationStatusRedisRepository.save(UserVerificationStatus.ofEmail(email, verificationCode));
+
+        var userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationCode);
+        userVerificationStatusRedisRepository.save(userVerificationStatus);
+
         eventPublisher.publishEvent(new UserEmailVerificationSendEvent(verificationCode, email));
         return SendVerificationResponse.from(verificationCount);
     }
