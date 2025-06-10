@@ -6,8 +6,13 @@ import in.koreatech.koin.unit.domain.user.verification.mock.TestVerificationNumb
 
 public final class UserVerificationStatusFixture {
 
-    public static UserVerificationStatus 휴대폰_인증_상태(String code, String phoneNumber) {
+    public static UserVerificationStatus SMS_인증(String phoneNumber, String code) {
         VerificationNumberGenerator verificationNumberGenerator = new TestVerificationNumberHolder(code);
         return UserVerificationStatus.createBySms(phoneNumber, verificationNumberGenerator);
+    }
+
+    public static UserVerificationStatus 이메일_인증(String email, String code) {
+        VerificationNumberGenerator verificationNumberGenerator = new TestVerificationNumberHolder(code);
+        return UserVerificationStatus.createByEmail(email, verificationNumberGenerator);
     }
 }
