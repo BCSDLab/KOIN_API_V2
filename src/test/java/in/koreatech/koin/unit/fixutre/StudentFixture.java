@@ -11,7 +11,9 @@ import in.koreatech.koin.domain.user.model.User;
 
 public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 (ex.미인증_코인_학생())
 
-    public Student 준호_학생(Department department, Major major) {
+    private StudentFixture() {}
+
+    public static Student 준호_학생(Department department, Major major) {
         return Student.builder()
             .studentNumber("2019136135")
             .anonymousNickname("익명")
@@ -36,7 +38,7 @@ public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 
             .build();
     }
 
-    public Student 익명_학생(Department department) {
+    public static Student 익명_학생(Department department) {
         return Student.builder()
             .studentNumber("2020136111")
             .anonymousNickname("익명111")
@@ -60,7 +62,7 @@ public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 
             .build();
     }
 
-    public Student 성빈_학생(Department department) {
+    public static Student 성빈_학생(Department department) {
         return Student.builder()
             .studentNumber("2023100514")
             .anonymousNickname("익명123")
