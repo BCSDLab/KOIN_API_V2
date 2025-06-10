@@ -3,7 +3,6 @@ package in.koreatech.koin.unit.domain.user.verification.service;
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +23,7 @@ class UserVerificationServiceTest {
 
     private UserVerificationService userVerificationService;
 
-    private static final String TEST_EMAIL = "test@koreatech.ac.kr";
+    private static final String TEST_EMAIL = "user@koreatech.ac.kr";
     private static final String TEST_PHONE_NUMBER = "01012345678";
     private static final String CORRECT_CODE = "123456";
     private static final String WRONG_CODE = "999999";
@@ -44,12 +43,10 @@ class UserVerificationServiceTest {
     }
 
     @Nested
-    @DisplayName("Sms 인증번호 발송 테스트")
-    class SendSmsVerificationTest {
+    class sendSmsVerification {
 
         @Test
-        @DisplayName("최초 인증 요청 시, 일일 인증 횟수가 1로 초기화되고 인증번호가 발송된다")
-        void sendFirstTime() {
+        void sendSmsVerification를_최초_호출하면_인증_횟수가_1로_초기화되고_인증번호가_발송된다() {
             // when
             SendVerificationResponse response = userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
 
@@ -58,8 +55,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        @DisplayName("기존 인증 내역이 있을 시, 일일 인증 횟수가 1 증가하고 인증번호가 발송된다")
-        void sendAgain() {
+        void sendSmsVerification를_다시_호출하면_인증_횟수가_증가하고_인증번호가_재발송된다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
 
@@ -71,8 +67,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        @DisplayName("일일 인증 횟수 초과 시, TooManyRequestException이 발생한다")
-        void sendFail() {
+        void 일일_인증_횟수_초과_시_sendSmsVerification를_호출하면_TooManyRequestException이_발생한다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
@@ -87,12 +82,10 @@ class UserVerificationServiceTest {
     }
 
     @Nested
-    @DisplayName("Email 인증번호 발송 테스트")
-    class SendEmailVerificationTest {
+    class sendEmailVerification {
 
         @Test
-        @DisplayName("최초 인증 요청 시, 일일 인증 횟수가 1로 초기화되고 인증번호가 발송된다")
-        void sendFirstTime() {
+        void sendEmailVerification를_최초_호출하면_인증_횟수가_1로_초기화되고_인증번호가_발송된다() {
             // when
             SendVerificationResponse response = userVerificationService.sendEmailVerification(TEST_EMAIL);
 
@@ -101,8 +94,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        @DisplayName("기존 인증 내역이 있을 시, 일일 인증 횟수가 1 증가하고 인증번호가 발송된다")
-        void sendAgain() {
+        void sendEmailVerification를_다시_호출하면_인증_횟수가_증가하고_인증번호가_재발송된다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
 
@@ -114,8 +106,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        @DisplayName("일일 인증 횟수 초과 시, TooManyRequestException이 발생한다")
-        void sendFail() {
+        void 일일_인증_횟수_초과_시_sendEmailVerification를_호출하면_TooManyRequestException이_발생한다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.sendEmailVerification(TEST_EMAIL);
@@ -130,12 +121,41 @@ class UserVerificationServiceTest {
     }
 
     @Nested
-    @DisplayName("인증번호 검증 테스트")
-    class VerifyCodeTest {
+    class verifyCode {
 
         @Test
-        @DisplayName("올바른 인증번호를 입력하면, 예외를 반환하지 않는다")
-        void verifySuccess() {
+        void 올바른_SMS_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
+            // given
+            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+
+            // when / then
+            assertThatCode(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE))
+                .doesNotThrowAnyException();
+        }
+
+        @Test
+        void 올바른_SMS_인증번호를_입력하여_verifyCode를_재호출해도_예외를_반환하지_않는다() {
+            // given
+            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+            userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
+
+            // when / then
+            assertThatCode(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE))
+                .doesNotThrowAnyException();
+        }
+
+        @Test
+        void 잘못된_SMS_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
+            // given
+            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+
+            // when / then
+            assertThatThrownBy(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, WRONG_CODE))
+                .isInstanceOf(KoinIllegalArgumentException.class);
+        }
+
+        @Test
+        void 올바른_이메일_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
 
@@ -145,8 +165,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        @DisplayName("올바른 인증번호를 두번 이상 입력해도, 예외를 반환하지 않는다")
-        void verifyAgain() {
+        void 올바른_이메일_인증번호를_입력하여_verifyCode를_재호출해도_예외를_반환하지_않는다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
@@ -157,8 +176,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        @DisplayName("잘못된 인증번호를 입력하면 KoinIllegalArgumentException이 발생한다")
-        void verifyFail() {
+        void 잘못된_이메일_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
 
@@ -169,12 +187,38 @@ class UserVerificationServiceTest {
     }
 
     @Nested
-    @DisplayName("인증 정보 소모(사용) 테스트")
-    class ConsumeVerificationTest {
+    class consumeVerification {
 
         @Test
-        @DisplayName("인증 완료된 상태에서 요청하면, 인증 정보가 삭제된다")
-        void consumeSuccess() {
+        void SMS_인증_완료된_상태에서_요청하면_인증_정보가_삭제된다() {
+            // given
+            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+            userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
+
+            // when / then
+            assertThatCode(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
+                .doesNotThrowAnyException();
+        }
+
+        @Test
+        void SMS_미인증_상태에서_요청하면_AuthorizationException이_발생한다() {
+            // when / then
+            assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
+                .isInstanceOf(AuthorizationException.class);
+        }
+
+        @Test
+        void SMS_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
+            // given
+            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+
+            // when / then
+            assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
+                .isInstanceOf(AuthorizationException.class);
+        }
+
+        @Test
+        void 이메일_인증_완료된_상태에서_요청하면_인증_정보가_삭제된다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
@@ -185,19 +229,17 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        @DisplayName("미인증 상태에서 요청하면, AuthorizationException이 발생한다")
-        void consumeFail() {
-            // given
-            userVerificationService.sendEmailVerification(TEST_EMAIL);
-
+        void 이메일_미인증_상태에서_요청하면_AuthorizationException이_발생한다() {
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_EMAIL))
                 .isInstanceOf(AuthorizationException.class);
         }
 
         @Test
-        @DisplayName("인증 코드 미생성 상태에서 요청하면, AuthorizationException이 발생한다")
-        void consumeFail2() {
+        void 이메일_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
+            // given
+            userVerificationService.sendEmailVerification(TEST_EMAIL);
+
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_EMAIL))
                 .isInstanceOf(AuthorizationException.class);
