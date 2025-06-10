@@ -54,12 +54,6 @@ public class UserVerificationService {
      * 이 메서드는 지정된 전화번호 또는 이메일에 대한 본인 인증 상태가
      * <strong>완료되었는지 확인한 후</strong> 인증 정보를 레디스에서 삭제합니다.
      * </p>
-     *
-     * <p><b>주의:</b> 인증 정보는 이 메서드 호출 시 삭제되므로,
-     * 인증이 필요한 비즈니스 로직이 모두 <strong>완료된 후 마지막에</strong> 호출해야 합니다.
-     * 인증 상태를 1회성으로 "소비"하는 방식이며, 이후 동일한 인증 상태를 재사용할 수 없습니다.
-     * 레디스는 트랜잭션을 지원하지 않으므로 메서드 내에서 오류 발생 시 롤백되지않습니다.
-     * </p>
      */
     @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
