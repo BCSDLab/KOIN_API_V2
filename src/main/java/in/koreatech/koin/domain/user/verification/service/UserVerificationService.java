@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
-import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
+import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
@@ -21,12 +21,13 @@ public class UserVerificationService {
 
     private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
+    private final VerificationNumberGenerator verificationNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
         UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber);
-        String verificationCode = CertificateNumberGenerator.generate();
+        String verificationCode = verificationNumberGenerator.generate();
 
         var userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationCode);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
@@ -38,7 +39,7 @@ public class UserVerificationService {
     @Transactional
     public SendVerificationResponse sendEmailVerification(String email) {
         UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email);
-        String verificationCode = CertificateNumberGenerator.generate();
+        String verificationCode = verificationNumberGenerator.generate();
 
         var userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationCode);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
