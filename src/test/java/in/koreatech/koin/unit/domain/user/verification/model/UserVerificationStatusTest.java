@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.domain.user.model;
+package in.koreatech.koin.unit.domain.user.verification.model;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -12,7 +12,7 @@ import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
-import in.koreatech.koin.unit.domain.user.mock.FakeVerificationNumberGenerator;
+import in.koreatech.koin.unit.domain.user.verification.mock.FakeVerificationNumberGenerator;
 import in.koreatech.koin.unit.fixutre.UserVerificationStatusFixture;
 
 class UserVerificationStatusTest {

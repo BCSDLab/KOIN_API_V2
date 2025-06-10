@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.domain.user.mock;
+package in.koreatech.koin.unit.domain.user.verification.mock;
 
 import java.util.HashMap;
 import java.util.Map;

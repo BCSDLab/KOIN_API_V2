@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.domain.user.mock;
+package in.koreatech.koin.unit.domain.user.verification.mock;
 
 import java.util.ArrayList;
 import java.util.List;

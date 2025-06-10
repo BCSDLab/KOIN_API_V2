@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.domain.user.mock;
+package in.koreatech.koin.unit.domain.user.verification.mock;
 
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 

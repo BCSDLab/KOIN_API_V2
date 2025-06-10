@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.domain.user.model;
+package in.koreatech.koin.unit.domain.user.verification.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.domain.user.service;
+package in.koreatech.koin.unit.domain.user.verification.service;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -14,10 +14,10 @@ import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
-import in.koreatech.koin.unit.domain.user.mock.FakeApplicationEventPublisher;
-import in.koreatech.koin.unit.domain.user.mock.FakeUserDailyVerificationCountRedisRepository;
-import in.koreatech.koin.unit.domain.user.mock.FakeUserVerificationStatusRedisRepository;
-import in.koreatech.koin.unit.domain.user.mock.FakeVerificationNumberGenerator;
+import in.koreatech.koin.unit.domain.user.verification.mock.FakeApplicationEventPublisher;
+import in.koreatech.koin.unit.domain.user.verification.mock.FakeUserDailyVerificationCountRedisRepository;
+import in.koreatech.koin.unit.domain.user.verification.mock.FakeUserVerificationStatusRedisRepository;
+import in.koreatech.koin.unit.domain.user.verification.mock.FakeVerificationNumberGenerator;
 
 @ExtendWith(MockitoExtension.class)
 class UserVerificationServiceTest {

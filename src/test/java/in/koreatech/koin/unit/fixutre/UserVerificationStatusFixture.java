@@ -2,7 +2,7 @@ package in.koreatech.koin.unit.fixutre;
 
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
-import in.koreatech.koin.unit.domain.user.mock.FakeVerificationNumberGenerator;
+import in.koreatech.koin.unit.domain.user.verification.mock.FakeVerificationNumberGenerator;
 
 public final class UserVerificationStatusFixture {
 
