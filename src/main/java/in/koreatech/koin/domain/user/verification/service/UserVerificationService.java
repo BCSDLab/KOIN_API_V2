@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.user.verification.service;
 
-import java.util.Optional;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +25,7 @@ public class UserVerificationService {
 
     @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
-        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(phoneNumber);
+        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber);
         String verificationCode = CertificateNumberGenerator.generate();
 
         var userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationCode);
@@ -39,7 +37,7 @@ public class UserVerificationService {
 
     @Transactional
     public SendVerificationResponse sendEmailVerification(String email) {
-        UserDailyVerificationCount verificationCount = increaseUserDailyVerificationCount(email);
+        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email);
         String verificationCode = CertificateNumberGenerator.generate();
 
         var userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationCode);
@@ -75,14 +73,10 @@ public class UserVerificationService {
         userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
 
-    private UserDailyVerificationCount increaseUserDailyVerificationCount(String phoneNumberOrEmail) {
-        Optional<UserDailyVerificationCount> count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail);
-        if (count.isEmpty()) {
-            UserDailyVerificationCount newCount = UserDailyVerificationCount.from(phoneNumberOrEmail);
-            return userDailyVerificationCountRedisRepository.save(newCount);
-        }
-        UserDailyVerificationCount updatedCount = count.get();
-        updatedCount.incrementVerificationCount();
-        return userDailyVerificationCountRedisRepository.save(updatedCount);
+    private UserDailyVerificationCount increaseAndGetUserDailyVerificationCount(String phoneNumberOrEmail) {
+        UserDailyVerificationCount count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
+            .orElseGet(() -> UserDailyVerificationCount.create(phoneNumberOrEmail));
+        count.increment();
+        return userDailyVerificationCountRedisRepository.save(count);
     }
 }

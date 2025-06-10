@@ -20,18 +20,18 @@ public class UserDailyVerificationCount {
     private int verificationCount = 1;
 
     @TimeToLive
-    private Long expiration;
+    private final Long expiration;
 
     private UserDailyVerificationCount(String id) {
         this.id = id;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 
-    public static UserDailyVerificationCount from(String id) {
+    public static UserDailyVerificationCount create(String id) {
         return new UserDailyVerificationCount(id);
     }
 
-    public void incrementVerificationCount() {
+    public void increment() {
         if (verificationCount >= MAX_VERIFICATION_COUNT) {
             throw new TooManyRequestsException("하루 인증 횟수를 초과했습니다.", "verification: " + id);
         }
