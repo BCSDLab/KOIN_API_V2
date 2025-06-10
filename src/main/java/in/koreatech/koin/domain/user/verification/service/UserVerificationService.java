@@ -27,24 +27,18 @@ public class UserVerificationService {
     @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
         UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber);
-        String verificationCode = verificationNumberGenerator.generate();
-
-        var userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationCode);
+        var userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationNumberGenerator);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
-
-        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(verificationCode, phoneNumber));
+        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(userVerificationStatus.getVerificationCode(), phoneNumber));
         return SendVerificationResponse.from(verificationCount);
     }
 
     @Transactional
     public SendVerificationResponse sendEmailVerification(String email) {
         UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email);
-        String verificationCode = verificationNumberGenerator.generate();
-
-        var userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationCode);
+        var userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationNumberGenerator);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
-
-        eventPublisher.publishEvent(new UserEmailVerificationSendEvent(verificationCode, email));
+        eventPublisher.publishEvent(new UserEmailVerificationSendEvent(userVerificationStatus.getVerificationCode(), email));
         return SendVerificationResponse.from(verificationCount);
     }
 

@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import lombok.Getter;
 
 @Getter
@@ -34,12 +35,12 @@ public class UserVerificationStatus {
         this.expiration = expiration;
     }
 
-    public static UserVerificationStatus ofSms(String id, String verificationCode) {
-        return new UserVerificationStatus(id, verificationCode, SMS_VERIFICATION_EXPIRATION_SECONDS);
+    public static UserVerificationStatus ofSms(String id, VerificationNumberGenerator generator) {
+        return new UserVerificationStatus(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
     }
 
-    public static UserVerificationStatus ofEmail(String id, String verificationCode) {
-        return new UserVerificationStatus(id, verificationCode, EMAIL_VERIFICATION_EXPIRATION_SECONDS);
+    public static UserVerificationStatus ofEmail(String id, VerificationNumberGenerator generator) {
+        return new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
     }
 
     public void verify(String inputCode) {
