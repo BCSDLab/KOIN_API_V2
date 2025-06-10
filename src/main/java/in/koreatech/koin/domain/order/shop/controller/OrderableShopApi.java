@@ -29,6 +29,7 @@ public interface OrderableShopApi {
                             [
                               {
                                 "shop_id": 2,
+                                "orderable_shop_id": 1,
                                 "name": "가장 맛있는 족발",
                                 "is_delivery_available": true,
                                 "is_takeout_available": false,
