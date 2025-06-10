@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
@@ -54,10 +53,7 @@ public class UserVerificationService {
     @Transactional
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
-        if (verificationStatus.isCodeMismatched(verificationCode)) {
-            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
-        }
-        verificationStatus.markAsVerified();
+        verificationStatus.verify(verificationCode);
         userVerificationStatusRedisRepository.save(verificationStatus);
     }
 

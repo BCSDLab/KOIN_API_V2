@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.Getter;
 
 @Getter
@@ -19,7 +20,7 @@ public class UserVerificationStatus {
     @Id
     private String id;
 
-    private String verificationCode;
+    private final String verificationCode;
 
     private boolean verified = false;
 
@@ -40,12 +41,15 @@ public class UserVerificationStatus {
         return new UserVerificationStatus(id, verificationCode, EMAIL_VERIFICATION_EXPIRATION_SECONDS);
     }
 
-    public void markAsVerified() {
+    public void verify(String inputCode) {
+        if (isCodeMismatched(inputCode)) {
+            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+        }
         this.verified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 
-    public boolean isCodeMismatched(String inputCode) {
+    private boolean isCodeMismatched(String inputCode) {
         return !Objects.equals(this.verificationCode, inputCode);
     }
 }
