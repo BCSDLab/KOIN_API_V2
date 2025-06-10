@@ -20,7 +20,7 @@ public class UserDailyVerificationCount {
     private int verificationCount;
 
     @TimeToLive
-    private final Long expiration;
+    private Long expiration;
 
     private UserDailyVerificationCount(String id) {
         this.id = id;
