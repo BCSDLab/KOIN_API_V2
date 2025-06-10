@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.Getter;
 
@@ -49,7 +50,17 @@ public class UserVerificationStatus {
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 
+    public void requireVerified() {
+        if (isNotVerified()) {
+            throw new AuthorizationException("본인 인증 후 다시 시도해주십시오.");
+        }
+    }
+
     private boolean isCodeMismatched(String inputCode) {
         return !Objects.equals(this.verificationCode, inputCode);
+    }
+
+    private boolean isNotVerified() {
+        return !this.verified;
     }
 }

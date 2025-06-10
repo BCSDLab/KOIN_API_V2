@@ -6,7 +6,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
@@ -71,9 +70,8 @@ public class UserVerificationService {
      */
     @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
-        userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
-            .filter(UserVerificationStatus::isVerified)
-            .orElseThrow(() -> new AuthenticationException("본인 인증 후 다시 시도해주십시오."));
+        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
+        verificationStatus.requireVerified();
         userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
 
