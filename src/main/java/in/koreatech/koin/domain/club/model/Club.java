@@ -71,7 +71,7 @@ public class Club extends BaseEntity {
     private String location;
 
     @NotNull
-    @Column(name = "introduction", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "introduction", nullable = false, columnDefinition = "MEDIUMTEXT")
     private String introduction;
 
     @NotNull
