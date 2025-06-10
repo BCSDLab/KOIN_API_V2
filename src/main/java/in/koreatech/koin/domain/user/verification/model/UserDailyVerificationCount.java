@@ -17,13 +17,14 @@ public class UserDailyVerificationCount {
     @Id
     private String id;
 
-    private int verificationCount = 1;
+    private int verificationCount;
 
     @TimeToLive
     private final Long expiration;
 
     private UserDailyVerificationCount(String id) {
         this.id = id;
+        this.verificationCount = 0;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 
