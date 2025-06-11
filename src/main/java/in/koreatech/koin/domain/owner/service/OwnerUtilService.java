@@ -20,7 +20,6 @@ public class OwnerUtilService {
 
     private final OwnerRepository ownerRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
-    private final UserTokenRedisRepository userTokenRedisRepository;
     private final ShopRepository shopRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -29,12 +28,6 @@ public class OwnerUtilService {
         String shopName = ownerShopRedisRepository.findById(owner.getId()).getShopName();
         OwnerRegisterEvent ownerRegisterEvent = new OwnerRegisterEvent(ownerName, shopName);
         eventPublisher.publishEvent(ownerRegisterEvent);
-    }
-
-    public String saveRefreshToken(User user) {
-        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
-        return savedToken.getRefreshToken();
     }
 
     public void validateExistShopId(Integer shopId) {
