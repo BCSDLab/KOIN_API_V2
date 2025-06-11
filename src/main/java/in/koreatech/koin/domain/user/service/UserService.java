@@ -13,6 +13,7 @@ import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -44,7 +45,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
-    private final UserTokenRedisRepository userTokenRedisRepository;
     private final UserVerificationService userVerificationService;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final ApplicationEventPublisher eventPublisher;
@@ -92,7 +92,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserLoginResponse loginV2(UserLoginRequestV2 request) {
+    public UserLoginResponse loginV2(UserLoginRequestV2 request, UserAgentInfo userAgentInfo) {
         User user;
         String loginId = request.loginId();
         if (loginId.matches("^\\d{11}$")) {
@@ -101,39 +101,36 @@ public class UserService {
             user = userRepository.getByLoginId(loginId);
         }
         user.requireSameLoginPw(passwordEncoder, request.loginPw());
-        return createLoginResponse(user);
+        return createLoginResponse(user, userAgentInfo);
     }
 
     @Transactional
-    public UserLoginResponse login(UserLoginRequest request) {
+    public UserLoginResponse login(UserLoginRequest request, UserAgentInfo userAgentInfo) {
         User user = userRepository.getByEmail(request.email());
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
-        return createLoginResponse(user);
+        return createLoginResponse(user, userAgentInfo);
     }
 
-    private UserLoginResponse createLoginResponse(User user) {
+    private UserLoginResponse createLoginResponse(User user, UserAgentInfo userAgentInfo) {
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user);
-        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
-        updateLastLoginTime(user);
-        return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), user.getUserType().getValue());
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
+        user.updateLastLoggedTime(LocalDateTime.now());
+        return UserLoginResponse.of(accessToken, refreshToken, user.getUserType().getValue());
     }
 
     @Transactional
-    public void logout(Integer userId) {
-        userTokenRedisRepository.deleteById(userId);
+    public void logout(Integer userId, UserAgentInfo userAgentInfo) {
+        refreshTokenService.deleteRefreshToken(userId, userAgentInfo.getType());
     }
 
-    public UserRefreshTokenResponse refresh(UserRefreshTokenRequest request) {
+    public UserRefreshTokenResponse refresh(UserRefreshTokenRequest request, UserAgentInfo userAgentInfo) {
         Integer userId = refreshTokenService.extractUserId(request.refreshToken());
-        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(), userId);
-
-        User user = userRepository.findById(userToken.getId())
-            .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. userId : " + userId));
+        refreshTokenService.verifyRefreshToken(userId, userAgentInfo.getType(), request.refreshToken());
+        User user = userRepository.getById(userId);
 
         String accessToken = jwtProvider.createToken(user);
-        return UserRefreshTokenResponse.of(accessToken, userToken.getRefreshToken());
+        return UserRefreshTokenResponse.of(accessToken, refreshTokenService.getRefreshToken(userId, userAgentInfo.getType()));
     }
 
     @Transactional
@@ -147,10 +144,6 @@ public class UserService {
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
-    }
-
-    public void updateLastLoginTime(User user) {
-        user.updateLastLoggedTime(LocalDateTime.now());
     }
 
     public UserFindLoginIdResponse findIdBySms(UserFindIdBySmsRequest request) {

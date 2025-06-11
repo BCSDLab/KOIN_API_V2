@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
-import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
-import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
-import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserFindIdBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
@@ -27,8 +25,12 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
+import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,33 +67,37 @@ public class UserController implements UserApi {
 
     @PostMapping("/v2/users/login")
     public ResponseEntity<UserLoginResponse> loginV2(
-        @RequestBody @Valid UserLoginRequestV2 request
+        @RequestBody @Valid UserLoginRequestV2 request,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        UserLoginResponse response = userService.loginV2(request);
+        UserLoginResponse response = userService.loginV2(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(
-        @RequestBody @Valid UserLoginRequest request
+        @RequestBody @Valid UserLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        UserLoginResponse response = userService.login(request);
+        UserLoginResponse response = userService.login(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/refresh")
     public ResponseEntity<UserRefreshTokenResponse> refreshToken(
-        @RequestBody @Valid UserRefreshTokenRequest request
+        @RequestBody @Valid UserRefreshTokenRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        UserRefreshTokenResponse response = userService.refresh(request);
+        UserRefreshTokenResponse response = userService.refresh(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        userService.logout(userId);
+        userService.logout(userId, userAgentInfo);
         return ResponseEntity.ok().build();
     }
 
