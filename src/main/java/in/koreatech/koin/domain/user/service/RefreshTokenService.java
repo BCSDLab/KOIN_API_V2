@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

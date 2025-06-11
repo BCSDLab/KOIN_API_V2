@@ -64,9 +64,7 @@ import in.koreatech.koin.domain.dining.model.enums.ExcelDiningPosition;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.coop.dto.CoopResponse;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
