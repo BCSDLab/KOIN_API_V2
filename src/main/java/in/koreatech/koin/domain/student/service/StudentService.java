@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.student.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import in.koreatech.koin._common.event.StudentFindPasswordEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin._common.event.StudentRegisterRequestEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
@@ -64,7 +66,6 @@ public class StudentService {
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
-    private final UserTokenRedisRepository userTokenRedisRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final JwtProvider jwtProvider;
@@ -88,17 +89,16 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentLoginResponse studentLogin(StudentLoginRequest request) {
+    public StudentLoginResponse studentLogin(StudentLoginRequest request, UserAgentInfo userAgentInfo) {
         User user = userRepository.getByEmail(request.email());
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user);
-        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
-        userService.updateLastLoginTime(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
+        user.updateLastLoggedTime(LocalDateTime.now());
 
-        return StudentLoginResponse.of(accessToken, savedToken.getRefreshToken());
+        return StudentLoginResponse.of(accessToken, refreshToken);
     }
 
     @Transactional
@@ -338,6 +338,7 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
         user.updatePassword(passwordEncoder, request.password());
+        refreshTokenService.deleteAllRefreshTokens(user.getId());
     }
 
     @Transactional
