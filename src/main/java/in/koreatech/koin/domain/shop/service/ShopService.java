@@ -117,6 +117,6 @@ public class ShopService {
     }
 
     private boolean isSubscribeReviewNotification(Integer studentId) {
-        return notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(studentId, REVIEW_PROMPT);
+        return notificationSubscribeRepository.existsByUserIdAndSubscribeType(studentId, REVIEW_PROMPT);
     }
 }

@@ -13,6 +13,6 @@ public class NotificationSubscribeReader {
     private final NotificationSubscribeRepository notificationSubscribeRepository;
 
     public boolean isSubscribeChatNotification(Integer userId) {
-        return notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(userId, NotificationSubscribeType.LOST_ITEM_CHAT);
+        return notificationSubscribeRepository.existsByUserIdAndSubscribeType(userId, NotificationSubscribeType.LOST_ITEM_CHAT);
     }
 }

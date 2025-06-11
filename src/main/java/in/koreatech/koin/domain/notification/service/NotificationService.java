@@ -65,7 +65,7 @@ public class NotificationService {
     public void permitNotificationSubscribe(Integer userId, NotificationSubscribeType subscribeType) {
         User user = userRepository.getById(userId);
         ensureUserDeviceToken(user.getDeviceToken());
-        if (notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(userId, subscribeType)) {
+        if (notificationSubscribeRepository.existsByUserIdAndSubscribeType(userId, subscribeType)) {
             return;
         }
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
