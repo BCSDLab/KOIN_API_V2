@@ -1,6 +1,5 @@
 package in.koreatech.koin.socket.domain.notification.service;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-@Profile("!test")
 public class MessageReceivedEventListener {
 
     private final NotificationService notificationService;
@@ -59,7 +57,7 @@ public class MessageReceivedEventListener {
             partner
         );
 
-        notificationService.pushNotification(notification);
+        notificationService.push(notification);
     }
 
     /**

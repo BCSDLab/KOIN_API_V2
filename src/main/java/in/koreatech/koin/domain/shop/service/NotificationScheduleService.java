@@ -53,7 +53,7 @@ public class NotificationScheduleService {
             })
             .toList();
 
-        notificationService.pushNotifications(notifications);
+        notificationService.push(notifications);
         shopReviewNotificationRedisRepository.deleteSentNotifications(dueNotifications);
     }
 

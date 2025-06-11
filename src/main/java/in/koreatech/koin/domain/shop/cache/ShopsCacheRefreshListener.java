@@ -23,7 +23,7 @@ public class ShopsCacheRefreshListener {
         shopsCacheService.refreshShopsCache();
     }
 
-    @TransactionalEventListener
+    @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onShopsCacheRefresh(ShopsCacheRefreshEvent event) {
         shopsCacheService.refreshShopsCache();
     }

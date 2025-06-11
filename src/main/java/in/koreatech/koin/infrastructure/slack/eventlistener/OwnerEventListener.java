@@ -1,8 +1,11 @@
 package in.koreatech.koin.infrastructure.slack.eventlistener;
 
-import org.springframework.context.annotation.Profile;
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.OwnerRegisterEvent;
@@ -13,14 +16,14 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-@Profile("!test")
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class OwnerEventListener {
 
     private final SlackClient slackClient;
     private final SlackNotificationFactory slackNotificationFactory;
 
     @Async
-    @TransactionalEventListener
+    @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerPhoneRequest(OwnerSmsVerificationSendEvent ownerPhoneRequestEvent) {
         var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(
             ownerPhoneRequestEvent.phoneNumber());
@@ -28,7 +31,7 @@ public class OwnerEventListener {
     }
 
     @Async
-    @TransactionalEventListener
+    @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerRegisterBySms(OwnerRegisterEvent event) {
         var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(
             event.ownerName(),
