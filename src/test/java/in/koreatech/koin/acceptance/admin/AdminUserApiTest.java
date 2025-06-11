@@ -56,6 +56,7 @@ class AdminUserApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/admin/user/login")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
                     .content("""
                         {
                           "email" : "%s",
@@ -95,6 +96,7 @@ class AdminUserApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/admin/user/login")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
                     .content("""
                         {
                           "email" : "%s",
@@ -114,6 +116,7 @@ class AdminUserApiTest extends AcceptanceTest {
                 post("/admin/user/logout")
                     .header("Authorization", "Bearer " + token)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isOk());
     }
@@ -129,6 +132,7 @@ class AdminUserApiTest extends AcceptanceTest {
         MvcResult result = mockMvc.perform(
                 post("/admin/user/login")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
                     .content("""
                         {
                           "email" : "%s",
@@ -145,6 +149,7 @@ class AdminUserApiTest extends AcceptanceTest {
                 post("/admin/user/refresh")
                     .header("Authorization", "Bearer " + token)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
                     .content("""
                         {
                           "refresh_token" : "%s"
