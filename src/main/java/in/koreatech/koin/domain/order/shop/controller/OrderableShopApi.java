@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoSummaryResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
@@ -135,5 +137,62 @@ public interface OrderableShopApi {
 
         @Parameter(description = "최소 주문 금액 필터 (단위: 원). null 가능")
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "주문 가능 상점 요약 정보 조회 성공",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "성공", value = """
+                        {
+                          "shop_id": 2,
+                          "orderable_shop_id": 1,
+                          "name": "가장 맛있는 족발",
+                          "is_delivery_available": true,
+                          "is_takeout_available": false,
+                          "minimum_order_amount": 10000,
+                          "rating_average": 4.5,
+                          "review_count": 120,
+                          "minimum_delivery_tip": 2000,
+                          "maximum_delivery_tip": 5000
+                        }
+                        """
+                    )
+                })
+            ),
+            @ApiResponse(responseCode = "404", description = "주문 가능 상점을 찾을 수 없음",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "상점 미존재", value = """
+                    {
+                      "status": 404,
+                      "error": "Not Found",
+                      "message": "존재하지 않는 상점입니다.: 해당 상점이 존재하지 않습니다.: 1"
+                    }
+                    """
+                    )
+                })
+            )
+        }
+    )
+    @Operation(summary = "주문 가능 상점 요약 정보 조회", description = """
+            ### 주문 가능 상점 요약 정보 조회
+            - 특정 주문 가능 상점의 요약 정보를 반환합니다.
+            - **orderableShopId**: 조회하려는 주문 가능 상점의 고유 식별자.
+            - 반환 정보:
+                - shop_id: 상점의 고유 식별자
+                - orderable_shop_id: 주문 가능 상점의 고유 식별자
+                - name: 상점 이름
+                - is_delivery_available: 배달 가능 여부
+                - is_takeout_available: 테이크아웃 가능 여부
+                - minimum_order_amount: 최소 주문 금액
+                - rating_average: 평균 평점
+                - review_count: 리뷰 수
+                - minimum_delivery_tip: 최소 배달비
+                - maximum_delivery_tip: 최대 배달비
+            """)
+    @GetMapping("/order/shop/{orderableShopId}/summary")
+    ResponseEntity<OrderableShopInfoSummaryResponse> getOrderableShopInfoSummary(
+        @Parameter(description = "주문 가능 상점의 고유 식별자", example = "1")
+        @PathVariable Integer orderableShopId
     );
 }

@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class OrderableShopListCustomRepository {
+public class OrderableShopListQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 

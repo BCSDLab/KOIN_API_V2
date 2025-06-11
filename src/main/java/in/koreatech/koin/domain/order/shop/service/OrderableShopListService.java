@@ -19,7 +19,7 @@ import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCrit
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse.ShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
-import in.koreatech.koin.domain.order.shop.repository.OrderableShopListCustomRepository;
+import in.koreatech.koin.domain.order.shop.repository.OrderableShopListQueryRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderableShopListService {
 
-    private final OrderableShopListCustomRepository orderableShopListCustomRepository;
+    private final OrderableShopListQueryRepository orderableShopListQueryRepository;
 
     public List<OrderableShopsResponse> getOrderableShops(
         OrderableShopsSortCriteria sortCriteria,
@@ -51,7 +51,7 @@ public class OrderableShopListService {
 
     private List<OrderableShopBaseInfo> findAllOrderableShopBaseInfo(List<OrderableShopsFilterCriteria> filterCriteria,
         Integer minimumAmount) {
-        return orderableShopListCustomRepository.findAllOrderableShopInfo(filterCriteria, minimumAmount);
+        return orderableShopListQueryRepository.findAllOrderableShopInfo(filterCriteria, minimumAmount);
     }
 
     private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfo,
@@ -67,15 +67,15 @@ public class OrderableShopListService {
     }
 
     private Map<Integer, List<Integer>> findAllShopCategoriesByShopIds(List<Integer> shopIds) {
-        return orderableShopListCustomRepository.findAllCategoriesByShopIds(shopIds);
+        return orderableShopListQueryRepository.findAllCategoriesByShopIds(shopIds);
     }
 
     private Map<Integer, List<String>> findAllShopImagesByShopIds(List<Integer> shopIds) {
-        return orderableShopListCustomRepository.findAllShopImagesByShopIds(shopIds);
+        return orderableShopListQueryRepository.findAllShopImagesByShopIds(shopIds);
     }
 
     private Map<Integer, List<ShopOpenInfo>> findAllShopOpensByShopIds(List<Integer> shopIds) {
-        return orderableShopListCustomRepository.findAllShopOpensByShopIds(shopIds);
+        return orderableShopListQueryRepository.findAllShopOpensByShopIds(shopIds);
     }
 
     private Map<Integer, ShopOpenInfo> extractTodayOpenSchedule(Map<Integer, List<ShopOpenInfo>> allShopOpens) {
