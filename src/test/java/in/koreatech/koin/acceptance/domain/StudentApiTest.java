@@ -85,6 +85,7 @@ public class StudentApiTest extends AcceptanceTest {
                         }
                         """.formatted(email, password))
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
             )
             .andExpect(status().isCreated());
     }

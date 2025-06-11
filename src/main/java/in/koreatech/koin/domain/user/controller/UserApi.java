@@ -10,19 +10,21 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.user.dto.UserTypeResponse;
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserFindIdBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
-import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
-import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
-import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
+import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
+import in.koreatech.koin.domain.user.dto.UserResponse;
+import in.koreatech.koin.domain.user.dto.UserTypeResponse;
 import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -94,7 +96,8 @@ public interface UserApi {
     @Operation(summary = "로그인 V2")
     @PostMapping("/v2/users/login")
     ResponseEntity<UserLoginResponse> loginV2(
-        @RequestBody @Valid UserLoginRequestV2 request
+        @RequestBody @Valid UserLoginRequestV2 request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -108,7 +111,8 @@ public interface UserApi {
     @Operation(summary = "로그인 (Deprecated)")
     @PostMapping("/user/login")
     ResponseEntity<UserLoginResponse> login(
-        @RequestBody @Valid UserLoginRequest request
+        @RequestBody @Valid UserLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -123,7 +127,8 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -137,7 +142,8 @@ public interface UserApi {
     @Operation(summary = "토큰 갱신")
     @PostMapping("/user/refresh")
     ResponseEntity<UserRefreshTokenResponse> refreshToken(
-        @RequestBody @Valid UserRefreshTokenRequest request
+        @RequestBody @Valid UserRefreshTokenRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses({
