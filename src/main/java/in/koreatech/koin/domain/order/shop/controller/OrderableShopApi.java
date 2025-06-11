@@ -249,16 +249,16 @@ public interface OrderableShopApi {
             )
         }
     )
-    @Operation(summary = "특정 주문 가능 상점 가게 정보/원산지 조회", description = """
-            ### 주문 가능 상점 가게 정보/원산지 조회
-            - 특정 주문 가능 상점의 가게 정보/원산지 조회 결과를 반환합니다.
+    @Operation(summary = "특정 주문 가능 상점 가게 정보·원산지 조회", description = """
+            ### 주문 가능 상점 가게 정보·원산지 조회
+            - 특정 주문 가능 상점의 가게 정보·원산지 조회 결과를 반환합니다.
             - 반환 정보:
                 - shop_id: 상점 고유 식별자
                 - orderable_shop_id: 주문 가능 상점 고유 식별자
                 - name: 상점 이름
                 - address: 상점 주소
-                - open_time: 영업 시작 시간 (오늘 기준, 영업하지 않는 날은 null)
-                - close_time: 영업 종료 시간 (오늘 기준, 영업하지 않는 날은 null)
+                - open_time: 영업 시작 시간 (오늘 요일 기준, 영업 하지 않는 날은 null)
+                - close_time: 영업 종료 시간 (오늘 요일 기준, 영업 하지 않는 날은 null)
                 - closed_days: 휴무 요일 목록
                 - phone: 상점 전화번호
                 - introduction: 가게 소개
