@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotificationService {
 
     private final UserRepository userRepository;
@@ -28,13 +29,14 @@ public class NotificationService {
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
 
-    public void push(List<Notification> notifications) {
+    public void pushNotifications(List<Notification> notifications) {
         for (Notification notification : notifications) {
-            push(notification);
+            pushNotification(notification);
         }
     }
 
-    public void push(Notification notification) {
+    @Transactional
+    public void pushNotification(Notification notification) {
         notificationRepository.save(notification);
         String deviceToken = notification.getUser().getDeviceToken();
         fcmClient.sendMessage(
@@ -65,7 +67,7 @@ public class NotificationService {
     public void permitNotificationSubscribe(Integer userId, NotificationSubscribeType subscribeType) {
         User user = userRepository.getById(userId);
         ensureUserDeviceToken(user.getDeviceToken());
-        if (notificationSubscribeRepository.existsByUserIdAndSubscribeType(userId, subscribeType)) {
+        if (notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(userId, subscribeType)) {
             return;
         }
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()

@@ -2,6 +2,7 @@ package in.koreatech.koin.infrastructure.naver.eventlistener;
 
 import static org.springframework.transaction.event.TransactionPhase.*;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -12,16 +13,17 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
+@Profile("!test")
 public class NaverSmsEventListener {
 
     private final NaverSmsService naverSmsService;
 
-    @TransactionalEventListener(phase = BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onUserSmsVerificationSendEvent(UserSmsVerificationSendEvent event) {
         naverSmsService.sendVerificationCode(event.verificationCode(), event.phoneNumber());
     }
 
-    @TransactionalEventListener(phase = BEFORE_COMMIT)
+    @TransactionalEventListener
     public void onOwnerSmsVerificationSendEvent(OwnerSmsVerificationSendEvent event) {
         naverSmsService.sendVerificationCode(event.verificationCode(), event.phoneNumber());
     }
