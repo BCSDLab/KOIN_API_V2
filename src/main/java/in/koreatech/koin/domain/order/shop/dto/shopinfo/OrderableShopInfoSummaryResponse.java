@@ -1,14 +1,9 @@
 package in.koreatech.koin.domain.order.shop.dto.shopinfo;
 
-import java.util.List;
-
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopInfoSummary;
-import in.koreatech.koin.domain.order.shop.model.entity.OrderableShop;
-import in.koreatech.koin.domain.order.shop.model.entity.ShopBaseDeliveryTip;
-import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -35,7 +30,7 @@ public record OrderableShopInfoSummaryResponse(
     Double ratingAverage,
 
     @Schema(description = "리뷰 수", example = "120")
-    Long reviewCount,
+    Integer reviewCount,
 
     @Schema(description = "최소 배달비", example = "0")
     Integer minimumDeliveryTip,
@@ -55,31 +50,6 @@ public record OrderableShopInfoSummaryResponse(
             entity.reviewCount(),
             entity.minimumDeliveryTip(),
             entity.maximumDeliveryTip()
-        );
-    }
-
-    public static OrderableShopInfoSummaryResponse fromEntity(
-        OrderableShop entity
-        ) {
-        List<ShopReview> reviews = entity.getShop().getReviews();
-        List<ShopBaseDeliveryTip> baseDeliveryTips = entity.getShop().getBaseDeliveryTips();
-
-        long reviewCount = reviews.size();
-        Double ratingAverage = reviews.stream().mapToDouble(ShopReview::getRating).average().orElse(0.0);
-        Integer minimumDeliveryTip = baseDeliveryTips.stream().mapToInt(ShopBaseDeliveryTip::getFee).min().orElse(0);
-        Integer maximumDeliveryTip = baseDeliveryTips.stream().mapToInt(ShopBaseDeliveryTip::getFee).max().orElse(0);
-
-        return new OrderableShopInfoSummaryResponse(
-            entity.getShop().getId(),
-            entity.getId(),
-            entity.getShop().getName(),
-            entity.isDelivery(),
-            entity.isTakeout(),
-            entity.getMinimumOrderAmount(),
-            ratingAverage,
-            reviewCount,
-            minimumDeliveryTip,
-            maximumDeliveryTip
         );
     }
 }

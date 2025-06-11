@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.order.shop.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoDetailResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoSummaryResponse;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,13 @@ public class OrderableShopInformationService {
 
     private final OrderableShopRepository orderableShopRepository;
 
-    public OrderableShopInfoSummaryResponse getOrderableShopInfoByIdJpaDtoProjection(Integer orderableShopId) {
-        return OrderableShopInfoSummaryResponse.from(orderableShopRepository.getOrderableShopInfoSummaryById(orderableShopId));
+    public OrderableShopInfoSummaryResponse getOrderableShopInfoSummaryById(Integer orderableShopId) {
+        return OrderableShopInfoSummaryResponse.from(
+            orderableShopRepository.getOrderableShopInfoSummaryById(orderableShopId));
+    }
+
+    public OrderableShopInfoDetailResponse getOrderableShopInfoDetailById(Integer orderableShopId) {
+        return OrderableShopInfoDetailResponse.from(
+            orderableShopRepository.getOrderableShopInfoDetailById(orderableShopId));
     }
 }

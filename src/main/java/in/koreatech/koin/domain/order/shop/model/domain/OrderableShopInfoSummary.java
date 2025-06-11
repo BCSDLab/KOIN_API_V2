@@ -8,7 +8,7 @@ public record OrderableShopInfoSummary(
     Boolean isTakeoutAvailable,
     Integer minimumOrderAmount,
     Double ratingAverage,
-    Long reviewCount,
+    Integer reviewCount,
     Integer minimumDeliveryTip,
     Integer maximumDeliveryTip
 ) {
