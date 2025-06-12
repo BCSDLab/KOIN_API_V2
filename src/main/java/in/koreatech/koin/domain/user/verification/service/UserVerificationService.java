@@ -4,6 +4,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
@@ -27,7 +28,7 @@ public class UserVerificationService {
     @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
         UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber);
-        var userVerificationStatus = UserVerificationStatus.createBySms(phoneNumber, verificationNumberGenerator);
+        UserVerificationStatus userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationNumberGenerator);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
         eventPublisher.publishEvent(new UserSmsVerificationSendEvent(userVerificationStatus.getVerificationCode(), phoneNumber));
         return SendVerificationResponse.from(verificationCount);
@@ -36,7 +37,7 @@ public class UserVerificationService {
     @Transactional
     public SendVerificationResponse sendEmailVerification(String email) {
         UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email);
-        var userVerificationStatus = UserVerificationStatus.createByEmail(email, verificationNumberGenerator);
+        UserVerificationStatus userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationNumberGenerator);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
         eventPublisher.publishEvent(new UserEmailVerificationSendEvent(userVerificationStatus.getVerificationCode(), email));
         return SendVerificationResponse.from(verificationCount);
@@ -44,7 +45,8 @@ public class UserVerificationService {
 
     @Transactional
     public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
-        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
+        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
+            .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumberOrEmail));
         verificationStatus.verify(verificationCode);
         userVerificationStatusRedisRepository.save(verificationStatus);
     }
@@ -57,15 +59,16 @@ public class UserVerificationService {
      */
     @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
-        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.getById(phoneNumberOrEmail);
+        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
+            .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumberOrEmail));
         verificationStatus.requireVerified();
         userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
 
     private UserDailyVerificationCount increaseAndGetUserDailyVerificationCount(String phoneNumberOrEmail) {
         UserDailyVerificationCount count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
-            .orElseGet(() -> UserDailyVerificationCount.create(phoneNumberOrEmail));
-        count.increment();
+            .orElseGet(() -> UserDailyVerificationCount.from(phoneNumberOrEmail));
+        count.incrementVerificationCount();
         return userDailyVerificationCountRedisRepository.save(count);
     }
 }

@@ -2,11 +2,11 @@ package in.koreatech.koin.unit.domain.user.verification.mock;
 
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 
-public class TestVerificationNumberHolder implements VerificationNumberGenerator {
+public class StubVerificationNumberHolder implements VerificationNumberGenerator {
 
     private final String testNumber;
 
-    public TestVerificationNumberHolder(String testNumber) {
+    public StubVerificationNumberHolder(String testNumber) {
         this.testNumber = testNumber;
     }
 

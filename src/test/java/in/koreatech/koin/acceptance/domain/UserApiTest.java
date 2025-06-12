@@ -17,19 +17,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -55,7 +56,6 @@ class UserApiTest extends AcceptanceTest {
     @Autowired
     private UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
 
-    // mock-up 인증 서버를 사용할 경우 슬랙 알림 발송 문제로 인해 sms 인증 컴포넌트 자체를 mocking 했습니다.
     @MockBean
     private NaverSmsService naverSmsService;
 
@@ -403,7 +403,8 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        UserVerificationStatus status = userVerificationStatusRedisRepository.findById(phoneNumber)
+            .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumber));
         String certificationCode = status.getVerificationCode();
 
         // then
@@ -441,7 +442,8 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        UserVerificationStatus status = userVerificationStatusRedisRepository.findById(phoneNumber)
+            .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumber));
         String certificationCode = status.getVerificationCode();
         String wrongCode = certificationCode.equals("123456") ? "654321" : "123456";
 
@@ -517,7 +519,8 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        UserVerificationStatus status = userVerificationStatusRedisRepository.findById(phoneNumber)
+            .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumber));
         String certificationCode = status.getVerificationCode();
 
         // 인증번호 검증
@@ -569,7 +572,8 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        UserVerificationStatus status = userVerificationStatusRedisRepository.getById(phoneNumber);
+        UserVerificationStatus status = userVerificationStatusRedisRepository.findById(phoneNumber)
+            .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumber));
         String certificationCode = status.getVerificationCode();
 
         // 인증번호 검증

@@ -3,6 +3,8 @@ package in.koreatech.koin.unit.domain.user.verification.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.stream.IntStream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,19 +24,19 @@ class UserDailyVerificationCountTest {
     @BeforeEach
     void init() {
         SMS_인증_횟수 = UserDailyVerificationCountFixture.SMS_인증_횟수(TEST_PHONE_NUMBER);
-        이메일_인증_횟수 = UserDailyVerificationCountFixture.이메일_인증_횟수(TEST_EMAIL);
+        이메일_인증_횟수 = UserDailyVerificationCountFixture.Email_인증_횟수(TEST_EMAIL);
     }
 
     @Nested
     class create {
 
         @Test
-        void 휴대폰을_이용하여_인증_횟수_객체를_생성할_수_있다() {
+        void SMS를_이용하여_인증_횟수_객체를_생성할_수_있다() {
             // given
             long expectedExpiration = 60 * 60 * 24L;
 
             // when
-            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.create(TEST_PHONE_NUMBER);
+            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.from(TEST_PHONE_NUMBER);
 
             // then
             assertThat(dailyCount.getId()).isEqualTo(TEST_PHONE_NUMBER);
@@ -43,12 +45,12 @@ class UserDailyVerificationCountTest {
         }
 
         @Test
-        void 이메일을_이용하여_인증_횟수_객체를_생성할_수_있다() {
+        void Email을_이용하여_인증_횟수_객체를_생성할_수_있다() {
             // given
             long expectedExpiration = 60 * 60 * 24L;
 
             // when
-            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.create(TEST_EMAIL);
+            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.from(TEST_EMAIL);
 
             // then
             assertThat(dailyCount.getId()).isEqualTo(TEST_EMAIL);
@@ -63,16 +65,16 @@ class UserDailyVerificationCountTest {
         @Test
         void SMS_인증_횟수_객체에_increment를_호출하면_인증_횟수가_증가한다() {
             // when
-            SMS_인증_횟수.increment();
+            SMS_인증_횟수.incrementVerificationCount();
 
             // then
             assertThat(SMS_인증_횟수.getVerificationCount()).isEqualTo(1);
         }
 
         @Test
-        void 이메일_인증_횟수_객체에_increment를_호출하면_인증_횟수가_증가한다() {
+        void Email_인증_횟수_객체에_increment를_호출하면_인증_횟수가_증가한다() {
             // when
-            이메일_인증_횟수.increment();
+            이메일_인증_횟수.incrementVerificationCount();
 
             // then
             assertThat(이메일_인증_횟수.getVerificationCount()).isEqualTo(1);
@@ -81,29 +83,21 @@ class UserDailyVerificationCountTest {
         @Test
         void SMS_인증_횟수_객체에_최대_인증_횟수를_초과하여_요청하면_TooManyRequestsException이_발생한다() {
             // when
-            SMS_인증_횟수.increment(); // count = 1
-            SMS_인증_횟수.increment(); // count = 2
-            SMS_인증_횟수.increment(); // count = 3
-            SMS_인증_횟수.increment(); // count = 4
-            SMS_인증_횟수.increment(); // count = 5
+            IntStream.rangeClosed(1, 5).forEach(i -> SMS_인증_횟수.incrementVerificationCount());
 
             // then
-            assertThatThrownBy(SMS_인증_횟수::increment)
+            assertThatThrownBy(SMS_인증_횟수::incrementVerificationCount)
                 .isInstanceOf(TooManyRequestsException.class)
                 .hasMessage("하루 인증 횟수를 초과했습니다.");
         }
 
         @Test
-        void 이메일_인증_횟수_객체에_최대_인증_횟수를_초과하여_요청하면_TooManyRequestsException이_발생한다() {
+        void Email_인증_횟수_객체에_최대_인증_횟수를_초과하여_요청하면_TooManyRequestsException이_발생한다() {
             // when
-            이메일_인증_횟수.increment(); // count = 1
-            이메일_인증_횟수.increment(); // count = 2
-            이메일_인증_횟수.increment(); // count = 3
-            이메일_인증_횟수.increment(); // count = 4
-            이메일_인증_횟수.increment(); // count = 5
+            IntStream.rangeClosed(1, 5).forEach(i -> 이메일_인증_횟수.incrementVerificationCount());
 
             // then
-            assertThatThrownBy(이메일_인증_횟수::increment)
+            assertThatThrownBy(이메일_인증_횟수::incrementVerificationCount)
                 .isInstanceOf(TooManyRequestsException.class)
                 .hasMessage("하루 인증 횟수를 초과했습니다.");
         }

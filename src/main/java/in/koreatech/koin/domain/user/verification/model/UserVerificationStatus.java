@@ -24,7 +24,7 @@ public class UserVerificationStatus {
 
     private final String verificationCode;
 
-    private boolean verified = false;
+    private boolean isVerified = false;
 
     @TimeToLive
     private Long expiration;
@@ -35,11 +35,11 @@ public class UserVerificationStatus {
         this.expiration = expiration;
     }
 
-    public static UserVerificationStatus createBySms(String id, VerificationNumberGenerator generator) {
+    public static UserVerificationStatus ofSms(String id, VerificationNumberGenerator generator) {
         return new UserVerificationStatus(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
     }
 
-    public static UserVerificationStatus createByEmail(String id, VerificationNumberGenerator generator) {
+    public static UserVerificationStatus ofEmail(String id, VerificationNumberGenerator generator) {
         return new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
     }
 
@@ -47,7 +47,7 @@ public class UserVerificationStatus {
         if (isCodeMismatched(inputCode)) {
             throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
         }
-        this.verified = true;
+        this.isVerified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 
@@ -62,6 +62,6 @@ public class UserVerificationStatus {
     }
 
     private boolean isNotVerified() {
-        return !this.verified;
+        return !this.isVerified;
     }
 }

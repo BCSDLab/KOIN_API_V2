@@ -13,10 +13,10 @@ import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
-import in.koreatech.koin.unit.domain.user.verification.mock.FakeApplicationEventPublisher;
+import in.koreatech.koin.unit.domain.user.verification.mock.DummyApplicationEventPublisher;
 import in.koreatech.koin.unit.domain.user.verification.mock.FakeUserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.unit.domain.user.verification.mock.FakeUserVerificationStatusRedisRepository;
-import in.koreatech.koin.unit.domain.user.verification.mock.TestVerificationNumberHolder;
+import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
 
 @ExtendWith(MockitoExtension.class)
 class UserVerificationServiceTest {
@@ -32,8 +32,8 @@ class UserVerificationServiceTest {
     void init() {
         FakeUserVerificationStatusRedisRepository fakeStatusRepository = new FakeUserVerificationStatusRedisRepository();
         FakeUserDailyVerificationCountRedisRepository fakeCountRepository = new FakeUserDailyVerificationCountRedisRepository();
-        FakeApplicationEventPublisher fakeEventPublisher = new FakeApplicationEventPublisher();
-        TestVerificationNumberHolder fakeGenerator = new TestVerificationNumberHolder(CORRECT_CODE);
+        DummyApplicationEventPublisher fakeEventPublisher = new DummyApplicationEventPublisher();
+        StubVerificationNumberHolder fakeGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
         userVerificationService = new UserVerificationService(
             fakeStatusRepository,
             fakeCountRepository,
@@ -126,7 +126,7 @@ class UserVerificationServiceTest {
         @Test
         void 올바른_SMS_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
             // given
-            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
 
             // when / then
             assertThatCode(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE))
@@ -136,7 +136,7 @@ class UserVerificationServiceTest {
         @Test
         void 올바른_SMS_인증번호를_입력하여_verifyCode를_재호출해도_예외를_반환하지_않는다() {
             // given
-            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
 
             // when / then
@@ -147,7 +147,7 @@ class UserVerificationServiceTest {
         @Test
         void 잘못된_SMS_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
             // given
-            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
 
             // when / then
             assertThatThrownBy(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, WRONG_CODE))
@@ -155,7 +155,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 올바른_이메일_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
+        void 올바른_Email_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
 
@@ -165,7 +165,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 올바른_이메일_인증번호를_입력하여_verifyCode를_재호출해도_예외를_반환하지_않는다() {
+        void 올바른_Email_인증번호를_입력하여_verifyCode를_재호출해도_예외를_반환하지_않는다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
@@ -176,7 +176,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 잘못된_이메일_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
+        void 잘못된_Email_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
 
@@ -192,7 +192,7 @@ class UserVerificationServiceTest {
         @Test
         void SMS_인증_완료된_상태에서_요청하면_인증_정보가_삭제된다() {
             // given
-            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
 
             // when / then
@@ -210,7 +210,7 @@ class UserVerificationServiceTest {
         @Test
         void SMS_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
             // given
-            userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER);
+            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
 
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
@@ -218,7 +218,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 이메일_인증_완료된_상태에서_요청하면_인증_정보가_삭제된다() {
+        void Email_인증_완료된_상태에서_요청하면_인증_정보가_삭제된다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
@@ -229,14 +229,14 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 이메일_미인증_상태에서_요청하면_AuthorizationException이_발생한다() {
+        void Email_미인증_상태에서_요청하면_AuthorizationException이_발생한다() {
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_EMAIL))
                 .isInstanceOf(AuthorizationException.class);
         }
 
         @Test
-        void 이메일_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
+        void Email_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
 

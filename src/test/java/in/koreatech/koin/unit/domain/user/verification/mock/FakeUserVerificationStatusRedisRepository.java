@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
 
@@ -21,11 +20,6 @@ public class FakeUserVerificationStatusRedisRepository implements UserVerificati
     @Override
     public Optional<UserVerificationStatus> findById(String id) {
         return Optional.ofNullable(store.get(id));
-    }
-
-    @Override
-    public UserVerificationStatus getById(String id) {
-        return findById(id).orElseThrow(() -> AuthorizationException.withDetail("verification: " + id));
     }
 
     @Override

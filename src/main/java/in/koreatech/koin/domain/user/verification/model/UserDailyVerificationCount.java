@@ -28,11 +28,11 @@ public class UserDailyVerificationCount {
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 
-    public static UserDailyVerificationCount create(String id) {
+    public static UserDailyVerificationCount from(String id) {
         return new UserDailyVerificationCount(id);
     }
 
-    public void increment() {
+    public void incrementVerificationCount() {
         if (verificationCount >= MAX_VERIFICATION_COUNT) {
             throw new TooManyRequestsException("하루 인증 횟수를 초과했습니다.", "verification: " + id);
         }

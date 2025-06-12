@@ -5,10 +5,10 @@ import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCou
 public class UserDailyVerificationCountFixture {
 
     public static UserDailyVerificationCount SMS_인증_횟수(String phoneNumber) {
-        return UserDailyVerificationCount.create(phoneNumber);
+        return UserDailyVerificationCount.from(phoneNumber);
     }
 
-    public static UserDailyVerificationCount 이메일_인증_횟수(String email) {
-        return UserDailyVerificationCount.create(email);
+    public static UserDailyVerificationCount Email_인증_횟수(String email) {
+        return UserDailyVerificationCount.from(email);
     }
 }
