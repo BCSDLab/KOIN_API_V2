@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
-import in.koreatech.koin.unit.fixutre.UserDailyVerificationCountFixture;
+import in.koreatech.koin.unit.fixutre.VerificationFixture;
 
 class UserDailyVerificationCountTest {
 
@@ -23,8 +23,8 @@ class UserDailyVerificationCountTest {
 
     @BeforeEach
     void init() {
-        SMS_인증_횟수 = UserDailyVerificationCountFixture.SMS_인증_횟수(TEST_PHONE_NUMBER);
-        이메일_인증_횟수 = UserDailyVerificationCountFixture.Email_인증_횟수(TEST_EMAIL);
+        SMS_인증_횟수 = VerificationFixture.SMS_인증_횟수(TEST_PHONE_NUMBER);
+        이메일_인증_횟수 = VerificationFixture.Email_인증_횟수(TEST_EMAIL);
     }
 
     @Nested
