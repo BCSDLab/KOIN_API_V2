@@ -44,7 +44,6 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
         SELECT os
         FROM OrderableShop os
         JOIN FETCH os.shop
-        LEFT JOIN FETCH os.shop.origin
         LEFT JOIN FETCH os.shop.owner
         LEFT JOIN FETCH os.shop.owner.user
         LEFT JOIN FETCH os.shop.shopOpens

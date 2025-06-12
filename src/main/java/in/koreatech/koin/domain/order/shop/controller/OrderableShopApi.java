@@ -229,7 +229,16 @@ public interface OrderableShopApi {
                             "address": "천안시 동남구 충절로 880 가동 1층",
                             "company_registration_number": "123-21-31313"
                           },
-                          "origin": "뒷발(국내산), 앞발(국내산), 쌀(국내산), 배추(국내산)"
+                          "origins": [
+                            {
+                              "ingredient": "소고기",
+                              "origin": "국내산 한우"
+                            },
+                            {
+                              "ingredient": "쌀",
+                              "origin": "국내산"
+                             },
+                          ],
                         }
                         """
                     )
@@ -265,7 +274,7 @@ public interface OrderableShopApi {
                 - notice: 가게 알림
                 - delivery_tips: 주문 금액별 총 배달팁
                 - owner_info: 사업자 정보
-                - origin: 원산지 표기
+                - origins: 원산지 표기
             """)
     @GetMapping("/order/shop/{orderableShopId}/detail")
     ResponseEntity<OrderableShopInfoDetailResponse> getOrderableShopInfoDetail(

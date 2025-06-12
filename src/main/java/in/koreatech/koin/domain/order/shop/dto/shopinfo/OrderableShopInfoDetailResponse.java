@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTipRange;
 import in.koreatech.koin.domain.order.shop.model.entity.OrderableShop;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.shop.model.menu.MenuOrigin;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,9 +43,9 @@ public record OrderableShopInfoDetailResponse(
     String introduction,
     @Schema(description = "가게 알림", example = "*행사 이벤트 진행중입니다*\\n단체 주문 시 20% 할인 합니다.")
     String notice,
-    List<DeliveryTips> deliveryTips,
+    List<DeliveryTipsResponse> deliveryTips,
     OwnerInfo ownerInfo,
-    String origin
+    List<MenuOriginResponse> origins
 ) {
 
     public static OrderableShopInfoDetailResponse from(OrderableShop orderableShop) {
@@ -74,15 +75,15 @@ public record OrderableShopInfoDetailResponse(
             orderableShop.getShop().getPhone(),
             orderableShop.getShop().getIntroduction(),
             orderableShop.getShop().getNotice(),
-            DeliveryTips.from(orderableShop.getShop().getBaseDeliveryTips().getDeliveryTipRanges()),
+            DeliveryTipsResponse.from(orderableShop.getShop().getBaseDeliveryTips().getDeliveryTipRanges()),
             OwnerInfo.from(orderableShop.getShop().getOwner(), orderableShop.getShop().getName(),
                 orderableShop.getShop().getAddress()),
-            orderableShop.getShop().getOrigin().getOrigin()
+            MenuOriginResponse.from(orderableShop.getShop().getMenuOrigins().getOrigin())
         );
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record DeliveryTips(
+    public record DeliveryTipsResponse(
         @Schema(description = "주문 금액 하한", example = "10000")
         Integer fromAmount,
         @Schema(description = "주문 금액 상한", example = "10000")
@@ -91,17 +92,39 @@ public record OrderableShopInfoDetailResponse(
         Integer fee
     ) {
 
-        public static DeliveryTips from(ShopBaseDeliveryTipRange range) {
-            return new DeliveryTips(
+        public static DeliveryTipsResponse from(ShopBaseDeliveryTipRange range) {
+            return new DeliveryTipsResponse(
                 range.fromAmount(),
                 range.toAmount(),
                 range.fee()
             );
         }
 
-        public static List<DeliveryTips> from(List<ShopBaseDeliveryTipRange> ranges) {
+        public static List<DeliveryTipsResponse> from(List<ShopBaseDeliveryTipRange> ranges) {
             return ranges.stream()
-                .map(DeliveryTips::from)
+                .map(DeliveryTipsResponse::from)
+                .collect(Collectors.toList());
+        }
+    }
+
+    @JsonNaming(value = SnakeCaseStrategy.class)
+    public record MenuOriginResponse(
+        @Schema(description = "메뉴 재료", example = "김치")
+        String ingredient,
+        @Schema(description = "원산지", example = "국내산")
+        String origin
+    ) {
+
+        public static MenuOriginResponse from(MenuOrigin menuOrigin) {
+            return new MenuOriginResponse(
+                menuOrigin.getIngredient(),
+                menuOrigin.getOrigin()
+            );
+        }
+
+        public static List<MenuOriginResponse> from(List<MenuOrigin> origins) {
+            return origins.stream()
+                .map(MenuOriginResponse::from)
                 .collect(Collectors.toList());
         }
     }

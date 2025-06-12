@@ -17,6 +17,7 @@ import org.hibernate.annotations.Where;
 
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTips;
+import in.koreatech.koin.domain.order.shop.model.domain.ShopMenuOrigins;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
@@ -142,6 +143,9 @@ public class Shop extends BaseEntity {
     @Embedded
     private ShopBaseDeliveryTips baseDeliveryTips = new ShopBaseDeliveryTips();
 
+    @Embedded
+    private ShopMenuOrigins menuOrigins = new ShopMenuOrigins();
+
     @Size(max = 10)
     @Column(name = "bank", length = 10)
     private String bank;
@@ -157,9 +161,6 @@ public class Shop extends BaseEntity {
     @Lob
     @Column(name = "notice")
     private String notice;
-
-    @OneToOne(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
-    private MenuOrigin origin;
 
     @Builder
     private Shop(
