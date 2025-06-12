@@ -17,6 +17,7 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
             s.id,
             os.id,
             s.name,
+            s.introduction,
             os.delivery,
             os.takeout,
             os.minimumOrderAmount,

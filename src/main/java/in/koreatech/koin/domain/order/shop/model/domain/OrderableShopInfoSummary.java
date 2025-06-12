@@ -4,6 +4,7 @@ public record OrderableShopInfoSummary(
     Integer shopId,
     Integer orderableShopId,
     String name,
+    String introduction,
     Boolean isDeliveryAvailable,
     Boolean isTakeoutAvailable,
     Integer minimumOrderAmount,

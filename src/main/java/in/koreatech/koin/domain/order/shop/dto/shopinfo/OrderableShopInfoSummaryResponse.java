@@ -17,6 +17,9 @@ public record OrderableShopInfoSummaryResponse(
     @Schema(description = "상점 이름", example = "멕시카나 치킨 - 병천점")
     String name,
 
+    @Schema(description = "상점 소개", example = "안녕하세요 멕시카나 치킨입니다.")
+    String introduction,
+
     @Schema(description = "배달 가능 여부", example = "true")
     Boolean isDeliveryAvailable,
 
@@ -43,6 +46,7 @@ public record OrderableShopInfoSummaryResponse(
             entity.shopId(),
             entity.orderableShopId(),
             entity.name(),
+            entity.introduction(),
             entity.isDeliveryAvailable(),
             entity.isTakeoutAvailable(),
             entity.minimumOrderAmount(),
