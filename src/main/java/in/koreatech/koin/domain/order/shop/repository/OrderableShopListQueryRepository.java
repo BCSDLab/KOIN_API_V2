@@ -1,8 +1,8 @@
-package in.koreatech.koin.domain.shop.repository.order;
+package in.koreatech.koin.domain.order.shop.repository;
 
-import static in.koreatech.koin.domain.shop.model.order.QOrderableShop.orderableShop;
-import static in.koreatech.koin.domain.shop.model.order.QShopBaseDeliveryTip.shopBaseDeliveryTip;
-import static in.koreatech.koin.domain.shop.model.order.QShopOperation.shopOperation;
+import static in.koreatech.koin.domain.order.shop.model.entity.QOrderableShop.orderableShop;
+import static in.koreatech.koin.domain.order.shop.model.entity.QShopBaseDeliveryTip.shopBaseDeliveryTip;
+import static in.koreatech.koin.domain.order.shop.model.entity.QShopOperation.shopOperation;
 import static in.koreatech.koin.domain.shop.model.review.QShopReview.shopReview;
 import static in.koreatech.koin.domain.shop.model.shop.QShop.shop;
 import static in.koreatech.koin.domain.shop.model.shop.QShopCategoryMap.shopCategoryMap;
@@ -24,14 +24,14 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopBaseInfo;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.order.OrderableShopsResponse.ShopOpenInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse.ShopOpenInfo;
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class OrderableShopCustomRepository {
+public class OrderableShopListQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -152,7 +152,8 @@ public class OrderableShopCustomRepository {
             .where(shopOpen.shop.id.in(shopIds))
             .fetch()
             .stream()
-            .map(opens -> new ShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(), opens.getOpenTime(), opens.getCloseTime()))
+            .map(opens -> new ShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(),
+                opens.getOpenTime(), opens.getCloseTime()))
             .collect(Collectors.groupingBy(ShopOpenInfo::shopId));
     }
 }

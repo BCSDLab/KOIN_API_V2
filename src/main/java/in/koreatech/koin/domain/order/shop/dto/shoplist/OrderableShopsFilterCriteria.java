@@ -1,8 +1,8 @@
-package in.koreatech.koin.domain.shop.dto.order;
+package in.koreatech.koin.domain.order.shop.dto.shoplist;
 
-import static in.koreatech.koin.domain.shop.model.order.QOrderableShop.orderableShop;
-import static in.koreatech.koin.domain.shop.model.order.QShopBaseDeliveryTip.shopBaseDeliveryTip;
-import static in.koreatech.koin.domain.shop.model.order.QShopOperation.shopOperation;
+import static in.koreatech.koin.domain.order.shop.model.entity.QOrderableShop.orderableShop;
+import static in.koreatech.koin.domain.order.shop.model.entity.QShopBaseDeliveryTip.shopBaseDeliveryTip;
+import static in.koreatech.koin.domain.order.shop.model.entity.QShopOperation.shopOperation;
 import static in.koreatech.koin.domain.shop.model.shop.QShop.shop;
 
 import com.querydsl.core.types.dsl.BooleanExpression;

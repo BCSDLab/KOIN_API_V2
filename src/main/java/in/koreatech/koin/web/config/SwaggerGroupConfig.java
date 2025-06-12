@@ -35,7 +35,8 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.benefit",
             "in.koreatech.koin.domain.ownershop",
             "in.koreatech.koin.domain.shop",
-            "in.koreatech.koin.domain.land"
+            "in.koreatech.koin.domain.land",
+            "in.koreatech.koin.domain.order"
         };
 
         return createGroupedOpenApi("2. Business API", packagesPath);
