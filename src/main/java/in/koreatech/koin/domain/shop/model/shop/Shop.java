@@ -154,12 +154,10 @@ public class Shop extends BaseEntity {
     @Column(name = "account_number", length = 20)
     private String accountNumber;
 
-    @Lob
-    @Column(name = "introduction")
+    @Column(name = "introduction", columnDefinition = "text")
     private String introduction;
 
-    @Lob
-    @Column(name = "notice")
+    @Column(name = "notice", columnDefinition = "text")
     private String notice;
 
     @Builder
