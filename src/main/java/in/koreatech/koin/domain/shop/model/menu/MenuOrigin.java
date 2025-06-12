@@ -34,12 +34,10 @@ public class MenuOrigin extends BaseEntity {
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    @Lob
-    @Column(name = "ingredient")
+    @Column(name = "ingredient", columnDefinition = "TEXT")
     private String ingredient;
 
-    @Lob
-    @Column(name = "origin")
+    @Column(name = "origin", columnDefinition = "TEXT")
     private String origin;
 
 }
