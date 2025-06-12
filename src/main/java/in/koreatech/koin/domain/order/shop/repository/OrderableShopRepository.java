@@ -20,6 +20,8 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
                 s.introduction,
                 os.delivery,
                 os.takeout,
+                os.shop.payCard,
+                os.shop.payBank,
                 os.minimumOrderAmount,
                 CAST(COALESCE(AVG(r.rating), 0.0) AS double),
                 CAST(COUNT(DISTINCT r.id) AS int),

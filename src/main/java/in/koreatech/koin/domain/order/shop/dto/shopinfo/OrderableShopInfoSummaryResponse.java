@@ -26,6 +26,12 @@ public record OrderableShopInfoSummaryResponse(
     @Schema(description = "포장 가능 여부", example = "false")
     Boolean isTakeoutAvailable,
 
+    @Schema(description = "카드 결제 가능 여부", example = "false")
+    Boolean payCard,
+
+    @Schema(description = "계좌 이체 가능 여부", example = "false")
+    Boolean payBank,
+
     @Schema(description = "최소 주문 금액", example = "15000")
     Integer minimumOrderAmount,
 
@@ -49,6 +55,8 @@ public record OrderableShopInfoSummaryResponse(
             entity.introduction(),
             entity.isDeliveryAvailable(),
             entity.isTakeoutAvailable(),
+            entity.payCard(),
+            entity.payBank(),
             entity.minimumOrderAmount(),
             entity.ratingAverage(),
             entity.reviewCount(),

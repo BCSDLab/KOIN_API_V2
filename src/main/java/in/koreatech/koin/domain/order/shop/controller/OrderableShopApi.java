@@ -149,6 +149,8 @@ public interface OrderableShopApi {
                           "orderable_shop_id": 1,
                           "name": "가장 맛있는 족발",
                           "introduction": "안녕하세요 맛있는 족발입니다. 고객님에게 신선한 음식을 제공하고자 즐거운 하루를 보내시고 감사합니다.",
+                          "pay_card": true,
+                          "pay_bank": false,
                           "is_delivery_available": true,
                           "is_takeout_available": false,
                           "minimum_order_amount": 10000,
@@ -184,6 +186,8 @@ public interface OrderableShopApi {
             - name: 상점 이름
             - is_delivery_available: 배달 가능 여부
             - is_takeout_available: 포장 가능 여부
+            - pay_card: 카드 결제 가능 여부
+            - pay_bank: 계좌 이체 가능 여부
             - minimum_order_amount: 최소 주문 금액
             - rating_average: 평균 평점
             - review_count: 리뷰 수
