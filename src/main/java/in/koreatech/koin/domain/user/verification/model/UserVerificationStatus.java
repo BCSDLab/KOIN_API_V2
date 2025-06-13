@@ -22,7 +22,7 @@ public class UserVerificationStatus {
     @Id
     private String id;
 
-    private final String verificationCode;
+    private String verificationCode;
 
     private boolean isVerified = false;
 

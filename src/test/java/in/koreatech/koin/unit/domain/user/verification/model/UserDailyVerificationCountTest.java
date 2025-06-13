@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
+import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import in.koreatech.koin.unit.fixutre.VerificationFixture;
 
@@ -17,6 +19,7 @@ class UserDailyVerificationCountTest {
 
     private UserDailyVerificationCount SMS_인증_횟수;
     private UserDailyVerificationCount 이메일_인증_횟수;
+    private VerificationProperties verificationProperties;
 
     private static final String TEST_PHONE_NUMBER = "01012345678";
     private static final String TEST_EMAIL = "user@koreatech.ac.kr";
@@ -25,6 +28,7 @@ class UserDailyVerificationCountTest {
     void init() {
         SMS_인증_횟수 = VerificationFixture.SMS_인증_횟수(TEST_PHONE_NUMBER);
         이메일_인증_횟수 = VerificationFixture.Email_인증_횟수(TEST_EMAIL);
+        verificationProperties = new VerificationProperties(5);
     }
 
     @Nested
@@ -36,7 +40,7 @@ class UserDailyVerificationCountTest {
             long expectedExpiration = 60 * 60 * 24L;
 
             // when
-            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.from(TEST_PHONE_NUMBER);
+            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.of(TEST_PHONE_NUMBER, verificationProperties);
 
             // then
             assertThat(dailyCount.getId()).isEqualTo(TEST_PHONE_NUMBER);
@@ -50,7 +54,7 @@ class UserDailyVerificationCountTest {
             long expectedExpiration = 60 * 60 * 24L;
 
             // when
-            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.from(TEST_EMAIL);
+            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.of(TEST_EMAIL, verificationProperties);
 
             // then
             assertThat(dailyCount.getId()).isEqualTo(TEST_EMAIL);
@@ -83,7 +87,9 @@ class UserDailyVerificationCountTest {
         @Test
         void SMS_인증_횟수_객체에_최대_인증_횟수를_초과하여_요청하면_TooManyRequestsException이_발생한다() {
             // when
-            IntStream.rangeClosed(1, 5).forEach(i -> SMS_인증_횟수.incrementVerificationCount());
+            Stream.generate(() -> SMS_인증_횟수)
+                .limit(SMS_인증_횟수.getMaxVerificationCount())
+                .forEach(UserDailyVerificationCount::incrementVerificationCount);
 
             // then
             assertThatThrownBy(SMS_인증_횟수::incrementVerificationCount)

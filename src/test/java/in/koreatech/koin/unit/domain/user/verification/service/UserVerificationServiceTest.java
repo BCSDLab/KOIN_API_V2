@@ -2,6 +2,8 @@ package in.koreatech.koin.unit.domain.user.verification.service;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
+import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import in.koreatech.koin.unit.domain.user.verification.mock.DummyApplicationEventPublisher;
@@ -27,6 +30,7 @@ class UserVerificationServiceTest {
     private static final String TEST_PHONE_NUMBER = "01012345678";
     private static final String CORRECT_CODE = "123456";
     private static final String WRONG_CODE = "999999";
+    private static final int MAX_VERIFICATION_COUNT = 5;
 
     @BeforeEach
     void init() {
@@ -34,11 +38,13 @@ class UserVerificationServiceTest {
         FakeUserDailyVerificationCountRedisRepository fakeCountRepository = new FakeUserDailyVerificationCountRedisRepository();
         DummyApplicationEventPublisher fakeEventPublisher = new DummyApplicationEventPublisher();
         StubVerificationNumberHolder fakeGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
+        VerificationProperties verificationProperties = new VerificationProperties(MAX_VERIFICATION_COUNT);
         userVerificationService = new UserVerificationService(
             fakeStatusRepository,
             fakeCountRepository,
             fakeGenerator,
-            fakeEventPublisher
+            fakeEventPublisher,
+            verificationProperties
         );
     }
 
@@ -69,11 +75,11 @@ class UserVerificationServiceTest {
         @Test
         void 일일_인증_횟수_초과_시_sendSmsVerification를_호출하면_TooManyRequestException이_발생한다() {
             // given
-            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-            userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
+            Stream.generate(() -> userVerificationService)
+                .limit(MAX_VERIFICATION_COUNT)
+                .forEach((userVerification) -> {
+                    userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
+                });
 
             // when / then
             assertThatThrownBy(() -> userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER))

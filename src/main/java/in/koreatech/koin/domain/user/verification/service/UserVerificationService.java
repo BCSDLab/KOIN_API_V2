@@ -8,6 +8,7 @@ import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
@@ -24,6 +25,7 @@ public class UserVerificationService {
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
     private final VerificationNumberGenerator verificationNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
+    private final VerificationProperties verificationProperties;
 
     @Transactional
     public SendVerificationResponse sendSmsVerification(String phoneNumber) {
@@ -67,7 +69,7 @@ public class UserVerificationService {
 
     private UserDailyVerificationCount increaseAndGetUserDailyVerificationCount(String phoneNumberOrEmail) {
         UserDailyVerificationCount count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
-            .orElseGet(() -> UserDailyVerificationCount.from(phoneNumberOrEmail));
+            .orElseGet(() -> UserDailyVerificationCount.of(phoneNumberOrEmail, verificationProperties));
         count.incrementVerificationCount();
         return userDailyVerificationCountRedisRepository.save(count);
     }

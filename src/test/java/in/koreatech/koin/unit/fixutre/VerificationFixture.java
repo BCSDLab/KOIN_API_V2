@@ -1,6 +1,7 @@
 package in.koreatech.koin.unit.fixutre;
 
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
@@ -18,10 +19,12 @@ public class VerificationFixture {
     }
 
     public static UserDailyVerificationCount SMS_인증_횟수(String phoneNumber) {
-        return UserDailyVerificationCount.from(phoneNumber);
+        VerificationProperties verificationProperties = new VerificationProperties(5);
+        return UserDailyVerificationCount.of(phoneNumber, verificationProperties);
     }
 
     public static UserDailyVerificationCount Email_인증_횟수(String email) {
-        return UserDailyVerificationCount.from(email);
+        VerificationProperties verificationProperties = new VerificationProperties(5);
+        return UserDailyVerificationCount.of(email, verificationProperties);
     }
 }
