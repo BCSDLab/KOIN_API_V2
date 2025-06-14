@@ -1,17 +1,19 @@
 package in.koreatech.koin.domain.owner.service;
 
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
 import in.koreatech.koin._common.event.OwnerSmsVerificationSendEvent;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
-import in.koreatech.koin._common.util.random.CertificateNumberGenerator;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class OwnerVerificationService {
     private final ApplicationEventPublisher eventPublisher;
     private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
+    private final VerificationNumberGenerator verificationNumberGenerator;
 
     private void setVerificationCount(String key) {
         Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
@@ -34,10 +37,10 @@ public class OwnerVerificationService {
 
     public void sendCertificationSms(String phoneNumber) {
         setVerificationCount(phoneNumber);
-        String certificationCode = CertificateNumberGenerator.generate();
+        String certificationCode = verificationNumberGenerator.generate();
         OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
-                phoneNumber,
-                certificationCode
+            phoneNumber,
+            certificationCode
         );
         ownerVerificationStatusRepository.save(ownerVerificationStatus);
         eventPublisher.publishEvent(new OwnerSmsVerificationSendEvent(certificationCode, phoneNumber));

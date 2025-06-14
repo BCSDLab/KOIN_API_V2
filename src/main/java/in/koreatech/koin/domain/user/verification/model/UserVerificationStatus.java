@@ -6,6 +6,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import lombok.Getter;
 
 @Getter
@@ -21,7 +24,7 @@ public class UserVerificationStatus {
 
     private String verificationCode;
 
-    private boolean verified = false;
+    private boolean isVerified = false;
 
     @TimeToLive
     private Long expiration;
@@ -32,20 +35,33 @@ public class UserVerificationStatus {
         this.expiration = expiration;
     }
 
-    public static UserVerificationStatus ofSms(String id, String verificationCode) {
-        return new UserVerificationStatus(id, verificationCode, SMS_VERIFICATION_EXPIRATION_SECONDS);
+    public static UserVerificationStatus ofSms(String id, VerificationNumberGenerator generator) {
+        return new UserVerificationStatus(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
     }
 
-    public static UserVerificationStatus ofEmail(String id, String verificationCode) {
-        return new UserVerificationStatus(id, verificationCode, EMAIL_VERIFICATION_EXPIRATION_SECONDS);
+    public static UserVerificationStatus ofEmail(String id, VerificationNumberGenerator generator) {
+        return new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
     }
 
-    public void markAsVerified() {
-        this.verified = true;
+    public void verify(String inputCode) {
+        if (isCodeMismatched(inputCode)) {
+            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+        }
+        this.isVerified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
     }
 
-    public boolean isCodeMismatched(String inputCode) {
+    public void requireVerified() {
+        if (isNotVerified()) {
+            throw new AuthorizationException("본인 인증 후 다시 시도해주십시오.");
+        }
+    }
+
+    private boolean isCodeMismatched(String inputCode) {
         return !Objects.equals(this.verificationCode, inputCode);
+    }
+
+    private boolean isNotVerified() {
+        return !this.isVerified;
     }
 }

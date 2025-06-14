@@ -24,7 +24,7 @@ public record SendVerificationResponse(
 ) {
 
     public static SendVerificationResponse from(UserDailyVerificationCount verificationCount) {
-        int max = UserDailyVerificationCount.MAX_VERIFICATION_COUNT;
+        int max = verificationCount.getMaxVerificationCount();
         int current = verificationCount.getVerificationCount();
         return new SendVerificationResponse(
             verificationCount.getId(),
