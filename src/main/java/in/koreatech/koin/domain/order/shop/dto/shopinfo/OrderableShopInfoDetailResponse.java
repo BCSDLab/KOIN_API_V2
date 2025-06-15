@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTipRange;
-import in.koreatech.koin.domain.order.shop.model.entity.OrderableShop;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.MenuOrigin;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
