@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.order.shop.service;
 
+import static in.koreatech.koin._common.cache.CacheKey.ORDERABLE_SHOP_MENUS_CACHE;
+
 import java.util.List;
 
 import org.springframework.cache.annotation.Cacheable;
@@ -22,6 +24,7 @@ public class OrderableShopMenuQueryService {
     private final OrderableShopRepository orderableShopRepository;
     private final OrderableShopMenuRepository orderableShopMenuRepository;
 
+    @Cacheable(value = ORDERABLE_SHOP_MENUS_CACHE, key = "#orderableShopId")
     public List<OrderableShopMenusResponse> getOrderableShopMenus(Integer orderableShopId) {
         OrderableShop orderableShop = orderableShopRepository.getByIdWithMenus(orderableShopId);
 
