@@ -107,9 +107,6 @@ dependencies {
 
     // Cloudfront
     implementation 'software.amazon.awssdk:cloudfront'
-
-    // emoji-java
-    implementation 'com.vdurmont:emoji-java:5.1.1'
 }
 
 clean {
