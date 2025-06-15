@@ -41,6 +41,7 @@ public record AdminClubCreateRequest(
 
     @Schema(description = "동아리 위치", example = "학생회관", requiredMode = REQUIRED)
     @Size(max = 20, message = "동아리 위치는 최대 20자 입니다.")
+    @NotBlank(message = "동아리 위치는 필수 입력 사항입니다.")
     String location,
 
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = NOT_REQUIRED)
