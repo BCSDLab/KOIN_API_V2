@@ -9,8 +9,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin._common.validation.NotEmoji;
-import in.koreatech.koin._common.validation.NoSpecialCharacters;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubManager;
@@ -64,6 +62,7 @@ public record ClubCreateRequest(
 
     @Schema(description = "전화번호", example = "01012345678", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "전화번호는 최대 255자 입니다.")
+    @NotBlank(message = "전화번호는 필수 입력사항입니다.")
     String phoneNumber,
 
     @Schema(description = "동아리 내 역할", example = "회장", requiredMode = REQUIRED)
