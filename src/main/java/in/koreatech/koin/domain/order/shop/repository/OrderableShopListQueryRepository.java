@@ -1,8 +1,9 @@
 package in.koreatech.koin.domain.order.shop.repository;
 
-import static in.koreatech.koin.domain.order.shop.model.entity.QOrderableShop.orderableShop;
-import static in.koreatech.koin.domain.order.shop.model.entity.QShopBaseDeliveryTip.shopBaseDeliveryTip;
-import static in.koreatech.koin.domain.order.shop.model.entity.QShopOperation.shopOperation;
+
+import static in.koreatech.koin.domain.order.shop.model.entity.delivery.QShopBaseDeliveryTip.shopBaseDeliveryTip;
+import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop.orderableShop;
+import static in.koreatech.koin.domain.order.shop.model.entity.shop.QShopOperation.shopOperation;
 import static in.koreatech.koin.domain.shop.model.review.QShopReview.shopReview;
 import static in.koreatech.koin.domain.shop.model.shop.QShop.shop;
 import static in.koreatech.koin.domain.shop.model.shop.QShopCategoryMap.shopCategoryMap;

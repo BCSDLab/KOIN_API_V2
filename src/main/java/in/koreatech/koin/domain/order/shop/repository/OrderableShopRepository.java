@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.order.shop.exception.OrderableShopNotFoundException;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopInfoSummary;
-import in.koreatech.koin.domain.order.shop.model.entity.OrderableShop;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 
 public interface OrderableShopRepository extends JpaRepository<OrderableShop, Integer> {
 
@@ -59,6 +59,22 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
 
     default OrderableShop getOrderableShopInfoDetailById(Integer orderableShopId) {
         return findByIdJoinFetchShop(orderableShopId).orElseThrow(
+            () -> new OrderableShopNotFoundException(
+                "해당 상점이 존재하지 않습니다 : " + orderableShopId
+            )
+        );
+    }
+
+    @Query("""
+            SELECT DISTINCT os
+            FROM OrderableShop os
+            LEFT JOIN FETCH os.menuGroups mg
+            WHERE os.id = :orderableShopId
+        """)
+    Optional<OrderableShop> findByIdWithMenus(@Param("orderableShopId") Integer orderableShopId);
+
+    default OrderableShop getByIdWithMenus(Integer orderableShopId) {
+        return findByIdWithMenus(orderableShopId).orElseThrow(
             () -> new OrderableShopNotFoundException(
                 "해당 상점이 존재하지 않습니다 : " + orderableShopId
             )
