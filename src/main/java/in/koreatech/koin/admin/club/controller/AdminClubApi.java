@@ -21,6 +21,7 @@ import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubCreateRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubManagerDecideRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminPendingClubRequest;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
@@ -152,9 +153,9 @@ public interface AdminClubApi {
     )
     @Operation(summary = "미승인 동아리의 정보를 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/pendind/{clubName}")
+    @PostMapping("/pending")
     ResponseEntity<AdminPendingClubResponse> getPendingClub(
-        @PathVariable String clubName,
+        @RequestBody @Valid AdminPendingClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

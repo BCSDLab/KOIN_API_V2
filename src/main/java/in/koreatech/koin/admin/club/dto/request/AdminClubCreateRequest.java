@@ -9,8 +9,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin._common.validation.NotEmoji;
-import in.koreatech.koin._common.validation.NoSpecialCharacters;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubManager;
@@ -26,8 +24,6 @@ public record AdminClubCreateRequest(
     @Schema(description = "동아리 이름", example = "BCSD Lab", requiredMode = REQUIRED)
     @Size(max = 20, message = "동아리 이름은 최대 20자 입니다.")
     @NotBlank(message = "동아리 이름은 필수 입력 사항입니다.")
-    @NotEmoji(message = "동아리 이름에는 이모지가 들어갈 수 없습니다.")
-    @NoSpecialCharacters(message = "동아리 이름에는 특수문자가 들어갈 수 없습니다.")
     String name,
 
     @Schema(description = "동아리 사진 링크", example = "https://bcsdlab.com/static/img/logo.d89d9cc.png", requiredMode = REQUIRED)
@@ -46,7 +42,6 @@ public record AdminClubCreateRequest(
     @Schema(description = "동아리 위치", example = "학생회관", requiredMode = REQUIRED)
     @Size(max = 20, message = "동아리 위치는 최대 20자 입니다.")
     @NotBlank(message = "동아리 위치는 필수 입력 사항입니다.")
-    @NotEmoji(message = "동아리 위치에는 이모지가 들어갈 수 없습니다.")
     String location,
 
     @Schema(description = "동아리 소개", example = "즐겁게 일하고 열심히 노는 IT 특성화 동아리", requiredMode = NOT_REQUIRED)
@@ -55,22 +50,19 @@ public record AdminClubCreateRequest(
 
     @Schema(description = "인스타그램 링크", example = "https://www.instagram.com/bcsdlab/", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "인스타그램 링크는 최대 255자 입니다.")
-    @NotEmoji(message = "인스타그램 링크에는 이모지가 들어갈 수 없습니다.")
     String instagram,
 
     @Schema(description = "구글 폼 링크", example = "https://forms.gle/example", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "구글폼 링크는 최대 255자 입니다.")
-    @NotEmoji(message = "구글폼 링크에는 이모지가 들어갈 수 없습니다.")
     String googleForm,
 
     @Schema(description = "오픈 채팅 링크", example = "https://open.kakao.com/example", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "오픈 채팅 링크는 최대 255자 입니다.")
-    @NotEmoji(message = "오픈 채팅 링크에는 이모지가 들어갈 수 없습니다.")
     String openChat,
 
     @Schema(description = "전화번호", example = "01012345678", requiredMode = NOT_REQUIRED)
     @Size(max = 255, message = "전화번호는 최대 255자 입니다.")
-    @NotEmoji(message = "전화번호에는 이모지가 들어갈 수 없습니다.")
+    @NotBlank(message = "전화번호는 필수 입력사항입니다.")
     String phoneNumber
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
