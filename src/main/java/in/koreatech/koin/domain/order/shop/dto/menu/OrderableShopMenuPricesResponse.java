@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record OrderableShopMenuPricesResponse (
+    @Schema(description = "메뉴 가격 옵션 고유 식별자", example = "1", nullable = true)
+    Integer id,
     @Schema(description = "메뉴 가격 옵션 이름", example = "2마리", nullable = true)
     String name,
     @Schema(description = "메뉴 가격", example = "36000")
@@ -24,6 +26,6 @@ public record OrderableShopMenuPricesResponse (
     }
 
     private static OrderableShopMenuPricesResponse from(OrderableShopMenuPrice menuPrice) {
-        return new OrderableShopMenuPricesResponse(menuPrice.getName(), menuPrice.getPrice());
+        return new OrderableShopMenuPricesResponse(menuPrice.getId(), menuPrice.getName(), menuPrice.getPrice());
     }
 }

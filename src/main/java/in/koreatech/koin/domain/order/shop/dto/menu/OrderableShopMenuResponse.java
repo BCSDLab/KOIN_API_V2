@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopMenuResponse(
     @Schema(description = "메뉴 고유 식별자", example = "1")
-    Integer orderableShopMenuId,
+    Integer id,
     @Schema(description = "메뉴 이름", example = "후라이드 치킨")
     String name,
     @Schema(description = "메뉴 설명", example = "바삭하고 고소한 오리지널 후라이드", nullable = true)

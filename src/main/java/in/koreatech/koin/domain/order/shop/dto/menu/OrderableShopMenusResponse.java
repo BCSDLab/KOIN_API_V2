@@ -40,7 +40,7 @@ public class OrderableShopMenusResponse {
     public static class InnerMenuResponse {
 
         @Schema(description = "메뉴 ID", example = "1")
-        private final Integer orderableShopMenuId;
+        private final Integer id;
 
         @Schema(description = "메뉴 이름", example = "후라이드 치킨")
         private final String name;

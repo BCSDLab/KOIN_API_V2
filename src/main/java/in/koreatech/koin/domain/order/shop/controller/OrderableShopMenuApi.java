@@ -31,7 +31,7 @@ public interface OrderableShopMenuApi {
                             "menu_group_name": "메인 메뉴",
                             "menus": [
                               {
-                                "menu_id": 101,
+                                "id": 101,
                                 "name": "후라이드 치킨",
                                 "description": "바삭하고 고소한 오리지널 후라이드",
                                 "thumbnail_image": "https://example.com/images/fried_chicken.jpg",
@@ -43,7 +43,7 @@ public interface OrderableShopMenuApi {
                                 ]
                               },
                               {
-                                "menu_id": 102,
+                                "id": 102,
                                 "name": "양념 치킨",
                                 "description": "달콤매콤한 특제 양념 소스",
                                 "thumbnail_image": "https://example.com/images/seasoned_chicken.jpg",
@@ -61,7 +61,7 @@ public interface OrderableShopMenuApi {
                             "menu_group_name": "사이드 메뉴",
                             "menus": [
                               {
-                                "menu_id": 201,
+                                "id": 201,
                                 "name": "감자튀김",
                                 "description": "치킨과 함께 먹으면 더욱 맛있는 바삭한 감자튀김",
                                 "thumbnail_image": "https://example.com/images/fries.jpg",
@@ -115,7 +115,7 @@ public interface OrderableShopMenuApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "성공", value = """
                         {
-                          "orderable_shop_menu_id": 101,
+                          "id": 101,
                           "name": "후라이드 치킨",
                           "description": "바삭하고 고소한 오리지널 후라이드",
                           "images": [
