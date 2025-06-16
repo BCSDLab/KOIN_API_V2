@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.shop.model.entity;
+package in.koreatech.koin.domain.order.shop.model.entity.delivery;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
@@ -13,7 +13,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,32 +21,25 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "orderable_shop")
+@Table(name = "shop_base_delivery_tip")
 @Where(clause = "is_deleted=0")
-public class OrderableShop extends BaseEntity {
+public class ShopBaseDeliveryTip extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    @Column(name = "delivery", nullable = false)
-    private boolean delivery = true;
+    @Column(name = "order_amount", nullable = false)
+    private Integer orderAmount;
 
-    @Column(name = "takeout", nullable = false)
-    private boolean takeout = true;
-
-    @Column(name = "service_event", nullable = false)
-    private boolean serviceEvent = false;
-
-    @Column(name = "minimum_order_amount", nullable = false)
-    private Integer minimumOrderAmount;
+    @Column(name = "fee", nullable = false)
+    private Integer fee;
 
     @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-
+    private Boolean isDeleted;
 }
