@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenuGroupResponse;
 import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenuResponse;
 import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenusResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -205,5 +206,51 @@ public interface OrderableShopMenuApi {
 
         @Parameter(description = "주문 가능 상점 메뉴 고유 식별자 (orderable_shop_menu_id)", example = "1")
         @PathVariable Integer orderableShopMenuId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "주문 가능 상점 메뉴 그룹 목록 조회 성공",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "성공", value = """
+                        {
+                          "count": 2,
+                          "menuGroups": [
+                            {
+                              "id": 1,
+                              "name": "메인 메뉴"
+                            },
+                            {
+                              "id": 2,
+                              "name": "사이드 메뉴"
+                            }
+                          ]
+                        }
+                        """
+                    )
+                })
+            ),
+            @ApiResponse(responseCode = "404", description = "주문 가능 상점을 찾을 수 없음",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "상점 미존재", value = """
+                        {
+                          "status": 404,
+                          "error": "Not Found",
+                          "message": "해당 상점이 존재하지 않습니다 : 1"
+                        }
+                        """
+                    )
+                })
+            )
+        }
+    )
+    @Operation(summary = "특정 주문 가능 상점의 메뉴 그룹 목록 조회", description = """
+        ### 주문 가능 상점 메뉴 그룹 목록 조회
+        - 특정 주문 가능 상점 모든 메뉴 그룹 ID와 이름을 반환합니다.
+        """)
+    @GetMapping("/order/shop/{orderableShopId}/menus/groups")
+    ResponseEntity<OrderableShopMenuGroupResponse> getOrderableShopMenuGroups(
+        @Parameter(description = "주문 가능 상점 고유 식별자 (orderable_shop_id)", example = "1")
+        @PathVariable Integer orderableShopId
     );
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenuGroupResponse;
 import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenuResponse;
 import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenusResponse;
 import in.koreatech.koin.domain.order.shop.service.OrderableShopMenuQueryService;
@@ -35,5 +36,14 @@ public class OrderableShopMenuController implements OrderableShopMenuApi {
         OrderableShopMenuResponse orderableShopMenuResponse = orderableShopMenuQueryService.getOrderableShopMenu(
             orderableShopMenuId);
         return ResponseEntity.ok(orderableShopMenuResponse);
+    }
+
+    @GetMapping("/order/shop/{orderableShopId}/menus/groups")
+        public ResponseEntity<OrderableShopMenuGroupResponse> getOrderableShopMenuGroups(
+        @PathVariable Integer orderableShopId
+    ) {
+        OrderableShopMenuGroupResponse orderableShopMenuGroups = orderableShopMenuQueryService.getOrderableShopMenuGroups(
+            orderableShopId);
+        return ResponseEntity.ok(orderableShopMenuGroups);
     }
 }

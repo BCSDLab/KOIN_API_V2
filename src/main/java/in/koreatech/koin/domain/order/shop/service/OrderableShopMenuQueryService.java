@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenuGroupResponse;
 import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenuResponse;
 import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenusResponse;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
@@ -37,5 +38,10 @@ public class OrderableShopMenuQueryService {
         OrderableShopMenu orderableShopMenu = orderableShopMenuRepository.getByIdWithMenuOptionGroups(
             orderableShopMenuId);
         return OrderableShopMenuResponse.from(orderableShopMenu);
+    }
+
+    public OrderableShopMenuGroupResponse getOrderableShopMenuGroups(Integer orderableShopId) {
+        OrderableShop orderableShop = orderableShopRepository.getByIdWithMenus(orderableShopId);
+        return OrderableShopMenuGroupResponse.from(orderableShop);
     }
 }
