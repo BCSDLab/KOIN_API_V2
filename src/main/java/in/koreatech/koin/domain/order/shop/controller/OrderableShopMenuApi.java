@@ -37,6 +37,7 @@ public interface OrderableShopMenuApi {
                                 "thumbnail_image": "https://example.com/images/fried_chicken.jpg",
                                 "prices": [
                                   {
+                                    "id": 1,
                                     "name": null,
                                     "price": 19000
                                   }
@@ -49,6 +50,7 @@ public interface OrderableShopMenuApi {
                                 "thumbnail_image": "https://example.com/images/seasoned_chicken.jpg",
                                 "prices": [
                                   {
+                                    "id": 2,
                                     "name": null,
                                     "price": 20000
                                   }
@@ -67,10 +69,12 @@ public interface OrderableShopMenuApi {
                                 "thumbnail_image": "https://example.com/images/fries.jpg",
                                 "prices": [
                                   {
+                                    "id": 3,
                                     "name": "중",
                                     "price": 4000
                                   },
                                   {
+                                    "id": 4,
                                     "name": "대",
                                     "price": 6000
                                   }
@@ -124,6 +128,7 @@ public interface OrderableShopMenuApi {
                           ],
                           "prices": [
                                   {
+                                    "id": 1,
                                     "name": null,
                                     "price": 19000
                                   }
