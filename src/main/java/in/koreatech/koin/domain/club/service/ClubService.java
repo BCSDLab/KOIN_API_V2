@@ -131,14 +131,14 @@ public class ClubService {
 
     @Transactional
     public ClubResponse getClub(Integer clubId, Integer userId) {
-        Club club = clubRepository.getByIdWithPessimisticLock(clubId);
+        Club club = clubRepository.getById(clubId);
         if (!club.getIsActive()) {
             throw new IllegalStateException("비활성화 동아리입니다.");
         }
-        club.increaseHits();
+        clubRepository.incrementHits(clubId);
+
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
-
         Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, userId);
 
         return ClubResponse.from(club, clubSNSs, manager, isLiked);
@@ -208,7 +208,6 @@ public class ClubService {
         return hotClubRedisRepository.findById(ClubHotRedis.REDIS_KEY)
             .map(ClubHotResponse::from)
             .orElseGet(this::getHotClubFromDBAndCache);
-
     }
 
     private ClubHotResponse getHotClubFromDBAndCache() {

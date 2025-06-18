@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -36,6 +37,10 @@ public interface ClubRepository extends Repository<Club, Integer> {
 
         return club;
     }
+
+    @Modifying
+    @Query("UPDATE Club c SET c.hits = c.hits + 1 WHERE c.id = :id")
+    void incrementHits(Integer id);
 
     Club save(Club club);
 
