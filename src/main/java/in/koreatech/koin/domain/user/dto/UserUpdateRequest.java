@@ -40,9 +40,7 @@ public record UserUpdateRequest(
     @NotNull(message = "성별은 필수입니다.")
     UserGender gender,
 
-    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = REQUIRED)
-    @NotBlank(message = "비밀번호는 필수입니다.")
-    @Size(min = 64, max = 64, message = "비밀번호 해시값은 16진수 64자여야 합니다.")
+    @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = NOT_REQUIRED)
     String password
 ) {
 
