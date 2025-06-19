@@ -9,6 +9,8 @@ import java.util.List;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
+import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -60,4 +62,20 @@ public class OrderableShopMenuOptionGroup extends BaseEntity {
     @OneToMany(mappedBy = "optionGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuOption> menuOptions = new ArrayList<>();
 
+    public void validateSelectionCount(int selectionCount) {
+        // 필수 옵션 그룹인데 하나도 선택하지 않은 경우
+        if (isRequired && selectionCount == 0) {
+            throw new CartException(CartErrorCode.REQUIRED_OPTION_GROUP_MISSING);
+        }
+
+        // 최소 선택 개수를 만족하지 못한 경우
+        if (selectionCount < minSelect) {
+            throw new CartException(CartErrorCode.MIN_SELECTION_NOT_MET);
+        }
+
+        // 최대 선택 개수를 초과한 경우
+        if (maxSelect != null && selectionCount > maxSelect) {
+            throw new CartException(CartErrorCode.MAX_SELECTION_EXCEEDED);
+        }
+    }
 }

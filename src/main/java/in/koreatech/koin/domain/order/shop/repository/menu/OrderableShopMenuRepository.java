@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.order.shop.repository.menu;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,6 +24,21 @@ public interface OrderableShopMenuRepository extends JpaRepository<OrderableShop
         return findByIdWithMenuOptionGroups(orderableShopMenuId).orElseThrow(
             () -> new OrderableShopMenuNotFoundException(
                 "해당 메뉴가 존재하지 않습니다 : " + orderableShopMenuId
+            )
+        );
+    }
+
+    @Query("""
+           SELECT osm
+           FROM OrderableShopMenu osm
+           WHERE osm.orderableShop.id = :orderableShopId
+        """)
+    Optional<List<OrderableShopMenu>> findAllByOrderableShopId(@Param("orderableShopId") Integer orderableShopId);
+
+    default List<OrderableShopMenu> getAllByOrderableShop(Integer orderableShopId) {
+        return findAllByOrderableShopId(orderableShopId).orElseThrow(
+            () -> new OrderableShopMenuNotFoundException(
+                "해당 상점에 메뉴가 존재하지 않습니다 : " + orderableShopId
             )
         );
     }
