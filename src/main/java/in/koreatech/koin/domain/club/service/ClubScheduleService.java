@@ -93,7 +93,7 @@ public class ClubScheduleService {
         for (Integer clubId : existingIds) {
             try {
                 String key = clubIdToKeyMap.get(clubId);
-                Long hits = clubHitsRedisRepository.getHits(key);
+                Integer hits = clubHitsRedisRepository.getHits(key);
                 clubRepository.incrementHitsByValue(clubId, hits);
                 deletedKeys.add(key);
             } catch (Exception e) {

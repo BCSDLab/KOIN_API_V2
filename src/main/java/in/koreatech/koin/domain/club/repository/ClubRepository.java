@@ -43,7 +43,7 @@ public interface ClubRepository extends Repository<Club, Integer> {
 
     @Modifying
     @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")
-    void incrementHitsByValue(Integer id, Long value);
+    void incrementHitsByValue(Integer id, Integer value);
 
     @Modifying
     @Query("UPDATE Club c SET c.hits = c.hits + 1 WHERE c.id = :id")

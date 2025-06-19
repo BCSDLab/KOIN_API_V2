@@ -21,9 +21,9 @@ public class ClubHitsRedisRepository {
         return redisTemplate.keys("club:hits:*");
     }
 
-    public Long getHits(String key) {
+    public Integer getHits(String key) {
         Object value = redisTemplate.opsForValue().get(key);
-        return value instanceof Integer ? (Integer) value : 0L;
+        return value instanceof Integer ? (Integer) value : 0;
     }
 
     public void deleteHitsByKeys(Set<String> keys) {
