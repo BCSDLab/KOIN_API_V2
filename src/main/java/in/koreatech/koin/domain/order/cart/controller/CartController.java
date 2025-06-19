@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
+import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
+import in.koreatech.koin.domain.order.cart.service.CartQueryService;
 import in.koreatech.koin.domain.order.cart.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class CartController implements CartApi {
 
     private final CartService cartService;
+    private final CartQueryService cartQueryService;
 
     @PostMapping("/cart/add")
     public ResponseEntity<Void> addItem(
@@ -56,5 +60,14 @@ public class CartController implements CartApi {
     ) {
         cartService.resetCart(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/cart/item/{cartMenuItemId}/edit")
+    public ResponseEntity<CartMenuItemEditResponse> getCartItemForEdit(
+        @PathVariable Integer cartMenuItemId,
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    ) {
+        CartMenuItemEditResponse response = cartQueryService.getOrderableShopMenuForEditOptions(userId, cartMenuItemId);
+        return ResponseEntity.ok(response);
     }
 }

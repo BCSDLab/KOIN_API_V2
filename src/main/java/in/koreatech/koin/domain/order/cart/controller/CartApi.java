@@ -2,11 +2,13 @@ package in.koreatech.koin.domain.order.cart.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
+import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -267,6 +269,119 @@ public interface CartApi {
         """)
     @DeleteMapping("/cart/reset")
     ResponseEntity<Void> reset(
+        @Parameter(hidden = true)
+        Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "선택 필드가 포함된 특정 메뉴의 상세 정보 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "성공", value = """
+                        {
+                          "id": 101,
+                          "name": "후라이드 치킨",
+                          "description": "바삭하고 고소한 오리지널 후라이드",
+                          "images": [
+                            "https://example.com/images/fried_chicken_1.jpg",
+                            "https://example.com/images/fried_chicken_2.jpg"
+                          ],
+                          "prices": [
+                                  {
+                                    "id": 1,
+                                    "name": null,
+                                    "price": 19000,
+                                    "is_selected": true
+                                  }
+                          ],
+                          "option_groups": [
+                            {
+                              "id": 1,
+                              "name": "음료 변경",
+                              "description": "기본 제공 음료를 변경할 수 있습니다.",
+                              "is_required": false,
+                              "min_select": 0,
+                              "max_select": 1,
+                              "options": [
+                                {
+                                  "id": 1,
+                                  "name": "콜라 1.25L로 변경",
+                                  "price": 1000,
+                                  "is_selected": false
+                                },
+                                {
+                                  "id": 2,
+                                  "name": "사이다 1.25L로 변경",
+                                  "price": 1000,
+                                  "is_selected": true
+                                }
+                              ]
+                            },
+                            {
+                              "id": 2,
+                              "name": "소스 추가",
+                              "description": "다양한 소스를 추가해보세요!",
+                              "is_required": false,
+                              "min_select": 0,
+                              "max_select": 3,
+                              "options": [
+                                {
+                                  "id": 3,
+                                  "name": "양념 소스",
+                                  "price": 500,
+                                  "is_selected": true
+                                },
+                                {
+                                  "id": 4,
+                                  "name": "머스타드 소스",
+                                  "price": 500,
+                                  "is_selected": false
+                                },
+                                {
+                                  "id": 5,
+                                  "name": "치즈 소스",
+                                  "price": 1000,
+                                  "is_selected": true
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                        """
+                )
+            })
+        ),
+        @ApiResponse(responseCode = "401", description = "인증 정보 오류",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "인증 정보 오류", summary = "인증 정보 오류", value = """
+                    {
+                      "code": "",
+                      "message": "올바르지 않은 인증정보입니다.",
+                      "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
+                    }
+                    """)
+            })
+        ),
+        @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니 상품을 찾을 수 없는 경우", summary = "존재하지 않는 장바구니 상품", value = """
+                    {
+                      "code": "CART_MENU_ITEM_NOT_FOUND",
+                      "message": "장바구니에 담긴 상품이 존재하지 않습니다",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """)
+            })
+        )
+    })
+    @Operation(summary = "장바구니 옵션 변경용 메뉴 조회 API", description = """
+        ### 장바구니 옵션 변경용 메뉴 조회
+        - `is_selected` 필드가 포함된 메뉴 정보 조회 API
+        """)
+    @GetMapping("/cart/item/{cartMenuItemId}/edit")
+    ResponseEntity<CartMenuItemEditResponse> getCartItemForEdit(
+        @Parameter(description = "장바구니 상품 고유 ID", example = "1", required = true)
+        @PathVariable Integer cartMenuItemId,
+
         @Parameter(hidden = true)
         Integer userId
     );
