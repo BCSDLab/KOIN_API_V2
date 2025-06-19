@@ -88,7 +88,13 @@ public class CartService {
     public void deleteItem(Integer userId, Integer cartMenuItemID) {
         Cart cart = cartGetter.get(userId)
             .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+
         cart.removeItem(cartMenuItemID);
+
+        // 장바구니가 비어있으면 장바구니 자체를 삭제
+        if (cart.getCartMenuItems().isEmpty()) {
+            cartDeleter.deleteByUserId(userId);
+        }
     }
 
     @Transactional
