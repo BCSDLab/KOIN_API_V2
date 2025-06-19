@@ -49,7 +49,9 @@ public record CartItemsResponse (
         @Schema(description = "선택한 가격 정보")
         InnerPriceResponse price,
         @Schema(description = "선택한 옵션 목록")
-        List<InnerMenuOptionResponse> options
+        List<InnerMenuOptionResponse> options,
+        @Schema(description = "담긴 상품의 정보(가격)가 장바구니 추가 이후 수정 되었는지 여부")
+        Boolean isModified
     ) {
 
         public static InnerCartItemResponse from(CartMenuItem cartMenuItem) {
@@ -63,7 +65,8 @@ public record CartItemsResponse (
                 cartMenuItem.getQuantity(),
                 cartMenuItem.calculateTotalAmount(),
                 InnerPriceResponse.from(cartMenuItem.getOrderableShopMenuPrice()),
-                optionResponses
+                optionResponses,
+                cartMenuItem.getIsModified()
             );
         }
     }

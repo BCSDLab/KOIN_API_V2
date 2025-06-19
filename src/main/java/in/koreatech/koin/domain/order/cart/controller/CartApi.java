@@ -45,7 +45,8 @@ public interface CartApi {
                             "name": null,
                             "price": 23000
                           },
-                          "options": []
+                          "options": [],
+                          "is_modified": false
                         },
                         {
                           "cart_menu_item_id": 13,
@@ -62,7 +63,8 @@ public interface CartApi {
                               "option_name": "레드디핑 소스",
                               "option_price": 500
                             }
-                          ]
+                          ],
+                          "is_modified": false
                         }
                       ],
                       "items_amount": 70000,
