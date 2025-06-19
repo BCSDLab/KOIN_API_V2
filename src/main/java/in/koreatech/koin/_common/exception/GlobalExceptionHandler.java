@@ -36,6 +36,7 @@ import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.exception.custom.RequestTooFastException;
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
+import in.koreatech.koin.domain.order.cart.exception.CartException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -271,6 +272,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
     }
 
+    @ExceptionHandler(CartException.class)
+    public ResponseEntity<Object> handleCartException(
+        HttpServletRequest request,
+        CartException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request);
+        return buildErrorResponseWithErrorCode(
+            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
+            e.getFullMessage(),
+            e.getErrorCode().name()
+        );
+    }
+
     // 예외 메시지 구성 로직
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
@@ -290,6 +305,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorTraceId = UUID.randomUUID().toString();
         log.warn("traceId: {}", errorTraceId);
         var response = new ErrorResponse(httpStatus.value(), message, errorTraceId);
+        return ResponseEntity.status(httpStatus).body(response);
+    }
+
+    private ResponseEntity<Object> buildErrorResponseWithErrorCode(
+        HttpStatus httpStatus,
+        String message,
+        String errorCode
+    ) {
+        String errorTraceId = UUID.randomUUID().toString();
+        log.warn("traceId: {}", errorTraceId);
+        var response = new ErrorResponse(httpStatus.value(), errorCode, message, errorTraceId);
         return ResponseEntity.status(httpStatus).body(response);
     }
 
