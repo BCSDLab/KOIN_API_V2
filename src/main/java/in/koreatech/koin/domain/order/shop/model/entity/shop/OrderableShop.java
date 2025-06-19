@@ -10,6 +10,8 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
+import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import jakarta.persistence.CascadeType;
@@ -60,4 +62,9 @@ public class OrderableShop extends BaseEntity {
     @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuGroup> menuGroups = new ArrayList<>();
 
+    public void requireShopOpen() {
+        if (shop == null || shop.getShopOperation() == null || !shop.getShopOperation().isOpen()) {
+            throw new CartException(CartErrorCode.SHOP_CLOSED);
+        }
+    }
 }

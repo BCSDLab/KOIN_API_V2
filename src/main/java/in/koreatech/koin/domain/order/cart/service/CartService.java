@@ -40,7 +40,10 @@ public class CartService {
 
     @Transactional
     public void addMenu(CartAddItemCommand addItemCommand) {
+        // 상점이 영업 시간 인지 확인
         OrderableShop orderableShop = orderableShopGetter.getOrderableShop(addItemCommand.shopId());
+        orderableShop.requireShopOpen();
+
         Cart cart = cartGetter.get(addItemCommand.userId()).orElse(
             Cart.from(userGetter.get(addItemCommand.userId()), orderableShop)
         );

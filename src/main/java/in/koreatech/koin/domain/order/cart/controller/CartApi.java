@@ -66,6 +66,13 @@ public interface CartApi {
                       "message": "잘못된 입력 형식이거나, 값이 허용된 범위를 초과했습니다.",
                       "errorTraceId": "6a5ef873-c752-4387-9dae-552798812f25"
                     }
+                    """),
+                @ExampleObject(name = "상점의 영업시간이 아님", summary = "상점의 영업시간이 아님", value = """
+                    {
+                      "code": "SHOP_CLOSED",
+                      "message": "상점의 영업시간이 아닙니다.",
+                      "errorTraceId": "ae4feff5-5f37-4f91-b8b6-a5957fd5bb10"
+                    }
                     """)
             })
         ),

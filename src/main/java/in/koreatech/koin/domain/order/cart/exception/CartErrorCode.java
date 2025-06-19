@@ -19,7 +19,8 @@ public enum CartErrorCode implements BaseErrorCode {
     REQUIRED_OPTION_GROUP_MISSING(HttpStatus.BAD_REQUEST, "필수 옵션 그룹을 선택하지 않았습니다."),
     MIN_SELECTION_NOT_MET(HttpStatus.BAD_REQUEST, "옵션 그룹의 최소 선택 개수를 만족하지 못했습니다."),
     MAX_SELECTION_EXCEEDED(HttpStatus.BAD_REQUEST, "옵션 그룹의 최대 선택 개수를 초과했습니다."),
-    INVALID_QUANTITY(HttpStatus.BAD_REQUEST, "유효하지 않은 수량입니다.")
+    INVALID_QUANTITY(HttpStatus.BAD_REQUEST, "유효하지 않은 수량입니다."),
+    SHOP_CLOSED(HttpStatus.BAD_REQUEST, "상점의 영업시간이 아닙니다.");
     ;
 
     private final HttpStatus httpStatusCode;

@@ -18,6 +18,7 @@ import org.hibernate.annotations.Where;
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTips;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopMenuOrigins;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.ShopOperation;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
@@ -139,6 +140,9 @@ public class Shop extends BaseEntity {
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopReview> reviews = new ArrayList<>();
+
+    @OneToOne(mappedBy = "shop", fetch = FetchType.LAZY)
+    private ShopOperation shopOperation;
 
     @Embedded
     private ShopBaseDeliveryTips baseDeliveryTips = new ShopBaseDeliveryTips();
