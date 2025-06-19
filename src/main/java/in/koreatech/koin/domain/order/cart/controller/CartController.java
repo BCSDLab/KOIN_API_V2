@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import in.koreatech.koin.domain.order.cart.service.CartQueryService;
 import in.koreatech.koin.domain.order.cart.service.CartService;
 import jakarta.validation.Valid;
@@ -31,7 +33,7 @@ public class CartController implements CartApi {
         @RequestBody @Valid CartAddItemRequest cartAddItemRequest,
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     ) {
-        cartService.addMenu(cartAddItemRequest.toCommand(userId));
+        cartService.addItem(cartAddItemRequest.toCommand(userId));
         return ResponseEntity.ok().build();
     }
 
@@ -41,7 +43,7 @@ public class CartController implements CartApi {
         @PathVariable Integer quantity,
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     ) {
-        cartService.updateMenuQuantity(userId, cartMenuItemId, quantity);
+        cartService.updateItemQuantity(userId, cartMenuItemId, quantity);
         return ResponseEntity.ok().build();
     }
 
@@ -50,7 +52,7 @@ public class CartController implements CartApi {
         @PathVariable Integer cartMenuItemId,
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     ) {
-        cartService.deleteMenu(userId, cartMenuItemId);
+        cartService.deleteItem(userId, cartMenuItemId);
         return ResponseEntity.ok().build();
     }
 
@@ -59,6 +61,16 @@ public class CartController implements CartApi {
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     ) {
         cartService.resetCart(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/cart/item/{cartMenuItemId}")
+    public ResponseEntity<Void> updateCartItem(
+        @PathVariable Integer cartMenuItemId,
+        @RequestBody @Valid CartUpdateItemRequest request,
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    ) {
+        cartService.updateItem(request, cartMenuItemId, userId);
         return ResponseEntity.ok().build();
     }
 

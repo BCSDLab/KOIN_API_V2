@@ -77,12 +77,19 @@ public class Cart extends BaseEntity {
     public void removeItem(Integer cartMenuItemId) {
         CartMenuItem itemToRemove = getCartMenuItem(cartMenuItemId);
         this.cartMenuItems.remove(itemToRemove);
-        // orphanRemoval = true 설정으로 인해 자동으로 DB에서 삭제됨
     }
 
     private Optional<CartMenuItem> findSameItem(OrderableShopMenu menu, OrderableShopMenuPrice price,
         List<OrderableShopMenuOption> options) {
         return this.cartMenuItems.stream()
+            .filter(item -> item.isSameItem(menu, price, options))
+            .findFirst();
+    }
+
+    public Optional<CartMenuItem> findSameItem(OrderableShopMenu menu, OrderableShopMenuPrice price,
+        List<OrderableShopMenuOption> options, Integer excludeCartMenuItemId) {
+        return this.cartMenuItems.stream()
+            .filter(item -> !item.getId().equals(excludeCartMenuItemId))
             .filter(item -> item.isSameItem(menu, price, options))
             .findFirst();
     }

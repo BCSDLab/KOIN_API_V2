@@ -5,10 +5,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -389,6 +391,110 @@ public interface CartApi {
         @Parameter(description = "장바구니 상품 고유 ID", example = "1", required = true)
         @PathVariable Integer cartMenuItemId,
 
+        @Parameter(hidden = true)
+        Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "장바구니 상품 가격/옵션 변경 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "필수 옵션을 선택하지 않은 경우", summary = "필수 옵션 누락", value = """
+                    {
+                      "code": "REQUIRED_OPTION_GROUP_MISSING",
+                      "message": "필수 옵션 그룹을 선택하지 않았습니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "옵션 최소 선택 개수를 만족하지 못한 경우", summary = "옵션 최소 선택 미만", value = """
+                    {
+                      "code": "MIN_SELECTION_NOT_MET",
+                      "message": "옵션 그룹의 최소 선택 개수를 만족하지 못했습니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "옵션 최대 선택 개수를 초과한 경우", summary = "옵션 선택 초과", value = """
+                    {
+                      "code": "MAX_SELECTION_EXCEEDED",
+                      "message": "옵션 그룹의 최대 선택 개수를 초과했습니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "선택한 옵션이 해당 옵션 그룹에 속해 있지 않은 경우", summary = "옵션-그룹 불일치", value = """
+                    {
+                      "code": "INVALID_OPTION_IN_GROUP",
+                      "message": "선택한 옵션이 해당 옵션 그룹에 속해있지 않습니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "잘못된 입력 형식", summary = "잘못된 입력 형식", value = """
+                    {
+                      "code": "",
+                      "message": "잘못된 입력 형식이거나, 값이 허용된 범위를 초과했습니다.",
+                      "errorTraceId": "6a5ef873-c752-4387-9dae-552798812f25"
+                    }
+                    """)
+            })
+        ),
+        @ApiResponse(responseCode = "401", description = "인증 정보 오류",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "인증 정보 오류", summary = "인증 정보 오류", value = """
+                    {
+                      "code": "",
+                      "message": "올바르지 않은 인증정보입니다.",
+                      "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
+                    }
+                    """)
+            })
+        ),
+        @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니 상품을 찾을 수 없는 경우", summary = "존재하지 않는 장바구니 상품", value = """
+                    {
+                      "code": "CART_MENU_ITEM_NOT_FOUND",
+                      "message": "장바구니에 담긴 상품이 존재하지 않습니다",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "유효하지 않은 메뉴 가격 ID", summary = "메뉴 가격 ID 없음", value = """
+                    {
+                      "code": "MENU_PRICE_NOT_FOUND",
+                      "message": "유효하지 않은 가격 ID 입니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "유효하지 않은 메뉴 옵션 ID", summary = "메뉴 옵션 ID 없음", value = """
+                    {
+                      "code": "MENU_OPTION_NOT_FOUND",
+                      "message": "유효하지 않은 옵션 ID 입니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """)
+            })
+        )
+    })
+    @Operation(summary = "장바구니 상품 가격/옵션 변경", description = """
+        ### 장바구니 상품의 가격 및 옵션 구성 변경
+        - 장바구니에 담긴 특정 상품(`cartMenuItemId`)의 가격 및 옵션 구성을 변경합니다.
+        
+        ### 동작 방식
+        1.  **유효성 검증**: 요청된 가격과 옵션들이 메뉴에 유효한지 검증합니다.
+        2.  **중복 확인**: 변경된 구성(가격+옵션)이 장바구니 내 다른 상품과 동일한지 확인합니다.
+        3.  **병합 또는 수정**:
+            - **동일 구성 상품이 존재하면**: 해당 상품의 수량을 늘리고, 현재 수정 중인 상품은 삭제합니다 (병합).
+            - **동일 구성 상품이 없으면**: 현재 상품의 가격과 옵션을 요청된 내용으로 수정합니다.
+            
+        ### 요청 Body 필드 설명
+        - **orderableShopMenuPriceId**: 새롭게 선택한 메뉴 가격 ID (필수)
+        - **options**: 새롭게 선택한 옵션 목록 (선택 사항)
+          - **optionGroupId**: 옵션 그룹 ID
+          - **optionId**: 옵션 ID
+        """)
+    @PutMapping("/cart/item/{cartMenuItemId}")
+    ResponseEntity<Void> updateCartItem(
+        @Parameter(description = "가격을 변경할 장바구니 상품의 고유 ID", example = "1", required = true)
+        @PathVariable Integer cartMenuItemId,
+        @RequestBody @Valid CartUpdateItemRequest request,
         @Parameter(hidden = true)
         Integer userId
     );

@@ -1,11 +1,13 @@
 package in.koreatech.koin.domain.order.cart.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemCommand;
+import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.cart.model.Cart;
@@ -39,7 +41,7 @@ public class CartService {
     private final EntityManager em;
 
     @Transactional
-    public void addMenu(CartAddItemCommand addItemCommand) {
+    public void addItem(CartAddItemCommand addItemCommand) {
         // 상점이 영업 시간 인지 확인
         OrderableShop orderableShop = orderableShopGetter.getOrderableShop(addItemCommand.shopId());
         orderableShop.requireShopOpen();
@@ -76,17 +78,46 @@ public class CartService {
     }
 
     @Transactional
-    public void updateMenuQuantity(Integer userId, Integer cartMenuItemID, Integer quantity) {
+    public void updateItemQuantity(Integer userId, Integer cartMenuItemID, Integer quantity) {
         Cart cart = cartGetter.get(userId)
             .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
         cart.updateItemQuantity(cartMenuItemID, quantity);
     }
 
     @Transactional
-    public void deleteMenu(Integer userId, Integer cartMenuItemID) {
+    public void deleteItem(Integer userId, Integer cartMenuItemID) {
         Cart cart = cartGetter.get(userId)
             .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
         cart.removeItem(cartMenuItemID);
+    }
+
+    @Transactional
+    public void updateItem(CartUpdateItemRequest request, Integer cartMenuItemId, Integer userId) {
+        Cart cart = cartGetter.get(userId)
+            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+        CartMenuItem itemToUpdate = cart.getCartMenuItem(cartMenuItemId);
+
+        OrderableShopMenu menu = itemToUpdate.getOrderableShopMenu();
+        Integer originalQuantity = itemToUpdate.getQuantity();
+
+        // 새로운 가격 및 옵션 구성의 유효성 검증
+        menu.requiredMenuPriceById(request.orderableShopMenuPriceId());
+        OrderableShopMenuPrice newPrice = menu.getMenuPriceById(request.orderableShopMenuPriceId());
+
+        MenuOptions shopMenuOptions = optionGetter.getAllByMenuId(menu.getId());
+        List<OrderableShopMenuOption> newSelectedOptions = shopMenuOptions.resolveSelectedOptions(request.toOptions());
+
+        // 변경 후의 구성이 장바구니에 이미 존재하는지 확인
+        Optional<CartMenuItem> existingSameItem = cart.findSameItem(menu, newPrice, newSelectedOptions, itemToUpdate.getId());
+
+        if (existingSameItem.isPresent()) {
+            // 동일 구성 아이템이 존재하면 수량을 합치고 기존 아이템은 삭제
+            existingSameItem.get().increaseQuantity(originalQuantity);
+            cart.removeItem(itemToUpdate.getId());
+        } else {
+            // 동일 구성 아이템이 없으면 현재 아이템의 구성을 직접 변경
+            itemToUpdate.updatePriceAndOptions(newPrice, newSelectedOptions);
+        }
     }
 
     @Transactional

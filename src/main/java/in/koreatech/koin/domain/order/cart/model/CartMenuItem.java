@@ -104,6 +104,10 @@ public class CartMenuItem extends BaseEntity {
         this.quantity++;
     }
 
+    public void increaseQuantity(Integer amount) {
+        this.quantity += amount;
+    }
+
     public boolean isSameItem(OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options) {
         // 메뉴와 가격 ID가 다른 경우
         if (!this.orderableShopMenu.getId().equals(menu.getId()) || !this.orderableShopMenuPrice.getId().equals(price.getId())) {
@@ -127,5 +131,14 @@ public class CartMenuItem extends BaseEntity {
             .toList();
 
         return existingOptionIds.equals(newOptionIds);
+    }
+
+    public void updatePriceAndOptions(OrderableShopMenuPrice newPrice, List<OrderableShopMenuOption> newOptions) {
+        this.orderableShopMenuPrice = newPrice;
+        this.cartMenuItemOptions.clear();
+        if (newOptions != null) {
+            newOptions.forEach(option -> this.cartMenuItemOptions.add(CartMenuItemOption.create(this, option)));
+        }
+        this.isModified = true;
     }
 }
