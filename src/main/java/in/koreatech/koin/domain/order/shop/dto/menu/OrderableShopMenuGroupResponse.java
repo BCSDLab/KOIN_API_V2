@@ -2,10 +2,15 @@ package in.koreatech.koin.domain.order.shop.dto.menu;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopMenuGroupResponse(
     @Schema(description = "그룹 개수", example = "7")
     Integer count,
