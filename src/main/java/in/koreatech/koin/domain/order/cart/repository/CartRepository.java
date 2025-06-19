@@ -10,10 +10,12 @@ import in.koreatech.koin.domain.order.cart.model.Cart;
 
 public interface CartRepository extends JpaRepository<Cart, Integer> {
 
-    @Query("SELECT c FROM Cart c " +
-        "LEFT JOIN FETCH c.orderableShop os " +
-        "LEFT JOIN FETCH c.cartMenuItems cmi " +
-        "WHERE c.user.id = :userId")
+    @Query("""
+        SELECT c FROM Cart c
+        LEFT JOIN FETCH c.orderableShop
+        LEFT JOIN FETCH c.cartMenuItems
+        WHERE c.user.id = :userId
+    """)
     Optional<Cart> findCartByUserId(@Param("userId") Integer userId);
 
     void deleteByUserId(Integer userId);

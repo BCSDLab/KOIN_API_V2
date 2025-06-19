@@ -67,4 +67,8 @@ public class OrderableShop extends BaseEntity {
             throw new CartException(CartErrorCode.SHOP_CLOSED);
         }
     }
+
+    public Integer calculateDeliveryFee(Integer orderAmount) {
+        return this.shop.getBaseDeliveryTips().calculateDeliveryTip(orderAmount);
+    }
 }

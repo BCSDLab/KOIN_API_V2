@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
+import in.koreatech.koin.domain.order.cart.dto.CartItemsResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +24,92 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Cart: 장바구니", description = "장바구니를 관리한다")
 public interface CartApi {
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "장바구니 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니에 상품 존재", value = """
+                    {
+                      "shop_name": "굿모닝살로만치킨",
+                      "orderable_shop_id": 2,
+                      "is_delivery_available": true,
+                      "is_takeout_available": true,
+                      "shop_minimum_order_amount": 15000,
+                      "items": [
+                        {
+                          "cart_menu_item_id": 12,
+                          "name": "허니콤보",
+                          "quantity": 1,
+                          "total_amount": 23000,
+                          "price": {
+                            "name": null,
+                            "price": 23000
+                          },
+                          "options": []
+                        },
+                        {
+                          "cart_menu_item_id": 13,
+                          "name": "레드콤보",
+                          "quantity": 2,
+                          "total_amount": 47000,
+                          "price": {
+                            "name": "뼈",
+                            "price": 23000
+                          },
+                          "options": [
+                            {
+                              "option_group_name": "소스 추가",
+                              "option_name": "레드디핑 소스",
+                              "option_price": 500
+                            }
+                          ]
+                        }
+                      ],
+                      "items_amount": 70000,
+                      "delivery_fee": 0,
+                      "total_amount": 70000
+                    }
+                    """),
+                @ExampleObject(name = "장바구니에 상품 없음", value = """
+                    {
+                      "shop_name": null,
+                      "orderable_shop_id": null,
+                      "is_delivery_available": false,
+                      "is_takeout_available": false,
+                      "shop_minimum_order_amount": 0,
+                      "items": [],
+                      "items_amount": 0,
+                      "delivery_fee": 0,
+                      "total_amount": 0
+                    }
+                    """)
+            })
+        ),
+        @ApiResponse(responseCode = "401", description = "인증 정보 오류",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "인증 정보 오류", summary = "인증 정보 오류", value = """
+                    {
+                      "code": "",
+                      "message": "올바르지 않은 인증정보입니다.",
+                      "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
+                    }
+                    """)
+            })
+        )
+    })
+    @Operation(summary = "장바구니 조회", description = """
+        ### 사용자의 장바구니 전체 정보 조회
+        - 장바구니에 담긴 모든 상품, 금액, 배달비 정보 등을 포함하여 반환합니다.
+        
+        ### 응답 케이스
+        - **장바구니에 상품이 있는 경우**: 장바구니 상세 정보 응답 반환합니다.
+        - **장바구니가 비어있는 경우**: 필드가 null로 비어있는 응답 반환합니다.
+        """)
+    @GetMapping("/cart")
+    ResponseEntity<CartItemsResponse> getCartItems(
+        @Parameter(hidden = true)
+        Integer userId
+    );
 
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "장바구니 상품 추가 성공"),

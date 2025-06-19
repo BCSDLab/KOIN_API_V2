@@ -141,4 +141,12 @@ public class CartMenuItem extends BaseEntity {
         }
         this.isModified = true;
     }
+
+    public Integer calculateTotalAmount() {
+        int totalOptionPrice = this.cartMenuItemOptions.stream()
+            .mapToInt(CartMenuItemOption::getOptionPrice)
+            .sum();
+
+        return (this.orderableShopMenuPrice.getPrice() + totalOptionPrice) * this.quantity;
+    }
 }

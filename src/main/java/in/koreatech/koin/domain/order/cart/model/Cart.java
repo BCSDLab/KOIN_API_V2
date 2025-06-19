@@ -101,6 +101,12 @@ public class Cart extends BaseEntity {
             .orElseThrow(() -> new CartException(CartErrorCode.CART_MENU_ITEM_NOT_FOUND));
     }
 
+    public Integer calculateItemsAmount() {
+        return this.cartMenuItems.stream()
+            .mapToInt(CartMenuItem::calculateTotalAmount)
+            .sum();
+    }
+
     private Cart(
         User user,
         OrderableShop orderableShop
