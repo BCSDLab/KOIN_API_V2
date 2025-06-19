@@ -23,7 +23,7 @@ public class ClubScheduler {
         }
     }
 
-    @Scheduled(fixedRate = 20000)
+    @Scheduled(fixedRate = 600000)
     public void syncClubHits() {
         try {
             scheduleService.syncHitsFromRedisToDatabase();

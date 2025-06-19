@@ -23,7 +23,7 @@ public class ClubHitsRedisRepository {
 
     public Long getHits(String key) {
         Object value = redisTemplate.opsForValue().get(key);
-        return value instanceof Long ? (Long) value : 0L;
+        return value instanceof Integer ? (Integer) value : 0L;
     }
 
     public void deleteHitsByKeys(Set<String> keys) {
