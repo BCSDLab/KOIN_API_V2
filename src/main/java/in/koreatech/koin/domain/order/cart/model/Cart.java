@@ -58,6 +58,7 @@ public class Cart extends BaseEntity {
     }
 
     public void addItem(OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options) {
+        // 장바구니에 옵션 까지 전부 동일한 메뉴가 이미 존재 하는 경우, 수량 1 증가
         Optional<CartMenuItem> existingItem = findSameItem(menu, price, options);
 
         if (existingItem.isPresent()) {
