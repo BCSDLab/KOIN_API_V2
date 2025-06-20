@@ -20,6 +20,8 @@ import in.koreatech.koin.domain.order.cart.service.implement.MenuGetter;
 import in.koreatech.koin.domain.order.cart.service.implement.OptionGetter;
 import in.koreatech.koin.domain.order.cart.service.implement.OrderableShopGetter;
 import in.koreatech.koin.domain.order.cart.service.implement.UserGetter;
+import in.koreatech.koin.domain.order.shop.exception.OrderableShopMenuNotFoundException;
+import in.koreatech.koin.domain.order.shop.exception.OrderableShopNotFoundException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
@@ -29,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CartService {
 
     private final UserGetter userGetter;
@@ -42,56 +43,26 @@ public class CartService {
 
     @Transactional
     public void addItem(CartAddItemCommand addItemCommand) {
-        // 상점이 영업 시간 인지 확인
-        OrderableShop orderableShop = orderableShopGetter.getOrderableShop(addItemCommand.shopId());
-        orderableShop.requireShopOpen();
+        OrderableShop orderableShop = validateShopAndGetShop(addItemCommand.shopId());
+        Cart cart = getOrCreateCart(addItemCommand.userId(), orderableShop);
+        OrderableShopMenu menu = validateAndGetMenu(addItemCommand);
+        List<OrderableShopMenuOption> selectedOptions = validateAndGetOptions(addItemCommand);
 
-        Cart cart = cartGetter.get(addItemCommand.userId()).orElse(
-            Cart.from(userGetter.get(addItemCommand.userId()), orderableShop)
-        );
-
-        // 다른 상점 메뉴가 담겨 있는지 확인
-        cart.validateSameShop(addItemCommand.shopId());
-
-        // 선택한 메뉴가 해당 상점의 메뉴 인지 검증 하고, 엔티티 가져 오기
-        Menus shopMenus = menuGetter.getAllByOrderableShopId(addItemCommand.shopId());
-        OrderableShopMenu menu = shopMenus.resolveSelectedMenu(addItemCommand.shopMenuId());
-
-        // 선택한 메뉴가 품절 상태 인지 확인
-        menu.isNotSoldOut();
-        // 선택한 메뉴 가격이 해당 메뉴의 가격 인지 검증
-        menu.requiredMenuPriceById(addItemCommand.shopMenuPriceId());
-
-        /*
-          1. 선택한 메뉴 옵션이 선택한 메뉴 옵션 그룹에 포함 됐는지 확인
-          2. 선택한 메뉴 옵션이 해당 메뉴의 옵션 인지 확인
-          3. 선택한 메뉴 에서 필수 옵션이 선택 됐는지 검증
-          4. 선택한 메뉴 옵션의 옵션 그룹 조건 (minSelect, maxSelect) 검증
-          5. 검증 모두 통과 하면 엔티티 가져 오기
-        */
-        MenuOptions shopMenuOptions = optionGetter.getAllByMenuId(addItemCommand.shopMenuId());
-        List<OrderableShopMenuOption> selectedOptions = shopMenuOptions.resolveSelectedOptions(addItemCommand.options());
-
-        // 메뉴 추가
         cart.addItem(menu, menu.getMenuPriceById(addItemCommand.shopMenuPriceId()), selectedOptions);
         em.persist(cart);
     }
 
     @Transactional
     public void updateItemQuantity(Integer userId, Integer cartMenuItemID, Integer quantity) {
-        Cart cart = cartGetter.get(userId)
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+        Cart cart = getCartOrThrow(userId);
         cart.updateItemQuantity(cartMenuItemID, quantity);
     }
 
     @Transactional
     public void deleteItem(Integer userId, Integer cartMenuItemID) {
-        Cart cart = cartGetter.get(userId)
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
-
+        Cart cart = getCartOrThrow(userId);
         cart.removeItem(cartMenuItemID);
 
-        // 장바구니가 비어있으면 장바구니 자체를 삭제
         if (cart.getCartMenuItems().isEmpty()) {
             cartDeleter.deleteByUserId(userId);
         }
@@ -99,37 +70,114 @@ public class CartService {
 
     @Transactional
     public void updateItem(CartUpdateItemRequest request, Integer cartMenuItemId, Integer userId) {
-        Cart cart = cartGetter.get(userId)
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+        Cart cart = getCartOrThrow(userId);
         CartMenuItem itemToUpdate = cart.getCartMenuItem(cartMenuItemId);
 
+        // 새로운 가격 및 옵션 구성의 유효성 검증
         OrderableShopMenu menu = itemToUpdate.getOrderableShopMenu();
         Integer originalQuantity = itemToUpdate.getQuantity();
 
-        // 새로운 가격 및 옵션 구성의 유효성 검증
         menu.requiredMenuPriceById(request.orderableShopMenuPriceId());
         OrderableShopMenuPrice newPrice = menu.getMenuPriceById(request.orderableShopMenuPriceId());
 
         MenuOptions shopMenuOptions = optionGetter.getAllByMenuId(menu.getId());
         List<OrderableShopMenuOption> newSelectedOptions = shopMenuOptions.resolveSelectedOptions(request.toOptions());
 
-        // 변경 후의 구성이 장바구니에 이미 존재하는지 확인
+        // 변경 후의 구성이 장바구니에 이미 존재 하는지 확인
         Optional<CartMenuItem> existingSameItem = cart.findSameItem(menu, newPrice, newSelectedOptions, itemToUpdate.getId());
 
         if (existingSameItem.isPresent()) {
-            // 동일 구성 아이템이 존재하면 수량을 합치고 기존 아이템은 삭제
+            // 장바구니에 동일한 구성한 상품 존재시 수량을 합치고 기존 상품 삭제
             existingSameItem.get().increaseQuantity(originalQuantity);
             cart.removeItem(itemToUpdate.getId());
         } else {
-            // 동일 구성 아이템이 없으면 현재 아이템의 구성을 직접 변경
+            // 동일 구성 상품 없으면 현재 상품의 구성을 직접 변경
             itemToUpdate.updatePriceAndOptions(newPrice, newSelectedOptions);
         }
     }
 
     @Transactional
     public void resetCart(Integer userId) {
-        cartGetter.get(userId)
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+        getCartOrThrow(userId);
         cartDeleter.deleteByUserId(userId);
+    }
+
+    /**
+     * 상점이 영업중 인지 확인 하고 도매인 엔티티 반환
+     *
+     * @param shopId 주문 가능 상점 ID
+     * @throws OrderableShopNotFoundException 주문 가능 상점이 존재 하지 않은 경우
+     * @throws CartException (CartErrorCode.SHOP_CLOSED) 상점의 영업 시간이 아닌 경우
+     */
+    private OrderableShop validateShopAndGetShop(Integer shopId) {
+        OrderableShop orderableShop = orderableShopGetter.getOrderableShop(shopId);
+        orderableShop.requireShopOpen();
+        return orderableShop;
+    }
+
+    /**
+     * 장바구니 추가 요청 상품이 현재 장바구니에 담긴 상품과 동일한 상점의 상품인지 확인하고
+     * 도메인 엔티티 반환 (장바구니가 존재 하지 않다면 엔티티 생성)
+     *
+     * @param userId 사용자 ID
+     * @param orderableShop 주문 가능 상점 엔티티
+     * @throws CartException (CartErrorCode.DIFFERENT_SHOP_ITEM_IN_CART) 추가 요청 상품이 담긴 상품의 상점과 일치 하지 않는 경우
+     */
+    private Cart getOrCreateCart(Integer userId, OrderableShop orderableShop) {
+        Cart cart = cartGetter.get(userId).orElse(
+            Cart.from(userGetter.get(userId), orderableShop)
+        );
+        cart.validateSameShop(orderableShop.getId());
+        return cart;
+    }
+
+    /**
+     * 장바구니 도메인 엔티티 반환
+     *
+     * @param userId 사용자 ID
+     * @throws CartException (CartErrorCode.CART_NOT_FOUND) 장바구니가 존재하지 않는 경우
+     */
+    private Cart getCartOrThrow(Integer userId) {
+        return cartGetter.get(userId)
+            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+    }
+
+    /**
+     * 클라이언트에서 전송된 메뉴 ID와 가격 옵션 ID가 실제 해당 상점에 속한 유효한 데이터인지 검증하고 도메인 엔티티 반환
+     *
+     * @param command 장바구니 상품 추가 요청 DTO
+     * @throws OrderableShopMenuNotFoundException 해당 메뉴를 찾을 수 없는 경우
+     * @throws CartException (CartErrorCode.INVALID_MENU_IN_SHOP) 해당 메뉴가 상점에 속해 있지 않은 경우
+     * @throws CartException (CartErrorCode.MENU_SOLD_OUT) 해당 메뉴가 품절 상태인 경우
+     * @throws CartException (CartErrorCode.MENU_PRICE_NOT_FOUND) 해당 메뉴의 가격 옵션이 잘못된 경우
+     */
+    private OrderableShopMenu validateAndGetMenu(CartAddItemCommand command) {
+        Menus shopMenus = menuGetter.getAllByOrderableShopId(command.shopId());
+        OrderableShopMenu menu = shopMenus.resolveSelectedMenu(command.shopMenuId());
+
+        menu.isNotSoldOut();
+        menu.requiredMenuPriceById(command.shopMenuPriceId());
+
+        return menu;
+    }
+
+    /**
+     * 요청된 메뉴 옵션들의 유효성을 검증하고 도메인 엔티티를 반환.
+     *
+     * 클라이언트에서 전송된 옵션 데이터가 해당 메뉴에 속한 유효한 옵션인지,
+     * 옵션 그룹의 선택 조건을 만족하는지 검증.
+     * 1. 선택한 메뉴 옵션이 해당 옵션 그룹에 실제로 포함되어 있는지 확인
+     * 2. 선택한 메뉴 옵션이 해당 메뉴에 속한 유효한 옵션인지 확인
+     * 3. 해당 메뉴의 필수 옵션이 모두 선택되었는지 검증
+     * 4. 각 옵션 그룹의 최소/최대 선택 조건(minSelect, maxSelect)을 만족하는지 검증
+     * 5. 모든 검증을 통과한 경우에만 유효한 옵션 엔티티들을 반환
+     *
+     * @param command 장바구니 상품 추가 요청 DTO
+     * @return 검증된 메뉴 옵션 엔티티 리스트
+     * @throws CartException 옵션 검증 실패 (잘못된 옵션, 필수 옵션 누락, 선택 조건 위반)
+     */
+    private List<OrderableShopMenuOption> validateAndGetOptions(CartAddItemCommand command) {
+        MenuOptions shopMenuOptions = optionGetter.getAllByMenuId(command.shopMenuId());
+        return shopMenuOptions.resolveSelectedOptions(command.options());
     }
 }
