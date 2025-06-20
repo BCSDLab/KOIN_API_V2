@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
@@ -594,7 +595,7 @@ public interface CartApi {
     );
 
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "선택 필드가 포함된 특정 메뉴의 상세 정보 조회 성공",
+        @ApiResponse(responseCode = "200", description = "상점 페이지 하단 Bottom Sheet 장바구니 정보 조회 성공",
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "장바구니에 상품 존재, 요청 상점 ID와 장바구니에 담긴 상점 ID 일치", value = """
                         {
@@ -640,5 +641,52 @@ public interface CartApi {
         @PathVariable Integer orderableShopId,
         @Parameter(hidden = true)
         Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "장바구니 결제 금액 정보 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니가 유효한 경우", value = """
+                        {
+                          "item_total_amount": 20000,
+                          "delivery_fee": 1500,
+                          "total_amount": 21500,
+                          "final_payment_amount": 21500
+                        }
+                        """
+                ),
+                @ExampleObject(name = "장바구니 비어있는 경우", value = """
+                        {
+                          "item_total_amount": 0,
+                          "delivery_fee": 0,
+                          "total_amount": 0,
+                          "final_payment_amount": 0
+                        }
+                        """
+                )
+            })
+        ),
+        @ApiResponse(responseCode = "401", description = "인증 정보 오류",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "인증 정보 오류", summary = "인증 정보 오류", value = """
+                    {
+                      "code": "",
+                      "message": "올바르지 않은 인증정보입니다.",
+                      "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
+                    }
+                    """)
+            })
+        )
+    })
+    @Operation(
+        summary = "장바구니 결제 금액 정보 조회",
+        description = """
+            장바구니에 담긴 전체 상품 금액, 배달비, 결제 예정 금액을 포함한 결제 요약 정보를 조회합니다.
+            - 장바구니가 비어 있거나 유효하지 않은 경우, 빈 응답을 반환합니다.
+            """
+    )
+    @GetMapping("/cart/payment/summary")
+    ResponseEntity<CartPaymentSummaryResponse> getCartPaymentSummary(
+        @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
     );
 }

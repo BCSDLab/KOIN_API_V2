@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
@@ -99,6 +100,14 @@ public class CartController implements CartApi {
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     ) {
         CartAmountSummaryResponse cartSummary = cartQueryService.getCartSummary(userId, orderableShopId);
+        return ResponseEntity.ok(cartSummary);
+    }
+
+    @GetMapping("/cart/payment/summary")
+    public ResponseEntity<CartPaymentSummaryResponse> getCartPaymentSummary(
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    ) {
+        CartPaymentSummaryResponse cartSummary = cartQueryService.getCartPaymentSummary(userId);
         return ResponseEntity.ok(cartSummary);
     }
 }

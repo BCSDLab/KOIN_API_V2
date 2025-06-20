@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
@@ -58,5 +59,16 @@ public class CartQueryService {
 
         Cart cart = cartOptional.get();
         return CartAmountSummaryResponse.from(cart);
+    }
+
+    public CartPaymentSummaryResponse getCartPaymentSummary(Integer userId) {
+        Optional<Cart> cartOptional = cartGetter.get(userId);
+
+        if (cartOptional.isEmpty() || cartOptional.get().getCartMenuItems().isEmpty()) {
+            return CartPaymentSummaryResponse.empty();
+        }
+
+        Cart cart = cartOptional.get();
+        return CartPaymentSummaryResponse.from(cart);
     }
 }
