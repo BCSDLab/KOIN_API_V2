@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
@@ -24,7 +27,6 @@ import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -65,7 +67,8 @@ public interface AdminUserApi {
     @Operation(summary = "어드민 로그인")
     @PostMapping("/admin/user/login")
     ResponseEntity<AdminLoginResponse> adminLogin(
-        @RequestBody @Valid AdminLoginRequest request
+        @RequestBody @Valid AdminLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -96,7 +99,8 @@ public interface AdminUserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("admin/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {ADMIN}) Integer adminId
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -110,7 +114,8 @@ public interface AdminUserApi {
     @Operation(summary = "어드민 액세스 토큰 재발급")
     @PostMapping("/admin/user/refresh")
     ResponseEntity<AdminTokenRefreshResponse> refresh(
-        @RequestBody @Valid AdminTokenRefreshRequest request
+        @RequestBody @Valid AdminTokenRefreshRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(

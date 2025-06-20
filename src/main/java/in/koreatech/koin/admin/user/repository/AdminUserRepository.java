@@ -18,7 +18,7 @@ public interface AdminUserRepository extends Repository<User, Integer> {
 
     Optional<User> findById(Integer id);
 
-    Optional<User> findByUserId(String userId);
+    Optional<User> findByLoginId(String loginId);
 
     @Query("""
         SELECT COUNT(u) FROM User u
@@ -41,8 +41,8 @@ public interface AdminUserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 
-    default User getByUserId(String loginId) {
-        return findByUserId(loginId)
+    default User getByLoginId(String loginId) {
+        return findByLoginId(loginId)
             .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }
 

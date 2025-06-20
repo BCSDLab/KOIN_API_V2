@@ -18,22 +18,24 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
-import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
-import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
-import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequestV2;
+import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
+import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
+import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
-import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
 import in.koreatech.koin.domain.student.service.StudentService;
-import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
-import in.koreatech.koin.domain.user.dto.ChangeUserPasswordSubmitRequest;
+import in.koreatech.koin.domain.user.dto.UserAuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.UserChangePasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserChangePasswordSubmitRequest;
+import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
@@ -90,9 +92,10 @@ public class StudentController implements StudentApi {
 
     @PostMapping("/student/login")
     public ResponseEntity<StudentLoginResponse> studentLogin(
-        @RequestBody @Valid StudentLoginRequest request
+        @RequestBody @Valid StudentLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        StudentLoginResponse response = studentService.studentLogin(request);
+        StudentLoginResponse response = studentService.studentLogin(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }
@@ -109,7 +112,7 @@ public class StudentController implements StudentApi {
     @GetMapping(value = "/user/authenticate")
     public ModelAndView authenticate(
         @ModelAttribute("auth_token")
-        @Valid AuthTokenRequest request
+        @Valid UserAuthTokenRequest request
     ) {
         return studentService.authenticate(request);
     }
@@ -124,7 +127,7 @@ public class StudentController implements StudentApi {
 
     @PostMapping("/user/find/password")
     public ResponseEntity<Void> findPassword(
-        @RequestBody @Valid FindPasswordRequest request,
+        @RequestBody @Valid UserFindPasswordRequest request,
         @ServerURL String serverURL
     ) {
         studentService.findPassword(request, serverURL);
@@ -133,7 +136,7 @@ public class StudentController implements StudentApi {
 
     @PutMapping("/user/change/password")
     public ResponseEntity<Void> changePassword(
-        @RequestBody ChangeUserPasswordRequest request,
+        @RequestBody UserChangePasswordRequest request,
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         studentService.changePassword(userId, request);
@@ -151,7 +154,7 @@ public class StudentController implements StudentApi {
     @Hidden
     @PostMapping("/user/change/password/submit")
     public ResponseEntity<Void> changePasswordSubmit(
-        @RequestBody ChangeUserPasswordSubmitRequest request,
+        @RequestBody UserChangePasswordSubmitRequest request,
         @RequestParam("reset_token") String resetToken
     ) {
         studentService.changePasswordSubmit(request, resetToken);

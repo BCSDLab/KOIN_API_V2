@@ -42,6 +42,7 @@ import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
+import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -66,6 +67,7 @@ public class ClubService {
     private final UserRepository userRepository;
     private final ClubCreateRedisRepository clubCreateRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ClubHitsRedisRepository clubHitsRedisRepository;
 
     @Transactional
     public void createClubRequest(ClubCreateRequest request, Integer studentId) {
@@ -131,14 +133,14 @@ public class ClubService {
 
     @Transactional
     public ClubResponse getClub(Integer clubId, Integer userId) {
-        Club club = clubRepository.getByIdWithPessimisticLock(clubId);
+        Club club = clubRepository.getById(clubId);
         if (!club.getIsActive()) {
             throw new IllegalStateException("비활성화 동아리입니다.");
         }
-        club.increaseHits();
+        clubHitsRedisRepository.incrementHits(clubId);
+
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
-
         Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, userId);
 
         return ClubResponse.from(club, clubSNSs, manager, isLiked);
@@ -208,7 +210,6 @@ public class ClubService {
         return hotClubRedisRepository.findById(ClubHotRedis.REDIS_KEY)
             .map(ClubHotResponse::from)
             .orElseGet(this::getHotClubFromDBAndCache);
-
     }
 
     private ClubHotResponse getHotClubFromDBAndCache() {
@@ -258,7 +259,7 @@ public class ClubService {
     public void empowermentClubManager(ClubManagerEmpowermentRequest request, Integer studentId) {
         Club club = clubRepository.getById(request.clubId());
         User currentManager = userRepository.getById(studentId);
-        User changedManager = userRepository.getByUserId(request.changedManagerId());
+        User changedManager = userRepository.getByLoginId(request.changedManagerId());
 
         isClubManager(request.clubId(), studentId);
         if (clubManagerRepository.existsByClubAndUser(club, changedManager)) {

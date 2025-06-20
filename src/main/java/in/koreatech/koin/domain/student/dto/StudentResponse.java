@@ -60,7 +60,7 @@ public record StudentResponse(
         User user = student.getUser();
         return new StudentResponse(
             student.getId(),
-            user.getUserId(),
+            user.getLoginId(),
             student.getAnonymousNickname(),
             user.getEmail(),
             user.getGender() != null ? user.getGender().ordinal() : null,

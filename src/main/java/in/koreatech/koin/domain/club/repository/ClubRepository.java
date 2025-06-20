@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +24,9 @@ public interface ClubRepository extends Repository<Club, Integer> {
         return findById(id).orElseThrow(() -> ClubNotFoundException.withDetail("id : " + id));
     }
 
+    @Query("SELECT c.id FROM Club c WHERE c.id IN :ids")
+    List<Integer> findExistingIds(List<Integer> ids);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Club c WHERE c.id = :id")
     Club findByIdWithPessimisticLock(@Param("id") Integer id);
@@ -36,6 +40,14 @@ public interface ClubRepository extends Repository<Club, Integer> {
 
         return club;
     }
+
+    @Modifying
+    @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")
+    void incrementHitsByValue(Integer id, Integer value);
+
+    @Modifying
+    @Query("UPDATE Club c SET c.hits = c.hits + 1 WHERE c.id = :id")
+    void incrementHits(Integer id);
 
     Club save(Club club);
 

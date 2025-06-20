@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.user.service;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,24 +13,27 @@ import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
-import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenRequest;
-import in.koreatech.koin.domain.user.dto.RefreshUserTokenResponse;
-import in.koreatech.koin.domain.user.dto.RegisterUserRequest;
-import in.koreatech.koin.domain.user.dto.UpdateUserRequest;
-import in.koreatech.koin.domain.user.dto.UpdateUserResponse;
+import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
+import in.koreatech.koin.domain.user.dto.UserFindIdBySmsRequest;
+import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
+import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
+import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
+import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserResponse;
+import in.koreatech.koin.domain.user.dto.UserTypeResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
+import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import lombok.RequiredArgsConstructor;
 
@@ -43,7 +45,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
-    private final UserTokenRedisRepository userTokenRedisRepository;
     private final UserVerificationService userVerificationService;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final ApplicationEventPublisher eventPublisher;
@@ -52,28 +53,22 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse getUserV2(Integer userId) {
+    public UserResponse getUser(Integer userId) {
         User user = userRepository.getById(userId);
         return UserResponse.from(user);
     }
 
-    @Transactional
-    public UpdateUserResponse updateUserV2(Integer userId, UpdateUserRequest request) {
+    public UserTypeResponse getUserType(Integer userId) {
         User user = userRepository.getById(userId);
-        userValidationService.checkDuplicatedUpdateNickname(request.nickname(), userId);
-        userValidationService.checkDuplicatedUpdateEmail(request.email(), userId);
-        userValidationService.checkDuplicatedUpdatePhoneNumber(request.phoneNumber(), userId);
-        user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
-        user.updatePassword(passwordEncoder, request.password());
-        return UpdateUserResponse.from(user);
+        return UserTypeResponse.from(user);
     }
 
     @Transactional
-    public void userRegister(RegisterUserRequest request) {
-        userValidationService.checkDuplicationUserData(
+    public void registerUser(UserRegisterRequest request) {
+        userValidationService.requireUniqueRegister(
             request.nickname(),
-            request.email(),
             request.phoneNumber(),
+            request.email(),
             request.loginId()
         );
         User user = request.toUser(passwordEncoder);
@@ -83,49 +78,59 @@ public class UserService {
     }
 
     @Transactional
-    public UserLoginResponse loginV2(UserLoginRequestV2 request) {
-        User user = userValidationService.checkLoginCredentialsV2(request.loginId(), request.loginPw());
-        return createLoginResponse(user);
-    }
-
-    @Transactional
-    public UserLoginResponse login(UserLoginRequest request) {
-        User user = userValidationService.checkLoginCredentials(request.email(), request.password());
-        userValidationService.checkUserAuthentication(request.email());
-        return createLoginResponse(user);
-    }
-
-    private UserLoginResponse createLoginResponse(User user) {
-        String accessToken = jwtProvider.createToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user);
-        UserToken savedToken = userTokenRedisRepository.save(UserToken.create(user.getId(), refreshToken));
-        updateLastLoginTime(user);
-        return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), user.getUserType().getValue());
-    }
-
-    @Transactional
-    public void logout(Integer userId) {
-        userTokenRedisRepository.deleteById(userId);
-    }
-
-    public void checkLogin(String accessToken) {
-        jwtProvider.getUserId(accessToken);
-    }
-
-    public AuthResponse getAuth(Integer userId) {
+    public UserUpdateResponse updateUser(Integer userId, UserUpdateRequest request) {
         User user = userRepository.getById(userId);
-        return AuthResponse.from(user);
+        userValidationService.requireUniqueUpdate(
+            request.nickname(),
+            request.phoneNumber(),
+            request.email(),
+            user
+        );
+        user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
+        user.updatePassword(passwordEncoder, request.password());
+        return UserUpdateResponse.from(user);
     }
 
-    public RefreshUserTokenResponse refresh(RefreshUserTokenRequest request) {
-        Integer userId = refreshTokenService.extractUserId(request.refreshToken());
-        UserToken userToken = refreshTokenService.verifyAndGetUserToken(request.refreshToken(), userId);
+    @Transactional
+    public UserLoginResponse loginV2(UserLoginRequestV2 request, UserAgentInfo userAgentInfo) {
+        User user;
+        String loginId = request.loginId();
+        if (loginId.matches("^\\d{11}$")) {
+            user = userRepository.getByPhoneNumber(loginId);
+        } else {
+            user = userRepository.getByLoginId(loginId);
+        }
+        user.requireSameLoginPw(passwordEncoder, request.loginPw());
+        return createLoginResponse(user, userAgentInfo);
+    }
 
-        User user = userRepository.findById(userToken.getId())
-            .orElseThrow(() -> AuthenticationException.withDetail("유효하지 않은 토큰입니다. userId : " + userId));
+    @Transactional
+    public UserLoginResponse login(UserLoginRequest request, UserAgentInfo userAgentInfo) {
+        User user = userRepository.getByEmail(request.email());
+        user.requireSameLoginPw(passwordEncoder, request.password());
+        userValidationService.checkUserAuthentication(request.email());
+        return createLoginResponse(user, userAgentInfo);
+    }
+
+    private UserLoginResponse createLoginResponse(User user, UserAgentInfo userAgentInfo) {
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
+        user.updateLastLoggedTime(LocalDateTime.now());
+        return UserLoginResponse.of(accessToken, refreshToken, user.getUserType().getValue());
+    }
+
+    @Transactional
+    public void logout(Integer userId, UserAgentInfo userAgentInfo) {
+        refreshTokenService.deleteRefreshToken(userId, userAgentInfo.getType());
+    }
+
+    public UserRefreshTokenResponse refresh(UserRefreshTokenRequest request, UserAgentInfo userAgentInfo) {
+        Integer userId = refreshTokenService.extractUserId(request.refreshToken());
+        refreshTokenService.verifyRefreshToken(userId, userAgentInfo.getType(), request.refreshToken());
+        User user = userRepository.getById(userId);
 
         String accessToken = jwtProvider.createToken(user);
-        return RefreshUserTokenResponse.of(accessToken, userToken.getRefreshToken());
+        return UserRefreshTokenResponse.of(accessToken, refreshTokenService.getRefreshToken(userId, userAgentInfo.getType()));
     }
 
     @Transactional
@@ -141,43 +146,35 @@ public class UserService {
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
     }
 
-    public void updateLastLoginTime(User user) {
-        user.updateLastLoggedTime(LocalDateTime.now());
-    }
-
-    public String findIdBySms(String phoneNumber) {
-        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, List.of(GENERAL, STUDENT));
-        String userId = user.getUserId();
+    public UserFindLoginIdResponse findIdBySms(UserFindIdBySmsRequest request) {
+        String phoneNumber = request.phoneNumber();
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES);
         userVerificationService.consumeVerification(phoneNumber);
-        return userId;
+        return UserFindLoginIdResponse.from(user.getLoginId());
     }
 
-    public String findIdByEmail(String email) {
-        User user = userRepository.getByEmailAndUserTypeIn(email, List.of(GENERAL, STUDENT));
-        String userId = user.getUserId();
+    public UserFindLoginIdResponse findIdByEmail(UserFindIdByEmailRequest request) {
+        String email = request.email();
+        User user = userRepository.getByEmailAndUserTypeIn(email, KOIN_USER_TYPES);
         userVerificationService.consumeVerification(email);
-        return userId;
+        return UserFindLoginIdResponse.from(user.getLoginId());
     }
 
     @Transactional
-    public void resetPasswordBySms(String userId, String phoneNumber, String newPassword) {
-        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(GENERAL, STUDENT));
-        if (user.isNotSamePhoneNumber(phoneNumber)) {
-            throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
-        }
-        user.updatePassword(passwordEncoder, newPassword);
+    public void resetPasswordBySms(UserResetPasswordBySmsRequest request) {
+        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), KOIN_USER_TYPES);
+        user.requireSamePhoneNumber(request.phoneNumber());
+        user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);
-        userVerificationService.consumeVerification(phoneNumber);
+        userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
-    public void resetPasswordByEmail(String userId, String email, String newPassword) {
-        User user = userRepository.getByUserIdAndUserTypeIn(userId, List.of(GENERAL, STUDENT));
-        if (user.isNotSameEmail(email)) {
-            throw new KoinIllegalArgumentException("입력한 아이디와 인증된 사용자 정보가 일치하지 않습니다.");
-        }
-        user.updatePassword(passwordEncoder, newPassword);
+    public void resetPasswordByEmail(UserResetPasswordByEmailRequest request) {
+        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), KOIN_USER_TYPES);
+        user.requireSameEmail(request.email());
+        user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);
-        userVerificationService.consumeVerification(email);
+        userVerificationService.consumeVerification(request.email());
     }
 }

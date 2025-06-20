@@ -39,7 +39,7 @@ public class AdminOwnerService {
     @Transactional
     public void allowOwnerPermission(Integer id) {
         Owner owner = adminOwnerRepository.getById(id);
-        owner.getUser().auth();
+        owner.getUser().permitAuth();
         adminOwnerShopRedisRepository.findById(id).ifPresent(ownerShop -> {
             Integer shopId = ownerShop.getShopId();
             if (shopId != null) {

@@ -10,19 +10,21 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
-import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
-import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
-import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequestV2;
+import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
+import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
+import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
-import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.ChangeUserPasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserChangePasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
 import in.koreatech.koin.web.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -130,7 +132,8 @@ public interface StudentApi {
     @Operation(summary = "학생 로그인")
     @PostMapping("/student/login")
     ResponseEntity<StudentLoginResponse> studentLogin(
-        @RequestBody @Valid StudentLoginRequest request
+        @RequestBody @Valid StudentLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     );
 
     @ApiResponses(
@@ -177,7 +180,7 @@ public interface StudentApi {
     @Operation(summary = "비밀번호 초기(변경) 메일 발송")
     @PostMapping("/user/find/password")
     ResponseEntity<Void> findPassword(
-        @RequestBody @Valid FindPasswordRequest findPasswordRequest,
+        @RequestBody @Valid UserFindPasswordRequest userFindPasswordRequest,
         @ServerURL String serverURL
     );
 
@@ -192,7 +195,7 @@ public interface StudentApi {
     @Operation(summary = "비밀번호 변경")
     @PutMapping("/user/change/password")
     ResponseEntity<Void> changePassword(
-        @RequestBody ChangeUserPasswordRequest request,
+        @RequestBody UserChangePasswordRequest request,
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }

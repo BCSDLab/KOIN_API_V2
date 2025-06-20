@@ -22,4 +22,13 @@ public class ClubScheduler {
             log.error("인기 동아리 업데이트 중에 오류가 발생했습니다.", e);
         }
     }
+
+    @Scheduled(fixedRate = 600000)
+    public void syncClubHits() {
+        try {
+            scheduleService.syncHitsFromRedisToDatabase();
+        } catch (Exception e) {
+            log.error("조회수 동기화 중에 오류가 발생했습니다.", e);
+        }
+    }
 }

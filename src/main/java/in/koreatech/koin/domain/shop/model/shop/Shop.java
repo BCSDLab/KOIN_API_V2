@@ -1,13 +1,9 @@
 package in.koreatech.koin.domain.shop.model.shop;
 
-import static jakarta.persistence.CascadeType.MERGE;
-import static jakarta.persistence.CascadeType.PERSIST;
-import static jakarta.persistence.CascadeType.REFRESH;
-import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.shop.model.menu.Menu;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
@@ -19,20 +15,27 @@ import java.util.Set;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTips;
+import in.koreatech.koin.domain.order.shop.model.domain.ShopMenuOrigins;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuOrigin;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
-import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -137,6 +140,12 @@ public class Shop extends BaseEntity {
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopReview> reviews = new ArrayList<>();
 
+    @Embedded
+    private ShopBaseDeliveryTips baseDeliveryTips = new ShopBaseDeliveryTips();
+
+    @Embedded
+    private ShopMenuOrigins menuOrigins = new ShopMenuOrigins();
+
     @Size(max = 10)
     @Column(name = "bank", length = 10)
     private String bank;
@@ -144,6 +153,12 @@ public class Shop extends BaseEntity {
     @Size(max = 20)
     @Column(name = "account_number", length = 20)
     private String accountNumber;
+
+    @Column(name = "introduction", columnDefinition = "text")
+    private String introduction;
+
+    @Column(name = "notice", columnDefinition = "text")
+    private String notice;
 
     @Builder
     private Shop(

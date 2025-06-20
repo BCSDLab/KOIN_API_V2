@@ -19,14 +19,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.admin.abtest.useragent.UserAgent;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.coop.dto.CompressFileResponseBuilder;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
+import in.koreatech.koin.domain.coop.dto.CoopResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.ExcelResponseBuilder;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
-import in.koreatech.koin.domain.coop.dto.CoopResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,9 +59,10 @@ public class CoopController implements CoopApi {
 
     @PostMapping("/coop/login")
     public ResponseEntity<CoopLoginResponse> coopLogin(
-        @RequestBody @Valid CoopLoginRequest request
+        @RequestBody @Valid CoopLoginRequest request,
+        @UserAgent UserAgentInfo userAgentInfo
     ) {
-        CoopLoginResponse response = coopService.coopLogin(request);
+        CoopLoginResponse response = coopService.coopLogin(request, userAgentInfo);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }
