@@ -5,7 +5,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.cart.dto.CartItemsResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
@@ -24,15 +25,15 @@ public class CartQueryService {
     private final CartGetter cartGetter;
     private final MenuGetter menuGetter;
 
-    public CartItemsResponse getCartItems(Integer userId) {
+    public CartResponse getCartItems(Integer userId) {
         Optional<Cart> cartOptional = cartGetter.get(userId);
 
         if (cartOptional.isEmpty() || cartOptional.get().getCartMenuItems().isEmpty()) {
-            return CartItemsResponse.empty();
+            return CartResponse.empty();
         }
 
         Cart cart = cartOptional.get();
-        return CartItemsResponse.from(cart);
+        return CartResponse.from(cart);
     }
 
     public CartMenuItemEditResponse getOrderableShopMenuForEditOptions(Integer userId, Integer cartMenuItemId) {
@@ -43,5 +44,19 @@ public class CartQueryService {
         OrderableShopMenu menu = menuGetter.get(cartMenuItem.getOrderableShopMenu().getId());
 
         return CartMenuItemEditResponse.of(menu, cartMenuItem);
+    }
+
+    public CartAmountSummaryResponse getCartSummary(Integer userId, Integer orderableShopId) {
+        Optional<Cart> cartOptional = cartGetter.get(userId);
+
+        if (cartOptional.isEmpty() ||
+            cartOptional.get().getCartMenuItems().isEmpty() ||
+            !cartOptional.get().getOrderableShop().getId().equals(orderableShopId)
+        ) {
+            return CartAmountSummaryResponse.empty();
+        }
+
+        Cart cart = cartOptional.get();
+        return CartAmountSummaryResponse.from(cart);
     }
 }

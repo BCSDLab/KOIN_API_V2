@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.order.cart.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.GENERAL;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,15 +11,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
-import in.koreatech.koin.domain.order.cart.dto.CartItemsResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -108,7 +112,7 @@ public interface CartApi {
         - **장바구니가 비어있는 경우**: 필드가 null로 비어있는 응답 반환합니다.
         """)
     @GetMapping("/cart")
-    ResponseEntity<CartItemsResponse> getCartItems(
+    ResponseEntity<CartResponse> getCartItems(
         @Parameter(hidden = true)
         Integer userId
     );
@@ -585,6 +589,55 @@ public interface CartApi {
         @Parameter(description = "가격을 변경할 장바구니 상품의 고유 ID", example = "1", required = true)
         @PathVariable Integer cartMenuItemId,
         @RequestBody @Valid CartUpdateItemRequest request,
+        @Parameter(hidden = true)
+        Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "선택 필드가 포함된 특정 메뉴의 상세 정보 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니에 상품 존재, 요청 상점 ID와 장바구니에 담긴 상점 ID 일치", value = """
+                        {
+                          "orderable_shop_id": 101,
+                          "shop_minimum_order_amount": 20000,
+                          "cart_items_amount": 17500,
+                          "is_available": true
+                        }
+                        """
+                ),
+                @ExampleObject(name = "장바구니 비어있음, 요청 상점 ID와 장바구니에 담긴 상점 ID 불일치", value = """
+                        {
+                          "orderable_shop_id": 0,
+                          "shop_minimum_order_amount": "0",
+                          "cart_items_amount": "0",
+                          "is_available": false
+                        }
+                        """
+                )
+            })
+        ),
+        @ApiResponse(responseCode = "401", description = "인증 정보 오류",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "인증 정보 오류", summary = "인증 정보 오류", value = """
+                    {
+                      "code": "",
+                      "message": "올바르지 않은 인증정보입니다.",
+                      "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
+                    }
+                    """)
+            })
+        )
+    })
+    @Operation(summary = "상점 페이지 하단 Bottom Sheet 장바구니 정보 조회", description = """
+        ### 상점 페이지 하는 Bottom Sheet
+        - 장바구니에는 동일한 상점(orderableShopId)의 메뉴만 담을 수 있습니다.
+        - 요청한 상점 ID(orderableShopId)가 장바구니에 담긴 메뉴의 상점 ID와 일치하는 경우에만 장바구니 정보를 반환합니다.
+        - 일치하지 않거나 장바구니가 비어 있는 경우, `is_available` 필드가 false로 반환됩니다. (api 출력 예시 참조)
+        """)
+    @GetMapping("/cart/summary/{orderableShopId}")
+    ResponseEntity<CartAmountSummaryResponse> getCartSummaryForBottomSheet(
+        @Parameter(description = "주문 가능 상점 고유 식별자", example = "1", required = true)
+        @PathVariable Integer orderableShopId,
         @Parameter(hidden = true)
         Integer userId
     );

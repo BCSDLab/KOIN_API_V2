@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
-import in.koreatech.koin.domain.order.cart.dto.CartItemsResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import in.koreatech.koin.domain.order.cart.service.CartQueryService;
@@ -30,10 +31,10 @@ public class CartController implements CartApi {
     private final CartQueryService cartQueryService;
 
     @GetMapping("/cart")
-    public ResponseEntity<CartItemsResponse> getCartItems(
+    public ResponseEntity<CartResponse> getCartItems(
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     ) {
-        CartItemsResponse response = cartQueryService.getCartItems(userId);
+        CartResponse response = cartQueryService.getCartItems(userId);
         return ResponseEntity.ok(response);
     }
 
@@ -90,5 +91,14 @@ public class CartController implements CartApi {
     ) {
         CartMenuItemEditResponse response = cartQueryService.getOrderableShopMenuForEditOptions(userId, cartMenuItemId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/cart/summary/{orderableShopId}")
+    public ResponseEntity<CartAmountSummaryResponse> getCartSummaryForBottomSheet(
+        @PathVariable Integer orderableShopId,
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    ) {
+        CartAmountSummaryResponse cartSummary = cartQueryService.getCartSummary(userId, orderableShopId);
+        return ResponseEntity.ok(cartSummary);
     }
 }

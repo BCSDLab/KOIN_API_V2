@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record CartItemsResponse (
+public record CartResponse(
     @Schema(description = "상점 이름", example = "굿모닝 살로만 치킨")
     String shopName,
     @Schema(description = "주문 가능 상점 ID", example = "1")
@@ -105,7 +105,7 @@ public record CartItemsResponse (
         }
     }
 
-    public static CartItemsResponse from(Cart cart) {
+    public static CartResponse from(Cart cart) {
         OrderableShop orderableShop = cart.getOrderableShop();
         Shop shop = orderableShop.getShop();
 
@@ -117,7 +117,7 @@ public record CartItemsResponse (
         int deliveryFee = orderableShop.calculateDeliveryFee(itemsAmount);
         int totalAmount = itemsAmount + deliveryFee;
 
-        return new CartItemsResponse(
+        return new CartResponse(
             shop.getName(),
             orderableShop.getId(),
             orderableShop.isDelivery(),
@@ -130,8 +130,8 @@ public record CartItemsResponse (
         );
     }
 
-    public static CartItemsResponse empty() {
-        return new CartItemsResponse(
+    public static CartResponse empty() {
+        return new CartResponse(
             null,
             null,
             false,
