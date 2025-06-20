@@ -42,6 +42,7 @@ import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
+import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -66,6 +67,7 @@ public class ClubService {
     private final UserRepository userRepository;
     private final ClubCreateRedisRepository clubCreateRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ClubHitsRedisRepository clubHitsRedisRepository;
 
     @Transactional
     public void createClubRequest(ClubCreateRequest request, Integer studentId) {
@@ -135,7 +137,7 @@ public class ClubService {
         if (!club.getIsActive()) {
             throw new IllegalStateException("비활성화 동아리입니다.");
         }
-        clubRepository.incrementHits(clubId);
+        clubHitsRedisRepository.incrementHits(clubId);
 
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);

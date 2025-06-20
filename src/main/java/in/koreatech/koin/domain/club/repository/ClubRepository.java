@@ -24,6 +24,9 @@ public interface ClubRepository extends Repository<Club, Integer> {
         return findById(id).orElseThrow(() -> ClubNotFoundException.withDetail("id : " + id));
     }
 
+    @Query("SELECT c.id FROM Club c WHERE c.id IN :ids")
+    List<Integer> findExistingIds(List<Integer> ids);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Club c WHERE c.id = :id")
     Club findByIdWithPessimisticLock(@Param("id") Integer id);
@@ -37,6 +40,10 @@ public interface ClubRepository extends Repository<Club, Integer> {
 
         return club;
     }
+
+    @Modifying
+    @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")
+    void incrementHitsByValue(Integer id, Integer value);
 
     @Modifying
     @Query("UPDATE Club c SET c.hits = c.hits + 1 WHERE c.id = :id")
