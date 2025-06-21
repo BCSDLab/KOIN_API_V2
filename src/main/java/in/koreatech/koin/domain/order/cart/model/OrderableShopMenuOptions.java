@@ -16,7 +16,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class MenuOptions {
+public class OrderableShopMenuOptions {
 
     private List<OrderableShopMenuOption> options;
 

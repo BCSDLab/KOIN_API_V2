@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin.domain.order.cart.model.OrderableShopMenus;
 import in.koreatech.koin.domain.order.shop.exception.OrderableShopMenuNotFoundException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 
@@ -41,5 +42,10 @@ public interface OrderableShopMenuRepository extends JpaRepository<OrderableShop
                 "해당 상점에 메뉴가 존재하지 않습니다 : " + orderableShopId
             )
         );
+    }
+
+    default OrderableShopMenus getAllByOrderableShopId(Integer orderableShopId) {
+        List<OrderableShopMenu> menus = getAllByOrderableShop(orderableShopId);
+        return new OrderableShopMenus(orderableShopId, menus);
     }
 }

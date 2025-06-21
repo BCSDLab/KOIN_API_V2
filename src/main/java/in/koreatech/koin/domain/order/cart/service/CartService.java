@@ -12,20 +12,19 @@ import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
-import in.koreatech.koin.domain.order.cart.model.MenuOptions;
-import in.koreatech.koin.domain.order.cart.model.Menus;
-import in.koreatech.koin.domain.order.cart.service.implement.CartDeleter;
-import in.koreatech.koin.domain.order.cart.service.implement.CartGetter;
-import in.koreatech.koin.domain.order.cart.service.implement.MenuGetter;
-import in.koreatech.koin.domain.order.cart.service.implement.OptionGetter;
-import in.koreatech.koin.domain.order.cart.service.implement.OrderableShopGetter;
-import in.koreatech.koin.domain.order.cart.service.implement.UserGetter;
+import in.koreatech.koin.domain.order.cart.model.OrderableShopMenuOptions;
+import in.koreatech.koin.domain.order.cart.model.OrderableShopMenus;
+import in.koreatech.koin.domain.order.cart.repository.CartRepository;
 import in.koreatech.koin.domain.order.shop.exception.OrderableShopMenuNotFoundException;
 import in.koreatech.koin.domain.order.shop.exception.OrderableShopNotFoundException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
+import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
+import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuOptionRepository;
+import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuRepository;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -33,12 +32,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CartService {
 
-    private final UserGetter userGetter;
-    private final OrderableShopGetter orderableShopGetter;
-    private final CartGetter cartGetter;
-    private final CartDeleter cartDeleter;
-    private final MenuGetter menuGetter;
-    private final OptionGetter optionGetter;
+    private final UserRepository userRepository;
+    private final OrderableShopRepository orderableShopRepository;
+    private final CartRepository cartRepository;
+    private final OrderableShopMenuRepository orderableShopMenuRepository;
+    private final OrderableShopMenuOptionRepository orderableShopMenuOptionRepository;
     private final EntityManager em;
 
     @Transactional
@@ -64,7 +62,7 @@ public class CartService {
         cart.removeItem(cartMenuItemID);
 
         if (cart.getCartMenuItems().isEmpty()) {
-            cartDeleter.deleteByUserId(userId);
+            cartRepository.deleteByUserId(userId);
         }
     }
 
@@ -80,7 +78,7 @@ public class CartService {
         menu.requiredMenuPriceById(request.orderableShopMenuPriceId());
         OrderableShopMenuPrice newPrice = menu.getMenuPriceById(request.orderableShopMenuPriceId());
 
-        MenuOptions shopMenuOptions = optionGetter.getAllByMenuId(menu.getId());
+        OrderableShopMenuOptions shopMenuOptions = orderableShopMenuOptionRepository.getAllByMenuId(menu.getId());
         List<OrderableShopMenuOption> newSelectedOptions = shopMenuOptions.resolveSelectedOptions(request.toOptions());
 
         // 변경 후의 구성이 장바구니에 이미 존재 하는지 확인
@@ -99,7 +97,7 @@ public class CartService {
     @Transactional
     public void resetCart(Integer userId) {
         getCartOrThrow(userId);
-        cartDeleter.deleteByUserId(userId);
+        cartRepository.deleteByUserId(userId);
     }
 
     /**
@@ -110,7 +108,7 @@ public class CartService {
      * @throws CartException (CartErrorCode.SHOP_CLOSED) 상점의 영업 시간이 아닌 경우
      */
     private OrderableShop validateShopAndGetShop(Integer shopId) {
-        OrderableShop orderableShop = orderableShopGetter.getOrderableShop(shopId);
+        OrderableShop orderableShop = orderableShopRepository.getById(shopId);
         orderableShop.requireShopOpen();
         return orderableShop;
     }
@@ -124,8 +122,8 @@ public class CartService {
      * @throws CartException (CartErrorCode.DIFFERENT_SHOP_ITEM_IN_CART) 추가 요청 상품이 담긴 상품의 상점과 일치 하지 않는 경우
      */
     private Cart getOrCreateCart(Integer userId, OrderableShop orderableShop) {
-        Cart cart = cartGetter.get(userId).orElse(
-            Cart.from(userGetter.get(userId), orderableShop)
+        Cart cart = cartRepository.findCartByUserId(userId).orElse(
+            Cart.from(userRepository.getById(userId), orderableShop)
         );
         cart.validateSameShop(orderableShop.getId());
         return cart;
@@ -138,7 +136,7 @@ public class CartService {
      * @throws CartException (CartErrorCode.CART_NOT_FOUND) 장바구니가 존재하지 않는 경우
      */
     private Cart getCartOrThrow(Integer userId) {
-        return cartGetter.get(userId)
+        return cartRepository.findCartByUserId(userId)
             .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
     }
 
@@ -152,8 +150,8 @@ public class CartService {
      * @throws CartException (CartErrorCode.MENU_PRICE_NOT_FOUND) 해당 메뉴의 가격 옵션이 잘못된 경우
      */
     private OrderableShopMenu validateAndGetMenu(CartAddItemCommand command) {
-        Menus shopMenus = menuGetter.getAllByOrderableShopId(command.shopId());
-        OrderableShopMenu menu = shopMenus.resolveSelectedMenu(command.shopMenuId());
+        OrderableShopMenus shopOrderableShopMenus = orderableShopMenuRepository.getAllByOrderableShopId(command.shopId());
+        OrderableShopMenu menu = shopOrderableShopMenus.resolveSelectedMenu(command.shopMenuId());
 
         menu.validateSoldOut();
         menu.requiredMenuPriceById(command.shopMenuPriceId());
@@ -177,7 +175,7 @@ public class CartService {
      * @throws CartException 옵션 검증 실패 (잘못된 옵션, 필수 옵션 누락, 선택 조건 위반)
      */
     private List<OrderableShopMenuOption> validateAndGetOptions(CartAddItemCommand command) {
-        MenuOptions shopMenuOptions = optionGetter.getAllByMenuId(command.shopMenuId());
+        OrderableShopMenuOptions shopMenuOptions = orderableShopMenuOptionRepository.getAllByMenuId(command.shopMenuId());
         return shopMenuOptions.resolveSelectedOptions(command.options());
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin.domain.order.cart.model.OrderableShopMenuOptions;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 
 public interface OrderableShopMenuOptionRepository extends JpaRepository<OrderableShopMenuOption, Integer> {
@@ -16,4 +17,9 @@ public interface OrderableShopMenuOptionRepository extends JpaRepository<Orderab
         "WHERE mogm.menu.id = :menuId")
     List<OrderableShopMenuOption> findAllOrderableShopMenuOptionByMenuId(@Param("menuId") Integer menuId);
 
+    default OrderableShopMenuOptions getAllByMenuId(Integer menuId) {
+        List<OrderableShopMenuOption> allOrderableShopMenuOptionByMenuId = findAllOrderableShopMenuOptionByMenuId(
+            menuId);
+        return new OrderableShopMenuOptions(allOrderableShopMenuOptionByMenuId);
+    }
 }

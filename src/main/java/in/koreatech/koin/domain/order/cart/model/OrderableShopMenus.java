@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class Menus {
+public class OrderableShopMenus {
 
     private Integer orderableShopId;
     private List<OrderableShopMenu> menuList;

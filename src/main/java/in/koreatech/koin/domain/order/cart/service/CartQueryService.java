@@ -6,16 +6,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
-import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
-import in.koreatech.koin.domain.order.cart.service.implement.CartGetter;
-import in.koreatech.koin.domain.order.cart.service.implement.MenuGetter;
+import in.koreatech.koin.domain.order.cart.repository.CartRepository;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
+import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,11 +23,11 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class CartQueryService {
 
-    private final CartGetter cartGetter;
-    private final MenuGetter menuGetter;
+    private final CartRepository cartRepository;
+    private final OrderableShopMenuRepository orderableShopMenuRepository;
 
     public CartResponse getCartItems(Integer userId) {
-        Optional<Cart> cartOptional = cartGetter.get(userId);
+        Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
 
         if (cartOptional.isEmpty() || cartOptional.get().getCartMenuItems().isEmpty()) {
             return CartResponse.empty();
@@ -38,17 +38,18 @@ public class CartQueryService {
     }
 
     public CartMenuItemEditResponse getOrderableShopMenuForEditOptions(Integer userId, Integer cartMenuItemId) {
-        Cart cart = cartGetter.get(userId)
+        Cart cart = cartRepository.findCartByUserId(userId)
             .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
         CartMenuItem cartMenuItem = cart.getCartMenuItem(cartMenuItemId);
 
-        OrderableShopMenu menu = menuGetter.get(cartMenuItem.getOrderableShopMenu().getId());
+        OrderableShopMenu menu = orderableShopMenuRepository.getByIdWithMenuOptionGroups(
+            cartMenuItem.getOrderableShopMenu().getId());
 
         return CartMenuItemEditResponse.of(menu, cartMenuItem);
     }
 
     public CartAmountSummaryResponse getCartSummary(Integer userId, Integer orderableShopId) {
-        Optional<Cart> cartOptional = cartGetter.get(userId);
+        Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
 
         if (cartOptional.isEmpty() ||
             cartOptional.get().getCartMenuItems().isEmpty() ||
@@ -62,7 +63,7 @@ public class CartQueryService {
     }
 
     public CartPaymentSummaryResponse getCartPaymentSummary(Integer userId) {
-        Optional<Cart> cartOptional = cartGetter.get(userId);
+        Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
 
         if (cartOptional.isEmpty() || cartOptional.get().getCartMenuItems().isEmpty()) {
             return CartPaymentSummaryResponse.empty();
