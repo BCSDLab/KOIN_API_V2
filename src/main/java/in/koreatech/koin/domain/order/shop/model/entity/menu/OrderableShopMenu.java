@@ -68,7 +68,7 @@ public class OrderableShopMenu extends BaseEntity {
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuImage> menuImages = new ArrayList<>();
 
-    public void isNotSoldOut() {
+    public void validateSoldOut() {
         if(this.isSoldOut) {
            throw new CartException(CartErrorCode.MENU_SOLD_OUT);
         }

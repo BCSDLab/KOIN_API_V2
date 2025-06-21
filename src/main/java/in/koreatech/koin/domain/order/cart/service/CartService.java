@@ -155,7 +155,7 @@ public class CartService {
         Menus shopMenus = menuGetter.getAllByOrderableShopId(command.shopId());
         OrderableShopMenu menu = shopMenus.resolveSelectedMenu(command.shopMenuId());
 
-        menu.isNotSoldOut();
+        menu.validateSoldOut();
         menu.requiredMenuPriceById(command.shopMenuPriceId());
 
         return menu;

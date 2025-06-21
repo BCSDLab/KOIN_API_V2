@@ -163,8 +163,6 @@ public class User extends BaseEntity {
     }
 
     public boolean isNotSameLoginPw(PasswordEncoder passwordEncoder, String loginPw) {
-        System.out.println("입력한 비밀번호 인코딩 :" + passwordEncoder.encode(loginPw));
-        System.out.println("저장된 비밀번호 :" + passwordEncoder.encode(this.loginPw));
         return StringUtils.hasText(loginPw) && !passwordEncoder.matches(loginPw, this.loginPw);
     }
 
