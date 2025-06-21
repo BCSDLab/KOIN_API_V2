@@ -7,8 +7,8 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
@@ -57,8 +57,12 @@ public class Menu extends BaseEntity {
     @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = ALL)
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
+    // TODO : remove
     @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = ALL)
     private List<MenuOption> menuOptions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = ALL)
+    private List<MenuOptionGroupMap> menuOptionGroupMaps = new ArrayList<>();
 
     @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = ALL)
     private List<MenuImage> menuImages = new ArrayList<>();
@@ -98,6 +102,7 @@ public class Menu extends BaseEntity {
         addMenuCategories(menuCategories);
     }
 
+    // TODO : remove
     public void modifyOptions(List<MenuOption> menuOptions, EntityManager entityManager) {
         this.menuOptions.clear();
         entityManager.flush();
@@ -124,7 +129,24 @@ public class Menu extends BaseEntity {
         }
     }
 
+    // TODO : remove
     public void addMenuOptions(List<MenuOption> menuOptions) {
         this.menuOptions.addAll(menuOptions);
+    }
+
+    public void modifyOptionGroups(List<MenuOptionGroup> menuOptionGroups, EntityManager entityManager) {
+        this.menuOptionGroupMaps.clear();
+        entityManager.flush();
+        addMenuOptionGroups(menuOptionGroups);
+    }
+
+    public void addMenuOptionGroups(List<MenuOptionGroup> menuOptionGroups) {
+        for (MenuOptionGroup menuOptionGroup : menuOptionGroups) {
+            MenuOptionGroupMap menuOptionGroupMap = MenuOptionGroupMap.builder()
+                .menu(this)
+                .menuOptionGroup(menuOptionGroup)
+                .build();
+            this.menuOptionGroupMaps.add(menuOptionGroupMap);
+        }
     }
 }
