@@ -10,6 +10,9 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.order.cart.dto.CartAddItemCommand;
+import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
+import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,6 +25,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -64,6 +68,41 @@ public class OrderableShopMenu extends BaseEntity {
 
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuImage> menuImages = new ArrayList<>();
+
+    @Builder
+    public OrderableShopMenu(OrderableShop orderableShop, String name, String description, Boolean isSoldOut,
+        Boolean isDeleted, List<OrderableShopMenuOptionGroupMap> menuOptionGroupMap,
+        List<OrderableShopMenuPrice> menuPrices, List<OrderableShopMenuImage> menuImages) {
+        this.orderableShop = orderableShop;
+        this.name = name;
+        this.description = description;
+        this.isSoldOut = isSoldOut;
+        this.isDeleted = isDeleted;
+        this.menuOptionGroupMap = menuOptionGroupMap;
+        this.menuPrices = menuPrices;
+        this.menuImages = menuImages;
+    }
+
+    public void validateSoldOut() {
+        if(this.isSoldOut) {
+           throw new CartException(CartErrorCode.MENU_SOLD_OUT);
+        }
+    }
+
+    public void requiredMenuPriceById(Integer menuPriceId) {
+        boolean exists = menuPrices.stream()
+            .anyMatch(menuPrice -> menuPrice.getId().equals(menuPriceId));
+        if(!exists) {
+            throw new CartException(CartErrorCode.MENU_PRICE_NOT_FOUND);
+        }
+    }
+
+    public OrderableShopMenuPrice getMenuPriceById(Integer menuPriceId) {
+        return menuPrices.stream()
+            .filter(menuPrice -> menuPrice.getId().equals(menuPriceId))
+            .findFirst()
+            .orElse(null);
+    }
 
     public String getThumbnailImage() {
         return this.menuImages.stream()

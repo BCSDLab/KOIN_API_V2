@@ -10,6 +10,8 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
+import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import jakarta.persistence.CascadeType;
@@ -22,6 +24,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -60,4 +63,26 @@ public class OrderableShop extends BaseEntity {
     @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuGroup> menuGroups = new ArrayList<>();
 
+    @Builder
+    public OrderableShop(Integer id, Shop shop, boolean delivery, boolean takeout, boolean serviceEvent,
+        Integer minimumOrderAmount, boolean isDeleted, List<OrderableShopMenuGroup> menuGroups) {
+        this.id = id;
+        this.shop = shop;
+        this.delivery = delivery;
+        this.takeout = takeout;
+        this.serviceEvent = serviceEvent;
+        this.minimumOrderAmount = minimumOrderAmount;
+        this.isDeleted = isDeleted;
+        this.menuGroups = menuGroups;
+    }
+
+    public void requireShopOpen() {
+        if (shop == null || shop.getShopOperation() == null || !shop.getShopOperation().isOpen()) {
+            throw new CartException(CartErrorCode.SHOP_CLOSED);
+        }
+    }
+
+    public Integer calculateDeliveryFee(Integer orderAmount) {
+        return this.shop.getBaseDeliveryTips().calculateDeliveryTip(orderAmount);
+    }
 }

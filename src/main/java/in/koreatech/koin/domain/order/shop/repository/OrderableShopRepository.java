@@ -80,4 +80,12 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
             )
         );
     }
+
+    default OrderableShop getById(Integer shopId) {
+        return findById(shopId).orElseThrow(
+            () -> new OrderableShopNotFoundException(
+                "해당 상점이 존재하지 않습니다 : " + shopId
+            )
+        );
+    }
 }

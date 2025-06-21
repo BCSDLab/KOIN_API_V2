@@ -36,7 +36,6 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.ownershop",
             "in.koreatech.koin.domain.shop",
             "in.koreatech.koin.domain.land",
-            "in.koreatech.koin.domain.order"
         };
 
         return createGroupedOpenApi("2. Business API", packagesPath);
@@ -103,6 +102,15 @@ public class SwaggerGroupConfig {
         };
 
         return createGroupedOpenApi("7. bcsd API", packagesPath);
+    }
+
+    @Bean
+    public GroupedOpenApi orderApi() {
+        String[] packagesPath = new String[] {
+            "in.koreatech.koin.domain.order"
+        };
+
+        return createGroupedOpenApi("8. Business Order API", packagesPath);
     }
 
     private GroupedOpenApi createGroupedOpenApi(String groupName, String[] packagesPath) {

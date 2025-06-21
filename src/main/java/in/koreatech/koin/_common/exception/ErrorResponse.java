@@ -19,4 +19,11 @@ public class ErrorResponse {
         this.message = message;
         this.errorTraceId = errorTraceId;
     }
+
+    public ErrorResponse(int status, String code, String message, String errorTraceId) {
+        this.status = status;
+        this.code = code;
+        this.message = message;
+        this.errorTraceId = errorTraceId;
+    }
 }
