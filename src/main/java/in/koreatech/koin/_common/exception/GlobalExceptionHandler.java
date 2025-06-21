@@ -26,6 +26,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.WebUtils;
 
+import com.amazonaws.services.ec2.model.Address;
+
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.DataNotFoundException;
@@ -36,6 +38,7 @@ import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.exception.custom.RequestTooFastException;
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
+import in.koreatech.koin.domain.order.address.exception.AddressApiException;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -276,6 +279,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleCartException(
         HttpServletRequest request,
         CartException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request);
+        return buildErrorResponseWithErrorCode(
+            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
+            e.getFullMessage(),
+            e.getErrorCode().name()
+        );
+    }
+
+    @ExceptionHandler(AddressApiException.class)
+    public ResponseEntity<Object> handleAddressApiException(
+        HttpServletRequest request,
+        AddressApiException e
     ) {
         log.warn(e.getFullMessage());
         requestLogging(request);
