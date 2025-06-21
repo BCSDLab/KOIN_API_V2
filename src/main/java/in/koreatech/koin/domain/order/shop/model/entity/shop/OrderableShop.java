@@ -24,6 +24,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -61,6 +62,19 @@ public class OrderableShop extends BaseEntity {
     @BatchSize(size = 7) // 기본 4개 (메인, 추천, 세트, 사이드) + 사장님 커스텀 3개
     @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuGroup> menuGroups = new ArrayList<>();
+
+    @Builder
+    public OrderableShop(Integer id, Shop shop, boolean delivery, boolean takeout, boolean serviceEvent,
+        Integer minimumOrderAmount, boolean isDeleted, List<OrderableShopMenuGroup> menuGroups) {
+        this.id = id;
+        this.shop = shop;
+        this.delivery = delivery;
+        this.takeout = takeout;
+        this.serviceEvent = serviceEvent;
+        this.minimumOrderAmount = minimumOrderAmount;
+        this.isDeleted = isDeleted;
+        this.menuGroups = menuGroups;
+    }
 
     public void requireShopOpen() {
         if (shop == null || shop.getShopOperation() == null || !shop.getShopOperation().isOpen()) {

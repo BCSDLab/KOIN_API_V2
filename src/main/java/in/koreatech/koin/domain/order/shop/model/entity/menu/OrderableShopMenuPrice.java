@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,4 +43,11 @@ public class OrderableShopMenuPrice extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Builder
+    public OrderableShopMenuPrice(OrderableShopMenu menu, String name, Integer price, Boolean isDeleted) {
+        this.menu = menu;
+        this.name = name;
+        this.price = price;
+        this.isDeleted = isDeleted;
+    }
 }
