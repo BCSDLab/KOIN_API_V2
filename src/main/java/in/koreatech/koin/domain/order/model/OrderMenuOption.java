@@ -35,6 +35,10 @@ public class OrderMenuOption {
     @Column(name = "option_price", nullable = false, updatable = false)
     private Integer optionPrice;
 
+    @NotNull
+    @Column(name = "quantity", nullable = false, updatable = false)
+    private Integer quantity;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "order_menu_id", nullable = false)
     private OrderMenu orderMenu;
