@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.order.model;
 
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
@@ -11,6 +12,7 @@ import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -38,6 +40,11 @@ public class Order extends BaseEntity {
     @Size(max = 100)
     @Column(name = "address", length = 100, nullable = false, updatable = false)
     private String address;
+
+    @NotNull
+    @Enumerated(STRING)
+    @Column(name = "order_type", length = 10, nullable = false, updatable = false)
+    private OrderType orderType;
 
     @NotBlank
     @Size(max = 20)

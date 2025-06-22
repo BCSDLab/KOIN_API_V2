@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS `koin`.`order`
 (
     `id` VARCHAR(64) NOT NULL COMMENT '주문 ID',
     `address` VARCHAR(100) NOT NULL COMMENT '배달 주소',
+    `order_type` VARCHAR(10) NOT NULL COMMENT '주문 타입',
     `phone_number` VARCHAR(20) NOT NULL COMMENT '주문자 전화번호',
     `to_owner` VARCHAR(50) NOT NULL COMMENT '사장님 전달 메시지',
     `to_rider` VARCHAR(50) NULL COMMENT '라이더 전달 메시지',
