@@ -54,11 +54,11 @@ public class Payment {
     private PaymentMethod paymentMethod;
 
     @NotNull
-    @Column(name = "requested_at", nullable = false, updatable = false)
+    @Column(name = "requested_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime requestedAt;
 
     @NotNull
-    @Column(name = "approved_at", nullable = false, updatable = false)
+    @Column(name = "approved_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime approvedAt;
 
     @OneToOne(fetch = LAZY)
