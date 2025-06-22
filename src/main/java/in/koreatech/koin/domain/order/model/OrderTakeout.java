@@ -16,9 +16,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "order_pack")
+@Table(name = "order_takeout")
 @NoArgsConstructor(access = PROTECTED)
-public class OrderPack {
+public class OrderTakeout {
 
     @Id
     @Column(name = "order_id", nullable = false, updatable = false)

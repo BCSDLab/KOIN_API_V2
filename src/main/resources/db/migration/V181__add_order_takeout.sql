@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `koin`.`order_pack`
+CREATE TABLE IF NOT EXISTS `koin`.`order_takeout`
 (
     `order_id`          VARCHAR(64)     NOT NULL COMMENT '주문 ID',
     `to_owner`          VARCHAR(50)     NOT NULL COMMENT '사장님 전달 메시지',

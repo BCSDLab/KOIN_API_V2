@@ -72,5 +72,5 @@ public class Order extends BaseEntity {
     private OrderDelivery orderDelivery;
 
     @OneToOne(mappedBy = "order", fetch = LAZY, cascade = ALL)
-    private OrderPack orderPack;
+    private OrderTakeout orderTakeout;
 }
