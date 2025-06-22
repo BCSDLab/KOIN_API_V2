@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.order.model;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static java.lang.Boolean.FALSE;
@@ -16,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -36,11 +38,6 @@ public class Order extends BaseEntity {
     @Column(name = "id", length = 64, nullable = false, updatable = false)
     private String id;
 
-    @NotBlank
-    @Size(max = 100)
-    @Column(name = "address", length = 100, nullable = false, updatable = false)
-    private String address;
-
     @NotNull
     @Enumerated(STRING)
     @Column(name = "order_type", length = 10, nullable = false, updatable = false)
@@ -52,21 +49,8 @@ public class Order extends BaseEntity {
     private String phoneNumber;
 
     @NotNull
-    @Size(max = 50)
-    @Column(name = "to_owner", length = 50, nullable = false, updatable = false)
-    private String toOwner;
-
-    @Size(max = 50)
-    @Column(name = "to_rider", length = 50, nullable = false, updatable = false)
-    private String toRider;
-
-    @NotNull
     @Column(name = "total_product_price", nullable = false, updatable = false)
     private Integer totalProductPrice;
-
-    @NotNull
-    @Column(name = "delivery_tip", nullable = false, updatable = false)
-    private Integer deliveryTip;
 
     @NotNull
     @Column(name = "total_price", nullable = false, updatable = false)
@@ -83,4 +67,10 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = LAZY)
     private User user;
+
+    @OneToOne(mappedBy = "order", fetch = LAZY, cascade = ALL)
+    private OrderDelivery orderDelivery;
+
+    @OneToOne(mappedBy = "order", fetch = LAZY, cascade = ALL)
+    private OrderPack orderPack;
 }

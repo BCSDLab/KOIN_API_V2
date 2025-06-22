@@ -1,13 +1,10 @@
 CREATE TABLE IF NOT EXISTS `koin`.`order`
 (
     `id` VARCHAR(64) NOT NULL COMMENT '주문 ID',
-    `address` VARCHAR(100) NOT NULL COMMENT '배달 주소',
+
     `order_type` VARCHAR(10) NOT NULL COMMENT '주문 타입',
     `phone_number` VARCHAR(20) NOT NULL COMMENT '주문자 전화번호',
-    `to_owner` VARCHAR(50) NOT NULL COMMENT '사장님 전달 메시지',
-    `to_rider` VARCHAR(50) NULL COMMENT '라이더 전달 메시지',
     `total_product_price` INT UNSIGNED COMMENT '상품 총 금액',
-    `delivery_tip` INT UNSIGNED COMMENT '배달비',
     `total_price` INT UNSIGNED COMMENT '주문 총 금액',
     `is_deleted` TINYINT(1) NOT NULL DEFAULT FALSE COMMENT '삭제 여부',
     `orderable_shop_id` INT UNSIGNED COMMENT '주문한 상점 ID',
