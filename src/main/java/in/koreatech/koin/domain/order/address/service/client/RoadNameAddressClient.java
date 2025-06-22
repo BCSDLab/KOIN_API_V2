@@ -15,7 +15,9 @@ import in.koreatech.koin.domain.order.address.dto.RoadNameAddressApiResponse;
 import in.koreatech.koin.domain.order.address.exception.AddressApiException;
 import in.koreatech.koin.domain.order.address.exception.AddressErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -23,26 +25,27 @@ public class RoadNameAddressClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${ROAD_NAME_ADDRESS_OPEN_API_KEY}")
+    @Value("${address.api.key}")
     private String apiKey;
-    private static final String OPEN_API_URL = "https://business.juso.go.kr/addrlink/addrLinkApi.do";
+
+    @Value("${address.api.url}")
+    private String apiUrl;
+    private static final String SUCCESS_CODE = "0";
 
     public RoadNameAddressApiResponse searchAddress(String keyword, int currentPage, int countPerPage) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         var requestEntity = getHttpRequestEntity(headers, keyword, currentPage, countPerPage);
-
         try {
-            RoadNameAddressApiResponse apiResponse = restTemplate.postForObject(OPEN_API_URL, requestEntity,
+            RoadNameAddressApiResponse apiResponse = restTemplate.postForObject(apiUrl, requestEntity,
                 RoadNameAddressApiResponse.class);
-
             if (apiResponse == null || apiResponse.results() == null || apiResponse.results().common() == null) {
                 throw new AddressApiException(AddressErrorCode.EXTERNAL_API_ERROR);
             }
 
             String errorCode = apiResponse.results().common().errorCode();
-            if (!errorCode.equals("0")) {
+            if (!errorCode.equals(SUCCESS_CODE)) {
                 AddressErrorCode addressErrorCode = AddressErrorCode.from(errorCode);
                 String originalErrorMessage = apiResponse.results().common().errorMessage();
                 throw new AddressApiException(addressErrorCode, originalErrorMessage);
@@ -50,6 +53,7 @@ public class RoadNameAddressClient {
             return apiResponse;
 
         } catch (RestClientException e) {
+            log.error("주소 API 호출 실패", e);
             throw new AddressApiException(AddressErrorCode.EXTERNAL_API_ERROR, e.getMessage());
         }
     }

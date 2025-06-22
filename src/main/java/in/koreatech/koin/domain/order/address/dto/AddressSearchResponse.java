@@ -27,16 +27,26 @@ public record AddressSearchResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record AddressInfo(
         @Schema(description = "전체 도로명 주소")
-        String roadAddr,
-
+        String roadAddress,
         @Schema(description = "지번 주소")
-        String jibunAddr,
-
+        String jibunAddress,
         @Schema(description = "영문 주소")
-        String engAddr,
-
+        String engAddress,
         @Schema(description = "우편번호")
-        String zipNo
+        String zipNo,
+        @Schema(description = "건물명")
+        String bdNm,
+        @Schema(description = "시도명")
+        String siNm,
+        @Schema(description = "시군구명")
+        String sggNm,
+        @Schema(description = "읍면동명")
+        String emdNm,
+        @Schema(description = "법정리명")
+        String liNm,
+        @Schema(description = "도로명")
+        String rn
+
     ) {
 
         public static AddressInfo from(RoadNameAddressApiResponse.Juso juso) {
@@ -44,7 +54,13 @@ public record AddressSearchResponse(
                 juso.roadAddr(),
                 juso.jibunAddr(),
                 juso.engAddr(),
-                juso.zipNo()
+                juso.zipNo(),
+                juso.bdNm(),
+                juso.siNm(),
+                juso.sggNm(),
+                juso.emdNm(),
+                juso.liNm(),
+                juso.rn()
             );
         }
     }
