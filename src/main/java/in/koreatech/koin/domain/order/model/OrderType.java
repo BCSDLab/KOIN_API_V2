@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum OrderType {
     DELIVERY("배달"),
-    PACK("포장"),
+    TAKE_OUT("포장"),
     ;
 
     private final String name;
