@@ -44,7 +44,7 @@ public class PaymentCancel {
     private Integer cancelAmount;
 
     @NotNull
-    @Column(name = "canceled_at", updatable = false, nullable = false)
+    @Column(name = "canceled_at", updatable = false, nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime canceledAt;
 
     @JoinColumn(name = "payment_id")
