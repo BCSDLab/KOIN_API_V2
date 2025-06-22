@@ -102,3 +102,8 @@ naver:
 OPEN_API_KEY_PUBLIC: testck
 
 OPEN_API_KEY_TMONEY: testck
+
+address:
+  api:
+    url: https://business.juso.go.kr/addrlink/addrLinkApi.do
+    key: testck
