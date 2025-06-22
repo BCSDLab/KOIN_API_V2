@@ -37,6 +37,10 @@ public class OrderMenu {
     private String menuName;
 
     @NotNull
+    @Column(name = "menu_price", nullable = false, updatable = false)
+    private Integer menuPrice;
+
+    @NotNull
     @Column(name = "quantity", nullable = false, updatable = false)
     private Integer quantity;
 

@@ -54,6 +54,18 @@ public class Order extends BaseEntity {
     private String toRider;
 
     @NotNull
+    @Column(name = "total_product_price", nullable = false, updatable = false)
+    private Integer totalProductPrice;
+
+    @NotNull
+    @Column(name = "delivery_tip", nullable = false, updatable = false)
+    private Integer deliveryTip;
+
+    @NotNull
+    @Column(name = "total_price", nullable = false, updatable = false)
+    private Integer totalPrice;
+
+    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = FALSE;
 
