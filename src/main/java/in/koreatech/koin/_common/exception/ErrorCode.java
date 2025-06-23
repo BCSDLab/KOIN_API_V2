@@ -21,6 +21,7 @@ public enum ErrorCode {
     USER_GENDER_NOT_VALID(BAD_REQUEST, "USER-400004", "잘못된 성별 인덱스입니다."),
     USER_REFRESH_TOKEN_NOT_VALID(BAD_REQUEST, "USER-400005", "refresh token이 존재하지 않습니다."),
     USER_REFRESH_TOKEN_NOT_MATCHED(BAD_REQUEST, "USER-400006", "refresh token이 일치하지 않습니다."),
+    USER_RESET_TOKEN_NOT_VALID(BAD_REQUEST, "USER-400007", "Reset token이 존재하지 않습니다."),
 
     // 403 Forbidden
     USER_WITHDRAWN_USER(FORBIDDEN, "USER-403001", "탈퇴한 계정입니다."),
