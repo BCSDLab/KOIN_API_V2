@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
@@ -38,10 +39,8 @@ class UserDailyVerificationCountTest {
         void SMS를_이용하여_인증_횟수_객체를_생성할_수_있다() {
             // given
             long expectedExpiration = 60 * 60 * 24L;
-
             // when
             UserDailyVerificationCount dailyCount = UserDailyVerificationCount.of(TEST_PHONE_NUMBER, verificationProperties);
-
             // then
             assertThat(dailyCount.getId()).isEqualTo(TEST_PHONE_NUMBER);
             assertThat(dailyCount.getVerificationCount()).isEqualTo(0);
@@ -52,10 +51,8 @@ class UserDailyVerificationCountTest {
         void Email을_이용하여_인증_횟수_객체를_생성할_수_있다() {
             // given
             long expectedExpiration = 60 * 60 * 24L;
-
             // when
             UserDailyVerificationCount dailyCount = UserDailyVerificationCount.of(TEST_EMAIL, verificationProperties);
-
             // then
             assertThat(dailyCount.getId()).isEqualTo(TEST_EMAIL);
             assertThat(dailyCount.getVerificationCount()).isEqualTo(0);
@@ -70,7 +67,6 @@ class UserDailyVerificationCountTest {
         void SMS_인증_횟수_객체에_increment를_호출하면_인증_횟수가_증가한다() {
             // when
             SMS_인증_횟수.incrementVerificationCount();
-
             // then
             assertThat(SMS_인증_횟수.getVerificationCount()).isEqualTo(1);
         }
@@ -79,7 +75,6 @@ class UserDailyVerificationCountTest {
         void Email_인증_횟수_객체에_increment를_호출하면_인증_횟수가_증가한다() {
             // when
             이메일_인증_횟수.incrementVerificationCount();
-
             // then
             assertThat(이메일_인증_횟수.getVerificationCount()).isEqualTo(1);
         }
@@ -90,10 +85,9 @@ class UserDailyVerificationCountTest {
             Stream.generate(() -> SMS_인증_횟수)
                 .limit(SMS_인증_횟수.getMaxVerificationCount())
                 .forEach(UserDailyVerificationCount::incrementVerificationCount);
-
             // then
             assertThatThrownBy(SMS_인증_횟수::incrementVerificationCount)
-                .isInstanceOf(TooManyRequestsException.class)
+                .isInstanceOf(CustomException.class)
                 .hasMessage("하루 인증 횟수를 초과했습니다.");
         }
 
@@ -101,10 +95,9 @@ class UserDailyVerificationCountTest {
         void Email_인증_횟수_객체에_최대_인증_횟수를_초과하여_요청하면_TooManyRequestsException이_발생한다() {
             // when
             IntStream.rangeClosed(1, 5).forEach(i -> 이메일_인증_횟수.incrementVerificationCount());
-
             // then
             assertThatThrownBy(이메일_인증_횟수::incrementVerificationCount)
-                .isInstanceOf(TooManyRequestsException.class)
+                .isInstanceOf(CustomException.class)
                 .hasMessage("하루 인증 횟수를 초과했습니다.");
         }
     }

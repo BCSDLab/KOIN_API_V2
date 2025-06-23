@@ -8,8 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
@@ -39,10 +38,8 @@ class UserVerificationStatusTest {
             // given
             VerificationNumberGenerator verificationNumberGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
             long expectedExpiration = 60 * 3L;
-
             // when
             UserVerificationStatus verificationStatus = UserVerificationStatus.ofSms(TEST_PHONE_NUMBER, verificationNumberGenerator);
-
             // then
             assertThat(verificationStatus.getId()).isEqualTo(TEST_PHONE_NUMBER);
             assertThat(verificationStatus.getVerificationCode()).isEqualTo(CORRECT_CODE);
@@ -55,10 +52,8 @@ class UserVerificationStatusTest {
             // given
             VerificationNumberGenerator verificationNumberGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
             long expectedExpiration = 60 * 5L;
-
             // when
             UserVerificationStatus verificationStatus = UserVerificationStatus.ofEmail(TEST_EMAIL, verificationNumberGenerator);
-
             // then
             assertThat(verificationStatus.getId()).isEqualTo(TEST_EMAIL);
             assertThat(verificationStatus.getVerificationCode()).isEqualTo(CORRECT_CODE);
@@ -74,10 +69,8 @@ class UserVerificationStatusTest {
         void verify를_이용하여_SMS_인증용_객체를_인증할_수_있다() {
             // given
             long expectedExpiration = 60 * 60L;
-
             // when
             SMS_인증_상태.verify(CORRECT_CODE);
-
             // then
             assertThat(SMS_인증_상태.isVerified()).isTrue();
             assertThat(SMS_인증_상태.getExpiration()).isEqualTo(expectedExpiration);
@@ -87,10 +80,8 @@ class UserVerificationStatusTest {
         void verify를_이용하여_Email_인증용_객체를_인증할_수_있다() {
             // given
             long expectedExpiration = 60 * 60L;
-
             // when
             Email_인증_상태.verify(CORRECT_CODE);
-
             // then
             assertThat(Email_인증_상태.isVerified()).isTrue();
             assertThat(Email_인증_상태.getExpiration()).isEqualTo(expectedExpiration);
@@ -100,7 +91,7 @@ class UserVerificationStatusTest {
         void SMS_인증용_객체에_잘못된_인증번호를_입력하면_KoinIllegalArgumentException이_발생한다() {
             // when / then
             assertThatThrownBy(() -> SMS_인증_상태.verify(WRONG_CODE))
-                .isInstanceOf(KoinIllegalArgumentException.class)
+                .isInstanceOf(CustomException.class)
                 .hasMessage("인증 번호가 일치하지 않습니다.");
         }
 
@@ -108,7 +99,7 @@ class UserVerificationStatusTest {
         void Email_인증용_객체에_잘못된_인증번호를_입력하면_KoinIllegalArgumentException이_발생한다() {
             // when / then
             assertThatThrownBy(() -> Email_인증_상태.verify(WRONG_CODE))
-                .isInstanceOf(KoinIllegalArgumentException.class)
+                .isInstanceOf(CustomException.class)
                 .hasMessage("인증 번호가 일치하지 않습니다.");
         }
     }
@@ -120,7 +111,6 @@ class UserVerificationStatusTest {
         void SMS_인증된_상태에서_requireVerified를_호출하면_예외가_발생하지_않는다() {
             // given
             SMS_인증_상태.verify(CORRECT_CODE);
-
             // when / then
             assertThatCode(SMS_인증_상태::requireVerified)
                 .doesNotThrowAnyException();
@@ -130,8 +120,8 @@ class UserVerificationStatusTest {
         void SMS_미인증_상태에서_requireVerified를_호출하면_AuthorizationException이_발생한다() {
             // when / then
             assertThatThrownBy(SMS_인증_상태::requireVerified)
-                .isInstanceOf(AuthorizationException.class)
-                .hasMessage("본인 인증 후 다시 시도해주십시오.");
+                .isInstanceOf(CustomException.class)
+                .hasMessage("인증 후 다시 시도해주십시오.");
         }
 
         @Test
@@ -148,8 +138,8 @@ class UserVerificationStatusTest {
         void Email_미인증_상태에서_requireVerified를_호출하면_AuthorizationException이_발생한다() {
             // when / then
             assertThatThrownBy(Email_인증_상태::requireVerified)
-                .isInstanceOf(AuthorizationException.class)
-                .hasMessage("본인 인증 후 다시 시도해주십시오.");
+                .isInstanceOf(CustomException.class)
+                .hasMessage("인증 후 다시 시도해주십시오.");
         }
     }
 }

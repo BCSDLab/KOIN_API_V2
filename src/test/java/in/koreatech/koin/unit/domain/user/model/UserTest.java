@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -136,7 +137,7 @@ class UserTest {
             // given
             doReturn(true).when(user).isNotSamePhoneNumber(anyString());
             // when / then
-            assertThrows(KoinIllegalArgumentException.class,
+            assertThrows(CustomException.class,
                 () -> user.requireSamePhoneNumber("01000000000"));
             verify(user, times(1)).isNotSamePhoneNumber(anyString());
         }
@@ -159,7 +160,7 @@ class UserTest {
             // given
             doReturn(true).when(user).isNotSameEmail(anyString());
             // when / then
-            assertThrows(KoinIllegalArgumentException.class,
+            assertThrows(CustomException.class,
                 () -> user.requireSameEmail("x@y.com"));
             verify(user, times(1)).isNotSameEmail(anyString());
         }
@@ -182,7 +183,7 @@ class UserTest {
             // given
             doReturn(true).when(user).isNotSameLoginPw(passwordEncoder, "raw");
             // when / then
-            assertThrows(KoinIllegalArgumentException.class,
+            assertThrows(CustomException.class,
                 () -> user.requireSameLoginPw(passwordEncoder, "raw"));
             verify(user, times(1)).isNotSameLoginPw(any(), anyString());
         }
@@ -303,7 +304,7 @@ class UserTest {
             // given
             user = UserFixture.삭제된_코인_유저();
             // when / then
-            assertThrows(AuthenticationException.class,
+            assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.GENERAL}));
         }
 
@@ -312,7 +313,7 @@ class UserTest {
             // given
             user = UserFixture.코인_유저();
             // when / then
-            assertThrows(AuthorizationException.class,
+            assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.STUDENT}));
         }
 
@@ -321,7 +322,7 @@ class UserTest {
             // given
             user = UserFixture.미인증_코인_유저();
             // when / then
-            assertThrows(AuthorizationException.class,
+            assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.GENERAL}));
         }
     }

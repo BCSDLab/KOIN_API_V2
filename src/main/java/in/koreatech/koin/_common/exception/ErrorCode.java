@@ -35,10 +35,10 @@ public enum ErrorCode {
     USER_NOT_FOUND(NOT_FOUND, "USER-404001", "해당 사용자를 찾을 수 없습니다."),
 
     // 409 Conflict
-    USER_DUPLICATION_LOGIN_ID(CONFLICT, "USER-409001", "이미 사용 중인 로그인 아이디입니다."),
-    USER_DUPLICATION_NICKNAME(CONFLICT, "USER-409002", "이미 사용 중인 닉네임입니다."),
-    USER_DUPLICATION_PHONE_NUMBER(CONFLICT, "USER-409003", "이미 사용 중인 전화번호입니다."),
-    USER_DUPLICATION_EMAIL(CONFLICT, "USER-409004", "이미 사용 중인 전화번호입니다."),
+    USER_DUPLICATION_LOGIN_ID(CONFLICT, "USER-409001", "이미 존재하는 로그인 아이디입니다."),
+    USER_DUPLICATION_NICKNAME(CONFLICT, "USER-409002", "이미 존재하는 닉네임입니다."),
+    USER_DUPLICATION_PHONE_NUMBER(CONFLICT, "USER-409003", "이미 존재하는 전화번호입니다."),
+    USER_DUPLICATION_EMAIL(CONFLICT, "USER-409004", "이미 존재하는 이메일입니다."),
 
     // ==================================================
     // Verification domain

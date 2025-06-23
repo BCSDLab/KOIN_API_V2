@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
@@ -55,7 +56,6 @@ class UserVerificationServiceTest {
         void sendSmsVerification를_최초_호출하면_인증_횟수가_1로_초기화되고_인증번호가_발송된다() {
             // when
             SendVerificationResponse response = userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-
             // then
             assertThat(response.currentCount()).isEqualTo(1);
         }
@@ -64,14 +64,11 @@ class UserVerificationServiceTest {
         void sendSmsVerification를_다시_호출하면_인증_횟수가_증가하고_인증번호가_재발송된다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-
             // when
             SendVerificationResponse response = userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-
             // then
             assertThat(response.currentCount()).isEqualTo(2);
         }
-
         @Test
         void 일일_인증_횟수_초과_시_sendSmsVerification를_호출하면_TooManyRequestException이_발생한다() {
             // given
@@ -80,10 +77,9 @@ class UserVerificationServiceTest {
                 .forEach((userVerification) -> {
                     userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
                 });
-
             // when / then
             assertThatThrownBy(() -> userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER))
-                .isInstanceOf(TooManyRequestsException.class);
+                .isInstanceOf(CustomException.class);
         }
     }
 
@@ -94,7 +90,6 @@ class UserVerificationServiceTest {
         void sendEmailVerification를_최초_호출하면_인증_횟수가_1로_초기화되고_인증번호가_발송된다() {
             // when
             SendVerificationResponse response = userVerificationService.sendEmailVerification(TEST_EMAIL);
-
             // then
             assertThat(response.currentCount()).isEqualTo(1);
         }
@@ -103,10 +98,8 @@ class UserVerificationServiceTest {
         void sendEmailVerification를_다시_호출하면_인증_횟수가_증가하고_인증번호가_재발송된다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
-
             // when
             SendVerificationResponse response = userVerificationService.sendEmailVerification(TEST_EMAIL);
-
             // then
             assertThat(response.currentCount()).isEqualTo(2);
         }
@@ -119,10 +112,9 @@ class UserVerificationServiceTest {
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.sendEmailVerification(TEST_EMAIL);
-
             // when / then
             assertThatThrownBy(() -> userVerificationService.sendEmailVerification(TEST_EMAIL))
-                .isInstanceOf(TooManyRequestsException.class);
+                .isInstanceOf(CustomException.class);
         }
     }
 
@@ -133,7 +125,6 @@ class UserVerificationServiceTest {
         void 올바른_SMS_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-
             // when / then
             assertThatCode(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE))
                 .doesNotThrowAnyException();
@@ -144,7 +135,6 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
-
             // when / then
             assertThatCode(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE))
                 .doesNotThrowAnyException();
@@ -154,17 +144,15 @@ class UserVerificationServiceTest {
         void 잘못된_SMS_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-
             // when / then
             assertThatThrownBy(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, WRONG_CODE))
-                .isInstanceOf(KoinIllegalArgumentException.class);
+                .isInstanceOf(CustomException.class);
         }
 
         @Test
         void 올바른_Email_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
-
             // when / then
             assertThatCode(() -> userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE))
                 .doesNotThrowAnyException();
@@ -175,7 +163,6 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
-
             // when / then
             assertThatCode(() -> userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE))
                 .doesNotThrowAnyException();
@@ -185,10 +172,9 @@ class UserVerificationServiceTest {
         void 잘못된_Email_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
-
             // when / then
             assertThatThrownBy(() -> userVerificationService.verifyCode(TEST_EMAIL, WRONG_CODE))
-                .isInstanceOf(KoinIllegalArgumentException.class);
+                .isInstanceOf(CustomException.class);
         }
     }
 
@@ -200,7 +186,6 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
-
             // when / then
             assertThatCode(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
                 .doesNotThrowAnyException();
@@ -210,17 +195,16 @@ class UserVerificationServiceTest {
         void SMS_미인증_상태에서_요청하면_AuthorizationException이_발생한다() {
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
-                .isInstanceOf(AuthorizationException.class);
+                .isInstanceOf(CustomException.class);
         }
 
         @Test
         void SMS_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
-
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
-                .isInstanceOf(AuthorizationException.class);
+                .isInstanceOf(CustomException.class);
         }
 
         @Test
@@ -228,7 +212,6 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
-
             // when / then
             assertThatCode(() -> userVerificationService.consumeVerification(TEST_EMAIL))
                 .doesNotThrowAnyException();
@@ -238,17 +221,16 @@ class UserVerificationServiceTest {
         void Email_미인증_상태에서_요청하면_AuthorizationException이_발생한다() {
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_EMAIL))
-                .isInstanceOf(AuthorizationException.class);
+                .isInstanceOf(CustomException.class);
         }
 
         @Test
         void Email_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
-
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_EMAIL))
-                .isInstanceOf(AuthorizationException.class);
+                .isInstanceOf(CustomException.class);
         }
     }
 }
