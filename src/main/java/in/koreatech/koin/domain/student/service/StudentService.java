@@ -90,7 +90,7 @@ public class StudentService {
 
     @Transactional
     public StudentLoginResponse studentLogin(StudentLoginRequest request, UserAgentInfo userAgentInfo) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email());
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
 
@@ -317,7 +317,7 @@ public class StudentService {
 
     @Transactional
     public void findPassword(UserFindPasswordRequest request, String serverURL) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email());
         String resetToken = UUID.randomUUID().toString();
         passwordResetTokenRepository.save(PasswordResetToken.of(resetToken, user.getId()));
         eventPublisher.publishEvent(new StudentFindPasswordEvent(request.email(), serverURL, resetToken));

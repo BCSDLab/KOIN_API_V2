@@ -401,7 +401,7 @@ public class StudentApiTest extends AcceptanceTest {
             )
             .andReturn();
 
-        User user = userRepository.getByEmail("koko123@koreatech.ac.kr");
+        User user = userRepository.getByEmailAndUserTypeIn("koko123@koreatech.ac.kr");
         assertThat(studentRedisRepository.findById("koko123@koreatech.ac.kr")).isEmpty();
 
         assertThat(user.isAuthed()).isTrue();

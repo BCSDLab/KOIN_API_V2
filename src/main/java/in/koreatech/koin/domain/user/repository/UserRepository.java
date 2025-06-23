@@ -19,8 +19,6 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByEmailAndUserTypeIn(String email, List<UserType> userTypes);
 
-    Optional<User> findByPhoneNumber(String phoneNumber);
-
     Optional<User> findByPhoneNumberAndUserType(String phoneNumber, UserType userType);
 
     Optional<User> findByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
@@ -31,9 +29,7 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByNickname(String nickname);
 
-    Optional<User> findByLoginId(String loginId);
-
-    default User getByEmail(String email) {
+    default User getByEmailAndUserTypeIn(String email) {
         return findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));
     }
@@ -43,8 +39,8 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
     }
 
-    default User getByPhoneNumber(String phoneNumber) {
-        return findByPhoneNumber(phoneNumber)
+    default User getByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes) {
+        return findByPhoneNumberAndUserTypeIn(phoneNumber, userTypes)
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
     }
 
@@ -53,8 +49,8 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 
-    default User getByLoginId(String loginId) {
-        return findByLoginId(loginId)
+    default User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
+        return findByLoginIdAndUserTypeIn(loginId, userTypes)
             .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }
 
@@ -72,7 +68,7 @@ public interface UserRepository extends Repository<User, Integer> {
 
     List<User> findAllByIdIn(List<Integer> ids);
 
-    default Map<Integer, User> findAllByIdInMap(List<Integer> ids) {
+    default Map<Integer, User> getAllByIdInMap(List<Integer> ids) {
         return findAllByIdIn(ids).stream()
             .collect(Collectors.toMap(User::getId, user -> user));
     }
@@ -80,15 +76,5 @@ public interface UserRepository extends Repository<User, Integer> {
     default User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
         return findByEmailAndUserTypeIn(email, userTypes)
             .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
-    }
-
-    default User getByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes) {
-        return findByPhoneNumberAndUserTypeIn(phoneNumber, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("phoneNumber: " + phoneNumber));
-    }
-
-    default User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
-        return findByLoginIdAndUserTypeIn(loginId, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
@@ -96,9 +95,9 @@ public class UserService {
         User user;
         String loginId = request.loginId();
         if (loginId.matches("^\\d{11}$")) {
-            user = userRepository.getByPhoneNumber(loginId);
+            user = userRepository.getByPhoneNumberAndUserTypeIn(loginId, KOIN_USER_TYPES);
         } else {
-            user = userRepository.getByLoginId(loginId);
+            user = userRepository.getByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES);
         }
         user.requireSameLoginPw(passwordEncoder, request.loginPw());
         return createLoginResponse(user, userAgentInfo);
@@ -106,7 +105,7 @@ public class UserService {
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request, UserAgentInfo userAgentInfo) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email());
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
         return createLoginResponse(user, userAgentInfo);

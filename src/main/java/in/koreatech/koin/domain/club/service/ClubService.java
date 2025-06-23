@@ -46,6 +46,7 @@ import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -257,7 +258,7 @@ public class ClubService {
     public void empowermentClubManager(ClubManagerEmpowermentRequest request, Integer studentId) {
         Club club = clubRepository.getById(request.clubId());
         User currentManager = userRepository.getById(studentId);
-        User changedManager = userRepository.getByLoginId(request.changedManagerId());
+        User changedManager = userRepository.getByLoginIdAndUserTypeIn(request.changedManagerId(), UserType.KOIN_STUDENT_TYPES);
 
         isClubManager(request.clubId(), studentId);
         if (clubManagerRepository.existsByClubAndUser(club, changedManager)) {
