@@ -18,12 +18,12 @@ import jakarta.validation.constraints.Size;
 public record UpdateStudentRequestV2(
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
     @NotBlank(message = "이름은 필수입니다.")
-    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
+    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "이름은 한글 2-5자 또는 영문 2-30자로 입력해주세요.")
     String name,
 
     @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
     @Size(max = 10, message = "닉네임은 최대 10자입니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]*$", message = "닉네임은 한글, 영문, 숫자만 입력할 수 있습니다.")
     String nickname,
 
     @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr", requiredMode = NOT_REQUIRED)
