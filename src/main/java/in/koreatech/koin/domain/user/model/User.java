@@ -11,9 +11,8 @@ import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.ErrorCode;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -168,19 +167,19 @@ public class User extends BaseEntity {
 
     public void requireSamePhoneNumber(String phoneNumber) {
         if (isNotSamePhoneNumber(phoneNumber)) {
-            throw new KoinIllegalArgumentException("전화번호가 일치하지 않습니다.");
+            throw CustomException.from(ErrorCode.USER_PHONE_NUMBER_NOT_MATCHED);
         }
     }
 
     public void requireSameEmail(String email) {
         if (isNotSameEmail(email)) {
-            throw new KoinIllegalArgumentException("이메일이 일치하지 않습니다.");
+            throw CustomException.from(ErrorCode.USER_EMAIL_NOT_MATCHED);
         }
     }
 
     public void requireSameLoginPw(PasswordEncoder passwordEncoder, String loginPw) {
         if (isNotSameLoginPw(passwordEncoder, loginPw)) {
-            throw new KoinIllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw CustomException.from(ErrorCode.USER_PASSWORD_NOT_MATCHED);
         }
     }
 
@@ -203,7 +202,7 @@ public class User extends BaseEntity {
 
     private void ensureNotDeleted() {
         if (isDeleted) {
-            throw AuthenticationException.withDetail("탈퇴한 계정입니다. userId: " + id);
+            throw CustomException.withDetail(ErrorCode.USER_WITHDRAWN_USER, "userId: " + id);
         }
     }
 
@@ -212,7 +211,7 @@ public class User extends BaseEntity {
         if (permittedUserTypesList.contains(this.userType)) {
             return;
         }
-        throw AuthorizationException.withDetail("인가되지 않은 유저 타입입니다. userId: " + id);
+        throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_USER_TYPE, "userId: " + id);
     }
 
     private void ensureAuthed() {
@@ -220,10 +219,10 @@ public class User extends BaseEntity {
             return;
         }
         switch (this.userType) {
-            case OWNER -> throw AuthorizationException.withDetail("관리자 인증 대기중입니다. userId: " + id);
-            case STUDENT -> throw AuthorizationException.withDetail("아우누리에서 인증메일을 확인해주세요. userId: " + id);
-            case ADMIN -> throw AuthorizationException.withDetail("PL 인증 대기중입니다. userId: " + id);
-            default -> throw AuthorizationException.withDetail("유효하지 않은 계정입니다. userId: " + id);
+            case OWNER -> throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_OWNER, "userId: " + id);
+            case STUDENT -> throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_STUDENT, "userId: " + id);
+            case ADMIN -> throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_ADMIN, "userId: " + id);
+            default -> throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_DEFAULT, "userId: " + id);
         }
     }
 

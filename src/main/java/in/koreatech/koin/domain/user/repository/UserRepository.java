@@ -5,7 +5,8 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.ErrorCode;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 
@@ -43,11 +44,11 @@ public interface UserRepository extends Repository<User, Integer> {
 
     default User getById(Integer userId) {
         return findById(userId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+            .orElseThrow(() -> CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "userId: " + userId));
     }
 
     default User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
         return findByLoginIdAndUserTypeIn(loginId, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
+            .orElseThrow(() -> CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "loginId: " + loginId));
     }
 }
