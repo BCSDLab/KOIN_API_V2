@@ -8,12 +8,12 @@ import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumb
 
 public class VerificationFixture {
 
-    public static UserVerificationStatus SMS_인증_상태(String phoneNumber, String code) {
+    public static UserVerificationStatus SMS_인증_코드(String phoneNumber, String code) {
         VerificationNumberGenerator verificationNumberGenerator = new StubVerificationNumberHolder(code);
         return UserVerificationStatus.ofSms(phoneNumber, verificationNumberGenerator);
     }
 
-    public static UserVerificationStatus Email_인증_상태(String email, String code) {
+    public static UserVerificationStatus Email_인증_코드(String email, String code) {
         VerificationNumberGenerator verificationNumberGenerator = new StubVerificationNumberHolder(code);
         return UserVerificationStatus.ofEmail(email, verificationNumberGenerator);
     }

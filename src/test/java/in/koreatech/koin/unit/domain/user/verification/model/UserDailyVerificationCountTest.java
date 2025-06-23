@@ -36,7 +36,7 @@ class UserDailyVerificationCountTest {
     class create {
 
         @Test
-        void SMS를_이용하여_인증_횟수_객체를_생성할_수_있다() {
+        void SMS_인증_횟수를_생성한다() {
             // given
             long expectedExpiration = 60 * 60 * 24L;
             // when
@@ -48,7 +48,7 @@ class UserDailyVerificationCountTest {
         }
 
         @Test
-        void Email을_이용하여_인증_횟수_객체를_생성할_수_있다() {
+        void Email_인증_횟수를_생성한다() {
             // given
             long expectedExpiration = 60 * 60 * 24L;
             // when
@@ -64,7 +64,7 @@ class UserDailyVerificationCountTest {
     class increment {
 
         @Test
-        void SMS_인증_횟수_객체에_increment를_호출하면_인증_횟수가_증가한다() {
+        void SMS_인증_횟수가_증가한다() {
             // when
             SMS_인증_횟수.incrementVerificationCount();
             // then
@@ -72,7 +72,7 @@ class UserDailyVerificationCountTest {
         }
 
         @Test
-        void Email_인증_횟수_객체에_increment를_호출하면_인증_횟수가_증가한다() {
+        void Email_인증_횟수가_증가한다() {
             // when
             이메일_인증_횟수.incrementVerificationCount();
             // then
@@ -80,7 +80,7 @@ class UserDailyVerificationCountTest {
         }
 
         @Test
-        void SMS_인증_횟수_객체에_최대_인증_횟수를_초과하여_요청하면_TooManyRequestsException이_발생한다() {
+        void SMS_최대_인증_횟수를_초과하면_예외를_던진다() {
             // when
             Stream.generate(() -> SMS_인증_횟수)
                 .limit(SMS_인증_횟수.getMaxVerificationCount())
@@ -92,7 +92,7 @@ class UserDailyVerificationCountTest {
         }
 
         @Test
-        void Email_인증_횟수_객체에_최대_인증_횟수를_초과하여_요청하면_TooManyRequestsException이_발생한다() {
+        void Email_최대_인증_횟수를_초과하면_예외를_던진다() {
             // when
             IntStream.rangeClosed(1, 5).forEach(i -> 이메일_인증_횟수.incrementVerificationCount());
             // then

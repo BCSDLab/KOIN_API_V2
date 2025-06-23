@@ -53,7 +53,7 @@ class UserVerificationServiceTest {
     class sendSmsVerification {
 
         @Test
-        void sendSmsVerification를_최초_호출하면_인증_횟수가_1로_초기화되고_인증번호가_발송된다() {
+        void 인증_횟수가_1로_초기화되고_인증번호가_발송된다() {
             // when
             SendVerificationResponse response = userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             // then
@@ -61,7 +61,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void sendSmsVerification를_다시_호출하면_인증_횟수가_증가하고_인증번호가_재발송된다() {
+        void 인증_횟수가_증가하고_인증번호가_재발송된다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             // when
@@ -70,7 +70,7 @@ class UserVerificationServiceTest {
             assertThat(response.currentCount()).isEqualTo(2);
         }
         @Test
-        void 일일_인증_횟수_초과_시_sendSmsVerification를_호출하면_TooManyRequestException이_발생한다() {
+        void 인증_횟수_초과_시_예외를_던진다() {
             // given
             Stream.generate(() -> userVerificationService)
                 .limit(MAX_VERIFICATION_COUNT)
@@ -87,7 +87,7 @@ class UserVerificationServiceTest {
     class sendEmailVerification {
 
         @Test
-        void sendEmailVerification를_최초_호출하면_인증_횟수가_1로_초기화되고_인증번호가_발송된다() {
+        void 인증_횟수가_1로_초기화되고_인증번호가_발송된다() {
             // when
             SendVerificationResponse response = userVerificationService.sendEmailVerification(TEST_EMAIL);
             // then
@@ -95,7 +95,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void sendEmailVerification를_다시_호출하면_인증_횟수가_증가하고_인증번호가_재발송된다() {
+        void 인증_횟수가_증가하고_인증번호가_재발송된다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             // when
@@ -105,7 +105,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 일일_인증_횟수_초과_시_sendEmailVerification를_호출하면_TooManyRequestException이_발생한다() {
+        void 인증_횟수_초과_시_예외를_던진다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.sendEmailVerification(TEST_EMAIL);
@@ -122,7 +122,7 @@ class UserVerificationServiceTest {
     class verifyCode {
 
         @Test
-        void 올바른_SMS_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
+        void SMS_인증번호가_일치하면_예외를_던지지_않는다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             // when / then
@@ -131,7 +131,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 올바른_SMS_인증번호를_입력하여_verifyCode를_재호출해도_예외를_반환하지_않는다() {
+        void SMS_두번이상_일치해도_예외를_던지지_않는다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
@@ -141,7 +141,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 잘못된_SMS_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
+        void SMS_인증번호가_불일치하면_예외를_던진다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             // when / then
@@ -150,7 +150,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 올바른_Email_인증번호를_입력하여_verifyCode를_호출하면_예외를_반환하지_않는다() {
+        void Email_인증번호가_일치하면_예외를_던지지_않는다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             // when / then
@@ -159,7 +159,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 올바른_Email_인증번호를_입력하여_verifyCode를_재호출해도_예외를_반환하지_않는다() {
+        void Email_두번이상_일치해도_예외를_던지지_않는다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
@@ -169,7 +169,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void 잘못된_Email_인증번호를_입력하여_verifyCode를_호출하면_KoinIllegalArgumentException이_발생한다() {
+        void Email_인증번호가_불일치하면_예외를_던진다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             // when / then
@@ -182,7 +182,7 @@ class UserVerificationServiceTest {
     class consumeVerification {
 
         @Test
-        void SMS_인증_완료된_상태에서_요청하면_인증_정보가_삭제된다() {
+        void SMS_인증_정보를_삭제한다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
@@ -192,14 +192,14 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void SMS_미인증_상태에서_요청하면_AuthorizationException이_발생한다() {
+        void SMS_미인증_상태이면_예외를_던진다() {
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
                 .isInstanceOf(CustomException.class);
         }
 
         @Test
-        void SMS_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
+        void SMS_미검증_상태이면_예외를_던진다() {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             // when / then
@@ -208,7 +208,7 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void Email_인증_완료된_상태에서_요청하면_인증_정보가_삭제된다() {
+        void Email_인증_정보를_삭제한다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
@@ -218,14 +218,14 @@ class UserVerificationServiceTest {
         }
 
         @Test
-        void Email_미인증_상태에서_요청하면_AuthorizationException이_발생한다() {
+        void Email_미인증_상태이면_예외를_던진다() {
             // when / then
             assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_EMAIL))
                 .isInstanceOf(CustomException.class);
         }
 
         @Test
-        void Email_미검증_상태에서_요청하면_AuthorizationException이_발생한다() {
+        void Email_미검증_상태이면_예외를_던진다() {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             // when / then
