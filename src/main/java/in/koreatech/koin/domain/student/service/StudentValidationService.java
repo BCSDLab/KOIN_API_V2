@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.student.service;
 import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.ErrorCode;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
@@ -11,7 +13,6 @@ import in.koreatech.koin.domain.student.model.StudentDepartment;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
-import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.email.exception.DuplicationEmailException;
 import in.koreatech.koin.infrastructure.email.model.EmailAddress;
@@ -70,11 +71,11 @@ public class StudentValidationService {
         }
         userRepository.findByNickname(nickname)
             .ifPresent(user -> {
-                throw DuplicationNicknameException.withDetail("nickname: " + nickname);
+                throw CustomException.withDetail(ErrorCode.USER_DUPLICATION_NICKNAME, "nickname : " + nickname);
             });
         studentRedisRepository.findByNickname(nickname)
             .ifPresent(status -> {
-                throw DuplicationNicknameException.withDetail("nickname: " + nickname);
+                throw CustomException.withDetail(ErrorCode.USER_DUPLICATION_NICKNAME, "nickname : " + nickname);
             });
     }
 
