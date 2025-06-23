@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.ErrorCode;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -34,7 +36,6 @@ import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
 import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -185,22 +186,22 @@ public class UserService {
 
     public User getById(Integer userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+            .orElseThrow(() -> CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "userId: " + userId));
     }
 
     public User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
         return userRepository.findByEmailAndUserTypeIn(email, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+            .orElseThrow(() -> CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "email: " + email));
     }
 
     public User getByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes) {
         return userRepository.findByPhoneNumberAndUserTypeIn(phoneNumber, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
+            .orElseThrow(() -> CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "account: " + phoneNumber));
     }
 
     public User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
         return userRepository.findByLoginIdAndUserTypeIn(loginId, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
+            .orElseThrow(() -> CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "loginId: " + loginId));
     }
 
     public Map<Integer, User> getAllByIdInMap(List<Integer> ids) {

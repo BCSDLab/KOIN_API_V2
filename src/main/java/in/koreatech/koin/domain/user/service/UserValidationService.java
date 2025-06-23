@@ -11,18 +11,15 @@ import org.springframework.util.StringUtils;
 
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.ErrorCode;
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithEmailRequest;
 import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithPhoneNumberRequest;
-import in.koreatech.koin.domain.user.exception.DuplicationLoginIdException;
-import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
-import in.koreatech.koin.domain.user.exception.DuplicationPhoneNumberException;
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
-import in.koreatech.koin.infrastructure.email.exception.DuplicationEmailException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -48,28 +45,28 @@ public class UserValidationService {
     public void requireUniqueNickname(String nickname) {
         if (StringUtils.hasText(nickname)
             && userRepository.existsByNicknameAndUserTypeIn(nickname, KOIN_USER_TYPES)) {
-            throw DuplicationNicknameException.withDetail("nickname: " + nickname);
+            throw CustomException.withDetail(ErrorCode.USER_DUPLICATION_NICKNAME, "nickname: " + nickname);
         }
     }
 
     public void requireUniquePhoneNumber(String phoneNumber) {
         if (StringUtils.hasText(phoneNumber)
             && userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + phoneNumber);
+            throw CustomException.withDetail(ErrorCode.USER_DUPLICATION_PHONE_NUMBER, "phoneNumber: " + phoneNumber);
         }
     }
 
     public void requireUniqueEmail(String email) {
         if (StringUtils.hasText(email)
             && userRepository.existsByEmailAndUserTypeIn(email, KOIN_USER_TYPES)) {
-            throw DuplicationEmailException.withDetail("email: " + email);
+            throw CustomException.withDetail(ErrorCode.USER_DUPLICATION_EMAIL, "email: " + email);
         }
     }
 
     public void requireUniqueLoginId(String loginId) {
         if (StringUtils.hasText(loginId)
             && userRepository.existsByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES)) {
-            throw DuplicationLoginIdException.withDetail("loginId: " + loginId);
+            throw CustomException.withDetail(ErrorCode.USER_DUPLICATION_LOGIN_ID, "loginId: " + loginId);
         }
     }
 
@@ -84,21 +81,21 @@ public class UserValidationService {
         if (userRepository.existsByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES)) {
             return;
         }
-        throw UserNotFoundException.withDetail("loginId: " + loginId);
+        throw CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "loginId: " + loginId);
     }
 
     public void requirePhoneNumberExists(String phoneNumber) {
         if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
             return;
         }
-        throw UserNotFoundException.withDetail("phoneNumber: " + phoneNumber);
+        throw CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "phoneNumber: " + phoneNumber);
     }
 
     public void requireEmailExists(String email) {
         if (userRepository.existsByEmailAndUserTypeIn(email, KOIN_USER_TYPES)) {
             return;
         }
-        throw UserNotFoundException.withDetail("email: " + email);
+        throw CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "email: " + email);
     }
 
     public void matchLoginIdWithPhoneNumber(UserMatchLoginIdWithPhoneNumberRequest request) {

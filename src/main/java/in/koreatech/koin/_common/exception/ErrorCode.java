@@ -22,7 +22,7 @@ public enum ErrorCode {
     USER_DUPLICATION_EMAIL(HttpStatus.CONFLICT, "USER-409004", "이미 사용 중인 전화번호입니다."),
     ;
 
-    // TODO: 나머지 도메인 에러코드 추가
+    // TODO: 나머지 도메인 에러코드 구현
 
     @Getter
     private final HttpStatus httpStatus;

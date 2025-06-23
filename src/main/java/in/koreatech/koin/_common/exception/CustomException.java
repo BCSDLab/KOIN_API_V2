@@ -7,23 +7,23 @@ import lombok.Builder;
 
 public class CustomException extends RuntimeException {
 
-    private final CustomException errorCode;
+    private final ErrorCode errorCode;
     private final String detail;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CustomException(CustomException errorCode, String detail) {
+    private CustomException(ErrorCode errorCode, String detail) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
         this.detail = detail;
     }
 
-    public static CustomException from(CustomException errorCode) {
+    public static CustomException from(ErrorCode errorCode) {
         return CustomException.builder()
             .errorCode(errorCode)
             .build();
     }
 
-    public static CustomException withDetail(CustomException errorCode, String detail) {
+    public static CustomException withDetail(ErrorCode errorCode, String detail) {
         return CustomException.builder()
             .errorCode(errorCode)
             .detail(detail)
