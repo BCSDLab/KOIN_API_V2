@@ -6,8 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import lombok.Getter;
 
@@ -45,7 +45,7 @@ public class UserVerificationStatus {
 
     public void verify(String inputCode) {
         if (isCodeMismatched(inputCode)) {
-            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+            throw CustomException.withDetail(ErrorCode.VERIFICATION_CODE_NOT_VALID, "identity: " + this.id);
         }
         this.isVerified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
@@ -53,7 +53,7 @@ public class UserVerificationStatus {
 
     public void requireVerified() {
         if (isNotVerified()) {
-            throw new AuthorizationException("본인 인증 후 다시 시도해주십시오.");
+            throw CustomException.withDetail(ErrorCode.VERIFICATION_FORBIDDEN_API, "identity: " + this.id);
         }
     }
 

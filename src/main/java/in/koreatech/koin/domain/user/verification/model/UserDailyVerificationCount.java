@@ -4,7 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.ErrorCode;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import lombok.Getter;
 
@@ -37,7 +38,7 @@ public class UserDailyVerificationCount {
 
     public void incrementVerificationCount() {
         if (verificationCount >= maxVerificationCount) {
-            throw new TooManyRequestsException("하루 인증 횟수를 초과했습니다.", "verification: " + id);
+            throw CustomException.withDetail(ErrorCode.VERIFICATION_TOO_MANY_REQUEST, "identity: " + id);
         }
         verificationCount++;
     }

@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
@@ -62,7 +64,7 @@ public class UserVerificationService {
     @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
-            .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumberOrEmail));
+            .orElseThrow(() -> CustomException.withDetail(ErrorCode.VERIFICATION_NOT_FOUND, "identity: " + phoneNumberOrEmail));
         verificationStatus.requireVerified();
         userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
