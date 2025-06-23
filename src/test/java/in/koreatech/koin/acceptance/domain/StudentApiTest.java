@@ -19,7 +19,11 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.MajorAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
@@ -29,11 +33,8 @@ import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.MajorAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import in.koreatech.koin._common.auth.JwtProvider;
+import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.domain.user.service.UserService;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -46,7 +47,7 @@ public class StudentApiTest extends AcceptanceTest {
     private StudentRedisRepository studentRedisRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -401,7 +402,7 @@ public class StudentApiTest extends AcceptanceTest {
             )
             .andReturn();
 
-        User user = userRepository.getByEmailAndUserTypeIn("koko123@koreatech.ac.kr");
+        User user = userService.getByEmailAndUserTypeIn("koko123@koreatech.ac.kr", UserType.KOIN_STUDENT_TYPES);
         assertThat(studentRedisRepository.findById("koko123@koreatech.ac.kr")).isEmpty();
 
         assertThat(user.isAuthed()).isTrue();

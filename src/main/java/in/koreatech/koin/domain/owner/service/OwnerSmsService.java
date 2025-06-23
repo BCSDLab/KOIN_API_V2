@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.owner.service;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER_TYPE;
 
 import java.time.LocalDateTime;
 
@@ -27,8 +27,8 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
+import in.koreatech.koin.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -38,7 +38,7 @@ public class OwnerSmsService {
 
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final OwnerRepository ownerRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
@@ -91,7 +91,7 @@ public class OwnerSmsService {
 
     @Transactional
     public void sendResetPasswordBySms(OwnerSendSmsRequest request) {
-        User user = userRepository.getByPhoneNumberAndUserType(request.phoneNumber(), OWNER);
+        User user = userService.getByPhoneNumberAndUserTypeIn(request.phoneNumber(), OWNER_TYPE);
         ownerVerificationService.sendCertificationSms(user.getPhoneNumber());
     }
 
@@ -102,7 +102,7 @@ public class OwnerSmsService {
 
     @Transactional
     public void updatePasswordBySms(OwnerPasswordUpdateSmsRequest request) {
-        User user = userRepository.getByPhoneNumberAndUserType(request.phoneNumber(), OWNER);
+        User user = userService.getByPhoneNumberAndUserTypeIn(request.phoneNumber(), OWNER_TYPE);
         user.updatePassword(passwordEncoder, request.password());
         refreshTokenService.deleteAllRefreshTokens(user.getId());
     }

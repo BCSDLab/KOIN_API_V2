@@ -10,16 +10,15 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse;
-import in.koreatech.koin.domain.shop.model.redis.ShopReviewNotification;
-import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-
-import in.koreatech.koin.domain.shop.repository.shop.ShopReviewNotificationRedisRepository;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.service.NotificationService;
+import in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse;
+import in.koreatech.koin.domain.shop.model.redis.ShopReviewNotification;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopReviewNotificationRedisRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,22 +31,25 @@ public class NotificationScheduleService {
     private final NotificationFactory notificationFactory;
     private final NotificationService notificationService;
     private final ShopRepository shopRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Transactional
     public void sendDueNotifications() {
         LocalDateTime now = LocalDateTime.now(clock);
-        List<ShopReviewNotification> dueNotifications = shopReviewNotificationRedisRepository.findAllByNotificationTimeBefore(now);
+        List<ShopReviewNotification> dueNotifications = shopReviewNotificationRedisRepository.findAllByNotificationTimeBefore(
+            now);
         if (dueNotifications.isEmpty()) {
             return;
         }
 
-        Map<Integer, ShopNotificationQueryResponse> shopNotificationQueryResponseMap = getShopNotificationBatch(dueNotifications);
+        Map<Integer, ShopNotificationQueryResponse> shopNotificationQueryResponseMap = getShopNotificationBatch(
+            dueNotifications);
         Map<Integer, User> userMap = getUserBatch(dueNotifications);
 
         List<Notification> notifications = dueNotifications.stream()
             .map(dueNotification -> {
-                ShopNotificationQueryResponse shopNotification = shopNotificationQueryResponseMap.get(dueNotification.getShopId());
+                ShopNotificationQueryResponse shopNotification = shopNotificationQueryResponseMap.get(
+                    dueNotification.getShopId());
                 User user = userMap.get(dueNotification.getStudentId());
                 return createNotification(shopNotification, user);
             })
@@ -61,7 +63,7 @@ public class NotificationScheduleService {
         List<Integer> userIds = dueNotifications.stream()
             .map(ShopReviewNotification::getStudentId)
             .toList();
-        return userRepository.getAllByIdInMap(userIds);
+        return userService.getAllByIdInMap(userIds);
     }
 
     private Map<Integer, ShopNotificationQueryResponse> getShopNotificationBatch(
