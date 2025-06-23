@@ -50,6 +50,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // 커스텀 예외
 
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<Object> handleCustomException(
+        HttpServletRequest request,
+        CustomException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request);
+        return buildErrorResponseWithErrorCode(
+            e.getHttpStatus(),
+            e.getMessage(),
+            e.getErrorCode()
+        );
+    }
+
     @ExceptionHandler(KoinException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(
         HttpServletRequest request,

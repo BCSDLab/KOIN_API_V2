@@ -1,5 +1,7 @@
 package in.koreatech.koin._common.exception;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 
@@ -32,8 +34,8 @@ public class CustomException extends RuntimeException {
         return errorCode.getErrorCode();
     }
 
-    public Integer getHttpIntegerCode() {
-        return errorCode.getHttpIntegerCode();
+    public HttpStatus getHttpStatus() {
+        return errorCode.getHttpStatus();
     }
 
     public String getFullMessage() {

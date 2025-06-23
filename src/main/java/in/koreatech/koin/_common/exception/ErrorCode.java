@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum ErrorCode {
+    // USER
 
     // 400
     USER_GENDER_NOT_VALID(HttpStatus.BAD_REQUEST, "USER-400001", "잘못된 성별 인덱스입니다."),
@@ -21,15 +22,14 @@ public enum ErrorCode {
     USER_DUPLICATION_EMAIL(HttpStatus.CONFLICT, "USER-409004", "이미 사용 중인 전화번호입니다."),
     ;
 
-    private final HttpStatus httpStatusCode;
+    // TODO: 나머지 도메인 에러코드 추가
+
+    @Getter
+    private final HttpStatus httpStatus;
 
     @Getter
     private final String errorCode;
 
     @Getter
     private final String message;
-
-    public Integer getHttpIntegerCode() {
-        return httpStatusCode.value();
-    }
 }
