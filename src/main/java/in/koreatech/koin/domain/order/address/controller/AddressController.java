@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.order.address.controller;
 
-import java.util.List;
-
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

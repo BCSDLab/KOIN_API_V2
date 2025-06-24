@@ -12,12 +12,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CampusDeliveryAddressRequestFilter {
 
-    ALL("ALL", repository -> repository.findAll()),
-    DORMITORY("DORMITORY", repository -> repository.findByCampusAddressType_Id(1)),
-    COLLEGE_BUILDING("COLLEGE_BUILDING", repository -> repository.findByCampusAddressType_Id(2)),
-    ETC("ETC", repository -> repository.findByCampusAddressType_Id(3));
+    ALL("ALL", 0, repository -> repository.findAll()),
+    DORMITORY("DORMITORY", 1, repository -> repository.findByCampusAddressType_Id(1)),
+    COLLEGE_BUILDING("COLLEGE_BUILDING", 2, repository -> repository.findByCampusAddressType_Id(2)),
+    ETC("ETC", 3, repository -> repository.findByCampusAddressType_Id(3));
 
     private final String value;
+    private final Integer id;
     private final Function<CampusDeliveryAddressRepository, List<CampusDeliveryAddress>> queryFunction;
 
     public List<CampusDeliveryAddress> getCampusDeliveryAddress(CampusDeliveryAddressRepository repository) {

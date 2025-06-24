@@ -87,7 +87,7 @@ public interface AddressApi {
             })
         )
     })
-    @Operation(summary = "주소 검색", description = """
+    @Operation(summary = "교외 배달 주소 검색", description = """
         ### 키워드를 사용하여 주소를 검색합니다.
         - 행정안전부 주소기반산업지원서비스 API를 호출하여 결과를 반환합니다.
                 
