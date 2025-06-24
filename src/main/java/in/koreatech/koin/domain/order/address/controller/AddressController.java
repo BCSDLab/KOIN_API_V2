@@ -22,7 +22,7 @@ public class AddressController implements AddressApi {
     private final AddressService addressService;
     private final CampusAddressService campusAddressService;
 
-    @GetMapping("/order/address/search")
+    @GetMapping("/address/search")
     public ResponseEntity<AddressSearchResponse> searchAddress(
         @ParameterObject @Valid AddressSearchRequest request
     ) {
@@ -30,7 +30,7 @@ public class AddressController implements AddressApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/order/address/campus")
+    @GetMapping("/address/campus")
     public ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
         @RequestParam(name = "filter", defaultValue = "ALL") CampusDeliveryAddressRequestFilter filter
     ) {

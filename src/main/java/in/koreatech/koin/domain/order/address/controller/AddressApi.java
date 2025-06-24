@@ -96,7 +96,7 @@ public interface AddressApi {
         - **current_page**: 현재 페이지 (1 이상)
         - **count_per_page**: 페이지당 항목 수 (1 이상)
         """)
-    @GetMapping("/order/address/search")
+    @GetMapping("/address/search")
     ResponseEntity<AddressSearchResponse> searchAddress(
         @ParameterObject @Valid AddressSearchRequest request
     );
@@ -137,7 +137,7 @@ public interface AddressApi {
           - **COLLEGE_BUILDING**: 공학관
           - **ETC**: 그 외
         """)
-    @GetMapping("/order/address/campus")
+    @GetMapping("/address/campus")
     ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
         @Parameter(description = "주소 타입. 중복 지정 불가")
         @RequestParam(name = "type", defaultValue = "ALL") CampusDeliveryAddressRequestFilter type
