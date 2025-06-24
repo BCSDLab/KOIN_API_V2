@@ -7,6 +7,4 @@ CREATE TABLE IF NOT EXISTS `koin`.`campus_delivery_address_type`
     PRIMARY KEY (`id`)
 );
 
-CREATE INDEX idx_campus_delivery_address_type ON `koin`.`campus_delivery_address_type` (id, name);
-
 INSERT INTO `koin`.`campus_delivery_address_type` (`name`) VALUES ('기숙사'), ('공학관'), ('그 외');

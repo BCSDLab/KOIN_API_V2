@@ -3,18 +3,18 @@ package in.koreatech.koin.domain.order.address.exception;
 import lombok.Getter;
 
 @Getter
-public class AddressApiException extends RuntimeException {
+public class AddressException extends RuntimeException {
 
     private final AddressErrorCode errorCode;
     private final String detail;
 
-    public AddressApiException(AddressErrorCode errorCode) {
+    public AddressException(AddressErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
         this.detail = null;
     }
 
-    public AddressApiException(AddressErrorCode errorCode, String detail) {
+    public AddressException(AddressErrorCode errorCode, String detail) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
         this.detail = detail;

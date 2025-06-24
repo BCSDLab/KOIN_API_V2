@@ -1,12 +1,18 @@
 package in.koreatech.koin.domain.order.address.controller;
 
+import java.util.List;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
+import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressResponse;
+import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressRequestFilter;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -93,5 +99,47 @@ public interface AddressApi {
     @GetMapping("/order/address/search")
     ResponseEntity<AddressSearchResponse> searchAddress(
         @ParameterObject @Valid AddressSearchRequest request
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "교내 주소 목록 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "기숙사 주소 조회 결과", summary = "기숙사 조회", value = """
+                    {
+                        "count": 2,
+                        "addresses": [
+                          {
+                            "id": 1,
+                            "type": "기숙사",
+                            "full_address": "충남 천안시 동남구 병천면 충절로 1600 한국기술교육대학교 제1캠퍼스 생활관 101동",
+                            "short_address": "101동(해울)"
+                          },
+                          {
+                            "id": 2,
+                            "type": "기숙사",
+                            "full_address": "충남 천안시 동남구 병천면 충절로 1600 한국기술교육대학교 제1캠퍼스 생활관 102동",
+                            "short_address": "102동(예지)"
+                          }
+                        ]
+                    }
+                    """)
+            })
+        ),
+    })
+    @Operation(summary = "교내 배달 주소 목록 조회", description = """
+        ### 교내 배달이 가능한 주소 목록 조회
+        - `type` 파라미터를 사용하지 않으면 전체 목록이 조회됩니다.
+        
+        ### 요청 파라미터
+        - **type**: 주소 타입 (선택, 기본값: `ALL`)
+          - **ALL**: 전체
+          - **DORMITORY**: 기숙사
+          - **COLLEGE_BUILDING**: 공학관
+          - **ETC**: 그 외
+        """)
+    @GetMapping("/order/address/campus")
+    ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
+        @Parameter(description = "주소 타입. 중복 지정 불가")
+        @RequestParam(name = "type", defaultValue = "ALL") CampusDeliveryAddressRequestFilter type
     );
 }
