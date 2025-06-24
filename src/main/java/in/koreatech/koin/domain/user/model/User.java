@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.ErrorCode;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,12 +27,14 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @Entity
 @Table(name = "users")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
+@ToString(exclude = {"loginPw", "profileImageUrl"})
 public class User extends BaseEntity {
 
     @Id
@@ -167,19 +169,19 @@ public class User extends BaseEntity {
 
     public void requireSamePhoneNumber(String phoneNumber) {
         if (isNotSamePhoneNumber(phoneNumber)) {
-            throw CustomException.from(ErrorCode.USER_PHONE_NUMBER_NOT_MATCHED);
+            throw CustomException.of(ErrorCode.PHONE_NUMBER_NOT_MATCHED, this);
         }
     }
 
     public void requireSameEmail(String email) {
         if (isNotSameEmail(email)) {
-            throw CustomException.from(ErrorCode.USER_EMAIL_NOT_MATCHED);
+            throw CustomException.of(ErrorCode.EMAIL_NOT_MATCHED, this);
         }
     }
 
     public void requireSameLoginPw(PasswordEncoder passwordEncoder, String loginPw) {
         if (isNotSameLoginPw(passwordEncoder, loginPw)) {
-            throw CustomException.from(ErrorCode.USER_PASSWORD_NOT_MATCHED);
+            throw CustomException.of(ErrorCode.PASSWORD_NOT_MATCHED, this);
         }
     }
 
@@ -202,7 +204,7 @@ public class User extends BaseEntity {
 
     private void ensureNotDeleted() {
         if (isDeleted) {
-            throw CustomException.withDetail(ErrorCode.USER_WITHDRAWN_USER, "userId: " + id);
+            throw CustomException.of(ErrorCode.WITHDRAWN_USER, "userId: " + id);
         }
     }
 
@@ -211,7 +213,7 @@ public class User extends BaseEntity {
         if (permittedUserTypesList.contains(this.userType)) {
             return;
         }
-        throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_USER_TYPE, "userId: " + id);
+        throw CustomException.of(ErrorCode.USER_TYPE_FORBIDDEN, "userId: " + id);
     }
 
     private void ensureAuthed() {
@@ -219,10 +221,10 @@ public class User extends BaseEntity {
             return;
         }
         switch (this.userType) {
-            case OWNER -> throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_OWNER, "userId: " + id);
-            case STUDENT -> throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_STUDENT, "userId: " + id);
-            case ADMIN -> throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_ADMIN, "userId: " + id);
-            default -> throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_DEFAULT, "userId: " + id);
+            case OWNER -> throw CustomException.of(ErrorCode.OWNER_FORBIDDEN, "userId: " + id);
+            case STUDENT -> throw CustomException.of(ErrorCode.STUDENT_FORBIDDEN, "userId: " + id);
+            case ADMIN -> throw CustomException.of(ErrorCode.ADMIN_FORBIDDEN, "userId: " + id);
+            default -> throw CustomException.of(ErrorCode.ACCOUNT_FORBIDDEN, "userId: " + id);
         }
     }
 

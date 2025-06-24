@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.ErrorCode;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import io.jsonwebtoken.JwtException;
@@ -35,7 +35,7 @@ public class JwtProvider {
 
     public String createToken(User user) {
         if (user == null) {
-            throw CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "user: " + null);
+            throw CustomException.of(ErrorCode.USER_NOT_FOUND, "user: " + null);
         }
         Key key = getSecretKey();
         return Jwts.builder()

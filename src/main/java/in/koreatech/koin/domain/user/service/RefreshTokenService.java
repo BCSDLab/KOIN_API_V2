@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.ErrorCode;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.model.RefreshToken;
 import in.koreatech.koin.domain.user.repository.RefreshTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class RefreshTokenService {
         String key = RefreshToken.generateKey(userId, platform);
         String savedRefreshToken = refreshTokenRedisRepository.getById(key).getToken();
         if (!Objects.equals(savedRefreshToken, refreshToken)) {
-            throw CustomException.withDetail(ErrorCode.USER_REFRESH_TOKEN_NOT_MATCHED, "refreshToken: " + refreshToken);
+            throw CustomException.of(ErrorCode.REFRESH_TOKEN_NOT_MATCHED, "refreshToken: " + refreshToken);
         }
     }
 
@@ -53,7 +53,7 @@ public class RefreshTokenService {
     public Integer extractUserId(String refreshToken) {
         String[] split = refreshToken.split("-");
         if (split.length == 0) {
-            throw CustomException.withDetail(ErrorCode.USER_FORBIDDEN_REFRESH_TOKEN, "refreshToken: " + refreshToken);
+            throw CustomException.of(ErrorCode.REFRESH_TOKEN_NOT_VALID, "refreshToken: " + refreshToken);
         }
         return Integer.parseInt(split[split.length - 1]);
     }

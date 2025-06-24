@@ -9,7 +9,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.ErrorCode;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.admin.student.dto.StudentsCondition;
 import in.koreatech.koin.domain.student.model.Student;
 
@@ -23,7 +23,7 @@ public interface AdminStudentRepository extends Repository<Student, Integer> {
 
     default Student getById(Integer userId) {
         return findById(userId)
-            .orElseThrow(() -> CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "userId: " + userId));
+            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "userId: " + userId));
     }
 
     @Query(" SELECT COUNT(s) FROM Student s ")

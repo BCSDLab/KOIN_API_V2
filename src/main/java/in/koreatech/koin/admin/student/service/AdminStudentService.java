@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.ErrorCode;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.student.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.student.dto.AdminStudentUpdateRequest;
@@ -69,7 +69,7 @@ public class AdminStudentService {
     private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
             adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
-            throw CustomException.withDetail(ErrorCode.USER_DUPLICATION_NICKNAME, "nickname : " + nickname);
+            throw CustomException.of(ErrorCode.NICKNAME_CONFLICT, "nickname : " + nickname);
         }
     }
 

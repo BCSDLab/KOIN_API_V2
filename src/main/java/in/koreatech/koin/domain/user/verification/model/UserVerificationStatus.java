@@ -7,12 +7,14 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.ErrorCode;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @RedisHash(value = "userVerificationStatus")
+@ToString
 public class UserVerificationStatus {
 
     private static final long SMS_VERIFICATION_EXPIRATION_SECONDS = 60 * 3L; // 3분
@@ -45,7 +47,7 @@ public class UserVerificationStatus {
 
     public void verify(String inputCode) {
         if (isCodeMismatched(inputCode)) {
-            throw CustomException.withDetail(ErrorCode.VERIFICATION_CODE_NOT_VALID, "identity: " + this.id);
+            throw CustomException.of(ErrorCode.VERIFICATION_CODE_NOT_MATCHED, this);
         }
         this.isVerified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
@@ -53,7 +55,7 @@ public class UserVerificationStatus {
 
     public void requireVerified() {
         if (isNotVerified()) {
-            throw CustomException.withDetail(ErrorCode.VERIFICATION_FORBIDDEN_API, "identity: " + this.id);
+            throw CustomException.of(ErrorCode.VERIFICATION_NOT_VALID, this);
         }
     }
 

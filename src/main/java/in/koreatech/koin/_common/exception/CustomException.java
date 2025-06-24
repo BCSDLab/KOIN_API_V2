@@ -1,7 +1,11 @@
 package in.koreatech.koin._common.exception;
 
+import javax.annotation.Nonnull;
+
 import org.springframework.http.HttpStatus;
 
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.Builder;
 
@@ -17,21 +21,29 @@ public class CustomException extends RuntimeException {
         this.detail = detail;
     }
 
-    public static CustomException from(ErrorCode errorCode) {
+    public static CustomException of(ErrorCode errorCode) {
         return CustomException.builder()
             .errorCode(errorCode)
+            .detail("")
             .build();
     }
 
-    public static CustomException withDetail(ErrorCode errorCode, String detail) {
+    public static CustomException of(ErrorCode errorCode, String detail) {
         return CustomException.builder()
             .errorCode(errorCode)
             .detail(detail)
             .build();
     }
 
+    public static CustomException of(ErrorCode errorCode, @Nonnull Object errorObject) {
+        return CustomException.builder()
+            .errorCode(errorCode)
+            .detail(errorObject.toString())
+            .build();
+    }
+
     public String getErrorCode() {
-        return errorCode.getErrorCode();
+        return errorCode.name();
     }
 
     public HttpStatus getHttpStatus() {
@@ -39,6 +51,9 @@ public class CustomException extends RuntimeException {
     }
 
     public String getFullMessage() {
-        return String.format("%s %s", getMessage(), detail);
+        if (StringUtils.isBlank(detail)) {
+            return getMessage();
+        }
+        return String.format("%s: %s", getMessage(), detail);
     }
 }

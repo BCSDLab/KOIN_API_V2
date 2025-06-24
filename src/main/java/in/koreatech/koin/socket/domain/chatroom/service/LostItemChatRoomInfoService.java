@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.ErrorCode;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.socket.domain.chatroom.dto.ChatRoomListResponse;
@@ -45,7 +45,7 @@ public class LostItemChatRoomInfoService {
         LostItemArticle lostItemArticle = lostItemArticleReader.readByArticleId(articleId);
         User author = lostItemArticle.getAuthor();
         if (author == null) {
-            throw CustomException.withDetail(ErrorCode.USER_NOT_FOUND, "탈퇴한 사용자입니다.");
+            throw CustomException.of(ErrorCode.USER_NOT_FOUND, "탈퇴한 사용자입니다.");
         }
         Integer articleAuthorId = author.getId();
 

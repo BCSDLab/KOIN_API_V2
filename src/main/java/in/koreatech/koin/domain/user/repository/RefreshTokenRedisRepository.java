@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.ErrorCode;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.model.RefreshToken;
 
 public interface RefreshTokenRedisRepository extends Repository<RefreshToken, String> {
@@ -16,7 +16,7 @@ public interface RefreshTokenRedisRepository extends Repository<RefreshToken, St
 
     default RefreshToken getById(String id) {
         return findById(id)
-            .orElseThrow(() -> CustomException.withDetail(ErrorCode.USER_REFRESH_TOKEN_NOT_VALID, "id: " + id));
+            .orElseThrow(() -> CustomException.of(ErrorCode.REFRESH_TOKEN_NOT_FOUND, "id: " + id));
     }
 
     void deleteById(String id);
