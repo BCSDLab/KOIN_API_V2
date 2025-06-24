@@ -137,7 +137,7 @@ public interface AddressApi {
           - **COLLEGE_BUILDING**: 공학관
           - **ETC**: 그 외
         """)
-    @GetMapping("/address/campus")
+    @GetMapping("/address/delivery/campus")
     ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
         @Parameter(description = "주소 타입. 중복 지정 불가")
         @RequestParam(name = "type", defaultValue = "ALL") CampusDeliveryAddressRequestFilter type

@@ -30,11 +30,11 @@ public class AddressController implements AddressApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/address/campus")
+    @GetMapping("/address/delivery/campus")
     public ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
         @RequestParam(name = "filter", defaultValue = "ALL") CampusDeliveryAddressRequestFilter filter
     ) {
-        CampusDeliveryAddressResponse campusDeliveryAddresses = campusAddressService.getCampusDeliveryAddresses(filter);
-        return ResponseEntity.ok(campusDeliveryAddresses);
+        CampusDeliveryAddressResponse response = campusAddressService.getCampusDeliveryAddresses(filter);
+        return ResponseEntity.ok(response);
     }
 }
