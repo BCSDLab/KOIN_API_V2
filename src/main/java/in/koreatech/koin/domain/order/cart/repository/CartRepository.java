@@ -13,6 +13,7 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
     @Query("""
         SELECT c FROM Cart c
         LEFT JOIN FETCH c.orderableShop
+        LEFT JOIN FETCH c.orderableShop.deliveryOption
         LEFT JOIN FETCH c.cartMenuItems
         WHERE c.user.id = :userId
     """)
