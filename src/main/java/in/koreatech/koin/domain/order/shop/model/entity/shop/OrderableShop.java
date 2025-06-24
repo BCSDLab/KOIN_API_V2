@@ -12,6 +12,7 @@ import org.hibernate.annotations.Where;
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
+import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import jakarta.persistence.CascadeType;
@@ -62,6 +63,9 @@ public class OrderableShop extends BaseEntity {
     @BatchSize(size = 7) // 기본 4개 (메인, 추천, 세트, 사이드) + 사장님 커스텀 3개
     @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuGroup> menuGroups = new ArrayList<>();
+
+    @OneToOne(mappedBy = "orderableShop", fetch = FetchType.LAZY)
+    private OrderableShopDeliveryOption deliveryOption;
 
     @Builder
     public OrderableShop(Integer id, Shop shop, boolean delivery, boolean takeout, boolean serviceEvent,
