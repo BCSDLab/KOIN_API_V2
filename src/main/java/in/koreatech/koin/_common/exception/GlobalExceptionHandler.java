@@ -26,6 +26,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.WebUtils;
 
+import com.amazonaws.services.workdocs.model.DeactivatingLastSystemUserException;
+
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.DataNotFoundException;
@@ -38,6 +40,7 @@ import in.koreatech.koin._common.exception.custom.RequestTooFastException;
 import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
 import in.koreatech.koin.domain.order.address.exception.AddressException;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
+import in.koreatech.koin.domain.order.delivery.exception.DeliveryException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -273,6 +276,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
     }
 
+    // 공통 에러 코드 + 예외 적용 전 임시 처리
     @ExceptionHandler(CartException.class)
     public ResponseEntity<Object> handleCartException(
         HttpServletRequest request,
@@ -287,10 +291,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
+    // 공통 에러 코드 + 예외 적용 전 임시 처리
     @ExceptionHandler(AddressException.class)
     public ResponseEntity<Object> handleAddressApiException(
         HttpServletRequest request,
         AddressException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request);
+        return buildErrorResponseWithErrorCode(
+            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
+            e.getFullMessage(),
+            e.getErrorCode().name()
+        );
+    }
+
+    // 공통 에러 코드 + 예외 적용 전 임시 처리
+    @ExceptionHandler(DeliveryException.class)
+    public ResponseEntity<Object> handleAddressApiException(
+        HttpServletRequest request,
+        DeliveryException e
     ) {
         log.warn(e.getFullMessage());
         requestLogging(request);

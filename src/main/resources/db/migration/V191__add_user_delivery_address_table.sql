@@ -13,12 +13,9 @@ CREATE TABLE IF NOT EXISTS `koin`.`user_delivery_address`
     `si_gun_gu`       VARCHAR(50)    NULL COMMENT '시/군/구',
     `eup_myeon_dong`  VARCHAR(50)    NULL COMMENT '읍/면/동',
     `road`            VARCHAR(50)    NULL COMMENT '도로명',
-    `building_name`   VARCHAR(50)    NULL COMMENT '건물명',
+    `building`        VARCHAR(50)    NULL COMMENT '건물명',
     `detail_address`  VARCHAR(100)   NULL COMMENT '상세 주소',
     `full_address`    VARCHAR(255)   NULL COMMENT '전체 주소 (도로명/지번)',
-
-    -- 배달 기사 요청 사항
-    `to_rider`        VARCHAR(150)   NULL COMMENT '배달기사 요청사항',
 
     -- 사용 추적
     `last_used_at`    TIMESTAMP      NULL      COMMENT '마지막 사용 시간',

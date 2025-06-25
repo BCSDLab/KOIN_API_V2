@@ -86,6 +86,8 @@ public interface DeliveryApi {
     @Operation(summary = "교외 배달 주소 추가", description = """
         ### 사용자의 교외 배달 주소를 새로 추가
         - 사용자가 입력한 주소 정보를 저장하고, 배달 가능 지역인지 검증합니다.
+        - **full_address** 는 도로명 주소 + 사용자가 입력한 상세 주소를 합친 값을 입력 해야 합니다.
+            - ex) 충청남도 천안시 동남구 병천면 충절로 1628-17 **에듀윌 301호**
         - **zip_number**, **detail_address**, **full_address**는 필수 항목
         - 주소가 **충청남도 천안시 동남구 병천면** 이 아닌 경우 예외
         """)

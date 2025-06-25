@@ -29,8 +29,8 @@ public record UserOffCampusDeliveryAddressRequest(
     @Schema(description = "도로명", example = "충절로")
     String road,
 
-    @Schema(description = "건물명", example = "")
-    String buildingName,
+    @Schema(description = "건물명", example = " ")
+    String building,
 
     @Schema(description = "상세 주소", example = "에듀윌 301호")
     @NotBlank(message = "상세 주소는 필수입니다.")
@@ -38,10 +38,7 @@ public record UserOffCampusDeliveryAddressRequest(
 
     @Schema(description = "전체 주소 (도로명)", example = "충청남도 천안시 동남구 병천면 충절로 1628-17 에듀윌 301호")
     @NotBlank(message = "전체 주소는 필수입니다.")
-    String fullAddress,
-
-    @Schema(description = "배달기사 요청사항", example = "문 앞에 놓아주세요.")
-    String toRider
+    String fullAddress
 ) {
 
     public OffCampusDeliveryAddress toOffCampusAddress() {
@@ -51,7 +48,7 @@ public record UserOffCampusDeliveryAddressRequest(
             .siGunGu(siGunGu)
             .eupMyeonDong(eupMyeonDong)
             .road(road)
-            .buildingName(buildingName)
+            .building(building)
             .detailAddress(detailAddress)
             .fullAddress(fullAddress)
             .build();

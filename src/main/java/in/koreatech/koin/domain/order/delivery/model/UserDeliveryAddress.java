@@ -50,9 +50,6 @@ public class UserDeliveryAddress extends BaseEntity {
     @Embedded
     private OffCampusDeliveryAddress offCampusDeliveryAddress;
 
-    @Column(name = "to_rider", length = 150)
-    private String toRider;
-
     @Column(name = "last_used_at")
     private LocalDateTime lastUsedAt;
 
@@ -74,35 +71,31 @@ public class UserDeliveryAddress extends BaseEntity {
 
     @Builder
     public UserDeliveryAddress(User user, AddressType addressType, CampusDeliveryAddress campusDeliveryAddress,
-        OffCampusDeliveryAddress offCampusDeliveryAddress, String toRider, LocalDateTime lastUsedAt, Integer usageCount,
+        OffCampusDeliveryAddress offCampusDeliveryAddress, LocalDateTime lastUsedAt, Integer usageCount,
         Boolean isDefault) {
         this.user = user;
         this.addressType = addressType;
         this.campusDeliveryAddress = campusDeliveryAddress;
         this.offCampusDeliveryAddress = offCampusDeliveryAddress;
-        this.toRider = toRider;
         this.lastUsedAt = lastUsedAt;
         this.usageCount = usageCount;
         this.isDefault = isDefault;
     }
 
-    public static UserDeliveryAddress ofOffCampus(User user, OffCampusDeliveryAddress offCampusDeliveryAddress,
-        String toRider) {
+    public static UserDeliveryAddress ofOffCampus(User user, OffCampusDeliveryAddress offCampusDeliveryAddress) {
         return UserDeliveryAddress.builder()
             .user(user)
             .addressType(AddressType.OFF_CAMPUS)
             .offCampusDeliveryAddress(offCampusDeliveryAddress)
-            .toRider(toRider)
             .lastUsedAt(LocalDateTime.now())
             .build();
     }
 
-    public static UserDeliveryAddress ofCampus(User user, CampusDeliveryAddress campusDeliveryAddress, String toRider) {
+    public static UserDeliveryAddress ofCampus(User user, CampusDeliveryAddress campusDeliveryAddress) {
         return UserDeliveryAddress.builder()
             .user(user)
             .addressType(AddressType.CAMPUS)
             .campusDeliveryAddress(campusDeliveryAddress)
-            .toRider(toRider)
             .lastUsedAt(LocalDateTime.now())
             .build();
     }

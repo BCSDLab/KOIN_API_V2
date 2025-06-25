@@ -39,11 +39,10 @@ public class DeliveryService {
         deliveryAddressValidator.validateOffCampusAddress(offCampusDeliveryAddress);
 
         UserDeliveryAddress userDeliveryAddress = deliveryAddressRepository.save(
-            UserDeliveryAddress.ofOffCampus(user, offCampusDeliveryAddress, request.toRider())
+            UserDeliveryAddress.ofOffCampus(user, offCampusDeliveryAddress)
         );
 
-        return UserDeliveryAddressResponse.of(userDeliveryAddress.getId(), userDeliveryAddress.getFullDeliveryAddress(),
-            userDeliveryAddress.getToRider());
+        return UserDeliveryAddressResponse.of(userDeliveryAddress.getId(), userDeliveryAddress.getFullDeliveryAddress());
     }
 
     @Transactional
@@ -55,11 +54,10 @@ public class DeliveryService {
             request.campusDeliveryAddressId());
 
         UserDeliveryAddress userDeliveryAddress = deliveryAddressRepository.save(
-            UserDeliveryAddress.ofCampus(user, campusDeliveryAddress, request.toRider())
+            UserDeliveryAddress.ofCampus(user, campusDeliveryAddress)
         );
 
-        return UserDeliveryAddressResponse.of(userDeliveryAddress.getId(), userDeliveryAddress.getFullDeliveryAddress(),
-            userDeliveryAddress.getToRider());
+        return UserDeliveryAddressResponse.of(userDeliveryAddress.getId(), userDeliveryAddress.getFullDeliveryAddress());
     }
 
     @Transactional(readOnly = true)

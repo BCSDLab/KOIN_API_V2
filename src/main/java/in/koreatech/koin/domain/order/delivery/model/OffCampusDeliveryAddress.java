@@ -27,8 +27,8 @@ public class OffCampusDeliveryAddress {
     @Column(name = "road", length = 50)
     private String road;
 
-    @Column(name = "building_name", length = 50)
-    private String buildingName;
+    @Column(name = "building", length = 50)
+    private String building;
 
     @Column(name = "detail_address", length = 100)
     private String detailAddress;
@@ -38,13 +38,13 @@ public class OffCampusDeliveryAddress {
 
     @Builder
     public OffCampusDeliveryAddress(String zipNumber, String siDo, String siGunGu, String eupMyeonDong, String road,
-        String buildingName, String detailAddress, String fullAddress) {
+        String building, String detailAddress, String fullAddress) {
         this.zipNumber = zipNumber;
         this.siDo = siDo;
         this.siGunGu = siGunGu;
         this.eupMyeonDong = eupMyeonDong;
         this.road = road;
-        this.buildingName = buildingName;
+        this.building = building;
         this.detailAddress = detailAddress;
         this.fullAddress = fullAddress;
     }

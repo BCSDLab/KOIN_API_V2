@@ -12,9 +12,7 @@ import jakarta.validation.constraints.NotNull;
 public record UserCampusDeliveryAddressRequest (
     @Schema(description = "교내 배달 주소 ID", example = "1", requiredMode = REQUIRED)
     @NotNull
-    Integer campusDeliveryAddressId,
-    @Schema(description = "배달기사 요청사항", example = "문 앞에 놓아주세요.")
-    String toRider
+    Integer campusDeliveryAddressId
 ) {
 
 }
