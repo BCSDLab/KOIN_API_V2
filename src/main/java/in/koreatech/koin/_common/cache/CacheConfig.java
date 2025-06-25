@@ -94,6 +94,11 @@ public class CacheConfig {
             defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.CAMPUS_DELIVERY_ADDRESS.getTtl()))
         );
 
+        customConfigurationMap.put(
+            CacheKey.RIDER_MESSAGES.getCacheNames(),
+            defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.RIDER_MESSAGES.getTtl()))
+        );
+
         return customConfigurationMap;
     }
 }

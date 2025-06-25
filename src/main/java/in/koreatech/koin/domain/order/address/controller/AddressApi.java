@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.order.address.controller;
 
-import java.util.List;
-
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
-import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressResponse;
 import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressRequestFilter;
+import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,7 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "(Normal) Address: 주소", description = "주소 API")
+@Tag(name = "(Normal) Address: 주소 조회", description = "주소 조회 API")
 public interface AddressApi {
 
     @ApiResponses(value = {

@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CampusAddressService {
+public class CampusAddressQueryService {
 
     private final CampusDeliveryAddressRepository campusDeliveryAddressRepository;
 

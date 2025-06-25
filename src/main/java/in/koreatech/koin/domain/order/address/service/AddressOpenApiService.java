@@ -1,11 +1,6 @@
 package in.koreatech.koin.domain.order.address.service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
@@ -15,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AddressService {
+public class AddressOpenApiService {
 
     private final RoadNameAddressClient roadNameAddressClient;
 
