@@ -14,9 +14,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.unit.fixutre.UserFixture;
@@ -136,8 +135,9 @@ class UserTest {
             // given
             doReturn(true).when(user).isNotSamePhoneNumber(anyString());
             // when / then
-            assertThrows(KoinIllegalArgumentException.class,
+            CustomException exception = assertThrows(CustomException.class,
                 () -> user.requireSamePhoneNumber("01000000000"));
+            assertEquals(ErrorCode.NOT_MATCHED_PHONE_NUMBER, exception.getErrorCode());
             verify(user, times(1)).isNotSamePhoneNumber(anyString());
         }
     }
@@ -159,8 +159,9 @@ class UserTest {
             // given
             doReturn(true).when(user).isNotSameEmail(anyString());
             // when / then
-            assertThrows(KoinIllegalArgumentException.class,
+            CustomException exception = assertThrows(CustomException.class,
                 () -> user.requireSameEmail("x@y.com"));
+            assertEquals(ErrorCode.NOT_MATCHED_EMAIL, exception.getErrorCode());
             verify(user, times(1)).isNotSameEmail(anyString());
         }
     }
@@ -182,8 +183,9 @@ class UserTest {
             // given
             doReturn(true).when(user).isNotSameLoginPw(passwordEncoder, "raw");
             // when / then
-            assertThrows(KoinIllegalArgumentException.class,
+            CustomException exception = assertThrows(CustomException.class,
                 () -> user.requireSameLoginPw(passwordEncoder, "raw"));
+            assertEquals(ErrorCode.NOT_MATCHED_PASSWORD, exception.getErrorCode());
             verify(user, times(1)).isNotSameLoginPw(any(), anyString());
         }
     }
@@ -303,8 +305,10 @@ class UserTest {
             // given
             user = UserFixture.삭제된_코인_유저();
             // when / then
-            assertThrows(AuthenticationException.class,
+            CustomException exception = assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.GENERAL}));
+            assertEquals(ErrorCode.WITHDRAWN_USER, exception.getErrorCode());
+
         }
 
         @Test
@@ -312,8 +316,9 @@ class UserTest {
             // given
             user = UserFixture.코인_유저();
             // when / then
-            assertThrows(AuthorizationException.class,
+            CustomException exception = assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.STUDENT}));
+            assertEquals(ErrorCode.FORBIDDEN_USER_TYPE, exception.getErrorCode());
         }
 
         @Test
@@ -321,8 +326,9 @@ class UserTest {
             // given
             user = UserFixture.미인증_코인_유저();
             // when / then
-            assertThrows(AuthorizationException.class,
+            CustomException exception = assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.GENERAL}));
+            assertEquals(ErrorCode.FORBIDDEN_ACCOUNT, exception.getErrorCode());
         }
     }
 }

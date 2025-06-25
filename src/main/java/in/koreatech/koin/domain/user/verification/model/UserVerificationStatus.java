@@ -6,13 +6,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @RedisHash(value = "userVerificationStatus")
+@ToString
 public class UserVerificationStatus {
 
     private static final long SMS_VERIFICATION_EXPIRATION_SECONDS = 60 * 3L; // 3분
@@ -45,7 +47,7 @@ public class UserVerificationStatus {
 
     public void verify(String inputCode) {
         if (isCodeMismatched(inputCode)) {
-            throw new KoinIllegalArgumentException("인증 번호가 일치하지 않습니다.");
+            throw CustomException.of(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, this);
         }
         this.isVerified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
@@ -53,7 +55,7 @@ public class UserVerificationStatus {
 
     public void requireVerified() {
         if (isNotVerified()) {
-            throw new AuthorizationException("본인 인증 후 다시 시도해주십시오.");
+            throw CustomException.of(ErrorCode.FORBIDDEN_API, this);
         }
     }
 

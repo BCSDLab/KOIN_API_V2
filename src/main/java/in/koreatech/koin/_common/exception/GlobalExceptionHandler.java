@@ -26,8 +26,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.WebUtils;
 
-import com.amazonaws.services.workdocs.model.DeactivatingLastSystemUserException;
-
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.DataNotFoundException;
@@ -49,6 +47,20 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // 커스텀 예외
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<Object> handleCustomException(
+        HttpServletRequest request,
+        CustomException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request);
+        return buildErrorResponseWithErrorCode(
+            e.getErrorCode().getHttpStatus(),
+            e.getMessage(),
+            e.getErrorCode().name()
+        );
+    }
 
     @ExceptionHandler(KoinException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(

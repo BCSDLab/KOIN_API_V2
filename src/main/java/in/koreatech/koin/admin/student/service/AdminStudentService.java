@@ -6,22 +6,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.student.repository.AdminDepartmentRepository;
-import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.model.Criteria;
 import in.koreatech.koin.admin.student.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.student.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.student.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.student.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.student.dto.StudentsCondition;
+import in.koreatech.koin.admin.student.repository.AdminDepartmentRepository;
+import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentDepartment;
-import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin._common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -68,7 +69,7 @@ public class AdminStudentService {
     private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
             adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
-            throw DuplicationNicknameException.withDetail("nickname : " + nickname);
+            throw CustomException.of(ErrorCode.CONFLICT_NICKNAME, "nickname : " + nickname);
         }
     }
 

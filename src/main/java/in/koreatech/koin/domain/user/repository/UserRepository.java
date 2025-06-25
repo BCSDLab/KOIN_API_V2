@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 
@@ -47,27 +48,27 @@ public interface UserRepository extends Repository<User, Integer> {
 
     default User getById(Integer userId) {
         return findById(userId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "userId: " + userId));
     }
 
     default User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
         return findByEmailAndUserTypeIn(email, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "email: " + email));
     }
 
     default User getByPhoneNumberAndUserType(String phoneNumber, UserType userType) {
         return findByPhoneNumberAndUserType(phoneNumber, userType)
-            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "account: " + phoneNumber));
     }
 
     default User getByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes) {
         return findByPhoneNumberAndUserTypeIn(phoneNumber, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "account: " + phoneNumber));
     }
 
     default User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
         return findByLoginIdAndUserTypeIn(loginId, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "loginId: " + loginId));
     }
 
     default Map<Integer, User> getAllByIdInMap(List<Integer> ids) {

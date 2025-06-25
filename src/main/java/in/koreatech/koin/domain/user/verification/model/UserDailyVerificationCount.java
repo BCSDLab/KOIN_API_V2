@@ -4,12 +4,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @RedisHash(value = "userDailyVerificationCount")
+@ToString
 public class UserDailyVerificationCount {
 
     private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 60 * 24L; // 24시간
@@ -37,7 +40,7 @@ public class UserDailyVerificationCount {
 
     public void incrementVerificationCount() {
         if (verificationCount >= maxVerificationCount) {
-            throw new TooManyRequestsException("하루 인증 횟수를 초과했습니다.", "verification: " + id);
+            throw CustomException.of(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, this);
         }
         verificationCount++;
     }

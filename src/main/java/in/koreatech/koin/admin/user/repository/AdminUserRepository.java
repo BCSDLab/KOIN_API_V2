@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 
@@ -26,24 +27,24 @@ public interface AdminUserRepository extends Repository<User, Integer> {
         AND u.isAuthed = :isAuthed
         """)
     Integer findUsersCountByUserTypeAndIsAuthed(
-            @Param("userType") UserType userType,
-            @Param("isAuthed") Boolean isAuthed);
+        @Param("userType") UserType userType,
+        @Param("isAuthed") Boolean isAuthed);
 
     default User getByEmail(String email) {
         return findByEmail(email)
-            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "account: " + email));
     }
 
     void delete(User user);
 
     default User getById(Integer userId) {
         return findById(userId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "userId: " + userId));
     }
 
     default User getByLoginId(String loginId) {
         return findByLoginId(loginId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "loginId: " + loginId));
     }
 
     boolean existsByNicknameAndIdNot(String nickname, Integer userId);
