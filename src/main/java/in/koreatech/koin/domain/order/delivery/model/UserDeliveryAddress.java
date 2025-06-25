@@ -50,7 +50,7 @@ public class UserDeliveryAddress extends BaseEntity {
     @Embedded
     private OffCampusDeliveryAddress offCampusDeliveryAddress;
 
-    @Column(name = "last_used_at")
+    @Column(name = "last_used_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastUsedAt;
 
     @Column(name = "usage_count", nullable = false)
