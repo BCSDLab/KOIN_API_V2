@@ -32,6 +32,7 @@ import in.koreatech.koin.domain.user.dto.UserTypeResponse;
 import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import lombok.RequiredArgsConstructor;
@@ -105,7 +106,7 @@ public class UserService {
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request, UserAgentInfo userAgentInfo) {
-        User user = userRepository.getByEmailAndUserTypeIn(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email(), KOIN_USER_TYPES);
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
         return createLoginResponse(user, userAgentInfo);

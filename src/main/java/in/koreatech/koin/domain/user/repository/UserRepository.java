@@ -13,7 +13,11 @@ import in.koreatech.koin.domain.user.model.UserType;
 
 public interface UserRepository extends Repository<User, Integer> {
 
+    // Create
     User save(User user);
+
+    // Read
+    Optional<User> findById(Integer id);
 
     Optional<User> findByEmail(String email);
 
@@ -23,15 +27,32 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
 
-    Optional<User> findById(Integer id);
-
     Optional<User> findByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes);
 
     Optional<User> findByNickname(String nickname);
 
-    default User getByEmailAndUserTypeIn(String email) {
-        return findByEmail(email)
-            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));
+    List<User> findAllByName(String name);
+
+    List<User> findAllByIdIn(List<Integer> ids);
+
+    boolean existsByNicknameAndUserTypeIn(String nickname, List<UserType> userTypes);
+
+    boolean existsByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes);
+
+    boolean existsByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
+
+    boolean existsByEmailAndUserTypeIn(String email, List<UserType> userTypes);
+
+    void delete(User user);
+
+    default User getById(Integer userId) {
+        return findById(userId)
+            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+    }
+
+    default User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
+        return findByEmailAndUserTypeIn(email, userTypes)
+            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
     }
 
     default User getByPhoneNumberAndUserType(String phoneNumber, UserType userType) {
@@ -44,37 +65,13 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
     }
 
-    default User getById(Integer userId) {
-        return findById(userId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
-    }
-
     default User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
         return findByLoginIdAndUserTypeIn(loginId, userTypes)
             .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
     }
 
-    boolean existsByNicknameAndUserTypeIn(String nickname, List<UserType> userTypes);
-
-    boolean existsByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes);
-
-    boolean existsByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
-
-    boolean existsByEmailAndUserTypeIn(String email, List<UserType> userTypes);
-
-    void delete(User user);
-
-    List<User> findAllByName(String name);
-
-    List<User> findAllByIdIn(List<Integer> ids);
-
     default Map<Integer, User> getAllByIdInMap(List<Integer> ids) {
         return findAllByIdIn(ids).stream()
             .collect(Collectors.toMap(User::getId, user -> user));
-    }
-
-    default User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
-        return findByEmailAndUserTypeIn(email, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
     }
 }
