@@ -79,8 +79,8 @@ class UserVerificationServiceTest {
                     userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
                 });
             // when / then
-            assertThatThrownBy(() -> userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER))
-                .isInstanceOf(CustomException.class);
+            CustomException exception = assertThrows(CustomException.class, () -> userVerificationService.sendEmailVerification(TEST_PHONE_NUMBER));
+            assertEquals(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());
         }
     }
 
