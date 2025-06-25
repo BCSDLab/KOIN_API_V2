@@ -1,6 +1,6 @@
 package in.koreatech.koin.unit.fixutre;
 
-import in.koreatech.koin.domain.order.address.model.OffCampusDeliveryAddress;
+import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
 
 public class AddressFixture {
 

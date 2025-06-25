@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.address.dto;
+package in.koreatech.koin.domain.order.delivery.dto;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.order.address.model.RiderMessage;
+import in.koreatech.koin.domain.order.delivery.model.RiderMessage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 

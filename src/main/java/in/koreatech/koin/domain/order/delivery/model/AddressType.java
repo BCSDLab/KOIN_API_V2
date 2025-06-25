@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.address.model;
+package in.koreatech.koin.domain.order.delivery.model;
 
 public enum AddressType {
     CAMPUS,

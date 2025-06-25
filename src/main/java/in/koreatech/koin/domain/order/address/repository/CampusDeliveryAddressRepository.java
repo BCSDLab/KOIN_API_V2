@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import in.koreatech.koin.domain.order.address.exception.AddressErrorCode;
 import in.koreatech.koin.domain.order.address.exception.AddressException;
 import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
+import in.koreatech.koin.domain.order.delivery.exception.DeliveryErrorCode;
+import in.koreatech.koin.domain.order.delivery.exception.DeliveryException;
 
 public interface CampusDeliveryAddressRepository extends JpaRepository<CampusDeliveryAddress, Integer> {
 
@@ -40,7 +42,7 @@ public interface CampusDeliveryAddressRepository extends JpaRepository<CampusDel
 
     default CampusDeliveryAddress getById(Integer campusDeliveryAddressId) {
         return findById(campusDeliveryAddressId).orElseThrow(
-            () -> new AddressException(AddressErrorCode.CAMPUS_DELIVERY_ADDRESS_NOT_FOUND)
+            () -> new DeliveryException(DeliveryErrorCode.CAMPUS_DELIVERY_ADDRESS_NOT_FOUND)
         );
     }
 }

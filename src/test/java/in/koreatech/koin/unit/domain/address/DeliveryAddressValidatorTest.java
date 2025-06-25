@@ -10,16 +10,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import in.koreatech.koin.domain.order.address.exception.AddressErrorCode;
-import in.koreatech.koin.domain.order.address.exception.AddressException;
-import in.koreatech.koin.domain.order.address.model.OffCampusDeliveryAddress;
-import in.koreatech.koin.domain.order.address.service.OffCampusAddressValidator;
+import in.koreatech.koin.domain.order.delivery.exception.DeliveryErrorCode;
+import in.koreatech.koin.domain.order.delivery.exception.DeliveryException;
+import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
+import in.koreatech.koin.domain.order.delivery.service.DeliveryAddressValidator;
 import in.koreatech.koin.unit.fixutre.AddressFixture;
 
 @ExtendWith(MockitoExtension.class)
-public class AddressTest {
+public class DeliveryAddressValidatorTest {
 
-    private final OffCampusAddressValidator offCampusAddressValidator = new OffCampusAddressValidator();
+    private final DeliveryAddressValidator deliveryAddressValidator = new DeliveryAddressValidator();
     private OffCampusDeliveryAddress validAddress;
     private OffCampusDeliveryAddress invalidAddress;
 
@@ -34,16 +34,16 @@ public class AddressTest {
 
         @Test
         void 교외_배달_가능_지역_주소를_검증한다() {
-            assertDoesNotThrow(() -> offCampusAddressValidator.validateAddress(validAddress));
+            assertDoesNotThrow(() -> deliveryAddressValidator.validateOffCampusAddress(validAddress));
         }
 
         @Test
         void 교외_배달_불가_지역_주소를_검증시_예외가_발생한다() {
-            AddressException exception = assertThrows(AddressException.class, () -> {
-                offCampusAddressValidator.validateAddress(invalidAddress);
+            DeliveryException exception = assertThrows(DeliveryException.class, () -> {
+                deliveryAddressValidator.validateOffCampusAddress(invalidAddress);
             });
 
-            assertThat(exception.getErrorCode()).isEqualTo(AddressErrorCode.INVALID_DELIVERY_AREA);
+            assertThat(exception.getErrorCode()).isEqualTo(DeliveryErrorCode.INVALID_DELIVERY_AREA);
         }
     }
 }

@@ -1,11 +1,11 @@
-package in.koreatech.koin.domain.order.address.dto;
+package in.koreatech.koin.domain.order.delivery.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.order.address.model.OffCampusDeliveryAddress;
+import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

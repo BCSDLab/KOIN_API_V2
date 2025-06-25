@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.address.dto;
+package in.koreatech.koin.domain.order.delivery.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

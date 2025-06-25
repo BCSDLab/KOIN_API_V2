@@ -1,31 +1,30 @@
-package in.koreatech.koin.domain.order.address.service;
+package in.koreatech.koin.domain.order.delivery.service;
 
-import static in.koreatech.koin._common.cache.CacheKey.CAMPUS_DELIVERY_ADDRESS_CACHE;
 import static in.koreatech.koin._common.cache.CacheKey.RIDER_MESSAGES_CACHE;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.address.dto.RiderMessageResponse;
-import in.koreatech.koin.domain.order.address.dto.UserCampusDeliveryAddressRequest;
-import in.koreatech.koin.domain.order.address.dto.UserDeliveryAddressResponse;
-import in.koreatech.koin.domain.order.address.dto.UserOffCampusDeliveryAddressRequest;
+import in.koreatech.koin.domain.order.delivery.dto.RiderMessageResponse;
+import in.koreatech.koin.domain.order.delivery.dto.UserCampusDeliveryAddressRequest;
+import in.koreatech.koin.domain.order.delivery.dto.UserDeliveryAddressResponse;
+import in.koreatech.koin.domain.order.delivery.dto.UserOffCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
-import in.koreatech.koin.domain.order.address.model.OffCampusDeliveryAddress;
-import in.koreatech.koin.domain.order.address.model.UserDeliveryAddress;
+import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
+import in.koreatech.koin.domain.order.delivery.model.UserDeliveryAddress;
 import in.koreatech.koin.domain.order.address.repository.CampusDeliveryAddressRepository;
-import in.koreatech.koin.domain.order.address.repository.RiderMessageRepository;
-import in.koreatech.koin.domain.order.address.repository.UserDeliveryAddressRepository;
+import in.koreatech.koin.domain.order.delivery.repository.RiderMessageRepository;
+import in.koreatech.koin.domain.order.delivery.repository.UserDeliveryAddressRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AddressService {
+public class DeliveryService {
 
-    private final OffCampusAddressValidator offCampusAddressValidator;
+    private final DeliveryAddressValidator deliveryAddressValidator;
     private final UserRepository userRepository;
     private final UserDeliveryAddressRepository deliveryAddressRepository;
     private final CampusDeliveryAddressRepository campusDeliveryAddressRepository;
@@ -37,7 +36,7 @@ public class AddressService {
         User user = userRepository.getById(userId);
 
         OffCampusDeliveryAddress offCampusDeliveryAddress = request.toOffCampusAddress();
-        offCampusAddressValidator.validateAddress(offCampusDeliveryAddress);
+        deliveryAddressValidator.validateOffCampusAddress(offCampusDeliveryAddress);
 
         UserDeliveryAddress userDeliveryAddress = deliveryAddressRepository.save(
             UserDeliveryAddress.ofOffCampus(user, offCampusDeliveryAddress, request.toRider())

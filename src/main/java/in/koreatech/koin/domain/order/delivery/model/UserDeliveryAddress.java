@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.address.model;
+package in.koreatech.koin.domain.order.delivery.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
