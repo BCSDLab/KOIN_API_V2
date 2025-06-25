@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
 import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressResponse;
 import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressRequestFilter;
+import in.koreatech.koin.domain.order.address.dto.RiderMessageResponse;
 import in.koreatech.koin.domain.order.address.dto.UserCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.address.dto.UserOffCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.address.dto.UserDeliveryAddressResponse;
@@ -266,4 +267,40 @@ public interface AddressApi {
         @RequestBody @Valid UserCampusDeliveryAddressRequest request,
         @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
     );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "배달 기사 요청 사항 목록 반환 성공",
+            content = @Content(mediaType = "application/json", examples =
+            @ExampleObject(
+                value = """
+                    {
+                      "count": 5,
+                      "contents": [
+                        {
+                          "content": "문 앞에 놔주세요 (벨 눌러주세요)"
+                        },
+                        {
+                          "content": "문 앞에 놔주세요 (노크해주세요)"
+                        },
+                        {
+                          "content": "문 앞에 놔주세요 (벨X, 노크 X)"
+                        },
+                        {
+                          "content": "직접 받을게요"
+                        },
+                        {
+                          "content": "전화주시면 마중 나갈게요"
+                        }
+                      ]
+                    }
+                        """)
+            )
+        )
+    })
+    @Operation(summary = "배달 기사 요청 사항 목록 조회", description = """
+        ### 배달 기사 요청 사항 목록 조회
+        - 배달 기사님 요청 사항을 반환 합니다.
+        """)
+    @GetMapping("/address/delivery/rider-message")
+    ResponseEntity<RiderMessageResponse> getRiderMessages();
 }

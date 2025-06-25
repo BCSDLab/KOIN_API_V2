@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
 import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressResponse;
 import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressRequestFilter;
+import in.koreatech.koin.domain.order.address.dto.RiderMessageResponse;
 import in.koreatech.koin.domain.order.address.dto.UserCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.address.dto.UserOffCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.address.dto.UserDeliveryAddressResponse;
@@ -66,6 +67,12 @@ public class AddressController implements AddressApi {
     ) {
         UserDeliveryAddressResponse response = addressService.addCampusDeliveryAddress(
             request, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/address/delivery/rider-message")
+    public ResponseEntity<RiderMessageResponse> getRiderMessages() {
+        RiderMessageResponse response = addressService.getRiderMessage();
         return ResponseEntity.ok(response);
     }
 }
