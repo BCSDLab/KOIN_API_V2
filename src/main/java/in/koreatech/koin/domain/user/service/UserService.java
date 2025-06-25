@@ -3,9 +3,6 @@ package in.koreatech.koin.domain.user.service;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.JwtProvider;
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -59,12 +54,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public UserResponse getUser(Integer userId) {
-        User user = getById(userId);
+        User user = userRepository.getById(userId);
         return UserResponse.from(user);
     }
 
     public UserTypeResponse getUserType(Integer userId) {
-        User user = getById(userId);
+        User user = userRepository.getById(userId);
         return UserTypeResponse.from(user);
     }
 
@@ -84,7 +79,7 @@ public class UserService {
 
     @Transactional
     public UserUpdateResponse updateUser(Integer userId, UserUpdateRequest request) {
-        User user = getById(userId);
+        User user = userRepository.getById(userId);
         userValidationService.requireUniqueUpdate(
             request.nickname(),
             request.phoneNumber(),
@@ -101,9 +96,9 @@ public class UserService {
         User user;
         String loginId = request.loginId();
         if (loginId.matches("^\\d{11}$")) {
-            user = getByPhoneNumberAndUserTypeIn(loginId, KOIN_USER_TYPES);
+            user = userRepository.getByPhoneNumberAndUserTypeIn(loginId, KOIN_USER_TYPES);
         } else {
-            user = getByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES);
+            user = userRepository.getByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES);
         }
         user.requireSameLoginPw(passwordEncoder, request.loginPw());
         return createLoginResponse(user, userAgentInfo);
@@ -111,7 +106,7 @@ public class UserService {
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request, UserAgentInfo userAgentInfo) {
-        User user = getByEmailAndUserTypeIn(request.email(), KOIN_USER_TYPES);
+        User user = userRepository.getByEmailAndUserTypeIn(request.email(), KOIN_USER_TYPES);
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
         return createLoginResponse(user, userAgentInfo);
@@ -132,16 +127,15 @@ public class UserService {
     public UserRefreshTokenResponse refresh(UserRefreshTokenRequest request, UserAgentInfo userAgentInfo) {
         Integer userId = refreshTokenService.extractUserId(request.refreshToken());
         refreshTokenService.verifyRefreshToken(userId, userAgentInfo.getType(), request.refreshToken());
-        User user = getById(userId);
+        User user = userRepository.getById(userId);
 
         String accessToken = jwtProvider.createToken(user);
-        return UserRefreshTokenResponse.of(accessToken,
-            refreshTokenService.getRefreshToken(userId, userAgentInfo.getType()));
+        return UserRefreshTokenResponse.of(accessToken, refreshTokenService.getRefreshToken(userId, userAgentInfo.getType()));
     }
 
     @Transactional
     public void withdraw(Integer userId) {
-        User user = getById(userId);
+        User user = userRepository.getById(userId);
         if (user.getUserType() == STUDENT) {
             timetableFrameRepositoryV2.deleteAllByUser(user);
             studentRepository.deleteByUserId(userId);
@@ -154,21 +148,21 @@ public class UserService {
 
     public UserFindLoginIdResponse findIdBySms(UserFindIdBySmsRequest request) {
         String phoneNumber = request.phoneNumber();
-        User user = getByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES);
+        User user = userRepository.getByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES);
         userVerificationService.consumeVerification(phoneNumber);
         return UserFindLoginIdResponse.from(user.getLoginId());
     }
 
     public UserFindLoginIdResponse findIdByEmail(UserFindIdByEmailRequest request) {
         String email = request.email();
-        User user = getByEmailAndUserTypeIn(email, KOIN_USER_TYPES);
+        User user = userRepository.getByEmailAndUserTypeIn(email, KOIN_USER_TYPES);
         userVerificationService.consumeVerification(email);
         return UserFindLoginIdResponse.from(user.getLoginId());
     }
 
     @Transactional
     public void resetPasswordBySms(UserResetPasswordBySmsRequest request) {
-        User user = getByLoginIdAndUserTypeIn(request.loginId(), KOIN_USER_TYPES);
+        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), KOIN_USER_TYPES);
         user.requireSamePhoneNumber(request.phoneNumber());
         user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);
@@ -177,35 +171,10 @@ public class UserService {
 
     @Transactional
     public void resetPasswordByEmail(UserResetPasswordByEmailRequest request) {
-        User user = getByLoginIdAndUserTypeIn(request.loginId(), KOIN_USER_TYPES);
+        User user = userRepository.getByLoginIdAndUserTypeIn(request.loginId(), KOIN_USER_TYPES);
         user.requireSameEmail(request.email());
         user.updatePassword(passwordEncoder, request.newPassword());
         userRepository.save(user);
         userVerificationService.consumeVerification(request.email());
-    }
-
-    public User getById(Integer userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "userId: " + userId));
-    }
-
-    public User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
-        return userRepository.findByEmailAndUserTypeIn(email, userTypes)
-            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "email: " + email));
-    }
-
-    public User getByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes) {
-        return userRepository.findByPhoneNumberAndUserTypeIn(phoneNumber, userTypes)
-            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "account: " + phoneNumber));
-    }
-
-    public User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
-        return userRepository.findByLoginIdAndUserTypeIn(loginId, userTypes)
-            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "loginId: " + loginId));
-    }
-
-    public Map<Integer, User> getAllByIdInMap(List<Integer> ids) {
-        return userRepository.findAllByIdIn(ids).stream()
-            .collect(Collectors.toMap(User::getId, user -> user));
     }
 }
