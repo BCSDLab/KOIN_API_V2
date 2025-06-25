@@ -61,7 +61,7 @@ public class NotificationScheduleService {
         List<Integer> userIds = dueNotifications.stream()
             .map(ShopReviewNotification::getStudentId)
             .toList();
-        return userRepository.findAllByIdInMap(userIds);
+        return userRepository.getAllByIdInMap(userIds);
     }
 
     private Map<Integer, ShopNotificationQueryResponse> getShopNotificationBatch(

@@ -28,6 +28,7 @@ import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
@@ -196,7 +197,7 @@ class UserApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-        assertThat(userRepository.findByPhoneNumber(phoneNumber)).isNotPresent();
+        assertThat(userRepository.findByPhoneNumberAndUserTypeIn(phoneNumber, UserType.KOIN_USER_TYPES)).isNotPresent();
     }
 
     @Test
