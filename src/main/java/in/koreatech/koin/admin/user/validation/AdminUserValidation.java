@@ -42,11 +42,11 @@ public class AdminUserValidation {
     public void validateAdminLogin(User user, AdminLoginRequest request) {
         /* 어드민 권한이 없으면 없는 회원으로 간주 */
         if (user.getUserType() != ADMIN) {
-            throw CustomException.of(ErrorCode.USER_NOT_FOUND, "account" + request.email());
+            throw CustomException.of(ErrorCode.NOT_FOUND_USER, "account" + request.email());
         }
 
         if (adminRepository.findById(user.getId()).isEmpty()) {
-            throw CustomException.of(ErrorCode.USER_NOT_FOUND, "account" + request.email());
+            throw CustomException.of(ErrorCode.NOT_FOUND_USER, "account" + request.email());
         }
 
         user.requireSameLoginPw(passwordEncoder, request.password());

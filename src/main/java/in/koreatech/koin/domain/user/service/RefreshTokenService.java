@@ -33,7 +33,7 @@ public class RefreshTokenService {
         String key = RefreshToken.generateKey(userId, platform);
         String savedRefreshToken = refreshTokenRedisRepository.getById(key).getToken();
         if (!Objects.equals(savedRefreshToken, refreshToken)) {
-            throw CustomException.of(ErrorCode.REFRESH_TOKEN_NOT_MATCHED, "refreshToken: " + refreshToken);
+            throw CustomException.of(ErrorCode.NOT_MATCHED_REFRESH_TOKEN, "refreshToken: " + refreshToken);
         }
     }
 
@@ -53,7 +53,7 @@ public class RefreshTokenService {
     public Integer extractUserId(String refreshToken) {
         String[] split = refreshToken.split("-");
         if (split.length == 0) {
-            throw CustomException.of(ErrorCode.REFRESH_TOKEN_NOT_VALID, "refreshToken: " + refreshToken);
+            throw CustomException.of(ErrorCode.NOT_VALID_REFRESH_TOKEN, "refreshToken: " + refreshToken);
         }
         return Integer.parseInt(split[split.length - 1]);
     }

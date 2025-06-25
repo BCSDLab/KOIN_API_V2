@@ -40,7 +40,7 @@ public class UserDailyVerificationCount {
 
     public void incrementVerificationCount() {
         if (verificationCount >= maxVerificationCount) {
-            throw CustomException.of(ErrorCode.VERIFICATION_TOO_MANY_REQUESTS, this);
+            throw CustomException.of(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, this);
         }
         verificationCount++;
     }

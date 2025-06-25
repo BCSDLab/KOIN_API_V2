@@ -71,11 +71,11 @@ public class StudentValidationService {
         }
         userRepository.findByNickname(nickname)
             .ifPresent(user -> {
-                throw CustomException.of(ErrorCode.NICKNAME_CONFLICT, "nickname : " + nickname);
+                throw CustomException.of(ErrorCode.CONFLICT_NICKNAME, "nickname : " + nickname);
             });
         studentRedisRepository.findByNickname(nickname)
             .ifPresent(status -> {
-                throw CustomException.of(ErrorCode.NICKNAME_CONFLICT, "nickname : " + nickname);
+                throw CustomException.of(ErrorCode.CONFLICT_NICKNAME, "nickname : " + nickname);
             });
     }
 

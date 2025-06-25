@@ -16,7 +16,7 @@ public interface RefreshTokenRedisRepository extends Repository<RefreshToken, St
 
     default RefreshToken getById(String id) {
         return findById(id)
-            .orElseThrow(() -> CustomException.of(ErrorCode.REFRESH_TOKEN_NOT_FOUND, "id: " + id));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_REFRESH_TOKEN, "id: " + id));
     }
 
     void deleteById(String id);

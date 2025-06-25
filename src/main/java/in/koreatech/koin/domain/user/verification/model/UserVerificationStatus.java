@@ -47,7 +47,7 @@ public class UserVerificationStatus {
 
     public void verify(String inputCode) {
         if (isCodeMismatched(inputCode)) {
-            throw CustomException.of(ErrorCode.VERIFICATION_CODE_NOT_MATCHED, this);
+            throw CustomException.of(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, this);
         }
         this.isVerified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
@@ -55,7 +55,7 @@ public class UserVerificationStatus {
 
     public void requireVerified() {
         if (isNotVerified()) {
-            throw CustomException.of(ErrorCode.VERIFICATION_NOT_VALID, this);
+            throw CustomException.of(ErrorCode.FORBIDDEN_API, this);
         }
     }
 

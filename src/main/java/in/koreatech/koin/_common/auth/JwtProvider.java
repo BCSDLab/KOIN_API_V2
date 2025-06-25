@@ -35,7 +35,7 @@ public class JwtProvider {
 
     public String createToken(User user) {
         if (user == null) {
-            throw CustomException.of(ErrorCode.USER_NOT_FOUND, "user: " + null);
+            throw CustomException.of(ErrorCode.NOT_FOUND_USER, "user: " + null);
         }
         Key key = getSecretKey();
         return Jwts.builder()

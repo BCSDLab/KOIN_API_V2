@@ -32,19 +32,19 @@ public interface AdminUserRepository extends Repository<User, Integer> {
 
     default User getByEmail(String email) {
         return findByEmail(email)
-            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "account: " + email));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "account: " + email));
     }
 
     void delete(User user);
 
     default User getById(Integer userId) {
         return findById(userId)
-            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "userId: " + userId));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "userId: " + userId));
     }
 
     default User getByLoginId(String loginId) {
         return findByLoginId(loginId)
-            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "loginId: " + loginId));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "loginId: " + loginId));
     }
 
     boolean existsByNicknameAndIdNot(String nickname, Integer userId);

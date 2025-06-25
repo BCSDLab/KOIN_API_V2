@@ -16,7 +16,7 @@ public interface StudentRepository extends Repository<Student, Integer> {
 
     default Student getById(Integer userId) {
         return findById(userId)
-            .orElseThrow(() -> CustomException.of(ErrorCode.USER_NOT_FOUND, "userId: " + userId));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_USER, "userId: " + userId));
     }
 
     void deleteByUserId(Integer userId);

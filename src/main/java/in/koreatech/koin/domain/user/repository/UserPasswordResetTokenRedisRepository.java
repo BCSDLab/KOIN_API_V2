@@ -16,7 +16,7 @@ public interface UserPasswordResetTokenRedisRepository extends Repository<Passwo
 
     default PasswordResetToken getByResetToken(String resetToken) {
         return findByResetToken(resetToken)
-            .orElseThrow(() -> CustomException.of(ErrorCode.RESET_TOKEN_NOT_VALID, "resetToken: " + resetToken));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_VALID_RESET_TOKEN, "resetToken: " + resetToken));
     }
 
     void deleteById(Integer id);

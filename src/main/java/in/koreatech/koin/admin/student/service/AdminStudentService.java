@@ -69,7 +69,7 @@ public class AdminStudentService {
     private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
             adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
-            throw CustomException.of(ErrorCode.NICKNAME_CONFLICT, "nickname : " + nickname);
+            throw CustomException.of(ErrorCode.CONFLICT_NICKNAME, "nickname : " + nickname);
         }
     }
 

@@ -45,28 +45,28 @@ public class UserValidationService {
     public void requireUniqueNickname(String nickname) {
         if (StringUtils.hasText(nickname)
             && userRepository.existsByNicknameAndUserTypeIn(nickname, KOIN_USER_TYPES)) {
-            throw CustomException.of(ErrorCode.NICKNAME_CONFLICT, this);
+            throw CustomException.of(ErrorCode.CONFLICT_NICKNAME, this);
         }
     }
 
     public void requireUniquePhoneNumber(String phoneNumber) {
         if (StringUtils.hasText(phoneNumber)
             && userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
-            throw CustomException.of(ErrorCode.PHONE_NUMBER_CONFLICT, this);
+            throw CustomException.of(ErrorCode.CONFLICT_PHONE_NUMBER, this);
         }
     }
 
     public void requireUniqueEmail(String email) {
         if (StringUtils.hasText(email)
             && userRepository.existsByEmailAndUserTypeIn(email, KOIN_USER_TYPES)) {
-            throw CustomException.of(ErrorCode.EMAIL_CONFLICT, this);
+            throw CustomException.of(ErrorCode.CONFLICT_EMAIL, this);
         }
     }
 
     public void requireUniqueLoginId(String loginId) {
         if (StringUtils.hasText(loginId)
             && userRepository.existsByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES)) {
-            throw CustomException.of(ErrorCode.LOGIN_ID_CONFLICT, this);
+            throw CustomException.of(ErrorCode.CONFLICT_LOGIN_ID, this);
         }
     }
 
@@ -81,21 +81,21 @@ public class UserValidationService {
         if (userRepository.existsByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES)) {
             return;
         }
-        throw CustomException.of(ErrorCode.USER_NOT_FOUND, this);
+        throw CustomException.of(ErrorCode.NOT_FOUND_USER, this);
     }
 
     public void requirePhoneNumberExists(String phoneNumber) {
         if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
             return;
         }
-        throw CustomException.of(ErrorCode.USER_NOT_FOUND, this);
+        throw CustomException.of(ErrorCode.NOT_FOUND_USER, this);
     }
 
     public void requireEmailExists(String email) {
         if (userRepository.existsByEmailAndUserTypeIn(email, KOIN_USER_TYPES)) {
             return;
         }
-        throw CustomException.of(ErrorCode.USER_NOT_FOUND, this);
+        throw CustomException.of(ErrorCode.NOT_FOUND_USER, this);
     }
 
     public void matchLoginIdWithPhoneNumber(UserMatchLoginIdWithPhoneNumberRequest request) {

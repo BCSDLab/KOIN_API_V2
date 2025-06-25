@@ -17,6 +17,6 @@ public enum UserGender {
         return Arrays.stream(values())
             .filter(it -> it.ordinal() == index)
             .findAny()
-            .orElseThrow(() -> CustomException.of(ErrorCode.GENDER_NOT_VALID, "index : " + index));
+            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_VALID_GENDER_INDEX, "index : " + index));
     }
 }

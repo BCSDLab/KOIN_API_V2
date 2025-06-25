@@ -169,19 +169,19 @@ public class User extends BaseEntity {
 
     public void requireSamePhoneNumber(String phoneNumber) {
         if (isNotSamePhoneNumber(phoneNumber)) {
-            throw CustomException.of(ErrorCode.PHONE_NUMBER_NOT_MATCHED, this);
+            throw CustomException.of(ErrorCode.NOT_MATCHED_PHONE_NUMBER, this);
         }
     }
 
     public void requireSameEmail(String email) {
         if (isNotSameEmail(email)) {
-            throw CustomException.of(ErrorCode.EMAIL_NOT_MATCHED, this);
+            throw CustomException.of(ErrorCode.NOT_MATCHED_EMAIL, this);
         }
     }
 
     public void requireSameLoginPw(PasswordEncoder passwordEncoder, String loginPw) {
         if (isNotSameLoginPw(passwordEncoder, loginPw)) {
-            throw CustomException.of(ErrorCode.PASSWORD_NOT_MATCHED, this);
+            throw CustomException.of(ErrorCode.NOT_MATCHED_PASSWORD, this);
         }
     }
 
@@ -213,7 +213,7 @@ public class User extends BaseEntity {
         if (permittedUserTypesList.contains(this.userType)) {
             return;
         }
-        throw CustomException.of(ErrorCode.USER_TYPE_FORBIDDEN, "userId: " + id);
+        throw CustomException.of(ErrorCode.FORBIDDEN_USER_TYPE, "userId: " + id);
     }
 
     private void ensureAuthed() {
@@ -221,10 +221,10 @@ public class User extends BaseEntity {
             return;
         }
         switch (this.userType) {
-            case OWNER -> throw CustomException.of(ErrorCode.OWNER_FORBIDDEN, "userId: " + id);
-            case STUDENT -> throw CustomException.of(ErrorCode.STUDENT_FORBIDDEN, "userId: " + id);
-            case ADMIN -> throw CustomException.of(ErrorCode.ADMIN_FORBIDDEN, "userId: " + id);
-            default -> throw CustomException.of(ErrorCode.ACCOUNT_FORBIDDEN, "userId: " + id);
+            case OWNER -> throw CustomException.of(ErrorCode.FORBIDDEN_OWNER, "userId: " + id);
+            case STUDENT -> throw CustomException.of(ErrorCode.FORBIDDEN_STUDENT, "userId: " + id);
+            case ADMIN -> throw CustomException.of(ErrorCode.FORBIDDEN_ADMIN, "userId: " + id);
+            default -> throw CustomException.of(ErrorCode.FORBIDDEN_ACCOUNT, "userId: " + id);
         }
     }
 
