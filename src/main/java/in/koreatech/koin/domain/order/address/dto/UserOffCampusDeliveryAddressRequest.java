@@ -15,7 +15,7 @@ public record UserOffCampusDeliveryAddressRequest(
 
     @Schema(description = "우편 번호", example = "31253", requiredMode = REQUIRED)
     @NotNull(message = "우편번호는 필수입니다.")
-    Integer zipNumber,
+    String zipNumber,
 
     @Schema(description = "시/도", example = "충청남도")
     String siDo,
@@ -25,9 +25,6 @@ public record UserOffCampusDeliveryAddressRequest(
 
     @Schema(description = "읍/면/동", example = "병천면")
     String eupMyeonDong,
-
-    @Schema(description = "리", example = "가전리")
-    String li,
 
     @Schema(description = "도로명", example = "충절로")
     String road,
@@ -53,7 +50,6 @@ public record UserOffCampusDeliveryAddressRequest(
             .siDo(siDo)
             .siGunGu(siGunGu)
             .eupMyeonDong(eupMyeonDong)
-            .li(li)
             .road(road)
             .buildingName(buildingName)
             .detailAddress(detailAddress)

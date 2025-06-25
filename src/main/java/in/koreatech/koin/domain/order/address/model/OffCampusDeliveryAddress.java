@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class OffCampusDeliveryAddress {
 
     @Column(name = "zip_number")
-    private Integer zipNumber;
+    private String zipNumber;
 
     @Column(name = "si_do", length = 50)
     private String siDo;
@@ -23,9 +23,6 @@ public class OffCampusDeliveryAddress {
 
     @Column(name = "eup_myeon_dong", length = 50)
     private String eupMyeonDong;
-
-    @Column(name = "li", length = 50)
-    private String li;
 
     @Column(name = "road", length = 50)
     private String road;
@@ -40,13 +37,12 @@ public class OffCampusDeliveryAddress {
     private String fullAddress;
 
     @Builder
-    public OffCampusDeliveryAddress(Integer zipNumber, String siDo, String siGunGu, String eupMyeonDong, String li, String road,
+    public OffCampusDeliveryAddress(String zipNumber, String siDo, String siGunGu, String eupMyeonDong, String road,
         String buildingName, String detailAddress, String fullAddress) {
         this.zipNumber = zipNumber;
         this.siDo = siDo;
         this.siGunGu = siGunGu;
         this.eupMyeonDong = eupMyeonDong;
-        this.li = li;
         this.road = road;
         this.buildingName = buildingName;
         this.detailAddress = detailAddress;
