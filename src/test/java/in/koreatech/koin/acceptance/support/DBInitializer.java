@@ -44,7 +44,7 @@ public class DBInitializer {
     private void truncateAllTable() {
         setForeignKeyCheck(OFF);
         for (String tableName: tableNames) {
-            entityManager.createNativeQuery(String.format("TRUNCATE TABLE %s", tableName)).executeUpdate();
+            entityManager.createNativeQuery(String.format("TRUNCATE TABLE `%s`", tableName)).executeUpdate();
         }
         setForeignKeyCheck(ON);
     }
