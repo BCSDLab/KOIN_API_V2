@@ -18,7 +18,6 @@ public enum UserType {
 
     public static final List<UserType> KOIN_USER_TYPES = List.of(GENERAL, STUDENT, COUNCIL);
     public static final List<UserType> KOIN_STUDENT_TYPES = List.of(STUDENT, COUNCIL);
-    public static final List<UserType> OWNER_TYPE = List.of(OWNER);
 
     private final String value;
     private final String description;

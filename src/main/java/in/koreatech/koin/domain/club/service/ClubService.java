@@ -47,7 +47,7 @@ import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.user.service.UserService;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -64,8 +64,8 @@ public class ClubService {
     private final ClubCategoryRepository clubCategoryRepository;
     private final ClubSNSRepository clubSNSRepository;
     private final ClubLikeRepository clubLikeRepository;
+    private final UserRepository userRepository;
     private final ClubCreateRedisRepository clubCreateRedisRepository;
-    private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -82,8 +82,7 @@ public class ClubService {
         isClubManager(clubId, studentId);
 
         ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
-        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description(),
-            request.isLikeHidden());
+        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description(), request.isLikeHidden());
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
@@ -170,7 +169,7 @@ public class ClubService {
     @Transactional
     public void likeClub(Integer clubId, Integer userId) {
         Club club = clubRepository.getByIdWithPessimisticLock(clubId);
-        User user = userService.getById(userId);
+        User user = userRepository.getById(userId);
 
         boolean alreadyLiked = clubLikeRepository.existsByClubAndUser(club, user);
         if (alreadyLiked) {
@@ -189,7 +188,7 @@ public class ClubService {
     @Transactional
     public void likeClubCancel(Integer clubId, Integer userId) {
         Club club = clubRepository.getByIdWithPessimisticLock(clubId);
-        User user = userService.getById(userId);
+        User user = userRepository.getById(userId);
 
         boolean alreadyLiked = clubLikeRepository.existsByClubAndUser(club, user);
         if (!alreadyLiked) {
@@ -258,11 +257,8 @@ public class ClubService {
     @Transactional
     public void empowermentClubManager(ClubManagerEmpowermentRequest request, Integer studentId) {
         Club club = clubRepository.getById(request.clubId());
-        User currentManager = userService.getById(studentId);
-        User changedManager = userService.getByLoginIdAndUserTypeIn(
-            request.changedManagerId(),
-            UserType.KOIN_STUDENT_TYPES
-        );
+        User currentManager = userRepository.getById(studentId);
+        User changedManager = userRepository.getByLoginIdAndUserTypeIn(request.changedManagerId(), UserType.KOIN_STUDENT_TYPES);
 
         isClubManager(request.clubId(), studentId);
         if (clubManagerRepository.existsByClubAndUser(club, changedManager)) {
