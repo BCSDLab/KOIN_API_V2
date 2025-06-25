@@ -26,8 +26,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.WebUtils;
 
-import com.amazonaws.services.workdocs.model.DeactivatingLastSystemUserException;
-
 import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.custom.DataNotFoundException;
@@ -58,9 +56,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponseWithErrorCode(
-            e.getHttpStatus(),
+            e.getErrorCode().getHttpStatus(),
             e.getMessage(),
-            e.getErrorCode()
+            e.getErrorCode().name()
         );
     }
 

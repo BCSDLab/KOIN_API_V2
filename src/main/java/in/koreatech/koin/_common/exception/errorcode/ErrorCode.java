@@ -32,7 +32,6 @@ public enum ErrorCode {
 
     // 404 Not Found
     NOT_FOUND_USER(NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
-    NOT_FOUND_VERIFICATION(NOT_FOUND, "인증 번호 전송 후 다시 시도해주십시오."),
 
     // 409 Conflict
     CONFLICT_LOGIN_ID(CONFLICT, "이미 존재하는 로그인 아이디입니다."),

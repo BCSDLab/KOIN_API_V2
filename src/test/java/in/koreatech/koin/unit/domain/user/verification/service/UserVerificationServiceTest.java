@@ -1,6 +1,8 @@
 package in.koreatech.koin.unit.domain.user.verification.service;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.stream.Stream;
 
@@ -10,10 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.exception.custom.TooManyRequestsException;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
@@ -69,6 +69,7 @@ class UserVerificationServiceTest {
             // then
             assertThat(response.currentCount()).isEqualTo(2);
         }
+
         @Test
         void 인증_횟수_초과_시_예외를_던진다() {
             // given
@@ -113,8 +114,8 @@ class UserVerificationServiceTest {
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             // when / then
-            assertThatThrownBy(() -> userVerificationService.sendEmailVerification(TEST_EMAIL))
-                .isInstanceOf(CustomException.class);
+            CustomException exception = assertThrows(CustomException.class, () -> userVerificationService.sendEmailVerification(TEST_EMAIL));
+            assertEquals(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());
         }
     }
 
@@ -126,8 +127,7 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             // when / then
-            assertThatCode(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE))
-                .doesNotThrowAnyException();
+            assertDoesNotThrow(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE));
         }
 
         @Test
@@ -136,8 +136,7 @@ class UserVerificationServiceTest {
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
             // when / then
-            assertThatCode(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE))
-                .doesNotThrowAnyException();
+            assertDoesNotThrow(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE));
         }
 
         @Test
@@ -145,8 +144,8 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             // when / then
-            assertThatThrownBy(() -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, WRONG_CODE))
-                .isInstanceOf(CustomException.class);
+            CustomException exception = assertThrows(CustomException.class, () -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, WRONG_CODE));
+            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
         }
 
         @Test
@@ -154,8 +153,7 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             // when / then
-            assertThatCode(() -> userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE))
-                .doesNotThrowAnyException();
+            assertDoesNotThrow(() -> userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE));
         }
 
         @Test
@@ -164,8 +162,7 @@ class UserVerificationServiceTest {
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
             // when / then
-            assertThatCode(() -> userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE))
-                .doesNotThrowAnyException();
+            assertDoesNotThrow(() -> userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE));
         }
 
         @Test
@@ -173,8 +170,8 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             // when / then
-            assertThatThrownBy(() -> userVerificationService.verifyCode(TEST_EMAIL, WRONG_CODE))
-                .isInstanceOf(CustomException.class);
+            CustomException exception = assertThrows(CustomException.class, () -> userVerificationService.verifyCode(TEST_EMAIL, WRONG_CODE));
+            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
         }
     }
 
@@ -187,15 +184,14 @@ class UserVerificationServiceTest {
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             userVerificationService.verifyCode(TEST_PHONE_NUMBER, CORRECT_CODE);
             // when / then
-            assertThatCode(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
-                .doesNotThrowAnyException();
+            assertDoesNotThrow(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER));
         }
 
         @Test
         void SMS_미인증_상태이면_예외를_던진다() {
             // when / then
-            assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
-                .isInstanceOf(CustomException.class);
+            CustomException exception = assertThrows(CustomException.class, () -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER));
+            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
         }
 
         @Test
@@ -203,8 +199,8 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendSmsVerification(TEST_PHONE_NUMBER);
             // when / then
-            assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER))
-                .isInstanceOf(CustomException.class);
+            CustomException exception = assertThrows(CustomException.class, () -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER));
+            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
         }
 
         @Test
@@ -213,15 +209,14 @@ class UserVerificationServiceTest {
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             userVerificationService.verifyCode(TEST_EMAIL, CORRECT_CODE);
             // when / then
-            assertThatCode(() -> userVerificationService.consumeVerification(TEST_EMAIL))
-                .doesNotThrowAnyException();
+            assertDoesNotThrow(() -> userVerificationService.consumeVerification(TEST_EMAIL));
         }
 
         @Test
         void Email_미인증_상태이면_예외를_던진다() {
             // when / then
-            assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_EMAIL))
-                .isInstanceOf(CustomException.class);
+            CustomException exception = assertThrows(CustomException.class, () -> userVerificationService.consumeVerification(TEST_EMAIL));
+            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
         }
 
         @Test
@@ -229,8 +224,8 @@ class UserVerificationServiceTest {
             // given
             userVerificationService.sendEmailVerification(TEST_EMAIL);
             // when / then
-            assertThatThrownBy(() -> userVerificationService.consumeVerification(TEST_EMAIL))
-                .isInstanceOf(CustomException.class);
+            CustomException exception = assertThrows(CustomException.class, () -> userVerificationService.consumeVerification(TEST_EMAIL));
+            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
         }
     }
 }

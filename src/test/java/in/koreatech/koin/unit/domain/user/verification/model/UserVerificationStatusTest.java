@@ -1,14 +1,14 @@
 package in.koreatech.koin.unit.domain.user.verification.model;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
@@ -90,17 +90,15 @@ class UserVerificationStatusTest {
         @Test
         void SMS_인증_코드가_다르면_예외를_던진다() {
             // when / then
-            assertThatThrownBy(() -> SMS_인증_코드.verify(WRONG_CODE))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("인증 번호가 일치하지 않습니다.");
+            CustomException exception = assertThrows(CustomException.class, () -> SMS_인증_코드.verify(WRONG_CODE));
+            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
         }
 
         @Test
         void Email_인증_코드가_다르면_예외를_던진다() {
             // when / then
-            assertThatThrownBy(() -> Email_인증_코드.verify(WRONG_CODE))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("인증 번호가 일치하지 않습니다.");
+            CustomException exception = assertThrows(CustomException.class, () -> Email_인증_코드.verify(WRONG_CODE));
+            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
         }
     }
 
@@ -112,34 +110,29 @@ class UserVerificationStatusTest {
             // given
             SMS_인증_코드.verify(CORRECT_CODE);
             // when / then
-            assertThatCode(SMS_인증_코드::requireVerified)
-                .doesNotThrowAnyException();
+            assertDoesNotThrow(SMS_인증_코드::requireVerified);
         }
 
         @Test
         void SMS_미인증하면_예외를_던진다() {
             // when / then
-            assertThatThrownBy(SMS_인증_코드::requireVerified)
-                .isInstanceOf(CustomException.class)
-                .hasMessage("인증 후 다시 시도해주십시오.");
+            CustomException exception = assertThrows(CustomException.class, SMS_인증_코드::requireVerified);
+            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
         }
 
         @Test
         void Email_인증하면_예외를_던지지_않는다() {
             // given
             Email_인증_코드.verify(CORRECT_CODE);
-
             // when / then
-            assertThatCode(Email_인증_코드::requireVerified)
-                .doesNotThrowAnyException();
+            assertDoesNotThrow(Email_인증_코드::requireVerified);
         }
 
         @Test
         void Email_미인증하면_예외를_던진다() {
             // when / then
-            assertThatThrownBy(Email_인증_코드::requireVerified)
-                .isInstanceOf(CustomException.class)
-                .hasMessage("인증 후 다시 시도해주십시오.");
+            CustomException exception = assertThrows(CustomException.class, Email_인증_코드::requireVerified);
+            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
         }
     }
 }

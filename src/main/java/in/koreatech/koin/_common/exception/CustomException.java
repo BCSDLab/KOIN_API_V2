@@ -6,9 +6,11 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import io.micrometer.common.util.StringUtils;
+import lombok.Getter;
 
 public class CustomException extends RuntimeException {
 
+    @Getter
     private final ErrorCode errorCode;
     private final String detail;
 
@@ -24,14 +26,6 @@ public class CustomException extends RuntimeException {
 
     public static CustomException of(ErrorCode errorCode, Object errorObject) {
         return new CustomException(errorCode, Objects.toString(errorObject, ""));
-    }
-
-    public String getErrorCode() {
-        return errorCode.name();
-    }
-
-    public HttpStatus getHttpStatus() {
-        return errorCode.getHttpStatus();
     }
 
     public String getFullMessage() {

@@ -64,7 +64,7 @@ public class UserVerificationService {
     @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
-            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_FOUND_VERIFICATION, "identity: " + phoneNumberOrEmail));
+            .orElseThrow(() -> CustomException.of(ErrorCode.FORBIDDEN_API, "identity: " + phoneNumberOrEmail));
         verificationStatus.requireVerified();
         userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
     }
