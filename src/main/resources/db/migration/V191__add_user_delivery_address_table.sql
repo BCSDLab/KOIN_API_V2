@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `koin`.`user_delivery_address`
     `campus_delivery_address_id`     INT UNSIGNED NULL COMMENT '교내 배달 주소 ID',
 
     -- 교외 주소용 필드
-    `zip_number`      VARCHAR(10)    NULL COMMENT '교외 배달 주소 우편 번호',
+    `zip_number`      VARCHAR(10)   NULL COMMENT '교외 배달 주소 우편 번호',
     `si_do`           VARCHAR(50)    NULL COMMENT '시/도',
     `si_gun_gu`       VARCHAR(50)    NULL COMMENT '시/군/구',
     `eup_myeon_dong`  VARCHAR(50)    NULL COMMENT '읍/면/동',
