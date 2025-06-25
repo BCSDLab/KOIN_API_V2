@@ -20,6 +20,8 @@ public enum AddressErrorCode implements BaseErrorCode {
     KEYWORD_TOO_LONG(HttpStatus.BAD_REQUEST, "E0010", "검색어가 너무 깁니다. (한글 40자 이하)"),
     INVALID_KEYWORD(HttpStatus.BAD_REQUEST, "E0013", "검색어에 사용할 수 없는 특수문자(%,=,<,[,])가 포함되어 있습니다."),
     SEARCH_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "E0015", "검색 결과가 너무 많습니다."),
+    INVALID_DELIVERY_AREA(HttpStatus.BAD_REQUEST,null, "배달이 불가능한 지역이에요."),
+    CAMPUS_DELIVERY_ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, null, "교내 배달 주소를 찾을 수 없습니다."),
 
     // 500 (서버 오류 또는 외부 API 호출 문제)
     SYSTEM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "-999", "도로명주소 API 시스템에 에러가 발생했습니다. 잠시 후 다시 시도해주세요."),
