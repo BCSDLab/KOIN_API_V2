@@ -9,12 +9,14 @@ import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartValidateResponse;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -38,8 +40,7 @@ public class CartQueryService {
     }
 
     public CartMenuItemEditResponse getOrderableShopMenuForEditOptions(Integer userId, Integer cartMenuItemId) {
-        Cart cart = cartRepository.findCartByUserId(userId)
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+        Cart cart = getCartOrThrow(userId);
         CartMenuItem cartMenuItem = cart.getCartMenuItem(cartMenuItemId);
 
         OrderableShopMenu menu = orderableShopMenuRepository.getByIdWithMenuOptionGroups(
@@ -71,5 +72,19 @@ public class CartQueryService {
 
         Cart cart = cartOptional.get();
         return CartPaymentSummaryResponse.from(cart);
+    }
+
+    public CartValidateResponse validateCart(Integer userId) {
+        Cart cart = getCartOrThrow(userId);
+        OrderableShop orderableShop = cart.getOrderableShop();
+        orderableShop.requireShopOpen();
+        orderableShop.requireMinimumOrderAmount(cart.calculateItemsAmount());
+
+        return CartValidateResponse.from(orderableShop);
+    }
+
+    private Cart getCartOrThrow(Integer userId) {
+        return cartRepository.findCartByUserId(userId)
+            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
     }
 }

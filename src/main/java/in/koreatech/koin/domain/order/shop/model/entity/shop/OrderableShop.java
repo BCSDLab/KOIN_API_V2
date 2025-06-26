@@ -9,6 +9,8 @@ import java.util.List;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
@@ -88,5 +90,14 @@ public class OrderableShop extends BaseEntity {
 
     public Integer calculateDeliveryFee(Integer orderAmount) {
         return this.shop.getBaseDeliveryTips().calculateDeliveryTip(orderAmount);
+    }
+
+    public void requireMinimumOrderAmount(Integer totalOrderAmount) {
+        if (totalOrderAmount == null || totalOrderAmount < 0) {
+            throw new KoinIllegalArgumentException("주문 금액은 null이거나 음수일 수 없습니다.");
+        }
+        if (totalOrderAmount < minimumOrderAmount) {
+            throw new CartException(CartErrorCode.ORDER_AMOUNT_BELOW_MINIMUM);
+        }
     }
 }
