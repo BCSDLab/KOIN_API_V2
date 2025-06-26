@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
+import in.koreatech.koin.domain.order.cart.dto.CartValidateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -687,6 +688,72 @@ public interface CartApi {
     )
     @GetMapping("/cart/payment/summary")
     ResponseEntity<CartPaymentSummaryResponse> getCartPaymentSummary(
+        @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "주문 페이지 장바구니 검증 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니가 유효한 경우", value = """
+                        {
+                          "campus_delivery": true,
+                          "off_campus_delivery": true
+                        }
+                        """
+                )
+            })
+        ),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "최소 주문 금액 미충족", summary = "최소 주문 금액 미충족", value = """
+                    {
+                      "code": "ORDER_AMOUNT_BELOW_MINIMUM",
+                      "message": "최소 주문 금액을 충족하지 않습니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "상점의 영업시간이 아님", summary = "상점의 영업시간이 아님", value = """
+                    {
+                      "code": "SHOP_CLOSED",
+                      "message": "상점의 영업시간이 아닙니다.",
+                      "errorTraceId": "ae4feff5-5f37-4f91-b8b6-a5957fd5bb10"
+                    }
+                    """)
+            })
+        ),
+        @ApiResponse(responseCode = "401", description = "인증 정보 오류",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "인증 정보 오류", summary = "인증 정보 오류", value = """
+                    {
+                      "code": "",
+                      "message": "올바르지 않은 인증정보입니다.",
+                      "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
+                    }
+                    """)
+            })
+        ),
+        @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니가 없는 경우", summary = "장바구니 없음", value = """
+                    {
+                      "code": "CART_NOT_FOUND",
+                      "message": "장바구니를 찾을 수 없습니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """)
+            })
+        )
+    })
+    @Operation(
+        summary = "주문 페이지 장바구니 검증 및 교외/교내 배달 여부 조회",
+        description = """
+            ## 주문 페이지 장바구니 검증
+            - 장바구니의 상품 주문 금액이 상점의 최소 주문 금액을 충족하는지 검증합니다.
+            - 주문 상점의 교외 배달 / 교내 배달 가능 여부를 반환 합니다.
+            """
+    )
+    @GetMapping("/cart/validate")
+    ResponseEntity<CartValidateResponse> getCartValidateResult(
         @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
     );
 }
