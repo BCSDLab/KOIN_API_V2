@@ -19,7 +19,6 @@ import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
-import in.koreatech.koin.domain.order.cart.dto.CartValidateResponse;
 import in.koreatech.koin.domain.order.cart.service.CartQueryService;
 import in.koreatech.koin.domain.order.cart.service.CartService;
 import jakarta.validation.Valid;
@@ -113,10 +112,10 @@ public class CartController implements CartApi {
     }
 
     @GetMapping("/cart/validate")
-    public ResponseEntity<CartValidateResponse> getCartValidateResult(
+    public ResponseEntity<Void> getCartValidateResult(
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     ) {
-        CartValidateResponse response = cartQueryService.validateCart(userId);
-        return ResponseEntity.ok(response);
+        cartQueryService.validateCart(userId);
+        return ResponseEntity.ok().build();
     }
 }

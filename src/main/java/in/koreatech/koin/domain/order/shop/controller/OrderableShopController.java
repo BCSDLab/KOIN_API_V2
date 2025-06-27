@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopDeliveryResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoDetailResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoSummaryResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
@@ -53,4 +54,12 @@ public class OrderableShopController implements OrderableShopApi {
         return ResponseEntity.ok(orderableShopInfoSummary);
     }
 
+    @GetMapping("/order/shop/{orderableShopId}/delivery")
+    public ResponseEntity<OrderableShopDeliveryResponse> getOrderableShopDeliveryResponse(
+        @PathVariable Integer orderableShopId
+    ) {
+        OrderableShopDeliveryResponse response = orderableShopInformationService.getOrderableShopDeliveryResponse(
+            orderableShopId);
+        return ResponseEntity.ok(response);
+    }
 }

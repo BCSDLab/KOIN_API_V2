@@ -9,7 +9,6 @@ import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
-import in.koreatech.koin.domain.order.cart.dto.CartValidateResponse;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.cart.model.Cart;
@@ -74,13 +73,11 @@ public class CartQueryService {
         return CartPaymentSummaryResponse.from(cart);
     }
 
-    public CartValidateResponse validateCart(Integer userId) {
+    public void validateCart(Integer userId) {
         Cart cart = getCartOrThrow(userId);
         OrderableShop orderableShop = cart.getOrderableShop();
         orderableShop.requireShopOpen();
         orderableShop.requireMinimumOrderAmount(cart.calculateItemsAmount());
-
-        return CartValidateResponse.from(orderableShop);
     }
 
     private Cart getCartOrThrow(Integer userId) {
