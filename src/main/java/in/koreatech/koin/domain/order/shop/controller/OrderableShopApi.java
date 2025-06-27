@@ -168,7 +168,7 @@ public interface OrderableShopApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "code": ,
+                          "code": "",
                           "message": "해당 상점이 존재하지 않습니다 : 10",
                           "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
                         }
@@ -254,7 +254,7 @@ public interface OrderableShopApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "code": ,
+                          "code": "",
                           "message": "해당 상점이 존재하지 않습니다 : 10",
                           "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
                         }
@@ -309,7 +309,7 @@ public interface OrderableShopApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "code": ,
+                          "code": "",
                           "message": "해당 상점이 존재하지 않습니다 : 10",
                           "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
                         }

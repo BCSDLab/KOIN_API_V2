@@ -691,7 +691,7 @@ public interface CartApi {
     );
 
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "주문 페이지 장바구니 검증 성공"),
+        @ApiResponse(responseCode = "200", description = "장바구니 검증 성공"),
         @ApiResponse(responseCode = "400", description = "잘못된 요청",
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "최소 주문 금액 미충족", summary = "최소 주문 금액 미충족", value = """
@@ -734,10 +734,11 @@ public interface CartApi {
         )
     })
     @Operation(
-        summary = "주문 페이지 장바구니 검증",
+        summary = "장바구니 검증",
         description = """
-            ## 주문 페이지 장바구니 검증
+            ## 장바구니 검증
             - 장바구니의 상품 주문 금액이 상점의 최소 주문 금액을 충족하는지 검증합니다.
+            - 상점이 현재 주문 가능 상태(영업 중) 인지 검증합니다.
             """
     )
     @GetMapping("/cart/validate")
