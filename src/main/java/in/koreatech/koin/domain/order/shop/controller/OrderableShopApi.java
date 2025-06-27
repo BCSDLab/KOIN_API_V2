@@ -272,22 +272,25 @@ public interface OrderableShopApi {
             - orderable_shop_id: 주문 가능 상점 고유 식별자
             - name: 상점 이름
             - address: 상점 주소
-            - open_time: 영업 시작 시간 (오늘 요일 기준, 영업 하지 않는 날은 null)
-            - close_time: 영업 종료 시간 (오늘 요일 기준, 영업 하지 않는 날은 null)
-            - closed_days: 휴무 요일 목록
-            - phone: 상점 전화번호
-            - introduction: 가게 소개
-            - notice: 가게 알림
+            - open_time: 영업 시작 시간 (오늘 요일 기준, 영업 하지 않는 날은 null), **nullable**
+            - close_time: 영업 종료 시간 (오늘 요일 기준, 영업 하지 않는 날은 null), **nullable**
+            - closed_days: 휴무 요일 목록, **empty array**
+            - phone: 상점 전화번호 (해당 데이터 없으면 empty array 반환)
+            - introduction: 가게 소개, **nullable**
+            - notice: 가게 알림, **nullable**
             - delivery_tips: 주문 금액별 총 배달팁
             - owner_info: 사업자 정보
-            - origins: 원산지 표기
+            - owner_info.name: **nullable**
+            - owner_info.shop_name: **nullable**
+            - owner_info.address: **nullable**
+            - owner_info.company_registration_number: **nullable**
+            - origins: 원산지 표기  (해당 데이터 없으면 empty array 반환)
         """)
     @GetMapping("/order/shop/{orderableShopId}/detail")
     ResponseEntity<OrderableShopInfoDetailResponse> getOrderableShopInfoDetail(
         @Parameter(description = "주문 가능 상점 고유 식별자(orderable_shop_id)", example = "1")
         @PathVariable Integer orderableShopId
     );
-
 
     @ApiResponses(
         value = {
@@ -321,6 +324,9 @@ public interface OrderableShopApi {
         description = """
             ## 특정 주문 가능 상점 교외/교내 배달 여부 조회
             - 주문 상점의 교외 배달 / 교내 배달 가능 여부를 반환 합니다.
+            - nullable
+                - **campus_delivery** : X
+                - **off_campus_delivery** : X
             """
     )
     @GetMapping("/order/shop/{orderableShopId}/delivery")
