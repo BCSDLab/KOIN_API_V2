@@ -49,6 +49,13 @@ public class UserVerificationStatus {
         return new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
     }
 
+    public static UserVerificationStatus of(String id, VerificationNumberGenerator generator, VerificationChannel channel) {
+        return switch (channel) {
+            case SMS -> new UserVerificationStatus(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
+            case EMAIL -> new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
+        };
+    }
+
     public void detectAbnormalUsage() {
         if (trialCount >= MAX_TRIAL_COUNT) {
             throw CustomException.of(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, this);

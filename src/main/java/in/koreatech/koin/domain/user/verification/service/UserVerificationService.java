@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.verification.model.VerificationChannel;
 import in.koreatech.koin.domain.user.verification.repository.UserDailyVerificationCountRedisRepository;
 import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,21 +38,19 @@ public class UserVerificationService {
         return userDailyVerificationCountRedisRepository.save(count);
     }
 
-    @Transactional
-    public SendVerificationResponse sendSmsVerification(String phoneNumber, String ipAddress) {
-        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber, ipAddress);
-        UserVerificationStatus userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationNumberGenerator);
-        userVerificationStatusRedisRepository.save(userVerificationStatus);
-        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(userVerificationStatus.getVerificationCode(), phoneNumber));
-        return SendVerificationResponse.from(verificationCount);
+    private void publishVerificationEvent(VerificationChannel channel, String code, String target) {
+        switch (channel) {
+            case SMS -> eventPublisher.publishEvent(new UserSmsVerificationSendEvent(code, target));
+            case EMAIL -> eventPublisher.publishEvent(new UserEmailVerificationSendEvent(code, target));
+        }
     }
 
     @Transactional
-    public SendVerificationResponse sendEmailVerification(String email, String ipAddress) {
-        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email, ipAddress);
-        UserVerificationStatus userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationNumberGenerator);
-        userVerificationStatusRedisRepository.save(userVerificationStatus);
-        eventPublisher.publishEvent(new UserEmailVerificationSendEvent(userVerificationStatus.getVerificationCode(), email));
+    public SendVerificationResponse sendVerification(String phoneNumberOrEmail, String ipAddress, VerificationChannel channel) {
+        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumberOrEmail, ipAddress);
+        UserVerificationStatus verificationCode = UserVerificationStatus.of(phoneNumberOrEmail, verificationNumberGenerator, channel);
+        userVerificationStatusRedisRepository.save(verificationCode);
+        publishVerificationEvent(channel, verificationCode.getVerificationCode(), phoneNumberOrEmail);
         return SendVerificationResponse.from(verificationCount);
     }
 

@@ -6,12 +6,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import in.koreatech.koin.domain.user.verification.dto.SendEmailVerificationRequest;
 import in.koreatech.koin.domain.user.verification.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.dto.VerifyEmailVerificationRequest;
 import in.koreatech.koin.domain.user.verification.dto.VerifySmsVerificationRequest;
+import in.koreatech.koin.domain.user.verification.model.VerificationChannel;
+import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import in.koreatech.koin.web.ipaddress.IpAddress;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class UserVerificationController implements UserVerificationApi {
     public ResponseEntity<SendVerificationResponse> sendSmsVerificationCode(
         @Valid @RequestBody SendSmsVerificationRequest request, @IpAddress String ipAddress
     ) {
-        SendVerificationResponse response = userVerificationService.sendSmsVerification(request.phoneNumber(), ipAddress);
+        SendVerificationResponse response = userVerificationService.sendVerification(request.phoneNumber(), ipAddress, VerificationChannel.SMS);
         return ResponseEntity.ok().body(response);
     }
 
@@ -43,7 +44,7 @@ public class UserVerificationController implements UserVerificationApi {
     public ResponseEntity<SendVerificationResponse> sendEmailVerificationCode(
         @Valid @RequestBody SendEmailVerificationRequest request, @IpAddress String ipAddress
     ) {
-        SendVerificationResponse response = userVerificationService.sendEmailVerification(request.email(), ipAddress);
+        SendVerificationResponse response = userVerificationService.sendVerification(request.email(), ipAddress, VerificationChannel.EMAIL);
         return ResponseEntity.ok().body(response);
     }
 
