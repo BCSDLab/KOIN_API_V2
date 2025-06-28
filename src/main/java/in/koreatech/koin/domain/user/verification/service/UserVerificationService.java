@@ -29,9 +29,17 @@ public class UserVerificationService {
     private final ApplicationEventPublisher eventPublisher;
     private final VerificationProperties verificationProperties;
 
+    private UserDailyVerificationCount increaseAndGetUserDailyVerificationCount(String phoneNumberOrEmail, String ipAddress) {
+        String countKey = UserDailyVerificationCount.composeKey(phoneNumberOrEmail, ipAddress);
+        UserDailyVerificationCount count = userDailyVerificationCountRedisRepository.findById(countKey)
+            .orElseGet(() -> UserDailyVerificationCount.of(phoneNumberOrEmail, ipAddress, verificationProperties));
+        count.incrementVerificationCount();
+        return userDailyVerificationCountRedisRepository.save(count);
+    }
+
     @Transactional
-    public SendVerificationResponse sendSmsVerification(String phoneNumber) {
-        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber);
+    public SendVerificationResponse sendSmsVerification(String phoneNumber, String ipAddress) {
+        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber, ipAddress);
         UserVerificationStatus userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationNumberGenerator);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
         eventPublisher.publishEvent(new UserSmsVerificationSendEvent(userVerificationStatus.getVerificationCode(), phoneNumber));
@@ -39,8 +47,8 @@ public class UserVerificationService {
     }
 
     @Transactional
-    public SendVerificationResponse sendEmailVerification(String email) {
-        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email);
+    public SendVerificationResponse sendEmailVerification(String email, String ipAddress) {
+        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email, ipAddress);
         UserVerificationStatus userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationNumberGenerator);
         userVerificationStatusRedisRepository.save(userVerificationStatus);
         eventPublisher.publishEvent(new UserEmailVerificationSendEvent(userVerificationStatus.getVerificationCode(), email));
@@ -48,7 +56,7 @@ public class UserVerificationService {
     }
 
     @Transactional
-    public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
+    public void verifyCode(String phoneNumberOrEmail, String ipAddress, String verificationCode) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumberOrEmail));
         verificationStatus.verify(verificationCode);
@@ -67,12 +75,5 @@ public class UserVerificationService {
             .orElseThrow(() -> CustomException.of(ErrorCode.FORBIDDEN_API, "identity: " + phoneNumberOrEmail));
         verificationStatus.requireVerified();
         userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
-    }
-
-    private UserDailyVerificationCount increaseAndGetUserDailyVerificationCount(String phoneNumberOrEmail) {
-        UserDailyVerificationCount count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
-            .orElseGet(() -> UserDailyVerificationCount.of(phoneNumberOrEmail, verificationProperties));
-        count.incrementVerificationCount();
-        return userDailyVerificationCountRedisRepository.save(count);
     }
 }

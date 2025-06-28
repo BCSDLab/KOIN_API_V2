@@ -11,11 +11,12 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Getter
-@RedisHash(value = "userDailyVerificationCount")
+@RedisHash("userDailyVerificationCount")
 @ToString
 public class UserDailyVerificationCount {
 
     private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 60 * 24L; // 24시간
+    private static final String KEY_FORMAT = "%s:%s";
 
     @Id
     private String id;
@@ -34,8 +35,15 @@ public class UserDailyVerificationCount {
         this.maxVerificationCount = maxVerificationCount;
     }
 
-    public static UserDailyVerificationCount of(String id, VerificationProperties verificationProperties) {
-        return new UserDailyVerificationCount(id, verificationProperties.maxVerificationCount());
+    public static String composeKey(String id, String ip) {
+        return String.format(KEY_FORMAT, id, ip);
+    }
+
+    public static UserDailyVerificationCount of(String id, String ip, VerificationProperties verificationProperties) {
+        return new UserDailyVerificationCount(
+            composeKey(id, ip),
+            verificationProperties.maxVerificationCount()
+        );
     }
 
     public void incrementVerificationCount() {

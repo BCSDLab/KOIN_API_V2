@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.user.verification.dto.SendSmsVerificationRequest
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.dto.VerifyEmailVerificationRequest;
 import in.koreatech.koin.domain.user.verification.dto.VerifySmsVerificationRequest;
+import in.koreatech.koin.web.ipaddress.IpAddress;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,33 +25,33 @@ public class UserVerificationController implements UserVerificationApi {
 
     @PostMapping("/sms/send")
     public ResponseEntity<SendVerificationResponse> sendSmsVerificationCode(
-        @Valid @RequestBody SendSmsVerificationRequest request
+        @Valid @RequestBody SendSmsVerificationRequest request, @IpAddress String ipAddress
     ) {
-        SendVerificationResponse response = userVerificationService.sendSmsVerification(request.phoneNumber());
+        SendVerificationResponse response = userVerificationService.sendSmsVerification(request.phoneNumber(), ipAddress);
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/sms/verify")
     public ResponseEntity<Void> verifySmsVerificationCode(
-        @Valid @RequestBody VerifySmsVerificationRequest request
+        @Valid @RequestBody VerifySmsVerificationRequest request, @IpAddress String ipAddress
     ) {
-        userVerificationService.verifyCode(request.phoneNumber(), request.verificationCode());
+        userVerificationService.verifyCode(request.phoneNumber(), ipAddress, request.verificationCode());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/email/send")
     public ResponseEntity<SendVerificationResponse> sendEmailVerificationCode(
-        @Valid @RequestBody SendEmailVerificationRequest request
+        @Valid @RequestBody SendEmailVerificationRequest request, @IpAddress String ipAddress
     ) {
-        SendVerificationResponse response = userVerificationService.sendEmailVerification(request.email());
+        SendVerificationResponse response = userVerificationService.sendEmailVerification(request.email(), ipAddress);
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/email/verify")
     public ResponseEntity<Void> verifyEmailVerificationCode(
-        @Valid @RequestBody VerifyEmailVerificationRequest request
+        @Valid @RequestBody VerifyEmailVerificationRequest request, @IpAddress String ipAddress
     ) {
-        userVerificationService.verifyCode(request.email(), request.verificationCode());
+        userVerificationService.verifyCode(request.email(), request.verificationCode(), ipAddress);
         return ResponseEntity.ok().build();
     }
 }

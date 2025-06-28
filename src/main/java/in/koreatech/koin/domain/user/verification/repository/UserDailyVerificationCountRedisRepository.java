@@ -11,4 +11,6 @@ public interface UserDailyVerificationCountRedisRepository extends Repository<Us
     UserDailyVerificationCount save(UserDailyVerificationCount userDailyVerificationCount);
 
     Optional<UserDailyVerificationCount> findById(String id);
+
+    void deleteById(String id);
 }
