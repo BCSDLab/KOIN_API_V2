@@ -46,6 +46,10 @@ public class ClubRecruitment extends BaseEntity {
     private LocalDate endDate;
 
     @NotNull
+    @Column(name = "is_always_recruiting", nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean isAlwaysRecruiting;
+
+    @NotNull
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -57,11 +61,13 @@ public class ClubRecruitment extends BaseEntity {
     private ClubRecruitment(
         LocalDate startDate,
         LocalDate endDate,
+        Boolean isAlwaysRecruiting,
         String content,
         Club club
     ) {
         this.startDate = startDate;
         this.endDate = endDate;
+        this.isAlwaysRecruiting = isAlwaysRecruiting;
         this.content = content;
         this.club = club;
     }
