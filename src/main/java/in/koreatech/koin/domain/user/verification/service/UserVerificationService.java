@@ -61,6 +61,8 @@ public class UserVerificationService {
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumberOrEmail));
         verificationStatus.verify(verificationCode);
         userVerificationStatusRedisRepository.save(verificationStatus);
+        String countKey = UserDailyVerificationCount.composeKey(phoneNumberOrEmail, ipAddress);
+        userDailyVerificationCountRedisRepository.deleteById(countKey);
     }
 
     /**
