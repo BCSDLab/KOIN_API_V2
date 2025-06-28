@@ -180,6 +180,62 @@ class UserVerificationServiceTest {
     }
 
     @Nested
+    class resetDailyCountAfterSuccess {
+
+        @Test
+        void SMS_인증_성공_후_하루_인증_횟수가_초기화된다() {
+            // given
+            SendVerificationResponse first = userVerificationService.sendVerification(TEST_PHONE_NUMBER, TEST_IP, SMS);
+            assertEquals(1, first.currentCount());
+            // when
+            userVerificationService.verifyCode(TEST_PHONE_NUMBER, TEST_IP, CORRECT_CODE);
+            // then
+            SendVerificationResponse second = userVerificationService.sendVerification(TEST_PHONE_NUMBER, TEST_IP, SMS);
+            assertEquals(1, second.currentCount());
+        }
+
+        @Test
+        void Email_인증_성공_후_하루_인증_횟수가_초기화된다() {
+            // given
+            SendVerificationResponse first = userVerificationService.sendVerification(TEST_EMAIL, TEST_IP, EMAIL);
+            assertEquals(1, first.currentCount());
+            // when
+            userVerificationService.verifyCode(TEST_EMAIL, TEST_IP, CORRECT_CODE);
+            // then
+            SendVerificationResponse second = userVerificationService.sendVerification(TEST_EMAIL, TEST_IP, EMAIL);
+            assertEquals(1, second.currentCount());
+        }
+    }
+
+    @Nested
+    class keepDailyCountAfterFailure {
+
+        @Test
+        void SMS_인증_실패_시_하루_인증_횟수가_유지된다() {
+            // given
+            SendVerificationResponse first = userVerificationService.sendVerification(TEST_PHONE_NUMBER, TEST_IP, SMS);
+            assertEquals(1, first.currentCount());
+            // when
+            assertThrows(CustomException.class, () -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, TEST_IP, WRONG_CODE));
+            // then
+            SendVerificationResponse second = userVerificationService.sendVerification(TEST_PHONE_NUMBER, TEST_IP, SMS);
+            assertEquals(2, second.currentCount());
+        }
+
+        @Test
+        void Email_인증_실패_시_하루_인증_횟수가_유지된다() {
+            // given
+            SendVerificationResponse first = userVerificationService.sendVerification(TEST_EMAIL, TEST_IP, EMAIL);
+            assertEquals(1, first.currentCount());
+            // when
+            assertThrows(CustomException.class, () -> userVerificationService.verifyCode(TEST_EMAIL, TEST_IP, WRONG_CODE));
+            // then
+            SendVerificationResponse second = userVerificationService.sendVerification(TEST_EMAIL, TEST_IP, EMAIL);
+            assertEquals(2, second.currentCount());
+        }
+    }
+
+    @Nested
     class detectAbnormalUsage {
 
         private static final int ABNORMAL_USAGE_THRESHOLD = 100;
@@ -191,8 +247,10 @@ class UserVerificationServiceTest {
             Stream.generate(() -> WRONG_CODE)
                 .limit(ABNORMAL_USAGE_THRESHOLD)
                 .forEach(code -> {
-                    try { userVerificationService.verifyCode(TEST_PHONE_NUMBER, TEST_IP, code); }
-                    catch (CustomException ignored) { }
+                    try {
+                        userVerificationService.verifyCode(TEST_PHONE_NUMBER, TEST_IP, code);
+                    } catch (CustomException ignored) {
+                    }
                 });
             // when / then
             CustomException ex = assertThrows(
@@ -209,8 +267,10 @@ class UserVerificationServiceTest {
             Stream.generate(() -> WRONG_CODE)
                 .limit(ABNORMAL_USAGE_THRESHOLD)
                 .forEach(code -> {
-                    try { userVerificationService.verifyCode(TEST_EMAIL, TEST_IP, code); }
-                    catch (CustomException ignored) { }
+                    try {
+                        userVerificationService.verifyCode(TEST_EMAIL, TEST_IP, code);
+                    } catch (CustomException ignored) {
+                    }
                 });
             // when / then
             CustomException ex = assertThrows(
