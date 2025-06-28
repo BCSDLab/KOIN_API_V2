@@ -59,6 +59,7 @@ public class UserVerificationService {
     public void verifyCode(String phoneNumberOrEmail, String ipAddress, String verificationCode) {
         UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumberOrEmail));
+        verificationStatus.detectAbnormalUsage();
         verificationStatus.verify(verificationCode);
         userVerificationStatusRedisRepository.save(verificationStatus);
         String countKey = UserDailyVerificationCount.composeKey(phoneNumberOrEmail, ipAddress);
