@@ -15,7 +15,7 @@ import lombok.ToString;
 @Getter
 @RedisHash(value = "userVerificationStatus")
 @ToString
-public class UserVerificationStatus {
+public class VerificationCode {
 
     private static final long SMS_VERIFICATION_EXPIRATION_SECONDS = 60 * 3L; // 3분
     private static final long EMAIL_VERIFICATION_EXPIRATION_SECONDS = 60 * 5L; // 5분
@@ -34,25 +34,25 @@ public class UserVerificationStatus {
     @TimeToLive
     private Long expiration;
 
-    private UserVerificationStatus(String id, String verificationCode, Long expiration) {
+    private VerificationCode(String id, String verificationCode, Long expiration) {
         this.id = id;
         this.verificationCode = verificationCode;
         this.expiration = expiration;
         this.trialCount = 0;
     }
 
-    public static UserVerificationStatus ofSms(String id, VerificationNumberGenerator generator) {
-        return new UserVerificationStatus(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
+    public static VerificationCode ofSms(String id, VerificationNumberGenerator generator) {
+        return new VerificationCode(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
     }
 
-    public static UserVerificationStatus ofEmail(String id, VerificationNumberGenerator generator) {
-        return new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
+    public static VerificationCode ofEmail(String id, VerificationNumberGenerator generator) {
+        return new VerificationCode(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
     }
 
-    public static UserVerificationStatus of(String id, VerificationNumberGenerator generator, VerificationChannel channel) {
+    public static VerificationCode of(String id, VerificationNumberGenerator generator, VerificationChannel channel) {
         return switch (channel) {
-            case SMS -> new UserVerificationStatus(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
-            case EMAIL -> new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
+            case SMS -> new VerificationCode(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
+            case EMAIL -> new VerificationCode(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
         };
     }
 

@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Test;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
-import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
+import in.koreatech.koin.domain.user.verification.model.VerificationCount;
 import in.koreatech.koin.unit.fixutre.VerificationFixture;
 
-class UserDailyVerificationCountTest {
+class VerificationCountTest {
 
-    private UserDailyVerificationCount SMS_인증_횟수;
-    private UserDailyVerificationCount 이메일_인증_횟수;
+    private VerificationCount SMS_인증_횟수;
+    private VerificationCount 이메일_인증_횟수;
     private VerificationProperties verificationProperties;
 
     private static final String TEST_PHONE_NUMBER = "01012345678";
@@ -41,7 +41,7 @@ class UserDailyVerificationCountTest {
             // given
             long expectedExpiration = 60 * 60 * 24L;
             // when
-            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.of(TEST_PHONE_NUMBER, verificationProperties);
+            VerificationCount dailyCount = VerificationCount.of(TEST_PHONE_NUMBER, verificationProperties);
             // then
             assertThat(dailyCount.getId()).isEqualTo(TEST_PHONE_NUMBER);
             assertThat(dailyCount.getVerificationCount()).isEqualTo(0);
@@ -53,7 +53,7 @@ class UserDailyVerificationCountTest {
             // given
             long expectedExpiration = 60 * 60 * 24L;
             // when
-            UserDailyVerificationCount dailyCount = UserDailyVerificationCount.of(TEST_EMAIL, verificationProperties);
+            VerificationCount dailyCount = VerificationCount.of(TEST_EMAIL, verificationProperties);
             // then
             assertThat(dailyCount.getId()).isEqualTo(TEST_EMAIL);
             assertThat(dailyCount.getVerificationCount()).isEqualTo(0);
@@ -85,7 +85,7 @@ class UserDailyVerificationCountTest {
             // when
             Stream.generate(() -> SMS_인증_횟수)
                 .limit(SMS_인증_횟수.getMaxVerificationCount())
-                .forEach(UserDailyVerificationCount::incrementVerificationCount);
+                .forEach(VerificationCount::incrementVerificationCount);
             // then
             CustomException exception = assertThrows(CustomException.class, SMS_인증_횟수::incrementVerificationCount);
             assertEquals(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());

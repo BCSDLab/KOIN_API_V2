@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
-import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.verification.model.VerificationCode;
 import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
 import in.koreatech.koin.unit.fixutre.VerificationFixture;
 
-class UserVerificationStatusTest {
+class VerificationCodeTest {
 
-    private UserVerificationStatus SMS_인증_코드;
-    private UserVerificationStatus Email_인증_코드;
+    private VerificationCode SMS_인증_코드;
+    private VerificationCode Email_인증_코드;
 
     private static final String TEST_EMAIL = "user@koreatech.ac.kr";
     private static final String TEST_PHONE_NUMBER = "01012345678";
@@ -39,7 +39,7 @@ class UserVerificationStatusTest {
             VerificationNumberGenerator verificationNumberGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
             long expectedExpiration = 60 * 3L;
             // when
-            UserVerificationStatus verificationStatus = UserVerificationStatus.ofSms(TEST_PHONE_NUMBER, verificationNumberGenerator);
+            VerificationCode verificationStatus = VerificationCode.ofSms(TEST_PHONE_NUMBER, verificationNumberGenerator);
             // then
             assertThat(verificationStatus.getId()).isEqualTo(TEST_PHONE_NUMBER);
             assertThat(verificationStatus.getVerificationCode()).isEqualTo(CORRECT_CODE);
@@ -53,7 +53,7 @@ class UserVerificationStatusTest {
             VerificationNumberGenerator verificationNumberGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
             long expectedExpiration = 60 * 5L;
             // when
-            UserVerificationStatus verificationStatus = UserVerificationStatus.ofEmail(TEST_EMAIL, verificationNumberGenerator);
+            VerificationCode verificationStatus = VerificationCode.ofEmail(TEST_EMAIL, verificationNumberGenerator);
             // then
             assertThat(verificationStatus.getId()).isEqualTo(TEST_EMAIL);
             assertThat(verificationStatus.getVerificationCode()).isEqualTo(CORRECT_CODE);

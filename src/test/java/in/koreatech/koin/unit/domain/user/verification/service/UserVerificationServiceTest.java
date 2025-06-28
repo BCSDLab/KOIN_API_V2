@@ -18,8 +18,8 @@ import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import in.koreatech.koin.unit.domain.user.verification.mock.DummyApplicationEventPublisher;
-import in.koreatech.koin.unit.domain.user.verification.mock.FakeUserDailyVerificationCountRedisRepository;
-import in.koreatech.koin.unit.domain.user.verification.mock.FakeUserVerificationStatusRedisRepository;
+import in.koreatech.koin.unit.domain.user.verification.mock.FakeVerificationCountRedisRepository;
+import in.koreatech.koin.unit.domain.user.verification.mock.FakeVerificationCodeRedisRepository;
 import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,8 +35,8 @@ class UserVerificationServiceTest {
 
     @BeforeEach
     void init() {
-        FakeUserVerificationStatusRedisRepository fakeStatusRepository = new FakeUserVerificationStatusRedisRepository();
-        FakeUserDailyVerificationCountRedisRepository fakeCountRepository = new FakeUserDailyVerificationCountRedisRepository();
+        FakeVerificationCodeRedisRepository fakeStatusRepository = new FakeVerificationCodeRedisRepository();
+        FakeVerificationCountRedisRepository fakeCountRepository = new FakeVerificationCountRedisRepository();
         DummyApplicationEventPublisher fakeEventPublisher = new DummyApplicationEventPublisher();
         StubVerificationNumberHolder fakeGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
         VerificationProperties verificationProperties = new VerificationProperties(MAX_VERIFICATION_COUNT);
