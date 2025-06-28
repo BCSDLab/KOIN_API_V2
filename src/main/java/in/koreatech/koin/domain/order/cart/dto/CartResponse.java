@@ -47,7 +47,7 @@ public record CartResponse(
         @Schema(description = "메뉴 이름", example = "허니콤보")
         String name,
         @Schema(description = "메뉴 이미지", example = "https://static.koreatech.in/test.png")
-        List<String> imageUrls,
+        List<String> menuImageUrls,
         @Schema(description = "수량", example = "1")
         Integer quantity,
         @Schema(description = "해당 상품의 총 금액 (가격 * 수량)", example = "23000")
