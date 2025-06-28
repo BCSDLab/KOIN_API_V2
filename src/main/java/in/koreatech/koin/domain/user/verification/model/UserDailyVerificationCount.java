@@ -6,7 +6,6 @@ import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.errorcode.ErrorCode;
-import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -39,10 +38,10 @@ public class UserDailyVerificationCount {
         return String.format(KEY_FORMAT, id, ip);
     }
 
-    public static UserDailyVerificationCount of(String id, String ip, VerificationProperties verificationProperties) {
+    public static UserDailyVerificationCount of(String id, String ip, int maxVerificationCount) {
         return new UserDailyVerificationCount(
             composeKey(id, ip),
-            verificationProperties.maxVerificationCount()
+            maxVerificationCount
         );
     }
 

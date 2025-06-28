@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.user.verification.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,7 +11,6 @@ import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
-import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
@@ -28,12 +28,14 @@ public class UserVerificationService {
     private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
     private final VerificationNumberGenerator verificationNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
-    private final VerificationProperties verificationProperties;
+
+    @Value("${user.verification.max-verification-count:5}")
+    private int maxVerificationCount;
 
     private UserDailyVerificationCount increaseAndGetUserDailyVerificationCount(String phoneNumberOrEmail, String ipAddress) {
         String countKey = UserDailyVerificationCount.composeKey(phoneNumberOrEmail, ipAddress);
         UserDailyVerificationCount count = userDailyVerificationCountRedisRepository.findById(countKey)
-            .orElseGet(() -> UserDailyVerificationCount.of(phoneNumberOrEmail, ipAddress, verificationProperties));
+            .orElseGet(() -> UserDailyVerificationCount.of(phoneNumberOrEmail, ipAddress, maxVerificationCount));
         count.incrementVerificationCount();
         return userDailyVerificationCountRedisRepository.save(count);
     }
