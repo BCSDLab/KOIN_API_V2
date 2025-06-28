@@ -180,6 +180,48 @@ class UserVerificationServiceTest {
     }
 
     @Nested
+    class detectAbnormalUsage {
+
+        private static final int ABNORMAL_USAGE_THRESHOLD = 100;
+
+        @Test
+        void SMS_100회_이상_오입력하면_비정상_이용_예외를_던진다() {
+            // given
+            userVerificationService.sendVerification(TEST_PHONE_NUMBER, TEST_IP, SMS);
+            Stream.generate(() -> WRONG_CODE)
+                .limit(ABNORMAL_USAGE_THRESHOLD)
+                .forEach(code -> {
+                    try { userVerificationService.verifyCode(TEST_PHONE_NUMBER, TEST_IP, code); }
+                    catch (CustomException ignored) { }
+                });
+            // when / then
+            CustomException ex = assertThrows(
+                CustomException.class,
+                () -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, TEST_IP, WRONG_CODE)
+            );
+            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, ex.getErrorCode());
+        }
+
+        @Test
+        void Email_100회_이상_오입력하면_비정상_이용_예외를_던진다() {
+            // given
+            userVerificationService.sendVerification(TEST_EMAIL, TEST_IP, EMAIL);
+            Stream.generate(() -> WRONG_CODE)
+                .limit(ABNORMAL_USAGE_THRESHOLD)
+                .forEach(code -> {
+                    try { userVerificationService.verifyCode(TEST_EMAIL, TEST_IP, code); }
+                    catch (CustomException ignored) { }
+                });
+            // when / then
+            CustomException ex = assertThrows(
+                CustomException.class,
+                () -> userVerificationService.verifyCode(TEST_EMAIL, TEST_IP, WRONG_CODE)
+            );
+            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, ex.getErrorCode());
+        }
+    }
+
+    @Nested
     class consumeVerification {
 
         @Test

@@ -63,6 +63,20 @@ class VerificationCountTest {
     }
 
     @Nested
+    class composeKey {
+
+        @Test
+        void 아이디와_IP를_포매팅하여_키를_생성한다() {
+            // given
+            String expectedKey = TEST_PHONE_NUMBER + ":" + TEST_IP;
+            // when
+            String key = VerificationCount.composeKey(TEST_PHONE_NUMBER, TEST_IP);
+            // then
+            assertThat(key).isEqualTo(expectedKey);
+        }
+    }
+
+    @Nested
     class increment {
 
         @Test
