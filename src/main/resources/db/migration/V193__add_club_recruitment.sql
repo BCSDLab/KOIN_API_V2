@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS `koin`.`club_recruitment`
     `created_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     `updated_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_club_recruitment_id_club` (`id`, `club_id`),
     CONSTRAINT `fk_club` FOREIGN KEY (`club_id`) REFERENCES `koin`.`club` (`id`)
 );
