@@ -12,15 +12,13 @@ import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
-import in.koreatech.koin.domain.user.verification.model.VerificationCount;
-import in.koreatech.koin.domain.user.verification.model.VerificationCode;
 import in.koreatech.koin.domain.user.verification.model.VerificationChannel;
-import in.koreatech.koin.domain.user.verification.repository.VerificationCountRedisRepository;
+import in.koreatech.koin.domain.user.verification.model.VerificationCode;
+import in.koreatech.koin.domain.user.verification.model.VerificationCount;
 import in.koreatech.koin.domain.user.verification.repository.VerificationCodeRedisRepository;
-import lombok.RequiredArgsConstructor;
+import in.koreatech.koin.domain.user.verification.repository.VerificationCountRedisRepository;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserVerificationService {
 
@@ -28,9 +26,21 @@ public class UserVerificationService {
     private final VerificationCountRedisRepository verificationCountRedisRepository;
     private final VerificationNumberGenerator verificationNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
+    private final int maxVerificationCount;
 
-    @Value("${user.verification.max-verification-count:5}")
-    private int maxVerificationCount;
+    public UserVerificationService(
+        VerificationCodeRedisRepository verificationCodeRedisRepository,
+        VerificationCountRedisRepository verificationCountRedisRepository,
+        VerificationNumberGenerator verificationNumberGenerator,
+        ApplicationEventPublisher eventPublisher,
+        @Value("${user.verification.max-verification-count:5}") int maxVerificationCount
+    ) {
+        this.verificationCodeRedisRepository = verificationCodeRedisRepository;
+        this.verificationCountRedisRepository = verificationCountRedisRepository;
+        this.verificationNumberGenerator = verificationNumberGenerator;
+        this.eventPublisher = eventPublisher;
+        this.maxVerificationCount = maxVerificationCount;
+    }
 
     private VerificationCount increaseAndGetVerificationCount(String phoneNumberOrEmail, String ipAddress) {
         String countKey = VerificationCount.composeKey(phoneNumberOrEmail, ipAddress);

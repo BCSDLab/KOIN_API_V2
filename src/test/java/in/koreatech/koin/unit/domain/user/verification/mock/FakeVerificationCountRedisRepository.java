@@ -21,4 +21,9 @@ public class FakeVerificationCountRedisRepository implements VerificationCountRe
     public Optional<VerificationCount> findById(String id) {
         return Optional.ofNullable(store.get(id));
     }
+
+    @Override
+    public void deleteById(String id) {
+        store.remove(id);
+    }
 }

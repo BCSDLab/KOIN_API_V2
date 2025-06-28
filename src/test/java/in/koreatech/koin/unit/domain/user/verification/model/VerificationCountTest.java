@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.errorcode.ErrorCode;
-import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.model.VerificationCount;
 import in.koreatech.koin.unit.fixutre.VerificationFixture;
 
@@ -21,8 +20,9 @@ class VerificationCountTest {
 
     private VerificationCount SMS_인증_횟수;
     private VerificationCount 이메일_인증_횟수;
-    private VerificationProperties verificationProperties;
 
+    private static final int MAX_VERIFICATION_COUNT = 5;
+    private static final String TEST_IP = "127.0.0.1";
     private static final String TEST_PHONE_NUMBER = "01012345678";
     private static final String TEST_EMAIL = "user@koreatech.ac.kr";
 
@@ -30,7 +30,6 @@ class VerificationCountTest {
     void init() {
         SMS_인증_횟수 = VerificationFixture.SMS_인증_횟수(TEST_PHONE_NUMBER);
         이메일_인증_횟수 = VerificationFixture.Email_인증_횟수(TEST_EMAIL);
-        verificationProperties = new VerificationProperties(5);
     }
 
     @Nested
@@ -41,9 +40,10 @@ class VerificationCountTest {
             // given
             long expectedExpiration = 60 * 60 * 24L;
             // when
-            VerificationCount dailyCount = VerificationCount.of(TEST_PHONE_NUMBER, verificationProperties);
+            VerificationCount dailyCount = VerificationCount.of(TEST_PHONE_NUMBER, TEST_IP, MAX_VERIFICATION_COUNT);
             // then
-            assertThat(dailyCount.getId()).isEqualTo(TEST_PHONE_NUMBER);
+            String id = VerificationCount.composeKey(TEST_PHONE_NUMBER, TEST_IP);
+            assertThat(dailyCount.getId()).isEqualTo(id);
             assertThat(dailyCount.getVerificationCount()).isEqualTo(0);
             assertThat(dailyCount.getExpiration()).isEqualTo(expectedExpiration);
         }
@@ -53,9 +53,10 @@ class VerificationCountTest {
             // given
             long expectedExpiration = 60 * 60 * 24L;
             // when
-            VerificationCount dailyCount = VerificationCount.of(TEST_EMAIL, verificationProperties);
+            VerificationCount dailyCount = VerificationCount.of(TEST_EMAIL, TEST_IP, MAX_VERIFICATION_COUNT);
             // then
-            assertThat(dailyCount.getId()).isEqualTo(TEST_EMAIL);
+            String id = VerificationCount.composeKey(TEST_EMAIL, TEST_IP);
+            assertThat(dailyCount.getId()).isEqualTo(id);
             assertThat(dailyCount.getVerificationCount()).isEqualTo(0);
             assertThat(dailyCount.getExpiration()).isEqualTo(expectedExpiration);
         }

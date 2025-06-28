@@ -41,14 +41,6 @@ public class VerificationCode {
         this.trialCount = 0;
     }
 
-    public static VerificationCode ofSms(String id, VerificationNumberGenerator generator) {
-        return new VerificationCode(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
-    }
-
-    public static VerificationCode ofEmail(String id, VerificationNumberGenerator generator) {
-        return new VerificationCode(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
-    }
-
     public static VerificationCode of(String id, VerificationNumberGenerator generator, VerificationChannel channel) {
         return switch (channel) {
             case SMS -> new VerificationCode(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
