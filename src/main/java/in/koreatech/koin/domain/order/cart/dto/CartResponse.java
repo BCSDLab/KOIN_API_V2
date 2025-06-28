@@ -9,15 +9,19 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItemOption;
+import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuImage;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopImage;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record CartResponse(
     @Schema(description = "상점 이름", example = "굿모닝 살로만 치킨")
     String shopName,
+    @Schema(description = "상점 이미지", example = "https://static.koreatech.in/test.png")
+    List<String> imageUrl,
     @Schema(description = "주문 가능 상점 ID", example = "1")
     Integer orderableShopId,
     @Schema(description = "배달 가능 여부", example = "true")
@@ -37,11 +41,13 @@ public record CartResponse(
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerCartItemResponse (
+    public record InnerCartItemResponse(
         @Schema(description = "장바구니 상품 고유 ID", example = "101")
         Integer cartMenuItemId,
         @Schema(description = "메뉴 이름", example = "허니콤보")
         String name,
+        @Schema(description = "메뉴 이미지", example = "https://static.koreatech.in/test.png")
+        List<String> imageUrl,
         @Schema(description = "수량", example = "1")
         Integer quantity,
         @Schema(description = "해당 상품의 총 금액 (가격 * 수량)", example = "23000")
@@ -62,6 +68,9 @@ public record CartResponse(
             return new InnerCartItemResponse(
                 cartMenuItem.getId(),
                 cartMenuItem.getOrderableShopMenu().getName(),
+                cartMenuItem.getOrderableShopMenu().getMenuImages().stream()
+                    .map(OrderableShopMenuImage::getImageUrl)
+                    .toList(),
                 cartMenuItem.getQuantity(),
                 cartMenuItem.calculateTotalAmount(),
                 InnerPriceResponse.from(cartMenuItem.getOrderableShopMenuPrice()),
@@ -72,7 +81,7 @@ public record CartResponse(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerMenuOptionResponse (
+    public record InnerMenuOptionResponse(
         @Schema(description = "옵션 그룹 이름", example = "소스 추가")
         String optionGroupName,
         @Schema(description = "옵션 이름", example = "레드디핑 소스")
@@ -94,7 +103,7 @@ public record CartResponse(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerPriceResponse (
+    public record InnerPriceResponse(
         @Schema(description = "가격 옵션 이름", example = "순살", nullable = true)
         String name,
         @Schema(description = "가격", example = "23000")
@@ -119,6 +128,9 @@ public record CartResponse(
 
         return new CartResponse(
             shop.getName(),
+            shop.getShopImages().stream()
+                .map(ShopImage::getImageUrl)
+                .toList(),
             orderableShop.getId(),
             orderableShop.isDelivery(),
             orderableShop.isTakeout(),
@@ -132,6 +144,7 @@ public record CartResponse(
 
     public static CartResponse empty() {
         return new CartResponse(
+            null,
             null,
             null,
             false,
