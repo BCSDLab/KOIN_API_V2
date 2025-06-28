@@ -37,12 +37,10 @@ public class ClubRecruitment extends BaseEntity {
     @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
 
-    @NotNull
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date")
     private LocalDate startDate;
 
-    @NotNull
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date")
     private LocalDate endDate;
 
     @NotNull
