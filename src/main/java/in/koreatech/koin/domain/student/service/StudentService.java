@@ -128,9 +128,9 @@ public class StudentService {
             user
         );
 
-        updateStudentInfo(student, request.studentNumber(), request.major());
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
+        updateStudentInfo(student, request.studentNumber(), request.major());
 
         return UpdateStudentResponse.from(student);
     }
