@@ -56,9 +56,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponseWithErrorCode(
-            e.getErrorCode().getHttpStatus(),
+            e.getUserErrorCode().getHttpStatus(),
             e.getMessage(),
-            e.getErrorCode().name()
+            e.getUserErrorCode().name()
         );
     }
 

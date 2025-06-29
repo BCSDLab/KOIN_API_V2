@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import lombok.Getter;
 import lombok.ToString;
@@ -47,7 +47,7 @@ public class UserVerificationStatus {
 
     public void verify(String inputCode) {
         if (isCodeMismatched(inputCode)) {
-            throw CustomException.of(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, this);
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, this);
         }
         this.isVerified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
@@ -55,7 +55,7 @@ public class UserVerificationStatus {
 
     public void requireVerified() {
         if (isNotVerified()) {
-            throw CustomException.of(ErrorCode.FORBIDDEN_API, this);
+            throw CustomException.of(ApiResponseCode.FORBIDDEN_VERIFICATION, this);
         }
     }
 

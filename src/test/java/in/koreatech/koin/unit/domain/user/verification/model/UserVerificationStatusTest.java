@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
 import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
@@ -91,14 +91,14 @@ class UserVerificationStatusTest {
         void SMS_인증_코드가_다르면_예외를_던진다() {
             // when / then
             CustomException exception = assertThrows(CustomException.class, () -> SMS_인증_코드.verify(WRONG_CODE));
-            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, exception.getUserErrorCode());
         }
 
         @Test
         void Email_인증_코드가_다르면_예외를_던진다() {
             // when / then
             CustomException exception = assertThrows(CustomException.class, () -> Email_인증_코드.verify(WRONG_CODE));
-            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, exception.getUserErrorCode());
         }
     }
 
@@ -117,7 +117,7 @@ class UserVerificationStatusTest {
         void SMS_미인증하면_예외를_던진다() {
             // when / then
             CustomException exception = assertThrows(CustomException.class, SMS_인증_코드::requireVerified);
-            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getUserErrorCode());
         }
 
         @Test
@@ -132,7 +132,7 @@ class UserVerificationStatusTest {
         void Email_미인증하면_예외를_던진다() {
             // when / then
             CustomException exception = assertThrows(CustomException.class, Email_인증_코드::requireVerified);
-            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getUserErrorCode());
         }
     }
 }

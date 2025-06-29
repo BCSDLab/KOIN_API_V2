@@ -5,7 +5,7 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import lombok.Getter;
 import lombok.ToString;
@@ -40,7 +40,7 @@ public class UserDailyVerificationCount {
 
     public void incrementVerificationCount() {
         if (verificationCount >= maxVerificationCount) {
-            throw CustomException.of(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, this);
+            throw CustomException.of(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION, this);
         }
         verificationCount++;
     }

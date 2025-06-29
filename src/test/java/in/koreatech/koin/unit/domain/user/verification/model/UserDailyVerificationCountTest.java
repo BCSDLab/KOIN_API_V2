@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
 import in.koreatech.koin.unit.fixutre.VerificationFixture;
@@ -88,7 +88,7 @@ class UserDailyVerificationCountTest {
                 .forEach(UserDailyVerificationCount::incrementVerificationCount);
             // then
             CustomException exception = assertThrows(CustomException.class, SMS_인증_횟수::incrementVerificationCount);
-            assertEquals(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());
+            assertEquals(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getUserErrorCode());
         }
 
         @Test
@@ -97,7 +97,7 @@ class UserDailyVerificationCountTest {
             IntStream.rangeClosed(1, 5).forEach(i -> 이메일_인증_횟수.incrementVerificationCount());
             // then
             CustomException exception = assertThrows(CustomException.class, 이메일_인증_횟수::incrementVerificationCount);
-            assertEquals(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());
+            assertEquals(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getUserErrorCode());
         }
     }
 }
