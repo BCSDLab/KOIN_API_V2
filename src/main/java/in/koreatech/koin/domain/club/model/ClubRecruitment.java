@@ -1,0 +1,72 @@
+package in.koreatech.koin.domain.club.model;
+
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
+
+import java.time.LocalDate;
+
+import in.koreatech.koin._common.model.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@Entity
+@Table(
+    schema = "koin",
+    name = "club_recruitment",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_club_recruitment_club_id", columnNames = "club_id")
+    }
+)
+@NoArgsConstructor(access = PROTECTED)
+public class ClubRecruitment extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    @Column(name = "id", nullable = false, updatable = false)
+    private Integer id;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @NotNull
+    @Column(name = "is_always_recruiting", nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean isAlwaysRecruiting;
+
+    @NotNull
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    private String content;
+
+    @OneToOne(fetch = LAZY)
+    @JoinColumn(name = "club_id", nullable = false, updatable = false)
+    private Club club;
+
+    @Builder
+    private ClubRecruitment(
+        LocalDate startDate,
+        LocalDate endDate,
+        Boolean isAlwaysRecruiting,
+        String content,
+        Club club
+    ) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isAlwaysRecruiting = isAlwaysRecruiting;
+        this.content = content;
+        this.club = club;
+    }
+}
