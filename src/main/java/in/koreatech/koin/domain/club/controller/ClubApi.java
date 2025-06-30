@@ -436,4 +436,51 @@ public interface ClubApi {
         @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "동아리 모집 삭제 성공", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 ID", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "없는 동아리 ID로 요청한 경우", value = """
+                    {
+                      "code": "NOT_FOUND_CLUB",
+                      "message": "동아리가 존재하지 않습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저 ID", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "없는 유저 ID로 요청한 경우", value = """
+                    {
+                      "code": "NOT_FOUND_USER",
+                      "message": "해당 사용자를 찾을 수 없습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 공고", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "없는 유저 ID로 요청한 경우", value = """
+                    {
+                      "code": "NOT_FOUND_CLUB_RECRUITMENT",
+                      "message": "동아리 모집 공고가 존재하지 않습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            }))
+        }
+    )
+    @Operation(summary = "동아리 모집 삭제", description = """
+        ### 동아리 모집 수정
+        - 동아리 모집을 삭제 합니다.
+        
+        ### 에러 코드(에러 메시지)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_CLUB_RECRUITMENT (동아리 모집 공고가 존재하지 않습니다.)
+        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
+        """)
+    @DeleteMapping("/{clubId}/recruitment")
+    ResponseEntity<Void> deleteRecruitment(
+        @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
 }
