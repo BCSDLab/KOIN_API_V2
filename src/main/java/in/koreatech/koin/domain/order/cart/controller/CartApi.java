@@ -45,9 +45,7 @@ public interface CartApi {
                         {
                           "cart_menu_item_id": 12,
                           "name": "허니콤보",
-                          "menu_image_urls": [
-                            "https://static.koreatech.in/test.png"
-                          ],
+                          "menu_thumbnail_image_url": "https://static.koreatech.in/test.png",
                           "quantity": 1,
                           "total_amount": 23000,
                           "price": {
@@ -60,9 +58,7 @@ public interface CartApi {
                         {
                           "cart_menu_item_id": 13,
                           "name": "레드콤보",
-                          "menu_image_urls": [
-                            "https://static.koreatech.in/test.png"
-                          ],
+                          "menu_thumbnail_image_url": "https://static.koreatech.in/test.png",
                           "quantity": 2,
                           "total_amount": 47000,
                           "price": {

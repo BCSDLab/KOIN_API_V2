@@ -48,8 +48,8 @@ public record CartResponse(
         Integer cartMenuItemId,
         @Schema(description = "메뉴 이름", example = "허니콤보")
         String name,
-        @Schema(description = "메뉴 이미지", example = "https://static.koreatech.in/test.png")
-        List<String> menuImageUrls,
+        @Schema(description = "메뉴 썸네일 이미지", example = "https://static.koreatech.in/test.png")
+        String menuThumbnailImageUrl,
         @Schema(description = "수량", example = "1")
         Integer quantity,
         @Schema(description = "해당 상품의 총 금액 (가격 * 수량)", example = "23000")
@@ -70,9 +70,7 @@ public record CartResponse(
             return new InnerCartItemResponse(
                 cartMenuItem.getId(),
                 cartMenuItem.getOrderableShopMenu().getName(),
-                cartMenuItem.getOrderableShopMenu().getMenuImages().stream()
-                    .map(OrderableShopMenuImage::getImageUrl)
-                    .toList(),
+                cartMenuItem.getOrderableShopMenu().getThumbnailImage(),
                 cartMenuItem.getQuantity(),
                 cartMenuItem.calculateTotalAmount(),
                 InnerPriceResponse.from(cartMenuItem.getOrderableShopMenuPrice()),
