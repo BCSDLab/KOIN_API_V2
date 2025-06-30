@@ -423,7 +423,7 @@ public interface ClubApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200", description = "동아리 모집 삭제 성공", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "204", description = "동아리 모집 삭제 성공", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 ID", content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "없는 동아리 ID로 요청한 경우", value = """
                     {
