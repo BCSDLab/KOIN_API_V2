@@ -179,4 +179,13 @@ public class ClubController implements ClubApi {
         clubService.modifyRecruitment(request, clubId, studentId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> deleteRecruitment(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.deleteRecruitment(clubId, studentId);
+        return ResponseEntity.noContent().build();
+    }
 }

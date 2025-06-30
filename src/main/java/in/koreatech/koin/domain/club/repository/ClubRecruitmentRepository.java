@@ -18,4 +18,6 @@ public interface ClubRecruitmentRepository extends Repository<ClubRecruitment, I
         return findByClub(club)
             .orElseThrow(() -> ClubRecruitmentNotFoundException.withDetail("clubId : " + club.getId()));
     }
+
+    void delete(ClubRecruitment clubRecruitment);
 }

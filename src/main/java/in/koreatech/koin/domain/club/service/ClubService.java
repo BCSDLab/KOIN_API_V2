@@ -336,4 +336,14 @@ public class ClubService {
             request.content()
         );
     }
+
+    @Transactional
+    public void deleteRecruitment(Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubRecruitmentRepository.delete(clubRecruitment);
+    }
 }
