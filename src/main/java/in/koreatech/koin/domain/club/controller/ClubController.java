@@ -21,11 +21,12 @@ import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -79,6 +80,15 @@ public class ClubController implements ClubApi {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/search/related")
+    public ResponseEntity<ClubRelatedKeywordResponse> getRelatedClubs(
+        @RequestParam(required = false, defaultValue = "") String query
+    ) {
+        ClubRelatedKeywordResponse response = clubService.getRelatedClubs(query);
+        return ResponseEntity.ok(response);
+    }
+
+
     @GetMapping("/{clubId}")
     public ResponseEntity<ClubResponse> getClub(
         @Parameter(in = PATH) @PathVariable Integer clubId,
@@ -113,16 +123,16 @@ public class ClubController implements ClubApi {
     }
 
     @GetMapping("/{clubId}/qna")
-    public ResponseEntity<QnasResponse> getQnas(
+    public ResponseEntity<ClubQnasResponse> getQnas(
         @Parameter(in = PATH) @PathVariable Integer clubId
     ) {
-        QnasResponse response = clubService.getQnas(clubId);
+        ClubQnasResponse response = clubService.getQnas(clubId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{clubId}/qna")
     public ResponseEntity<Void> createQna(
-        @RequestBody @Valid QnaCreateRequest request,
+        @RequestBody @Valid ClubQnaCreateRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {

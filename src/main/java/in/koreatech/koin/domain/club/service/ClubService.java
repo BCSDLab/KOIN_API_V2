@@ -16,11 +16,12 @@ import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
@@ -182,6 +183,12 @@ public class ClubService {
         return club -> normalize(club.getName()).contains(normalizedQuery);
     }
 
+    public ClubRelatedKeywordResponse getRelatedClubs(String query) {
+        String normalizedQuery = normalize(query);
+        List<Club> clubs = clubRepository.findTop5ByNamePrefix(normalizedQuery);
+        return ClubRelatedKeywordResponse.from(clubs);
+    }
+
     private String normalize(String s) {
         return s.replaceAll("\\s+", "").toLowerCase();
     }
@@ -220,9 +227,9 @@ public class ClubService {
     }
 
     @Transactional
-    public QnasResponse getQnas(Integer clubId) {
+    public ClubQnasResponse getQnas(Integer clubId) {
         List<ClubQna> qnas = clubQnaRepository.findAllByClubId(clubId);
-        return QnasResponse.from(qnas);
+        return ClubQnasResponse.from(qnas);
     }
 
     public ClubHotResponse getHotClub() {
@@ -241,7 +248,7 @@ public class ClubService {
     }
 
     @Transactional
-    public void createQna(QnaCreateRequest request, Integer clubId, Integer studentId) {
+    public void createQna(ClubQnaCreateRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
         boolean isManager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);

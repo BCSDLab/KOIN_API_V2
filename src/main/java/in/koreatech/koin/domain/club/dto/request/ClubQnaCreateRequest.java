@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record QnaCreateRequest(
+public record ClubQnaCreateRequest(
     @Schema(description = "부모 qna id", example = "1", requiredMode = NOT_REQUIRED)
     Integer parentId,
 
