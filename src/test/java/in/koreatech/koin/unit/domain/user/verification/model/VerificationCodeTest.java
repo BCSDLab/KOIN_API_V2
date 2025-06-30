@@ -107,7 +107,7 @@ class VerificationCodeTest {
         @Test
         void SMS_인증_코드를_검증한다() {
             // given
-            long expectedExpiration = 60 * 60L;
+            long expectedExpiration = 60 * 30L;
             // when
             SMS_인증_코드.verify(CORRECT_CODE);
             // then
@@ -118,7 +118,7 @@ class VerificationCodeTest {
         @Test
         void Email_인증_코드를_검증한다() {
             // given
-            long expectedExpiration = 60 * 60L;
+            long expectedExpiration = 60 * 30L;
             // when
             Email_인증_코드.verify(CORRECT_CODE);
             // then
