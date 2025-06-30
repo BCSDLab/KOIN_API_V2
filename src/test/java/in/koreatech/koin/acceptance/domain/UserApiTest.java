@@ -30,8 +30,8 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
-import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.user.verification.model.VerificationCode;
+import in.koreatech.koin.domain.user.verification.repository.VerificationCodeRedisRepository;
 import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -55,7 +55,7 @@ class UserApiTest extends AcceptanceTest {
     private DepartmentAcceptanceFixture departmentFixture;
 
     @Autowired
-    private UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
+    private VerificationCodeRedisRepository verificationCodeRedisRepository;
 
     @MockBean
     private NaverSmsService naverSmsService;
@@ -410,7 +410,7 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        UserVerificationStatus status = userVerificationStatusRedisRepository.findById(phoneNumber)
+        VerificationCode status = verificationCodeRedisRepository.findById(phoneNumber)
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumber));
         String certificationCode = status.getVerificationCode();
 
@@ -449,7 +449,7 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        UserVerificationStatus status = userVerificationStatusRedisRepository.findById(phoneNumber)
+        VerificationCode status = verificationCodeRedisRepository.findById(phoneNumber)
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumber));
         String certificationCode = status.getVerificationCode();
         String wrongCode = certificationCode.equals("123456") ? "654321" : "123456";
@@ -526,7 +526,7 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        UserVerificationStatus status = userVerificationStatusRedisRepository.findById(phoneNumber)
+        VerificationCode status = verificationCodeRedisRepository.findById(phoneNumber)
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumber));
         String certificationCode = status.getVerificationCode();
 
@@ -579,7 +579,7 @@ class UserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         // Redis에서 인증번호 확인
-        UserVerificationStatus status = userVerificationStatusRedisRepository.findById(phoneNumber)
+        VerificationCode status = verificationCodeRedisRepository.findById(phoneNumber)
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumber));
         String certificationCode = status.getVerificationCode();
 
