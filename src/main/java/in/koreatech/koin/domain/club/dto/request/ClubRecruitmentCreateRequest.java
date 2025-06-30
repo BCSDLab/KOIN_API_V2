@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubRecruitment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -29,5 +31,17 @@ public record ClubRecruitmentCreateRequest(
     @NotNull(message = "모집 상세 설명은 필수 입력입니다.")
     String content
 ) {
-    // TODO. 생성자 검증 추가
+    public ClubRecruitmentCreateRequest {
+        // TODO. 생성자 검증 추가
+    }
+
+    public ClubRecruitment toEntity(Club club) {
+        return ClubRecruitment.builder()
+            .startDate(startData)
+            .endDate(endData)
+            .isAlwaysRecruiting(isAlwaysRecruiting)
+            .content(content)
+            .club(club)
+            .build();
+    }
 }
