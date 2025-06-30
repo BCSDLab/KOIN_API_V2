@@ -69,4 +69,11 @@ public class ClubRecruitment extends BaseEntity {
         this.content = content;
         this.club = club;
     }
+
+    public void modifyClubRecruitment(LocalDate startDate, LocalDate endDate, Boolean isAlwaysRecruiting, String content) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isAlwaysRecruiting = isAlwaysRecruiting;
+        this.content = content;
+    }
 }
