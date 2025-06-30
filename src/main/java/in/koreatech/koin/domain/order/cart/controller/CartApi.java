@@ -117,6 +117,11 @@ public interface CartApi {
         ### 응답 케이스
         - **장바구니에 상품이 있는 경우**: 장바구니 상세 정보 응답 반환합니다.
         - **장바구니가 비어있는 경우**: 필드가 null로 비어있는 응답 반환합니다.
+        
+        ### nullable
+        - **shop_thumbnail_image_url** : 주문 가능 상점의 썸네일 이미지가 존재하지 않는 경우
+        - **menu_thumbnail_image_url** : 주문 가능 상점의 메뉴 썸네일 이미지가 존재하지 않는 경우
+        - **items[i].price.name** : 주문 가능 상점 메뉴의 가격 옵션 이름이 없는 경우 (단일 가격)
         """)
     @GetMapping("/cart")
     ResponseEntity<CartResponse> getCartItems(
