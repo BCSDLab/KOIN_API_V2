@@ -21,7 +21,7 @@ public enum ApiResponseCode {
      */
     ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
     ILLEGAL_STATE(HttpStatus.BAD_REQUEST, "잘못된 상태로 요청이 들어왔습니다."),
-    INVALID_REQUEST_PARAMETERS(HttpStatus.BAD_REQUEST, "잘못된 입력값이 포함되어 있습니다."),
+    INVALID_REQUEST_PAYLOAD(HttpStatus.BAD_REQUEST, "잘못된 입력값이 포함되어 있습니다."),
     INVALID_DATE_TIME(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다."),
     INVALID_GENDER_INDEX(HttpStatus.BAD_REQUEST, "올바르지 않은 성별 인덱스입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "올바르지 않은 인증 토큰입니다."),

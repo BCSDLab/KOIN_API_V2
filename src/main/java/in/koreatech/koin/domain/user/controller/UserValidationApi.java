@@ -56,7 +56,11 @@ public interface UserValidationApi {
         summary = "로그인 아이디 중복 체크",
         description = "입력한 로그인 아이디가 중복되지 않고, 사용 가능한지 확인합니다."
     )
-    @ApiResponseCodes({ApiResponseCode.OK, ApiResponseCode.DUPLICATE_LOGIN_ID})
+    @ApiResponseCodes({
+        ApiResponseCode.OK,
+        ApiResponseCode.INVALID_REQUEST_PAYLOAD,
+        ApiResponseCode.DUPLICATE_LOGIN_ID
+    })
     @GetMapping("/user/check/id")
     ResponseEntity<Void> requireUniqueLoginId(
         @ParameterObject @ModelAttribute("id")

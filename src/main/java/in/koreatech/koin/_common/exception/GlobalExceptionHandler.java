@@ -100,7 +100,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorMessages = e.getBindingResult().getAllErrors().stream()
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
             .collect(Collectors.joining("\n"));
-        return buildErrorResponse(ApiResponseCode.INVALID_REQUEST_PARAMETERS);
+        return buildErrorResponse(ApiResponseCode.INVALID_REQUEST_PAYLOAD);
     }
 
     @Override
