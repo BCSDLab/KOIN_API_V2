@@ -18,6 +18,7 @@ import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -29,6 +30,7 @@ import in.koreatech.koin.domain.club.enums.ClubSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -191,7 +193,7 @@ public interface ClubApi {
             - authorId 확인하여 작성자 본인인 경우 삭제 버튼(x) 표시.
             - 닉네임은 존재 시 그대로 반환되며, 없는 경우 student의 익명 닉네임으로 반환.
             - 트리 구조는 대댓글 형태로 재귀적으로 구성됩니다.
-                        
+            
             ```java
             예시
             댓글 1
@@ -201,7 +203,7 @@ public interface ClubApi {
             │   └── 댓글 1-1-2
             ├── 댓글 1-2
             └── 댓글 1-3
-                        
+            
             댓글 2
             └── 댓글 2-1
                 └── 댓글 2-1-1
@@ -269,6 +271,75 @@ public interface ClubApi {
     @PutMapping("/empowerment")
     ResponseEntity<Void> empowermentClubManager(
         @RequestBody @Valid ClubManagerEmpowermentRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "동아리 모집 생성 성공", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "모집 종료일은 시작일 이후여야 함", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "종료일이 시작일보다 빠른 경우", value = """
+                    {
+                      "code": "INVALID_RECRUITMENT_PERIOD",
+                      "message": "모집 마감일은 모집 시작일 이후여야 합니다.",
+                      "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "400", description = "상시 모집일 경우 모집 기간이 없어야 함", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "상시 모집인데 기간이 입력된 경우", value = """
+                    {
+                      "code": "RECRUITMENT_PERIOD_MUST_BE_NULL",
+                      "message": "상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "401", description = "동아리 매니저가 아닌 경우 모집글 작성 불가", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "비매니저 사용자가 모집글 작성한 경우", value = """
+                    {
+                      "code": "",
+                      "message": "권한이 없습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 ID", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "없는 동아리 ID로 요청한 경우", value = """
+                    {
+                      "code": "NOT_FOUND_CLUB",
+                      "message": "동아리가 존재하지 않습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저 ID", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "없는 유저 ID로 요청한 경우", value = """
+                    {
+                      "code": "NOT_FOUND_USER",
+                      "message": "해당 사용자를 찾을 수 없습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            }))
+        }
+    )
+    @Operation(summary = "동아리 모집 생성", description = """
+        ### 동아리 모집 생성
+        - 동아리 모집 생성을 합니다.
+        - 모집 시작 기간과 모집 마감 기간은 "yyyy-MM-dd" 형식입니다.
+        - 상시 모집 여부의 기본값은 false입니다.
+        - 상시 모집 여부가 true인 경우, 모집 시작 기간과 모집 마감 기간은 null로 요청하셔야 합니다.
+        
+        ### 에러 코드(에러 메시지)
+        - INVALID_RECRUITMENT_PERIOD (모집 마감일은 모집 시작일 이후여야 합니다.)
+        - RECRUITMENT_PERIOD_MUST_BE_NULL (상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다.)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
+        """)
+    @PostMapping("/recruitment")
+    ResponseEntity<Void> createRecruitment(
+        @RequestBody @Valid ClubRecruitmentCreateRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 }
