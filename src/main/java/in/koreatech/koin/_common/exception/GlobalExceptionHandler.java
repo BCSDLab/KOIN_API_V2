@@ -61,30 +61,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // 표준 예외 및 정의되어 있는 예외
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Object> handleRequestTooFastException(
+    public ResponseEntity<Object> handleIllegalArgumentException(
         HttpServletRequest request,
         IllegalArgumentException e
     ) {
         requestLogging(request, e.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+        return buildErrorResponse(ApiResponseCode.ILLEGAL_ARGUMENT);
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Object> handleRequestTooFastException(
+    public ResponseEntity<Object> handleIllegalStateException(
         HttpServletRequest request,
         IllegalStateException e
     ) {
         requestLogging(request, e.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-    }
-
-    @ExceptionHandler(RequestTooFastException.class)
-    public ResponseEntity<Object> handleRequestTooFastException(
-        HttpServletRequest request,
-        RequestTooFastException e
-    ) {
-        requestLogging(request, e.getFullMessage());
-        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+        return buildErrorResponse(ApiResponseCode.ILLEGAL_STATE);
     }
 
     @ExceptionHandler(DateTimeException.class)
@@ -93,25 +84,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         DateTimeException e
     ) {
         requestLogging(request, e.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다.");
+        return buildErrorResponse(ApiResponseCode.INVALID_DATE_TIME);
     }
 
-    @ExceptionHandler(UnsupportedOperationException.class)
-    public ResponseEntity<Object> handleUnsupportedOperationException(
-        HttpServletRequest request,
-        UnsupportedOperationException e
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException e,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest webRequest
     ) {
+        HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
+        log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), e);
         requestLogging(request, e.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "지원하지 않는 API 입니다.");
-    }
-
-    @ExceptionHandler(ClientAbortException.class)
-    public ResponseEntity<Object> handleClientAbortException(
-        HttpServletRequest request,
-        ClientAbortException e
-    ) {
-        requestLogging(request, "클라이언트가 연결을 중단했습니다: " + e.getMessage());
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "클라이언트에 의해 연결이 중단되었습니다");
+        String errorMessages = e.getBindingResult().getAllErrors().stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .collect(Collectors.joining("\n"));
+        return buildErrorResponse(ApiResponseCode.INVALID_REQUEST_PARAMETERS);
     }
 
     @Override
@@ -122,7 +111,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         WebRequest request
     ) {
         requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 입력 형식이거나, 값이 허용된 범위를 초과했습니다.");
+        return buildErrorResponse(ApiResponseCode.NOT_READABLE_HTTP_MESSAGE);
+    }
+
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<Object> handleUnsupportedOperationException(
+        HttpServletRequest request,
+        UnsupportedOperationException e
+    ) {
+        requestLogging(request, e.getMessage());
+        return buildErrorResponse(ApiResponseCode.UNSUPPORTED_OPERATION);
+    }
+
+    @ExceptionHandler(ClientAbortException.class)
+    public ResponseEntity<Object> handleClientAbortException(
+        HttpServletRequest request,
+        ClientAbortException e
+    ) {
+        requestLogging(request, "클라이언트가 연결을 중단했습니다: " + e.getMessage());
+        return buildErrorResponse(ApiResponseCode.CLIENT_ABORTED);
     }
 
     @Override
@@ -133,8 +140,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         WebRequest request
     ) {
         log.warn("유효하지 않은 API 경로입니다. {}", e.getRequestURL());
-        requestLogging(((ServletWebRequest)request).getRequest(), "유효하지 않은 API 경로입니다. " + e.getMessage());
-        return buildErrorResponse(HttpStatus.NOT_FOUND, "유효하지 않은 API 경로입니다.");
+        requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
+        return buildErrorResponse(ApiResponseCode.NO_HANDLER_FOUND);
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
@@ -143,7 +150,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ObjectOptimisticLockingFailureException e
     ) {
         requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
-        return buildErrorResponse(HttpStatus.CONFLICT, "이미 처리된 요청입니다.");
+        return buildErrorResponse(ApiResponseCode.OPTIMISTIC_LOCKING_FAILURE);
     }
 
     @ExceptionHandler(Exception.class)
@@ -167,63 +174,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             {}
             """, request.getMethod(), request.getRequestURI(), detail);
         requestLogging(request, errorMessage);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 오류가 발생했습니다.");
+        return buildErrorResponse(ApiResponseCode.INTERNAL_SERVER_ERROR);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException e,
-        HttpHeaders headers,
-        HttpStatusCode status,
-        WebRequest webRequest
-    ) {
-        HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
-        log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), e);
-        requestLogging(request, e.getMessage());
-        String errorMessages = e.getBindingResult().getAllErrors().stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.joining("\n"));
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
-    }
-
-    // Deprecated
     // 공통 에러 코드 + 예외 적용 전 임시 처리
     @ExceptionHandler(CartException.class)
     public ResponseEntity<Object> handleCartException(
         HttpServletRequest request,
         CartException e
-    ) {
-        log.warn(e.getFullMessage());
-        requestLogging(request, e.getFullMessage());
-        return buildErrorResponseWithErrorCode(
-            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
-            e.getFullMessage(),
-            e.getErrorCode().name()
-        );
-    }
-
-    // Deprecated
-    // 공통 에러 코드 + 예외 적용 전 임시 처리
-    @ExceptionHandler(AddressException.class)
-    public ResponseEntity<Object> handleAddressApiException(
-        HttpServletRequest request,
-        AddressException e
-    ) {
-        log.warn(e.getFullMessage());
-        requestLogging(request, e.getFullMessage());
-        return buildErrorResponseWithErrorCode(
-            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
-            e.getFullMessage(),
-            e.getErrorCode().name()
-        );
-    }
-
-    // Deprecated
-    // 공통 에러 코드 + 예외 적용 전 임시 처리
-    @ExceptionHandler(DeliveryException.class)
-    public ResponseEntity<Object> handleAddressApiException(
-        HttpServletRequest request,
-        DeliveryException e
     ) {
         log.warn(e.getFullMessage());
         requestLogging(request, e.getFullMessage());
@@ -382,6 +340,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
     }
 
+    @ExceptionHandler(RequestTooFastException.class)
+    public ResponseEntity<Object> handleRequestTooFastException(
+        HttpServletRequest request,
+        RequestTooFastException e
+    ) {
+        requestLogging(request, e.getFullMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
     private ResponseEntity<Object> buildErrorResponse(
         HttpStatus httpStatus,
         String message
@@ -401,5 +368,35 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("traceId: {}", errorTraceId);
         var response = new ErrorResponse(httpStatus.value(), errorCode, message, errorTraceId);
         return ResponseEntity.status(httpStatus).body(response);
+    }
+
+    // 공통 에러 코드 + 예외 적용 전 임시 처리
+    @ExceptionHandler(AddressException.class)
+    public ResponseEntity<Object> handleAddressApiException(
+        HttpServletRequest request,
+        AddressException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request, e.getFullMessage());
+        return buildErrorResponseWithErrorCode(
+            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
+            e.getFullMessage(),
+            e.getErrorCode().name()
+        );
+    }
+
+    // 공통 에러 코드 + 예외 적용 전 임시 처리
+    @ExceptionHandler(DeliveryException.class)
+    public ResponseEntity<Object> handleAddressApiException(
+        HttpServletRequest request,
+        DeliveryException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request, e.getFullMessage());
+        return buildErrorResponseWithErrorCode(
+            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
+            e.getFullMessage(),
+            e.getErrorCode().name()
+        );
     }
 }
