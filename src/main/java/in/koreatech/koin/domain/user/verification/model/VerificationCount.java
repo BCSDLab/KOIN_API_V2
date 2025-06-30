@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import io.micrometer.common.util.StringUtils;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -29,20 +30,17 @@ public class VerificationCount {
 
     private VerificationCount(String id, int maxVerificationCount) {
         this.id = id;
+        this.maxVerificationCount = maxVerificationCount;
         this.verificationCount = 0;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
-        this.maxVerificationCount = maxVerificationCount;
     }
 
     public static String composeKey(String id, String ip) {
-        return String.format(KEY_FORMAT, id, ip);
+        return StringUtils.isBlank(ip) ? id : String.format(KEY_FORMAT, id, ip);
     }
 
     public static VerificationCount of(String id, String ip, int maxVerificationCount) {
-        return new VerificationCount(
-            composeKey(id, ip),
-            maxVerificationCount
-        );
+        return new VerificationCount(composeKey(id, ip), maxVerificationCount);
     }
 
     public void incrementVerificationCount() {

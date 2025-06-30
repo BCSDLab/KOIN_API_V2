@@ -27,7 +27,7 @@ class VerificationCodeTest {
     private static final String TEST_PHONE_NUMBER = "01012345678";
     private static final String CORRECT_CODE = "123456";
     private static final String WRONG_CODE = "999999";
-    private static final int ABNORMAL_USAGE_THRESHOLD = 100;
+    private static final int ABNORMAL_USAGE_THRESHOLD = 10;
 
     @BeforeEach
     void init() {

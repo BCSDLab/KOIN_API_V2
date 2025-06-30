@@ -19,8 +19,8 @@ public class VerificationCode {
 
     private static final long SMS_VERIFICATION_EXPIRATION_SECONDS = 60 * 3L; // 3분
     private static final long EMAIL_VERIFICATION_EXPIRATION_SECONDS = 60 * 5L; // 5분
-    private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 60L; // 1시간
-    private static final int MAX_TRIAL_COUNT = 100;
+    private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 30L; // 30분
+    private static final int MAX_TRIAL_COUNT = 10;
 
     @Id
     private String id;
@@ -29,7 +29,7 @@ public class VerificationCode {
 
     private int trialCount;
 
-    private boolean isVerified = false;
+    private boolean isVerified;
 
     @TimeToLive
     private Long expiration;
@@ -37,8 +37,9 @@ public class VerificationCode {
     private VerificationCode(String id, String verificationCode, Long expiration) {
         this.id = id;
         this.verificationCode = verificationCode;
-        this.expiration = expiration;
         this.trialCount = 0;
+        this.isVerified = false;
+        this.expiration = expiration;
     }
 
     public static VerificationCode of(String id, VerificationNumberGenerator generator, VerificationChannel channel) {

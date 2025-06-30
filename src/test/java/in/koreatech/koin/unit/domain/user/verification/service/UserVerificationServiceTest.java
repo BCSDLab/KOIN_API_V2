@@ -238,7 +238,7 @@ class UserVerificationServiceTest {
     @Nested
     class detectAbnormalUsage {
 
-        private static final int ABNORMAL_USAGE_THRESHOLD = 100;
+        private static final int ABNORMAL_USAGE_THRESHOLD = 10;
 
         @Test
         void SMS_100회_이상_오입력하면_비정상_이용_예외를_던진다() {
