@@ -88,7 +88,6 @@ public class ClubController implements ClubApi {
         return ResponseEntity.ok(response);
     }
 
-
     @GetMapping("/{clubId}")
     public ResponseEntity<ClubResponse> getClub(
         @Parameter(in = PATH) @PathVariable Integer clubId,

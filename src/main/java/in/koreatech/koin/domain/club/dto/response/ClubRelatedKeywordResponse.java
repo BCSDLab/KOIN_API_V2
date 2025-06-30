@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubRelatedKeywordResponse(
+    @Schema(description = "해당 검색어의 키워드 정보 리스트")
     List<InnerKeyword> keywords
 ) {
 
