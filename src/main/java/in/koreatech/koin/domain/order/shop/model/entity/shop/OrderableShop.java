@@ -105,10 +105,11 @@ public class OrderableShop extends BaseEntity {
         }
     }
 
-    public Optional<String> getThumbnailImage() {
+    public String getThumbnailImage() {
         return this.shopImages.stream()
             .filter(OrderableShopImage::getIsThumbnail)
             .map(OrderableShopImage::getImageUrl)
-            .findFirst();
+            .findFirst()
+            .orElse(null);
     }
 }

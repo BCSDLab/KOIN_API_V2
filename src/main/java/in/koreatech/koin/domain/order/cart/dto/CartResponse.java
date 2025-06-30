@@ -129,7 +129,7 @@ public record CartResponse(
 
         return new CartResponse(
             shop.getName(),
-            orderableShop.getThumbnailImage().orElse(null),
+            orderableShop.getThumbnailImage(),
             orderableShop.getId(),
             orderableShop.isDelivery(),
             orderableShop.isTakeout(),
