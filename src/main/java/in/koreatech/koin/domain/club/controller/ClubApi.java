@@ -135,6 +135,8 @@ public interface ClubApi {
             - ex) B -> BCSD, BASIA
             - 결과물로는 해당 동아리 ID와 동아리명을 반환합니다.
             - 최대 5개까지 반환합니다.
+            - 공백, 대소문자 구분X
+            - 클라측에서 입력지연(디바운스) 해주셔야 합니다. (무분별한 API 호출 방지)
             """
     )
     @GetMapping("/search/related")
