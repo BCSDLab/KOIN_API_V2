@@ -18,7 +18,6 @@ import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
-import in.koreatech.koin.domain.order.cart.dto.CartValidateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -692,17 +691,7 @@ public interface CartApi {
     );
 
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "주문 페이지 장바구니 검증 성공",
-            content = @Content(mediaType = "application/json", examples = {
-                @ExampleObject(name = "장바구니가 유효한 경우", value = """
-                        {
-                          "campus_delivery": true,
-                          "off_campus_delivery": true
-                        }
-                        """
-                )
-            })
-        ),
+        @ApiResponse(responseCode = "200", description = "장바구니 검증 성공"),
         @ApiResponse(responseCode = "400", description = "잘못된 요청",
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "최소 주문 금액 미충족", summary = "최소 주문 금액 미충족", value = """
@@ -745,15 +734,15 @@ public interface CartApi {
         )
     })
     @Operation(
-        summary = "주문 페이지 장바구니 검증 및 교외/교내 배달 여부 조회",
+        summary = "장바구니 검증",
         description = """
-            ## 주문 페이지 장바구니 검증
+            ## 장바구니 검증
             - 장바구니의 상품 주문 금액이 상점의 최소 주문 금액을 충족하는지 검증합니다.
-            - 주문 상점의 교외 배달 / 교내 배달 가능 여부를 반환 합니다.
+            - 상점이 현재 주문 가능 상태(영업 중) 인지 검증합니다.
             """
     )
     @GetMapping("/cart/validate")
-    ResponseEntity<CartValidateResponse> getCartValidateResult(
+    ResponseEntity<Void> getCartValidateResult(
         @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
     );
 }
