@@ -358,7 +358,7 @@ public interface ClubApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200", description = "동아리 모집 생성 성공", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "200", description = "동아리 모집 수정 성공", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "400", description = "모집 종료일은 시작일 이후여야 함", content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "종료일이 시작일보다 빠른 경우", value = """
                     {
@@ -413,10 +413,19 @@ public interface ClubApi {
                       "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
                     }
                     """)
+            })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 공고", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "없는 유저 ID로 요청한 경우", value = """
+                    {
+                      "code": "NOT_FOUND_CLUB_RECRUITMENT",
+                      "message": "동아리 모집 공고가 존재하지 않습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
             }))
         }
     )
-    @Operation(summary = "동아리 모집 생성", description = """
+    @Operation(summary = "동아리 모집 수정", description = """
         ### 동아리 모집 수정
         - 동아리 모집을 수정 합니다.
         - 모집 시작 기간과 모집 마감 기간은 "yyyy-MM-dd" 형식입니다.
