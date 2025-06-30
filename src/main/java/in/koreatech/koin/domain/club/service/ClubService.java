@@ -186,6 +186,9 @@ public class ClubService {
 
     public ClubRelatedKeywordResponse getRelatedClubs(String query) {
         String normalizedQuery = normalize(query);
+        if (normalizedQuery.isEmpty()) {
+            return new ClubRelatedKeywordResponse(List.of());
+        }
         PageRequest pageRequest = PageRequest.of(0, 5);
         List<Club> clubs = clubRepository.findTop5ByNamePrefix(normalizedQuery, pageRequest);
         return ClubRelatedKeywordResponse.from(clubs);
