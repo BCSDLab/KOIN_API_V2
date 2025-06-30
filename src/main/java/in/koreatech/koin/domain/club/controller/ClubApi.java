@@ -19,6 +19,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -351,6 +352,86 @@ public interface ClubApi {
     @PostMapping("/{clubId}/recruitment")
     ResponseEntity<Void> createRecruitment(
         @RequestBody @Valid ClubRecruitmentCreateRequest request,
+        @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "동아리 모집 생성 성공", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "모집 종료일은 시작일 이후여야 함", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "종료일이 시작일보다 빠른 경우", value = """
+                    {
+                      "code": "INVALID_RECRUITMENT_PERIOD",
+                      "message": "모집 마감일은 모집 시작일 이후여야 합니다.",
+                      "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "400", description = "상시 모집일 경우 모집 기간이 없어야 함", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "상시 모집인데 기간이 입력된 경우", value = """
+                    {
+                      "code": "MUST_BE_NULL_RECRUITMENT_PERIOD",
+                      "message": "상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
+            @ApiResponse(
+                responseCode = "400", description = "상시 모집이 아닌데 모집 시작일 또는 종료일이 입력되지 않은 경우", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "상시 모집 아닌 경우 모집 기간 누락", value = """
+                        {
+                          "code": "REQUIRED_RECRUITMENT_PERIOD",
+                          "message": "상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다.",
+                          "errorTraceId": "b7f340c2-2d74-4f8e-9c84-94d2eaaa1d44"
+                        }
+                    """)
+            })),
+            @ApiResponse(responseCode = "401", description = "동아리 매니저가 아닌 경우 모집글 작성 불가", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "비매니저 사용자가 모집글 작성한 경우", value = """
+                    {
+                      "code": "",
+                      "message": "권한이 없습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 ID", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "없는 동아리 ID로 요청한 경우", value = """
+                    {
+                      "code": "NOT_FOUND_CLUB",
+                      "message": "동아리가 존재하지 않습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 유저 ID", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "없는 유저 ID로 요청한 경우", value = """
+                    {
+                      "code": "NOT_FOUND_USER",
+                      "message": "해당 사용자를 찾을 수 없습니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            }))
+        }
+    )
+    @Operation(summary = "동아리 모집 생성", description = """
+        ### 동아리 모집 수정
+        - 동아리 모집을 수정 합니다.
+        - 모집 시작 기간과 모집 마감 기간은 "yyyy-MM-dd" 형식입니다.
+        - 상시 모집 여부가 true인 경우, 모집 시작 기간과 모집 마감 기간은 null로 요청하셔야 합니다.
+        
+        ### 에러 코드(에러 메시지)
+        - INVALID_RECRUITMENT_PERIOD (모집 마감일은 모집 시작일 이후여야 합니다.)
+        - RECRUITMENT_PERIOD_MUST_BE_NULL (상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다.)
+        - RECRUITMENT_PERIOD_REQUIRED (상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다.)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
+        """)
+    @PostMapping("/{clubId}/recruitment")
+    ResponseEntity<Void> modifyRecruitment(
+        @RequestBody @Valid ClubRecruitmentModifyRequest request,
         @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
