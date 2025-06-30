@@ -73,6 +73,8 @@ public class ClubService {
     private final ApplicationEventPublisher eventPublisher;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
 
+    private static final int RELATED_LIMIT_SIZE = 5;
+
     @Transactional
     public void createClubRequest(ClubCreateRequest request, Integer studentId) {
         ClubCreateRedis createRedis = ClubCreateRedis.of(request, studentId);
@@ -189,7 +191,7 @@ public class ClubService {
         if (normalizedQuery.isEmpty()) {
             return new ClubRelatedKeywordResponse(List.of());
         }
-        PageRequest pageRequest = PageRequest.of(0, 5);
+        PageRequest pageRequest = PageRequest.of(0, RELATED_LIMIT_SIZE);
         List<Club> clubs = clubRepository.findTop5ByNamePrefix(normalizedQuery, pageRequest);
         return ClubRelatedKeywordResponse.from(clubs);
     }
