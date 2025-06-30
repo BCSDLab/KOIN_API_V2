@@ -36,9 +36,7 @@ public interface CartApi {
                 @ExampleObject(name = "장바구니에 상품 존재", value = """
                     {
                       "shop_name": "굿모닝살로만치킨",
-                      "shop_image_urls": [
-                        "https://static.koreatech.in/test.png"
-                      ],
+                      "shop_thumbnail_image_url": "https://static.koreatech.in/test.png",
                       "orderable_shop_id": 2,
                       "is_delivery_available": true,
                       "is_takeout_available": true,
@@ -90,7 +88,7 @@ public interface CartApi {
                 @ExampleObject(name = "장바구니에 상품 없음", value = """
                     {
                       "shop_name": null,
-                      "image_url": null,
+                      "shop_thumbnail_image_url": null,
                       "orderable_shop_id": null,
                       "is_delivery_available": false,
                       "is_takeout_available": false,

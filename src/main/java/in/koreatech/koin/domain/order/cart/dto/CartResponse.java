@@ -21,7 +21,7 @@ public record CartResponse(
     @Schema(description = "상점 이름", example = "굿모닝 살로만 치킨")
     String shopName,
     @Schema(description = "상점 이미지", example = "https://static.koreatech.in/test.png")
-    List<String> shopImageUrls,
+    String shopThumbnailImageUrl,
     @Schema(description = "주문 가능 상점 ID", example = "1")
     Integer orderableShopId,
     @Schema(description = "배달 가능 여부", example = "true")
@@ -131,9 +131,7 @@ public record CartResponse(
 
         return new CartResponse(
             shop.getName(),
-            shop.getShopImages().stream()
-                .map(ShopImage::getImageUrl)
-                .toList(),
+            orderableShop.getThumbnailImage().orElse(null),
             orderableShop.getId(),
             orderableShop.isDelivery(),
             orderableShop.isTakeout(),
