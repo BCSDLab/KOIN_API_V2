@@ -20,6 +20,7 @@ import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -145,6 +146,16 @@ public class ClubController implements ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
         clubService.empowermentClubManager(request, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> createRecruitment(
+        @RequestBody @Valid ClubRecruitmentCreateRequest request,
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.createRecruitment(request, clubId, studentId);
         return ResponseEntity.ok().build();
     }
 }

@@ -14,6 +14,7 @@ import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -39,6 +40,7 @@ import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
+import in.koreatech.koin.domain.club.repository.ClubRecruitmentRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
@@ -69,6 +71,7 @@ public class ClubService {
     private final ClubCreateRedisRepository clubCreateRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
+    private final ClubRecruitmentRepository clubRecruitmentRepository;
 
     @Transactional
     public void createClubRequest(ClubCreateRequest request, Integer studentId) {
@@ -274,5 +277,14 @@ public class ClubService {
             .build();
 
         clubManagerRepository.save(newClubManager);
+    }
+
+    @Transactional
+    public void createRecruitment(ClubRecruitmentCreateRequest request, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(clubId, studentId);
+
+        clubRecruitmentRepository.save(request.toEntity(club));
     }
 }
