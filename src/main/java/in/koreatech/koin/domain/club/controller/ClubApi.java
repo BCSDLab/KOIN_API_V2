@@ -404,7 +404,7 @@ public interface ClubApi {
         - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
         - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
         """)
-    @PostMapping("/{clubId}/recruitment")
+    @PutMapping("/{clubId}/recruitment")
     ResponseEntity<Void> modifyRecruitment(
         @RequestBody @Valid ClubRecruitmentModifyRequest request,
         @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable Integer clubId,
