@@ -137,7 +137,7 @@ class UserTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> user.requireSamePhoneNumber("01000000000"));
-            assertEquals(ApiResponseCode.NOT_MATCHED_PHONE_NUMBER, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_PHONE_NUMBER, exception.getErrorCode());
             verify(user, times(1)).isNotSamePhoneNumber(anyString());
         }
     }
@@ -161,7 +161,7 @@ class UserTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> user.requireSameEmail("x@y.com"));
-            assertEquals(ApiResponseCode.NOT_MATCHED_EMAIL, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_EMAIL, exception.getErrorCode());
             verify(user, times(1)).isNotSameEmail(anyString());
         }
     }
@@ -185,7 +185,7 @@ class UserTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> user.requireSameLoginPw(passwordEncoder, "raw"));
-            assertEquals(ApiResponseCode.NOT_MATCHED_PASSWORD, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_PASSWORD, exception.getErrorCode());
             verify(user, times(1)).isNotSameLoginPw(any(), anyString());
         }
     }
@@ -307,7 +307,7 @@ class UserTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.GENERAL}));
-            assertEquals(ApiResponseCode.WITHDRAWN_USER, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.WITHDRAWN_USER, exception.getErrorCode());
 
         }
 
@@ -318,7 +318,7 @@ class UserTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.STUDENT}));
-            assertEquals(ApiResponseCode.FORBIDDEN_USER_TYPE, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_USER_TYPE, exception.getErrorCode());
         }
 
         @Test
@@ -328,7 +328,7 @@ class UserTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> user.authorizeAndGetId(new UserType[] {UserType.GENERAL}));
-            assertEquals(ApiResponseCode.FORBIDDEN_ACCOUNT, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_ACCOUNT, exception.getErrorCode());
         }
     }
 }

@@ -91,14 +91,14 @@ class UserVerificationStatusTest {
         void SMS_인증_코드가_다르면_예외를_던진다() {
             // when / then
             CustomException exception = assertThrows(CustomException.class, () -> SMS_인증_코드.verify(WRONG_CODE));
-            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
         }
 
         @Test
         void Email_인증_코드가_다르면_예외를_던진다() {
             // when / then
             CustomException exception = assertThrows(CustomException.class, () -> Email_인증_코드.verify(WRONG_CODE));
-            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
         }
     }
 
@@ -117,7 +117,7 @@ class UserVerificationStatusTest {
         void SMS_미인증하면_예외를_던진다() {
             // when / then
             CustomException exception = assertThrows(CustomException.class, SMS_인증_코드::requireVerified);
-            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getErrorCode());
         }
 
         @Test
@@ -132,7 +132,7 @@ class UserVerificationStatusTest {
         void Email_미인증하면_예외를_던진다() {
             // when / then
             CustomException exception = assertThrows(CustomException.class, Email_인증_코드::requireVerified);
-            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getUserErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getErrorCode());
         }
     }
 }
