@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.club.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -40,11 +41,11 @@ public class ClubEvent extends BaseEntity {
 
     @NotNull
     @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @NotNull
     @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @NotNull
     @Column(name = "introduce", nullable = false, length = 70)
@@ -57,8 +58,8 @@ public class ClubEvent extends BaseEntity {
     private ClubEvent(
         Club club,
         String name,
-        LocalDate startDate,
-        LocalDate endDate,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         String introduce,
         String content
     ) {
