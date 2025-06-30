@@ -36,8 +36,10 @@ public record CartResponse(
     Integer itemsAmount,
     @Schema(description = "배달비", example = "3500")
     Integer deliveryFee,
-    @Schema(description = "최종 결제 금액 (상품 총 금액 + 배달비)", example = "20500")
-    Integer totalAmount
+    @Schema(description = "최종 계산 금액 (상품 총 금액 + 배달비)", example = "20500")
+    Integer totalAmount,
+    @Schema(description = "결제 예정 금액 (할인 등을 반영한 최종 금액)", example = "28000")
+    Integer finalPaymentAmount
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -125,6 +127,7 @@ public record CartResponse(
         int itemsAmount = cart.calculateItemsAmount();
         int deliveryFee = orderableShop.calculateDeliveryFee(itemsAmount);
         int totalAmount = itemsAmount + deliveryFee;
+        int finalPaymentAmount = totalAmount; // 추후 쿠폰&적립금 등 할인 정책에 관한 요구 사항 추가 시 수정
 
         return new CartResponse(
             shop.getName(),
@@ -138,7 +141,8 @@ public record CartResponse(
             itemResponses,
             itemsAmount,
             deliveryFee,
-            totalAmount
+            totalAmount,
+            finalPaymentAmount
         );
     }
 
@@ -151,6 +155,7 @@ public record CartResponse(
             false,
             0,
             List.of(),
+            0,
             0,
             0,
             0

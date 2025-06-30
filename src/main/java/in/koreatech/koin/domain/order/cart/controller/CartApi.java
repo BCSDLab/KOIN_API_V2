@@ -83,7 +83,8 @@ public interface CartApi {
                       ],
                       "items_amount": 70000,
                       "delivery_fee": 0,
-                      "total_amount": 70000
+                      "total_amount": 70000,
+                      "final_payment_amount": 70000
                     }
                     """),
                 @ExampleObject(name = "장바구니에 상품 없음", value = """
@@ -97,7 +98,8 @@ public interface CartApi {
                       "items": [],
                       "items_amount": 0,
                       "delivery_fee": 0,
-                      "total_amount": 0
+                      "total_amount": 0,
+                      "final_payment_amount": 0
                     }
                     """)
             })
