@@ -427,6 +427,7 @@ public interface ClubApi {
         - RECRUITMENT_PERIOD_MUST_BE_NULL (상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다.)
         - RECRUITMENT_PERIOD_REQUIRED (상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다.)
         - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_CLUB_RECRUITMENT (동아리 모집 공고가 존재하지 않습니다.)
         - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
         """)
     @PutMapping("/{clubId}/recruitment")

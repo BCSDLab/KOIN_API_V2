@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -35,6 +36,7 @@ import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubQna;
+import in.koreatech.koin.domain.club.model.ClubRecruitment;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
@@ -315,8 +317,23 @@ public class ClubService {
     public void createRecruitment(ClubRecruitmentCreateRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
-        isClubManager(clubId, studentId);
+        isClubManager(club.getId(), student.getId());
 
         clubRecruitmentRepository.save(request.toEntity(club));
+    }
+
+    @Transactional
+    public void modifyRecruitment(ClubRecruitmentModifyRequest request, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubRecruitment.modifyClubRecruitment(
+            request.startData(),
+            request.endData(),
+            request.isAlwaysRecruiting(),
+            request.content()
+        );
     }
 }
