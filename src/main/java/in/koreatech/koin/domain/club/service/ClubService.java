@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -185,7 +186,8 @@ public class ClubService {
 
     public ClubRelatedKeywordResponse getRelatedClubs(String query) {
         String normalizedQuery = normalize(query);
-        List<Club> clubs = clubRepository.findTop5ByNamePrefix(normalizedQuery);
+        PageRequest pageRequest = PageRequest.of(0, 5);
+        List<Club> clubs = clubRepository.findTop5ByNamePrefix(normalizedQuery, pageRequest);
         return ClubRelatedKeywordResponse.from(clubs);
     }
 
