@@ -1,7 +1,11 @@
 package in.koreatech.koin.unit.domain.user.verification.model;
 
+import static in.koreatech.koin.domain.user.verification.model.VerificationChannel.EMAIL;
+import static in.koreatech.koin.domain.user.verification.model.VerificationChannel.SMS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -10,19 +14,20 @@ import org.junit.jupiter.api.Test;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
-import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
+import in.koreatech.koin.domain.user.verification.model.VerificationCode;
 import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
 import in.koreatech.koin.unit.fixutre.VerificationFixture;
 
-class UserVerificationStatusTest {
+class VerificationCodeTest {
 
-    private UserVerificationStatus SMS_인증_코드;
-    private UserVerificationStatus Email_인증_코드;
+    private VerificationCode SMS_인증_코드;
+    private VerificationCode Email_인증_코드;
 
     private static final String TEST_EMAIL = "user@koreatech.ac.kr";
     private static final String TEST_PHONE_NUMBER = "01012345678";
     private static final String CORRECT_CODE = "123456";
     private static final String WRONG_CODE = "999999";
+    private static final int ABNORMAL_USAGE_THRESHOLD = 10;
 
     @BeforeEach
     void init() {
@@ -39,7 +44,7 @@ class UserVerificationStatusTest {
             VerificationNumberGenerator verificationNumberGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
             long expectedExpiration = 60 * 3L;
             // when
-            UserVerificationStatus verificationStatus = UserVerificationStatus.ofSms(TEST_PHONE_NUMBER, verificationNumberGenerator);
+            VerificationCode verificationStatus = VerificationCode.of(TEST_PHONE_NUMBER, verificationNumberGenerator, SMS);
             // then
             assertThat(verificationStatus.getId()).isEqualTo(TEST_PHONE_NUMBER);
             assertThat(verificationStatus.getVerificationCode()).isEqualTo(CORRECT_CODE);
@@ -53,7 +58,7 @@ class UserVerificationStatusTest {
             VerificationNumberGenerator verificationNumberGenerator = new StubVerificationNumberHolder(CORRECT_CODE);
             long expectedExpiration = 60 * 5L;
             // when
-            UserVerificationStatus verificationStatus = UserVerificationStatus.ofEmail(TEST_EMAIL, verificationNumberGenerator);
+            VerificationCode verificationStatus = VerificationCode.of(TEST_EMAIL, verificationNumberGenerator, EMAIL);
             // then
             assertThat(verificationStatus.getId()).isEqualTo(TEST_EMAIL);
             assertThat(verificationStatus.getVerificationCode()).isEqualTo(CORRECT_CODE);
@@ -63,12 +68,46 @@ class UserVerificationStatusTest {
     }
 
     @Nested
+    class detectAbnormalUsage {
+
+        @Test
+        void 최대_시도_미만이면_예외를_던지지_않는다() {
+            // given
+            Stream.generate(() -> WRONG_CODE)
+                .limit(ABNORMAL_USAGE_THRESHOLD - 1)
+                .forEach(code -> {
+                    try { SMS_인증_코드.verify(code); }
+                    catch (CustomException ignored) { }
+                });
+            // when / then
+            assertDoesNotThrow(SMS_인증_코드::detectAbnormalUsage);
+        }
+
+        @Test
+        void 최대_시도_도달하면_예외를_던진다() {
+            // given
+            Stream.generate(() -> WRONG_CODE)
+                .limit(ABNORMAL_USAGE_THRESHOLD)
+                .forEach(code -> {
+                    try { SMS_인증_코드.verify(code); }
+                    catch (CustomException ignored) { }
+                });
+            // when / then
+            CustomException ex = assertThrows(
+                CustomException.class,
+                SMS_인증_코드::detectAbnormalUsage
+            );
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, ex.getErrorCode());
+        }
+    }
+
+    @Nested
     class verify {
 
         @Test
         void SMS_인증_코드를_검증한다() {
             // given
-            long expectedExpiration = 60 * 60L;
+            long expectedExpiration = 60 * 30L;
             // when
             SMS_인증_코드.verify(CORRECT_CODE);
             // then
@@ -79,7 +118,7 @@ class UserVerificationStatusTest {
         @Test
         void Email_인증_코드를_검증한다() {
             // given
-            long expectedExpiration = 60 * 60L;
+            long expectedExpiration = 60 * 30L;
             // when
             Email_인증_코드.verify(CORRECT_CODE);
             // then

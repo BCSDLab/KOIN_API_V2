@@ -15,38 +15,49 @@ import lombok.ToString;
 @Getter
 @RedisHash(value = "userVerificationStatus")
 @ToString
-public class UserVerificationStatus {
+public class VerificationCode {
 
     private static final long SMS_VERIFICATION_EXPIRATION_SECONDS = 60 * 3L; // 3분
     private static final long EMAIL_VERIFICATION_EXPIRATION_SECONDS = 60 * 5L; // 5분
-    private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 60L; // 1시간
+    private static final long VERIFIED_EXPIRATION_SECONDS = 60 * 30L; // 30분
+    private static final int MAX_TRIAL_COUNT = 10;
 
     @Id
     private String id;
 
     private String verificationCode;
 
-    private boolean isVerified = false;
+    private int trialCount;
+
+    private boolean isVerified;
 
     @TimeToLive
     private Long expiration;
 
-    private UserVerificationStatus(String id, String verificationCode, Long expiration) {
+    private VerificationCode(String id, String verificationCode, Long expiration) {
         this.id = id;
         this.verificationCode = verificationCode;
+        this.trialCount = 0;
+        this.isVerified = false;
         this.expiration = expiration;
     }
 
-    public static UserVerificationStatus ofSms(String id, VerificationNumberGenerator generator) {
-        return new UserVerificationStatus(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
+    public static VerificationCode of(String id, VerificationNumberGenerator generator, VerificationChannel channel) {
+        return switch (channel) {
+            case SMS -> new VerificationCode(id, generator.generate(), SMS_VERIFICATION_EXPIRATION_SECONDS);
+            case EMAIL -> new VerificationCode(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
+        };
     }
 
-    public static UserVerificationStatus ofEmail(String id, VerificationNumberGenerator generator) {
-        return new UserVerificationStatus(id, generator.generate(), EMAIL_VERIFICATION_EXPIRATION_SECONDS);
+    public void detectAbnormalUsage() {
+        if (trialCount >= MAX_TRIAL_COUNT) {
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, this);
+        }
     }
 
     public void verify(String inputCode) {
         if (isCodeMismatched(inputCode)) {
+            trialCount++;
             throw CustomException.of(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, this);
         }
         this.isVerified = true;
