@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -147,25 +148,42 @@ public class ClubService {
         return ClubResponse.from(club, clubSNSs, manager, isLiked);
     }
 
-    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, ClubSortType sortType, Integer userId) {
-        List<Club> clubs = getClubs(categoryId, sortType);
-
+    public ClubsByCategoryResponse getClubByCategory(
+        Integer categoryId,
+        ClubSortType sortType,
+        String query,
+        Integer userId
+    ) {
+        List<Club> clubs = getClubs(categoryId, sortType, query);
         List<Integer> likedClubIds = clubLikeRepository.findClubIdsByUserId(userId);
-
         return ClubsByCategoryResponse.from(clubs, likedClubIds);
     }
 
-    private List<Club> getClubs(Integer categoryId, ClubSortType sortType) {
+    private List<Club> getClubs(Integer categoryId, ClubSortType sortType, String query) {
+        List<Club> clubs;
         if (categoryId == null) {
-            return sortType.equals(HITS_DESC)
+            clubs = sortType.equals(HITS_DESC)
                 ? clubRepository.findByIsActiveTrueOrderByHitsDesc()
                 : clubRepository.findByIsActiveTrueOrderByIdAsc();
+        } else {
+            ClubCategory category = clubCategoryRepository.getById(categoryId);
+            clubs = sortType.equals(HITS_DESC)
+                ? clubRepository.findByIsActiveTrueAndClubCategoryOrderByHitsDesc(category)
+                : clubRepository.findByIsActiveTrueAndClubCategoryOrderByIdAsc(category);
         }
 
-        ClubCategory category = clubCategoryRepository.getById(categoryId);
-        return sortType.equals(HITS_DESC)
-            ? clubRepository.findByIsActiveTrueAndClubCategoryOrderByHitsDesc(category)
-            : clubRepository.findByIsActiveTrueAndClubCategoryOrderByIdAsc(category);
+        return query.isEmpty() ? clubs : clubs.stream()
+            .filter(queryPredicate(query))
+            .toList();
+    }
+
+    private Predicate<Club> queryPredicate(String query) {
+        String normalizedQuery = normalize(query);
+        return club -> normalize(club.getName()).contains(normalizedQuery);
+    }
+
+    private String normalize(String s) {
+        return s.replaceAll("\\s+", "").toLowerCase();
     }
 
     @Transactional

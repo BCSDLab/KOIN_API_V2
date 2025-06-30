@@ -103,19 +103,21 @@ public interface ClubApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
     @Operation(summary = "카테고리를 기준으로 동아리를 조회한다", description = """
-        categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
+        - categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
+        - query에 내용을 넣으면 검색이 됩니다
         """)
     @GetMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
     );
 

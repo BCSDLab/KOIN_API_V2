@@ -72,9 +72,10 @@ public class ClubController implements ClubApi {
     public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
     ) {
-        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, sortType, userId);
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, sortType, query, userId);
         return ResponseEntity.ok(response);
     }
 
