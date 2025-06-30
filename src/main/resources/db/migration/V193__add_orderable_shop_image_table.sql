@@ -11,3 +11,4 @@ CREATE TABLE IF NOT EXISTS `koin`.`orderable_shop_image`
 );
 
 CREATE INDEX idx_images_on_orderable_shop_id ON `koin`.`orderable_shop_image` (orderable_shop_id);
+CREATE INDEX idx_thumbnail_images ON `koin`.`orderable_shop_image` (orderable_shop_id, is_thumbnail);
