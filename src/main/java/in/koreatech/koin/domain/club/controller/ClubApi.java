@@ -270,6 +270,16 @@ public interface ClubApi {
                     }
                     """)
             })),
+            @ApiResponse(
+                responseCode = "400", description = "상시 모집이 아닌데 모집 시작일 또는 종료일이 입력되지 않은 경우", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "상시 모집 아닌 경우 모집 기간 누락", value = """
+                        {
+                          "code": "RECRUITMENT_PERIOD_REQUIRED",
+                          "message": "상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다.",
+                          "errorTraceId": "b7f340c2-2d74-4f8e-9c84-94d2eaaa1d44"
+                        }
+                    """)
+            })),
             @ApiResponse(responseCode = "401", description = "동아리 매니저가 아닌 경우 모집글 작성 불가", content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "비매니저 사용자가 모집글 작성한 경우", value = """
                     {
@@ -309,6 +319,7 @@ public interface ClubApi {
         ### 에러 코드(에러 메시지)
         - INVALID_RECRUITMENT_PERIOD (모집 마감일은 모집 시작일 이후여야 합니다.)
         - RECRUITMENT_PERIOD_MUST_BE_NULL (상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다.)
+        - RECRUITMENT_PERIOD_REQUIRED (상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다.)
         - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
         - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
         """)
