@@ -19,6 +19,9 @@ public enum ErrorCode {
     NOT_MATCHED_REFRESH_TOKEN(BAD_REQUEST, "refresh token이 일치하지 않습니다."),
     NOT_VALID_RESET_TOKEN(BAD_REQUEST, "Reset token이 존재하지 않습니다."),
     NOT_MATCHED_VERIFICATION_CODE(BAD_REQUEST, "인증 번호가 일치하지 않습니다."),
+    INVALID_RECRUITMENT_PERIOD(BAD_REQUEST, "모집 마감일은 모집 시작일 이후여야 합니다."),
+    MUST_BE_NULL_RECRUITMENT_PERIOD(BAD_REQUEST, "상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다."),
+    REQUIRED_RECRUITMENT_PERIOD(BAD_GATEWAY, "상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다."),
 
     // 403 Forbidden
     WITHDRAWN_USER(FORBIDDEN, "탈퇴한 계정입니다."),
@@ -32,6 +35,7 @@ public enum ErrorCode {
 
     // 404 Not Found
     NOT_FOUND_USER(NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+    NOT_FOUND_CLUB(NOT_FOUND, "동아리가 존재하지 않습니다."),
 
     // 409 Conflict
     CONFLICT_LOGIN_ID(CONFLICT, "이미 존재하는 로그인 아이디입니다."),
