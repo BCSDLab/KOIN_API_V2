@@ -2,8 +2,8 @@ package in.koreatech.koin.domain.order.delivery.service;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.order.delivery.exception.DeliveryErrorCode;
-import in.koreatech.koin.domain.order.delivery.exception.DeliveryException;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
 
 @Component
@@ -18,7 +18,7 @@ public class DeliveryAddressValidator {
      * */
     public void validateOffCampusAddress(OffCampusDeliveryAddress address) {
         if (!address.isValidDeliveryArea(ALLOWED_SI_DO, ALLOWED_SI_GUN_GU, ALLOWED_EUP_MYEON_DONG)) {
-            throw new DeliveryException(DeliveryErrorCode.INVALID_DELIVERY_AREA);
+            throw CustomException.of(ApiResponseCode.INVALID_DELIVERY_AREA);
         }
     }
 }

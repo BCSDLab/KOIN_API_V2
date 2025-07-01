@@ -1,6 +1,7 @@
 package in.koreatech.koin.unit.domain.address;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.delivery.exception.DeliveryErrorCode;
 import in.koreatech.koin.domain.order.delivery.exception.DeliveryException;
 import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
@@ -39,11 +42,10 @@ public class DeliveryAddressValidatorTest {
 
         @Test
         void 교외_배달_불가_지역_주소를_검증시_예외가_발생한다() {
-            DeliveryException exception = assertThrows(DeliveryException.class, () -> {
+            CustomException exception = assertThrows(CustomException.class, () -> {
                 deliveryAddressValidator.validateOffCampusAddress(invalidAddress);
             });
-
-            assertThat(exception.getErrorCode()).isEqualTo(DeliveryErrorCode.INVALID_DELIVERY_AREA);
+            assertEquals(ApiResponseCode.INVALID_DELIVERY_AREA, exception.getErrorCode());
         }
     }
 }
