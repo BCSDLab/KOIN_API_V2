@@ -54,8 +54,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         CustomException e
     ) {
-        requestLogging(request, e.getFullMessage());
-        return buildErrorResponse(e.getErrorCode());
+        String errorTraceId = requestLogging(request, e.getFullMessage());
+        return buildErrorResponse(e.getErrorCode(), errorTraceId);
     }
 
     // 표준 예외 및 정의되어 있는 예외
@@ -65,8 +65,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         IllegalArgumentException e
     ) {
-        requestLogging(request, e.getMessage());
-        return buildErrorResponse(ApiResponseCode.ILLEGAL_ARGUMENT);
+        String errorTraceId = requestLogging(request, e.getMessage());
+        return buildErrorResponse(ApiResponseCode.ILLEGAL_ARGUMENT, errorTraceId);
     }
 
     @ExceptionHandler(IllegalStateException.class)
@@ -74,8 +74,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         IllegalStateException e
     ) {
-        requestLogging(request, e.getMessage());
-        return buildErrorResponse(ApiResponseCode.ILLEGAL_STATE);
+        String errorTraceId = requestLogging(request, e.getMessage());
+        return buildErrorResponse(ApiResponseCode.ILLEGAL_STATE, errorTraceId);
     }
 
     @ExceptionHandler(DateTimeException.class)
@@ -83,8 +83,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DateTimeException e
     ) {
-        requestLogging(request, e.getMessage());
-        return buildErrorResponse(ApiResponseCode.INVALID_DATE_TIME);
+        String errorTraceId = requestLogging(request, e.getMessage());
+        return buildErrorResponse(ApiResponseCode.INVALID_DATE_TIME, errorTraceId);
     }
 
     @Override
@@ -96,11 +96,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
         log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), e);
-        requestLogging(request, e.getMessage());
+        String errorTraceId = requestLogging(request, e.getMessage());
         String errorMessages = e.getBindingResult().getAllErrors().stream()
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
             .collect(Collectors.joining("\n"));
-        return buildErrorResponse(ApiResponseCode.INVALID_REQUEST_PAYLOAD);
+        return buildErrorResponse(ApiResponseCode.INVALID_REQUEST_PAYLOAD, errorTraceId);
     }
 
     @Override
@@ -110,8 +110,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatusCode status,
         WebRequest request
     ) {
-        requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
-        return buildErrorResponse(ApiResponseCode.NOT_READABLE_HTTP_MESSAGE);
+        String errorTraceId = requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
+        return buildErrorResponse(ApiResponseCode.NOT_READABLE_HTTP_MESSAGE, errorTraceId);
     }
 
     @ExceptionHandler(UnsupportedOperationException.class)
@@ -119,8 +119,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         UnsupportedOperationException e
     ) {
-        requestLogging(request, e.getMessage());
-        return buildErrorResponse(ApiResponseCode.UNSUPPORTED_OPERATION);
+        String errorTraceId = requestLogging(request, e.getMessage());
+        return buildErrorResponse(ApiResponseCode.UNSUPPORTED_OPERATION, errorTraceId);
     }
 
     @ExceptionHandler(ClientAbortException.class)
@@ -128,8 +128,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         ClientAbortException e
     ) {
-        requestLogging(request, "클라이언트가 연결을 중단했습니다: " + e.getMessage());
-        return buildErrorResponse(ApiResponseCode.CLIENT_ABORTED);
+        String errorTraceId = requestLogging(request, "클라이언트가 연결을 중단했습니다: " + e.getMessage());
+        return buildErrorResponse(ApiResponseCode.CLIENT_ABORTED, errorTraceId);
     }
 
     @Override
@@ -140,8 +140,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         WebRequest request
     ) {
         log.warn("유효하지 않은 API 경로입니다. {}", e.getRequestURL());
-        requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
-        return buildErrorResponse(ApiResponseCode.NO_HANDLER_FOUND);
+        String errorTraceId = requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
+        return buildErrorResponse(ApiResponseCode.NO_HANDLER_FOUND, errorTraceId);
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
@@ -149,8 +149,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         ObjectOptimisticLockingFailureException e
     ) {
-        requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
-        return buildErrorResponse(ApiResponseCode.OPTIMISTIC_LOCKING_FAILURE);
+        String errorTraceId = requestLogging(((ServletWebRequest)request).getRequest(), e.getMessage());
+        return buildErrorResponse(ApiResponseCode.OPTIMISTIC_LOCKING_FAILURE, errorTraceId);
     }
 
     @ExceptionHandler(Exception.class)
@@ -173,23 +173,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             서버에서 에러가 발생했습니다. uri: {} {}
             {}
             """, request.getMethod(), request.getRequestURI(), detail);
-        requestLogging(request, errorMessage);
-        return buildErrorResponse(ApiResponseCode.INTERNAL_SERVER_ERROR);
-    }
-
-    // 공통 에러 코드 + 예외 적용 전 임시 처리
-    @ExceptionHandler(CartException.class)
-    public ResponseEntity<Object> handleCartException(
-        HttpServletRequest request,
-        CartException e
-    ) {
-        log.warn(e.getFullMessage());
-        requestLogging(request, e.getFullMessage());
-        return buildErrorResponseWithErrorCode(
-            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
-            e.getFullMessage(),
-            e.getErrorCode().name()
-        );
+        String errorTraceId = requestLogging(request, errorMessage);
+        return buildErrorResponse(ApiResponseCode.INTERNAL_SERVER_ERROR, errorTraceId);
     }
 
     // 예외 메시지 구성 로직
@@ -204,19 +189,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.valueOf(statusCode.value()), e.getMessage());
     }
 
-    private void requestLogging(HttpServletRequest request, String errorMessage) {
+    private String requestLogging(HttpServletRequest request, String errorMessage) {
+        UUID errorTraceId = UUID.randomUUID();
         log.warn(errorMessage);
-        log.warn("traceId: {}", UUID.randomUUID());
+        log.warn("traceId: {}", errorTraceId);
         log.info("request header: {}", getHeaders(request));
         log.info("request query string: {}", getQueryString(request));
         log.info("request body: {}", getRequestBody(request));
+        return errorTraceId.toString();
     }
 
-    private ResponseEntity<Object> buildErrorResponse(ApiResponseCode errorCode) {
+    private ResponseEntity<Object> buildErrorResponse(ApiResponseCode errorCode, String errorTraceId) {
         ErrorResponse response = new ErrorResponse(
             errorCode.getHttpStatus().value(),
             errorCode.getCode(),
-            errorCode.getMessage()
+            errorCode.getMessage(),
+            errorTraceId
         );
         return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
     }
@@ -390,6 +378,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAddressApiException(
         HttpServletRequest request,
         DeliveryException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request, e.getFullMessage());
+        return buildErrorResponseWithErrorCode(
+            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
+            e.getFullMessage(),
+            e.getErrorCode().name()
+        );
+    }
+
+
+    // 공통 에러 코드 + 예외 적용 전 임시 처리
+    @ExceptionHandler(CartException.class)
+    public ResponseEntity<Object> handleCartException(
+        HttpServletRequest request,
+        CartException e
     ) {
         log.warn(e.getFullMessage());
         requestLogging(request, e.getFullMessage());
