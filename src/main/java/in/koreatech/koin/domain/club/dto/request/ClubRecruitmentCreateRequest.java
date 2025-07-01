@@ -19,11 +19,11 @@ import jakarta.validation.constraints.NotNull;
 public record ClubRecruitmentCreateRequest(
     @Schema(description = "모집 시작 기간", example = "2025-07-01", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate startData,
+    LocalDate startDate,
 
     @Schema(description = "모집 마감 기간", example = "2025-07-02", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate endData,
+    LocalDate endDate,
 
     @Schema(description = "상시 모집 여부", example = "false", requiredMode = REQUIRED)
     Boolean isAlwaysRecruiting,
@@ -33,15 +33,15 @@ public record ClubRecruitmentCreateRequest(
     String content
 ) {
     public ClubRecruitmentCreateRequest {
-        if (isAlwaysRecruiting && (startData != null || endData != null)) {
+        if (isAlwaysRecruiting && (startDate != null || endDate != null)) {
             // 예외
         }
 
         if (!TRUE.equals(isAlwaysRecruiting)) {
-            if (startData == null || endData == null) {
+            if (startDate == null || endDate == null) {
                 // 예외
             }
-            if (endData.isBefore(startData)) {
+            if (endDate.isBefore(startDate)) {
                 // 예외
             }
         }
@@ -49,8 +49,8 @@ public record ClubRecruitmentCreateRequest(
 
     public ClubRecruitment toEntity(Club club) {
         return ClubRecruitment.builder()
-            .startDate(startData)
-            .endDate(endData)
+            .startDate(startDate)
+            .endDate(endDate)
             .isAlwaysRecruiting(isAlwaysRecruiting)
             .content(content)
             .club(club)
