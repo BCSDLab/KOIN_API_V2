@@ -120,7 +120,7 @@ public interface CartApi {
         
         ### nullable
         - **shop_thumbnail_image_url** : 주문 가능 상점의 썸네일 이미지가 존재하지 않는 경우
-        - **menu_thumbnail_image_url** : 주문 가능 상점의 메뉴 썸네일 이미지가 존재하지 않는 경우
+        - **items[i].menu_thumbnail_image_url** : 주문 가능 상점의 메뉴 썸네일 이미지가 존재하지 않는 경우
         - **items[i].price.name** : 주문 가능 상점 메뉴의 가격 옵션 이름이 없는 경우 (단일 가격)
         """)
     @GetMapping("/cart")
