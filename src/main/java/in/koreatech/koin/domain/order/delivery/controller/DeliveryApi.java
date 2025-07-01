@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.order.delivery.dto.RiderMessageResponse;
 import in.koreatech.koin.domain.order.delivery.dto.UserCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.delivery.dto.UserDeliveryAddressResponse;
 import in.koreatech.koin.domain.order.delivery.dto.UserOffCampusDeliveryAddressRequest;
+import in.koreatech.koin.domain.order.delivery.dto.UserOffCampusDeliveryAddressValidateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -142,6 +145,20 @@ public interface DeliveryApi {
     ResponseEntity<UserDeliveryAddressResponse> addCampusDeliveryAddress(
         @RequestBody @Valid UserCampusDeliveryAddressRequest request,
         @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    );
+
+    @Operation(summary = "교외 배달 주소 검증", description = """
+        ### 사용자가 선택한 교외 배달 주소를 검증
+        - 사용자가 입력한 주소가 배달 가능 주소인지 검증합니다.
+        - 주소가 **충청남도 천안시 동남구 병천면** 이 아닌 경우 예외 발생
+        """)
+    @ApiResponseCodes({
+        ApiResponseCode.OK,
+        ApiResponseCode.INVALID_DELIVERY_AREA
+    })
+    @PostMapping("/delivery/address/off-campus/validate")
+    ResponseEntity<Void> validateOffCampusDeliveryAddress(
+        @RequestBody @Valid UserOffCampusDeliveryAddressValidateRequest request
     );
 
     @ApiResponses(value = {
