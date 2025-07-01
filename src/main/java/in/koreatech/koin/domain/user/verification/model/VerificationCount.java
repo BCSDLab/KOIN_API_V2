@@ -3,10 +3,10 @@ package in.koreatech.koin.domain.user.verification.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
+import org.springframework.util.StringUtils;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
-import io.micrometer.common.util.StringUtils;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -36,7 +36,7 @@ public class VerificationCount {
     }
 
     public static String composeKey(String id, String ip) {
-        return StringUtils.isBlank(ip) ? id : String.format(KEY_FORMAT, id, ip);
+        return StringUtils.hasText(ip) ? String.format(KEY_FORMAT, id, ip) : id;
     }
 
     public static VerificationCount of(String id, String ip, int maxVerificationCount) {
@@ -45,7 +45,7 @@ public class VerificationCount {
 
     public void incrementVerificationCount() {
         if (verificationCount >= maxVerificationCount) {
-            throw CustomException.of(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, this);
+            throw CustomException.of(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION, this);
         }
         verificationCount++;
     }

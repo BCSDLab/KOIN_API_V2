@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import in.koreatech.koin.unit.domain.user.verification.mock.DummyApplicationEventPublisher;
@@ -81,7 +81,7 @@ class UserVerificationServiceTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> userVerificationService.sendVerification(TEST_PHONE_NUMBER, TEST_IP, SMS));
-            assertEquals(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());
+            assertEquals(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());
         }
     }
 
@@ -117,7 +117,7 @@ class UserVerificationServiceTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> userVerificationService.sendVerification(TEST_EMAIL, TEST_IP, EMAIL));
-            assertEquals(ErrorCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());
+            assertEquals(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION, exception.getErrorCode());
         }
     }
 
@@ -148,7 +148,7 @@ class UserVerificationServiceTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, TEST_IP, WRONG_CODE));
-            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
         }
 
         @Test
@@ -175,7 +175,7 @@ class UserVerificationServiceTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> userVerificationService.verifyCode(TEST_EMAIL, TEST_IP, WRONG_CODE));
-            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, exception.getErrorCode());
         }
     }
 
@@ -257,7 +257,7 @@ class UserVerificationServiceTest {
                 CustomException.class,
                 () -> userVerificationService.verifyCode(TEST_PHONE_NUMBER, TEST_IP, WRONG_CODE)
             );
-            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, ex.getErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, ex.getErrorCode());
         }
 
         @Test
@@ -277,7 +277,7 @@ class UserVerificationServiceTest {
                 CustomException.class,
                 () -> userVerificationService.verifyCode(TEST_EMAIL, TEST_IP, WRONG_CODE)
             );
-            assertEquals(ErrorCode.NOT_MATCHED_VERIFICATION_CODE, ex.getErrorCode());
+            assertEquals(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, ex.getErrorCode());
         }
     }
 
@@ -298,7 +298,7 @@ class UserVerificationServiceTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER));
-            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getErrorCode());
         }
 
         @Test
@@ -308,7 +308,7 @@ class UserVerificationServiceTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> userVerificationService.consumeVerification(TEST_PHONE_NUMBER));
-            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getErrorCode());
         }
 
         @Test
@@ -325,7 +325,7 @@ class UserVerificationServiceTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> userVerificationService.consumeVerification(TEST_EMAIL));
-            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getErrorCode());
         }
 
         @Test
@@ -335,7 +335,7 @@ class UserVerificationServiceTest {
             // when / then
             CustomException exception = assertThrows(CustomException.class,
                 () -> userVerificationService.consumeVerification(TEST_EMAIL));
-            assertEquals(ErrorCode.FORBIDDEN_API, exception.getErrorCode());
+            assertEquals(ApiResponseCode.FORBIDDEN_VERIFICATION, exception.getErrorCode());
         }
     }
 }

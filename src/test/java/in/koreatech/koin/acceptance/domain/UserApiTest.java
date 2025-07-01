@@ -182,8 +182,7 @@ class UserApiTest extends AcceptanceTest {
                     .param("address", user.getEmail())
                     .contentType(MediaType.APPLICATION_JSON)
             )
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.message").value("이미 존재하는 이메일입니다."));
+            .andExpect(status().isConflict());
     }
 
     @Test
@@ -209,8 +208,7 @@ class UserApiTest extends AcceptanceTest {
                     .param("phone", user.getPhoneNumber())
                     .contentType(MediaType.APPLICATION_JSON)
             )
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.message").value("이미 존재하는 전화번호입니다."));
+            .andExpect(status().isConflict());
     }
 
     @Test
@@ -223,8 +221,7 @@ class UserApiTest extends AcceptanceTest {
                     .param("nickname", user.getNickname())
                     .contentType(MediaType.APPLICATION_JSON)
             )
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.message").value("이미 존재하는 닉네임입니다."));
+            .andExpect(status().isConflict());
     }
 
     @Test

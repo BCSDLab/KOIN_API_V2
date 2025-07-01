@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.VerificationChannel;
@@ -58,9 +58,11 @@ public class UserVerificationService {
     }
 
     @Transactional
-    public SendVerificationResponse sendVerification(String phoneNumberOrEmail, String ipAddress, VerificationChannel channel) {
+    public SendVerificationResponse sendVerification(String phoneNumberOrEmail, String ipAddress,
+        VerificationChannel channel) {
         VerificationCount verificationCount = increaseAndGetVerificationCount(phoneNumberOrEmail, ipAddress);
-        VerificationCode verificationCode = VerificationCode.of(phoneNumberOrEmail, verificationNumberGenerator, channel);
+        VerificationCode verificationCode = VerificationCode.of(phoneNumberOrEmail, verificationNumberGenerator,
+            channel);
         verificationCodeRedisRepository.save(verificationCode);
         publishVerificationEvent(channel, verificationCode.getVerificationCode(), phoneNumberOrEmail);
         return SendVerificationResponse.from(verificationCount);
@@ -86,7 +88,8 @@ public class UserVerificationService {
     @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
         VerificationCode verificationCode = verificationCodeRedisRepository.findById(phoneNumberOrEmail)
-            .orElseThrow(() -> CustomException.of(ErrorCode.FORBIDDEN_API, "identity: " + phoneNumberOrEmail));
+            .orElseThrow(
+                () -> CustomException.of(ApiResponseCode.FORBIDDEN_VERIFICATION, "identity: " + phoneNumberOrEmail));
         verificationCode.requireVerified();
         verificationCodeRedisRepository.deleteById(phoneNumberOrEmail);
     }
