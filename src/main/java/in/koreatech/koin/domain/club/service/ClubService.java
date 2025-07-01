@@ -298,8 +298,8 @@ public class ClubService {
         isClubManager(club.getId(), student.getId());
 
         clubRecruitment.modifyClubRecruitment(
-            request.startData(),
-            request.endData(),
+            request.startDate(),
+            request.endDate(),
             request.isAlwaysRecruiting(),
             request.content()
         );
