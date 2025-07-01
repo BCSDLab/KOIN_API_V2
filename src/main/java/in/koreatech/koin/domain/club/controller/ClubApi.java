@@ -343,7 +343,7 @@ public interface ClubApi {
                           "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
                         }
                         """),
-                    @ExampleObject(name = "상시 모집 아닌 경우 모집 기간 누락", value = """
+                    @ExampleObject(name = "상시 모집 아닌데 경우 모집 기간 누락", value = """
                             {
                               "code": "REQUIRED_RECRUITMENT_PERIOD",
                               "message": "상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다.",
