@@ -36,6 +36,7 @@ public interface CartApi {
                 @ExampleObject(name = "장바구니에 상품 존재", value = """
                     {
                       "shop_name": "굿모닝살로만치킨",
+                      "shop_thumbnail_image_url": "https://static.koreatech.in/test.png",
                       "orderable_shop_id": 2,
                       "is_delivery_available": true,
                       "is_takeout_available": true,
@@ -44,6 +45,7 @@ public interface CartApi {
                         {
                           "cart_menu_item_id": 12,
                           "name": "허니콤보",
+                          "menu_thumbnail_image_url": "https://static.koreatech.in/test.png",
                           "quantity": 1,
                           "total_amount": 23000,
                           "price": {
@@ -56,6 +58,7 @@ public interface CartApi {
                         {
                           "cart_menu_item_id": 13,
                           "name": "레드콤보",
+                          "menu_thumbnail_image_url": "https://static.koreatech.in/test.png",
                           "quantity": 2,
                           "total_amount": 47000,
                           "price": {
@@ -74,12 +77,14 @@ public interface CartApi {
                       ],
                       "items_amount": 70000,
                       "delivery_fee": 0,
-                      "total_amount": 70000
+                      "total_amount": 70000,
+                      "final_payment_amount": 70000
                     }
                     """),
                 @ExampleObject(name = "장바구니에 상품 없음", value = """
                     {
                       "shop_name": null,
+                      "shop_thumbnail_image_url": null,
                       "orderable_shop_id": null,
                       "is_delivery_available": false,
                       "is_takeout_available": false,
@@ -87,7 +92,8 @@ public interface CartApi {
                       "items": [],
                       "items_amount": 0,
                       "delivery_fee": 0,
-                      "total_amount": 0
+                      "total_amount": 0,
+                      "final_payment_amount": 0
                     }
                     """)
             })
@@ -111,6 +117,11 @@ public interface CartApi {
         ### 응답 케이스
         - **장바구니에 상품이 있는 경우**: 장바구니 상세 정보 응답 반환합니다.
         - **장바구니가 비어있는 경우**: 필드가 null로 비어있는 응답 반환합니다.
+        
+        ### nullable
+        - **shop_thumbnail_image_url** : 주문 가능 상점의 썸네일 이미지가 존재하지 않는 경우
+        - **items[i].menu_thumbnail_image_url** : 주문 가능 상점의 메뉴 썸네일 이미지가 존재하지 않는 경우
+        - **items[i].price.name** : 주문 가능 상점 메뉴의 가격 옵션 이름이 없는 경우 (단일 가격)
         """)
     @GetMapping("/cart")
     ResponseEntity<CartResponse> getCartItems(
