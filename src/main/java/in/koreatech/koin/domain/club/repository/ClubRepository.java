@@ -43,7 +43,7 @@ public interface ClubRepository extends Repository<Club, Integer> {
     }
 
     @Query(value = "SELECT c FROM Club c WHERE c.name LIKE CONCAT(:query, '%') ORDER BY c.name")
-    List<Club> findTop5ByNamePrefix(String query, Pageable pageable);
+    List<Club> findByNamePrefix(String query, Pageable pageable);
 
     @Modifying
     @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")

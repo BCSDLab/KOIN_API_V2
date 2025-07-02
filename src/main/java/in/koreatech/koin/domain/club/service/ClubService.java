@@ -182,21 +182,21 @@ public class ClubService {
     }
 
     private Predicate<Club> queryPredicate(String query) {
-        String normalizedQuery = normalize(query);
-        return club -> normalize(club.getName()).contains(normalizedQuery);
+        String normalizedQuery = normalizeString(query);
+        return club -> normalizeString(club.getName()).contains(normalizedQuery);
     }
 
     public ClubRelatedKeywordResponse getRelatedClubs(String query) {
-        String normalizedQuery = normalize(query);
+        String normalizedQuery = normalizeString(query);
         if (normalizedQuery.isEmpty()) {
             return new ClubRelatedKeywordResponse(List.of());
         }
         PageRequest pageRequest = PageRequest.of(0, RELATED_LIMIT_SIZE);
-        List<Club> clubs = clubRepository.findTop5ByNamePrefix(normalizedQuery, pageRequest);
+        List<Club> clubs = clubRepository.findByNamePrefix(normalizedQuery, pageRequest);
         return ClubRelatedKeywordResponse.from(clubs);
     }
 
-    private String normalize(String s) {
+    private String normalizeString(String s) {
         return s.replaceAll("\\s+", "").toLowerCase();
     }
 

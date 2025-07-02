@@ -18,7 +18,7 @@ public record ClubRelatedKeywordResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerKeyword(
-        @Schema(description = "동아리ID", example = "1", requiredMode = REQUIRED)
+        @Schema(description = "동아리 ID", example = "1", requiredMode = REQUIRED)
         Integer clubId,
 
         @Schema(description = "동아리명", example = "BCSD", requiredMode = REQUIRED)
