@@ -3,7 +3,9 @@ package in.koreatech.koin._common.exception;
 import java.time.DateTimeException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.catalina.connector.ClientAbortException;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -81,13 +84,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException e,
+        MethodArgumentNotValidException ex,
         HttpHeaders headers,
-        HttpStatusCode status,
+        HttpStatusCode statusCode,
         WebRequest webRequest
     ) {
-        HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
-        return buildErrorResponse(request, ApiResponseCode.INVALID_REQUEST_PAYLOAD, e.getMessage());
+        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
+        ApiResponseCode errorCode = ApiResponseCode.INVALID_REQUEST_PAYLOAD;
+        String traceId = UUID.randomUUID().toString();
+
+        List<ErrorResponse.ErrorField> errorFields = getErrorFields(ex);
+        String firstErrorMessage = getFirstErrorMessage(errorFields, errorCode.getMessage());
+
+        requestLogging(request, errorCode.getHttpStatus(), firstErrorMessage, traceId);
+
+        ErrorResponse body = new ErrorResponse(
+            errorCode.getHttpStatus().value(),
+            errorCode.getCode(),
+            firstErrorMessage,
+            traceId,
+            errorFields
+        );
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(body);
     }
 
     @Override
@@ -237,6 +255,35 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ) {
             return " - ";
         }
+    }
+
+    private List<ErrorResponse.ErrorField> getErrorFields(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(this::toErrorField)
+            .toList();
+    }
+
+    private ErrorResponse.ErrorField toErrorField(FieldError fe) {
+        String fieldName = fe.getField();
+        String constraintName = Objects.requireNonNull(fe.getCode());
+        String fieldMessage = Objects.requireNonNullElse(
+            fe.getDefaultMessage(), ApiResponseCode.INVALID_REQUEST_PAYLOAD.getMessage()
+        );
+
+        return new ErrorResponse.ErrorField(
+            fieldName,
+            fieldMessage,
+            constraintName
+        );
+    }
+
+    private String getFirstErrorMessage(List<ErrorResponse.ErrorField> fields, String defaultMessage) {
+        if (fields.isEmpty()) {
+            return defaultMessage;
+        }
+        return fields.get(0).errorMessage();
     }
 
     // Deprecated : 아래 코드부터는 에러코드 작업을 하며 없어질 예정입니다.
