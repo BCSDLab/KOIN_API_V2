@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.club.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin._common.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static java.lang.Boolean.TRUE;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubRecruitment;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,15 +37,15 @@ public record ClubRecruitmentCreateRequest(
 ) {
     public ClubRecruitmentCreateRequest {
         if (isAlwaysRecruiting && (startDate != null || endDate != null)) {
-            // 예외
+            throw CustomException.of(MUST_BE_NULL_RECRUITMENT_PERIOD);
         }
 
         if (!TRUE.equals(isAlwaysRecruiting)) {
             if (startDate == null || endDate == null) {
-                // 예외
+                throw CustomException.of(REQUIRED_RECRUITMENT_PERIOD);
             }
             if (endDate.isBefore(startDate)) {
-                // 예외
+                throw CustomException.of(INVALID_RECRUITMENT_PERIOD);
             }
         }
     }
