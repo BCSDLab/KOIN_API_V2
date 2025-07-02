@@ -52,8 +52,7 @@ public class ClubRecruitment extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @NotNull
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
     @OneToOne(fetch = LAZY)
@@ -77,10 +76,17 @@ public class ClubRecruitment extends BaseEntity {
         this.club = club;
     }
 
-    public void modifyClubRecruitment(LocalDate startDate, LocalDate endDate, Boolean isAlwaysRecruiting, String content) {
+    public void modifyClubRecruitment(
+        LocalDate startDate,
+        LocalDate endDate,
+        Boolean isAlwaysRecruiting,
+        String imageUrl,
+        String content
+    ) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isAlwaysRecruiting = isAlwaysRecruiting;
+        this.imageUrl = imageUrl;
         this.content = content;
     }
 }
