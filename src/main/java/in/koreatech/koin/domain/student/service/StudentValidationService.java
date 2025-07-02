@@ -4,7 +4,7 @@ import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
@@ -71,11 +71,11 @@ public class StudentValidationService {
         }
         userRepository.findByNickname(nickname)
             .ifPresent(user -> {
-                throw CustomException.of(ErrorCode.CONFLICT_NICKNAME, "nickname : " + nickname);
+                throw CustomException.of(ApiResponseCode.DUPLICATE_NICKNAME, "nickname : " + nickname);
             });
         studentRedisRepository.findByNickname(nickname)
             .ifPresent(status -> {
-                throw CustomException.of(ErrorCode.CONFLICT_NICKNAME, "nickname : " + nickname);
+                throw CustomException.of(ApiResponseCode.DUPLICATE_NICKNAME, "nickname : " + nickname);
             });
     }
 

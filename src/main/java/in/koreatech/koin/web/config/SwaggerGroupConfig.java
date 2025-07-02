@@ -4,119 +4,119 @@ import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import in.koreatech.koin._common.code.ApiResponseCodesOperationCustomizer;
+
 @Configuration
 public class SwaggerGroupConfig {
 
+    private final ApiResponseCodesOperationCustomizer customizer;
+
+    public SwaggerGroupConfig(ApiResponseCodesOperationCustomizer customizer) {
+        this.customizer = customizer;
+    }
+
     @Bean
     public GroupedOpenApi loginApi() {
-        String[] apiPath = new String[] {
-            "/**/login"
-        };
-
         return GroupedOpenApi.builder()
             .group("0. Login API")
-            .pathsToMatch(apiPath)
+            .pathsToMatch("/**/login")
+            .addOperationCustomizer(customizer)
             .build();
     }
 
     @Bean
     public GroupedOpenApi adminApi() {
-        String[] packagesPath = new String[] {
-            "in.koreatech.koin.admin"
-        };
-
-        return createGroupedOpenApi("1. Admin API", packagesPath);
+        return createGroupedOpenApi(
+            "1. Admin API",
+            new String[] { "in.koreatech.koin.admin" });
     }
 
     @Bean
     public GroupedOpenApi businessApi() {
-        String[] packagesPath = new String[] {
-            "in.koreatech.koin.domain.owner",
-            "in.koreatech.koin.domain.benefit",
-            "in.koreatech.koin.domain.ownershop",
-            "in.koreatech.koin.domain.shop",
-            "in.koreatech.koin.domain.land",
-        };
-
-        return createGroupedOpenApi("2. Business API", packagesPath);
+        return createGroupedOpenApi(
+            "2. Business API",
+            new String[] {
+                "in.koreatech.koin.domain.owner",
+                "in.koreatech.koin.domain.benefit",
+                "in.koreatech.koin.domain.ownershop",
+                "in.koreatech.koin.domain.shop",
+                "in.koreatech.koin.domain.land",
+            });
     }
 
     @Bean
     public GroupedOpenApi campusApi() {
-        String[] packagesPath = new String[] {
-            "in.koreatech.koin.domain.bus",
-            "in.koreatech.koin.domain.community",
-            "in.koreatech.koin.domain.coop",
-            "in.koreatech.koin.domain.coopshop",
-            "in.koreatech.koin.domain.dining",
-            "in.koreatech.koin.domain.banner",
-            "in.koreatech.koin.domain.club",
-        };
-
-        return createGroupedOpenApi("3. Campus API", packagesPath);
+        return createGroupedOpenApi(
+            "3. Campus API",
+            new String[] {
+                "in.koreatech.koin.domain.bus",
+                "in.koreatech.koin.domain.community",
+                "in.koreatech.koin.domain.coop",
+                "in.koreatech.koin.domain.coopshop",
+                "in.koreatech.koin.domain.dining",
+                "in.koreatech.koin.domain.banner",
+                "in.koreatech.koin.domain.club",
+            });
     }
 
     @Bean
     public GroupedOpenApi userApi() {
-        String[] packagesPath = new String[] {
-            "in.koreatech.koin.domain.user",
-            "in.koreatech.koin.domain.student",
-            "in.koreatech.koin.domain.timetable",
-            "in.koreatech.koin.domain.timetableV2",
-            "in.koreatech.koin.domain.timetableV3",
-            "in.koreatech.koin.domain.dept",
-            "in.koreatech.koin.domain.graduation",
-        };
-
-        return createGroupedOpenApi("4. User API", packagesPath);
+        return createGroupedOpenApi(
+            "4. User API",
+            new String[] {
+                "in.koreatech.koin.domain.user",
+                "in.koreatech.koin.domain.student",
+                "in.koreatech.koin.domain.timetable",
+                "in.koreatech.koin.domain.timetableV2",
+                "in.koreatech.koin.domain.timetableV3",
+                "in.koreatech.koin.domain.dept",
+                "in.koreatech.koin.domain.graduation",
+            });
     }
 
     @Bean
     public GroupedOpenApi abtestApi() {
-        String[] packagesPath = new String[] {
-            "in.koreatech.koin.admin.abtest"
-        };
-
-        return createGroupedOpenApi("5. abTest API", packagesPath);
+        return createGroupedOpenApi(
+            "5. abTest API",
+            new String[] { "in.koreatech.koin.admin.abtest" });
     }
 
     @Bean
     public GroupedOpenApi socketApi() {
-        String[] packagesPath = new String[] {
-            "in.koreatech.koin.socket"
-        };
-
-        return createGroupedOpenApi("6. socket API", packagesPath);
+        return createGroupedOpenApi(
+            "6. socket API",
+            new String[] { "in.koreatech.koin.socket" });
     }
 
     @Bean
     public GroupedOpenApi bcsdApi() {
-        String[] packagesPath = new String[] {
-            "in.koreatech.koin.domain.activity",
-            "in.koreatech.koin.domain.member",
-            "in.koreatech.koin.domain.version",
-            "in.koreatech.koin.domain.notification",
-            "in.koreatech.koin.domain.test",
-            "in.koreatech.koin.domain.kakaobot",
-            "in.koreatech.koin.domain.upload",
-        };
-
-        return createGroupedOpenApi("7. bcsd API", packagesPath);
+        return createGroupedOpenApi(
+            "7. bcsd API",
+            new String[] {
+                "in.koreatech.koin.domain.activity",
+                "in.koreatech.koin.domain.member",
+                "in.koreatech.koin.domain.version",
+                "in.koreatech.koin.domain.notification",
+                "in.koreatech.koin.domain.test",
+                "in.koreatech.koin.domain.kakaobot",
+                "in.koreatech.koin.domain.upload",
+            });
     }
 
     @Bean
     public GroupedOpenApi orderApi() {
-        String[] packagesPath = new String[] {
-            "in.koreatech.koin.domain.order"
-        };
-
-        return createGroupedOpenApi("8. Business Order API", packagesPath);
+        return createGroupedOpenApi(
+            "8. Business Order API",
+            new String[] { "in.koreatech.koin.domain.order" });
     }
 
-    private GroupedOpenApi createGroupedOpenApi(String groupName, String[] packagesPath) {
+    private GroupedOpenApi createGroupedOpenApi(
+        String groupName,
+        String[] packagesPath) {
         return GroupedOpenApi.builder()
             .group(groupName)
             .packagesToScan(packagesPath)
+            .addOperationCustomizer(customizer)
             .build();
     }
 }
