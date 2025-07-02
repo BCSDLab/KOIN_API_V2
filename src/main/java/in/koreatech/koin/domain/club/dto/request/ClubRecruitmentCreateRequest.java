@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubRecruitment;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubRecruitmentCreateRequest(
@@ -28,8 +27,10 @@ public record ClubRecruitmentCreateRequest(
     @Schema(description = "상시 모집 여부", example = "false", requiredMode = REQUIRED)
     Boolean isAlwaysRecruiting,
 
-    @Schema(description = "모집 상세 설명", example = "BCSD LAB 모집", requiredMode = REQUIRED)
-    @NotNull(message = "모집 상세 설명은 필수 입력입니다.")
+    @Schema(description = "모집 이미지", example = "https://bcsdlab.com/static/img/logo.d89d9cc.png", requiredMode = NOT_REQUIRED)
+    String imageUrl,
+
+    @Schema(description = "모집 상세 설명", example = "BCSD LAB 모집", requiredMode = NOT_REQUIRED)
     String content
 ) {
     public ClubRecruitmentCreateRequest {
@@ -53,6 +54,7 @@ public record ClubRecruitmentCreateRequest(
             .endDate(endDate)
             .isAlwaysRecruiting(isAlwaysRecruiting)
             .content(content)
+            .imageUrl(imageUrl)
             .club(club)
             .build();
     }

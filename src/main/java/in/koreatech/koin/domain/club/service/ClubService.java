@@ -301,6 +301,7 @@ public class ClubService {
             request.startDate(),
             request.endDate(),
             request.isAlwaysRecruiting(),
+            request.imageUrl(),
             request.content()
         );
     }
