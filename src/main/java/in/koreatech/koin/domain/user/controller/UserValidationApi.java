@@ -59,6 +59,7 @@ public interface UserValidationApi {
     @ApiResponseCodes({
         ApiResponseCode.OK,
         ApiResponseCode.INVALID_REQUEST_PAYLOAD,
+        ApiResponseCode.INVALID_GENDER_INDEX,
         ApiResponseCode.DUPLICATE_LOGIN_ID
     })
     @GetMapping("/user/check/id")

@@ -34,8 +34,11 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         responses.clear();
 
         Type returnType = handlerMethod.getMethod().getGenericReturnType();
-        for (ApiResponseCode code : mapping.value()) {
-            String key = String.valueOf(code.getHttpStatus().value());
+        ApiResponseCode[] codes = mapping.value();  // 배열로 받아서
+
+        for (int i = 0; i < codes.length; i++) {
+            ApiResponseCode code = codes[i];
+            String key = String.format("%d) %s", i + 1, code.getHttpStatus().value());
             if (code.getHttpStatus().is2xxSuccessful()) {
                 responses.put(key, convertDataResponse(code, returnType));
             } else {
@@ -58,7 +61,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
             .example(Map.of(
                 "code", code.getCode(),
                 "message", code.getMessage(),
-                "errorTraceId", "UUID 예시"
+                "errorTraceId", "123e4567-e89b-12d3-a456-426614174000 (UUID 예시값)"
             ));
 
         return new ApiResponse()
