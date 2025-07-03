@@ -69,7 +69,7 @@ public enum ApiResponseCode {
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다."),
-    REQUEST_TOO_FAST(HttpStatus.CONFLICT, "요청이 너무 빠르게 발생했습니다."),
+    REQUEST_TOO_FAST(HttpStatus.CONFLICT, "요청이 너무 빠릅니다. 다시 요청해주세요."),
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.CONFLICT, "이미 처리된 요청입니다."),
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
 
@@ -79,10 +79,11 @@ public enum ApiResponseCode {
     TOO_MANY_REQUESTS_VERIFICATION(HttpStatus.TOO_MANY_REQUESTS, "하루 인증 횟수를 초과했습니다."),
 
     /**
-     *
+     * 500 Internal Server Error (서버 오류)
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 오류가 발생했습니다."),
     CLIENT_ABORTED(HttpStatus.INTERNAL_SERVER_ERROR, "클라이언트에 의해 연결이 중단되었습니다."),
+    EXTERNAL_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 호출 중 오류가 발생했습니다.")
     ;
 
     private final HttpStatus httpStatus;
