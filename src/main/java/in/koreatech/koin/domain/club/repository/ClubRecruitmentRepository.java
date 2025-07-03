@@ -4,7 +4,8 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.club.exception.ClubRecruitmentNotFoundException;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubRecruitment;
 
@@ -16,7 +17,7 @@ public interface ClubRecruitmentRepository extends Repository<ClubRecruitment, I
 
     default ClubRecruitment getByClub(Club club) {
         return findByClub(club)
-            .orElseThrow(() -> ClubRecruitmentNotFoundException.withDetail("clubId : " + club.getId()));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CLUB_RECRUITMENT));
     }
 
     void delete(ClubRecruitment clubRecruitment);
