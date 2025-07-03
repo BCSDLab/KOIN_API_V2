@@ -182,6 +182,7 @@ public interface UserValidationApi {
     @ApiResponseCodes({
         ApiResponseCode.OK,
         ApiResponseCode.INVALID_REQUEST_PAYLOAD,
+        ApiResponseCode.NOT_MATCHED_PHONE_NUMBER,
         ApiResponseCode.NOT_FOUND_USER
     })
     @PostMapping("/users/id/match/phone")
