@@ -116,6 +116,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         WebRequest webRequest
     ) {
         HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
+        if (e.getMostSpecificCause() instanceof CustomException ce) {
+            return handleCustomException(request, ce);
+        }
         return buildErrorResponse(request, ApiResponseCode.NOT_READABLE_HTTP_MESSAGE, e.getMessage());
     }
 
