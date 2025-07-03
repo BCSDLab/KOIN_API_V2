@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.service;
 
+import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
 import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
@@ -318,6 +320,10 @@ public class ClubService {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
         isClubManager(club.getId(), student.getId());
+
+        if (clubRecruitmentRepository.findByClub(club).isPresent()) {
+            throw CustomException.of(DUPLICATE_CLUB_RECRUITMENT);
+        }
 
         clubRecruitmentRepository.save(request.toEntity(club));
     }

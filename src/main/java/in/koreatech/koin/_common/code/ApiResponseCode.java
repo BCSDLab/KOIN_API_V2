@@ -71,6 +71,7 @@ public enum ApiResponseCode {
     DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다."),
     REQUEST_TOO_FAST(HttpStatus.CONFLICT, "요청이 너무 빠르게 발생했습니다."),
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.CONFLICT, "이미 처리된 요청입니다."),
+    DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)

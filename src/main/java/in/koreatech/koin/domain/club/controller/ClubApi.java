@@ -332,7 +332,16 @@ public interface ClubApi {
                       "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
                     }
                     """)
-            }))
+            })),
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 동아리 공고", content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "이미 동아리 공고가 존재하는 경우", value = """
+                    {
+                      "code": "DUPLICATE_CLUB_RECRUITMENT",
+                      "message": "동아리 공고가 이미 존재합니다.",
+                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
+                    }
+                    """)
+            })),
         }
     )
     @Operation(summary = "동아리 모집 생성", description = """
@@ -348,6 +357,7 @@ public interface ClubApi {
         - RECRUITMENT_PERIOD_REQUIRED (상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다.)
         - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
         - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
+        - DUPLICATE_CLUB_RECRUITMENT (동아리 공고가 이미 존재합니다.)
         """)
     @PostMapping("/{clubId}/recruitment")
     ResponseEntity<Void> createRecruitment(
