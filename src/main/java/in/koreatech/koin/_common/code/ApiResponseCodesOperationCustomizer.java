@@ -91,9 +91,9 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         ex.put("code", code.getCode());
         ex.put("message", STUDENT_NUMBER_EXAMPLE_MESSAGE);
         ex.put("errorTraceId", UUID_EXAMPLE);
-        ex.put("errorFields", List.of(Map.of(
-            "errorField", STUDENT_NUMBER_EXAMPLE_FIELD,
-            "errorMessage", STUDENT_NUMBER_EXAMPLE_MESSAGE,
+        ex.put("fieldErrors", List.of(Map.of(
+            "field", STUDENT_NUMBER_EXAMPLE_FIELD,
+            "message", STUDENT_NUMBER_EXAMPLE_MESSAGE,
             "constraint", STUDENT_NUMBER_EXAMPLE_CONSTRAINT
         )));
         return ex;

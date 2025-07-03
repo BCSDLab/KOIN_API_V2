@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-@Schema(description = "표준 에러 응답 포맷")
+@Schema(description = "표준 에러 응답 포맷 (CamelCase)")
 public class ErrorResponse {
 
     @JsonIgnore
@@ -27,7 +27,7 @@ public class ErrorResponse {
 
     @Schema(description = "필드별 검증 오류 목록")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private final List<ErrorField> errorFields;
+    private final List<FieldError> fieldErrors;
 
     public ErrorResponse(int status, String message, String errorTraceId) {
         this(status, "", message, errorTraceId, List.of());
@@ -37,28 +37,28 @@ public class ErrorResponse {
         this(status, code, message, errorTraceId, List.of());
     }
 
-    public ErrorResponse(int status, String code, String message, String errorTraceId, List<ErrorField> errorFields) {
+    public ErrorResponse(int status, String code, String message, String errorTraceId, List<FieldError> fieldErrors) {
         this.status = status;
         this.code = code;
         this.message = message;
         this.errorTraceId = errorTraceId;
-        this.errorFields = errorFields;
+        this.fieldErrors = fieldErrors;
     }
 
-    public record ErrorField(
+    public record FieldError(
         @Schema(description = "오류가 발생한 필드 이름")
-        String errorField,
+        String field,
 
         @Schema(description = "해당 필드의 오류 메시지")
-        String errorMessage,
+        String message,
 
         @Schema(description = "해당 필드의 오류 코드(제약조건 이름 등)")
         String constraint
     ) {
 
-        public ErrorField(String errorField, String errorMessage, String constraint) {
-            this.errorField = errorField;
-            this.errorMessage = errorMessage;
+        public FieldError(String field, String message, String constraint) {
+            this.field = field;
+            this.message = message;
             this.constraint = constraint;
         }
     }

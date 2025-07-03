@@ -93,17 +93,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiResponseCode errorCode = ApiResponseCode.INVALID_REQUEST_PAYLOAD;
         String traceId = UUID.randomUUID().toString();
 
-        List<ErrorResponse.ErrorField> errorFields = getErrorFields(ex);
-        String firstErrorMessage = getFirstErrorMessage(errorFields, errorCode.getMessage());
+        List<ErrorResponse.FieldError> fieldErrors = getFieldErrors(ex);
+        String firstErrorMessage = getFirstFieldErrorMessage(fieldErrors, errorCode.getMessage());
 
-        requestLogging(request, errorCode.getHttpStatus(), firstErrorMessage, traceId);
+        requestLogging(request, errorCode.getHttpStatus().value(), firstErrorMessage, traceId);
 
         ErrorResponse body = new ErrorResponse(
             errorCode.getHttpStatus().value(),
             errorCode.getCode(),
             firstErrorMessage,
             traceId,
-            errorFields
+            fieldErrors
         );
         return ResponseEntity.status(errorCode.getHttpStatus()).body(body);
     }
@@ -192,11 +192,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private void requestLogging(
         HttpServletRequest request,
-        HttpStatus httpStatus,
+        int httpStatus,
         String errorMessage,
         String errorTraceId
     ) {
-        log.warn("[{}] {} | TraceId={}", httpStatus.value(), errorMessage, errorTraceId);
+        log.warn("[{}] {} | TraceId={}", httpStatus, errorMessage, errorTraceId);
         log.debug("Request: {} {}", request.getMethod(), request.getRequestURI());
         log.debug("Headers: {}", getHeaders(request));
         log.debug("Query String: {}", getQueryString(request));
@@ -209,7 +209,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorMessage
     ) {
         String errorTraceId = UUID.randomUUID().toString();
-        requestLogging(request, errorCode.getHttpStatus(), errorMessage, errorTraceId);
+        requestLogging(request, errorCode.getHttpStatus().value(), errorMessage, errorTraceId);
 
         ErrorResponse response = new ErrorResponse(
             errorCode.getHttpStatus().value(),
@@ -257,33 +257,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
     }
 
-    private List<ErrorResponse.ErrorField> getErrorFields(MethodArgumentNotValidException ex) {
+    private List<ErrorResponse.FieldError> getFieldErrors(MethodArgumentNotValidException ex) {
         return ex.getBindingResult()
             .getFieldErrors()
             .stream()
-            .map(this::toErrorField)
+            .map(this::toFieldError)
             .toList();
     }
 
-    private ErrorResponse.ErrorField toErrorField(FieldError fe) {
-        String fieldName = fe.getField();
-        String constraintName = Objects.requireNonNull(fe.getCode());
-        String fieldMessage = Objects.requireNonNullElse(
+    private ErrorResponse.FieldError toFieldError(FieldError fe) {
+        String field = fe.getField();
+        String constraint = Objects.requireNonNull(fe.getCode());
+        String message = Objects.requireNonNullElse(
             fe.getDefaultMessage(), ApiResponseCode.INVALID_REQUEST_PAYLOAD.getMessage()
         );
 
-        return new ErrorResponse.ErrorField(
-            fieldName,
-            fieldMessage,
-            constraintName
-        );
+        return new ErrorResponse.FieldError(field, message, constraint);
     }
 
-    private String getFirstErrorMessage(List<ErrorResponse.ErrorField> fields, String defaultMessage) {
+    private String getFirstFieldErrorMessage(List<ErrorResponse.FieldError> fields, String defaultMessage) {
         if (fields.isEmpty()) {
             return defaultMessage;
         }
-        return fields.get(0).errorMessage();
+        return fields.get(0).message();
     }
 
     // Deprecated : 아래 코드부터는 에러코드 작업을 하며 없어질 예정입니다.
@@ -399,7 +395,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorMessage
     ) {
         String errorTraceId = UUID.randomUUID().toString();
-        requestLogging(request, httpStatus, errorMessage, errorTraceId);
+        requestLogging(request, httpStatus.value(), errorMessage, errorTraceId);
         var response = new ErrorResponse(httpStatus.value(), errorMessage, errorTraceId);
         return ResponseEntity.status(httpStatus).body(response);
     }
@@ -411,7 +407,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorCode
     ) {
         String errorTraceId = UUID.randomUUID().toString();
-        requestLogging(request, httpStatus, errorMessage, errorTraceId);
+        requestLogging(request, httpStatus.value(), errorMessage, errorTraceId);
         var response = new ErrorResponse(httpStatus.value(), errorCode, errorMessage, errorTraceId);
         return ResponseEntity.status(httpStatus).body(response);
     }
