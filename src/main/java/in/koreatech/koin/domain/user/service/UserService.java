@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
+import in.koreatech.koin._common.event.UserMarketingAgreementEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -73,7 +73,10 @@ public class UserService {
         );
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
-        eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
+        eventPublisher.publishEvent(
+            new UserMarketingAgreementEvent(user.getId(), request.marketingNotificationAgreement())
+        );
+        eventPublisher.publishEvent(new UserRegisterEvent(user.getPhoneNumber()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }
 
@@ -143,7 +146,7 @@ public class UserService {
             ownerRepository.deleteByUserId(userId);
         }
         userRepository.delete(user);
-        eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
+        eventPublisher.publishEvent(new UserDeleteEvent(user.getPhoneNumber(), user.getUserType()));
     }
 
     public UserFindLoginIdResponse findIdBySms(UserFindIdBySmsRequest request) {

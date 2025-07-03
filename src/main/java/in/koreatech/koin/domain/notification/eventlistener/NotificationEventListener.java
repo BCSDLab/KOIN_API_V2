@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.UserRegisterEvent;
+import in.koreatech.koin._common.event.UserMarketingAgreementEvent;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class NotificationEventListener { // TODO : 리팩터링 필요 (비즈�
     private final NotificationService notificationService;
 
     @TransactionalEventListener
-    public void onUserRegisterEvent(UserRegisterEvent event) {
+    public void onUserRegisterEvent(UserMarketingAgreementEvent event) {
         if (event.marketingNotificationAgreement()) {
             notificationService.permitNotificationSubscribe(event.userId(), NotificationSubscribeType.MARKETING);
         }
