@@ -73,7 +73,7 @@ public record RegisterStudentRequestV2(
 
     @Schema(description = "사용자 아이디", example = "example123", requiredMode = REQUIRED)
     @NotBlank(message = "아이디는 필수입니다.")
-    @Pattern(regexp = "^[A-Za-z0-9._-]{5,13}$", message = "5-13자의 영문자, 숫자, 특수문자만 사용할 수 있습니다.")
+    @Pattern(regexp = "^(?=.*[a-z])[a-z0-9._-]{5,13}$", message = "5-13자의 영소문자(필수), 숫자, 특수문자만 사용할 수 있습니다.")
     String loginId,
 
     @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = REQUIRED)
