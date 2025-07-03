@@ -4,8 +4,10 @@ import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +17,12 @@ import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
@@ -69,6 +72,8 @@ public class ClubService {
     private final ClubCreateRedisRepository clubCreateRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
+
+    private static final int RELATED_LIMIT_SIZE = 5;
 
     @Transactional
     public void createClubRequest(ClubCreateRequest request, Integer studentId) {
@@ -147,25 +152,52 @@ public class ClubService {
         return ClubResponse.from(club, clubSNSs, manager, isLiked);
     }
 
-    public ClubsByCategoryResponse getClubByCategory(Integer categoryId, ClubSortType sortType, Integer userId) {
-        List<Club> clubs = getClubs(categoryId, sortType);
-
+    public ClubsByCategoryResponse getClubByCategory(
+        Integer categoryId,
+        ClubSortType sortType,
+        String query,
+        Integer userId
+    ) {
+        List<Club> clubs = getClubs(categoryId, sortType, query);
         List<Integer> likedClubIds = clubLikeRepository.findClubIdsByUserId(userId);
-
         return ClubsByCategoryResponse.from(clubs, likedClubIds);
     }
 
-    private List<Club> getClubs(Integer categoryId, ClubSortType sortType) {
+    private List<Club> getClubs(Integer categoryId, ClubSortType sortType, String query) {
+        List<Club> clubs;
         if (categoryId == null) {
-            return sortType.equals(HITS_DESC)
+            clubs = sortType.equals(HITS_DESC)
                 ? clubRepository.findByIsActiveTrueOrderByHitsDesc()
                 : clubRepository.findByIsActiveTrueOrderByIdAsc();
+        } else {
+            ClubCategory category = clubCategoryRepository.getById(categoryId);
+            clubs = sortType.equals(HITS_DESC)
+                ? clubRepository.findByIsActiveTrueAndClubCategoryOrderByHitsDesc(category)
+                : clubRepository.findByIsActiveTrueAndClubCategoryOrderByIdAsc(category);
         }
 
-        ClubCategory category = clubCategoryRepository.getById(categoryId);
-        return sortType.equals(HITS_DESC)
-            ? clubRepository.findByIsActiveTrueAndClubCategoryOrderByHitsDesc(category)
-            : clubRepository.findByIsActiveTrueAndClubCategoryOrderByIdAsc(category);
+        return query.isEmpty() ? clubs : clubs.stream()
+            .filter(queryPredicate(query))
+            .toList();
+    }
+
+    private Predicate<Club> queryPredicate(String query) {
+        String normalizedQuery = normalizeString(query);
+        return club -> normalizeString(club.getName()).contains(normalizedQuery);
+    }
+
+    public ClubRelatedKeywordResponse getRelatedClubs(String query) {
+        String normalizedQuery = normalizeString(query);
+        if (normalizedQuery.isEmpty()) {
+            return new ClubRelatedKeywordResponse(List.of());
+        }
+        PageRequest pageRequest = PageRequest.of(0, RELATED_LIMIT_SIZE);
+        List<Club> clubs = clubRepository.findByNamePrefix(normalizedQuery, pageRequest);
+        return ClubRelatedKeywordResponse.from(clubs);
+    }
+
+    private String normalizeString(String s) {
+        return s.replaceAll("\\s+", "").toLowerCase();
     }
 
     @Transactional
@@ -202,9 +234,9 @@ public class ClubService {
     }
 
     @Transactional
-    public QnasResponse getQnas(Integer clubId) {
+    public ClubQnasResponse getQnas(Integer clubId) {
         List<ClubQna> qnas = clubQnaRepository.findAllByClubId(clubId);
-        return QnasResponse.from(qnas);
+        return ClubQnasResponse.from(qnas);
     }
 
     public ClubHotResponse getHotClub() {
@@ -223,7 +255,7 @@ public class ClubService {
     }
 
     @Transactional
-    public void createQna(QnaCreateRequest request, Integer clubId, Integer studentId) {
+    public void createQna(ClubQnaCreateRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
         boolean isManager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);

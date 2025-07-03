@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.club.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -40,6 +41,9 @@ public interface ClubRepository extends Repository<Club, Integer> {
 
         return club;
     }
+
+    @Query(value = "SELECT c FROM Club c WHERE c.name LIKE CONCAT(:query, '%') ORDER BY c.name")
+    List<Club> findByNamePrefix(String query, Pageable pageable);
 
     @Modifying
     @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")

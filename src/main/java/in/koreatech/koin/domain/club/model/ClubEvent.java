@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.club.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import in.koreatech.koin._common.model.BaseEntity;
