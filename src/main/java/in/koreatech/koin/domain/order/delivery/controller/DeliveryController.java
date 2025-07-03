@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.order.delivery.dto.RiderMessageResponse;
 import in.koreatech.koin.domain.order.delivery.dto.UserCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.delivery.dto.UserDeliveryAddressResponse;
 import in.koreatech.koin.domain.order.delivery.dto.UserOffCampusDeliveryAddressRequest;
+import in.koreatech.koin.domain.order.delivery.dto.UserOffCampusDeliveryAddressValidateRequest;
 import in.koreatech.koin.domain.order.delivery.service.DeliveryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,14 @@ public class DeliveryController implements DeliveryApi {
         UserDeliveryAddressResponse response = deliveryService.addCampusDeliveryAddress(
             request, userId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/delivery/address/off-campus/validate")
+    public ResponseEntity<Void> validateOffCampusDeliveryAddress(
+        @RequestBody @Valid UserOffCampusDeliveryAddressValidateRequest request
+    ) {
+        deliveryService.validateOffCampusAddress(request.toOffCampusAddress());
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/delivery/rider-message")

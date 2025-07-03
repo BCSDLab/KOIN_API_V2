@@ -5,6 +5,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
@@ -66,6 +67,9 @@ public class OrderableShop extends BaseEntity {
     @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuGroup> menuGroups = new ArrayList<>();
 
+    @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderableShopImage> shopImages = new ArrayList<>();
+
     @OneToOne(mappedBy = "orderableShop", fetch = FetchType.LAZY)
     private OrderableShopDeliveryOption deliveryOption;
 
@@ -99,5 +103,13 @@ public class OrderableShop extends BaseEntity {
         if (totalOrderAmount < minimumOrderAmount) {
             throw new CartException(CartErrorCode.ORDER_AMOUNT_BELOW_MINIMUM);
         }
+    }
+
+    public String getThumbnailImage() {
+        return this.shopImages.stream()
+            .filter(OrderableShopImage::getIsThumbnail)
+            .map(OrderableShopImage::getImageUrl)
+            .findFirst()
+            .orElse(null);
     }
 }

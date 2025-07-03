@@ -1,58 +1,82 @@
 package in.koreatech.koin.domain.user.verification.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
 import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
-import in.koreatech.koin.domain.user.verification.config.VerificationProperties;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
-import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
-import in.koreatech.koin.domain.user.verification.model.UserVerificationStatus;
-import in.koreatech.koin.domain.user.verification.repository.UserDailyVerificationCountRedisRepository;
-import in.koreatech.koin.domain.user.verification.repository.UserVerificationStatusRedisRepository;
-import lombok.RequiredArgsConstructor;
+import in.koreatech.koin.domain.user.verification.model.VerificationChannel;
+import in.koreatech.koin.domain.user.verification.model.VerificationCode;
+import in.koreatech.koin.domain.user.verification.model.VerificationCount;
+import in.koreatech.koin.domain.user.verification.repository.VerificationCodeRedisRepository;
+import in.koreatech.koin.domain.user.verification.repository.VerificationCountRedisRepository;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserVerificationService {
 
-    private final UserVerificationStatusRedisRepository userVerificationStatusRedisRepository;
-    private final UserDailyVerificationCountRedisRepository userDailyVerificationCountRedisRepository;
+    private final VerificationCodeRedisRepository verificationCodeRedisRepository;
+    private final VerificationCountRedisRepository verificationCountRedisRepository;
     private final VerificationNumberGenerator verificationNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
-    private final VerificationProperties verificationProperties;
+    private final int maxVerificationCount;
+
+    public UserVerificationService(
+        VerificationCodeRedisRepository verificationCodeRedisRepository,
+        VerificationCountRedisRepository verificationCountRedisRepository,
+        VerificationNumberGenerator verificationNumberGenerator,
+        ApplicationEventPublisher eventPublisher,
+        @Value("${user.verification.max-verification-count:5}") int maxVerificationCount
+    ) {
+        this.verificationCodeRedisRepository = verificationCodeRedisRepository;
+        this.verificationCountRedisRepository = verificationCountRedisRepository;
+        this.verificationNumberGenerator = verificationNumberGenerator;
+        this.eventPublisher = eventPublisher;
+        this.maxVerificationCount = maxVerificationCount;
+    }
+
+    private VerificationCount increaseAndGetVerificationCount(String phoneNumberOrEmail, String ipAddress) {
+        String countKey = VerificationCount.composeKey(phoneNumberOrEmail, ipAddress);
+        VerificationCount count = verificationCountRedisRepository.findById(countKey)
+            .orElseGet(() -> VerificationCount.of(phoneNumberOrEmail, ipAddress, maxVerificationCount));
+        count.incrementVerificationCount();
+        return verificationCountRedisRepository.save(count);
+    }
+
+    private void publishVerificationEvent(VerificationChannel channel, String code, String target) {
+        switch (channel) {
+            case SMS -> eventPublisher.publishEvent(new UserSmsVerificationSendEvent(code, target));
+            case EMAIL -> eventPublisher.publishEvent(new UserEmailVerificationSendEvent(code, target));
+        }
+    }
 
     @Transactional
-    public SendVerificationResponse sendSmsVerification(String phoneNumber) {
-        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(phoneNumber);
-        UserVerificationStatus userVerificationStatus = UserVerificationStatus.ofSms(phoneNumber, verificationNumberGenerator);
-        userVerificationStatusRedisRepository.save(userVerificationStatus);
-        eventPublisher.publishEvent(new UserSmsVerificationSendEvent(userVerificationStatus.getVerificationCode(), phoneNumber));
+    public SendVerificationResponse sendVerification(String phoneNumberOrEmail, String ipAddress,
+        VerificationChannel channel) {
+        VerificationCount verificationCount = increaseAndGetVerificationCount(phoneNumberOrEmail, ipAddress);
+        VerificationCode verificationCode = VerificationCode.of(phoneNumberOrEmail, verificationNumberGenerator,
+            channel);
+        verificationCodeRedisRepository.save(verificationCode);
+        publishVerificationEvent(channel, verificationCode.getVerificationCode(), phoneNumberOrEmail);
         return SendVerificationResponse.from(verificationCount);
     }
 
     @Transactional
-    public SendVerificationResponse sendEmailVerification(String email) {
-        UserDailyVerificationCount verificationCount = increaseAndGetUserDailyVerificationCount(email);
-        UserVerificationStatus userVerificationStatus = UserVerificationStatus.ofEmail(email, verificationNumberGenerator);
-        userVerificationStatusRedisRepository.save(userVerificationStatus);
-        eventPublisher.publishEvent(new UserEmailVerificationSendEvent(userVerificationStatus.getVerificationCode(), email));
-        return SendVerificationResponse.from(verificationCount);
-    }
-
-    @Transactional
-    public void verifyCode(String phoneNumberOrEmail, String verificationCode) {
-        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
+    public void verifyCode(String phoneNumberOrEmail, String ipAddress, String inputCode) {
+        VerificationCode verificationCode = verificationCodeRedisRepository.findById(phoneNumberOrEmail)
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumberOrEmail));
-        verificationStatus.verify(verificationCode);
-        userVerificationStatusRedisRepository.save(verificationStatus);
+        verificationCode.detectAbnormalUsage();
+        verificationCode.verify(inputCode);
+        verificationCodeRedisRepository.save(verificationCode);
+        String countKey = VerificationCount.composeKey(phoneNumberOrEmail, ipAddress);
+        verificationCountRedisRepository.deleteById(countKey);
     }
 
     /**
@@ -63,16 +87,10 @@ public class UserVerificationService {
      */
     @Transactional
     public void consumeVerification(String phoneNumberOrEmail) {
-        UserVerificationStatus verificationStatus = userVerificationStatusRedisRepository.findById(phoneNumberOrEmail)
-            .orElseThrow(() -> CustomException.of(ErrorCode.FORBIDDEN_API, "identity: " + phoneNumberOrEmail));
-        verificationStatus.requireVerified();
-        userVerificationStatusRedisRepository.deleteById(phoneNumberOrEmail);
-    }
-
-    private UserDailyVerificationCount increaseAndGetUserDailyVerificationCount(String phoneNumberOrEmail) {
-        UserDailyVerificationCount count = userDailyVerificationCountRedisRepository.findById(phoneNumberOrEmail)
-            .orElseGet(() -> UserDailyVerificationCount.of(phoneNumberOrEmail, verificationProperties));
-        count.incrementVerificationCount();
-        return userDailyVerificationCountRedisRepository.save(count);
+        VerificationCode verificationCode = verificationCodeRedisRepository.findById(phoneNumberOrEmail)
+            .orElseThrow(
+                () -> CustomException.of(ApiResponseCode.FORBIDDEN_VERIFICATION, "identity: " + phoneNumberOrEmail));
+        verificationCode.requireVerified();
+        verificationCodeRedisRepository.deleteById(phoneNumberOrEmail);
     }
 }

@@ -6,14 +6,14 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
+import in.koreatech.koin.domain.order.address.repository.CampusDeliveryAddressRepository;
 import in.koreatech.koin.domain.order.delivery.dto.RiderMessageResponse;
 import in.koreatech.koin.domain.order.delivery.dto.UserCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.delivery.dto.UserDeliveryAddressResponse;
 import in.koreatech.koin.domain.order.delivery.dto.UserOffCampusDeliveryAddressRequest;
-import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
 import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
 import in.koreatech.koin.domain.order.delivery.model.UserDeliveryAddress;
-import in.koreatech.koin.domain.order.address.repository.CampusDeliveryAddressRepository;
 import in.koreatech.koin.domain.order.delivery.repository.RiderMessageRepository;
 import in.koreatech.koin.domain.order.delivery.repository.UserDeliveryAddressRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -34,9 +34,9 @@ public class DeliveryService {
     public UserDeliveryAddressResponse addOffCampusDeliveryAddress(UserOffCampusDeliveryAddressRequest request,
         Integer userId) {
         User user = userRepository.getById(userId);
-
         OffCampusDeliveryAddress offCampusDeliveryAddress = request.toOffCampusAddress();
-        deliveryAddressValidator.validateOffCampusAddress(offCampusDeliveryAddress);
+
+        validateOffCampusAddress(offCampusDeliveryAddress);
 
         UserDeliveryAddress userDeliveryAddress = deliveryAddressRepository.save(
             UserDeliveryAddress.ofOffCampus(user, offCampusDeliveryAddress)
@@ -58,6 +58,10 @@ public class DeliveryService {
         );
 
         return UserDeliveryAddressResponse.of(userDeliveryAddress.getId(), userDeliveryAddress.getFullDeliveryAddress());
+    }
+
+    public void validateOffCampusAddress(OffCampusDeliveryAddress offCampusDeliveryAddress) {
+        deliveryAddressValidator.validateOffCampusAddress(offCampusDeliveryAddress);
     }
 
     @Transactional(readOnly = true)

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
@@ -42,11 +42,11 @@ public class AdminUserValidation {
     public void validateAdminLogin(User user, AdminLoginRequest request) {
         /* 어드민 권한이 없으면 없는 회원으로 간주 */
         if (user.getUserType() != ADMIN) {
-            throw CustomException.of(ErrorCode.NOT_FOUND_USER, "account" + request.email());
+            throw CustomException.of(ApiResponseCode.NOT_FOUND_USER, "account" + request.email());
         }
 
         if (adminRepository.findById(user.getId()).isEmpty()) {
-            throw CustomException.of(ErrorCode.NOT_FOUND_USER, "account" + request.email());
+            throw CustomException.of(ApiResponseCode.NOT_FOUND_USER, "account" + request.email());
         }
 
         user.requireSameLoginPw(passwordEncoder, request.password());
