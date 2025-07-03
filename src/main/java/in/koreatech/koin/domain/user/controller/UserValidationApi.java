@@ -175,15 +175,15 @@ public interface UserValidationApi {
         @Valid @RequestBody UserExistsEmailRequest request
     );
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "ID와 전화번호 일치"),
-        @ApiResponse(responseCode = "400", description = "ID와 전화번호 불일치", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "404", description = "ID 없음", content = @Content(schema = @Schema(hidden = true)))
-    })
     @Operation(
         summary = "로그인 ID와 전화번호 일치 여부 확인",
         description = "입력한 로그인 ID와 전화번호가 일치하는지 확인합니다."
     )
+    @ApiResponseCodes({
+        ApiResponseCode.OK,
+        ApiResponseCode.INVALID_REQUEST_PAYLOAD,
+        ApiResponseCode.NOT_FOUND_USER
+    })
     @PostMapping("/users/id/match/phone")
     ResponseEntity<Void> matchLoginIdWithPhoneNumber(
         @Valid @RequestBody UserMatchLoginIdWithPhoneNumberRequest request

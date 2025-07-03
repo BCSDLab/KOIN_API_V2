@@ -89,7 +89,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatusCode statusCode,
         WebRequest webRequest
     ) {
-        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
+        HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
         ApiResponseCode errorCode = ApiResponseCode.INVALID_REQUEST_PAYLOAD;
         String traceId = UUID.randomUUID().toString();
 
@@ -217,7 +217,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             errorCode.getMessage(),
             errorTraceId
         );
-        return ResponseEntity.status(response.getStatus()).body(response);
+        return ResponseEntity.status(response.status()).body(response);
     }
 
     private Map<String, Object> getHeaders(HttpServletRequest request) {
