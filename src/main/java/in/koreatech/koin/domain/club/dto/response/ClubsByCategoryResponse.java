@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.dto.response;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public record ClubsByCategoryResponse(
             @Schema(description = "동아리 모집 상태", example = "ALWAYS", requiredMode = REQUIRED)
             String status,
 
-            @Schema(description = "동아리 모집 디데이", example = "null", requiredMode = REQUIRED)
+            @Schema(description = "동아리 모집 디데이", example = "null", requiredMode = NOT_REQUIRED)
             Integer Dday
         ) {
             public static InnerClubRecruitmentResponse from(ClubBaseInfo clubBaseInfo) {

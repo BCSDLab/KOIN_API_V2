@@ -115,7 +115,19 @@ public interface ClubApi {
     )
     @Operation(summary = "카테고리를 기준으로 동아리를 조회한다", description = """
         - categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
-        - query에 내용을 넣으면 검색이 됩니다
+        - query에 내용을 넣으면 검색이 됩니다.
+        - isRecruiting의 기본값은 false 입니다.
+        
+        ### 반환 정보
+          - recruitmentInfo : 동아리 모집 정보를 담고 있습니다.
+            - status : 동아리 모집 상태입니다.
+              - NONE : 동아리 모집 글이 없는 상태입니다.
+              - RECRUITING : 동아리 모집 중인 상태입니다.
+              - CLOSED : 동아리 모집 글이 있는 상태에서 모집 마감된 상태입니다.
+              - ALWAYS : 동아리 모집 글이 있는 상태에서 상시 모집중인 상태입니다.
+            - Dday : 동아리 모집 디데이 입니다.
+              - RECRUITING인 상태에서는 정수로 남은 일자가 내려갑니다.
+              - 이외의 상태에서는 null로 내려갑니다.
         """)
     @GetMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
