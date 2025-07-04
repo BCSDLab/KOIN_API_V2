@@ -14,7 +14,6 @@ import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubCategory;
 import jakarta.persistence.LockModeType;
 
 public interface ClubRepository extends Repository<Club, Integer> {
@@ -52,21 +51,7 @@ public interface ClubRepository extends Repository<Club, Integer> {
     @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")
     void incrementHitsByValue(Integer id, Integer value);
 
-    @Modifying
-    @Query("UPDATE Club c SET c.hits = c.hits + 1 WHERE c.id = :id")
-    void incrementHits(Integer id);
-
     Club save(Club club);
-
-    List<Club> findByClubCategory(ClubCategory category);
-
-    List<Club> findByIsActiveTrueAndClubCategoryOrderByIdAsc(ClubCategory category);
-
-    List<Club> findByIsActiveTrueAndClubCategoryOrderByHitsDesc(ClubCategory category);
-
-    List<Club> findByIsActiveTrueOrderByHitsDesc();
-
-    List<Club> findByIsActiveTrueOrderByIdAsc();
 
     void deleteById(Integer id);
 }
