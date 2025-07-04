@@ -36,8 +36,27 @@ public record ClubsByCategoryResponse(
         Boolean isLiked,
 
         @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
-        Boolean isLikeHidden
+        Boolean isLikeHidden,
+
+        @Schema(description = "동아리 모집 정보", requiredMode = REQUIRED)
+        InnerClubRecruitmentResponse recruitmentInfo
     ) {
+        @JsonNaming(value = SnakeCaseStrategy.class)
+        public record InnerClubRecruitmentResponse(
+            @Schema(description = "동아리 모집 상태", example = "ALWAYS", requiredMode = REQUIRED)
+            String status,
+
+            @Schema(description = "동아리 모집 디데이", example = "null", requiredMode = REQUIRED)
+            Integer Dday
+        ) {
+            public static InnerClubRecruitmentResponse from(ClubBaseInfo clubBaseInfo) {
+                return new InnerClubRecruitmentResponse(
+                    clubBaseInfo.getRecruitmentStatus().name(),
+                    clubBaseInfo.getRecruitmentPeriod()
+                );
+            }
+        }
+
         private static InnerClubResponse from(ClubBaseInfo clubBaseInfo) {
             return new InnerClubResponse(
                 clubBaseInfo.clubId(),
@@ -46,7 +65,8 @@ public record ClubsByCategoryResponse(
                 clubBaseInfo.likes(),
                 clubBaseInfo.imageUrl(),
                 clubBaseInfo.isLiked(),
-                clubBaseInfo.isLikeHidden()
+                clubBaseInfo.isLikeHidden(),
+                InnerClubRecruitmentResponse.from(clubBaseInfo)
             );
         }
     }
