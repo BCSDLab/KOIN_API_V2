@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -32,21 +33,30 @@ public class ClubListQueryRepository {
         BooleanBuilder clubFilter = clubSearchFilter(categoryId, isRecruiting, normalizeString(query));
         OrderSpecifier<?> clubSort = clubSort(clubSortType);
 
-        return queryFactory
+        BooleanExpression isLiked = (userId != null)
+            ? clubLike.id.isNotNull()
+            : Expressions.asBoolean(false).isTrue();
+
+        var baseQuery = queryFactory
             .select(Projections.constructor(ClubBaseInfo.class,
                 club.id,
                 club.name,
                 club.clubCategory.name,
                 club.likes,
                 club.imageUrl,
-                clubLike.id.isNotNull(),
+                isLiked,
                 club.isLikeHidden,
                 recruitmentPeriod,
                 clubRecruitment.isAlwaysRecruiting
             ))
             .from(club)
-            .leftJoin(clubRecruitment).on(clubRecruitment.club.id.eq(club.id))
-            .leftJoin(clubLike).on(clubLike.club.id.eq(club.id).and(clubLike.user.id.eq(userId)))
+            .leftJoin(clubRecruitment).on(clubRecruitment.club.id.eq(club.id));
+
+        if (userId != null) {
+            baseQuery.leftJoin(clubLike).on(clubLike.club.id.eq(club.id).and(clubLike.user.id.eq(userId)));
+        }
+
+        return baseQuery
             .where(clubFilter)
             .orderBy(clubSort)
             .fetch();
