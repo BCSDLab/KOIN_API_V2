@@ -55,21 +55,20 @@ public class ClubListQueryRepository {
     private BooleanBuilder clubSearchFilter(Integer categoryId, Boolean isRecruiting, String query) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
+        // 동아리 카테고리 필터
         if (categoryId != null) {
             booleanBuilder.and(club.clubCategory.id.eq(categoryId));
         }
 
-        if (query != null && !query.isBlank()) {
-            booleanBuilder.and(
-                Expressions.stringTemplate(
-                    "LOWER(REPLACE({0}, ' ', ''))", club.name
-                ).contains(query)
-            );
-        }
+        // 동아리 검색어 필터
+        booleanBuilder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(query));
 
+        // 동아리 모집 필터
         if (isRecruiting) {
             booleanBuilder.and(clubRecruitment.id.isNotNull());
         }
+
+        // 동아리 활성화 필터
         booleanBuilder.and(club.isActive.isTrue());
         return booleanBuilder;
     }
