@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubBaseInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -38,23 +38,23 @@ public record ClubsByCategoryResponse(
         @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
         Boolean isLikeHidden
     ) {
-        private static InnerClubResponse from(Club club, Boolean isLiked) {
+        private static InnerClubResponse from(ClubBaseInfo clubBaseInfo) {
             return new InnerClubResponse(
-                club.getId(),
-                club.getName(),
-                club.getClubCategory().getName(),
-                club.getLikes(),
-                club.getImageUrl(),
-                isLiked,
-                club.getIsLikeHidden()
+                clubBaseInfo.clubId(),
+                clubBaseInfo.name(),
+                clubBaseInfo.category(),
+                clubBaseInfo.likes(),
+                clubBaseInfo.imageUrl(),
+                clubBaseInfo.isLiked(),
+                clubBaseInfo.isLikeHidden()
             );
         }
     }
 
-    public static ClubsByCategoryResponse from(List<Club> clubs, List<Integer> likedClubIds) {
+    public static ClubsByCategoryResponse from(List<ClubBaseInfo> clubBaseInfos) {
         return new ClubsByCategoryResponse(
-            clubs.stream()
-                .map(club -> InnerClubResponse.from(club, likedClubIds.contains(club.getId())))
+            clubBaseInfos.stream()
+                .map(InnerClubResponse::from)
                 .toList()
         );
     }
