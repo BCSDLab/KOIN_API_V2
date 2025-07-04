@@ -120,6 +120,7 @@ public interface ClubApi {
     @GetMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam(required = false) Integer categoryId,
+        @RequestParam(required = false, defaultValue = "false") Boolean isRecruiting,
         @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
         @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
