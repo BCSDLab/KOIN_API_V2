@@ -13,7 +13,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.club.enums.ClubSortType;
@@ -29,7 +28,6 @@ public class ClubListQueryRepository {
     public List<ClubBaseInfo> findAllClubInfo(
         Integer categoryId, ClubSortType clubSortType, Boolean isRecruiting, String query, Integer userId
     ) {
-        NumberExpression<Integer> recruitmentPeriod = recruitmentPeriod();
         BooleanBuilder clubFilter = clubSearchFilter(categoryId, isRecruiting, normalizeString(query));
         OrderSpecifier<?> clubSort = clubSort(clubSortType);
 
@@ -46,7 +44,8 @@ public class ClubListQueryRepository {
                 club.imageUrl,
                 isLiked,
                 club.isLikeHidden,
-                recruitmentPeriod,
+                clubRecruitment.startDate,
+                clubRecruitment.endDate,
                 clubRecruitment.isAlwaysRecruiting
             ))
             .from(club)
@@ -85,15 +84,6 @@ public class ClubListQueryRepository {
 
     private OrderSpecifier<?> clubSort(ClubSortType clubSortType) {
         return clubSortType.getOrderSpecifier();
-    }
-
-    private NumberExpression<Integer> recruitmentPeriod() {
-        return Expressions.numberTemplate(
-            Integer.class,
-            "DATEDIFF({0}, {1})",
-            clubRecruitment.endDate,
-            clubRecruitment.startDate
-        );
     }
 
     private String normalizeString(String s) {

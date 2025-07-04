@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.club.model;
 
 import static in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus.*;
+import static java.time.temporal.ChronoUnit.DAYS;
+
+import java.time.LocalDate;
 
 import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
 
@@ -12,28 +15,36 @@ public record ClubBaseInfo(
     String imageUrl,
     Boolean isLiked,
     Boolean isLikeHidden,
-    Integer recruitmentPeriod,
+    LocalDate startDate,
+    LocalDate endDate,
     Boolean isAlwaysRecruiting
 ) {
     public ClubRecruitmentStatus getRecruitmentStatus() {
-        if (isAlwaysRecruiting == null || recruitmentPeriod == null) {
+        if (isAlwaysRecruiting == null || startDate == null || endDate == null) {
             return NONE;
         }
 
-        if (isAlwaysRecruiting) {
+        if (Boolean.TRUE.equals(isAlwaysRecruiting)) {
             return ALWAYS;
         }
 
-        return recruitmentPeriod >= 0
-            ? RECRUITING
-            : CLOSED;
+        if (endDate.isBefore(LocalDate.now())) {
+            return CLOSED;
+        }
+
+        return RECRUITING;
     }
 
     public Integer getRecruitmentPeriod() {
-        if (isAlwaysRecruiting == null || recruitmentPeriod == null || isAlwaysRecruiting) {
+        if (Boolean.TRUE.equals(isAlwaysRecruiting) || startDate == null || endDate == null) {
             return null;
         }
 
-        return recruitmentPeriod >= 0 ? recruitmentPeriod : null;
+        if (endDate.isBefore(LocalDate.now())) {
+            return null;
+        }
+
+        int period = (int) DAYS.between(startDate, endDate);
+        return period >= 0 ? period : null;
     }
 }
