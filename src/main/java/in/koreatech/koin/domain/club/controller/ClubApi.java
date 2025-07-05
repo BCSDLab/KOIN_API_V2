@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
@@ -509,9 +511,21 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
+    @ApiResponseCodes({
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_RECRUITMENT,
+    })
     @Operation(summary = "동아리 모집 조회", description = """
         ### 동아리 모집 조회
         - 동아리 모집을 조회 합니다.
+            - status : 동아리 모집 상태입니다.
+              - NONE : 동아리 모집 글이 없는 상태입니다.
+              - RECRUITING : 동아리 모집 중인 상태입니다.
+              - CLOSED : 동아리 모집 글이 있는 상태에서 모집 마감된 상태입니다.
+              - ALWAYS : 동아리 모집 글이 있는 상태에서 상시 모집중인 상태입니다.
+            - Dday : 동아리 모집 디데이 입니다.
+              - RECRUITING인 상태에서는 정수로 남은 일자가 내려갑니다.
+              - 이외의 상태에서는 null로 내려갑니다.
         
         ### 에러 코드(에러 메시지)
         - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
