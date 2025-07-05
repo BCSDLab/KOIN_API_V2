@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
@@ -18,6 +19,7 @@ import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
+import in.koreatech.koin.domain.order.model.OrderType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -108,15 +110,33 @@ public interface CartApi {
                     }
                     """)
             })
-        )
+        ),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "배달 가능한 상점이 아닌 경우", summary = "배달 가능한 상점이 아닙니다", value = """
+                    {
+                      "code": "SHOP_NOT_DELIVERABLE",
+                      "message": "배달 가능한 상점이 아닙니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "포장 가능한 상점이 아닌 경우", summary = "포당 가능한 상점이 아닙니다", value = """
+                    {
+                      "code": "SHOP_NOT_TAKEOUT_AVAILABLE",
+                      "message": "포장 가능한 상점이 아닙니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """)
+            })
+        ),
     })
     @Operation(summary = "장바구니 조회", description = """
         ### 사용자의 장바구니 전체 정보 조회
         - 장바구니에 담긴 모든 상품, 금액, 배달비 정보 등을 포함하여 반환합니다.
         
         ### 응답 케이스
-        - **장바구니에 상품이 있는 경우**: 장바구니 상세 정보 응답 반환합니다.
-        - **장바구니가 비어있는 경우**: 필드가 null로 비어있는 응답 반환합니다.
+        - **장바구니에 상품이 있는 경우**: 장바구니 상세 정보 응답을 반환합니다.
+        - **장바구니가 비어있는 경우**: 필드가 null로 비어있는 응답을 반환합니다.
         
         ### nullable
         - **shop_thumbnail_image_url** : 주문 가능 상점의 썸네일 이미지가 존재하지 않는 경우
@@ -126,7 +146,8 @@ public interface CartApi {
     @GetMapping("/cart")
     ResponseEntity<CartResponse> getCartItems(
         @Parameter(hidden = true)
-        Integer userId
+        Integer userId,
+        @RequestParam(name = "type") OrderType type
     );
 
     @ApiResponses(value = {
@@ -687,6 +708,24 @@ public interface CartApi {
                     }
                     """)
             })
+        ),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "배달 가능한 상점이 아닌 경우", summary = "배달 가능한 상점이 아닙니다", value = """
+                    {
+                      "code": "SHOP_NOT_DELIVERABLE",
+                      "message": "배달 가능한 상점이 아닙니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "포장 가능한 상점이 아닌 경우", summary = "포당 가능한 상점이 아닙니다", value = """
+                    {
+                      "code": "SHOP_NOT_TAKEOUT_AVAILABLE",
+                      "message": "포장 가능한 상점이 아닙니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """)
+            })
         )
     })
     @Operation(
@@ -698,7 +737,8 @@ public interface CartApi {
     )
     @GetMapping("/cart/payment/summary")
     ResponseEntity<CartPaymentSummaryResponse> getCartPaymentSummary(
-        @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
+        @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId,
+        @RequestParam(name = "type") OrderType type
     );
 
     @ApiResponses(value = {

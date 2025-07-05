@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItemOption;
+import in.koreatech.koin.domain.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuImage;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
@@ -114,7 +115,7 @@ public record CartResponse(
         }
     }
 
-    public static CartResponse from(Cart cart) {
+    public static CartResponse from(Cart cart, OrderType orderType) {
         OrderableShop orderableShop = cart.getOrderableShop();
         Shop shop = orderableShop.getShop();
 
@@ -123,7 +124,7 @@ public record CartResponse(
             .toList();
 
         int itemsAmount = cart.calculateItemsAmount();
-        int deliveryFee = orderableShop.calculateDeliveryFee(itemsAmount);
+        int deliveryFee = cart.calculateDeliveryFee(orderType);
         int totalAmount = itemsAmount + deliveryFee;
         int finalPaymentAmount = totalAmount; // 추후 쿠폰&적립금 등 할인 정책에 관한 요구 사항 추가 시 수정
 
