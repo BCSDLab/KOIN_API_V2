@@ -2,6 +2,9 @@ package in.koreatech.koin.domain.club.service;
 
 import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -14,15 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
@@ -31,6 +38,8 @@ import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.domain.club.model.ClubHot;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubQna;
@@ -38,6 +47,7 @@ import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
+import in.koreatech.koin.domain.club.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
@@ -72,6 +82,7 @@ public class ClubService {
     private final ClubCreateRedisRepository clubCreateRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
+    private final ClubEventRepository clubEventRepository;
 
     private static final int RELATED_LIMIT_SIZE = 5;
 
@@ -89,7 +100,8 @@ public class ClubService {
         isClubManager(clubId, studentId);
 
         ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
-        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description(), request.isLikeHidden());
+        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description(),
+            request.isLikeHidden());
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
@@ -148,8 +160,12 @@ public class ClubService {
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
         Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, userId);
+        String hotMessage = clubHotRepository.findTopByOrderByIdDesc()
+            .filter(hot -> hot.getClub().getId().equals(clubId))
+            .map(this::generateHotMessage)
+            .orElse(null);
 
-        return ClubResponse.from(club, clubSNSs, manager, isLiked);
+        return ClubResponse.from(club, clubSNSs, manager, isLiked, hotMessage);
     }
 
     public ClubsByCategoryResponse getClubByCategory(
@@ -292,7 +308,8 @@ public class ClubService {
     public void empowermentClubManager(ClubManagerEmpowermentRequest request, Integer studentId) {
         Club club = clubRepository.getById(request.clubId());
         User currentManager = userRepository.getById(studentId);
-        User changedManager = userRepository.getByLoginIdAndUserTypeIn(request.changedManagerId(), UserType.KOIN_STUDENT_TYPES);
+        User changedManager = userRepository.getByLoginIdAndUserTypeIn(request.changedManagerId(),
+            UserType.KOIN_STUDENT_TYPES);
 
         isClubManager(request.clubId(), studentId);
         if (clubManagerRepository.existsByClubAndUser(club, changedManager)) {
@@ -306,5 +323,90 @@ public class ClubService {
             .build();
 
         clubManagerRepository.save(newClubManager);
+    }
+
+    @Transactional
+    public void createClubEvent(ClubEventCreateRequest request, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubEventRepository.save(request.toEntity(club));
+    }
+
+    @Transactional
+    public void modifyClubEvent(ClubEventModifyRequest request, Integer eventId, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubEvent clubEvent = clubEventRepository.getClubEventById(eventId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubEvent.modifyClubEvent(
+            request.name(),
+            request.imageUrl(),
+            request.startDate(),
+            request.endDate(),
+            request.introduce(),
+            request.content()
+        );
+    }
+
+    @Transactional
+    public void deleteClubEvent(Integer clubId, Integer eventId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubEvent clubEvent = clubEventRepository.getClubEventById(eventId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubEventRepository.delete(clubEvent);
+    }
+
+    public ClubEventResponse getClubEvent(Integer clubId, Integer eventId) {
+        ClubEvent clubEvent = clubEventRepository.getClubEventByIdAndClubId(eventId, clubId);
+        return ClubEventResponse.from(clubEvent, LocalDateTime.now());
+    }
+
+    public List<ClubEventResponse> getClubEvents(Integer clubId, ClubEventType eventType) {
+        List<ClubEvent> events = clubEventRepository.getAllByClubId(clubId);
+        LocalDateTime now = LocalDateTime.now();
+
+        return events.stream()
+            .filter(event -> filterEventType(event, eventType, now))
+            .sorted(Comparator.comparing(
+                event -> ClubEventResponse.calculateStatus(event.getStartDate(), event.getEndDate(), now)
+                    .getPriority()))
+            .map(event -> ClubEventResponse.from(event, now))
+            .toList();
+    }
+
+    private boolean filterEventType(ClubEvent event, ClubEventType eventType, LocalDateTime now) {
+        if (eventType == null) {
+            return true;
+        }
+
+        ClubEventType currentType = ClubEventResponse.calculateStatus(
+            event.getStartDate(),
+            event.getEndDate(),
+            now
+        );
+
+        return currentType == eventType;
+    }
+
+    private String generateHotMessage(ClubHot hot) {
+        LocalDate start = hot.getStartDate();
+        int month = start.getMonthValue();
+        int weekOfMonth = ((start.getDayOfMonth() - 1) / 7) + 1;
+
+        List<ClubHot> hotClubs = clubHotRepository.findAllByOrderByIdDesc();
+        int count = 0;
+        for (ClubHot hotClub : hotClubs) {
+            if (!hot.getClub().getId().equals(hotClub.getClub().getId())) {
+                break;
+            }
+            count++;
+        }
+
+        return String.format("%d월 %d주차 인기 동아리 선정! %d주 연속 인기 동아리!", month, weekOfMonth, count);
     }
 }
