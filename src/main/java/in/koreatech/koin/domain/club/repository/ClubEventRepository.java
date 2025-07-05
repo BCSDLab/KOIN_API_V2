@@ -7,10 +7,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin.domain.club.exception.ClubEventNotFoundException;
 import in.koreatech.koin.domain.club.model.ClubEvent;
 
-public interface ClubEventRepository extends Repository<ClubEvent, Long> {
+public interface ClubEventRepository extends Repository<ClubEvent, Integer> {
 
     void save(ClubEvent clubEvent);
 
