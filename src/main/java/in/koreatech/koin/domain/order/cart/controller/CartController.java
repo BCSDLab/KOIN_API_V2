@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
@@ -21,6 +22,7 @@ import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import in.koreatech.koin.domain.order.cart.service.CartQueryService;
 import in.koreatech.koin.domain.order.cart.service.CartService;
+import in.koreatech.koin.domain.order.model.OrderType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -33,9 +35,10 @@ public class CartController implements CartApi {
 
     @GetMapping("/cart")
     public ResponseEntity<CartResponse> getCartItems(
-        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId,
+        @RequestParam(name = "type") OrderType type
     ) {
-        CartResponse response = cartQueryService.getCartItems(userId);
+        CartResponse response = cartQueryService.getCartItems(userId, type);
         return ResponseEntity.ok(response);
     }
 
