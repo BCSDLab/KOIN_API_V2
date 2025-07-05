@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.user.model;
 import java.util.Arrays;
 
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.errorcode.ErrorCode;
+import in.koreatech.koin._common.code.ApiResponseCode;
 
 public enum UserGender {
     MAN,
@@ -17,6 +17,6 @@ public enum UserGender {
         return Arrays.stream(values())
             .filter(it -> it.ordinal() == index)
             .findAny()
-            .orElseThrow(() -> CustomException.of(ErrorCode.NOT_VALID_GENDER_INDEX, "index : " + index));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.INVALID_GENDER_INDEX, "index : " + index));
     }
 }

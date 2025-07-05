@@ -19,11 +19,12 @@ import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -103,20 +104,44 @@ public interface ClubApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
     @Operation(summary = "카테고리를 기준으로 동아리를 조회한다", description = """
-        categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
+        - categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
+        - query에 내용을 넣으면 검색이 됩니다
         """)
     @GetMapping
     ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "동아리 검색어에 따른 연관검색어 조회",
+        description = """
+            ### 접두어 연관검색어 조회
+            - 검색어를 접두어로 가지는 모든 동아리명을 조회합니다.
+            - ex) B -> BCSD, BASIA
+            - 결과물로는 해당 동아리 ID와 동아리명을 반환합니다.
+            - 최대 5개까지 반환합니다.
+            - 공백, 대소문자 구분X
+            - 클라측에서 입력지연(디바운스) 해주셔야 합니다. (무분별한 API 호출 방지)
+            """
+    )
+    @GetMapping("/search/related")
+    ResponseEntity<ClubRelatedKeywordResponse> getRelatedClubs(
+        @RequestParam(required = false, defaultValue = "") String query
     );
 
     @ApiResponses(
@@ -184,7 +209,7 @@ public interface ClubApi {
             """
     )
     @GetMapping("/{clubId}/qna")
-    ResponseEntity<QnasResponse> getQnas(
+    ResponseEntity<ClubQnasResponse> getQnas(
         @Parameter(in = PATH) @PathVariable Integer clubId
     );
 
@@ -204,7 +229,7 @@ public interface ClubApi {
     )
     @PostMapping("/{clubId}/qna")
     ResponseEntity<Void> createQna(
-        @RequestBody @Valid QnaCreateRequest request,
+        @RequestBody @Valid ClubQnaCreateRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
