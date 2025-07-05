@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.notification.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.stereotype.Component;
 
@@ -22,8 +23,9 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateClubEventSchemeUri(path, clubId, eventId), // 검토필요
-            "정해지면 바꾸기", // 검토필요 (eventName, clubName, eventDateTime)
-            "정해지면 바꾸기", // 검토필요 (eventName, clubName, eventDateTime)
+            "[코인 동아리] %s에 내일 예정된 행사가 있어요!".formatted(clubName),
+            "%s - %s의 행사가 %s에 진행 될 예정이에요.\n행사 내용 둘러보기"
+                .formatted(eventName, clubName, formatEventDateTime(eventDateTime)),
             null,
             NotificationType.MESSAGE,
             target
@@ -41,8 +43,8 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateClubEventSchemeUri(path, clubId, eventId), // 검토필요
-            "정해지면 바꾸기", // 검토필요 (eventName, clubName)
-            "정해지면 바꾸기", // 검토필요 (eventName, clubName)
+            "[코인 동아리] 오늘 %s 행사가 한 시간 남았어요!".formatted(clubName),
+            "%s - %s의 행사가 1시간 뒤에 시작 할 예정이에요.\n행사 내용 둘러보기".formatted(eventName, clubName),
             null,
             NotificationType.MESSAGE,
             target
@@ -158,6 +160,11 @@ public class NotificationFactory {
             NotificationType.MESSAGE,
             target
         );
+    }
+
+    private String formatEventDateTime(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M월 d일 HH시 mm분");
+        return dateTime.format(formatter);
     }
 
     private String generateSchemeUri(MobileAppPath path, Integer eventId) {
