@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.club.service;
 
 import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
-import static java.lang.Boolean.FALSE;
 
 import java.util.List;
 import java.util.Objects;
@@ -339,14 +338,9 @@ public class ClubService {
 
     public ClubRecruitmentResponse getRecruitment(Integer clubId, Integer userId) {
         Club club = clubRepository.getById(clubId);
+        club.updateIsManager(userId);
         ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
-        Boolean isManager = FALSE;
 
-        if (userId != null) {
-            User user = userRepository.getById(userId);
-            isManager = clubManagerRepository.existsByClubIdAndUserId(clubId, user.getId());
-        }
-
-        return ClubRecruitmentResponse.from(clubRecruitment, isManager);
+        return ClubRecruitmentResponse.from(clubRecruitment);
     }
 }

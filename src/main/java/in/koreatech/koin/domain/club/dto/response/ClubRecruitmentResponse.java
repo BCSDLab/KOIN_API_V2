@@ -40,7 +40,7 @@ public record ClubRecruitmentResponse(
     @Schema(description = "동아리 관리자 여부", example = "true", requiredMode = REQUIRED)
     Boolean isManager
 ) {
-    public static ClubRecruitmentResponse from(ClubRecruitment clubRecruitment, Boolean isManager) {
+    public static ClubRecruitmentResponse from(ClubRecruitment clubRecruitment) {
         return new ClubRecruitmentResponse(
             clubRecruitment.getId(),
             clubRecruitment.getClubRecruitmentStatus().name(),
@@ -49,7 +49,7 @@ public record ClubRecruitmentResponse(
             clubRecruitment.getEndDate(),
             clubRecruitment.getImageUrl(),
             clubRecruitment.getContent(),
-            isManager
+            clubRecruitment.getClub().isManager
         );
     }
 }
