@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.club.service;
 
 import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
+import static java.lang.Boolean.FALSE;
 
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +23,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
@@ -97,7 +99,8 @@ public class ClubService {
         isClubManager(clubId, studentId);
 
         ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
-        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description(), request.isLikeHidden());
+        club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description(),
+            request.isLikeHidden());
 
         List<ClubSNS> newSNS = updateClubSNS(request, club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
@@ -278,7 +281,8 @@ public class ClubService {
     public void empowermentClubManager(ClubManagerEmpowermentRequest request, Integer studentId) {
         Club club = clubRepository.getById(request.clubId());
         User currentManager = userRepository.getById(studentId);
-        User changedManager = userRepository.getByLoginIdAndUserTypeIn(request.changedManagerId(), UserType.KOIN_STUDENT_TYPES);
+        User changedManager = userRepository.getByLoginIdAndUserTypeIn(request.changedManagerId(),
+            UserType.KOIN_STUDENT_TYPES);
 
         isClubManager(request.clubId(), studentId);
         if (clubManagerRepository.existsByClubAndUser(club, changedManager)) {
@@ -331,5 +335,18 @@ public class ClubService {
         isClubManager(club.getId(), student.getId());
 
         clubRecruitmentRepository.delete(clubRecruitment);
+    }
+
+    public ClubRecruitmentResponse getRecruitment(Integer clubId, Integer userId) {
+        Club club = clubRepository.getById(clubId);
+        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
+        Boolean isManager = FALSE;
+
+        if (userId != null) {
+            User user = userRepository.getById(userId);
+            isManager = clubManagerRepository.existsByClubIdAndUserId(clubId, user.getId());
+        }
+
+        return ClubRecruitmentResponse.from(clubRecruitment, isManager);
     }
 }

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.club.model.ClubRecruitment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -39,5 +40,16 @@ public record ClubRecruitmentResponse(
     @Schema(description = "동아리 관리자 여부", example = "true", requiredMode = REQUIRED)
     Boolean isManager
 ) {
-
+    public static ClubRecruitmentResponse from(ClubRecruitment clubRecruitment, Boolean isManager) {
+        return new ClubRecruitmentResponse(
+            clubRecruitment.getId(),
+            clubRecruitment.getClubRecruitmentStatus().name(),
+            clubRecruitment.getDday(),
+            clubRecruitment.getStartDate(),
+            clubRecruitment.getEndDate(),
+            clubRecruitment.getImageUrl(),
+            clubRecruitment.getContent(),
+            isManager
+        );
+    }
 }
