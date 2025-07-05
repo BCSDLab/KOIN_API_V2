@@ -88,7 +88,7 @@ public record TimetableLectureResponse(
         ) {
             public static List<ClassInfo> of(String classTime, String classPlace) {
                 // 온라인 강의인 경우
-                if (Objects.equals(classTime, "[]")) {
+                if (Objects.equals(classTime, "[]") || Objects.isNull(classTime)) {
                     return Collections.emptyList();
                 }
 
