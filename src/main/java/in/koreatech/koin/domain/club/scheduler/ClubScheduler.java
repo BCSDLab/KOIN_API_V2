@@ -33,11 +33,20 @@ public class ClubScheduler {
     }
 
     @Scheduled(cron = "0 30 12 * * *")
-    public void sendClubEventNotifications() {
+    public void sendClubEventNotificationsBeforeOneday() {
         try {
-            scheduleService.sendClubEventNotifications();
+            scheduleService.sendClubEventNotificationsBeforeOneDay();
         } catch (Exception e) {
             log.error("동아리 이벤트 하루 전 알림에 오류가 발생했습니다.", e);
+        }
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void sendClubEventNotificationBeforeOneHour() {
+        try {
+            scheduleService.sendClubEventNotificationsBeforeOneHour();
+        } catch (Exception e) {
+            log.error("동아리 이벤트 1시간 전 알림에 오류가 발생했습니다.", e);
         }
     }
 }

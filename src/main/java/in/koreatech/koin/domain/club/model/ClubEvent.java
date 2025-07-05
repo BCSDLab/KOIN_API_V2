@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.club.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import in.koreatech.koin._common.model.BaseEntity;
@@ -54,6 +53,10 @@ public class ClubEvent extends BaseEntity {
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
+    @NotNull
+    @Column(name = "notified_one_hour", nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean notifiedOneHour = false;
+
     @Builder
     private ClubEvent(
         Club club,
@@ -61,7 +64,8 @@ public class ClubEvent extends BaseEntity {
         LocalDateTime startDate,
         LocalDateTime endDate,
         String introduce,
-        String content
+        String content,
+        Boolean notifiedOneHour
     ) {
         this.club = club;
         this.name = name;
@@ -69,5 +73,10 @@ public class ClubEvent extends BaseEntity {
         this.endDate = endDate;
         this.introduce = introduce;
         this.content = content;
+        this.notifiedOneHour = notifiedOneHour;
+    }
+
+    public void markAsNotifiedOneHour() {
+        this.notifiedOneHour = true;
     }
 }

@@ -120,12 +120,30 @@ public class ClubScheduleService {
     }
 
     @Transactional
-    public void sendClubEventNotifications() {
-        LocalDateTime start = LocalDate.now().plusDays(1).atStartOfDay();
-        LocalDateTime end = start.plusDays(1);
-        List<ClubEvent> events = clubEventRepository.findAllWithClubByStartDateBetween(start, end);
+    public void sendClubEventNotificationsBeforeOneDay() {
+        List<ClubEvent> events = getClubEventsStartingTomorrow();
         if (events.isEmpty()) return;
 
+        Map<Integer, List<User>> eventIdToUserMap = getEventIdToUserMap(events);
+
+        for (ClubEvent event : events) {
+            List<User> subscribers = eventIdToUserMap.getOrDefault(event.getId(), List.of());
+            if (subscribers.isEmpty()) continue;
+
+            List<Notification> notifications = subscribers.stream()
+                .map(user -> createClubEventNotificationBeforeOneday(event, user))
+                .toList();
+            notificationService.pushNotifications(notifications);
+        }
+    }
+
+    private List<ClubEvent> getClubEventsStartingTomorrow() {
+        LocalDateTime start = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+        return clubEventRepository.findAllWithClubByStartDateBetween(start, end);
+    }
+
+    private Map<Integer, List<User>> getEventIdToUserMap(List<ClubEvent> events) {
         List<Integer> eventIds = events.stream()
             .map(ClubEvent::getId)
             .toList();
@@ -139,14 +157,7 @@ public class ClubScheduleService {
             User user = subscription.getUser();
             eventIdToUserMap.computeIfAbsent(eventId, k -> new ArrayList<>()).add(user);
         }
-
-        for (ClubEvent event : events) {
-            List<User> subscribers = eventIdToUserMap.getOrDefault(event.getId(), List.of());
-            List<Notification> notifications = subscribers.stream()
-                .map(user -> createClubEventNotificationBeforeOneday(event, user))
-                .toList();
-            notificationService.pushNotifications(notifications);
-        }
+        return eventIdToUserMap;
     }
 
     private Notification createClubEventNotificationBeforeOneday(ClubEvent event, User user) {
@@ -157,6 +168,43 @@ public class ClubScheduleService {
             event.getName(),
             event.getClub().getName(),
             event.getStartDate(),
+            user
+        );
+    }
+
+    @Transactional
+    public void sendClubEventNotificationsBeforeOneHour() {
+        List<ClubEvent> events = getClubEventsUpcomingEventsWithOneHour();
+        if (events.isEmpty()) return;
+
+        Map<Integer, List<User>> eventIdToUserMap = getEventIdToUserMap(events);
+
+        for (ClubEvent event : events) {
+            List<User> subscribers = eventIdToUserMap.getOrDefault(event.getId(), List.of());
+            if (subscribers.isEmpty()) continue;
+
+            List<Notification> notifications = subscribers.stream()
+                .map(user -> createClubEventNotificationBeforeOneHour(event, user))
+                .toList();
+            notificationService.pushNotifications(notifications);
+
+            event.markAsNotifiedOneHour();
+        }
+    }
+
+    private List<ClubEvent> getClubEventsUpcomingEventsWithOneHour() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime hourLater = now.plusHours(1);
+        return clubEventRepository.findAllWithClubUpcomingEventsWithOneHour(now, hourLater);
+    }
+
+    private Notification createClubEventNotificationBeforeOneHour(ClubEvent event, User user) {
+        return notificationFactory.generateClubEventNotificationBeforeOneHour(
+            CLUB,
+            event.getClub().getId(),
+            event.getId(),
+            event.getName(),
+            event.getClub().getName(),
             user
         );
     }

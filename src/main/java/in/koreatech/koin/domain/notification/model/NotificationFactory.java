@@ -30,6 +30,25 @@ public class NotificationFactory {
         );
     }
 
+    public Notification generateClubEventNotificationBeforeOneHour(
+        MobileAppPath path,
+        Integer clubId,
+        Integer eventId,
+        String eventName,
+        String clubName,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateClubEventSchemeUri(path, clubId, eventId), // 검토필요
+            "정해지면 바꾸기", // 검토필요 (eventName, clubName)
+            "정해지면 바꾸기", // 검토필요 (eventName, clubName)
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
     public Notification generateReviewPromptNotification(
         MobileAppPath path,
         Integer eventShopId,

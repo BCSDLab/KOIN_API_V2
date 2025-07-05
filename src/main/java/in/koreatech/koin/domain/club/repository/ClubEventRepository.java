@@ -16,4 +16,11 @@ public interface ClubEventRepository extends Repository<ClubEvent, Integer> {
         WHERE e.startDate >= :start AND e.startDate < :end
         """)
     List<ClubEvent> findAllWithClubByStartDateBetween(LocalDateTime start, LocalDateTime end);
+
+    @Query("""
+        SELECT e FROM ClubEvent e
+        JOIN FETCH e.club
+        WHERE e.notifiedOneHour = false AND e.startDate >= :now AND e.startDate < :hourLater
+        """)
+    List<ClubEvent> findAllWithClubUpcomingEventsWithOneHour(LocalDateTime now, LocalDateTime hourLater);
 }
