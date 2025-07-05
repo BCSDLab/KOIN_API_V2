@@ -46,8 +46,8 @@ public record ClubEventResponse(
             event.getId(),
             event.getName(),
             event.getImageUrl(),
-            event.getStartDate().withNano(0),
-            event.getEndDate().withNano(0),
+            event.getStartDate(),
+            event.getEndDate(),
             event.getIntroduce(),
             event.getContent(),
             calculateStatus(event.getStartDate(), event.getEndDate(), now).getDisplayName()
