@@ -181,7 +181,6 @@ public class NotificationFactory {
         return String.format("%s?clubId=%d&eventId=%d", path.getPath(), clubId, eventId);
     }
 
-
     private String getPostposition(String place, String firstPost, String secondPost) {
         char lastChar = place.charAt(place.length() - 1);
         String result = (lastChar - 0xAC00) % 28 > 0 ? firstPost : secondPost;
