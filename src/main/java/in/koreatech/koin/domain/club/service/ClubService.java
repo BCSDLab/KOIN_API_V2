@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.service;
 
+import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
 import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
 
 import java.util.List;
@@ -13,9 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -34,6 +38,7 @@ import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubQna;
+import in.koreatech.koin.domain.club.model.ClubRecruitment;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
@@ -42,6 +47,7 @@ import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
+import in.koreatech.koin.domain.club.repository.ClubRecruitmentRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
@@ -72,6 +78,7 @@ public class ClubService {
     private final ClubCreateRedisRepository clubCreateRedisRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
+    private final ClubRecruitmentRepository clubRecruitmentRepository;
 
     private static final int RELATED_LIMIT_SIZE = 5;
 
@@ -306,5 +313,44 @@ public class ClubService {
             .build();
 
         clubManagerRepository.save(newClubManager);
+    }
+
+    @Transactional
+    public void createRecruitment(ClubRecruitmentCreateRequest request, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        if (clubRecruitmentRepository.findByClub(club).isPresent()) {
+            throw CustomException.of(DUPLICATE_CLUB_RECRUITMENT);
+        }
+
+        clubRecruitmentRepository.save(request.toEntity(club));
+    }
+
+    @Transactional
+    public void modifyRecruitment(ClubRecruitmentModifyRequest request, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubRecruitment.modifyClubRecruitment(
+            request.startDate(),
+            request.endDate(),
+            request.isAlwaysRecruiting(),
+            request.imageUrl(),
+            request.content()
+        );
+    }
+
+    @Transactional
+    public void deleteRecruitment(Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubRecruitmentRepository.delete(clubRecruitment);
     }
 }
