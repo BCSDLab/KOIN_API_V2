@@ -34,10 +34,7 @@ public class ClubListQueryRepository {
     ) {
         BooleanBuilder clubFilter = clubSearchFilter(categoryId, isRecruiting, normalizeString(query));
         List<OrderSpecifier<?>> clubSort = clubSort(clubSortType, isRecruiting);
-
-        BooleanExpression isLiked = (userId != null)
-            ? clubLike.id.isNotNull()
-            : Expressions.asBoolean(false).isTrue();
+        BooleanExpression isLiked = clubLikeSubquery(userId);
 
         var baseQuery = queryFactory
             .select(Projections.constructor(ClubBaseInfo.class,
@@ -65,6 +62,13 @@ public class ClubListQueryRepository {
             .fetch();
     }
 
+    private BooleanExpression clubLikeSubquery(Integer userId) {
+        if (userId != null) {
+            return clubLike.id.isNotNull();
+        }
+        return Expressions.asBoolean(false).isTrue();
+    }
+
     private BooleanBuilder clubSearchFilter(Integer categoryId, Boolean isRecruiting, String query) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
@@ -73,17 +77,16 @@ public class ClubListQueryRepository {
             booleanBuilder.and(club.clubCategory.id.eq(categoryId));
         }
 
-        // 동아리 검색어 필터
-        booleanBuilder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(query));
-
         // 동아리 모집 필터
         if (isRecruiting) {
             booleanBuilder.and(clubRecruitment.id.isNotNull());
             booleanBuilder.and(clubRecruitment.endDate.goe(LocalDate.now()).or(clubRecruitment.isAlwaysRecruiting.isTrue()));
         }
 
-        // 동아리 활성화 필터
+        // 동아리 검색어 필터
+        booleanBuilder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(query));
         booleanBuilder.and(club.isActive.isTrue());
+
         return booleanBuilder;
     }
 
@@ -91,8 +94,14 @@ public class ClubListQueryRepository {
         List<OrderSpecifier<?>> orders = new ArrayList<>();
         orders.add(clubSortType.getOrderSpecifier());
 
+        /**
+         * 모집 필터링 정렬 조건
+         * 1. 모집 공고 최신 순
+         * 2. 모집 마감이 짧은 순
+         * 3. 상시 모집
+         */
         if (isRecruiting) {
-            orders.add(clubRecruitment.startDate.desc());
+            orders.add(clubRecruitment.createdAt.desc());
             NumberTemplate<Integer> deadlineGap = numberTemplate(
                 Integer.class,
                 "datediff({0}, current_date)",
