@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
@@ -35,6 +36,8 @@ import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.domain.club.model.ClubEventSubscription;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubQna;
@@ -43,6 +46,8 @@ import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
+import in.koreatech.koin.domain.club.repository.ClubEventRepository;
+import in.koreatech.koin.domain.club.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
@@ -79,6 +84,8 @@ public class ClubService {
     private final ApplicationEventPublisher eventPublisher;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
     private final ClubRecruitmentRepository clubRecruitmentRepository;
+    private final ClubEventRepository clubEventRepository;
+    private final ClubEventSubscriptionRepository clubEventSubscriptionRepository;
 
     private static final int RELATED_LIMIT_SIZE = 5;
 
@@ -352,5 +359,49 @@ public class ClubService {
         isClubManager(club.getId(), student.getId());
 
         clubRecruitmentRepository.delete(clubRecruitment);
+    }
+
+
+
+    @Transactional
+    public void subscribeEventNotification(Integer clubId, Integer eventId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        User user = userRepository.getById(studentId);
+        ClubEvent clubEvent = clubEventRepository.getById(eventId);
+
+        if (!clubEvent.getClub().getId().equals(clubId)) {
+            throw new KoinIllegalArgumentException("해당 동아리의 이벤트가 아닙니다.");
+        }
+
+        if (verifyAlreadySubscribed(eventId, studentId))    return;
+
+        ClubEventSubscription clubEventSubscription = ClubEventSubscription.builder()
+            .clubEvent(clubEvent)
+            .user(user)
+            .build();
+        clubEventSubscriptionRepository.save(clubEventSubscription);
+    }
+
+    private boolean verifyAlreadySubscribed(Integer eventId, Integer studentId) {
+        return clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId);
+    }
+
+    @Transactional
+    public void rejectEventNotification(Integer clubId, Integer eventId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        User user = userRepository.getById(studentId);
+        ClubEvent clubEvent = clubEventRepository.getById(eventId);
+
+        if (!clubEvent.getClub().getId().equals(club.getId())) {
+            throw new KoinIllegalArgumentException("해당 동아리의 이벤트가 아닙니다.");
+        }
+
+        if (verifyNotSubscribed(eventId, studentId)) return;
+
+        clubEventSubscriptionRepository.deleteByClubEventIdAndUserId(eventId, studentId);
+    }
+
+    private boolean verifyNotSubscribed(Integer eventId, Integer studentId) {
+        return !clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId);
     }
 }
