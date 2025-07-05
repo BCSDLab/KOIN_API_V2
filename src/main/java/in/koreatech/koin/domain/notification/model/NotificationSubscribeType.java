@@ -19,6 +19,8 @@ public enum NotificationSubscribeType {
     ARTICLE_KEYWORD(List.of()),
     LOST_ITEM_CHAT(List.of()),
     MARKETING(List.of()),
+    CLUB_EVENT(List.of()),
+    CLUB_RECRUITMENT(List.of()),
     ;
 
     private final List<NotificationDetailSubscribeType> detailTypes;
