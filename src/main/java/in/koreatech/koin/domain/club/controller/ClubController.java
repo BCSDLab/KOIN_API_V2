@@ -157,4 +157,24 @@ public class ClubController implements ClubApi {
         clubService.empowermentClubManager(request, studentId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("{clubId}/event/{eventId}/notification")
+    public ResponseEntity<Void> subscribeEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.subscribeEventNotification(clubId, eventId, studentId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("{clubId}/event/{eventId}/notification")
+    public ResponseEntity<Void> rejectEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.rejectEventNotification(clubId, eventId, studentId);
+        return ResponseEntity.noContent().build();
+    }
 }

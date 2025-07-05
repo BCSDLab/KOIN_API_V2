@@ -271,4 +271,36 @@ public interface ClubApi {
         @RequestBody @Valid ClubManagerEmpowermentRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 동아리의 특정 행사알림 구독")
+    @PostMapping("{clubId}/event/{eventId}/notification")
+    ResponseEntity<Void> subscribeEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 동아리의 특정 행사알림 구독취소")
+    @DeleteMapping("{clubId}/event/{eventId}/notification")
+    ResponseEntity<Void> rejectEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
 }

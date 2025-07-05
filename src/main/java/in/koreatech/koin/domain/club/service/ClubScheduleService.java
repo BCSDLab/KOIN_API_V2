@@ -131,7 +131,7 @@ public class ClubScheduleService {
             if (subscribers.isEmpty()) continue;
 
             List<Notification> notifications = subscribers.stream()
-                .map(user -> createClubEventNotificationBeforeOneday(event, user))
+                .map(user -> createClubEventNotificationBeforeOneDay(event, user))
                 .toList();
             notificationService.pushNotifications(notifications);
         }
@@ -160,7 +160,7 @@ public class ClubScheduleService {
         return eventIdToUserMap;
     }
 
-    private Notification createClubEventNotificationBeforeOneday(ClubEvent event, User user) {
+    private Notification createClubEventNotificationBeforeOneDay(ClubEvent event, User user) {
         return notificationFactory.generateClubEventNotificationBeforeOneDay(
             CLUB,
             event.getClub().getId(),

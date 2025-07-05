@@ -11,4 +11,10 @@ public interface ClubEventSubscriptionRepository extends Repository<ClubEventSub
 
     @Query("SELECT s from ClubEventSubscription s JOIN FETCH s.user WHERE s.clubEvent.id IN :eventIds")
     List<ClubEventSubscription> findAllWithUserByEventIdIn(List<Integer> eventIds);
+
+    boolean existsByClubEventIdAndUserId(Integer eventId, Integer userId);
+
+    void deleteByClubEventIdAndUserId(Integer eventId, Integer userId);
+
+    void save(ClubEventSubscription subscription);
 }

@@ -33,7 +33,7 @@ public class ClubScheduler {
     }
 
     @Scheduled(cron = "0 30 12 * * *")
-    public void sendClubEventNotificationsBeforeOneday() {
+    public void sendClubEventNotificationsBeforeOneDay() {
         try {
             scheduleService.sendClubEventNotificationsBeforeOneDay();
         } catch (Exception e) {
