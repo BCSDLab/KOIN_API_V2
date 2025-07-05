@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.club.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import in.koreatech.koin._common.model.BaseEntity;
@@ -16,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +39,10 @@ public class ClubEvent extends BaseEntity {
     @Column(name = "name", nullable = false, length = 30)
     private String name;
 
+    @Size(max = 255)
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @NotNull
     @Column(name = "start_date", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime startDate;
@@ -58,6 +62,7 @@ public class ClubEvent extends BaseEntity {
     private ClubEvent(
         Club club,
         String name,
+        String imageUrl,
         LocalDateTime startDate,
         LocalDateTime endDate,
         String introduce,
@@ -65,6 +70,23 @@ public class ClubEvent extends BaseEntity {
     ) {
         this.club = club;
         this.name = name;
+        this.imageUrl = imageUrl;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.introduce = introduce;
+        this.content = content;
+    }
+
+    public void modifyClubEvent(
+        String name,
+        String imageUrl,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String introduce,
+        String content
+    ) {
+        this.name = name;
+        this.imageUrl = imageUrl;
         this.startDate = startDate;
         this.endDate = endDate;
         this.introduce = introduce;
