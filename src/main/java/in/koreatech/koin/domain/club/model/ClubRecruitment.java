@@ -16,6 +16,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,8 +48,11 @@ public class ClubRecruitment extends BaseEntity {
     @Column(name = "is_always_recruiting", nullable = false, columnDefinition = "TINYINT(1)")
     private Boolean isAlwaysRecruiting;
 
-    @NotNull
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    @Size(max = 255)
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
     @OneToOne(fetch = LAZY)
@@ -60,13 +64,29 @@ public class ClubRecruitment extends BaseEntity {
         LocalDate startDate,
         LocalDate endDate,
         Boolean isAlwaysRecruiting,
+        String imageUrl,
         String content,
         Club club
     ) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isAlwaysRecruiting = isAlwaysRecruiting;
+        this.imageUrl = imageUrl;
         this.content = content;
         this.club = club;
+    }
+
+    public void modifyClubRecruitment(
+        LocalDate startDate,
+        LocalDate endDate,
+        Boolean isAlwaysRecruiting,
+        String imageUrl,
+        String content
+    ) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isAlwaysRecruiting = isAlwaysRecruiting;
+        this.imageUrl = imageUrl;
+        this.content = content;
     }
 }
