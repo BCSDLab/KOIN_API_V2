@@ -36,9 +36,9 @@ public class CartController implements CartApi {
     @GetMapping("/cart")
     public ResponseEntity<CartResponse> getCartItems(
         @Auth(permit = {GENERAL, STUDENT}) Integer userId,
-        @RequestParam(name = "type") OrderType type
+        @RequestParam(name = "type") OrderType orderType
     ) {
-        CartResponse response = cartQueryService.getCartItems(userId, type);
+        CartResponse response = cartQueryService.getCartItems(userId, orderType);
         return ResponseEntity.ok(response);
     }
 
@@ -108,9 +108,10 @@ public class CartController implements CartApi {
 
     @GetMapping("/cart/payment/summary")
     public ResponseEntity<CartPaymentSummaryResponse> getCartPaymentSummary(
-        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId,
+        @RequestParam(name = "type") OrderType orderType
     ) {
-        CartPaymentSummaryResponse cartSummary = cartQueryService.getCartPaymentSummary(userId);
+        CartPaymentSummaryResponse cartSummary = cartQueryService.getCartPaymentSummary(userId, orderType);
         return ResponseEntity.ok(cartSummary);
     }
 

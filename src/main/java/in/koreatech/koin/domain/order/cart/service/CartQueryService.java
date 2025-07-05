@@ -65,7 +65,7 @@ public class CartQueryService {
         return CartAmountSummaryResponse.from(cart);
     }
 
-    public CartPaymentSummaryResponse getCartPaymentSummary(Integer userId) {
+    public CartPaymentSummaryResponse getCartPaymentSummary(Integer userId, OrderType orderType) {
         Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
 
         if (cartOptional.isEmpty() || cartOptional.get().getCartMenuItems().isEmpty()) {
@@ -73,7 +73,8 @@ public class CartQueryService {
         }
 
         Cart cart = cartOptional.get();
-        return CartPaymentSummaryResponse.from(cart);
+        cart.validateOrderType(orderType);
+        return CartPaymentSummaryResponse.from(cart, orderType);
     }
 
     public void validateCart(Integer userId) {

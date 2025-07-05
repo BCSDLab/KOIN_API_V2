@@ -708,6 +708,24 @@ public interface CartApi {
                     }
                     """)
             })
+        ),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "배달 가능한 상점이 아닌 경우", summary = "배달 가능한 상점이 아닙니다", value = """
+                    {
+                      "code": "SHOP_NOT_DELIVERABLE",
+                      "message": "배달 가능한 상점이 아닙니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """),
+                @ExampleObject(name = "포장 가능한 상점이 아닌 경우", summary = "포당 가능한 상점이 아닙니다", value = """
+                    {
+                      "code": "SHOP_NOT_TAKEOUT_AVAILABLE",
+                      "message": "포장 가능한 상점이 아닙니다.",
+                      "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                    """)
+            })
         )
     })
     @Operation(
@@ -719,7 +737,8 @@ public interface CartApi {
     )
     @GetMapping("/cart/payment/summary")
     ResponseEntity<CartPaymentSummaryResponse> getCartPaymentSummary(
-        @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
+        @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId,
+        @RequestParam(name = "type") OrderType type
     );
 
     @ApiResponses(value = {
