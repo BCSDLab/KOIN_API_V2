@@ -30,11 +30,11 @@ public class ClubListQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     public List<ClubBaseInfo> findAllClubInfo(
-        Integer categoryId, ClubSortType clubSortType, Boolean isRecruiting, String query, Integer userId
+        Integer categoryId, ClubSortType sortType, Boolean isRecruiting, String query, Integer userId
     ) {
-        BooleanBuilder clubFilter = clubSearchFilter(categoryId, isRecruiting, normalizeString(query));
-        List<OrderSpecifier<?>> clubSort = clubSort(clubSortType, isRecruiting);
-        BooleanExpression isLiked = clubLikeSubquery(userId);
+        BooleanBuilder where = buildClubFilter(categoryId, isRecruiting, normalize(query));
+        List<OrderSpecifier<?>> orderSpecifiers = buildSortOrders(sortType, isRecruiting);
+        BooleanExpression isLiked = buildIsLikedCondition(userId);
 
         var baseQuery = queryFactory
             .select(Projections.constructor(ClubBaseInfo.class,
@@ -53,67 +53,67 @@ public class ClubListQueryRepository {
             .leftJoin(clubRecruitment).on(clubRecruitment.club.id.eq(club.id));
 
         if (userId != null) {
-            baseQuery.leftJoin(clubLike).on(clubLike.club.id.eq(club.id).and(clubLike.user.id.eq(userId)));
+            baseQuery.leftJoin(clubLike).on(
+                clubLike.club.id.eq(club.id)
+                    .and(clubLike.user.id.eq(userId))
+            );
         }
 
         return baseQuery
-            .where(clubFilter)
-            .orderBy(clubSort.toArray(new OrderSpecifier[0]))
+            .where(where)
+            .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
             .fetch();
     }
 
-    private BooleanExpression clubLikeSubquery(Integer userId) {
-        if (userId != null) {
-            return clubLike.id.isNotNull();
-        }
-        return Expressions.asBoolean(false).isTrue();
-    }
+    private BooleanBuilder buildClubFilter(Integer categoryId, Boolean isRecruiting, String normalizedQuery) {
+        BooleanBuilder builder = new BooleanBuilder();
 
-    private BooleanBuilder clubSearchFilter(Integer categoryId, Boolean isRecruiting, String query) {
-        BooleanBuilder booleanBuilder = new BooleanBuilder();
-
-        // 동아리 카테고리 필터
         if (categoryId != null) {
-            booleanBuilder.and(club.clubCategory.id.eq(categoryId));
+            builder.and(club.clubCategory.id.eq(categoryId));
         }
 
-        // 동아리 모집 필터
         if (isRecruiting) {
-            booleanBuilder.and(clubRecruitment.id.isNotNull());
-            booleanBuilder.and(clubRecruitment.endDate.goe(LocalDate.now()).or(clubRecruitment.isAlwaysRecruiting.isTrue()));
+            builder.and(clubRecruitment.id.isNotNull());
+            builder.and(
+                clubRecruitment.endDate.goe(LocalDate.now())
+                    .or(clubRecruitment.isAlwaysRecruiting.isTrue())
+            );
         }
 
-        // 동아리 검색어 필터
-        booleanBuilder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(query));
-        booleanBuilder.and(club.isActive.isTrue());
+        builder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(normalizedQuery));
+        builder.and(club.isActive.isTrue());
 
-        return booleanBuilder;
+        return builder;
     }
 
-    private List<OrderSpecifier<?>> clubSort(ClubSortType clubSortType, Boolean isRecruiting) {
+    private List<OrderSpecifier<?>> buildSortOrders(ClubSortType sortType, Boolean isRecruiting) {
         List<OrderSpecifier<?>> orders = new ArrayList<>();
-        orders.add(clubSortType.getOrderSpecifier());
+        orders.add(sortType.getOrderSpecifier());
 
-        /**
-         * 모집 필터링 정렬 조건
-         * 1. 모집 공고 최신 순
-         * 2. 모집 마감이 짧은 순
-         * 3. 상시 모집
-         */
         if (isRecruiting) {
             orders.add(clubRecruitment.createdAt.desc());
+
             NumberTemplate<Integer> deadlineGap = numberTemplate(
                 Integer.class,
                 "datediff({0}, current_date)",
                 clubRecruitment.endDate
             );
             orders.add(deadlineGap.asc());
+
             orders.add(clubRecruitment.isAlwaysRecruiting.desc());
         }
+
         return orders;
     }
 
-    private String normalizeString(String s) {
+    private BooleanExpression buildIsLikedCondition(Integer userId) {
+        if (userId != null) {
+            return clubLike.id.isNotNull();
+        }
+        return Expressions.asBoolean(false).isTrue();
+    }
+
+    private String normalize(String s) {
         return s.replaceAll("\\s+", "").toLowerCase();
     }
 }
