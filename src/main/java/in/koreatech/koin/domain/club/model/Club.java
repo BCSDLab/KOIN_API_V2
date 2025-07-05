@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -87,6 +88,19 @@ public class Club extends BaseEntity {
 
     @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = ALL)
     private List<ClubSNS> clubSNSs = new ArrayList<>();
+
+    @Transient
+    public Boolean isManager;
+
+    public void updateIsManager(Integer userId) {
+        if (userId == null) {
+            this.isManager = false;
+            return;
+        }
+
+        this.isManager = clubManagers.stream()
+            .anyMatch(clubManager -> clubManager.getUser().getId().equals(userId));
+    }
 
     @Builder
     private Club(
