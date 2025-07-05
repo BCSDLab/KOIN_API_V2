@@ -333,29 +333,10 @@ public class ClubService {
     }
 
     @Transactional
-    public void createClubEvent(ClubEventCreateRequest request, Integer clubId, Integer studentId) {
-
     public void createRecruitment(ClubRecruitmentCreateRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
         isClubManager(club.getId(), student.getId());
-
-        clubEventRepository.save(request.toEntity(club));
-    }
-
-    @Transactional
-    public void modifyClubEvent(ClubEventModifyRequest request, Integer eventId, Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        ClubEvent clubEvent = clubEventRepository.getClubEventById(eventId);
-        Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
-
-        clubEvent.modifyClubEvent(
-            request.name(),
-            request.imageUrl(),
-            request.startDate(),
-            request.endDate(),
-            request.introduce(),
 
         if (clubRecruitmentRepository.findByClub(club).isPresent()) {
             throw CustomException.of(DUPLICATE_CLUB_RECRUITMENT);
@@ -376,6 +357,42 @@ public class ClubService {
             request.endDate(),
             request.isAlwaysRecruiting(),
             request.imageUrl(),
+            request.content()
+        );
+    }
+
+    @Transactional
+    public void deleteRecruitment(Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubRecruitmentRepository.delete(clubRecruitment);
+    }
+
+    @Transactional
+    public void createClubEvent(ClubEventCreateRequest request, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubEventRepository.save(request.toEntity(club));
+    }
+
+    @Transactional
+    public void modifyClubEvent(ClubEventModifyRequest request, Integer eventId, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubEvent clubEvent = clubEventRepository.getClubEventById(eventId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubEvent.modifyClubEvent(
+            request.name(),
+            request.imageUrl(),
+            request.startDate(),
+            request.endDate(),
+            request.introduce(),
             request.content()
         );
     }
@@ -437,14 +454,5 @@ public class ClubService {
         }
 
         return String.format("%d월 %d주차 인기 동아리 선정! %d주 연속 인기 동아리!", month, weekOfMonth, count);
-    
-    @Transactional
-    public void deleteRecruitment(Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
-        Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
-
-        clubRecruitmentRepository.delete(clubRecruitment);
     }
 }

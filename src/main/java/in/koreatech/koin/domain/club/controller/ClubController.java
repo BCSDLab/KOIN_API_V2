@@ -166,6 +166,35 @@ public class ClubController implements ClubApi {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> createRecruitment(
+        @RequestBody @Valid ClubRecruitmentCreateRequest request,
+        @PathVariable(name = "clubId") Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.createRecruitment(request, clubId, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> modifyRecruitment(
+        @RequestBody @Valid ClubRecruitmentModifyRequest request,
+        @PathVariable(name = "clubId") Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.modifyRecruitment(request, clubId, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> deleteRecruitment(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.deleteRecruitment(clubId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{clubId}/event")
     public ResponseEntity<Void> createClubEvent(
         @PathVariable Integer clubId,
@@ -213,34 +242,5 @@ public class ClubController implements ClubApi {
     ) {
         List<ClubEventResponse> responses = clubService.getClubEvents(clubId, eventType);
         return ResponseEntity.ok(responses);
-    }
-
-    @PostMapping("/{clubId}/recruitment")
-    public ResponseEntity<Void> createRecruitment(
-        @RequestBody @Valid ClubRecruitmentCreateRequest request,
-        @PathVariable(name = "clubId") Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.createRecruitment(request, clubId, studentId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{clubId}/recruitment")
-    public ResponseEntity<Void> modifyRecruitment(
-        @RequestBody @Valid ClubRecruitmentModifyRequest request,
-        @PathVariable(name = "clubId") Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.modifyRecruitment(request, clubId, studentId);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{clubId}/recruitment")
-    public ResponseEntity<Void> deleteRecruitment(
-        @PathVariable Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.deleteRecruitment(clubId, studentId);
-        return ResponseEntity.noContent().build();
     }
 }

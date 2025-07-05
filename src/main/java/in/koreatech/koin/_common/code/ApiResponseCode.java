@@ -33,11 +33,11 @@ public enum ApiResponseCode {
     NOT_MATCHED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰이 일치하지 않습니다."),
     NOT_READABLE_HTTP_MESSAGE(HttpStatus.BAD_REQUEST, "잘못된 입력 형식이거나, 값이 허용된 범위를 초과했습니다."),
     UNSUPPORTED_OPERATION(HttpStatus.BAD_REQUEST, "지원하지 않는 API 입니다."),
+    MUST_BE_NULL_RECRUITMENT_PERIOD(HttpStatus.BAD_REQUEST, "상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다."),
+    REQUIRED_RECRUITMENT_PERIOD(HttpStatus.BAD_GATEWAY, "상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다."),
     INVALID_CLUB_EVENT_PERIOD(HttpStatus.BAD_REQUEST,"행사 마감일은 행사 시작일 이후여야 합니다."),
     INVALID_CLUB_EVENT_TYPE(HttpStatus.BAD_REQUEST, "올바르지 않은 동아리 행사 타입입니다."),
     INVALID_RECRUITMENT_PERIOD(HttpStatus.BAD_REQUEST, "모집 마감일은 모집 시작일 이후여야 합니다."),
-    MUST_BE_NULL_RECRUITMENT_PERIOD(HttpStatus.BAD_REQUEST, "상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다."),
-    REQUIRED_RECRUITMENT_PERIOD(HttpStatus.BAD_GATEWAY, "상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -62,8 +62,8 @@ public enum ApiResponseCode {
     NOT_FOUND_RESET_TOKEN(HttpStatus.NOT_FOUND, "Reset token이 존재하지 않습니다."),
     NO_HANDLER_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 API 경로입니다."),
     NOT_FOUND_CLUB(HttpStatus.NOT_FOUND, "동아리가 존재하지 않습니다."),
-    NOT_FOUND_CLUB_EVENT(HttpStatus.NOT_FOUND, "동아리 행사가 존재하지 않습니다."),
     NOT_FOUND_CLUB_RECRUITMENT(HttpStatus.NOT_FOUND, "동아리 모집 공고가 존재하지 않습니다."),
+    NOT_FOUND_CLUB_EVENT(HttpStatus.NOT_FOUND, "동아리 행사가 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
