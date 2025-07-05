@@ -31,4 +31,13 @@ public class ClubScheduler {
             log.error("조회수 동기화 중에 오류가 발생했습니다.", e);
         }
     }
+
+    @Scheduled(cron = "0 30 12 * * *")
+    public void sendClubEventNotifications() {
+        try {
+            scheduleService.sendClubEventNotifications();
+        } catch (Exception e) {
+            log.error("동아리 이벤트 하루 전 알림에 오류가 발생했습니다.", e);
+        }
+    }
 }

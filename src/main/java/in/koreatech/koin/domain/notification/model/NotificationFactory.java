@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.notification.model;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.model.User;
@@ -7,6 +9,26 @@ import in.koreatech.koin._common.model.MobileAppPath;
 
 @Component
 public class NotificationFactory {
+
+    public Notification generateClubEventNotificationBeforeOneDay(
+        MobileAppPath path,
+        Integer clubId,
+        Integer eventId,
+        String eventName,
+        String clubName,
+        LocalDateTime eventDateTime,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateClubEventSchemeUri(path, clubId, eventId), // 검토필요
+            "정해지면 바꾸기", // 검토필요 (eventName, clubName, eventDateTime)
+            "정해지면 바꾸기", // 검토필요 (eventName, clubName, eventDateTime)
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
 
     public Notification generateReviewPromptNotification(
         MobileAppPath path,
@@ -125,6 +147,14 @@ public class NotificationFactory {
         }
         return String.format("%s?id=%d", path.getPath(), eventId);
     }
+
+    private String generateClubEventSchemeUri(MobileAppPath path, Integer clubId, Integer eventId) {
+        if (eventId == null) {
+            return generateSchemeUri(path, clubId);
+        }
+        return String.format("%s?clubId=%d&eventId=%d", path.getPath(), clubId, eventId);
+    }
+
 
     private String getPostposition(String place, String firstPost, String secondPost) {
         char lastChar = place.charAt(place.length() - 1);
