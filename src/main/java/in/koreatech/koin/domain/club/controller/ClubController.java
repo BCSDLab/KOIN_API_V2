@@ -20,6 +20,8 @@ import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
@@ -157,6 +159,37 @@ public class ClubController implements ClubApi {
         clubService.empowermentClubManager(request, studentId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> createRecruitment(
+        @RequestBody @Valid ClubRecruitmentCreateRequest request,
+        @PathVariable(name = "clubId") Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.createRecruitment(request, clubId, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> modifyRecruitment(
+        @RequestBody @Valid ClubRecruitmentModifyRequest request,
+        @PathVariable(name = "clubId") Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.modifyRecruitment(request, clubId, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> deleteRecruitment(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.deleteRecruitment(clubId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 
     @PostMapping("{clubId}/event/{eventId}/notification")
     public ResponseEntity<Void> subscribeEventNotification(

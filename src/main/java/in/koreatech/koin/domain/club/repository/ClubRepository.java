@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
@@ -22,7 +24,8 @@ public interface ClubRepository extends Repository<Club, Integer> {
     Optional<Club> findById(Integer id);
 
     default Club getById(Integer id) {
-        return findById(id).orElseThrow(() -> ClubNotFoundException.withDetail("id : " + id));
+        return findById(id)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CLUB));
     }
 
     @Query("SELECT c.id FROM Club c WHERE c.id IN :ids")
