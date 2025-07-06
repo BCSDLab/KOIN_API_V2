@@ -70,7 +70,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     private MediaType createMediaType(ApiResponseCode code, HandlerMethod handlerMethod, Type returnType) {
         if (code.getHttpStatus().is2xxSuccessful()) {
             return new MediaType().schema(loadSchema(returnType));
-        } else if (code.equals(ApiResponseCode.INVALID_REQUEST_PAYLOAD)) {
+        } else if (code.equals(ApiResponseCode.INVALID_REQUEST_BODY)) {
             return errorMediaType(buildInvalidPayloadExample(code, handlerMethod));
         } else {
             return errorMediaType(buildGenericErrorExample(code));
@@ -93,7 +93,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         Map<String, Object> ex = new LinkedHashMap<>();
         ex.put("code", code.getCode());
         ex.put("message", topMessage);
-        ex.put("traceId", UUID_EXAMPLE);
+        ex.put("errorTraceId", UUID_EXAMPLE);
         ex.put("fieldErrors", fieldErrors);
         return ex;
     }
@@ -143,7 +143,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         return Map.of(
             "code", code.getCode(),
             "message", code.getMessage(),
-            "traceId", UUID_EXAMPLE
+            "errorTraceId", UUID_EXAMPLE
         );
     }
 
