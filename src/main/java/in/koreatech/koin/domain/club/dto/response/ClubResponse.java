@@ -65,8 +65,8 @@ public record ClubResponse(
     @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
     Boolean isLikeHidden,
 
-    @Schema(description = "인기 동아리 메세지", example = "7월 1주차 인기 동아리 선정! 2주 연속 인기 동아리!", requiredMode = REQUIRED)
-    String hotMessage
+    @Schema(description = "인기 동아리 정보", requiredMode = REQUIRED)
+    ClubHotStatusResponse hotStatus
 ) {
     public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked) {
         Optional<String> instagram = Optional.empty();
@@ -103,7 +103,7 @@ public record ClubResponse(
             null
         );
     }
-    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked, String hotMessage) {
+    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked, ClubHotStatusResponse hotStatus) {
         Optional<String> instagram = Optional.empty();
         Optional<String> googleForm = Optional.empty();
         Optional<String> openChat = Optional.empty();
@@ -135,7 +135,7 @@ public record ClubResponse(
             isLiked,
             club.getUpdatedAt().toLocalDate(),
             club.getIsLikeHidden(),
-            hotMessage
+            hotStatus
         );
     }
 }
