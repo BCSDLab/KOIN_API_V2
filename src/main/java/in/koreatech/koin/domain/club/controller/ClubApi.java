@@ -122,6 +122,13 @@ public interface ClubApi {
         - isRecruiting의 기본값은 false 입니다.
         - RECRUITMENT_UPDATED_DESC, RECRUITING_DEADLINE_ASC은 isRecruiting가 true 경우에만 사용할 수 있습니다.
         
+        ### 정렬 파라미터
+        - NONE : 동아리 생성 순 (향후 정렬 조건 삭제)
+        - CREATED_AT_ASC : 동아리 생성 순
+        - HITS_DESC : 동아리 조회 순
+        - RECRUITMENT_UPDATED_DESC : 동아리 모집 글 생성(수정)순
+        - RECRUITING_DEADLINE_ASC : 동아리 모집 마감 순 (모집 마감 짧은 순 -> 상시 모집)
+        
         ### 반환 정보
           - recruitmentInfo : 동아리 모집 정보를 담고 있습니다.
             - status : 동아리 모집 상태입니다.
