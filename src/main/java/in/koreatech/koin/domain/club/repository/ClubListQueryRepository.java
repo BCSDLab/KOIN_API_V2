@@ -34,7 +34,7 @@ public class ClubListQueryRepository {
     ) {
         BooleanBuilder clubFilter = clubSearchFilter(categoryId, isRecruiting, normalize(query));
         List<OrderSpecifier<?>> clubSort = clubSort(sortType, isRecruiting);
-        BooleanExpression isLiked = clubLikeSubquery(userId);
+        BooleanExpression isLiked = clubLikeCondition(userId);
 
         var baseQuery = queryFactory
             .select(Projections.constructor(ClubBaseInfo.class,
@@ -112,7 +112,7 @@ public class ClubListQueryRepository {
         return orders;
     }
 
-    private BooleanExpression clubLikeSubquery(Integer userId) {
+    private BooleanExpression clubLikeCondition(Integer userId) {
         if (userId != null) {
             return clubLike.id.isNotNull();
         }
