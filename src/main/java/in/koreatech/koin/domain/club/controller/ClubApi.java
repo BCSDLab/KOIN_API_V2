@@ -367,6 +367,7 @@ public interface ClubApi {
     );
 
     @ApiResponseCodes({
+        OK,
         NOT_FOUND_CLUB,
         NOT_FOUND_CLUB_RECRUITMENT,
     })
@@ -390,6 +391,7 @@ public interface ClubApi {
     );
 
     @ApiResponseCodes({
+        OK,
         INVALID_CLUB_EVENT_PERIOD,
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
@@ -409,6 +411,7 @@ public interface ClubApi {
     );
 
     @ApiResponseCodes({
+        OK,
         INVALID_CLUB_EVENT_PERIOD,
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
@@ -430,6 +433,7 @@ public interface ClubApi {
     );
 
     @ApiResponseCodes({
+        NO_CONTENT,
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
         NOT_FOUND_CLUB_EVENT
@@ -446,6 +450,7 @@ public interface ClubApi {
     );
 
     @ApiResponseCodes({
+        OK,
         NOT_FOUND_CLUB,
         NOT_FOUND_CLUB_EVENT
     })
@@ -460,6 +465,7 @@ public interface ClubApi {
     );
 
     @ApiResponseCodes({
+        OK,
         INVALID_CLUB_EVENT_TYPE,
         NOT_FOUND_CLUB,
         NOT_FOUND_CLUB_EVENT
@@ -470,8 +476,8 @@ public interface ClubApi {
         - default 조회값은 RECENT입니다. 기본 정렬 값은 최신 등록순입니다.
         - eventType
             - RECENT : 최신 등록순으로 조회됩니다. 종료된 행사는 가장 아래에 깔립니다. 그 외는 최신 등록순입니다.
-            - ONGOING : 행사 시작 1시간 전과 진행 중인 행사가 조회됩니다. 
-            - UPCOMING : 행사 시작 시간이 1시간 이상인 행사가 조회됩니다. 
+            - ONGOING : 행사 시작 1시간 전과 진행 중인 행사가 조회됩니다.
+            - UPCOMING : 행사 시작 시간이 1시간 이상인 행사가 조회됩니다.
             - ENDED : 행사가 종료되고 1분이 지난 시점의 행사가 조회됩니다.
         """)
     @GetMapping("/{clubId}/event")
