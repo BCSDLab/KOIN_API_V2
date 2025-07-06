@@ -1,19 +1,24 @@
 package in.koreatech.koin.domain.club.model;
 
+import static in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus.*;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -59,6 +64,12 @@ public class ClubRecruitment extends BaseEntity {
     @JoinColumn(name = "club_id", nullable = false, updatable = false)
     private Club club;
 
+    @Transient
+    private Integer Dday;
+
+    @Transient
+    private ClubRecruitmentStatus clubRecruitmentStatus;
+
     @Builder
     private ClubRecruitment(
         LocalDate startDate,
@@ -88,5 +99,28 @@ public class ClubRecruitment extends BaseEntity {
         this.isAlwaysRecruiting = isAlwaysRecruiting;
         this.imageUrl = imageUrl;
         this.content = content;
+    }
+
+    @PostLoad
+    private void calculateRecruitmentInfo() {
+        LocalDate today = LocalDate.now();
+
+        if (this.isAlwaysRecruiting) {
+            this.clubRecruitmentStatus = ALWAYS;
+            this.Dday = null;
+            return;
+        }
+
+        if (today.isBefore(this.startDate)) {
+            this.clubRecruitmentStatus = BEFORE;
+            this.Dday = null;
+        }
+        else if (!today.isAfter(this.endDate)) {
+            this.clubRecruitmentStatus = RECRUITING;
+            this.Dday = (int)ChronoUnit.DAYS.between(today, endDate);
+        } else {
+            this.clubRecruitmentStatus = CLOSED;
+            this.Dday = null;
+        }
     }
 }

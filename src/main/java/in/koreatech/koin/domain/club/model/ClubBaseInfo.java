@@ -20,15 +20,21 @@ public record ClubBaseInfo(
     Boolean isAlwaysRecruiting
 ) {
     public ClubRecruitmentStatus getRecruitmentStatus() {
-        if (isAlwaysRecruiting == null || startDate == null || endDate == null) {
-            return NONE;
-        }
+        LocalDate today = LocalDate.now();
 
-        if (Boolean.TRUE.equals(isAlwaysRecruiting)) {
+        if (isAlwaysRecruiting) {
             return ALWAYS;
         }
 
-        if (endDate.isBefore(LocalDate.now())) {
+        if (startDate == null || endDate == null) {
+            return NONE;
+        }
+
+        if (today.isBefore(startDate)) {
+            return BEFORE;
+        }
+
+        if (today.isAfter(endDate)) {
             return CLOSED;
         }
 
@@ -36,15 +42,17 @@ public record ClubBaseInfo(
     }
 
     public Integer getRecruitmentPeriod() {
-        if (Boolean.TRUE.equals(isAlwaysRecruiting) || startDate == null || endDate == null) {
+        LocalDate today = LocalDate.now();
+
+        if (isAlwaysRecruiting || startDate == null || endDate == null) {
             return null;
         }
 
-        if (endDate.isBefore(LocalDate.now())) {
+        if (today.isAfter(endDate)) {
             return null;
         }
 
-        int period = (int) DAYS.between(startDate, endDate);
+        int period = (int)DAYS.between(startDate, endDate);
         return period >= 0 ? period : null;
     }
 }

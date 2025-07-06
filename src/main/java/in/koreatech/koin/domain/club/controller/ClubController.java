@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
@@ -188,6 +189,15 @@ public class ClubController implements ClubApi {
     ) {
         clubService.deleteRecruitment(clubId, studentId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{clubId}/recruitment")
+    public ResponseEntity<ClubRecruitmentResponse> getRecruitment(
+        @PathVariable(name = "clubId") Integer clubId,
+        @UserId Integer userId
+    ) {
+        ClubRecruitmentResponse response = clubService.getRecruitment(clubId, userId);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("{clubId}/recruitment/notification")
