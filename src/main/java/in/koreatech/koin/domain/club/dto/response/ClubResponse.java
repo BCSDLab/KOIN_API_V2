@@ -58,6 +58,9 @@ public record ClubResponse(
     @Schema(description = "동아리 좋아요 여부", example = "true", requiredMode = REQUIRED)
     Boolean isLiked,
 
+    @Schema(description = "동아리 모집알림 구독 여부", example = "true", requiredMode = REQUIRED)
+    Boolean isRecruitSubscribed,
+
     @JsonFormat(pattern = "yyyy.MM.dd.")
     @Schema(description = "업데이트 날짜", example = "2025.05.11.", requiredMode = REQUIRED)
     LocalDate updatedAt,
@@ -65,7 +68,13 @@ public record ClubResponse(
     @Schema(description = "동아리 좋아요 숨김 여부", example = "false", requiredMode = REQUIRED)
     Boolean isLikeHidden
 ) {
-    public static ClubResponse from(Club club, List<ClubSNS> clubSNSs, Boolean manager, Boolean isLiked) {
+    public static ClubResponse from(
+        Club club,
+        List<ClubSNS> clubSNSs,
+        Boolean manager,
+        Boolean isLiked,
+        Boolean isRecruitSubscribed
+    ) {
         Optional<String> instagram = Optional.empty();
         Optional<String> googleForm = Optional.empty();
         Optional<String> openChat = Optional.empty();
@@ -95,6 +104,7 @@ public record ClubResponse(
             phoneNumber,
             manager,
             isLiked,
+            isRecruitSubscribed,
             club.getUpdatedAt().toLocalDate(),
             club.getIsLikeHidden()
         );
