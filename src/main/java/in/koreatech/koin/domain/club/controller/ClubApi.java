@@ -314,6 +314,7 @@ public interface ClubApi {
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
         DUPLICATE_CLUB_RECRUITMENT,
+        INVALID_REQUEST_PAYLOAD,
     })
     @Operation(summary = "동아리 모집 생성", description = """
         ### 동아리 모집 생성
@@ -336,7 +337,8 @@ public interface ClubApi {
         REQUIRED_RECRUITMENT_PERIOD,
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
-        NOT_FOUND_CLUB_RECRUITMENT
+        NOT_FOUND_CLUB_RECRUITMENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @Operation(summary = "동아리 모집 수정", description = """
         ### 동아리 모집 수정
@@ -356,6 +358,7 @@ public interface ClubApi {
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
         NOT_FOUND_CLUB_RECRUITMENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @Operation(summary = "동아리 모집 삭제", description = """
         ### 동아리 모집 수정
@@ -371,6 +374,7 @@ public interface ClubApi {
         OK,
         NOT_FOUND_CLUB,
         NOT_FOUND_CLUB_RECRUITMENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @Operation(summary = "동아리 모집 조회", description = """
         ### 동아리 모집 조회
@@ -396,6 +400,7 @@ public interface ClubApi {
         INVALID_CLUB_EVENT_PERIOD,
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
+        INVALID_REQUEST_PAYLOAD
     })
     @Operation(summary = "동아리 행사를 생성한다", description = """
         ### 동아리 행사 생성
@@ -416,7 +421,8 @@ public interface ClubApi {
         INVALID_CLUB_EVENT_PERIOD,
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
-        NOT_FOUND_CLUB_EVENT
+        NOT_FOUND_CLUB_EVENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @Operation(summary = "동아리 행사를 수정한다", description = """
         ### 동아리 행사 수정
@@ -437,7 +443,8 @@ public interface ClubApi {
         NO_CONTENT,
         NOT_FOUND_CLUB,
         NOT_FOUND_USER,
-        NOT_FOUND_CLUB_EVENT
+        NOT_FOUND_CLUB_EVENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @Operation(summary = "동아리 행사를 삭제한다", description = """
         ### 동아리 행사 삭제
@@ -453,7 +460,8 @@ public interface ClubApi {
     @ApiResponseCodes({
         OK,
         NOT_FOUND_CLUB,
-        NOT_FOUND_CLUB_EVENT
+        NOT_FOUND_CLUB_EVENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @Operation(summary = "동아리 행사를 단일 조회한다.", description = """
         ### 동아리 행사 단일 조회
@@ -469,7 +477,8 @@ public interface ClubApi {
         OK,
         INVALID_CLUB_EVENT_TYPE,
         NOT_FOUND_CLUB,
-        NOT_FOUND_CLUB_EVENT
+        NOT_FOUND_CLUB_EVENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @Operation(summary = "동아리 행사를 상태에 따라 조회한다", description = """
         ### 동아리 행사 전체 조회
@@ -495,7 +504,8 @@ public interface ClubApi {
         NOT_FOUND_CLUB,
         NOT_FOUND_CLUB_EVENT,
         FORBIDDEN_USER_TYPE,
-        NOT_MATCHED_CLUB_AND_EVENT
+        NOT_MATCHED_CLUB_AND_EVENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @PostMapping("{clubId}/event/{eventId}/notification")
     ResponseEntity<Void> subscribeEventNotification(
@@ -511,7 +521,8 @@ public interface ClubApi {
         NOT_FOUND_CLUB,
         NOT_FOUND_CLUB_EVENT,
         FORBIDDEN_USER_TYPE,
-        NOT_MATCHED_CLUB_AND_EVENT
+        NOT_MATCHED_CLUB_AND_EVENT,
+        INVALID_REQUEST_PAYLOAD
     })
     @DeleteMapping("{clubId}/event/{eventId}/notification")
     ResponseEntity<Void> rejectEventNotification(
@@ -525,7 +536,8 @@ public interface ClubApi {
         CREATED,
         NOT_FOUND_USER,
         NOT_FOUND_CLUB,
-        FORBIDDEN_USER_TYPE
+        FORBIDDEN_USER_TYPE,
+        INVALID_REQUEST_PAYLOAD
     })
     @PostMapping("{clubId}/recruitment/notification")
     ResponseEntity<Void> subscribeRecruitmentNotification(
@@ -538,7 +550,8 @@ public interface ClubApi {
         NO_CONTENT,
         NOT_FOUND_USER,
         NOT_FOUND_CLUB,
-        FORBIDDEN_USER_TYPE
+        FORBIDDEN_USER_TYPE,
+        INVALID_REQUEST_PAYLOAD
     })
     @DeleteMapping("{clubId}/recruitment/notification")
     ResponseEntity<Void> rejectRecruitmentNotification(
