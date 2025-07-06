@@ -1,11 +1,9 @@
 package in.koreatech.koin.domain.club.service;
 
 import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
-import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -20,15 +18,15 @@ import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
@@ -36,6 +34,7 @@ import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubBaseInfo;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubEvent;
 import in.koreatech.koin.domain.club.model.ClubEventSubscription;
@@ -52,6 +51,7 @@ import in.koreatech.koin.domain.club.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
+import in.koreatech.koin.domain.club.repository.ClubListQueryRepository;
 import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.ClubRecruitmentRepository;
@@ -87,6 +87,7 @@ public class ClubService {
     private final ApplicationEventPublisher eventPublisher;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
     private final ClubRecruitmentRepository clubRecruitmentRepository;
+    private final ClubListQueryRepository clubListQueryRepository;
     private final ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
     private final ClubEventRepository clubEventRepository;
     private final ClubEventSubscriptionRepository clubEventSubscriptionRepository;
@@ -174,36 +175,15 @@ public class ClubService {
 
     public ClubsByCategoryResponse getClubByCategory(
         Integer categoryId,
+        Boolean isRecruiting,
         ClubSortType sortType,
         String query,
         Integer userId
     ) {
-        List<Club> clubs = getClubs(categoryId, sortType, query);
-        List<Integer> likedClubIds = clubLikeRepository.findClubIdsByUserId(userId);
-        return ClubsByCategoryResponse.from(clubs, likedClubIds);
-    }
-
-    private List<Club> getClubs(Integer categoryId, ClubSortType sortType, String query) {
-        List<Club> clubs;
-        if (categoryId == null) {
-            clubs = sortType.equals(HITS_DESC)
-                ? clubRepository.findByIsActiveTrueOrderByHitsDesc()
-                : clubRepository.findByIsActiveTrueOrderByIdAsc();
-        } else {
-            ClubCategory category = clubCategoryRepository.getById(categoryId);
-            clubs = sortType.equals(HITS_DESC)
-                ? clubRepository.findByIsActiveTrueAndClubCategoryOrderByHitsDesc(category)
-                : clubRepository.findByIsActiveTrueAndClubCategoryOrderByIdAsc(category);
-        }
-
-        return query.isEmpty() ? clubs : clubs.stream()
-            .filter(queryPredicate(query))
-            .toList();
-    }
-
-    private Predicate<Club> queryPredicate(String query) {
-        String normalizedQuery = normalizeString(query);
-        return club -> normalizeString(club.getName()).contains(normalizedQuery);
+        sortType.validateRecruitingCondition(isRecruiting);
+        List<ClubBaseInfo> clubBaseInfos = clubListQueryRepository.findAllClubInfo(categoryId, sortType,
+            isRecruiting, query, userId);
+        return ClubsByCategoryResponse.from(clubBaseInfos);
     }
 
     public ClubRelatedKeywordResponse getRelatedClubs(String query) {
