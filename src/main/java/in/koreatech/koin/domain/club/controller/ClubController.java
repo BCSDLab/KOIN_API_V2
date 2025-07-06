@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubEventsResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
@@ -265,11 +266,12 @@ public class ClubController implements ClubApi {
     }
 
     @GetMapping("/{clubId}/events")
-    public ResponseEntity<List<ClubEventResponse>> getClubEvents(
+    public ResponseEntity<List<ClubEventsResponse>> getClubEvents(
         @PathVariable Integer clubId,
-        @RequestParam(defaultValue = "RECENT") ClubEventType eventType
+        @RequestParam(defaultValue = "RECENT") ClubEventType eventType,
+        @UserId Integer userId
     ) {
-        List<ClubEventResponse> responses = clubService.getClubEvents(clubId, eventType);
+        List<ClubEventsResponse> responses = clubService.getClubEvents(clubId, eventType, userId);
         return ResponseEntity.ok(responses);
     }
 

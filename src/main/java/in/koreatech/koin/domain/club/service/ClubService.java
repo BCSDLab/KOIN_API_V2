@@ -3,8 +3,10 @@ package in.koreatech.koin.domain.club.service;
 import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubEventsResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotStatusResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
@@ -467,14 +470,23 @@ public class ClubService {
         return ClubEventResponse.from(clubEvent, LocalDateTime.now());
     }
 
-    public List<ClubEventResponse> getClubEvents(Integer clubId, ClubEventType eventType) {
+    public List<ClubEventsResponse> getClubEvents(Integer clubId, ClubEventType eventType, Integer userId) {
         List<ClubEvent> events = clubEventRepository.getAllByClubId(clubId);
         LocalDateTime now = LocalDateTime.now();
+
+        Set<Integer> subscribedEventIds = new HashSet<>();
+        if (userId != null) {
+            List<Integer> eventIds = events.stream().map(ClubEvent::getId).toList();
+            subscribedEventIds.addAll(clubEventSubscriptionRepository.findSubscribedEventIds(userId, eventIds));
+        }
 
         return events.stream()
             .filter(event -> filterEventType(event, eventType, now))
             .sorted((e1, e2) -> compareEvents(e1, e2, eventType, now))
-            .map(event -> ClubEventResponse.from(event, now))
+            .map(event -> {
+                boolean isSubscribed = subscribedEventIds.contains(event.getId());
+                return ClubEventsResponse.from(event, now, isSubscribed);
+            })
             .toList();
     }
 
