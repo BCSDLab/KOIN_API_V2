@@ -21,8 +21,8 @@ public record ClubEventModifyRequest(
     String name,
 
     @Schema(description = "행사 이미지 URL 리스트", example = """
-    ["https://image1.com", "https://image2.com"]
-    """, requiredMode = NOT_REQUIRED)
+        ["https://image1.com", "https://image2.com"]
+        """, requiredMode = NOT_REQUIRED)
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
     List<String> imageUrls,
 
@@ -42,15 +42,4 @@ public record ClubEventModifyRequest(
     @Schema(description = "행사 상세 내용", example = "여러 동아리원들과 자신의 생각, 경험에 대해 나눠요,", requiredMode = NOT_REQUIRED)
     String content
 ) {
-    public ClubEvent toEntity(Club club) {
-        return ClubEvent.builder()
-            .club(club)
-            .name(name)
-            .startDate(startDate)
-            .endDate(endDate)
-            .introduce(introduce)
-            .content(content)
-            .notifiedBeforeOneHour(false)
-            .build();
-    }
 }
