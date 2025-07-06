@@ -42,10 +42,10 @@ public record ClubEventsResponse(
     String status,
 
     @Schema(description = "행사 구독 여부", example = "false")
-    boolean subscribed
+    boolean isSubscribed
 ) {
 
-    public static ClubEventsResponse from(ClubEvent event, LocalDateTime now, boolean subscribed) {
+    public static ClubEventsResponse from(ClubEvent event, LocalDateTime now, boolean isSubscribed) {
         List<String> imageUrls = event.getImages().stream()
             .map(ClubEventImage::getImageUrl)
             .toList();
@@ -59,7 +59,7 @@ public record ClubEventsResponse(
             event.getIntroduce(),
             event.getContent(),
             calculateStatus(event.getStartDate(), event.getEndDate(), now).getDisplayName(),
-            subscribed
+            isSubscribed
         );
     }
 
