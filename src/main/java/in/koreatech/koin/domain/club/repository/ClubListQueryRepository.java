@@ -4,6 +4,8 @@ import static in.koreatech.koin.domain.club.model.QClub.club;
 import static in.koreatech.koin.domain.club.model.QClubLike.clubLike;
 import static in.koreatech.koin.domain.club.model.QClubRecruitment.clubRecruitment;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -26,14 +28,11 @@ public class ClubListQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     public List<ClubBaseInfo> findAllClubInfo(
-        Integer categoryId, ClubSortType clubSortType, Boolean isRecruiting, String query, Integer userId
+        Integer categoryId, ClubSortType sortType, Boolean isRecruiting, String query, Integer userId
     ) {
-        BooleanBuilder clubFilter = clubSearchFilter(categoryId, isRecruiting, normalizeString(query));
-        OrderSpecifier<?> clubSort = clubSort(clubSortType);
-
-        BooleanExpression isLiked = (userId != null)
-            ? clubLike.id.isNotNull()
-            : Expressions.asBoolean(false).isTrue();
+        BooleanBuilder clubFilter = clubSearchFilter(categoryId, isRecruiting, normalize(query));
+        List<OrderSpecifier<?>> clubSort = clubSort(sortType);
+        BooleanExpression isLiked = clubLikeCondition(userId);
 
         var baseQuery = queryFactory
             .select(Projections.constructor(ClubBaseInfo.class,
@@ -52,41 +51,51 @@ public class ClubListQueryRepository {
             .leftJoin(clubRecruitment).on(clubRecruitment.club.id.eq(club.id));
 
         if (userId != null) {
-            baseQuery.leftJoin(clubLike).on(clubLike.club.id.eq(club.id).and(clubLike.user.id.eq(userId)));
+            baseQuery.leftJoin(clubLike).on(
+                clubLike.club.id.eq(club.id)
+                    .and(clubLike.user.id.eq(userId))
+            );
         }
 
         return baseQuery
             .where(clubFilter)
-            .orderBy(clubSort)
+            .orderBy(clubSort.toArray(new OrderSpecifier[0]))
             .fetch();
     }
 
-    private BooleanBuilder clubSearchFilter(Integer categoryId, Boolean isRecruiting, String query) {
-        BooleanBuilder booleanBuilder = new BooleanBuilder();
+    private BooleanBuilder clubSearchFilter(Integer categoryId, Boolean isRecruiting, String normalizedQuery) {
+        BooleanBuilder builder = new BooleanBuilder();
 
-        // 동아리 카테고리 필터
         if (categoryId != null) {
-            booleanBuilder.and(club.clubCategory.id.eq(categoryId));
+            builder.and(club.clubCategory.id.eq(categoryId));
         }
 
-        // 동아리 검색어 필터
-        booleanBuilder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(query));
-
-        // 동아리 모집 필터
         if (isRecruiting) {
-            booleanBuilder.and(clubRecruitment.id.isNotNull());
+            builder.and(clubRecruitment.id.isNotNull());
+            builder.and(
+                clubRecruitment.endDate.goe(LocalDate.now())
+                    .or(clubRecruitment.isAlwaysRecruiting.isTrue())
+            );
         }
 
-        // 동아리 활성화 필터
-        booleanBuilder.and(club.isActive.isTrue());
-        return booleanBuilder;
+        builder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(normalizedQuery));
+        builder.and(club.isActive.isTrue());
+
+        return builder;
     }
 
-    private OrderSpecifier<?> clubSort(ClubSortType clubSortType) {
-        return clubSortType.getOrderSpecifier();
+    private List<OrderSpecifier<?>> clubSort(ClubSortType sortType) {
+        return new ArrayList<>(sortType.getOrderSpecifiers());
     }
 
-    private String normalizeString(String s) {
+    private BooleanExpression clubLikeCondition(Integer userId) {
+        if (userId != null) {
+            return clubLike.id.isNotNull();
+        }
+        return Expressions.asBoolean(false).isTrue();
+    }
+
+    private String normalize(String s) {
         return s.replaceAll("\\s+", "").toLowerCase();
     }
 }

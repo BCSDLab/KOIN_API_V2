@@ -20,16 +20,15 @@ import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -116,10 +115,19 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "카테고리를 기준으로 동아리를 조회한다", description = """
+    @Operation(summary = "동아리를 조회한다", description = """
         - categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
         - query에 내용을 넣으면 검색이 됩니다.
+        - sortType의 기본값은 CREATED_AT_ASC (동아리 생성 순) 입니다.
         - isRecruiting의 기본값은 false 입니다.
+        - RECRUITMENT_UPDATED_DESC, RECRUITING_DEADLINE_ASC은 isRecruiting가 true 경우에만 사용할 수 있습니다.
+        
+        ### 정렬 파라미터
+        - NONE : 동아리 생성 순 (향후 정렬 조건 삭제)
+        - CREATED_AT_ASC : 동아리 생성 순
+        - HITS_DESC : 동아리 조회 순
+        - RECRUITMENT_UPDATED_DESC : 동아리 모집 글 생성(수정)순
+        - RECRUITING_DEADLINE_ASC : 동아리 모집 마감 순 (모집 마감 짧은 순 -> 상시 모집)
         
         ### 반환 정보
           - recruitmentInfo : 동아리 모집 정보를 담고 있습니다.
@@ -133,10 +141,10 @@ public interface ClubApi {
               - 이외의 상태에서는 null로 내려갑니다.
         """)
     @GetMapping
-    ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
+    ResponseEntity<ClubsByCategoryResponse> getClubs(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "false") Boolean isRecruiting,
-        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "CREATED_AT_ASC") ClubSortType sortType,
         @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
     );
@@ -511,29 +519,61 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
+    @Operation(summary = "특정 동아리의 특정 행사알림 구독")
     @ApiResponseCodes({
+        ApiResponseCode.CREATED,
+        ApiResponseCode.NOT_FOUND_USER,
         ApiResponseCode.NOT_FOUND_CLUB,
-        ApiResponseCode.NOT_FOUND_CLUB_RECRUITMENT,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT
     })
-    @Operation(summary = "동아리 모집 조회", description = """
-        ### 동아리 모집 조회
-        - 동아리 모집을 조회 합니다.
-            - status : 동아리 모집 상태입니다.
-              - NONE : 동아리 모집 글이 없는 상태입니다.
-              - RECRUITING : 동아리 모집 중인 상태입니다.
-              - CLOSED : 동아리 모집 글이 있는 상태에서 모집 마감된 상태입니다.
-              - ALWAYS : 동아리 모집 글이 있는 상태에서 상시 모집중인 상태입니다.
-            - Dday : 동아리 모집 디데이 입니다.
-              - RECRUITING인 상태에서는 정수로 남은 일자가 내려갑니다.
-              - 이외의 상태에서는 null로 내려갑니다.
-        
-        ### 에러 코드(에러 메시지)
-        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
-        - NOT_FOUND_CLUB_RECRUITMENT (동아리 모집 공고가 존재하지 않습니다.)
-        """)
-    @GetMapping("/{clubId}/recruitment")
-    ResponseEntity<ClubRecruitmentResponse> getRecruitment(
-        @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable(name = "clubId") Integer clubId,
-        @UserId Integer userId
+    @PostMapping("{clubId}/event/{eventId}/notification")
+    ResponseEntity<Void> subscribeEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 특정 행사알림 구독취소")
+    @ApiResponseCodes({
+        ApiResponseCode.NO_CONTENT,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT
+    })
+    @DeleteMapping("{clubId}/event/{eventId}/notification")
+    ResponseEntity<Void> rejectEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 모집알림 구독")
+    @ApiResponseCodes({
+        ApiResponseCode.CREATED,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.FORBIDDEN_USER_TYPE
+    })
+    @PostMapping("{clubId}/recruitment/notification")
+    ResponseEntity<Void> subscribeRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 모집알림 구독취소")
+    @ApiResponseCodes({
+        ApiResponseCode.NO_CONTENT,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.FORBIDDEN_USER_TYPE
+    })
+    @DeleteMapping("{clubId}/recruitment/notification")
+    ResponseEntity<Void> rejectRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
     );
 }

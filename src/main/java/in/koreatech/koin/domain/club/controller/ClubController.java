@@ -73,10 +73,10 @@ public class ClubController implements ClubApi {
     }
 
     @GetMapping
-    public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
+    public ResponseEntity<ClubsByCategoryResponse> getClubs(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "false") Boolean isRecruiting,
-        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "CREATED_AT_ASC") ClubSortType sortType,
         @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
     ) {
@@ -198,5 +198,43 @@ public class ClubController implements ClubApi {
     ) {
         ClubRecruitmentResponse response = clubService.getRecruitment(clubId, userId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("{clubId}/recruitment/notification")
+    public ResponseEntity<Void> subscribeRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.subscribeRecruitmentNotification(clubId, studentId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("{clubId}/recruitment/notification")
+    public ResponseEntity<Void> rejectRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.rejectRecruitmentNotification(clubId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("{clubId}/event/{eventId}/notification")
+    public ResponseEntity<Void> subscribeEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.subscribeEventNotification(clubId, eventId, studentId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("{clubId}/event/{eventId}/notification")
+    public ResponseEntity<Void> rejectEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.rejectEventNotification(clubId, eventId, studentId);
+        return ResponseEntity.noContent().build();
     }
 }
