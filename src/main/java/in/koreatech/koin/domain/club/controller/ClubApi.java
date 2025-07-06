@@ -494,4 +494,34 @@ public interface ClubApi {
         @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 동아리의 모집알림 구독")
+    @PostMapping("{clubId}/recruitment/notification")
+    ResponseEntity<Void> subscribeRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 동아리의 모집알림 구독취소")
+    @DeleteMapping("{clubId}/recruitment/notification")
+    ResponseEntity<Void> rejectRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
 }

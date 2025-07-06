@@ -40,6 +40,7 @@ import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubQna;
 import in.koreatech.koin.domain.club.model.ClubRecruitment;
+import in.koreatech.koin.domain.club.model.ClubRecruitmentSubscription;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
@@ -49,6 +50,7 @@ import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.ClubRecruitmentRepository;
+import in.koreatech.koin.domain.club.repository.ClubRecruitmentSubscriptionRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
@@ -80,6 +82,7 @@ public class ClubService {
     private final ApplicationEventPublisher eventPublisher;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
     private final ClubRecruitmentRepository clubRecruitmentRepository;
+    private final ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
 
     private static final int RELATED_LIMIT_SIZE = 5;
 
@@ -355,5 +358,33 @@ public class ClubService {
         isClubManager(club.getId(), student.getId());
 
         clubRecruitmentRepository.delete(clubRecruitment);
+    }
+
+    @Transactional
+    public void subscribeRecruitmentNotification(Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        User user = userRepository.getById(studentId);
+
+        if (verifyAlreadySubscribedRecruitment(clubId, studentId))   return;
+
+        ClubRecruitmentSubscription clubRecruitmentSubscription = ClubRecruitmentSubscription.builder()
+            .club(club)
+            .user(user)
+            .build();
+        clubRecruitmentSubscriptionRepository.save(clubRecruitmentSubscription);
+    }
+
+    @Transactional
+    public void rejectRecruitmentNotification(Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        User user = userRepository.getById(studentId);
+
+        if (!verifyAlreadySubscribedRecruitment(clubId, studentId))  return;
+
+        clubRecruitmentSubscriptionRepository.deleteByClubIdAndUserId(clubId, studentId);
+    }
+
+    private boolean verifyAlreadySubscribedRecruitment(Integer clubId, Integer studentId) {
+        return clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId);
     }
 }

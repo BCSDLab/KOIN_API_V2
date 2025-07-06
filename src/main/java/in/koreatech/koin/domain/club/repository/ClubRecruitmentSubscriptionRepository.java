@@ -15,4 +15,10 @@ public interface ClubRecruitmentSubscriptionRepository extends Repository<ClubRe
         WHERE s.club.id = :clubId
         """)
     List<ClubRecruitmentSubscription> findAllWithUserByClubId(Integer clubId);
+
+    boolean existsByClubIdAndUserId(Integer clubId, Integer userId);
+
+    void save(ClubRecruitmentSubscription subscription);
+
+    void deleteByClubIdAndUserId(Integer clubId, Integer userId);
 }
