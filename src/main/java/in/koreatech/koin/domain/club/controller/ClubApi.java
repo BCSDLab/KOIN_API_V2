@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;
@@ -501,46 +503,10 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "동아리 행사 생성 성공", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "400", description = "행사 종료일은 시작일 이후여야 함",
-            content = @Content(mediaType = "application/json", examples = {
-                @ExampleObject(name = "종료일이 시작일보다 빠른 경우", value = """
-                        {
-                          "code": "INVALID_EVENT_PERIOD",
-                          "message": "행사 종료일은 행사 시작일 이후여야 합니다.",
-                          "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                        }
-                    """)
-            })),
-        @ApiResponse(responseCode = "401", description = "동아리 매니저가 아닌 경우 행사 생성 불가", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "비매니저 사용자가 행사 생성 요청한 경우", value = """
-                    {
-                      "code": "",
-                      "message": "권한이 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """)
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리인 경우", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 동아리", value = """
-                    {
-                      "code": "NOT_FOUND_CLUB",
-                      "message": "동아리가 존재하지 않습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """),
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 유저인 경우", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 유저", value = """
-                    {
-                      "code": "NOT_FOUND_USER",
-                      "message": "해당 사용자를 찾을 수 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """),
-        }))
-
+    @ApiResponseCodes({
+        ApiResponseCode.INVALID_CLUB_EVENT_PERIOD,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_USER,
     })
     @Operation(summary = "동아리 행사를 생성한다", description = """
         ### 동아리 행사 생성
@@ -561,54 +527,11 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "동아리 행사 수정 성공", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "400", description = "행사 종료일은 시작일 이후여야 함",
-            content = @Content(mediaType = "application/json", examples = {
-                @ExampleObject(name = "종료일이 시작일보다 빠른 경우", value = """
-                        {
-                          "code": "INVALID_EVENT_PERIOD",
-                          "message": "행사 종료일은 행사 시작일 이후여야 합니다.",
-                          "errorTraceId": "a1b2c3d4-5678-9101-1121-314151617181"
-                        }
-                    """)
-            })),
-        @ApiResponse(responseCode = "401", description = "동아리 매니저가 아닌 경우 행사 수정 불가", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "비매니저 사용자가 행사 수정 요청한 경우", value = """
-                    {
-                      "code": "",
-                      "message": "권한이 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """)
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리인 경우", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 동아리", value = """
-                    {
-                      "code": "NOT_FOUND_CLUB",
-                      "message": "동아리가 존재하지 않습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """),
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 유저인 경우", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 유저", value = """
-                    {
-                      "code": "NOT_FOUND_USER",
-                      "message": "해당 사용자를 찾을 수 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """)
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 행사인 경우", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 동아리 행사", value = """
-                    {
-                      "code": "NOT_FOUND_CLUB_EVENT",
-                      "message": "해당 동아리 행사를 찾을 수 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """)
-        }))
+    @ApiResponseCodes({
+        ApiResponseCode.INVALID_CLUB_EVENT_PERIOD,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT
     })
     @Operation(summary = "동아리 행사를 수정한다", description = """
         ### 동아리 행사 수정
@@ -631,44 +554,10 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "동아리 행사 삭제 성공", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "401", description = "동아리 매니저가 아닌 경우 행사 삭제 불가", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "비매니저 사용자가 행사 삭제 요청한 경우", value = """
-                    {
-                      "code": "",
-                      "message": "권한이 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """)
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 동아리인 경우", value = """
-                    {
-                      "code": "NOT_FOUND_CLUB",
-                      "message": "동아리가 존재하지 않습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """),
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 유저", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 유저인 경우", value = """
-                    {
-                      "code": "NOT_FOUND_USER",
-                      "message": "해당 사용자를 찾을 수 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """)
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 행사", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 동아리 행사인 경우", value = """
-                    {
-                      "code": "NOT_FOUND_CLUB_EVENT",
-                      "message": "해당 동아리 행사를 찾을 수 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """)
-        }))
+    @ApiResponseCodes({
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT
     })
     @Operation(summary = "동아리 행사를 삭제한다", description = """
         ### 동아리 행사 삭제
@@ -686,26 +575,9 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "동아리 행사 조회 성공"),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 동아리인 경우", value = """
-                    {
-                      "code": "NOT_FOUND_CLUB",
-                      "message": "동아리가 존재하지 않습니다.",
-                      "errorTraceId": "f0e1d2c3-b4a5-6789-0a1b-2c3d4e5f6g7h"
-                    }
-                """),
-        })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리 행사", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 동아리 행사인 경우", value = """
-                    {
-                      "code": "NOT_FOUND_CLUB_EVENT",
-                      "message": "해당 동아리 행사를 찾을 수 없습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """)
-        }))
+    @ApiResponseCodes({
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT
     })
     @Operation(summary = "동아리 행사를 단일 조회한다.", description = """
         ### 동아리 행사 단일 조회
@@ -721,27 +593,11 @@ public interface ClubApi {
         @PathVariable Integer eventId
     );
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "동아리 행사 수정 성공", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "400", description = "동아리 행사 타입이 아닌 경우 조회 불가",
-            content = @Content(mediaType = "application/json", examples = {
-                @ExampleObject(name = "올바르지 않은 동아리 행사 타입을 넣은 경우", value = """
-                        {
-                          "code": "INVALID_CLUB_EVENT_TYPE",
-                          "message": "올바르지 않은 동아리 행사 타입입니다.",
-                          "errorTraceId": "a1b2c3d4-5678-9101-1121-314151617181"
-                        }
-                    """)
-            })),
-        @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리", content = @Content(mediaType = "application/json", examples = {
-            @ExampleObject(name = "존재하지 않는 동아리인 경우", value = """
-                    {
-                      "code": "NOT_FOUND_CLUB",
-                      "message": "동아리가 존재하지 않습니다.",
-                      "errorTraceId": "e13f4f4a-88a7-44a2-b1b5-2b14f4cdee12"
-                    }
-                """),
-        }))
+
+    @ApiResponseCodes({
+        ApiResponseCode.INVALID_CLUB_EVENT_TYPE,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT
     })
     @Operation(summary = "동아리 행사를 상태에 따라 조회한다", description = """
         ### 동아리 행사 전체 조회
