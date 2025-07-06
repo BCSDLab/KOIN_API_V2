@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubEventsResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
@@ -475,9 +476,10 @@ public interface ClubApi {
             - ENDED : 행사가 종료되고 1분이 지난 시점의 행사가 조회됩니다.
         """)
     @GetMapping("/{clubId}/event")
-    ResponseEntity<List<ClubEventResponse>> getClubEvents(
+    ResponseEntity<List<ClubEventsResponse>> getClubEvents(
         @PathVariable Integer clubId,
-        @RequestParam(defaultValue = "RECENT") ClubEventType eventType
+        @RequestParam(defaultValue = "RECENT") ClubEventType eventType,
+        @UserId Integer userId
     );
 
     @Operation(summary = "특정 동아리의 특정 행사알림 구독")

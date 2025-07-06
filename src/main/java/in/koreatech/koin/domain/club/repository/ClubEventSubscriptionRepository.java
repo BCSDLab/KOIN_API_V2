@@ -17,4 +17,7 @@ public interface ClubEventSubscriptionRepository extends Repository<ClubEventSub
     void deleteByClubEventIdAndUserId(Integer eventId, Integer userId);
 
     void save(ClubEventSubscription subscription);
+
+    @Query("SELECT e.clubEvent.id FROM ClubEventSubscription e WHERE e.user.id = :userId AND e.clubEvent.id IN :eventIds")
+    List<Integer> findSubscribedEventIds(Integer userId, List<Integer> eventIds);
 }
