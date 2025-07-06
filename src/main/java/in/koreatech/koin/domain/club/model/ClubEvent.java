@@ -3,8 +3,10 @@ package in.koreatech.koin.domain.club.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import in.koreatech.koin._common.model.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,8 +15,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,6 +61,9 @@ public class ClubEvent extends BaseEntity {
     @Column(name = "notified_before_one_hour", nullable = false, columnDefinition = "TINYINT(1)")
     private Boolean notifiedBeforeOneHour = false;
 
+    @OneToMany(mappedBy = "clubEvent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClubEventImage> images;
+
     @Builder
     private ClubEvent(
         Club club,
@@ -76,7 +83,26 @@ public class ClubEvent extends BaseEntity {
         this.notifiedBeforeOneHour = notifiedBeforeOneHour;
     }
 
+    public void modifyClubEvent(
+        String name,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String introduce,
+        String content
+    ) {
+        this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.introduce = introduce;
+        this.content = content;
+    }
+
     public void markAsNotifiedBeforeOneHour() {
         this.notifiedBeforeOneHour = true;
+    }
+
+    public void addImage(ClubEventImage image) {
+        this.images.add(image);
+        image.setClubEvent(this);
     }
 }

@@ -38,6 +38,8 @@ public enum ApiResponseCode {
     REQUIRED_RECRUITMENT_PERIOD(HttpStatus.BAD_REQUEST, "상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다."),
     NOT_MATCHED_CLUB_AND_EVENT(HttpStatus.BAD_REQUEST, "해당 동아리의 이벤트가 아닙니다."),
     NOT_ALLOWED_RECRUITING_SORT_TYPE(HttpStatus.BAD_REQUEST, "해당 정렬 방식은 모집 중일 때만 사용할 수 있습니다."),
+    INVALID_CLUB_EVENT_PERIOD(HttpStatus.BAD_REQUEST,"행사 마감일은 행사 시작일 이후여야 합니다."),
+    INVALID_CLUB_EVENT_TYPE(HttpStatus.BAD_REQUEST, "올바르지 않은 동아리 행사 타입입니다."),
 
     /**
      * 401 Unauthorized (인증 필요)

@@ -33,4 +33,22 @@ public interface ClubEventRepository extends Repository<ClubEvent, Integer> {
         return findById(clubId)
             .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CLUB_EVENT));
     }
+
+    void save(ClubEvent clubEvent);
+
+    Optional<ClubEvent> findByIdAndClubId(Integer id, Integer clubId);
+
+    Optional<List<ClubEvent>> findAllByClubId(Integer clubId);
+
+    default ClubEvent getClubEventByIdAndClubId(Integer id, Integer clubId) {
+        return findByIdAndClubId(id, clubId)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CLUB_EVENT));
+    }
+
+    default List<ClubEvent> getAllByClubId(Integer clubId) {
+        return findAllByClubId(clubId).orElseThrow(
+            () -> CustomException.of(ApiResponseCode.NOT_FOUND_CLUB_EVENT));
+    }
+
+    void delete(ClubEvent clubEvent);
 }
