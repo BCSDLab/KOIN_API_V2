@@ -9,6 +9,9 @@ import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopInfoSummary
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
+/**
+ * record 관련 레디스 캐시 직렬화 문제가 있어서 class 로 구현
+ */
 @Getter
 @JsonNaming(value = SnakeCaseStrategy.class)
 public class OrderableShopInfoSummaryResponse {
