@@ -459,7 +459,6 @@ public interface ClubApi {
         @PathVariable Integer eventId
     );
 
-
     @ApiResponseCodes({
         INVALID_CLUB_EVENT_TYPE,
         NOT_FOUND_CLUB,
