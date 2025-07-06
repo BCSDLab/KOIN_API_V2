@@ -24,11 +24,9 @@ public record ClubEventResponse(
     String imageUrl,
 
     @Schema(description = "행사 시작일", example = "2025-07-01T09:00:00")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime startDate,
 
     @Schema(description = "행사 종료일", example = "2025-07-02T18:00:00")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime endDate,
 
     @Schema(description = "행사 소개 (요약)", example = "BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.")
