@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import in.koreatech.koin._common.validation.UniqueUrl;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubEvent;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,6 +23,7 @@ public record ClubEventModifyRequest(
     @Schema(description = "행사 이미지 URL 리스트", example = """
     ["https://image1.com", "https://image2.com"]
     """, requiredMode = NOT_REQUIRED)
+    @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(description = "행사 시작일", example = "2025-07-01T09:00:00", requiredMode = REQUIRED)
