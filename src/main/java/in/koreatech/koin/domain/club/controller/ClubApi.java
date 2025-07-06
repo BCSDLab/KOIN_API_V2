@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
@@ -495,30 +497,26 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
     @Operation(summary = "특정 동아리의 모집알림 구독")
+    @ApiResponseCodes({
+        ApiResponseCode.CREATED,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.FORBIDDEN_USER_TYPE
+    })
     @PostMapping("{clubId}/recruitment/notification")
     ResponseEntity<Void> subscribeRecruitmentNotification(
         @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "204"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
     @Operation(summary = "특정 동아리의 모집알림 구독취소")
+    @ApiResponseCodes({
+        ApiResponseCode.NO_CONTENT,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.FORBIDDEN_USER_TYPE
+    })
     @DeleteMapping("{clubId}/recruitment/notification")
     ResponseEntity<Void> rejectRecruitmentNotification(
         @PathVariable Integer clubId,
