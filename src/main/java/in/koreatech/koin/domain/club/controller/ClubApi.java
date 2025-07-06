@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
@@ -495,15 +497,15 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
     @Operation(summary = "특정 동아리의 특정 행사알림 구독")
+    @ApiResponseCodes({
+        ApiResponseCode.CREATED,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT
+    })
     @PostMapping("{clubId}/event/{eventId}/notification")
     ResponseEntity<Void> subscribeEventNotification(
         @PathVariable Integer clubId,
@@ -511,15 +513,15 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "204"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
     @Operation(summary = "특정 동아리의 특정 행사알림 구독취소")
+    @ApiResponseCodes({
+        ApiResponseCode.NO_CONTENT,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT
+    })
     @DeleteMapping("{clubId}/event/{eventId}/notification")
     ResponseEntity<Void> rejectEventNotification(
         @PathVariable Integer clubId,

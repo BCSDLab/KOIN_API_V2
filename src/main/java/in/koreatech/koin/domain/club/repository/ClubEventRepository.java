@@ -7,7 +7,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.club.exception.ClubEventNotFoundException;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.model.ClubEvent;
 
 public interface ClubEventRepository extends Repository<ClubEvent, Integer> {
@@ -30,6 +31,6 @@ public interface ClubEventRepository extends Repository<ClubEvent, Integer> {
 
     default ClubEvent getById(Integer clubId) {
         return findById(clubId)
-            .orElseThrow(() -> ClubEventNotFoundException.withDetail("id : " + clubId));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CLUB_EVENT));
     }
 }

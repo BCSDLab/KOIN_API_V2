@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
@@ -368,7 +368,7 @@ public class ClubService {
         ClubEvent clubEvent = clubEventRepository.getById(eventId);
 
         if (!clubEvent.getClub().getId().equals(clubId)) {
-            throw new KoinIllegalArgumentException("해당 동아리의 이벤트가 아닙니다.");
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT);
         }
 
         if (verifyAlreadySubscribed(eventId, studentId))    return;
@@ -386,8 +386,8 @@ public class ClubService {
         User user = userRepository.getById(studentId);
         ClubEvent clubEvent = clubEventRepository.getById(eventId);
 
-        if (!clubEvent.getClub().getId().equals(club.getId())) {
-            throw new KoinIllegalArgumentException("해당 동아리의 이벤트가 아닙니다.");
+        if (!clubEvent.getClub().getId().equals(clubId)) {
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT);
         }
 
         if (!verifyAlreadySubscribed(eventId, studentId)) return;
