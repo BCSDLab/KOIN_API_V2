@@ -189,8 +189,6 @@ public class ClubController implements ClubApi {
         return ResponseEntity.noContent().build();
     }
 
-
-
     @PostMapping("{clubId}/event/{eventId}/notification")
     public ResponseEntity<Void> subscribeEventNotification(
         @PathVariable Integer clubId,

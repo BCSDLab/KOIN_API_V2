@@ -54,8 +54,8 @@ public class ClubEvent extends BaseEntity {
     private String content;
 
     @NotNull
-    @Column(name = "notified_one_hour", nullable = false, columnDefinition = "TINYINT(1)")
-    private Boolean notifiedOneHour = false;
+    @Column(name = "notified_before_one_hour", nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean notifiedBeforeOneHour = false;
 
     @Builder
     private ClubEvent(
@@ -65,7 +65,7 @@ public class ClubEvent extends BaseEntity {
         LocalDateTime endDate,
         String introduce,
         String content,
-        Boolean notifiedOneHour
+        Boolean notifiedBeforeOneHour
     ) {
         this.club = club;
         this.name = name;
@@ -73,10 +73,10 @@ public class ClubEvent extends BaseEntity {
         this.endDate = endDate;
         this.introduce = introduce;
         this.content = content;
-        this.notifiedOneHour = notifiedOneHour;
+        this.notifiedBeforeOneHour = notifiedBeforeOneHour;
     }
 
-    public void markAsNotifiedOneHour() {
-        this.notifiedOneHour = true;
+    public void markAsNotifiedBeforeOneHour() {
+        this.notifiedBeforeOneHour = true;
     }
 }

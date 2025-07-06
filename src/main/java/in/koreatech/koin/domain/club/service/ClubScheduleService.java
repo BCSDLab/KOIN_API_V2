@@ -188,7 +188,7 @@ public class ClubScheduleService {
                 .toList();
             notificationService.pushNotifications(notifications);
 
-            event.markAsNotifiedOneHour();
+            event.markAsNotifiedBeforeOneHour();
         }
     }
 

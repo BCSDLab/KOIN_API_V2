@@ -23,7 +23,7 @@ public interface ClubEventRepository extends Repository<ClubEvent, Integer> {
     @Query("""
         SELECT e FROM ClubEvent e
         JOIN FETCH e.club
-        WHERE e.notifiedOneHour = false AND e.startDate >= :now AND e.startDate < :hourLater
+        WHERE e.notifiedBeforeOneHour = false AND e.startDate >= :now AND e.startDate < :hourLater
         """)
     List<ClubEvent> findAllWithClubUpcomingEventsWithOneHour(LocalDateTime now, LocalDateTime hourLater);
 
