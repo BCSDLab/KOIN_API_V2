@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubHotStatusResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
@@ -167,12 +168,11 @@ public class ClubService {
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
         Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, userId);
-        String hotMessage = clubHotRepository.findTopByOrderByIdDesc()
-            .filter(hot -> hot.getClub().getId().equals(clubId))
-            .map(this::generateHotMessage)
+        ClubHotStatusResponse hotStatus = clubHotRepository.findTopByClubIdOrderByIdDesc(clubId)
+            .map(this::generateHotStatusResponse)
             .orElse(null);
 
-        return ClubResponse.from(club, clubSNSs, manager, isLiked, hotMessage);
+        return ClubResponse.from(club, clubSNSs, manager, isLiked, hotStatus);
     }
 
     public ClubsByCategoryResponse getClubByCategory(
@@ -439,20 +439,13 @@ public class ClubService {
         return currentType == eventType;
     }
 
-    private String generateHotMessage(ClubHot hot) {
-        LocalDate start = hot.getStartDate();
-        int month = start.getMonthValue();
-        int weekOfMonth = ((start.getDayOfMonth() - 1) / 7) + 1;
-
+    private ClubHotStatusResponse generateHotStatusResponse(ClubHot hot) {
         List<ClubHot> hotClubs = clubHotRepository.findAllByOrderByIdDesc();
         int count = 0;
         for (ClubHot hotClub : hotClubs) {
-            if (!hot.getClub().getId().equals(hotClub.getClub().getId())) {
-                break;
-            }
+            if (!hot.getClub().getId().equals(hotClub.getClub().getId())) break;
             count++;
         }
-
-        return String.format("%d월 %d주차 인기 동아리 선정! %d주 연속 인기 동아리!", month, weekOfMonth, count);
+        return ClubHotStatusResponse.from(hot, count);
     }
 }

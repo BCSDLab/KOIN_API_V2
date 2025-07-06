@@ -11,7 +11,7 @@ public interface ClubHotRepository extends Repository<ClubHot, Integer> {
 
     Optional<ClubHot> findTopByOrderByEndDateDesc();
 
-    Optional<ClubHot> findTopByOrderByIdDesc();
+    Optional<ClubHot> findTopByClubIdOrderByIdDesc(Integer clubId);
 
     List<ClubHot> findAllByOrderByIdDesc();
 
