@@ -7,8 +7,11 @@ CREATE TABLE IF NOT EXISTS `koin`.`club_event`
     `end_date`                 DATETIME            NOT NULL COMMENT '동아리 행사 종료 날짜',
     `introduce`                VARCHAR(70)         NOT NULL COMMENT '동아리 행사 간단 소개',
     `content`                  TEXT                NULL COMMENT '동아리 행사 상세 설명',
+    `notified_before_one_hour` TINYINT(1) NOT NULL COMMENT '1시간 전 알림 발송 여부',
     `created_at`               TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     `updated_at`               TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_club_event_club` FOREIGN KEY (`club_id`) REFERENCES `koin`.`club` (`id`) ON DELETE CASCADE
 );
+
+CREATE INDEX `idx_notified_startdate` ON `koin`.`club_event` (`notified_before_one_hour`, `start_date`);

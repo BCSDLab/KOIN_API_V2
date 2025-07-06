@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS `koin`.`club_event_subscription`
     FOREIGN KEY (`event_id`) REFERENCES `koin`.`club_event` (`id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `koin`.`users` (`id`) ON DELETE CASCADE,
     UNIQUE KEY `uniq_event_user` (`event_id`, `user_id`)
-    );
+);
