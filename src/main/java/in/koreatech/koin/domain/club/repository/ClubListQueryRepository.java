@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.club.repository;
 
-import static com.querydsl.core.types.dsl.Expressions.numberTemplate;
 import static in.koreatech.koin.domain.club.model.QClub.club;
 import static in.koreatech.koin.domain.club.model.QClubLike.clubLike;
 import static in.koreatech.koin.domain.club.model.QClubRecruitment.clubRecruitment;
@@ -16,7 +15,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.club.enums.ClubSortType;
@@ -33,7 +31,7 @@ public class ClubListQueryRepository {
         Integer categoryId, ClubSortType sortType, Boolean isRecruiting, String query, Integer userId
     ) {
         BooleanBuilder clubFilter = clubSearchFilter(categoryId, isRecruiting, normalize(query));
-        List<OrderSpecifier<?>> clubSort = clubSort(sortType, isRecruiting);
+        List<OrderSpecifier<?>> clubSort = clubSort(sortType);
         BooleanExpression isLiked = clubLikeCondition(userId);
 
         var baseQuery = queryFactory
@@ -86,30 +84,8 @@ public class ClubListQueryRepository {
         return builder;
     }
 
-    private List<OrderSpecifier<?>> clubSort(ClubSortType sortType, Boolean isRecruiting) {
-        List<OrderSpecifier<?>> orders = new ArrayList<>();
-        orders.add(sortType.getOrderSpecifier());
-
-        /**
-         * 모집 필터링 정렬 조건
-         * 1. 모집 공고 최신 순
-         * 2. 모집 마감이 짧은 순
-         * 3. 상시 모집
-         */
-        if (isRecruiting) {
-            orders.add(clubRecruitment.createdAt.desc());
-
-            NumberTemplate<Integer> deadlineGap = numberTemplate(
-                Integer.class,
-                "datediff({0}, current_date)",
-                clubRecruitment.endDate
-            );
-            orders.add(deadlineGap.asc());
-
-            orders.add(clubRecruitment.isAlwaysRecruiting.desc());
-        }
-
-        return orders;
+    private List<OrderSpecifier<?>> clubSort(ClubSortType sortType) {
+        return new ArrayList<>(sortType.getOrderSpecifiers());
     }
 
     private BooleanExpression clubLikeCondition(Integer userId) {
