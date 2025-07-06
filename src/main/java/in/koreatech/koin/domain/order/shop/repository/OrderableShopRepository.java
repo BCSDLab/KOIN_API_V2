@@ -32,7 +32,9 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
                      FROM OrderableShopImage thumbnail
                      WHERE thumbnail.orderableShop.id = os.id
                      AND thumbnail.isThumbnail = true
-                     AND thumbnail.isDeleted = false),
+                     AND thumbnail.isDeleted = false
+                     ORDER BY thumbnail.id ASC LIMIT 1
+                     ),
                     (SELECT normal.imageUrl
                      FROM OrderableShopImage normal
                      WHERE normal.orderableShop.id = os.id
