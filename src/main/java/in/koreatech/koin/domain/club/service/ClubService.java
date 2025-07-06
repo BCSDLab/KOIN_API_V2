@@ -180,6 +180,7 @@ public class ClubService {
         String query,
         Integer userId
     ) {
+        sortType.validateRecruitingCondition(isRecruiting);
         List<ClubBaseInfo> clubBaseInfos = clubListQueryRepository.findAllClubInfo(categoryId, sortType,
             isRecruiting, query, userId);
         return ClubsByCategoryResponse.from(clubBaseInfos);

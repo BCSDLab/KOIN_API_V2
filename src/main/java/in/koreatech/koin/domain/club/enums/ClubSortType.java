@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.enums;
 
+import static in.koreatech.koin._common.code.ApiResponseCode.NOT_ALLOWED_RECRUITING_SORT_TYPE;
 import static in.koreatech.koin.domain.club.model.QClub.club;
 import static in.koreatech.koin.domain.club.model.QClubRecruitment.clubRecruitment;
 
@@ -9,6 +10,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberTemplate;
 
+import in.koreatech.koin._common.exception.CustomException;
 import lombok.Getter;
 
 @Getter
@@ -37,6 +39,11 @@ public enum ClubSortType {
         public List<OrderSpecifier<?>> getOrderSpecifiers() {
             return List.of(clubRecruitment.updatedAt.desc());
         }
+
+        @Override
+        public boolean isRecruitingOnly() {
+            return true;
+        }
     },
     RECRUITING_DEADLINE_ASC {
         @Override
@@ -52,7 +59,22 @@ public enum ClubSortType {
                 clubRecruitment.isAlwaysRecruiting.desc()
             );
         }
+
+        @Override
+        public boolean isRecruitingOnly() {
+            return true;
+        }
     };
 
     public abstract List<OrderSpecifier<?>> getOrderSpecifiers();
+
+    private boolean isRecruitingOnly() {
+        return false;
+    }
+
+    public void validateRecruitingCondition(boolean isRecruiting) {
+        if (this.isRecruitingOnly() && !isRecruiting) {
+            throw CustomException.of(NOT_ALLOWED_RECRUITING_SORT_TYPE);
+        }
+    }
 }
