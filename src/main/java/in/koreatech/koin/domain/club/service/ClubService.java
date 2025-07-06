@@ -105,8 +105,9 @@ public class ClubService {
         List<ClubSNS> newSNS = updateClubSNS(request, club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
         Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, studentId);
+        Boolean isRecruitSubscribed = clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, newSNS, manager, isLiked);
+        return ClubResponse.from(club, newSNS, manager, isLiked, isRecruitSubscribed);
     }
 
     private List<ClubSNS> updateClubSNS(ClubUpdateRequest request, Club club) {
@@ -136,10 +137,10 @@ public class ClubService {
         club.updateIntroduction(request.introduction());
         List<ClubSNS> clubSNSs = club.getClubSNSs();
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
-
         Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, studentId);
+        Boolean isRecruitSubscribed = clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId);
 
-        return ClubResponse.from(club, clubSNSs, manager, isLiked);
+        return ClubResponse.from(club, clubSNSs, manager, isLiked, isRecruitSubscribed);
     }
 
     private void isClubManager(Integer clubId, Integer studentId) {
@@ -159,8 +160,9 @@ public class ClubService {
         List<ClubSNS> clubSNSs = clubSNSRepository.findAllByClub(club);
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
         Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, userId);
+        Boolean isRecruitSubscribed = clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, userId);
 
-        return ClubResponse.from(club, clubSNSs, manager, isLiked);
+        return ClubResponse.from(club, clubSNSs, manager, isLiked, isRecruitSubscribed);
     }
 
     public ClubsByCategoryResponse getClubByCategory(
