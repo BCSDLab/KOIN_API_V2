@@ -4,6 +4,8 @@ import static in.koreatech.koin._common.code.ApiResponseCode.*;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,18 +20,22 @@ import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
+import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -381,6 +387,123 @@ public interface ClubApi {
     ResponseEntity<ClubRecruitmentResponse> getRecruitment(
         @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable(name = "clubId") Integer clubId,
         @UserId Integer userId
+    );
+
+    @ApiResponseCodes({
+        INVALID_CLUB_EVENT_PERIOD,
+        NOT_FOUND_CLUB,
+        NOT_FOUND_USER,
+    })
+    @Operation(summary = "동아리 행사를 생성한다", description = """
+        ### 동아리 행사 생성
+        - 동아리 행사를 생성합니다.
+        - 모집 시작 기간과 모집 마감 기간은 "yyyy-MM-ddT00:00:00" 형식입니다.
+        - ex) "2025-07-02T18:00:00"
+        - 기본적으로 "yyyy-MM-ddT00:00:00.000z" 형식으로 Swagger에서 반환되어, 뒤의 microsec를 지워야합니다.
+        
+        ### 에러 코드(에러 메시지)
+        - INVALID_EVENT_PERIOD (행사 종료일은 행사 시작일 이후여야 합니다.)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
+        """)
+    @PostMapping("/{clubId}/event")
+    ResponseEntity<Void> createClubEvent(
+        @PathVariable Integer clubId,
+        @RequestBody @Valid ClubEventCreateRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponseCodes({
+        INVALID_CLUB_EVENT_PERIOD,
+        NOT_FOUND_CLUB,
+        NOT_FOUND_USER,
+        NOT_FOUND_CLUB_EVENT
+    })
+    @Operation(summary = "동아리 행사를 수정한다", description = """
+        ### 동아리 행사 수정
+        - 동아리 행사를 수정합니다.
+        - 모집 시작 기간과 모집 마감 기간은 "yyyy-MM-ddT00:00:00" 형식입니다.
+        - ex) "2025-07-02T18:00:00"
+        - 기본적으로 "yyyy-MM-ddT00:00:00.000z" 형식으로 Swagger에서 반환되어, 뒤의 microsec를 지워야합니다.
+        
+        ### 에러 코드(에러 메시지)
+        - INVALID_EVENT_PERIOD (행사 종료일은 행사 시작일 이후여야 합니다.)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
+        - NOT_FOUND_CLUB_EVENT (동아리 행사가 존재하지 않습니다.)
+        """)
+    @PutMapping("/{clubId}/event/{eventId}")
+    ResponseEntity<Void> modifyClubEvent(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @RequestBody @Valid ClubEventModifyRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponseCodes({
+        NOT_FOUND_CLUB,
+        NOT_FOUND_USER,
+        NOT_FOUND_CLUB_EVENT
+    })
+    @Operation(summary = "동아리 행사를 삭제한다", description = """
+        ### 동아리 행사 삭제
+        - 동아리 행사를 삭제합니다.
+        
+        ### 에러 코드(에러 메시지)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
+        - NOT_FOUND_CLUB_EVENT (동아리 행사가 존재하지 않습니다.)
+        """)
+    @DeleteMapping("/{clubId}/event/{eventId}")
+    ResponseEntity<Void> deleteClubEvent(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponseCodes({
+        NOT_FOUND_CLUB,
+        NOT_FOUND_CLUB_EVENT
+    })
+    @Operation(summary = "동아리 행사를 단일 조회한다.", description = """
+        ### 동아리 행사 단일 조회
+        - 동아리 행사를 단일 조회합니다.
+        
+        ### 에러 코드(에러 메시지)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_CLUB_EVENT (동아리 행사가 존재하지 않습니다.)
+        """)
+    @GetMapping("/{clubId}/event/{eventId}")
+    ResponseEntity<ClubEventResponse> getClubEvent(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId
+    );
+
+
+    @ApiResponseCodes({
+        INVALID_CLUB_EVENT_TYPE,
+        NOT_FOUND_CLUB,
+        NOT_FOUND_CLUB_EVENT
+    })
+    @Operation(summary = "동아리 행사를 상태에 따라 조회한다", description = """
+        ### 동아리 행사 전체 조회
+        - 동아리 행사를 상태에 따라 조회합니다.
+        - default 조회값은 RECENT입니다. 기본 정렬 값은 최신 등록순입니다.
+        - eventType
+            - RECENT : 최신 등록순으로 조회됩니다. 종료된 행사는 가장 아래에 깔립니다. 그 외는 최신 등록순입니다.
+            - ONGOING : 행사 시작 1시간 전과 진행 중인 행사가 조회됩니다. 
+            - UPCOMING : 행사 시작 시간이 1시간 이상인 행사가 조회됩니다. 
+            - ENDED : 행사가 종료되고 1분이 지난 시점의 행사가 조회됩니다.
+            
+        ### 에러 코드(에러 메시지)
+        - INVALID_CLUB_EVENT_TYPE (올바르지 않은 동아리 행사 타입입니다.)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_CLUB_EVENT (동아리 행사가 존재하지 않습니다.)
+        """)
+    @GetMapping("/{clubId}/event")
+    ResponseEntity<List<ClubEventResponse>> getClubEvents(
+        @PathVariable Integer clubId,
+        @RequestParam(defaultValue = "RECENT") ClubEventType eventType
     );
 
     @Operation(summary = "특정 동아리의 특정 행사알림 구독")

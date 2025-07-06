@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.club.service;
 
 import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,18 +17,24 @@ import in.koreatech.koin._common.event.ClubCreateEvent;
 import in.koreatech.koin._common.event.ClubRecruitmentChangeEvent;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubHotStatusResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
+import in.koreatech.koin.domain.club.enums.ClubEventStatus;
+import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
@@ -39,6 +46,7 @@ import in.koreatech.koin.domain.club.model.ClubBaseInfo;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubEvent;
 import in.koreatech.koin.domain.club.model.ClubEventSubscription;
+import in.koreatech.koin.domain.club.model.ClubHot;
 import in.koreatech.koin.domain.club.model.ClubLike;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.ClubQna;
@@ -171,8 +179,11 @@ public class ClubService {
         Boolean manager = clubManagerRepository.existsByClubIdAndUserId(clubId, userId);
         Boolean isLiked = clubLikeRepository.existsByClubIdAndUserId(clubId, userId);
         Boolean isRecruitSubscribed = clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, userId);
+        ClubHotStatusResponse hotStatus = clubHotRepository.findTopByClubIdOrderByIdDesc(clubId)
+            .map(this::generateHotStatusResponse)
+            .orElse(null);
 
-        return ClubResponse.from(club, clubSNSs, manager, isLiked, isRecruitSubscribed);
+        return ClubResponse.from(club, clubSNSs, manager, isLiked, isRecruitSubscribed, hotStatus);
     }
 
     public ClubsByCategoryResponse getClubByCategory(
@@ -388,6 +399,107 @@ public class ClubService {
 
     private boolean verifyAlreadySubscribedRecruitment(Integer clubId, Integer studentId) {
         return clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId);
+    }
+
+    @Transactional
+    public void createClubEvent(ClubEventCreateRequest request, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubEventRepository.save(request.toEntity(club));
+    }
+
+    @Transactional
+    public void modifyClubEvent(ClubEventModifyRequest request, Integer eventId, Integer clubId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubEvent clubEvent = clubEventRepository.getById(eventId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubEvent.modifyClubEvent(
+            request.name(),
+            request.imageUrl(),
+            request.startDate(),
+            request.endDate(),
+            request.introduce(),
+            request.content()
+        );
+    }
+
+    @Transactional
+    public void deleteClubEvent(Integer clubId, Integer eventId, Integer studentId) {
+        Club club = clubRepository.getById(clubId);
+        ClubEvent clubEvent = clubEventRepository.getById(eventId);
+        Student student = studentRepository.getById(studentId);
+        isClubManager(club.getId(), student.getId());
+
+        clubEventRepository.delete(clubEvent);
+    }
+
+    public ClubEventResponse getClubEvent(Integer clubId, Integer eventId) {
+        ClubEvent clubEvent = clubEventRepository.getClubEventByIdAndClubId(eventId, clubId);
+        return ClubEventResponse.from(clubEvent, LocalDateTime.now());
+    }
+
+    public List<ClubEventResponse> getClubEvents(Integer clubId, ClubEventType eventType) {
+        List<ClubEvent> events = clubEventRepository.getAllByClubId(clubId);
+        LocalDateTime now = LocalDateTime.now();
+
+        return events.stream()
+            .filter(event -> filterEventType(event, eventType, now))
+            .sorted((e1, e2) -> compareEvents(e1, e2, eventType, now))
+            .map(event -> ClubEventResponse.from(event, now))
+            .toList();
+    }
+
+    private boolean filterEventType(ClubEvent event, ClubEventType eventType, LocalDateTime now) {
+        ClubEventStatus status = ClubEventResponse.calculateStatus(event.getStartDate(), event.getEndDate(), now);
+
+        if (eventType == null || eventType == ClubEventType.RECENT)
+            return true;
+
+        if (eventType == ClubEventType.ONGOING) {
+            return status == ClubEventStatus.ONGOING || status == ClubEventStatus.SOON;
+        }
+
+        return status.name().equals(eventType.name());
+    }
+
+    private int compareEvents(ClubEvent e1, ClubEvent e2, ClubEventType eventType, LocalDateTime now) {
+        ClubEventStatus status1 = ClubEventResponse.calculateStatus(e1.getStartDate(), e1.getEndDate(), now);
+        ClubEventStatus status2 = ClubEventResponse.calculateStatus(e2.getStartDate(), e2.getEndDate(), now);
+
+        if (eventType == ClubEventType.RECENT) {
+            boolean isEnded1 = status1 == ClubEventStatus.ENDED;
+            boolean isEnded2 = status2 == ClubEventStatus.ENDED;
+
+            if (isEnded1 != isEnded2) {
+                return Boolean.compare(isEnded1, isEnded2);
+            }
+
+            return e2.getCreatedAt().compareTo(e1.getCreatedAt());
+        }
+
+        int priority1 = status1.getPriority();
+        int priority2 = status2.getPriority();
+
+        if (priority1 != priority2) {
+            return Integer.compare(priority1, priority2);
+        }
+
+        return e2.getCreatedAt().compareTo(e1.getCreatedAt());
+    }
+
+    private ClubHotStatusResponse generateHotStatusResponse(ClubHot hot) {
+        List<ClubHot> hotClubs = clubHotRepository.findAllByOrderByIdDesc();
+        int count = 0;
+        for (ClubHot hotClub : hotClubs) {
+            if (!hot.getClub().getId().equals(hotClub.getClub().getId()))
+                break;
+            count++;
+        }
+        return ClubHotStatusResponse.from(hot, count);
     }
 
     @Transactional
