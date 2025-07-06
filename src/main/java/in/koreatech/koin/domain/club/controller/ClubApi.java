@@ -119,6 +119,7 @@ public interface ClubApi {
         - categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
         - query에 내용을 넣으면 검색이 됩니다.
         - isRecruiting의 기본값은 false 입니다.
+        - RECRUITMENT_UPDATED_DESC, RECRUITING_DEADLINE_ASC은 isRecruiting가 true 경우에만 사용할 수 있습니다.
         
         ### 반환 정보
           - recruitmentInfo : 동아리 모집 정보를 담고 있습니다.
