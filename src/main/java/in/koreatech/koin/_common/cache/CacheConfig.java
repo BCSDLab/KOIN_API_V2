@@ -99,6 +99,11 @@ public class CacheConfig {
             defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.RIDER_MESSAGES.getTtl()))
         );
 
+        customConfigurationMap.put(
+            CacheKey.ORDERABLE_SHOP_INFO_SUMMARY.getCacheNames(),
+            defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.ORDERABLE_SHOP_INFO_SUMMARY.getTtl()))
+        );
+
         return customConfigurationMap;
     }
 }

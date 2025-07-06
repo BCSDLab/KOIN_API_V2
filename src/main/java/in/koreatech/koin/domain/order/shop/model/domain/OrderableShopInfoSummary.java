@@ -15,6 +15,7 @@ public record OrderableShopInfoSummary(
     Double ratingAverage,
     Integer reviewCount,
     Integer minimumDeliveryTip,
-    Integer maximumDeliveryTip
+    Integer maximumDeliveryTip,
+    String imageUrl
 ) {
 }

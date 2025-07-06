@@ -26,7 +26,20 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
                 CAST(COALESCE(AVG(r.rating), 0.0) AS double),
                 CAST(COUNT(DISTINCT r.id) AS int),
                 CAST(COALESCE(MIN(bdt.fee), 0) AS int),
-                CAST(COALESCE(MAX(bdt.fee), 0) AS int)
+                CAST(COALESCE(MAX(bdt.fee), 0) AS int),
+                COALESCE(
+                    (SELECT thumbnail.imageUrl
+                     FROM OrderableShopImage thumbnail
+                     WHERE thumbnail.orderableShop.id = os.id
+                     AND thumbnail.isThumbnail = true
+                     AND thumbnail.isDeleted = false),
+                    (SELECT normal.imageUrl
+                     FROM OrderableShopImage normal
+                     WHERE normal.orderableShop.id = os.id
+                     AND normal.isDeleted = false
+                     ORDER BY normal.id ASC LIMIT 1
+                    )
+                )
             )
             FROM OrderableShop os
             JOIN os.shop s
