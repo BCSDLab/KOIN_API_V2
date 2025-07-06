@@ -371,7 +371,8 @@ public class ClubService {
             throw CustomException.of(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT);
         }
 
-        if (verifyAlreadySubscribed(eventId, studentId))    return;
+        if (verifyAlreadySubscribed(eventId, studentId))
+            return;
 
         ClubEventSubscription clubEventSubscription = ClubEventSubscription.builder()
             .clubEvent(clubEvent)
@@ -390,7 +391,8 @@ public class ClubService {
             throw CustomException.of(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT);
         }
 
-        if (!verifyAlreadySubscribed(eventId, studentId)) return;
+        if (!verifyAlreadySubscribed(eventId, studentId))
+            return;
 
         clubEventSubscriptionRepository.deleteByClubEventIdAndUserId(eventId, studentId);
     }
