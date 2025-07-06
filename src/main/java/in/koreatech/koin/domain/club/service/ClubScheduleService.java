@@ -1,7 +1,10 @@
 package in.koreatech.koin.domain.club.service;
 
+import static in.koreatech.koin._common.model.MobileAppPath.CLUB;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,12 +17,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.domain.club.model.ClubEventSubscription;
 import in.koreatech.koin.domain.club.model.ClubHot;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
+import in.koreatech.koin.domain.club.repository.ClubEventRepository;
+import in.koreatech.koin.domain.club.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
+import in.koreatech.koin.domain.notification.model.Notification;
+import in.koreatech.koin.domain.notification.model.NotificationFactory;
+import in.koreatech.koin.domain.notification.service.NotificationService;
+import in.koreatech.koin.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +46,10 @@ public class ClubScheduleService {
     private final ClubHotRedisRepository hotClubRedisRepository;
     private final ClubHotRepository clubHotRepository;
     private final ClubHitsRedisRepository clubHitsRedisRepository;
+    private final ClubEventRepository clubEventRepository;
+    private final ClubEventSubscriptionRepository clubEventSubscriptionRepository;
+    private final NotificationFactory notificationFactory;
+    private final NotificationService notificationService;
 
     @Transactional
     public void updateHotClub() {
@@ -102,5 +117,95 @@ public class ClubScheduleService {
         }
 
         clubHitsRedisRepository.deleteHitsByKeys(deletedKeys);
+    }
+
+    @Transactional
+    public void sendClubEventNotificationsBeforeOneDay() {
+        List<ClubEvent> events = getClubEventsStartingTomorrow();
+        if (events.isEmpty()) return;
+
+        Map<Integer, List<User>> eventIdToUserMap = getEventIdToUserMap(events);
+
+        for (ClubEvent event : events) {
+            List<User> subscribers = eventIdToUserMap.getOrDefault(event.getId(), List.of());
+            if (subscribers.isEmpty()) continue;
+
+            List<Notification> notifications = subscribers.stream()
+                .map(user -> createClubEventNotificationBeforeOneDay(event, user))
+                .toList();
+            notificationService.pushNotifications(notifications);
+        }
+    }
+
+    private List<ClubEvent> getClubEventsStartingTomorrow() {
+        LocalDateTime start = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+        return clubEventRepository.findAllWithClubByStartDateBetween(start, end);
+    }
+
+    private Map<Integer, List<User>> getEventIdToUserMap(List<ClubEvent> events) {
+        List<Integer> eventIds = events.stream()
+            .map(ClubEvent::getId)
+            .toList();
+
+        List<ClubEventSubscription> subscriptions =
+            clubEventSubscriptionRepository.findAllWithUserByEventIdIn(eventIds);
+
+        Map<Integer, List<User>> eventIdToUserMap = new HashMap<>();
+        for (ClubEventSubscription subscription : subscriptions) {
+            Integer eventId = subscription.getClubEvent().getId();
+            User user = subscription.getUser();
+            eventIdToUserMap.computeIfAbsent(eventId, k -> new ArrayList<>()).add(user);
+        }
+        return eventIdToUserMap;
+    }
+
+    private Notification createClubEventNotificationBeforeOneDay(ClubEvent event, User user) {
+        return notificationFactory.generateClubEventNotificationBeforeOneDay(
+            CLUB,
+            event.getClub().getId(),
+            event.getId(),
+            event.getName(),
+            event.getClub().getName(),
+            event.getStartDate(),
+            user
+        );
+    }
+
+    @Transactional
+    public void sendClubEventNotificationsBeforeOneHour() {
+        List<ClubEvent> events = getClubEventsUpcomingEventsWithOneHour();
+        if (events.isEmpty()) return;
+
+        Map<Integer, List<User>> eventIdToUserMap = getEventIdToUserMap(events);
+
+        for (ClubEvent event : events) {
+            List<User> subscribers = eventIdToUserMap.getOrDefault(event.getId(), List.of());
+            if (subscribers.isEmpty()) continue;
+
+            List<Notification> notifications = subscribers.stream()
+                .map(user -> createClubEventNotificationBeforeOneHour(event, user))
+                .toList();
+            notificationService.pushNotifications(notifications);
+
+            event.markAsNotifiedBeforeOneHour();
+        }
+    }
+
+    private List<ClubEvent> getClubEventsUpcomingEventsWithOneHour() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime hourLater = now.plusHours(1);
+        return clubEventRepository.findAllWithClubUpcomingEventsWithOneHour(now, hourLater);
+    }
+
+    private Notification createClubEventNotificationBeforeOneHour(ClubEvent event, User user) {
+        return notificationFactory.generateClubEventNotificationBeforeOneHour(
+            CLUB,
+            event.getClub().getId(),
+            event.getId(),
+            event.getName(),
+            event.getClub().getName(),
+            user
+        );
     }
 }

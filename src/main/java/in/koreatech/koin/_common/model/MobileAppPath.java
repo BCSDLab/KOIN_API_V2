@@ -10,7 +10,7 @@ public enum MobileAppPath {
     DINING("dining"),
     KEYWORD("keyword"),
     CHAT("chat"),
-    CLUB("club")
+    CLUB("club"),
     ;
 
     private final String path;

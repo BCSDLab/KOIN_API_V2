@@ -497,6 +497,38 @@ public interface ClubApi {
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
+    @Operation(summary = "특정 동아리의 특정 행사알림 구독")
+    @ApiResponseCodes({
+        ApiResponseCode.CREATED,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT
+    })
+    @PostMapping("{clubId}/event/{eventId}/notification")
+    ResponseEntity<Void> subscribeEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 특정 행사알림 구독취소")
+    @ApiResponseCodes({
+        ApiResponseCode.NO_CONTENT,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT
+    })
+    @DeleteMapping("{clubId}/event/{eventId}/notification")
+    ResponseEntity<Void> rejectEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
     @Operation(summary = "특정 동아리의 모집알림 구독")
     @ApiResponseCodes({
         ApiResponseCode.CREATED,
