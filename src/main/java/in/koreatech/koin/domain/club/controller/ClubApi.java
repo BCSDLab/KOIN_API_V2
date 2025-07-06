@@ -115,7 +115,7 @@ public interface ClubApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "카테고리를 기준으로 동아리를 조회한다", description = """
+    @Operation(summary = "동아리를 조회한다", description = """
         - categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
         - query에 내용을 넣으면 검색이 됩니다.
         - isRecruiting의 기본값은 false 입니다.
@@ -133,7 +133,7 @@ public interface ClubApi {
               - 이외의 상태에서는 null로 내려갑니다.
         """)
     @GetMapping
-    ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
+    ResponseEntity<ClubsByCategoryResponse> getClubs(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "false") Boolean isRecruiting,
         @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,

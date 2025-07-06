@@ -72,7 +72,7 @@ public class ClubController implements ClubApi {
     }
 
     @GetMapping
-    public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
+    public ResponseEntity<ClubsByCategoryResponse> getClubs(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "false") Boolean isRecruiting,
         @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
