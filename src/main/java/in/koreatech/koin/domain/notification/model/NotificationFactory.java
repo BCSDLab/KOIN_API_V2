@@ -8,6 +8,23 @@ import in.koreatech.koin._common.model.MobileAppPath;
 @Component
 public class NotificationFactory {
 
+    public Notification generateClubRecruitmentNotification(
+        MobileAppPath path,
+        Integer clubId,
+        String clubName,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateSchemeUri(path, clubId), //검토필요
+            "[코인동아리] %s 모집 공고가 갱신되었어요!".formatted(clubName),
+            "%s에 모집 정보가 새로 업데이트되었어요.\n행사 내용 둘러보기".formatted(clubName),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
     public Notification generateReviewPromptNotification(
         MobileAppPath path,
         Integer eventShopId,
