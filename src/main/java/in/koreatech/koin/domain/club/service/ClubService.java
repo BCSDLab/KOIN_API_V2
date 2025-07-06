@@ -361,8 +361,6 @@ public class ClubService {
         clubRecruitmentRepository.delete(clubRecruitment);
     }
 
-
-
     @Transactional
     public void subscribeEventNotification(Integer clubId, Integer eventId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
@@ -382,10 +380,6 @@ public class ClubService {
         clubEventSubscriptionRepository.save(clubEventSubscription);
     }
 
-    private boolean verifyAlreadySubscribed(Integer eventId, Integer studentId) {
-        return clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId);
-    }
-
     @Transactional
     public void rejectEventNotification(Integer clubId, Integer eventId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
@@ -396,12 +390,12 @@ public class ClubService {
             throw new KoinIllegalArgumentException("해당 동아리의 이벤트가 아닙니다.");
         }
 
-        if (verifyNotSubscribed(eventId, studentId)) return;
+        if (!verifyAlreadySubscribed(eventId, studentId)) return;
 
         clubEventSubscriptionRepository.deleteByClubEventIdAndUserId(eventId, studentId);
     }
 
-    private boolean verifyNotSubscribed(Integer eventId, Integer studentId) {
-        return !clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId);
+    private boolean verifyAlreadySubscribed(Integer eventId, Integer studentId) {
+        return clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId);
     }
 }
