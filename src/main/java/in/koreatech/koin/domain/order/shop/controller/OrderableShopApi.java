@@ -158,7 +158,8 @@ public interface OrderableShopApi {
                           "rating_average": 4.5,
                           "review_count": 120,
                           "minimum_delivery_tip": 2000,
-                          "maximum_delivery_tip": 5000
+                          "maximum_delivery_tip": 5000,
+                          "image_url": "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg"
                         }
                         """
                     )

@@ -35,36 +35,6 @@ public class CacheConfig {
             .build();
     }
 
-    /* response 형태가
-    * [
-        {
-            "menu_group_id": 1,
-            "menu_group_name": "메인 메뉴"
-         },
-      ]
-    * 다음과 같이 배열로 시작할 때 사용
-    * 즉, @Cacheable이 붙은 메서드가 List 같은 컬렉션을 직접 반환하는 경우 사용
-    */
-    private RedisCacheConfiguration listResultConfiguration() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-        return RedisCacheConfiguration.defaultCacheConfig()
-            .serializeKeysWith(fromSerializer(new StringRedisSerializer()))
-            .serializeValuesWith(fromSerializer(new GenericJackson2JsonRedisSerializer(mapper)))
-            .entryTtl(Duration.ofMinutes(1));
-    }
-
-    /* response 형태가
-    * {
-            "menu_group_id": 1,
-            "menu_group_name": "메인 메뉴"
-       }
-    * 다음과 같을 때 사용
-    * 즉, @Cacheable이 붙은 메서드가 단일 Wrapper DTO을 직접 반환하는 경우 사용
-    */
     private RedisCacheConfiguration defaultConfiguration() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -74,7 +44,7 @@ public class CacheConfig {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(Object.class)
             .build();
-        mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.EVERYTHING);
 
         return RedisCacheConfiguration.defaultCacheConfig()
             .serializeKeysWith(fromSerializer(new StringRedisSerializer()))
@@ -86,7 +56,7 @@ public class CacheConfig {
         Map<String, RedisCacheConfiguration> customConfigurationMap = new HashMap<>();
         customConfigurationMap.put(
             CacheKey.ORDERABLE_SHOP_MENUS.getCacheNames(),
-            listResultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.ORDERABLE_SHOP_MENUS.getTtl()))
+            defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.ORDERABLE_SHOP_MENUS.getTtl()))
         );
 
         customConfigurationMap.put(
@@ -97,6 +67,11 @@ public class CacheConfig {
         customConfigurationMap.put(
             CacheKey.RIDER_MESSAGES.getCacheNames(),
             defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.RIDER_MESSAGES.getTtl()))
+        );
+
+        customConfigurationMap.put(
+            CacheKey.ORDERABLE_SHOP_INFO_SUMMARY.getCacheNames(),
+            defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.ORDERABLE_SHOP_INFO_SUMMARY.getTtl()))
         );
 
         return customConfigurationMap;
