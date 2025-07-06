@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
@@ -505,6 +507,64 @@ public interface ClubApi {
     @DeleteMapping("/{clubId}/recruitment")
     ResponseEntity<Void> deleteRecruitment(
         @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 특정 행사알림 구독")
+    @ApiResponseCodes({
+        ApiResponseCode.CREATED,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT
+    })
+    @PostMapping("{clubId}/event/{eventId}/notification")
+    ResponseEntity<Void> subscribeEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 특정 행사알림 구독취소")
+    @ApiResponseCodes({
+        ApiResponseCode.NO_CONTENT,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_EVENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT
+    })
+    @DeleteMapping("{clubId}/event/{eventId}/notification")
+    ResponseEntity<Void> rejectEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 모집알림 구독")
+    @ApiResponseCodes({
+        ApiResponseCode.CREATED,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.FORBIDDEN_USER_TYPE
+    })
+    @PostMapping("{clubId}/recruitment/notification")
+    ResponseEntity<Void> subscribeRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 모집알림 구독취소")
+    @ApiResponseCodes({
+        ApiResponseCode.NO_CONTENT,
+        ApiResponseCode.NOT_FOUND_USER,
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.FORBIDDEN_USER_TYPE
+    })
+    @DeleteMapping("{clubId}/recruitment/notification")
+    ResponseEntity<Void> rejectRecruitmentNotification(
+        @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 }
