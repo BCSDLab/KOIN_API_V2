@@ -400,11 +400,6 @@ public interface ClubApi {
         - 모집 시작 기간과 모집 마감 기간은 "yyyy-MM-ddT00:00:00" 형식입니다.
         - ex) "2025-07-02T18:00:00"
         - 기본적으로 "yyyy-MM-ddT00:00:00.000z" 형식으로 Swagger에서 반환되어, 뒤의 microsec를 지워야합니다.
-        
-        ### 에러 코드(에러 메시지)
-        - INVALID_EVENT_PERIOD (행사 종료일은 행사 시작일 이후여야 합니다.)
-        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
-        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
         """)
     @PostMapping("/{clubId}/event")
     ResponseEntity<Void> createClubEvent(
@@ -425,12 +420,6 @@ public interface ClubApi {
         - 모집 시작 기간과 모집 마감 기간은 "yyyy-MM-ddT00:00:00" 형식입니다.
         - ex) "2025-07-02T18:00:00"
         - 기본적으로 "yyyy-MM-ddT00:00:00.000z" 형식으로 Swagger에서 반환되어, 뒤의 microsec를 지워야합니다.
-        
-        ### 에러 코드(에러 메시지)
-        - INVALID_EVENT_PERIOD (행사 종료일은 행사 시작일 이후여야 합니다.)
-        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
-        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
-        - NOT_FOUND_CLUB_EVENT (동아리 행사가 존재하지 않습니다.)
         """)
     @PutMapping("/{clubId}/event/{eventId}")
     ResponseEntity<Void> modifyClubEvent(
@@ -448,11 +437,6 @@ public interface ClubApi {
     @Operation(summary = "동아리 행사를 삭제한다", description = """
         ### 동아리 행사 삭제
         - 동아리 행사를 삭제합니다.
-        
-        ### 에러 코드(에러 메시지)
-        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
-        - NOT_FOUND_USER (해당 사용자를 찾을 수 없습니다.)
-        - NOT_FOUND_CLUB_EVENT (동아리 행사가 존재하지 않습니다.)
         """)
     @DeleteMapping("/{clubId}/event/{eventId}")
     ResponseEntity<Void> deleteClubEvent(
@@ -468,10 +452,6 @@ public interface ClubApi {
     @Operation(summary = "동아리 행사를 단일 조회한다.", description = """
         ### 동아리 행사 단일 조회
         - 동아리 행사를 단일 조회합니다.
-        
-        ### 에러 코드(에러 메시지)
-        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
-        - NOT_FOUND_CLUB_EVENT (동아리 행사가 존재하지 않습니다.)
         """)
     @GetMapping("/{clubId}/event/{eventId}")
     ResponseEntity<ClubEventResponse> getClubEvent(
@@ -494,11 +474,6 @@ public interface ClubApi {
             - ONGOING : 행사 시작 1시간 전과 진행 중인 행사가 조회됩니다. 
             - UPCOMING : 행사 시작 시간이 1시간 이상인 행사가 조회됩니다. 
             - ENDED : 행사가 종료되고 1분이 지난 시점의 행사가 조회됩니다.
-            
-        ### 에러 코드(에러 메시지)
-        - INVALID_CLUB_EVENT_TYPE (올바르지 않은 동아리 행사 타입입니다.)
-        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
-        - NOT_FOUND_CLUB_EVENT (동아리 행사가 존재하지 않습니다.)
         """)
     @GetMapping("/{clubId}/event")
     ResponseEntity<List<ClubEventResponse>> getClubEvents(
