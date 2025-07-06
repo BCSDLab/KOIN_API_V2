@@ -91,18 +91,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
         ApiResponseCode errorCode = ApiResponseCode.INVALID_REQUEST_BODY;
-        String traceId = UUID.randomUUID().toString();
+        String errorTraceId = UUID.randomUUID().toString();
 
         List<ErrorResponse.FieldError> fieldErrors = getFieldErrors(ex);
         String firstErrorMessage = getFirstFieldErrorMessage(fieldErrors, errorCode.getMessage());
 
-        requestLogging(request, errorCode.getHttpStatus().value(), firstErrorMessage, traceId);
+        requestLogging(request, errorCode.getHttpStatus().value(), firstErrorMessage, errorTraceId);
 
         ErrorResponse body = new ErrorResponse(
             errorCode.getHttpStatus().value(),
             errorCode.getCode(),
             firstErrorMessage,
-            traceId,
+            errorTraceId,
             fieldErrors
         );
         return ResponseEntity.status(errorCode.getHttpStatus()).body(body);
@@ -199,7 +199,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorMessage,
         String errorTraceId
     ) {
-        log.warn("[{}] {} | TraceId={}", httpStatus, errorMessage, errorTraceId);
+        log.warn("[{}] {} | errorTraceId={}", httpStatus, errorMessage, errorTraceId);
         log.debug("Request: {} {}", request.getMethod(), request.getRequestURI());
         log.debug("Headers: {}", getHeaders(request));
         log.debug("Query String: {}", getQueryString(request));
