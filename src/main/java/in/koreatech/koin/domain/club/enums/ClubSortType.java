@@ -68,7 +68,7 @@ public enum ClubSortType {
 
     public abstract List<OrderSpecifier<?>> getOrderSpecifiers();
 
-    private boolean isRecruitingOnly() {
+    public boolean isRecruitingOnly() {
         return false;
     }
 
