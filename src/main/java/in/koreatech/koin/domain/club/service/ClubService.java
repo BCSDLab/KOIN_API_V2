@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
 import in.koreatech.koin._common.event.ClubCreateEvent;
+import in.koreatech.koin._common.event.ClubRecruitmentChangeEvent;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
@@ -326,6 +327,7 @@ public class ClubService {
         }
 
         clubRecruitmentRepository.save(request.toEntity(club));
+        eventPublisher.publishEvent(new ClubRecruitmentChangeEvent(club.getName(), club.getId()));
     }
 
     @Transactional
@@ -342,6 +344,7 @@ public class ClubService {
             request.imageUrl(),
             request.content()
         );
+        eventPublisher.publishEvent(new ClubRecruitmentChangeEvent(club.getName(), club.getId()));
     }
 
     @Transactional
