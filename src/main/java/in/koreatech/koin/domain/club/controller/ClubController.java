@@ -75,7 +75,7 @@ public class ClubController implements ClubApi {
     public ResponseEntity<ClubsByCategoryResponse> getClubs(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "false") Boolean isRecruiting,
-        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "CREATED_AT_ASC") ClubSortType sortType,
         @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
     ) {

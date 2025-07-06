@@ -118,6 +118,7 @@ public interface ClubApi {
     @Operation(summary = "동아리를 조회한다", description = """
         - categoryId 값이 없으면 카테고리 구별없이 전체조회가 됩니다.
         - query에 내용을 넣으면 검색이 됩니다.
+        - sortType의 기본값은 CREATED_AT_ASC (동아리 생성 순) 입니다.
         - isRecruiting의 기본값은 false 입니다.
         - RECRUITMENT_UPDATED_DESC, RECRUITING_DEADLINE_ASC은 isRecruiting가 true 경우에만 사용할 수 있습니다.
         
@@ -136,7 +137,7 @@ public interface ClubApi {
     ResponseEntity<ClubsByCategoryResponse> getClubs(
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false, defaultValue = "false") Boolean isRecruiting,
-        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "CREATED_AT_ASC") ClubSortType sortType,
         @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
     );
