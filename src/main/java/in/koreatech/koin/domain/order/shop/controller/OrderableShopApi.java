@@ -159,7 +159,12 @@ public interface OrderableShopApi {
                           "review_count": 120,
                           "minimum_delivery_tip": 2000,
                           "maximum_delivery_tip": 5000,
-                          "image_url": "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg"
+                          "images": [
+                            {
+                                "image_url": "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg",
+                                "is_thumbnail": true
+                            }
+                          ]
                         }
                         """
                     )
@@ -195,6 +200,7 @@ public interface OrderableShopApi {
             - review_count: 리뷰 수
             - minimum_delivery_tip: 최소 배달비
             - maximum_delivery_tip: 최대 배달비
+            - images: 상점 이미지, **존재 하지 않는 경우 빈 배열 반환**
         """)
     @GetMapping("/order/shop/{orderableShopId}/summary")
     ResponseEntity<OrderableShopInfoSummaryResponse> getOrderableShopInfoSummary(
