@@ -24,7 +24,9 @@ public class OrderableShopInformationService {
     @Cacheable(value = ORDERABLE_SHOP_INFO_SUMMARY_CACHE, key = "#orderableShopId")
     public OrderableShopInfoSummaryResponse getOrderableShopInfoSummaryById(Integer orderableShopId) {
         return OrderableShopInfoSummaryResponse.from(
-            orderableShopRepository.getOrderableShopInfoSummaryById(orderableShopId));
+            orderableShopRepository.getOrderableShopInfoSummaryById(orderableShopId),
+            orderableShopRepository.getById(orderableShopId).getShopImages()
+        );
     }
 
     public OrderableShopInfoDetailResponse getOrderableShopInfoDetailById(Integer orderableShopId) {
