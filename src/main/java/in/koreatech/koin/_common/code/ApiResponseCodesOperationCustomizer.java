@@ -70,7 +70,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     private MediaType createMediaType(ApiResponseCode code, HandlerMethod handlerMethod, Type returnType) {
         if (code.getHttpStatus().is2xxSuccessful()) {
             return new MediaType().schema(loadSchema(returnType));
-        } else if (code.equals(ApiResponseCode.INVALID_REQUEST_PAYLOAD)) {
+        } else if (code.equals(ApiResponseCode.INVALID_REQUEST_BODY)) {
             return errorMediaType(buildInvalidPayloadExample(code, handlerMethod));
         } else {
             return errorMediaType(buildGenericErrorExample(code));
