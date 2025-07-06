@@ -602,10 +602,13 @@ public interface ClubApi {
     @Operation(summary = "동아리 행사를 상태에 따라 조회한다", description = """
         ### 동아리 행사 전체 조회
         - 동아리 행사를 상태에 따라 조회합니다.
-        - default 조회값은 전체 조회입니다. 기본 정렬 값은 행사 예정(UPCOMING) -> 곧 행사 시작(SOON) -> 행사 진행 중(ONGOING) -> 행사 종료(ENDED)입니다.
-        - UPCOMING(행사 시작 1시간 이상 남은 경우), SOON(행사 시작 1시간 전 ~ 행사 시작 시간 전인 경우)
-        - ONGOING(행사 시작 시간 ~ 행사 마감 시간인 경우), ENDED(행사 마감 시간 1분 이후)입니다.
-        
+        - default 조회값은 RECENT입니다. 기본 정렬 값은 최신 등록순입니다.
+        - eventType
+            - RECENT : 최신 등록순으로 조회됩니다. 종료된 행사는 가장 아래에 깔립니다. 그 외는 최신 등록순입니다.
+            - ONGOING : 행사 시작 1시간 전과 진행 중인 행사가 조회됩니다. 
+            - UPCOMING : 행사 시작 시간이 1시간 이상인 행사가 조회됩니다. 
+            - ENDED : 행사가 종료되고 1분이 지난 시점의 행사가 조회됩니다.
+            
         ### 에러 코드(에러 메시지)
         - INVALID_CLUB_EVENT_TYPE (올바르지 않은 동아리 행사 타입입니다.)
         - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)

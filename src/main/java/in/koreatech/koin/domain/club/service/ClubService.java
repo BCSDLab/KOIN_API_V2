@@ -3,9 +3,7 @@ package in.koreatech.koin.domain.club.service;
 import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
 import static in.koreatech.koin.domain.club.enums.ClubSortType.HITS_DESC;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -34,6 +32,7 @@ import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubEventStatus;
 import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
@@ -418,32 +417,55 @@ public class ClubService {
 
         return events.stream()
             .filter(event -> filterEventType(event, eventType, now))
-            .sorted(Comparator.comparing(
-                event -> ClubEventResponse.calculateStatus(event.getStartDate(), event.getEndDate(), now)
-                    .getPriority()))
+            .sorted((e1, e2) -> compareEvents(e1, e2, eventType, now))
             .map(event -> ClubEventResponse.from(event, now))
             .toList();
     }
 
     private boolean filterEventType(ClubEvent event, ClubEventType eventType, LocalDateTime now) {
-        if (eventType == null) {
+        ClubEventStatus status = ClubEventResponse.calculateStatus(event.getStartDate(), event.getEndDate(), now);
+
+        if (eventType == null || eventType == ClubEventType.RECENT)
             return true;
+
+        if (eventType == ClubEventType.ONGOING) {
+            return status == ClubEventStatus.ONGOING || status == ClubEventStatus.SOON;
         }
 
-        ClubEventType currentType = ClubEventResponse.calculateStatus(
-            event.getStartDate(),
-            event.getEndDate(),
-            now
-        );
+        return status.name().equals(eventType.name());
+    }
 
-        return currentType == eventType;
+    private int compareEvents(ClubEvent e1, ClubEvent e2, ClubEventType eventType, LocalDateTime now) {
+        ClubEventStatus status1 = ClubEventResponse.calculateStatus(e1.getStartDate(), e1.getEndDate(), now);
+        ClubEventStatus status2 = ClubEventResponse.calculateStatus(e2.getStartDate(), e2.getEndDate(), now);
+
+        if (eventType == ClubEventType.RECENT) {
+            boolean isEnded1 = status1 == ClubEventStatus.ENDED;
+            boolean isEnded2 = status2 == ClubEventStatus.ENDED;
+
+            if (isEnded1 != isEnded2) {
+                return Boolean.compare(isEnded1, isEnded2);
+            }
+
+            return e2.getCreatedAt().compareTo(e1.getCreatedAt());
+        }
+
+        int priority1 = status1.getPriority();
+        int priority2 = status2.getPriority();
+
+        if (priority1 != priority2) {
+            return Integer.compare(priority1, priority2);
+        }
+
+        return e2.getCreatedAt().compareTo(e1.getCreatedAt());
     }
 
     private ClubHotStatusResponse generateHotStatusResponse(ClubHot hot) {
         List<ClubHot> hotClubs = clubHotRepository.findAllByOrderByIdDesc();
         int count = 0;
         for (ClubHot hotClub : hotClubs) {
-            if (!hot.getClub().getId().equals(hotClub.getClub().getId())) break;
+            if (!hot.getClub().getId().equals(hotClub.getClub().getId()))
+                break;
             count++;
         }
         return ClubHotStatusResponse.from(hot, count);

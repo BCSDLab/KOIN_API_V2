@@ -238,7 +238,7 @@ public class ClubController implements ClubApi {
     @GetMapping("/{clubId}/events")
     public ResponseEntity<List<ClubEventResponse>> getClubEvents(
         @PathVariable Integer clubId,
-        @RequestParam(required = false) ClubEventType eventType
+        @RequestParam(defaultValue = "RECENT") ClubEventType eventType
     ) {
         List<ClubEventResponse> responses = clubService.getClubEvents(clubId, eventType);
         return ResponseEntity.ok(responses);

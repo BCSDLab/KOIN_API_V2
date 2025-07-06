@@ -5,10 +5,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.club.enums.ClubEventType;
+import in.koreatech.koin.domain.club.enums.ClubEventStatus;
 import in.koreatech.koin.domain.club.model.ClubEvent;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -52,16 +51,16 @@ public record ClubEventResponse(
         );
     }
 
-    public static ClubEventType calculateStatus(LocalDateTime start, LocalDateTime end, LocalDateTime now) {
+    public static ClubEventStatus calculateStatus(LocalDateTime start, LocalDateTime end, LocalDateTime now) {
         if (now.isBefore(start.minusHours(1))) {
-            return ClubEventType.UPCOMING;
+            return ClubEventStatus.UPCOMING;
         }
         if (now.isBefore(start)) {
-            return ClubEventType.SOON;
+            return ClubEventStatus.SOON;
         }
         if (now.isBefore(end.plusMinutes(1))) {
-            return ClubEventType.ONGOING;
+            return ClubEventStatus.ONGOING;
         }
-        return ClubEventType.ENDED;
+        return ClubEventStatus.ENDED;
     }
 }
