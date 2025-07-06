@@ -129,7 +129,7 @@ public interface StudentApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "학생 로그인 (Deprecated)")
+    @Operation(summary = "학생 로그인")
     @PostMapping("/student/login")
     ResponseEntity<StudentLoginResponse> studentLogin(
         @RequestBody @Valid StudentLoginRequest request,

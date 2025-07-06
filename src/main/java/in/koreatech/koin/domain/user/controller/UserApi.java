@@ -93,7 +93,7 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "일반인/학생 통합 로그인")
+    @Operation(summary = "로그인 V2")
     @PostMapping("/v2/users/login")
     ResponseEntity<UserLoginResponse> loginV2(
         @RequestBody @Valid UserLoginRequestV2 request,

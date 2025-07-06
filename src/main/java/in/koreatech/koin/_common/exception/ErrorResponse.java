@@ -21,7 +21,7 @@ public record ErrorResponse(
     String message,
 
     @Schema(description = "에러 추적용 UUID")
-    String errorTraceId,
+    String traceId,
 
     @Schema(description = "필드별 검증 오류 목록")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

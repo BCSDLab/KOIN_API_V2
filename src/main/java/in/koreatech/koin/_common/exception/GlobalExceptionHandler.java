@@ -90,7 +90,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         WebRequest webRequest
     ) {
         HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
-        ApiResponseCode errorCode = ApiResponseCode.INVALID_REQUEST_BODY;
+        ApiResponseCode errorCode = ApiResponseCode.INVALID_REQUEST_PAYLOAD;
         String traceId = UUID.randomUUID().toString();
 
         List<ErrorResponse.FieldError> fieldErrors = getFieldErrors(ex);
@@ -272,7 +272,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String field = fe.getField();
         String constraint = Objects.requireNonNull(fe.getCode());
         String message = Objects.requireNonNullElse(
-            fe.getDefaultMessage(), ApiResponseCode.INVALID_REQUEST_BODY.getMessage()
+            fe.getDefaultMessage(), ApiResponseCode.INVALID_REQUEST_PAYLOAD.getMessage()
         );
 
         return new ErrorResponse.FieldError(field, message, constraint);
