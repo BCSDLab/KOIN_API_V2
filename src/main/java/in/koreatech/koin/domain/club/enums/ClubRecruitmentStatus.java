@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum ClubRecruitmentStatus {
     NONE,
+    BEFORE,
     RECRUITING,
     CLOSED,
     ALWAYS,

@@ -111,7 +111,11 @@ public class ClubRecruitment extends BaseEntity {
             return;
         }
 
-        if (!today.isAfter(this.endDate)) {
+        if (today.isBefore(this.startDate)) {
+            this.clubRecruitmentStatus = BEFORE;
+            this.Dday = null;
+        }
+        else if (!today.isAfter(this.endDate)) {
             this.clubRecruitmentStatus = RECRUITING;
             this.Dday = (int)ChronoUnit.DAYS.between(today, endDate);
         } else {
