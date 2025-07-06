@@ -20,15 +20,16 @@ import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -517,6 +518,32 @@ public interface ClubApi {
     ResponseEntity<Void> deleteRecruitment(
         @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponseCodes({
+        ApiResponseCode.NOT_FOUND_CLUB,
+        ApiResponseCode.NOT_FOUND_CLUB_RECRUITMENT,
+    })
+    @Operation(summary = "동아리 모집 조회", description = """
+        ### 동아리 모집 조회
+        - 동아리 모집을 조회 합니다.
+            - status : 동아리 모집 상태입니다.
+              - NONE : 동아리 모집 글이 없는 상태입니다.
+              - RECRUITING : 동아리 모집 중인 상태입니다.
+              - CLOSED : 동아리 모집 글이 있는 상태에서 모집 마감된 상태입니다.
+              - ALWAYS : 동아리 모집 글이 있는 상태에서 상시 모집중인 상태입니다.
+            - Dday : 동아리 모집 디데이 입니다.
+              - RECRUITING인 상태에서는 정수로 남은 일자가 내려갑니다.
+              - 이외의 상태에서는 null로 내려갑니다.
+        
+        ### 에러 코드(에러 메시지)
+        - NOT_FOUND_CLUB (동아리가 존재하지 않습니다.)
+        - NOT_FOUND_CLUB_RECRUITMENT (동아리 모집 공고가 존재하지 않습니다.)
+        """)
+    @GetMapping("/{clubId}/recruitment")
+    ResponseEntity<ClubRecruitmentResponse> getRecruitment(
+        @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable(name = "clubId") Integer clubId,
+        @UserId Integer userId
     );
 
     @Operation(summary = "특정 동아리의 특정 행사알림 구독")
