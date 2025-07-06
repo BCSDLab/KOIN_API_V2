@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.notification.model;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.model.User;
@@ -7,6 +10,63 @@ import in.koreatech.koin._common.model.MobileAppPath;
 
 @Component
 public class NotificationFactory {
+
+    public Notification generateClubRecruitmentNotification(
+        MobileAppPath path,
+        Integer clubId,
+        String clubName,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateClubRecruitmentSchemeUri(path, clubId),
+            "[코인동아리] %s 모집 공고가 갱신되었어요!".formatted(clubName),
+            "%s에 모집 정보가 새로 업데이트되었어요.\n행사 내용 둘러보기".formatted(clubName),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
+    public Notification generateClubEventNotificationBeforeOneDay(
+        MobileAppPath path,
+        Integer clubId,
+        Integer eventId,
+        String eventName,
+        String clubName,
+        LocalDateTime eventDateTime,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateClubEventSchemeUri(path, clubId, eventId),
+            "[코인 동아리] %s에 내일 예정된 행사가 있어요!".formatted(clubName),
+            "%s - %s의 행사가 %s에 진행 될 예정이에요.\n행사 내용 둘러보기"
+                .formatted(eventName, clubName, formatEventDateTime(eventDateTime)),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
+    public Notification generateClubEventNotificationBeforeOneHour(
+        MobileAppPath path,
+        Integer clubId,
+        Integer eventId,
+        String eventName,
+        String clubName,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateClubEventSchemeUri(path, clubId, eventId), // 검토필요
+            "[코인 동아리] 오늘 %s 행사가 한 시간 남았어요!".formatted(clubName),
+            "%s - %s의 행사가 1시간 뒤에 시작 할 예정이에요.\n행사 내용 둘러보기".formatted(eventName, clubName),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
 
     public Notification generateReviewPromptNotification(
         MobileAppPath path,
@@ -119,11 +179,27 @@ public class NotificationFactory {
         );
     }
 
+    private String formatEventDateTime(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M월 d일 HH시 mm분");
+        return dateTime.format(formatter);
+    }
+
+    private String generateClubRecruitmentSchemeUri(MobileAppPath path, Integer clubId) {
+        return String.format("%s-recruitment?id=%d", path, clubId);
+    }
+
     private String generateSchemeUri(MobileAppPath path, Integer eventId) {
         if (eventId == null) {
             return path.getPath();
         }
         return String.format("%s?id=%d", path.getPath(), eventId);
+    }
+
+    private String generateClubEventSchemeUri(MobileAppPath path, Integer clubId, Integer eventId) {
+        if (eventId == null) {
+            return generateSchemeUri(path, clubId);
+        }
+        return String.format("%s?clubId=%d&eventId=%d", path.getPath(), clubId, eventId);
     }
 
     private String getPostposition(String place, String firstPost, String secondPost) {

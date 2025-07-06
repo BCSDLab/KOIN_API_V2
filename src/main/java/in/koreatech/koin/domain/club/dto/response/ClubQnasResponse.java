@@ -14,7 +14,7 @@ import in.koreatech.koin.domain.student.model.Student;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record QnasResponse(
+public record ClubQnasResponse(
     @Schema(example = "10", description = "해당 동아리의 루트 질문 총 개수", requiredMode = REQUIRED)
     Integer rootCount,
 
@@ -73,13 +73,13 @@ public record QnasResponse(
         }
     }
 
-    public static QnasResponse from(List<ClubQna> qnas) {
+    public static ClubQnasResponse from(List<ClubQna> qnas) {
         List<InnerQnaResponse> roots = qnas.stream()
             .filter(ClubQna::isRoot)
             .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
             .map(InnerQnaResponse::from)
             .toList();
 
-        return new QnasResponse(roots.size(), qnas.size(), roots);
+        return new ClubQnasResponse(roots.size(), qnas.size(), roots);
     }
 }
