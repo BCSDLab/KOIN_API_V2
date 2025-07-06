@@ -3,8 +3,10 @@ package in.koreatech.koin.domain.club.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import in.koreatech.koin._common.model.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -39,10 +42,6 @@ public class ClubEvent extends BaseEntity {
     @Column(name = "name", nullable = false, length = 30)
     private String name;
 
-    @Size(max = 255)
-    @Column(name = "image_urls", columnDefinition = "TEXT")
-    private String imageUrls;
-
     @NotNull
     @Column(name = "start_date", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime startDate;
@@ -62,11 +61,13 @@ public class ClubEvent extends BaseEntity {
     @Column(name = "notified_before_one_hour", nullable = false, columnDefinition = "TINYINT(1)")
     private Boolean notifiedBeforeOneHour = false;
 
+    @OneToMany(mappedBy = "clubEvent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClubEventImage> images;
+
     @Builder
     private ClubEvent(
         Club club,
         String name,
-        String imageUrls,
         LocalDateTime startDate,
         LocalDateTime endDate,
         String introduce,
@@ -75,7 +76,6 @@ public class ClubEvent extends BaseEntity {
     ) {
         this.club = club;
         this.name = name;
-        this.imageUrls = imageUrls;
         this.startDate = startDate;
         this.endDate = endDate;
         this.introduce = introduce;
@@ -85,14 +85,12 @@ public class ClubEvent extends BaseEntity {
 
     public void modifyClubEvent(
         String name,
-        String imageUrls,
         LocalDateTime startDate,
         LocalDateTime endDate,
         String introduce,
         String content
     ) {
         this.name = name;
-        this.imageUrls = imageUrls;
         this.startDate = startDate;
         this.endDate = endDate;
         this.introduce = introduce;
@@ -101,5 +99,10 @@ public class ClubEvent extends BaseEntity {
 
     public void markAsNotifiedBeforeOneHour() {
         this.notifiedBeforeOneHour = true;
+    }
+
+    public void addImage(ClubEventImage image) {
+        this.images.add(image);
+        image.setClubEvent(this);
     }
 }

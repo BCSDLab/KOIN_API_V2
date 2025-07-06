@@ -45,6 +45,7 @@ import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubBaseInfo;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.domain.club.model.ClubEventImage;
 import in.koreatech.koin.domain.club.model.ClubEventSubscription;
 import in.koreatech.koin.domain.club.model.ClubHot;
 import in.koreatech.koin.domain.club.model.ClubLike;
@@ -56,6 +57,7 @@ import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
+import in.koreatech.koin.domain.club.repository.ClubEventImageRepository;
 import in.koreatech.koin.domain.club.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
@@ -100,6 +102,7 @@ public class ClubService {
     private final ClubListQueryRepository clubListQueryRepository;
     private final ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
     private final ClubEventRepository clubEventRepository;
+    private final ClubEventImageRepository clubEventImageRepository;
     private final ClubEventSubscriptionRepository clubEventSubscriptionRepository;
 
     private static final int RELATED_LIMIT_SIZE = 5;
@@ -408,7 +411,18 @@ public class ClubService {
         Student student = studentRepository.getById(studentId);
         isClubManager(club.getId(), student.getId());
 
-        clubEventRepository.save(request.toEntity(club));
+        ClubEvent clubEvent = request.toEntity(club);
+        clubEventRepository.save(clubEvent);
+
+        if (request.imageUrls() != null && !request.imageUrls().isEmpty()) {
+            for (String url : request.imageUrls()) {
+                ClubEventImage image = ClubEventImage.builder()
+                    .clubEvent(clubEvent)
+                    .imageUrl(url)
+                    .build();
+                clubEventImageRepository.save(image);
+            }
+        }
     }
 
     @Transactional
@@ -420,12 +434,23 @@ public class ClubService {
 
         clubEvent.modifyClubEvent(
             request.name(),
-            ClubUtils.convertImageUrlsToString(request.imageUrls()),
             request.startDate(),
             request.endDate(),
             request.introduce(),
             request.content()
         );
+
+        clubEventImageRepository.deleteAllByClubEvent(clubEvent);
+
+        if (request.imageUrls() != null && !request.imageUrls().isEmpty()) {
+            for (String url : request.imageUrls()) {
+                ClubEventImage image = ClubEventImage.builder()
+                    .clubEvent(clubEvent)
+                    .imageUrl(url)
+                    .build();
+                clubEventImageRepository.save(image);
+            }
+        }
     }
 
     @Transactional
@@ -435,7 +460,7 @@ public class ClubService {
         Student student = studentRepository.getById(studentId);
         isClubManager(club.getId(), student.getId());
 
-        clubEventRepository.delete(clubEvent);
+        clubEventRepository.delete(clubEvent); // 관련 이미지도 자동 삭제됨
     }
 
     public ClubEventResponse getClubEvent(Integer clubId, Integer eventId) {

@@ -5,11 +5,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubEvent;
-import in.koreatech.koin.domain.club.utils.ClubUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -46,7 +44,6 @@ public record ClubEventModifyRequest(
         return ClubEvent.builder()
             .club(club)
             .name(name)
-            .imageUrls(ClubUtils.convertImageUrlsToString(imageUrls))
             .startDate(startDate)
             .endDate(endDate)
             .introduce(introduce)

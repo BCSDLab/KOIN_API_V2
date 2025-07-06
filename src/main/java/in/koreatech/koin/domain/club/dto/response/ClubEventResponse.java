@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.enums.ClubEventStatus;
 import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.domain.club.model.ClubEventImage;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -23,9 +24,7 @@ public record ClubEventResponse(
     @Schema(description = "행사 이름", example = "B-CON")
     String name,
 
-    @Schema(description = "행사 이미지 목록", example = """
-    ["https://image1.com", "https://image2.com"]
-    """, requiredMode = NOT_REQUIRED)
+    @Schema(description = "행사 이미지 URL 목록")
     List<String> imageUrls,
 
     @Schema(description = "행사 시작일", example = "2025-07-01T09:00:00")
@@ -47,10 +46,14 @@ public record ClubEventResponse(
 ) {
 
     public static ClubEventResponse from(ClubEvent event, LocalDateTime now) {
+        List<String> imageUrls = event.getImages().stream()
+            .map(ClubEventImage::getImageUrl)
+            .toList();
+
         return new ClubEventResponse(
             event.getId(),
             event.getName(),
-            parseImageUrls(event.getImageUrls()),
+            imageUrls,
             event.getStartDate(),
             event.getEndDate(),
             event.getIntroduce(),
@@ -70,14 +73,5 @@ public record ClubEventResponse(
             return ClubEventStatus.ONGOING;
         }
         return ClubEventStatus.ENDED;
-    }
-
-    private static List<String> parseImageUrls(String jsonArray) {
-        if (jsonArray == null || jsonArray.isBlank()) return List.of();
-        try {
-            return new ObjectMapper().readValue(jsonArray, new TypeReference<>() {});
-        } catch (Exception e) {
-            return List.of();
-        }
     }
 }
