@@ -6,11 +6,13 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.domain.club.utils.ClubUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,8 +25,10 @@ public record ClubEventCreateRequest(
     @Size(max = 30, message = "행사 이름은 30자 이내여야 합니다.")
     String name,
 
-    @Schema(description = "행사 이미지", example = "https://bcsdlab.com/static/img/logo.d89d9cc.png", requiredMode = NOT_REQUIRED)
-    String imageUrl,
+    @Schema(description = "행사 이미지 URL 리스트", example = """
+    ["https://image1.com", "https://image2.com"]
+    """, requiredMode = NOT_REQUIRED)
+    List<String> imageUrls,
 
     @Schema(description = "행사 시작일", example = "2025-07-01T09:00:00", requiredMode = REQUIRED)
     @NotNull(message = "시작일은 필수입니다.")
@@ -46,11 +50,12 @@ public record ClubEventCreateRequest(
         return ClubEvent.builder()
             .club(club)
             .name(name)
-            .imageUrl(imageUrl)
+            .imageUrls(ClubUtils.convertImageUrlsToString(imageUrls))
             .startDate(startDate)
             .endDate(endDate)
             .introduce(introduce)
             .content(content)
+            .notifiedBeforeOneHour(false)
             .build();
     }
 }

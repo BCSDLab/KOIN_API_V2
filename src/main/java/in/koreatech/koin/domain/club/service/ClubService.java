@@ -70,6 +70,7 @@ import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
+import in.koreatech.koin.domain.club.utils.ClubUtils;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -419,7 +420,7 @@ public class ClubService {
 
         clubEvent.modifyClubEvent(
             request.name(),
-            request.imageUrl(),
+            ClubUtils.convertImageUrlsToString(request.imageUrls()),
             request.startDate(),
             request.endDate(),
             request.introduce(),

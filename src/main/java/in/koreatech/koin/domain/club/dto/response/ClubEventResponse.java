@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.club.dto.response;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
@@ -7,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.enums.ClubEventStatus;
@@ -21,8 +23,10 @@ public record ClubEventResponse(
     @Schema(description = "행사 이름", example = "B-CON")
     String name,
 
-    @Schema(description = "행사 이미지", example = "https://bcsdlab.com/static/img/logo.d89d9cc.png", requiredMode = NOT_REQUIRED)
-    String imageUrl,
+    @Schema(description = "행사 이미지 목록", example = """
+    ["https://image1.com", "https://image2.com"]
+    """, requiredMode = NOT_REQUIRED)
+    List<String> imageUrls,
 
     @Schema(description = "행사 시작일", example = "2025-07-01T09:00:00")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -46,7 +50,7 @@ public record ClubEventResponse(
         return new ClubEventResponse(
             event.getId(),
             event.getName(),
-            event.getImageUrl(),
+            parseImageUrls(event.getImageUrls()),
             event.getStartDate(),
             event.getEndDate(),
             event.getIntroduce(),
@@ -66,5 +70,14 @@ public record ClubEventResponse(
             return ClubEventStatus.ONGOING;
         }
         return ClubEventStatus.ENDED;
+    }
+
+    private static List<String> parseImageUrls(String jsonArray) {
+        if (jsonArray == null || jsonArray.isBlank()) return List.of();
+        try {
+            return new ObjectMapper().readValue(jsonArray, new TypeReference<>() {});
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 }

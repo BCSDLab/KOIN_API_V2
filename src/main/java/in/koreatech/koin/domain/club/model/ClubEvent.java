@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.club.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -41,8 +40,8 @@ public class ClubEvent extends BaseEntity {
     private String name;
 
     @Size(max = 255)
-    @Column(name = "image_urls")
-    private String imageUrl;
+    @Column(name = "image_urls", columnDefinition = "TEXT")
+    private String imageUrls;
 
     @NotNull
     @Column(name = "start_date", nullable = false, columnDefinition = "DATETIME")
@@ -67,7 +66,7 @@ public class ClubEvent extends BaseEntity {
     private ClubEvent(
         Club club,
         String name,
-        String imageUrl,
+        String imageUrls,
         LocalDateTime startDate,
         LocalDateTime endDate,
         String introduce,
@@ -76,7 +75,7 @@ public class ClubEvent extends BaseEntity {
     ) {
         this.club = club;
         this.name = name;
-        this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls;
         this.startDate = startDate;
         this.endDate = endDate;
         this.introduce = introduce;
@@ -86,14 +85,14 @@ public class ClubEvent extends BaseEntity {
 
     public void modifyClubEvent(
         String name,
-        String imageUrl,
+        String imageUrls,
         LocalDateTime startDate,
         LocalDateTime endDate,
         String introduce,
         String content
     ) {
         this.name = name;
-        this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls;
         this.startDate = startDate;
         this.endDate = endDate;
         this.introduce = introduce;
