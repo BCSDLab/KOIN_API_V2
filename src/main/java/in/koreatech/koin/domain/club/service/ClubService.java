@@ -367,7 +367,8 @@ public class ClubService {
         Club club = clubRepository.getById(clubId);
         User user = userRepository.getById(studentId);
 
-        if (verifyAlreadySubscribedRecruitment(clubId, studentId))   return;
+        if (verifyAlreadySubscribedRecruitment(clubId, studentId))
+            return;
 
         ClubRecruitmentSubscription clubRecruitmentSubscription = ClubRecruitmentSubscription.builder()
             .club(club)
@@ -381,7 +382,8 @@ public class ClubService {
         Club club = clubRepository.getById(clubId);
         User user = userRepository.getById(studentId);
 
-        if (!verifyAlreadySubscribedRecruitment(clubId, studentId))  return;
+        if (!verifyAlreadySubscribedRecruitment(clubId, studentId))
+            return;
 
         clubRecruitmentSubscriptionRepository.deleteByClubIdAndUserId(clubId, studentId);
     }
