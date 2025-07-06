@@ -19,7 +19,7 @@ public class NotificationFactory {
     ) {
         return new Notification(
             path,
-            generateSchemeUri(path, clubId), //검토필요
+            generateClubRecruitmentSchemeUri(path, clubId), //검토필요
             "[코인동아리] %s 모집 공고가 갱신되었어요!".formatted(clubName),
             "%s에 모집 정보가 새로 업데이트되었어요.\n행사 내용 둘러보기".formatted(clubName),
             null,
@@ -182,6 +182,10 @@ public class NotificationFactory {
     private String formatEventDateTime(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M월 d일 HH시 mm분");
         return dateTime.format(formatter);
+    }
+
+    private String generateClubRecruitmentSchemeUri(MobileAppPath path, Integer clubId) {
+        return String.format("%s-recruitment?id=%d", path, clubId);
     }
 
     private String generateSchemeUri(MobileAppPath path, Integer eventId) {
