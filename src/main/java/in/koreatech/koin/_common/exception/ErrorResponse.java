@@ -23,6 +23,7 @@ public record ErrorResponse(
     @Schema(description = "에러 추적용 UUID")
     String errorTraceId,
 
+    @JsonIgnore // TODO: 안드로이드 라이브러리 호환성 문제로 강업 전까지 제외합니다.
     @Schema(description = "필드별 검증 오류 목록")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<FieldError> fieldErrors
