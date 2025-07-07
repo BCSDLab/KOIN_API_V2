@@ -1,14 +1,11 @@
 package in.koreatech.koin.domain.club.dto.response;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.enums.ClubEventStatus;
