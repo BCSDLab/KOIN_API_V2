@@ -1,12 +1,16 @@
 package in.koreatech.koin.domain.club.dto.response;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.domain.club.model.ClubHot;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(SnakeCaseStrategy.class)
 public record ClubHotStatusResponse(
     @Schema(description = "해당 월", example = "7", requiredMode = REQUIRED)
     Integer month,
