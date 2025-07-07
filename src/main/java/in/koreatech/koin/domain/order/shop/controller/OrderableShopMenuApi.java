@@ -35,6 +35,7 @@ public interface OrderableShopMenuApi {
                                 "name": "후라이드 치킨",
                                 "description": "바삭하고 고소한 오리지널 후라이드",
                                 "thumbnail_image": "https://example.com/images/fried_chicken.jpg",
+                                "is_sold_out": false,
                                 "prices": [
                                   {
                                     "id": 1,
@@ -48,6 +49,7 @@ public interface OrderableShopMenuApi {
                                 "name": "양념 치킨",
                                 "description": "달콤매콤한 특제 양념 소스",
                                 "thumbnail_image": "https://example.com/images/seasoned_chicken.jpg",
+                                "is_sold_out": false,
                                 "prices": [
                                   {
                                     "id": 2,
@@ -67,6 +69,7 @@ public interface OrderableShopMenuApi {
                                 "name": "감자튀김",
                                 "description": "치킨과 함께 먹으면 더욱 맛있는 바삭한 감자튀김",
                                 "thumbnail_image": "https://example.com/images/fries.jpg",
+                                "is_sold_out": false,
                                 "prices": [
                                   {
                                     "id": 3,

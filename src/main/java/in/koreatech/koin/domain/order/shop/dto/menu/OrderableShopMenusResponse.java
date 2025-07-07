@@ -34,6 +34,8 @@ public record OrderableShopMenusResponse(
         String description,
         @Schema(description = "메뉴 썸네일 이미지 링크", example = "https://sample-image.com/chicken.jpg", nullable = true)
         String thumbnailImage,
+        @Schema(description = "메뉴 품절 여부", example = "false")
+        Boolean isSoldOut,
         List<OrderableShopMenuPricesResponse> prices
     ) {
         private static List<InnerMenuResponse> from(OrderableShopMenuGroup menuGroup) {
@@ -43,7 +45,7 @@ public record OrderableShopMenusResponse(
         private static InnerMenuResponse from(OrderableShopMenuGroupMap innerMenuGroupMap) {
             OrderableShopMenu menu = innerMenuGroupMap.getMenu();
             return new InnerMenuResponse(menu.getId(), menu.getName(), menu.getDescription(), menu.getThumbnailImage(),
-                OrderableShopMenuPricesResponse.from(menu));
+                menu.getIsSoldOut(), OrderableShopMenuPricesResponse.from(menu));
         }
     }
 }
