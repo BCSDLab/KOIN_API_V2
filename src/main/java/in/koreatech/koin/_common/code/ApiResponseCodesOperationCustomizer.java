@@ -94,7 +94,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         ex.put("code", code.getCode());
         ex.put("message", topMessage);
         ex.put("errorTraceId", UUID_EXAMPLE);
-        ex.put("fieldErrors", fieldErrors);
+        ex.put("fieldErrors", fieldErrors + "(안드로이드 호환성 문제로 당분간 비활성화됩니다.)");
         return ex;
     }
 
