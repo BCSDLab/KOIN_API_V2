@@ -7,9 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
+import in.koreatech.koin.domain.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
@@ -105,6 +108,23 @@ public class Cart extends BaseEntity {
         return this.cartMenuItems.stream()
             .mapToInt(CartMenuItem::calculateTotalAmount)
             .sum();
+    }
+
+    public Integer calculateDeliveryFee(OrderType orderType) {
+        return switch (orderType) {
+            case DELIVERY -> orderableShop.calculateDeliveryFee(calculateItemsAmount());
+            case TAKE_OUT -> 0;
+        };
+    }
+
+    public void validateOrderType(OrderType orderType) {
+        if (orderType == OrderType.DELIVERY && !orderableShop.isDelivery()) {
+            throw CustomException.of(ApiResponseCode.SHOP_NOT_DELIVERABLE);
+        }
+
+        if (orderType == OrderType.TAKE_OUT && !orderableShop.isTakeout()) {
+            throw CustomException.of(ApiResponseCode.SHOP_NOT_TAKEOUT_AVAILABLE);
+        }
     }
 
     private Cart(

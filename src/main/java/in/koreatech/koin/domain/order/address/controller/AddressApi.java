@@ -3,10 +3,14 @@ package in.koreatech.koin.domain.order.address.controller;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
+import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressRequestFilter;
+import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,7 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "(Normal) Address: 주소", description = "주소 API")
+@Tag(name = "(Normal) Address: 주소 조회", description = "주소 조회 API")
 public interface AddressApi {
 
     @ApiResponses(value = {
@@ -81,7 +85,7 @@ public interface AddressApi {
             })
         )
     })
-    @Operation(summary = "주소 검색", description = """
+    @Operation(summary = "교외 배달 주소 검색", description = """
         ### 키워드를 사용하여 주소를 검색합니다.
         - 행정안전부 주소기반산업지원서비스 API를 호출하여 결과를 반환합니다.
                 
@@ -90,8 +94,50 @@ public interface AddressApi {
         - **current_page**: 현재 페이지 (1 이상)
         - **count_per_page**: 페이지당 항목 수 (1 이상)
         """)
-    @GetMapping("/order/address/search")
+    @GetMapping("/address/search")
     ResponseEntity<AddressSearchResponse> searchAddress(
         @ParameterObject @Valid AddressSearchRequest request
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "교내 주소 목록 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "기숙사 주소 조회 결과", summary = "기숙사 조회", value = """
+                    {
+                        "count": 2,
+                        "addresses": [
+                          {
+                            "id": 1,
+                            "type": "기숙사",
+                            "full_address": "충남 천안시 동남구 병천면 충절로 1600 한국기술교육대학교 제1캠퍼스 생활관 101동",
+                            "short_address": "101동(해울)"
+                          },
+                          {
+                            "id": 2,
+                            "type": "기숙사",
+                            "full_address": "충남 천안시 동남구 병천면 충절로 1600 한국기술교육대학교 제1캠퍼스 생활관 102동",
+                            "short_address": "102동(예지)"
+                          }
+                        ]
+                    }
+                    """)
+            })
+        ),
+    })
+    @Operation(summary = "교내 배달 주소 목록 조회", description = """
+        ### 교내 배달이 가능한 주소 목록 조회
+        - `type` 파라미터를 사용하지 않으면 전체 목록이 조회됩니다.
+        
+        ### 요청 파라미터
+        - **type**: 주소 타입 (선택, 기본값: `ALL`)
+          - **ALL**: 전체
+          - **DORMITORY**: 기숙사
+          - **COLLEGE_BUILDING**: 공학관
+          - **ETC**: 그 외
+        """)
+    @GetMapping("/address/delivery/campus")
+    ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
+        @Parameter(description = "주소 타입. 중복 지정 불가")
+        @RequestParam(name = "type", defaultValue = "ALL") CampusDeliveryAddressRequestFilter type
     );
 }

@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.user.verification.dto.VerifyEmailVerificationReq
 import in.koreatech.koin.domain.user.verification.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.verification.dto.VerifySmsVerificationRequest;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
+import in.koreatech.koin.web.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,7 +37,7 @@ public interface UserVerificationApi {
     )
     @PostMapping("/sms/send")
     ResponseEntity<SendVerificationResponse> sendSmsVerificationCode(
-        @Valid @RequestBody SendSmsVerificationRequest request
+        @Valid @RequestBody SendSmsVerificationRequest request, @IpAddress String ipAddress
     );
 
     @ApiResponses({
@@ -50,7 +51,7 @@ public interface UserVerificationApi {
     )
     @PostMapping("/sms/verify")
     ResponseEntity<Void> verifySmsVerificationCode(
-        @Valid @RequestBody VerifySmsVerificationRequest request
+        @Valid @RequestBody VerifySmsVerificationRequest request, @IpAddress String ipAddress
     );
 
     @ApiResponses({
@@ -67,7 +68,7 @@ public interface UserVerificationApi {
     )
     @PostMapping("/email/send")
     ResponseEntity<SendVerificationResponse> sendEmailVerificationCode(
-        @Valid @RequestBody SendEmailVerificationRequest request
+        @Valid @RequestBody SendEmailVerificationRequest request, @IpAddress String ipAddress
     );
 
     @ApiResponses({
@@ -81,6 +82,6 @@ public interface UserVerificationApi {
     )
     @PostMapping("/email/verify")
     ResponseEntity<Void> verifyEmailVerificationCode(
-        @Valid @RequestBody VerifyEmailVerificationRequest request
+        @Valid @RequestBody VerifyEmailVerificationRequest request, @IpAddress String ipAddress
     );
 }

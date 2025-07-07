@@ -18,7 +18,7 @@ import jakarta.validation.constraints.Size;
 public record UserUpdateRequest(
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
     @NotBlank(message = "이름은 필수입니다.")
-    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
+    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "이름은 한글 2-5자 또는 영문 2-30자로 입력해주세요.")
     String name,
 
     @Schema(description = "닉네임", example = "캔따개", requiredMode = NOT_REQUIRED)

@@ -17,6 +17,7 @@ public enum UserType {
     public static final int ANONYMOUS_ID = 0;
 
     public static final List<UserType> KOIN_USER_TYPES = List.of(GENERAL, STUDENT, COUNCIL);
+    public static final List<UserType> KOIN_STUDENT_TYPES = List.of(STUDENT, COUNCIL);
 
     private final String value;
     private final String description;

@@ -5,13 +5,17 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
 import in.koreatech.koin.domain.order.cart.exception.CartException;
+import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import jakarta.persistence.CascadeType;
@@ -63,6 +67,12 @@ public class OrderableShop extends BaseEntity {
     @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuGroup> menuGroups = new ArrayList<>();
 
+    @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderableShopImage> shopImages = new ArrayList<>();
+
+    @OneToOne(mappedBy = "orderableShop", fetch = FetchType.LAZY)
+    private OrderableShopDeliveryOption deliveryOption;
+
     @Builder
     public OrderableShop(Integer id, Shop shop, boolean delivery, boolean takeout, boolean serviceEvent,
         Integer minimumOrderAmount, boolean isDeleted, List<OrderableShopMenuGroup> menuGroups) {
@@ -84,5 +94,22 @@ public class OrderableShop extends BaseEntity {
 
     public Integer calculateDeliveryFee(Integer orderAmount) {
         return this.shop.getBaseDeliveryTips().calculateDeliveryTip(orderAmount);
+    }
+
+    public void requireMinimumOrderAmount(Integer totalOrderAmount) {
+        if (totalOrderAmount == null || totalOrderAmount < 0) {
+            throw new KoinIllegalArgumentException("주문 금액은 null이거나 음수일 수 없습니다.");
+        }
+        if (totalOrderAmount < minimumOrderAmount) {
+            throw new CartException(CartErrorCode.ORDER_AMOUNT_BELOW_MINIMUM);
+        }
+    }
+
+    public String getThumbnailImage() {
+        return this.shopImages.stream()
+            .filter(OrderableShopImage::getIsThumbnail)
+            .map(OrderableShopImage::getImageUrl)
+            .findFirst()
+            .orElse(null);
     }
 }

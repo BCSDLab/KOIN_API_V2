@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.club.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,14 +20,23 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.auth.UserId;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.QnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubEventsResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.response.QnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.service.ClubService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -69,12 +80,22 @@ public class ClubController implements ClubApi {
     }
 
     @GetMapping
-    public ResponseEntity<ClubsByCategoryResponse> getClubByCategory(
+    public ResponseEntity<ClubsByCategoryResponse> getClubs(
         @RequestParam(required = false) Integer categoryId,
-        @RequestParam(required = false, defaultValue = "NONE") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "false") Boolean isRecruiting,
+        @RequestParam(required = false, defaultValue = "CREATED_AT_ASC") ClubSortType sortType,
+        @RequestParam(required = false, defaultValue = "") String query,
         @UserId Integer userId
     ) {
-        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, sortType, userId);
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search/related")
+    public ResponseEntity<ClubRelatedKeywordResponse> getRelatedClubs(
+        @RequestParam(required = false, defaultValue = "") String query
+    ) {
+        ClubRelatedKeywordResponse response = clubService.getRelatedClubs(query);
         return ResponseEntity.ok(response);
     }
 
@@ -112,16 +133,16 @@ public class ClubController implements ClubApi {
     }
 
     @GetMapping("/{clubId}/qna")
-    public ResponseEntity<QnasResponse> getQnas(
+    public ResponseEntity<ClubQnasResponse> getQnas(
         @Parameter(in = PATH) @PathVariable Integer clubId
     ) {
-        QnasResponse response = clubService.getQnas(clubId);
+        ClubQnasResponse response = clubService.getQnas(clubId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{clubId}/qna")
     public ResponseEntity<Void> createQna(
-        @RequestBody @Valid QnaCreateRequest request,
+        @RequestBody @Valid ClubQnaCreateRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
@@ -146,5 +167,131 @@ public class ClubController implements ClubApi {
     ) {
         clubService.empowermentClubManager(request, studentId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> createRecruitment(
+        @RequestBody @Valid ClubRecruitmentCreateRequest request,
+        @PathVariable(name = "clubId") Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.createRecruitment(request, clubId, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> modifyRecruitment(
+        @RequestBody @Valid ClubRecruitmentModifyRequest request,
+        @PathVariable(name = "clubId") Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.modifyRecruitment(request, clubId, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{clubId}/recruitment")
+    public ResponseEntity<Void> deleteRecruitment(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.deleteRecruitment(clubId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{clubId}/recruitment")
+    public ResponseEntity<ClubRecruitmentResponse> getRecruitment(
+        @PathVariable(name = "clubId") Integer clubId,
+        @UserId Integer userId
+    ) {
+        ClubRecruitmentResponse response = clubService.getRecruitment(clubId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("{clubId}/recruitment/notification")
+    public ResponseEntity<Void> subscribeRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.subscribeRecruitmentNotification(clubId, studentId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("{clubId}/recruitment/notification")
+    public ResponseEntity<Void> rejectRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.rejectRecruitmentNotification(clubId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{clubId}/event")
+    public ResponseEntity<Void> createClubEvent(
+        @PathVariable Integer clubId,
+        @RequestBody @Valid ClubEventCreateRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.createClubEvent(request, clubId, studentId);
+        return ResponseEntity.ok().build();
+    };
+
+    @PutMapping("/{clubId}/event/{eventId}")
+    public ResponseEntity<Void> modifyClubEvent(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @RequestBody @Valid ClubEventModifyRequest request,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.modifyClubEvent(request, eventId, clubId, studentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{clubId}/event/{eventId}")
+    public ResponseEntity<Void> deleteClubEvent(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.deleteClubEvent(clubId, eventId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{clubId}/event/{eventId}")
+    public ResponseEntity<ClubEventResponse> getClubEvent(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId
+    ) {
+        ClubEventResponse response = clubService.getClubEvent(clubId, eventId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{clubId}/events")
+    public ResponseEntity<List<ClubEventsResponse>> getClubEvents(
+        @PathVariable Integer clubId,
+        @RequestParam(defaultValue = "RECENT") ClubEventType eventType,
+        @UserId Integer userId
+    ) {
+        List<ClubEventsResponse> responses = clubService.getClubEvents(clubId, eventType, userId);
+        return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping("{clubId}/event/{eventId}/notification")
+    public ResponseEntity<Void> subscribeEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.subscribeEventNotification(clubId, eventId, studentId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("{clubId}/event/{eventId}/notification")
+    public ResponseEntity<Void> rejectEventNotification(
+        @PathVariable Integer clubId,
+        @PathVariable Integer eventId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        clubService.rejectEventNotification(clubId, eventId, studentId);
+        return ResponseEntity.noContent().build();
     }
 }

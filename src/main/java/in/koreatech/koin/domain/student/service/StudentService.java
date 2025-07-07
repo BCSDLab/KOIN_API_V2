@@ -47,6 +47,7 @@ import in.koreatech.koin.domain.user.dto.UserChangePasswordSubmitRequest;
 import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
@@ -90,7 +91,7 @@ public class StudentService {
 
     @Transactional
     public StudentLoginResponse studentLogin(StudentLoginRequest request, UserAgentInfo userAgentInfo) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email(), UserType.KOIN_STUDENT_TYPES);
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
 
@@ -127,9 +128,9 @@ public class StudentService {
             user
         );
 
-        updateStudentInfo(student, request.studentNumber(), request.major());
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
+        updateStudentInfo(student, request.studentNumber(), request.major());
 
         return UpdateStudentResponse.from(student);
     }
@@ -318,7 +319,7 @@ public class StudentService {
 
     @Transactional
     public void findPassword(UserFindPasswordRequest request, String serverURL) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email(), UserType.KOIN_STUDENT_TYPES);
         String resetToken = UUID.randomUUID().toString();
         passwordResetTokenRepository.save(PasswordResetToken.of(resetToken, user.getId()));
         eventPublisher.publishEvent(new StudentFindPasswordEvent(request.email(), serverURL, resetToken));

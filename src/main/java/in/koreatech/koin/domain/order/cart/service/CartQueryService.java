@@ -14,7 +14,9 @@ import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
+import in.koreatech.koin.domain.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +28,7 @@ public class CartQueryService {
     private final CartRepository cartRepository;
     private final OrderableShopMenuRepository orderableShopMenuRepository;
 
-    public CartResponse getCartItems(Integer userId) {
+    public CartResponse getCartItems(Integer userId, OrderType orderType) {
         Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
 
         if (cartOptional.isEmpty() || cartOptional.get().getCartMenuItems().isEmpty()) {
@@ -34,12 +36,13 @@ public class CartQueryService {
         }
 
         Cart cart = cartOptional.get();
-        return CartResponse.from(cart);
+        cart.validateOrderType(orderType);
+
+        return CartResponse.from(cart, orderType);
     }
 
     public CartMenuItemEditResponse getOrderableShopMenuForEditOptions(Integer userId, Integer cartMenuItemId) {
-        Cart cart = cartRepository.findCartByUserId(userId)
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+        Cart cart = getCartOrThrow(userId);
         CartMenuItem cartMenuItem = cart.getCartMenuItem(cartMenuItemId);
 
         OrderableShopMenu menu = orderableShopMenuRepository.getByIdWithMenuOptionGroups(
@@ -62,7 +65,7 @@ public class CartQueryService {
         return CartAmountSummaryResponse.from(cart);
     }
 
-    public CartPaymentSummaryResponse getCartPaymentSummary(Integer userId) {
+    public CartPaymentSummaryResponse getCartPaymentSummary(Integer userId, OrderType orderType) {
         Optional<Cart> cartOptional = cartRepository.findCartByUserId(userId);
 
         if (cartOptional.isEmpty() || cartOptional.get().getCartMenuItems().isEmpty()) {
@@ -70,6 +73,19 @@ public class CartQueryService {
         }
 
         Cart cart = cartOptional.get();
-        return CartPaymentSummaryResponse.from(cart);
+        cart.validateOrderType(orderType);
+        return CartPaymentSummaryResponse.from(cart, orderType);
+    }
+
+    public void validateCart(Integer userId) {
+        Cart cart = getCartOrThrow(userId);
+        OrderableShop orderableShop = cart.getOrderableShop();
+        orderableShop.requireShopOpen();
+        orderableShop.requireMinimumOrderAmount(cart.calculateItemsAmount());
+    }
+
+    private Cart getCartOrThrow(Integer userId) {
+        return cartRepository.findCartByUserId(userId)
+            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
     }
 }

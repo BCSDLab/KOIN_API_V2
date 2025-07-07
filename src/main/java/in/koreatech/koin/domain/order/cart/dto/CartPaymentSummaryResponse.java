@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
 import in.koreatech.koin.domain.order.cart.model.Cart;
+import in.koreatech.koin.domain.order.model.OrderType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -18,14 +19,17 @@ public record CartPaymentSummaryResponse(
     Integer finalPaymentAmount
 ) {
 
-    public static CartPaymentSummaryResponse from(Cart cart) {
+    public static CartPaymentSummaryResponse from(Cart cart, OrderType orderType) {
         Integer itemTotalAmount = cart.calculateItemsAmount();
-        Integer deliveryFee = cart.getOrderableShop().calculateDeliveryFee(itemTotalAmount);
+        Integer deliveryFee = cart.calculateDeliveryFee(orderType);
+        Integer totalAmount = cart.calculateItemsAmount() + deliveryFee;
+        Integer finalPaymentAmount = totalAmount; // 할인 정책 없으므로 totalAmount와 동일한 금액 반환
+
         return new CartPaymentSummaryResponse(
             itemTotalAmount,
             deliveryFee,
-            cart.calculateItemsAmount() + deliveryFee,
-            cart.calculateItemsAmount() + deliveryFee // 할인 정책 없으므로 totalAmount와 동일한 금액 반환
+            totalAmount,
+            finalPaymentAmount
         );
     }
 

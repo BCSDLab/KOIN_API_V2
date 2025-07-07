@@ -19,6 +19,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
@@ -39,6 +41,11 @@ public class CacheConfig {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+            .allowIfBaseType(Object.class)
+            .build();
+        mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.EVERYTHING);
+
         return RedisCacheConfiguration.defaultCacheConfig()
             .serializeKeysWith(fromSerializer(new StringRedisSerializer()))
             .serializeValuesWith(fromSerializer(new GenericJackson2JsonRedisSerializer(mapper)))
@@ -51,6 +58,22 @@ public class CacheConfig {
             CacheKey.ORDERABLE_SHOP_MENUS.getCacheNames(),
             defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.ORDERABLE_SHOP_MENUS.getTtl()))
         );
+
+        customConfigurationMap.put(
+            CacheKey.CAMPUS_DELIVERY_ADDRESS.getCacheNames(),
+            defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.CAMPUS_DELIVERY_ADDRESS.getTtl()))
+        );
+
+        customConfigurationMap.put(
+            CacheKey.RIDER_MESSAGES.getCacheNames(),
+            defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.RIDER_MESSAGES.getTtl()))
+        );
+
+        customConfigurationMap.put(
+            CacheKey.ORDERABLE_SHOP_INFO_SUMMARY.getCacheNames(),
+            defaultConfiguration().entryTtl(Duration.ofMinutes(CacheKey.ORDERABLE_SHOP_INFO_SUMMARY.getTtl()))
+        );
+
         return customConfigurationMap;
     }
 }

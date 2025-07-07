@@ -5,7 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.user.verification.model.UserDailyVerificationCount;
+import in.koreatech.koin.domain.user.verification.model.VerificationCount;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -23,7 +23,7 @@ public record SendVerificationResponse(
     int currentCount
 ) {
 
-    public static SendVerificationResponse from(UserDailyVerificationCount verificationCount) {
+    public static SendVerificationResponse from(VerificationCount verificationCount) {
         int max = verificationCount.getMaxVerificationCount();
         int current = verificationCount.getVerificationCount();
         return new SendVerificationResponse(

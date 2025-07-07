@@ -1,9 +1,12 @@
 package in.koreatech.koin.domain.order.shop.dto.shopinfo;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopInfoSummary;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShopImage;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -45,9 +48,27 @@ public record OrderableShopInfoSummaryResponse(
     Integer minimumDeliveryTip,
 
     @Schema(description = "최대 배달비", example = "3000")
-    Integer maximumDeliveryTip
+    Integer maximumDeliveryTip,
+
+    List<InnerImageResponse> images
 ) {
-    public static OrderableShopInfoSummaryResponse from(OrderableShopInfoSummary entity) {
+
+    @JsonNaming(value = SnakeCaseStrategy.class)
+    public record InnerImageResponse(
+        @Schema(description = "이미지 url", example = "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg")
+        String imageUrl,
+
+        @Schema(description = "이미지 Thumbnail 여부", example = "true")
+        Boolean isThumbnail
+    ){
+
+        public static InnerImageResponse from(OrderableShopImage orderableShopImage) {
+            return new InnerImageResponse(orderableShopImage.getImageUrl(), orderableShopImage.getIsThumbnail());
+        }
+
+    }
+
+    public static OrderableShopInfoSummaryResponse from(OrderableShopInfoSummary entity, List<OrderableShopImage> images) {
         return new OrderableShopInfoSummaryResponse(
             entity.shopId(),
             entity.orderableShopId(),
@@ -61,7 +82,9 @@ public record OrderableShopInfoSummaryResponse(
             entity.ratingAverage(),
             entity.reviewCount(),
             entity.minimumDeliveryTip(),
-            entity.maximumDeliveryTip()
+            entity.maximumDeliveryTip(),
+            images.stream().map(InnerImageResponse::from).toList()
         );
     }
 }
+

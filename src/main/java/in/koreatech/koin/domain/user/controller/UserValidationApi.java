@@ -10,17 +10,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.domain.user.dto.validation.UserAccessTokenRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserCorrectPasswordRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserExistsEmailRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserExistsLoginIdRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserExistsPhoneNumberRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithEmailRequest;
+import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithPhoneNumberRequest;
 import in.koreatech.koin.domain.user.dto.validation.UserUniqueEmailRequest;
 import in.koreatech.koin.domain.user.dto.validation.UserUniqueLoginIdRequest;
 import in.koreatech.koin.domain.user.dto.validation.UserUniqueNicknameRequest;
 import in.koreatech.koin.domain.user.dto.validation.UserUniquePhoneNumberRequest;
-import in.koreatech.koin.domain.user.dto.validation.UserCorrectPasswordRequest;
-import in.koreatech.koin.domain.user.dto.validation.UserExistsEmailRequest;
-import in.koreatech.koin.domain.user.dto.validation.UserExistsPhoneNumberRequest;
-import in.koreatech.koin.domain.user.dto.validation.UserExistsLoginIdRequest;
-import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithEmailRequest;
-import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithPhoneNumberRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -50,17 +52,14 @@ public interface UserValidationApi {
         @Valid UserAccessTokenRequest request
     );
 
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", description = "아이디 양식 오류", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", description = "아이디 중복", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
     @Operation(
         summary = "로그인 아이디 중복 체크",
         description = "입력한 로그인 아이디가 중복되지 않고, 사용 가능한지 확인합니다."
     )
+    @ApiResponseCodes({
+        ApiResponseCode.OK,
+        ApiResponseCode.DUPLICATE_LOGIN_ID
+    })
     @GetMapping("/user/check/id")
     ResponseEntity<Void> requireUniqueLoginId(
         @ParameterObject @ModelAttribute("id")
@@ -176,15 +175,16 @@ public interface UserValidationApi {
         @Valid @RequestBody UserExistsEmailRequest request
     );
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "ID와 전화번호 일치"),
-        @ApiResponse(responseCode = "400", description = "ID와 전화번호 불일치", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "404", description = "ID 없음", content = @Content(schema = @Schema(hidden = true)))
-    })
     @Operation(
         summary = "로그인 ID와 전화번호 일치 여부 확인",
         description = "입력한 로그인 ID와 전화번호가 일치하는지 확인합니다."
     )
+    @ApiResponseCodes({
+        ApiResponseCode.OK,
+        ApiResponseCode.INVALID_REQUEST_BODY,
+        ApiResponseCode.NOT_MATCHED_PHONE_NUMBER,
+        ApiResponseCode.NOT_FOUND_USER
+    })
     @PostMapping("/users/id/match/phone")
     ResponseEntity<Void> matchLoginIdWithPhoneNumber(
         @Valid @RequestBody UserMatchLoginIdWithPhoneNumberRequest request

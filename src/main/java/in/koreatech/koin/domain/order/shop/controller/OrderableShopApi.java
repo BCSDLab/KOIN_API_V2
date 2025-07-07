@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopDeliveryResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoDetailResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoSummaryResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
@@ -157,7 +158,13 @@ public interface OrderableShopApi {
                           "rating_average": 4.5,
                           "review_count": 120,
                           "minimum_delivery_tip": 2000,
-                          "maximum_delivery_tip": 5000
+                          "maximum_delivery_tip": 5000,
+                          "images": [
+                            {
+                                "image_url": "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg",
+                                "is_thumbnail": true
+                            }
+                          ]
                         }
                         """
                     )
@@ -167,9 +174,9 @@ public interface OrderableShopApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "status": 404,
-                          "error": "Not Found",
-                          "message": "존재하지 않는 상점입니다.: 해당 상점이 존재하지 않습니다.: 1"
+                          "code": "",
+                          "message": "해당 상점이 존재하지 않습니다 : 10",
+                          "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
                         }
                         """
                     )
@@ -193,6 +200,7 @@ public interface OrderableShopApi {
             - review_count: 리뷰 수
             - minimum_delivery_tip: 최소 배달비
             - maximum_delivery_tip: 최대 배달비
+            - images: 상점 이미지, **존재 하지 않는 경우 빈 배열 반환**
         """)
     @GetMapping("/order/shop/{orderableShopId}/summary")
     ResponseEntity<OrderableShopInfoSummaryResponse> getOrderableShopInfoSummary(
@@ -253,9 +261,9 @@ public interface OrderableShopApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "status": 404,
-                          "error": "Not Found",
-                          "message": "존재하지 않는 상점입니다.: 해당 상점이 존재하지 않습니다.: 1"
+                          "code": "",
+                          "message": "해당 상점이 존재하지 않습니다 : 10",
+                          "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
                         }
                         """
                     )
@@ -271,18 +279,65 @@ public interface OrderableShopApi {
             - orderable_shop_id: 주문 가능 상점 고유 식별자
             - name: 상점 이름
             - address: 상점 주소
-            - open_time: 영업 시작 시간 (오늘 요일 기준, 영업 하지 않는 날은 null)
-            - close_time: 영업 종료 시간 (오늘 요일 기준, 영업 하지 않는 날은 null)
-            - closed_days: 휴무 요일 목록
-            - phone: 상점 전화번호
-            - introduction: 가게 소개
-            - notice: 가게 알림
+            - open_time: 영업 시작 시간 (오늘 요일 기준, 영업 하지 않는 날은 null), **nullable**
+            - close_time: 영업 종료 시간 (오늘 요일 기준, 영업 하지 않는 날은 null), **nullable**
+            - closed_days: 휴무 요일 목록, **empty array**
+            - phone: 상점 전화번호 (해당 데이터 없으면 empty array 반환)
+            - introduction: 가게 소개, **nullable**
+            - notice: 가게 알림, **nullable**
             - delivery_tips: 주문 금액별 총 배달팁
             - owner_info: 사업자 정보
-            - origins: 원산지 표기
+            - owner_info.name: **nullable**
+            - owner_info.shop_name: **nullable**
+            - owner_info.address: **nullable**
+            - owner_info.company_registration_number: **nullable**
+            - origins: 원산지 표기  (해당 데이터 없으면 empty array 반환)
         """)
     @GetMapping("/order/shop/{orderableShopId}/detail")
     ResponseEntity<OrderableShopInfoDetailResponse> getOrderableShopInfoDetail(
+        @Parameter(description = "주문 가능 상점 고유 식별자(orderable_shop_id)", example = "1")
+        @PathVariable Integer orderableShopId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "주문 가능 상점 상세 정보 조회 성공",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "성공", value = """
+                        {
+                           "campus_delivery": true,
+                           "off_campus_delivery": true
+                        }
+                        """
+                    )
+                })
+            ),
+            @ApiResponse(responseCode = "404", description = "주문 가능 상점을 찾을 수 없음",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "상점 미존재", value = """
+                        {
+                          "code": "",
+                          "message": "해당 상점이 존재하지 않습니다 : 10",
+                          "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
+                        }
+                        """
+                    )
+                })
+            )
+        }
+    )
+    @Operation(
+        summary = "특정 주문 가능 상점 교외/교내 배달 여부 조회",
+        description = """
+            ## 특정 주문 가능 상점 교외/교내 배달 여부 조회
+            - 주문 상점의 교외 배달 / 교내 배달 가능 여부를 반환 합니다.
+            - nullable
+                - **campus_delivery** : X
+                - **off_campus_delivery** : X
+            """
+    )
+    @GetMapping("/order/shop/{orderableShopId}/delivery")
+    ResponseEntity<OrderableShopDeliveryResponse> getOrderableShopDeliveryResponse(
         @Parameter(description = "주문 가능 상점 고유 식별자(orderable_shop_id)", example = "1")
         @PathVariable Integer orderableShopId
     );

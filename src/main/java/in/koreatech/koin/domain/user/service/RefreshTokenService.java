@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin.domain.user.model.RefreshToken;
 import in.koreatech.koin.domain.user.repository.RefreshTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class RefreshTokenService {
         String key = RefreshToken.generateKey(userId, platform);
         String savedRefreshToken = refreshTokenRedisRepository.getById(key).getToken();
         if (!Objects.equals(savedRefreshToken, refreshToken)) {
-            throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "refreshToken: " + refreshToken);
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_REFRESH_TOKEN, "refreshToken: " + refreshToken);
         }
     }
 
@@ -53,7 +53,7 @@ public class RefreshTokenService {
     public Integer extractUserId(String refreshToken) {
         String[] split = refreshToken.split("-");
         if (split.length == 0) {
-            throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
+            throw CustomException.of(ApiResponseCode.INVALID_REFRESH_TOKEN, "refreshToken: " + refreshToken);
         }
         return Integer.parseInt(split[split.length - 1]);
     }
