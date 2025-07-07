@@ -24,7 +24,7 @@ public class LostItemReportController implements LostItemReportApi{
     public ResponseEntity<Void> reportLostItemArticle(
         @PathVariable Integer id,
         @RequestBody @Valid LostItemReportRequest lostItemReportRequest,
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer studentId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
     ) {
         lostItemReportService.reportLostItemArticle(id, studentId, lostItemReportRequest);
         return ResponseEntity.noContent().build();

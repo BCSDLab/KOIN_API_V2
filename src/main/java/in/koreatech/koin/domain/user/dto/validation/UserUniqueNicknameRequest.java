@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Size;
 public record UserUniqueNicknameRequest(
     @Schema(description = "닉네임", example = "juno", requiredMode = REQUIRED)
     @Size(max = 10, message = "닉네임은 최대 10자입니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "닉네임은 한글, 영문, 숫자만 입력할 수 있습니다.")
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
     String nickname
 ) {
 

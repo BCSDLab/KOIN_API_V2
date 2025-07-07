@@ -23,6 +23,6 @@ public interface LostItemReportApi {
     ResponseEntity<Void> reportLostItemArticle(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid LostItemReportRequest lostItemReportRequest,
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer studentId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
     );
 }

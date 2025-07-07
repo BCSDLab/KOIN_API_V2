@@ -22,7 +22,7 @@ public record RegisterStudentRequest(
 
     @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
+    @Pattern(regexp = "^[가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
     String name,
 
     @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = REQUIRED)
@@ -31,7 +31,7 @@ public record RegisterStudentRequest(
 
     @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
     @Size(max = 10, message = "닉네임은 최대 10자입니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "닉네임은 한글, 영문, 숫자만 입력할 수 있습니다.")
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
     String nickname,
 
     @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
