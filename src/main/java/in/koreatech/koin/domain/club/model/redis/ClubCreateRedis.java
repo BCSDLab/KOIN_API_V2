@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.model.Club;
@@ -52,6 +53,9 @@ public class ClubCreateRedis {
 
     private Boolean isLikeHidden;
 
+    @TimeToLive
+    private Long ttl;
+
     @Builder
     private ClubCreateRedis(
         String id,
@@ -68,7 +72,8 @@ public class ClubCreateRedis {
         Integer requesterId,
         LocalDateTime createdAt,
         String role,
-        Boolean isLikeHidden
+        Boolean isLikeHidden,
+        Long ttl
     ) {
         this.id = id;
         this.name = name;
@@ -85,6 +90,7 @@ public class ClubCreateRedis {
         this.createdAt = createdAt;
         this.role = role;
         this.isLikeHidden = isLikeHidden;
+        this.ttl = ttl;
     }
 
     public static ClubCreateRedis of(ClubCreateRequest request, Integer requesterId) {
@@ -104,6 +110,7 @@ public class ClubCreateRedis {
             .createdAt(LocalDateTime.now())
             .role(request.role())
             .isLikeHidden(request.isLikeHidden())
+            .ttl(86400L * 3)
             .build();
     }
 
