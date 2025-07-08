@@ -6,6 +6,7 @@ import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -191,7 +192,11 @@ public class AdminClubService {
     }
 
     public AdminClubManagersResponse getPendingClubManagers(AdminClubManagerCondition condition) {
-        List<ClubCreateRedis> unAcceptedClubList = (List<ClubCreateRedis>)clubCreateRedisRepository.findAll();
+        List<ClubCreateRedis> unAcceptedClubList = ((List<ClubCreateRedis>) clubCreateRedisRepository.findAll())
+            .stream()
+            .filter(Objects::nonNull)
+            .filter(club -> club.getRequesterId() != null)
+            .toList();
         int totalCount = unAcceptedClubList.size();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
 
@@ -216,11 +221,19 @@ public class AdminClubService {
 
         List<AdminClubManagersResponse.InnerClubManagersResponse> responseList =
             IntStream.range(0, paged.size())
-                .mapToObj(i -> AdminClubManagersResponse.InnerClubManagersResponse.fromRedis(
-                    paged.get(i),
-                    userMap.get(paged.get(i).getRequesterId()),
-                    (criteria.getLimit() * criteria.getPage()) + (i + 1)
-                ))
+                .mapToObj(i -> {
+                    ClubCreateRedis redis = paged.get(i);
+                    User requester = userMap.get(redis.getRequesterId());
+                    if (requester == null) {
+                        return null;
+                    }
+                    return AdminClubManagersResponse.InnerClubManagersResponse.fromRedis(
+                        redis,
+                        requester,
+                        (criteria.getLimit() * criteria.getPage()) + (i + 1)
+                    );
+                })
+                .filter(Objects::nonNull)
                 .toList();
 
         return new AdminClubManagersResponse(
