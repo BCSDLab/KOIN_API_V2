@@ -28,6 +28,7 @@ public record OrderableShopMenuResponse(
     List<InnerOrderableShopMenuOptionGroupResponse> optionGroups
 ) {
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOrderableShopMenuOptionGroupResponse(
         @Schema(description = "옵션 그룹 고유 식별자", example = "1")
         Integer id,
@@ -60,6 +61,7 @@ public record OrderableShopMenuResponse(
         }
     }
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOrderableShopMenuOptionResponse(
         @Schema(description = "옵션 고유 식별자", example = "1")
         Integer id,

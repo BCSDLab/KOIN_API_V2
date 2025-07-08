@@ -110,13 +110,17 @@ public interface AddressApi {
                             "id": 1,
                             "type": "기숙사",
                             "full_address": "충남 천안시 동남구 병천면 충절로 1600 한국기술교육대학교 제1캠퍼스 생활관 101동",
-                            "short_address": "101동(해울)"
+                            "short_address": "101동(해울)",
+                            "latitude": 36.76125794,
+                            "longitude": 127.28372942
                           },
                           {
                             "id": 2,
                             "type": "기숙사",
                             "full_address": "충남 천안시 동남구 병천면 충절로 1600 한국기술교육대학교 제1캠퍼스 생활관 102동",
-                            "short_address": "102동(예지)"
+                            "short_address": "102동(예지)",
+                            "latitude": 36.76156794,
+                            "longitude": 127.28315659
                           }
                         ]
                     }

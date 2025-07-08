@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.order.address.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.math.BigDecimal;
+
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,4 +37,10 @@ public class CampusDeliveryAddress extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campus_address_type_id", nullable = false)
     private CampusDeliveryAddressType campusAddressType;
+
+    @Column(name = "latitude", nullable = false, precision = 10, scale = 8)
+    private BigDecimal latitude;
+
+    @Column(name = "longitude", nullable = false, precision = 11, scale = 8)
+    private BigDecimal longitude;
 }
