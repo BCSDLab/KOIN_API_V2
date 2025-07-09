@@ -46,6 +46,7 @@ public interface CartApi {
                       "items": [
                         {
                           "cart_menu_item_id": 12,
+                          "orderable_shop_menu_id": 3,
                           "name": "허니콤보",
                           "menu_thumbnail_image_url": "https://static.koreatech.in/test.png",
                           "quantity": 1,
@@ -59,6 +60,7 @@ public interface CartApi {
                         },
                         {
                           "cart_menu_item_id": 13,
+                          "orderable_shop_menu_id": 4,
                           "name": "레드콤보",
                           "menu_thumbnail_image_url": "https://static.koreatech.in/test.png",
                           "quantity": 2,

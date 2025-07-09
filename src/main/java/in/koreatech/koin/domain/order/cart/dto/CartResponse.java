@@ -47,6 +47,8 @@ public record CartResponse(
     public record InnerCartItemResponse(
         @Schema(description = "장바구니 상품 고유 ID", example = "101")
         Integer cartMenuItemId,
+        @Schema(description = "메뉴 ID", example = "2")
+        Integer orderableShopMenuId,
         @Schema(description = "메뉴 이름", example = "허니콤보")
         String name,
         @Schema(description = "메뉴 썸네일 이미지", example = "https://static.koreatech.in/test.png")
@@ -70,6 +72,7 @@ public record CartResponse(
 
             return new InnerCartItemResponse(
                 cartMenuItem.getId(),
+                cartMenuItem.getOrderableShopMenu().getId(),
                 cartMenuItem.getOrderableShopMenu().getName(),
                 cartMenuItem.getOrderableShopMenu().getThumbnailImage(),
                 cartMenuItem.getQuantity(),
