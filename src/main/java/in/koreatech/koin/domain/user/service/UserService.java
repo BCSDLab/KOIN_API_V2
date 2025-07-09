@@ -30,10 +30,10 @@ import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdatePasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +93,12 @@ public class UserService {
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
         return UserUpdateResponse.from(user);
+    }
+
+    @Transactional
+    public void updatePassword(Integer userId, UserUpdatePasswordRequest request) {
+        User user = userRepository.getById(userId);
+        user.updatePassword(passwordEncoder, request.newPassword());
     }
 
     @Transactional
