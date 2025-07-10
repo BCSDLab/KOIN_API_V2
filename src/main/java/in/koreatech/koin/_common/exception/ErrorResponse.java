@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "표준 에러 응답 포맷 (CamelCase)")
+@Schema(description = "표준 에러 응답 포맷 (하위호환성 이슈로 CamelCase)")
 public record ErrorResponse(
     @JsonIgnore
     @Schema(description = "HTTP 상태 코드", hidden = true)
@@ -23,7 +23,6 @@ public record ErrorResponse(
     @Schema(description = "에러 추적용 UUID")
     String errorTraceId,
 
-    @JsonIgnore // TODO: 안드로이드 라이브러리 호환성 문제로 강업 전까지 제외합니다.
     @Schema(description = "필드별 검증 오류 목록")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<FieldError> fieldErrors
