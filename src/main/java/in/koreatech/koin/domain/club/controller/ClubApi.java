@@ -466,6 +466,13 @@ public interface ClubApi {
     @Operation(summary = "동아리 행사를 단일 조회한다.", description = """
         ### 동아리 행사 단일 조회
         - 동아리 행사를 단일 조회합니다.
+        
+        ### 응답값
+        - status
+            - SOON : 곧 행사 진행
+            - ONGOING : 행사 진행 중
+            - UPCOMING : 행사 예정
+            - ENDED : 종료된 행사
         """)
     @GetMapping("/{clubId}/event/{eventId}")
     ResponseEntity<ClubEventResponse> getClubEvent(
@@ -489,6 +496,13 @@ public interface ClubApi {
             - ONGOING : 행사 시작 1시간 전과 진행 중인 행사가 조회됩니다.
             - UPCOMING : 행사 시작 시간이 1시간 이상인 행사가 조회됩니다.
             - ENDED : 행사가 종료되고 1분이 지난 시점의 행사가 조회됩니다.
+        
+        ### 응답값
+        - status
+            - SOON : 곧 행사 진행
+            - ONGOING : 행사 진행 중
+            - UPCOMING : 행사 예정
+            - ENDED : 종료된 행사
         """)
     @GetMapping("/{clubId}/event")
     ResponseEntity<List<ClubEventsResponse>> getClubEvents(
