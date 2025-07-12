@@ -55,7 +55,7 @@ public record ClubEventResponse(
             event.getEndDate(),
             event.getIntroduce(),
             event.getContent(),
-            calculateStatus(event.getStartDate(), event.getEndDate(), now).getDisplayName()
+            calculateStatus(event.getStartDate(), event.getEndDate(), now).name()
         );
     }
 
