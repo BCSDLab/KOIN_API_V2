@@ -18,6 +18,7 @@ public record OrderableShopMenuGroupResponse(
     List<InnerMenuGroupResponse> menuGroups
 ) {
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerMenuGroupResponse(
         @Schema(description = "메뉴 그룹 ID")
         Integer id,

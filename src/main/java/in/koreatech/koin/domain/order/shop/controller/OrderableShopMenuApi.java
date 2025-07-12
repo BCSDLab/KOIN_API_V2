@@ -223,7 +223,7 @@ public interface OrderableShopMenuApi {
                     @ExampleObject(name = "성공", value = """
                         {
                           "count": 2,
-                          "menuGroups": [
+                          "menu_group": [
                             {
                               "id": 1,
                               "name": "메인 메뉴"

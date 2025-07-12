@@ -643,8 +643,8 @@ public interface CartApi {
                 @ExampleObject(name = "장바구니 비어있음, 요청 상점 ID와 장바구니에 담긴 상점 ID 불일치", value = """
                         {
                           "orderable_shop_id": 0,
-                          "shop_minimum_order_amount": "0",
-                          "cart_items_amount": "0",
+                          "shop_minimum_order_amount": 0,
+                          "cart_items_amount": 0,
                           "is_available": false
                         }
                         """
