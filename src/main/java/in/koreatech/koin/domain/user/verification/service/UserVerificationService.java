@@ -69,7 +69,7 @@ public class UserVerificationService {
     }
 
     @Transactional
-    public void verifyCode(String phoneNumberOrEmail, String inputCode, String ipAddress) {
+    public void verifyCode(String phoneNumberOrEmail, String ipAddress, String inputCode) {
         VerificationCode verificationCode = verificationCodeRedisRepository.findById(phoneNumberOrEmail)
             .orElseThrow(() -> AuthorizationException.withDetail("verification: " + phoneNumberOrEmail));
         verificationCode.detectAbnormalUsage();
