@@ -52,7 +52,7 @@ public class UserVerificationController implements UserVerificationApi {
     public ResponseEntity<Void> verifyEmailVerificationCode(
         @Valid @RequestBody VerifyEmailVerificationRequest request, @IpAddress String ipAddress
     ) {
-        userVerificationService.verifyCode(request.email(), request.verificationCode(), ipAddress);
+        userVerificationService.verifyCode(request.email(), ipAddress, request.verificationCode());
         return ResponseEntity.ok().build();
     }
 }
