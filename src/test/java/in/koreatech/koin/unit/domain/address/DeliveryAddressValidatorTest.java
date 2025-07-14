@@ -13,8 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin.domain.order.delivery.exception.DeliveryErrorCode;
-import in.koreatech.koin.domain.order.delivery.exception.DeliveryException;
 import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
 import in.koreatech.koin.domain.order.delivery.service.DeliveryAddressValidator;
 import in.koreatech.koin.unit.fixutre.AddressFixture;
