@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
@@ -36,6 +37,7 @@ public class TimetableLectureService {
     private final TimetableLectureCreator timetableLectureCreator;
 
     @Transactional
+    @ConcurrencyGuard(lockName = "createTimetableLectures")
     public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
         validateUserOwnsFrame(frame.getUser().getId(), userId);
