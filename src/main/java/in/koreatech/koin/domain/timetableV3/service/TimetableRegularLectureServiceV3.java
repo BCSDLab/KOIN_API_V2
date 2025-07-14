@@ -11,6 +11,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
@@ -45,6 +46,7 @@ public class TimetableRegularLectureServiceV3 {
     private final GeneralEducationAreaRepository generalEducationAreaRepository;
 
     @Transactional
+    @ConcurrencyGuard(lockName = "createTimetableLecture")
     public TimetableLectureResponseV3 createTimetablesRegularLecture(
         TimetableRegularLectureCreateRequest request, Integer userId
     ) {
