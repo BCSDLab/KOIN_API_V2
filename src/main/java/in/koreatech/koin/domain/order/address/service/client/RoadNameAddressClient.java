@@ -14,8 +14,6 @@ import org.springframework.web.client.RestTemplate;
 import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.address.dto.RoadNameAddressApiResponse;
-import in.koreatech.koin.domain.order.address.exception.AddressException;
-import in.koreatech.koin.domain.order.address.exception.AddressErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RoadNameAddressClient {
 
     private final RestTemplate restTemplate;
+    private final RoadNameAddressApiErrorCodeConverter errorCodeConverter;
 
     @Value("${address.api.key}")
     private String apiKey;
@@ -75,8 +74,9 @@ public class RoadNameAddressClient {
 
     private void handleExternalApiException(String apiErrorCode, String apiErrorMessage) {
         if (!apiErrorCode.equals(SUCCESS_CODE)) {
-            AddressErrorCode addressErrorCode = AddressErrorCode.from(apiErrorCode);
-            throw new AddressException(addressErrorCode, apiErrorMessage);
+            log.error("외부 배달 주소 검색 API Exception: {}: {}", apiErrorCode, apiErrorMessage);
+            ApiResponseCode apiResponseCode = errorCodeConverter.convertToKoinErrorCode(apiErrorCode);
+            throw CustomException.of(apiResponseCode, apiErrorMessage);
         }
     }
 }

@@ -42,6 +42,13 @@ public enum ApiResponseCode {
     INVALID_CLUB_EVENT_TYPE(HttpStatus.BAD_REQUEST, "올바르지 않은 동아리 행사 타입입니다."),
     SHOP_NOT_DELIVERABLE(HttpStatus.BAD_REQUEST, "배달 가능한 상점이 아닙니다."),
     SHOP_NOT_TAKEOUT_AVAILABLE(HttpStatus.BAD_REQUEST, "포장 가능한 상점이 아닙니다."),
+    ADDRESS_KEYWORD_NOT_PROVIDED(HttpStatus.BAD_REQUEST, "검색어를 입력해주세요."),
+    ADDRESS_KEYWORD_TOO_EXTENSIVE(HttpStatus.BAD_REQUEST, "주소를 상세히 입력해 주세요"),
+    ADDRESS_KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "검색어는 두 글자 이상 입력해야 합니다."),
+    ADDRESS_KEYWORD_ONLY_NUMBER(HttpStatus.BAD_REQUEST, "검색어는 문자와 숫자 같이 입력되어야 합니다."),
+    ADDRESS_KEYWORD_TOO_LONG(HttpStatus.BAD_REQUEST, "검색어가 너무 깁니다. (한글 40자 이하)"),
+    ADDRESS_KEYWORD_INVALID_SYMBOLS(HttpStatus.BAD_REQUEST, "검색어에 사용할 수 없는 특수문자(%,=,<,[,])가 포함되어 있습니다."),
+    ADDRESS_SEARCH_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "검색 결과가 너무 많습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
