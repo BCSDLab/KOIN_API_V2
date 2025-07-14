@@ -263,14 +263,14 @@ public interface CartApi {
                 @ExampleObject(name = "수량이 1 미만인 경우", summary = "수량 1 미만", value = """
                     {
                       "code": "INVALID_CART_ITEM_QUANTITY",
-                      "message": "수량은 1 이상이어야 합니다.",
+                      "message": "유효하지 않은 수량입니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """),
                 @ExampleObject(name = "수량이 null인 경우", summary = "수량 null", value = """
                     {
                       "code": "INVALID_CART_ITEM_QUANTITY",
-                      "message": "수량은 null일 수 없습니다.",
+                      "message": "유효하지 않은 수량입니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """)
