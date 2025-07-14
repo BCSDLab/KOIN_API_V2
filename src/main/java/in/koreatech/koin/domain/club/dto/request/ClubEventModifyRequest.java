@@ -1,10 +1,13 @@
 package in.koreatech.koin.domain.club.dto.request;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin._common.validation.UniqueUrl;
 import in.koreatech.koin.domain.club.model.Club;
@@ -14,6 +17,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubEventModifyRequest(
     @Schema(description = "행사 이름", example = "B-CON", requiredMode = REQUIRED)
     @NotBlank(message = "행사 이름은 필수입니다.")
