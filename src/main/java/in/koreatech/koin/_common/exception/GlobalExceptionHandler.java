@@ -36,7 +36,6 @@ import in.koreatech.koin._common.exception.custom.ExternalServiceException;
 import in.koreatech.koin._common.exception.custom.KoinException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -346,20 +345,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ExternalServiceException e
     ) {
         return buildErrorResponse(request, HttpStatus.INTERNAL_SERVER_ERROR, e.getFullMessage());
-    }
-
-    // 공통 에러 코드 + 예외 적용 전 임시 처리
-    @ExceptionHandler(CartException.class)
-    public ResponseEntity<Object> handleCartException(
-        HttpServletRequest request,
-        CartException e
-    ) {
-        return buildErrorResponseWithErrorCode(
-            request,
-            HttpStatus.valueOf(e.getErrorCode().getHttpIntegerCode()),
-            e.getFullMessage(),
-            e.getErrorCode().name()
-        );
     }
 
     private ResponseEntity<Object> buildErrorResponse(

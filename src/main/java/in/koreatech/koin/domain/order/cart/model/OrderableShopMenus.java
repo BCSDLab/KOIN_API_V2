@@ -2,8 +2,8 @@ package in.koreatech.koin.domain.order.cart.model;
 
 import java.util.List;
 
-import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +19,6 @@ public class OrderableShopMenus {
         return menuList.stream()
             .filter(menu -> menu.getId().equals(selectedMenuId))
             .findFirst()
-            .orElseThrow(() -> new CartException(CartErrorCode.INVALID_MENU_IN_SHOP));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.INVALID_MENU_IN_SHOP));
     }
 }

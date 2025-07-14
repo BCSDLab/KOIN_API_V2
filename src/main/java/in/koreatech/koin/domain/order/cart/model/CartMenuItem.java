@@ -6,9 +6,9 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.model.BaseEntity;
-import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
@@ -92,10 +92,10 @@ public class CartMenuItem extends BaseEntity {
 
     public void updateQuantity(Integer quantity) {
         if (quantity == null) {
-            throw new CartException(CartErrorCode.INVALID_QUANTITY, "수량은 null일 수 없습니다.");
+            throw CustomException.of(ApiResponseCode.INVALID_CART_ITEM_QUANTITY, "수량은 null일 수 없습니다.");
         }
         if (quantity <= 0) {
-            throw new CartException(CartErrorCode.INVALID_QUANTITY, "수량은 1 이상이어야 합니다.");
+            throw CustomException.of(ApiResponseCode.INVALID_CART_ITEM_QUANTITY, "수량은 1 이상이어야 합니다.");
         }
         this.quantity = quantity;
     }

@@ -5,12 +5,12 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
-import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
@@ -86,6 +86,6 @@ public class CartQueryService {
 
     private Cart getCartOrThrow(Integer userId) {
         return cartRepository.findCartByUserId(userId)
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CART));
     }
 }
