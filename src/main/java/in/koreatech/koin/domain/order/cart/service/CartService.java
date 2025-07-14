@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemCommand;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
@@ -15,8 +16,6 @@ import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.model.OrderableShopMenuOptions;
 import in.koreatech.koin.domain.order.cart.model.OrderableShopMenus;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
-import in.koreatech.koin.domain.order.shop.exception.OrderableShopMenuNotFoundException;
-import in.koreatech.koin.domain.order.shop.exception.OrderableShopNotFoundException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
@@ -104,7 +103,7 @@ public class CartService {
      * 상점이 영업중 인지 확인 하고 도매인 엔티티 반환
      *
      * @param shopId 주문 가능 상점 ID
-     * @throws OrderableShopNotFoundException 주문 가능 상점이 존재 하지 않은 경우
+     * @throws CustomException (ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP) 주문 가능 상점이 존재 하지 않은 경우
      * @throws CartException (CartErrorCode.SHOP_CLOSED) 상점의 영업 시간이 아닌 경우
      */
     private OrderableShop validateShopAndGetShop(Integer shopId) {
@@ -144,7 +143,7 @@ public class CartService {
      * 클라이언트에서 전송된 메뉴 ID와 가격 옵션 ID가 실제 해당 상점에 속한 유효한 데이터인지 검증하고 도메인 엔티티 반환
      *
      * @param command 장바구니 상품 추가 요청 DTO
-     * @throws OrderableShopMenuNotFoundException 해당 메뉴를 찾을 수 없는 경우
+     * @throws CustomException (ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU) 해당 메뉴를 찾을 수 없는 경우
      * @throws CartException (CartErrorCode.INVALID_MENU_IN_SHOP) 해당 메뉴가 상점에 속해 있지 않은 경우
      * @throws CartException (CartErrorCode.MENU_SOLD_OUT) 해당 메뉴가 품절 상태인 경우
      * @throws CartException (CartErrorCode.MENU_PRICE_NOT_FOUND) 해당 메뉴의 가격 옵션이 잘못된 경우
