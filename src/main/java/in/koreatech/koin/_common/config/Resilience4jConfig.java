@@ -7,6 +7,7 @@ import java.time.Duration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import in.koreatech.koin._common.exception.CustomException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -42,6 +43,12 @@ public class Resilience4jConfig {
         return circuitBreakerRegistry.circuitBreaker("cityBusRoute", circuitBreakerConfig);
     }
 
+    @Bean
+    public CircuitBreaker roadNameAddressCircuitBreaker() {
+        CircuitBreakerConfig circuitBreakerConfig = getRoadNameAddressConfig();
+        return circuitBreakerRegistry.circuitBreaker("roadNameAddress", circuitBreakerConfig);
+    }
+
     private static CircuitBreakerConfig getBusConfig() {
         return CircuitBreakerConfig.custom()
             // 최소 호출횟수
@@ -58,6 +65,25 @@ public class Resilience4jConfig {
             .automaticTransitionFromOpenToHalfOpenEnabled(true)
             // Half Open 상태에서 최대 호출횟수
             .permittedNumberOfCallsInHalfOpenState(2)
+            .build();
+    }
+
+    private static CircuitBreakerConfig getRoadNameAddressConfig() {
+        return CircuitBreakerConfig.custom()
+            .failureRateThreshold(70)
+            .slowCallDurationThreshold(Duration.ofSeconds(5))
+            .slowCallRateThreshold(90)
+            .slidingWindowType(COUNT_BASED)
+            .minimumNumberOfCalls(5)
+            .waitDurationInOpenState(Duration.ofSeconds(10))
+            .automaticTransitionFromOpenToHalfOpenEnabled(true)
+            .permittedNumberOfCallsInHalfOpenState(2)
+            .ignoreException(throwable -> {
+                if (throwable instanceof CustomException e) {
+                    return e.getErrorCode().getHttpStatus().is4xxClientError();
+                }
+                return false;
+            })
             .build();
     }
 }
