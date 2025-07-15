@@ -222,14 +222,14 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "유효하지 않은 메뉴 가격 ID", summary = "메뉴 가격 ID 없음", value = """
                     {
-                      "code": "MENU_PRICE_NOT_FOUND",
+                      "code": "NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE",
                       "message": "유효하지 않은 가격 ID 입니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """),
                 @ExampleObject(name = "유효하지 않은 메뉴 옵션 ID", summary = "메뉴 옵션 ID 없음", value = """
                     {
-                      "code": "MENU_OPTION_NOT_FOUND",
+                      "code": "NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION",
                       "message": "유효하지 않은 옵션 ID 입니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
@@ -262,15 +262,15 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "수량이 1 미만인 경우", summary = "수량 1 미만", value = """
                     {
-                      "code": "INVALID_QUANTITY",
-                      "message": "유효하지 않은 수량입니다. 수량은 1 이상이어야 합니다.",
+                      "code": "INVALID_CART_ITEM_QUANTITY",
+                      "message": "유효하지 않은 수량입니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """),
                 @ExampleObject(name = "수량이 null인 경우", summary = "수량 null", value = """
                     {
-                      "code": "INVALID_QUANTITY",
-                      "message": "유효하지 않은 수량입니다. 수량은 null일 수 없습니다.",
+                      "code": "INVALID_CART_ITEM_QUANTITY",
+                      "message": "유효하지 않은 수량입니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """)
@@ -291,14 +291,14 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "장바구니 상품을 찾을 수 없는 경우", summary = "존재하지 않는 장바구니 상품", value = """
                     {
-                      "code": "CART_MENU_ITEM_NOT_FOUND",
+                      "code": "NOT_FOUND_CART_ITEM",
                       "message": "장바구니에 담긴 상품이 존재하지 않습니다",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """),
                 @ExampleObject(name = "장바구니가 없는 경우", summary = "장바구니 없음", value = """
                     {
-                      "code": "CART_NOT_FOUND",
+                      "code": "NOT_FOUND_CART",
                       "message": "장바구니를 찾을 수 없습니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
@@ -344,14 +344,14 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "장바구니 상품을 찾을 수 없는 경우", summary = "존재하지 않는 장바구니 상품", value = """
                     {
-                      "code": "CART_MENU_ITEM_NOT_FOUND",
+                      "code": "NOT_FOUND_CART_ITEM",
                       "message": "장바구니에 담긴 상품이 존재하지 않습니다",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """),
                 @ExampleObject(name = "장바구니가 없는 경우", summary = "장바구니 없음", value = """
                     {
-                      "code": "CART_NOT_FOUND",
+                      "code": "NOT_FOUND_CART",
                       "message": "장바구니를 찾을 수 없습니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
@@ -393,7 +393,7 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "장바구니가 없는 경우", summary = "장바구니 없음", value = """
                     {
-                      "code": "CART_NOT_FOUND",
+                      "code": "NOT_FOUND_CART",
                       "message": "장바구니를 찾을 수 없습니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
@@ -503,7 +503,7 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "장바구니 상품을 찾을 수 없는 경우", summary = "존재하지 않는 장바구니 상품", value = """
                     {
-                      "code": "CART_MENU_ITEM_NOT_FOUND",
+                      "code": "NOT_FOUND_CART_ITEM",
                       "message": "장바구니에 담긴 상품이 존재하지 않습니다",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
@@ -580,21 +580,21 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "장바구니 상품을 찾을 수 없는 경우", summary = "존재하지 않는 장바구니 상품", value = """
                     {
-                      "code": "CART_MENU_ITEM_NOT_FOUND",
+                      "code": "NOT_FOUND_CART_ITEM",
                       "message": "장바구니에 담긴 상품이 존재하지 않습니다",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """),
                 @ExampleObject(name = "유효하지 않은 메뉴 가격 ID", summary = "메뉴 가격 ID 없음", value = """
                     {
-                      "code": "MENU_PRICE_NOT_FOUND",
+                      "code": "NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE",
                       "message": "유효하지 않은 가격 ID 입니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
                     """),
                 @ExampleObject(name = "유효하지 않은 메뉴 옵션 ID", summary = "메뉴 옵션 ID 없음", value = """
                     {
-                      "code": "MENU_OPTION_NOT_FOUND",
+                      "code": "NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION",
                       "message": "유효하지 않은 옵션 ID 입니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }
@@ -778,7 +778,7 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "장바구니가 없는 경우", summary = "장바구니 없음", value = """
                     {
-                      "code": "CART_NOT_FOUND",
+                      "code": "NOT_FOUND_CART",
                       "message": "장바구니를 찾을 수 없습니다.",
                       "errorTraceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
                     }

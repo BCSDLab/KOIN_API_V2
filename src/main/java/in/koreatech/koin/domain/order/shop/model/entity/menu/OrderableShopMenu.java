@@ -6,13 +6,11 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.model.BaseEntity;
-import in.koreatech.koin.domain.order.cart.dto.CartAddItemCommand;
-import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -85,7 +83,7 @@ public class OrderableShopMenu extends BaseEntity {
 
     public void validateSoldOut() {
         if(this.isSoldOut) {
-           throw new CartException(CartErrorCode.MENU_SOLD_OUT);
+           throw CustomException.of(ApiResponseCode.MENU_SOLD_OUT);
         }
     }
 
@@ -93,7 +91,7 @@ public class OrderableShopMenu extends BaseEntity {
         boolean exists = menuPrices.stream()
             .anyMatch(menuPrice -> menuPrice.getId().equals(menuPriceId));
         if(!exists) {
-            throw new CartException(CartErrorCode.MENU_PRICE_NOT_FOUND);
+            throw CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE);
         }
     }
 

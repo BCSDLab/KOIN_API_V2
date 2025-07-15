@@ -6,9 +6,9 @@ import static java.util.stream.Collectors.toMap;
 import java.util.List;
 import java.util.Map;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemCommand.Option;
-import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOptionGroup;
 import lombok.AllArgsConstructor;
@@ -50,12 +50,12 @@ public class OrderableShopMenuOptions {
 
             // 메뉴에 존재 하지 않는 옵션 ID인 경우
             if (optionInDB == null) {
-                throw new CartException(CartErrorCode.MENU_OPTION_NOT_FOUND);
+                throw CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION);
             }
 
             // 요청한 옵션 그룹 ID가 실제 해당 옵션의 옵션 그룹 ID와 일치 하지 않는 경우
             if (!optionInDB.getOptionGroup().getId().equals(selectedOption.optionGroupId())) {
-                throw new CartException(CartErrorCode.INVALID_OPTION_IN_GROUP);
+                throw CustomException.of(ApiResponseCode.INVALID_OPTION_IN_GROUP);
             }
         }
     }
@@ -67,7 +67,7 @@ public class OrderableShopMenuOptions {
             .filter(OrderableShopMenuOptionGroup::getIsRequired)
             .findFirst()
             .ifPresent(group -> {
-                throw new CartException(CartErrorCode.REQUIRED_OPTION_GROUP_MISSING);
+                throw CustomException.of(ApiResponseCode.REQUIRED_OPTION_GROUP_MISSING);
             });
     }
 

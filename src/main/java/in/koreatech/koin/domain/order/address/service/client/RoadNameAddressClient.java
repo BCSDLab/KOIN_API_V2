@@ -11,9 +11,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.address.dto.RoadNameAddressApiResponse;
-import in.koreatech.koin.domain.order.address.exception.AddressException;
-import in.koreatech.koin.domain.order.address.exception.AddressErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RoadNameAddressClient {
 
     private final RestTemplate restTemplate;
+    private final RoadNameAddressApiErrorCodeConverter errorCodeConverter;
 
     @Value("${address.api.key}")
     private String apiKey;
@@ -38,23 +39,19 @@ public class RoadNameAddressClient {
 
         var requestEntity = getHttpRequestEntity(headers, keyword, currentPage, countPerPage);
         try {
-            RoadNameAddressApiResponse apiResponse = restTemplate.postForObject(apiUrl, requestEntity,
-                RoadNameAddressApiResponse.class);
-            if (apiResponse == null || apiResponse.results() == null || apiResponse.results().common() == null) {
-                throw new AddressException(AddressErrorCode.EXTERNAL_API_ERROR);
-            }
+            var apiResponse = restTemplate.postForObject(apiUrl, requestEntity, RoadNameAddressApiResponse.class);
 
-            String errorCode = apiResponse.results().common().errorCode();
-            if (!errorCode.equals(SUCCESS_CODE)) {
-                AddressErrorCode addressErrorCode = AddressErrorCode.from(errorCode);
-                String originalErrorMessage = apiResponse.results().common().errorMessage();
-                throw new AddressException(addressErrorCode, originalErrorMessage);
-            }
+            validateApiResponse(apiResponse);
+
+            handleExternalApiException(
+                apiResponse.results().common().errorCode(),
+                apiResponse.results().common().errorMessage()
+            );
+
             return apiResponse;
-
         } catch (RestClientException e) {
-            log.error("주소 API 호출 실패", e);
-            throw new AddressException(AddressErrorCode.EXTERNAL_API_ERROR, e.getMessage());
+            log.error("외부 배달 주소 검색 API 호출 실패: {}", e.getMessage());
+            throw CustomException.of(ApiResponseCode.EXTERNAL_API_ERROR, "주소 API 호출 실패");
         }
     }
 
@@ -67,5 +64,19 @@ public class RoadNameAddressClient {
         body.add("keyword", keyword);
         body.add("resultType", "json");
         return new HttpEntity<>(body, headers);
+    }
+
+    private void validateApiResponse(RoadNameAddressApiResponse apiResponse) {
+        if (apiResponse == null || apiResponse.results() == null || apiResponse.results().common() == null) {
+            throw CustomException.of(ApiResponseCode.EXTERNAL_API_ERROR, "주소 API 호출 실패");
+        }
+    }
+
+    private void handleExternalApiException(String apiErrorCode, String apiErrorMessage) {
+        if (!apiErrorCode.equals(SUCCESS_CODE)) {
+            log.error("외부 배달 주소 검색 API Exception: {}: {}", apiErrorCode, apiErrorMessage);
+            ApiResponseCode apiResponseCode = errorCodeConverter.convertToKoinErrorCode(apiErrorCode);
+            throw CustomException.of(apiResponseCode, apiErrorMessage);
+        }
     }
 }

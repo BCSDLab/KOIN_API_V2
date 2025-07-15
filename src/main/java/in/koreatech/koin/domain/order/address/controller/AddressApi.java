@@ -59,7 +59,7 @@ public interface AddressApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "검색어 글자 수 부족", value = """
                     {
-                      "code": "KEYWORD_TOO_SHORT",
+                      "code": "ADDRESS_KEYWORD_TOO_SHORT",
                       "message": "검색어는 두글자 이상 입력되어야 합니다.",
                       "errorTraceId": "a3e73b85-8c84-41f1-9f24-e6a4ae38aea3"
                     }
@@ -73,13 +73,6 @@ public interface AddressApi {
                       "code": "EXTERNAL_API_ERROR",
                       "message": "주소 정보를 가져오는 중 오류가 발생했습니다.",
                       "errorTraceId": "a3e73b85-8c84-41f1-9f24-e6a4ae38aea3"
-                    }
-                    """),
-                @ExampleObject(name = "외부 API 연동 실패", summary = "요청 키 만료", value = """
-                    {
-                      "code": "INVALID_API_KEY",
-                      "message": "승인되지 않은 KEY 입니다.",
-                      "errorTraceId": "eed20ecf-0dd1-49f7-bfe7-1f7686fb6729"
                     }
                     """)
             })

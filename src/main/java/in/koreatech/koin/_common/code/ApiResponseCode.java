@@ -42,6 +42,23 @@ public enum ApiResponseCode {
     INVALID_CLUB_EVENT_TYPE(HttpStatus.BAD_REQUEST, "올바르지 않은 동아리 행사 타입입니다."),
     SHOP_NOT_DELIVERABLE(HttpStatus.BAD_REQUEST, "배달 가능한 상점이 아닙니다."),
     SHOP_NOT_TAKEOUT_AVAILABLE(HttpStatus.BAD_REQUEST, "포장 가능한 상점이 아닙니다."),
+    ADDRESS_KEYWORD_NOT_PROVIDED(HttpStatus.BAD_REQUEST, "검색어를 입력해주세요."),
+    ADDRESS_KEYWORD_TOO_EXTENSIVE(HttpStatus.BAD_REQUEST, "주소를 상세히 입력해 주세요"),
+    ADDRESS_KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "검색어는 두 글자 이상 입력해야 합니다."),
+    ADDRESS_KEYWORD_ONLY_NUMBER(HttpStatus.BAD_REQUEST, "검색어는 문자와 숫자 같이 입력되어야 합니다."),
+    ADDRESS_KEYWORD_TOO_LONG(HttpStatus.BAD_REQUEST, "검색어가 너무 깁니다. (한글 40자 이하)"),
+    ADDRESS_KEYWORD_INVALID_SYMBOLS(HttpStatus.BAD_REQUEST, "검색어에 사용할 수 없는 특수문자(%,=,<,[,])가 포함되어 있습니다."),
+    ADDRESS_SEARCH_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "검색 결과가 너무 많습니다."),
+    DIFFERENT_SHOP_ITEM_IN_CART(HttpStatus.BAD_REQUEST, "장바구니에는 동일한 상점의 상품만 담을 수 있습니다."),
+    MENU_SOLD_OUT(HttpStatus.BAD_REQUEST, "상품이 매진되었습니다"),
+    SHOP_CLOSED(HttpStatus.BAD_REQUEST, "상점의 영업시간이 아닙니다."),
+    INVALID_MENU_IN_SHOP(HttpStatus.BAD_REQUEST, "선택한 메뉴는 해당 상점에 속해있지 않습니다"),
+    INVALID_OPTION_IN_GROUP(HttpStatus.BAD_REQUEST, "선택한 옵션이 해당 옵션 그룹에 속해있지 않습니다."),
+    INVALID_CART_ITEM_QUANTITY(HttpStatus.BAD_REQUEST, "유효하지 않은 수량입니다."),
+    REQUIRED_OPTION_GROUP_MISSING(HttpStatus.BAD_REQUEST, "필수 옵션 그룹을 선택하지 않았습니다."),
+    MIN_SELECTION_NOT_MET(HttpStatus.BAD_REQUEST, "옵션 그룹의 최소 선택 개수를 만족하지 못했습니다."),
+    MAX_SELECTION_EXCEEDED(HttpStatus.BAD_REQUEST, "옵션 그룹의 최대 선택 개수를 초과했습니다."),
+    ORDER_AMOUNT_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "최소 주문 금액을 충족하지 않습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -68,6 +85,13 @@ public enum ApiResponseCode {
     NOT_FOUND_CLUB(HttpStatus.NOT_FOUND, "동아리가 존재하지 않습니다."),
     NOT_FOUND_CLUB_RECRUITMENT(HttpStatus.NOT_FOUND, "동아리 모집 공고가 존재하지 않습니다."),
     NOT_FOUND_CLUB_EVENT(HttpStatus.NOT_FOUND, "동아리 행사가 존재하지 않습니다."),
+    NOT_FOUND_DELIVERY_ADDRESS(HttpStatus.NOT_FOUND, "주소가 존재하지 않습니다."),
+    NOT_FOUND_ORDERABLE_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
+    NOT_FOUND_ORDERABLE_SHOP_MENU(HttpStatus.NOT_FOUND, "메뉴가 존재하지 않습니다"),
+    NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE(HttpStatus.NOT_FOUND, "유효하지 않은 가격 ID 입니다."),
+    NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION(HttpStatus.NOT_FOUND, "유효하지 않은 옵션 ID 입니다."),
+    NOT_FOUND_CART(HttpStatus.NOT_FOUND, "장바구니가 존재하지 않습니다"),
+    NOT_FOUND_CART_ITEM(HttpStatus.NOT_FOUND, "장바구니에 담긴 상품이 존재하지 않습니다"),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)

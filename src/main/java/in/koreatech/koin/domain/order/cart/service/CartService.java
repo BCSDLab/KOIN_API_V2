@@ -6,17 +6,15 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemCommand;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
-import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.model.OrderableShopMenuOptions;
 import in.koreatech.koin.domain.order.cart.model.OrderableShopMenus;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
-import in.koreatech.koin.domain.order.shop.exception.OrderableShopMenuNotFoundException;
-import in.koreatech.koin.domain.order.shop.exception.OrderableShopNotFoundException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
@@ -104,8 +102,8 @@ public class CartService {
      * 상점이 영업중 인지 확인 하고 도매인 엔티티 반환
      *
      * @param shopId 주문 가능 상점 ID
-     * @throws OrderableShopNotFoundException 주문 가능 상점이 존재 하지 않은 경우
-     * @throws CartException (CartErrorCode.SHOP_CLOSED) 상점의 영업 시간이 아닌 경우
+     * @throws CustomException (ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP) 주문 가능 상점이 존재 하지 않은 경우
+     * @throws CustomException (ApiResponseCode.SHOP_CLOSED) 상점의 영업 시간이 아닌 경우
      */
     private OrderableShop validateShopAndGetShop(Integer shopId) {
         OrderableShop orderableShop = orderableShopRepository.getById(shopId);
@@ -119,7 +117,7 @@ public class CartService {
      *
      * @param userId 사용자 ID
      * @param orderableShop 주문 가능 상점 엔티티
-     * @throws CartException (CartErrorCode.DIFFERENT_SHOP_ITEM_IN_CART) 추가 요청 상품이 담긴 상품의 상점과 일치 하지 않는 경우
+     * @throws CustomException (ApiResponseCode.DIFFERENT_SHOP_ITEM_IN_CART) 추가 요청 상품이 담긴 상품의 상점과 일치 하지 않는 경우
      */
     private Cart getOrCreateCart(Integer userId, OrderableShop orderableShop) {
         Cart cart = cartRepository.findCartByUserId(userId).orElse(
@@ -133,21 +131,21 @@ public class CartService {
      * 장바구니 도메인 엔티티 반환
      *
      * @param userId 사용자 ID
-     * @throws CartException (CartErrorCode.CART_NOT_FOUND) 장바구니가 존재하지 않는 경우
+     * @throws CustomException (ApiResponseCode.NOT_FOUND_CART) 장바구니가 존재하지 않는 경우
      */
     private Cart getCartOrThrow(Integer userId) {
         return cartRepository.findCartByUserId(userId)
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CART));
     }
 
     /**
      * 클라이언트에서 전송된 메뉴 ID와 가격 옵션 ID가 실제 해당 상점에 속한 유효한 데이터인지 검증하고 도메인 엔티티 반환
      *
      * @param command 장바구니 상품 추가 요청 DTO
-     * @throws OrderableShopMenuNotFoundException 해당 메뉴를 찾을 수 없는 경우
-     * @throws CartException (CartErrorCode.INVALID_MENU_IN_SHOP) 해당 메뉴가 상점에 속해 있지 않은 경우
-     * @throws CartException (CartErrorCode.MENU_SOLD_OUT) 해당 메뉴가 품절 상태인 경우
-     * @throws CartException (CartErrorCode.MENU_PRICE_NOT_FOUND) 해당 메뉴의 가격 옵션이 잘못된 경우
+     * @throws CustomException (ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU) 해당 메뉴를 찾을 수 없는 경우
+     * @throws CustomException (ApiResponseCode.INVALID_MENU_IN_SHOP) 해당 메뉴가 상점에 속해 있지 않은 경우
+     * @throws CustomException (ApiResponseCode.MENU_SOLD_OUT) 해당 메뉴가 품절 상태인 경우
+     * @throws CustomException (ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE) 해당 메뉴의 가격 옵션이 잘못된 경우
      */
     private OrderableShopMenu validateAndGetMenu(CartAddItemCommand command) {
         OrderableShopMenus shopOrderableShopMenus = orderableShopMenuRepository.getAllByOrderableShopId(command.shopId());
@@ -172,7 +170,7 @@ public class CartService {
      *
      * @param command 장바구니 상품 추가 요청 DTO
      * @return 검증된 메뉴 옵션 엔티티 리스트
-     * @throws CartException 옵션 검증 실패 (잘못된 옵션, 필수 옵션 누락, 선택 조건 위반)
+     * @throws CustomException 옵션 검증 실패 (잘못된 옵션, 필수 옵션 누락, 선택 조건 위반)
      */
     private List<OrderableShopMenuOption> validateAndGetOptions(CartAddItemCommand command) {
         OrderableShopMenuOptions shopMenuOptions = orderableShopMenuOptionRepository.getAllByMenuId(command.shopMenuId());

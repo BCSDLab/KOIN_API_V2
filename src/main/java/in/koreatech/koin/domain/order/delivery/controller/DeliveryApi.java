@@ -129,7 +129,7 @@ public interface DeliveryApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "존재하지 않는 교내 배달 주소 ID", summary = "존재하지 않는 교내 배달 주소", value = """
                     {
-                      "code": "CAMPUS_DELIVERY_ADDRESS_NOT_FOUND",
+                      "code": "NOT_FOUND_DELIVERY_ADDRESS",
                       "message": "교내 배달 주소를 찾을 수 없습니다.",
                       "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
                     }

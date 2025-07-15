@@ -94,9 +94,9 @@ public interface OrderableShopMenuApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "status": 404,
-                          "error": "Not Found",
-                          "message": "해당 상점이 존재하지 않습니다 : 1"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP",
+                          "message": "상점이 존재하지 않습니다.",
+                          "errorTraceId": "b630af74-f0e5-4faf-808f-5406ab104848"
                         }
                         """
                     )
@@ -192,9 +192,9 @@ public interface OrderableShopMenuApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "메뉴 미존재", value = """
                         {
-                          "status": 404,
-                          "error": "Not Found",
-                          "message": "해당 메뉴가 존재하지 않습니다 : 999"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP_MENU",
+                          "message": "메뉴가 존재하지 않습니다",
+                          "errorTraceId": "8abfd670-c8bf-4cee-9ab5-33fa53801990"
                         }
                         """
                     )
@@ -242,9 +242,9 @@ public interface OrderableShopMenuApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "status": 404,
-                          "error": "Not Found",
-                          "message": "해당 상점이 존재하지 않습니다 : 1"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP",
+                          "message": "상점이 존재하지 않습니다.",
+                          "errorTraceId": "c01f770c-9f1e-4824-a062-34c6af52c119"
                         }
                         """
                     )

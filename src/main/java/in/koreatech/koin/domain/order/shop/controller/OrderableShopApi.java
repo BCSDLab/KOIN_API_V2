@@ -174,9 +174,9 @@ public interface OrderableShopApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "code": "",
-                          "message": "해당 상점이 존재하지 않습니다 : 10",
-                          "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP",
+                          "message": "상점이 존재하지 않습니다.",
+                          "errorTraceId": "c1c17171-95ad-40ef-87ae-f0223e9614a8"
                         }
                         """
                     )
@@ -261,9 +261,9 @@ public interface OrderableShopApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "code": "",
-                          "message": "해당 상점이 존재하지 않습니다 : 10",
-                          "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP",
+                          "message": "상점이 존재하지 않습니다.",
+                          "errorTraceId": "c1c17171-95ad-40ef-87ae-f0223e9614a8"
                         }
                         """
                     )
@@ -316,9 +316,9 @@ public interface OrderableShopApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "code": "",
-                          "message": "해당 상점이 존재하지 않습니다 : 10",
-                          "errorTraceId": "0c790c6c-e323-40db-ba4b-6e0ab49e9f7d"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP",
+                          "message": "상점이 존재하지 않습니다.",
+                          "errorTraceId": "c1c17171-95ad-40ef-87ae-f0223e9614a8"
                         }
                         """
                     )

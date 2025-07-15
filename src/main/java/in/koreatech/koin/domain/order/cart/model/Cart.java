@@ -10,8 +10,6 @@ import java.util.Optional;
 import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.model.BaseEntity;
-import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
@@ -56,7 +54,7 @@ public class Cart extends BaseEntity {
 
     public void validateSameShop(Integer orderableShopId) {
         if (!orderableShop.getId().equals(orderableShopId)) {
-            throw new CartException(CartErrorCode.DIFFERENT_SHOP_ITEM_IN_CART);
+            throw CustomException.of(ApiResponseCode.DIFFERENT_SHOP_ITEM_IN_CART);
         }
     }
 
@@ -101,7 +99,7 @@ public class Cart extends BaseEntity {
         return this.cartMenuItems.stream()
             .filter(cartMenuItem -> cartMenuItem.getId().equals(cartMenuItemId))
             .findFirst()
-            .orElseThrow(() -> new CartException(CartErrorCode.CART_MENU_ITEM_NOT_FOUND));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CART_ITEM));
     }
 
     public Integer calculateItemsAmount() {

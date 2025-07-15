@@ -7,11 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.domain.order.address.exception.AddressErrorCode;
-import in.koreatech.koin.domain.order.address.exception.AddressException;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
-import in.koreatech.koin.domain.order.delivery.exception.DeliveryErrorCode;
-import in.koreatech.koin.domain.order.delivery.exception.DeliveryException;
 
 public interface CampusDeliveryAddressRepository extends JpaRepository<CampusDeliveryAddress, Integer> {
 
@@ -42,7 +40,7 @@ public interface CampusDeliveryAddressRepository extends JpaRepository<CampusDel
 
     default CampusDeliveryAddress getById(Integer campusDeliveryAddressId) {
         return findById(campusDeliveryAddressId).orElseThrow(
-            () -> new DeliveryException(DeliveryErrorCode.CAMPUS_DELIVERY_ADDRESS_NOT_FOUND)
+            () -> CustomException.of(ApiResponseCode.NOT_FOUND_DELIVERY_ADDRESS, "교내 배달 주소를 찾을 수 없습니다.")
         );
     }
 }

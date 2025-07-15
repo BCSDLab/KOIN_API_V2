@@ -5,16 +5,14 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin._common.model.BaseEntity;
-import in.koreatech.koin.domain.order.cart.exception.CartErrorCode;
-import in.koreatech.koin.domain.order.cart.exception.CartException;
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -88,7 +86,7 @@ public class OrderableShop extends BaseEntity {
 
     public void requireShopOpen() {
         if (shop == null || shop.getShopOperation() == null || !shop.getShopOperation().isOpen()) {
-            throw new CartException(CartErrorCode.SHOP_CLOSED);
+            throw CustomException.of(ApiResponseCode.SHOP_CLOSED);
         }
     }
 
@@ -101,7 +99,7 @@ public class OrderableShop extends BaseEntity {
             throw new KoinIllegalArgumentException("주문 금액은 null이거나 음수일 수 없습니다.");
         }
         if (totalOrderAmount < minimumOrderAmount) {
-            throw new CartException(CartErrorCode.ORDER_AMOUNT_BELOW_MINIMUM);
+            throw CustomException.of(ApiResponseCode.ORDER_AMOUNT_BELOW_MINIMUM);
         }
     }
 
