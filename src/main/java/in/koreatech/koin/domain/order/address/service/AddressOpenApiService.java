@@ -61,7 +61,7 @@ public class AddressOpenApiService {
         return searchAddressFromLocal(request);
     }
 
-    public AddressSearchResponse searchAddressFromLocal(AddressSearchRequest request) {
+    private AddressSearchResponse searchAddressFromLocal(AddressSearchRequest request) {
         Pageable pageable = PageRequest.of(request.currentPage() - 1, request.countPerPage());
         Page<RoadNameAddressDocument> resultPage = addressRepository.findByKeyword(request.keyword(), pageable);
         return AddressSearchResponse.from(resultPage);
