@@ -106,7 +106,7 @@ public class StudentApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "anonymous_nickname": "익명",
+                    "anonymous_nickname": "익명_주노",
                     "email": "juno@koreatech.ac.kr",
                     "gender": 0,
                     "major": "컴퓨터공학부",
@@ -178,7 +178,7 @@ public class StudentApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                     {
-                        "anonymous_nickname": "익명",
+                        "anonymous_nickname": "익명_주노",
                         "email": "juno@koreatech.ac.kr",
                         "gender": 1,
                         "major": "기계공학부",

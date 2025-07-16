@@ -88,10 +88,10 @@ public record RegisterStudentRequestV2(
     public Student toStudent(PasswordEncoder passwordEncoder, Department department) {
         User user = User.builder()
             .name(name)
+            .nickname(nickname)
             .phoneNumber(phoneNumber)
             .loginId(loginId)
             .loginPw(passwordEncoder.encode(password))
-            .nickname(nickname)
             .email(email)
             .gender(gender)
             .userType(STUDENT)

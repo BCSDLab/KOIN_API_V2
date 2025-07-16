@@ -53,7 +53,7 @@ public record ClubQnasResponse(
             if (author != null) {
                 nickname = qna.getAuthor().getUser().getNickname();
                 if (nickname == null) {
-                    nickname = qna.getAuthor().getAnonymousNickname();
+                    nickname = qna.getAuthor().getUser().getAnonymousNickname();
                 }
             } else {
                 nickname = "탈퇴한 회원";

@@ -276,7 +276,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getMenus().get(0).getMenuName(),
                 익명_학생_리뷰.getId(),
                 익명_학생_리뷰.getRating(),
-                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getReviewer().getUser().getAnonymousNickname(),
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
@@ -353,7 +353,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getMenus().get(0).getMenuName(),
                 익명_학생_리뷰.getId(),
                 익명_학생_리뷰.getRating(),
-                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getReviewer().getUser().getAnonymousNickname(),
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
@@ -429,7 +429,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getMenus().get(0).getMenuName(),
                 익명_학생_리뷰.getId(),
                 익명_학생_리뷰.getRating(),
-                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getReviewer().getUser().getAnonymousNickname(),
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
@@ -675,7 +675,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getMenus().get(0).getMenuName(),
                 익명_학생_리뷰.getId(),
                 익명_학생_리뷰.getRating(),
-                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getReviewer().getUser().getAnonymousNickname(),
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
@@ -770,7 +770,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getMenus().get(0).getMenuName(),
                 익명_학생_리뷰.getId(),
                 익명_학생_리뷰.getRating(),
-                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getReviewer().getUser().getAnonymousNickname(),
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName(),
@@ -875,7 +875,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getMenus().get(0).getMenuName(),
                 익명_학생_리뷰.getId(),
                 익명_학생_리뷰.getRating(),
-                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getReviewer().getUser().getAnonymousNickname(),
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
@@ -968,7 +968,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getMenus().get(0).getMenuName(),
                 익명_학생_리뷰.getId(),
                 익명_학생_리뷰.getRating(),
-                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getReviewer().getUser().getAnonymousNickname(),
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName(),

@@ -73,7 +73,7 @@ public record ShopMyReviewsResponse(
         public static InnerReviewResponse from(ShopReview review) {
             String nickName = review.getReviewer().getUser().getNickname();
             if (nickName == null) {
-                nickName = review.getReviewer().getAnonymousNickname();
+                nickName = review.getReviewer().getUser().getAnonymousNickname();
             }
             return new InnerReviewResponse(
                 review.getId(),

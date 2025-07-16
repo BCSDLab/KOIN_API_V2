@@ -102,15 +102,15 @@ public class AdminStudentApiTest extends AcceptanceTest {
             Department department = departmentFixture.컴퓨터공학부();
             Student student = Student.builder()
                 .studentNumber("2019136135")
-                .anonymousNickname("익명" + i)
                 .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
                     User.builder()
                         .loginPw(passwordEncoder.encode("1234"))
-                        .nickname("성재" + i)
                         .name("테스트용_성재" + i)
+                        .nickname("성재" + i)
+                        .anonymousNickname("익명" + i)
                         .phoneNumber(String.format("0101234%04d", i))
                         .userType(STUDENT)
                         .gender(MAN)
@@ -224,7 +224,7 @@ public class AdminStudentApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "anonymous_nickname": "익명",
+                    "anonymous_nickname": "익명_주노",
                     "created_at": "2024-01-15 12:00:00",
                     "email": "juno@koreatech.ac.kr",
                     "gender": 0,
@@ -272,7 +272,7 @@ public class AdminStudentApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "anonymous_nickname": "익명",
+                    "anonymous_nickname": "익명_주노",
                     "email": "juno@koreatech.ac.kr",
                     "gender": 1,
                     "major": "기계공학부",

@@ -16,7 +16,6 @@ public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 
     public static Student 준호_학생(Department department, Major major) {
         return Student.builder()
             .studentNumber("2019136135")
-            .anonymousNickname("익명")
             .department(department)
             .major(major)
             .userIdentity(UNDERGRADUATE)
@@ -25,6 +24,7 @@ public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 
                 User.builder()
                     .name("테스트용_준호")
                     .nickname("준호")
+                    .anonymousNickname("익명")
                     .phoneNumber("01012345678")
                     .email("juno@koreatech.ac.kr")
                     .loginId("test_id")
@@ -41,7 +41,6 @@ public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 
     public static Student 익명_학생(Department department) {
         return Student.builder()
             .studentNumber("2020136111")
-            .anonymousNickname("익명111")
             .department(department)
             .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
@@ -49,6 +48,7 @@ public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 
                 User.builder()
                     .name("테스트용_익명")
                     // nickname 생략
+                    .anonymousNickname("익명")
                     .phoneNumber("01011111111")
                     .email("lyw4888@koreatech.ac.kr")
                     .loginId("test_id")
@@ -65,7 +65,6 @@ public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 
     public static Student 성빈_학생(Department department) {
         return Student.builder()
             .studentNumber("2023100514")
-            .anonymousNickname("익명123")
             .department(department)
             .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
@@ -73,6 +72,7 @@ public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 
                 User.builder()
                     .name("박성빈")
                     .nickname("빈")
+                    .anonymousNickname("익명")
                     .phoneNumber("01099411123")
                     .email("testsungbeen@koreatech.ac.kr")
                     .loginId("test_id")

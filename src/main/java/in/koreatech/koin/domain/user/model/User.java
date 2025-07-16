@@ -7,12 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
-import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,8 +23,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,6 +45,9 @@ public class User extends BaseEntity {
 
     @Column(name = "nickname", unique = true, length = 50)
     private String nickname;
+
+    @Column(name = "anonymous_nickname", unique = true)
+    private String anonymousNickname = "익명_" + RandomStringUtils.randomAlphanumeric(13);
 
     @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
@@ -84,13 +86,14 @@ public class User extends BaseEntity {
 
     @Builder
     private User(
-        String loginId,
-        String loginPw,
-        String nickname,
         String name,
+        String nickname,
+        String anonymousNickname,
         String phoneNumber,
         UserType userType,
         String email,
+        String loginId,
+        String loginPw,
         UserGender gender,
         boolean isAuthed,
         LocalDateTime lastLoggedAt,
@@ -98,13 +101,14 @@ public class User extends BaseEntity {
         Boolean isDeleted,
         String deviceToken
     ) {
-        this.loginId = loginId;
-        this.loginPw = loginPw;
-        this.nickname = nickname;
         this.name = name;
+        this.nickname = nickname;
+        this.anonymousNickname = anonymousNickname;
         this.phoneNumber = phoneNumber;
         this.userType = userType;
         this.email = email;
+        this.loginId = loginId;
+        this.loginPw = loginPw;
         this.gender = gender;
         this.isAuthed = isAuthed;
         this.lastLoggedAt = lastLoggedAt;
