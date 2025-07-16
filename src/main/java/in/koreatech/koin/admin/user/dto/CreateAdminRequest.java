@@ -44,8 +44,6 @@ public record CreateAdminRequest(
     public Admin toAdmin(PasswordEncoder passwordEncoder) {
         String loginId = email.substring(0, email.indexOf("@"));
         User user = User.builder()
-            .email(email)
-            .loginId(loginId)
             .loginPw(passwordEncoder.encode(password))
             .name(name)
             .userType(ADMIN)
@@ -54,9 +52,11 @@ public record CreateAdminRequest(
             .build();
 
         return Admin.builder()
-            .user(user)
+            .email(email)
+            .loginId(loginId)
             .trackType(trackType)
             .teamType(teamType)
+            .user(user)
             .build();
     }
 }

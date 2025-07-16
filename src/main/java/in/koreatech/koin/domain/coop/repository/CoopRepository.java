@@ -8,10 +8,10 @@ import in.koreatech.koin.domain.coop.exception.CoopNotFoundException;
 import in.koreatech.koin.domain.coop.model.Coop;
 
 public interface CoopRepository extends Repository<Coop, Integer> {
-    Optional<Coop> findByCoopId(String coopId);
+    Optional<Coop> findByLoginId(String loginId);
 
-    default Coop getByCoopId(String coopId){
-        return findByCoopId(coopId).orElseThrow(() -> CoopNotFoundException.withDetail("CoopId : " + coopId));
+    default Coop getByLoginId(String loginId){
+        return findByLoginId(loginId).orElseThrow(() -> CoopNotFoundException.withDetail("loginId : " + loginId));
     }
 
     Coop save(Coop coop);

@@ -15,8 +15,6 @@ public interface AdminUserRepository extends Repository<User, Integer> {
 
     User save(User user);
 
-    Optional<User> findByEmail(String email);
-
     Optional<User> findById(Integer id);
 
     Optional<User> findByLoginId(String loginId);
@@ -29,11 +27,6 @@ public interface AdminUserRepository extends Repository<User, Integer> {
     Integer findUsersCountByUserTypeAndIsAuthed(
         @Param("userType") UserType userType,
         @Param("isAuthed") Boolean isAuthed);
-
-    default User getByEmail(String email) {
-        return findByEmail(email)
-            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_USER, "account: " + email));
-    }
 
     void delete(User user);
 

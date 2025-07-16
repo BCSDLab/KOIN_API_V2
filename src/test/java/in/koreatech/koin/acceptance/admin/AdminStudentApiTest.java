@@ -111,11 +111,11 @@ public class AdminStudentApiTest extends AcceptanceTest {
                         .loginPw(passwordEncoder.encode("1234"))
                         .nickname("성재" + i)
                         .name("테스트용_성재" + i)
-                        .phoneNumber("01012345670")
+                        .phoneNumber(String.format("0101234%04d", i))
                         .userType(STUDENT)
                         .gender(MAN)
-                        .email("seongjae@koreatech.ac.kr")
-                        .loginId("seongjae")
+                        .email("seongjae" + i + "@koreatech.ac.kr")
+                        .loginId("seongjae" + i)
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -141,7 +141,7 @@ public class AdminStudentApiTest extends AcceptanceTest {
                      "current_page": 2,
                      "students": [
                          {
-                             "email": "seongjae@koreatech.ac.kr",
+                             "email": "seongjae10@koreatech.ac.kr",
                              "id": 11,
                              "major": "컴퓨터공학부",
                              "name": "테스트용_성재10",

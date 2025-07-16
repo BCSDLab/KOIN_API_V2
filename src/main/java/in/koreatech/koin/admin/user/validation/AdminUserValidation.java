@@ -33,7 +33,7 @@ public class AdminUserValidation {
     }
 
     private void validateDuplicateEmail(String email) {
-        adminUserRepository.findByEmail(email)
+        adminRepository.findByEmail(email)
             .ifPresent(user -> {
                 throw DuplicationEmailException.withDetail("account: " + email);
             });

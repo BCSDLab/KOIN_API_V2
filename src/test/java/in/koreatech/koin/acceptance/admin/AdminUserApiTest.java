@@ -50,7 +50,7 @@ class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 관리자가_로그인_한다() throws Exception {
         Admin adminUser = userFixture.코인_운영자();
-        String email = adminUser.getUser().getEmail();
+        String email = adminUser.getEmail();
         String password = "1234";
 
         mockMvc.perform(
@@ -90,7 +90,7 @@ class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 인증_받지_못한_관리자가_로그인_한다() throws Exception {
         Admin admin = userFixture.진구_운영자();
-        String email = admin.getUser().getEmail();
+        String email = admin.getEmail();
         String password = "1234";
 
         mockMvc.perform(
@@ -124,10 +124,10 @@ class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 관리자가_액세스_토큰_재발급_한다() throws Exception {
         Admin adminUser = userFixture.코인_운영자();
-        User user = adminUser.getUser();
-        String email = user.getEmail();
+        String email = adminUser.getEmail();
         String password = "1234";
-        String token = userFixture.getToken(user);
+
+        String token = userFixture.getToken(adminUser.getUser());
 
         MvcResult result = mockMvc.perform(
                 post("/admin/user/login")
