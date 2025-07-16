@@ -25,8 +25,8 @@ public class Coop {
     private Integer id;
 
     @Size(max = 255)
-    @Column(name = "coop_id")
-    private String coopId;
+    @Column(name = "coop_id", nullable = false, unique = true)
+    private String loginId;
 
     @OneToOne
     @MapsId
@@ -34,10 +34,10 @@ public class Coop {
 
     @Builder
     private Coop(
-        String coopId,
+        String loginId,
         User user
     ) {
-        this.coopId = coopId;
+        this.loginId = loginId;
         this.user = user;
     }
 }

@@ -450,7 +450,7 @@ public final class UserAcceptanceFixture {
 
         Coop coop = Coop.builder()
             .user(user)
-            .coopId("coop")
+            .loginId("coop")
             .build();
 
         return coopRepository.save(coop);

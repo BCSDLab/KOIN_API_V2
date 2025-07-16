@@ -90,7 +90,7 @@ class UserApiTest extends AcceptanceTest {
     @Test
     void 영양사가_로그인을_진행한다() throws Exception {
         Coop coop = userFixture.준기_영양사();
-        String id = coop.getCoopId();
+        String id = coop.getLoginId();
         String password = "1234";
 
         mockMvc.perform(
