@@ -29,17 +29,16 @@ public class Admin {
     @Column(name = "user_id", nullable = false)
     private Integer id;
 
-    @MapsId
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
 
-    @NotNull
+    @Column(name = "login_id", nullable = false, unique = true)
+    private String loginId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "team_type", nullable = false)
     private TeamType teamType;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "track_type", nullable = false)
     private TrackType trackType;
@@ -50,21 +49,30 @@ public class Admin {
     @Column(name = "super_admin", columnDefinition = "TINYINT")
     private boolean superAdmin = false;
 
+    @MapsId
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     @Builder
     private Admin(
         Integer id,
-        User user,
+        String email,
+        String loginId,
         TeamType teamType,
         TrackType trackType,
         boolean canCreateAdmin,
-        boolean superAdmin
-    ) {
+        boolean superAdmin,
+        User user
+        ) {
         this.id = id;
-        this.user = user;
+        this.email = email;
+        this.loginId = loginId;
         this.teamType = teamType;
         this.trackType = trackType;
         this.canCreateAdmin = canCreateAdmin;
         this.superAdmin = superAdmin;
+        this.user = user;
     }
 
     public void updateTeamTrack(TeamType teamName, TrackType trackName) {
