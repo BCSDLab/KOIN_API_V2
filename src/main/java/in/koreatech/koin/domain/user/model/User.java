@@ -41,38 +41,30 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Size(max = 50)
     @Column(name = "name", length = 50)
     private String name;
 
-    @Size(max = 50)
-    @Column(name = "nickname", length = 50, unique = true)
+    @Column(name = "nickname", unique = true, length = 50)
     private String nickname;
 
-    @Size(max = 20)
-    @Column(name = "phone_number", length = 20)
+    @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
 
-    @Size(max = 100)
-    @Column(name = "email", length = 100)
+    @Column(name = "email", unique = true, length = 100)
     private String email;
 
-    @Size(max = 255)
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id", unique = true)
     private String loginId;
 
-    @NotNull
     @Column(name = "password", nullable = false)
     private String loginPw;
 
     @Column(name = "device_token")
     private String deviceToken;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false, length = 20)
     private UserType userType;
@@ -81,11 +73,9 @@ public class User extends BaseEntity {
     @Enumerated(value = EnumType.ORDINAL)
     private UserGender gender;
 
-    @NotNull
     @Column(name = "is_authed", nullable = false)
     private boolean isAuthed = false;
 
-    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
