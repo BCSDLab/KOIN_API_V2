@@ -46,10 +46,8 @@ public class AddressOpenApiService {
         if (e.getErrorCode().getHttpStatus().is5xxServerError()) {
             log.warn("[External API-5xx] Address Search fallback method 실행. 로컬 DB 에서 결과를 반환합니다. {}", e.getMessage());
             return searchAddressFromLocal(request);
-        } else {
-            // 4xx 에러 (검색 키워드 형식 오류 등) 는 그대로 반환
-            throw CustomException.of(e.getErrorCode(), e.getMessage());
         }
+        throw CustomException.of(e.getErrorCode(), e.getMessage());
     }
 
     /**
