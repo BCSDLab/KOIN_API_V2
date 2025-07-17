@@ -117,7 +117,6 @@ public class UnAuthenticatedStudentInfo {
 
         return Student.builder()
             .user(user)
-            .anonymousNickname("익명_" + (System.currentTimeMillis()))
             .isGraduated(isGraduated)
             .userIdentity(UserIdentity.UNDERGRADUATE)
             .department(department)

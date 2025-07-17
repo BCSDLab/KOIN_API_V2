@@ -49,7 +49,7 @@ public record UpdateStudentResponse(
     public static UpdateStudentResponse from(Student student) {
         User user = student.getUser();
         return new UpdateStudentResponse(
-            student.getAnonymousNickname(),
+            user.getAnonymousNickname(),
             user.getEmail(),
             user.getGender() != null ? user.getGender().ordinal() : null,
             student.getDepartment() != null ? student.getDepartment().getName() : null,

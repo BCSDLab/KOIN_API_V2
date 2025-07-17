@@ -111,6 +111,7 @@ public class UserService {
             user = userRepository.getByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES);
         }
         user.requireSameLoginPw(passwordEncoder, request.loginPw());
+        user.updateLastLoggedTime(LocalDateTime.now());
         return createLoginResponse(user, userAgentInfo);
     }
 

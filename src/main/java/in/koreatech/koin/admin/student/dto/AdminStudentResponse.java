@@ -91,7 +91,7 @@ public record AdminStudentResponse (
             user.getLastLoggedAt(),
             user.getCreatedAt(),
             user.getUpdatedAt(),
-            student.getAnonymousNickname(),
+            user.getAnonymousNickname(),
             student.getStudentNumber(),
             student.getDepartment() == null ? null : student.getDepartment().getName(),
             student.isGraduated()

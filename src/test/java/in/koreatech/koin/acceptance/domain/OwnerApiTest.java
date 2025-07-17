@@ -106,7 +106,7 @@ class OwnerApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                     {
-                      "email": "hysoo@naver.com",
+                      "email": null,
                       "name": "테스트용_현수",
                       "company_number": "123-45-67190",
                       "account" : "01098765432",

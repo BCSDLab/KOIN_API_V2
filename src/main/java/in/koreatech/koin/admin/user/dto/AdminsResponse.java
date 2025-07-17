@@ -59,7 +59,7 @@ public record AdminsResponse(
 
             return new InnerAdminsResponse(
                 admin.getId(),
-                user.getEmail(),
+                admin.getEmail(),
                 user.getName(),
                 admin.getTrackType().getValue(),
                 admin.getTeamType().getValue(),
