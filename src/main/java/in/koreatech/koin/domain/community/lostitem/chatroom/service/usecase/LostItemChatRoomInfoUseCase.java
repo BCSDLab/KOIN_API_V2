@@ -14,6 +14,7 @@ import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleSummary;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
+import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageSummary;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageEntity;
 import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatRoomInfoRepository;
 import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatUserBlockRepository;
@@ -63,7 +64,7 @@ public class LostItemChatRoomInfoUseCase {
                 }
 
                 var articleSummary = getArticleSummary(entity.getArticleId());
-                if (articleSummary == null || isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
+                if (articleSummary.articleTitle() == null || isUserBlocked(entity.getArticleId(), entity.getChatRoomId(), userId)) {
                     return Stream.empty();
                 }
 
@@ -85,9 +86,9 @@ public class LostItemChatRoomInfoUseCase {
                         .lastMessageAt(entity.getCreatedAt());
                 } else {
                     responseBuilder
-                        .recentMessageContent(messageSummary.getLastMessageContent())
-                        .unreadMessageCount(messageSummary.getUnreadCount())
-                        .lastMessageAt(messageSummary.getLastMessageTime());
+                        .recentMessageContent(messageSummary.lastMessageContent())
+                        .unreadMessageCount(messageSummary.unreadCount())
+                        .lastMessageAt(messageSummary.lastMessageTime());
                 }
                 return Stream.of(responseBuilder.build());
             })
@@ -166,7 +167,7 @@ public class LostItemChatRoomInfoUseCase {
         return blockedByMe || blockedByOther;
     }
 
-    public MessageSummary getMessageSummary(Integer articleId, Integer chatRoomId, Integer userId) {
+    public ChatMessageSummary getMessageSummary(Integer articleId, Integer chatRoomId, Integer userId) {
         List<ChatMessageEntity> messages = chatMessageRepository.findByArticleIdAndChatRoomId(articleId, chatRoomId);
 
         if (messages.isEmpty()) {
@@ -191,18 +192,6 @@ public class LostItemChatRoomInfoUseCase {
             .map(ChatMessageEntity::getCreatedAt)
             .orElse(null);
 
-        return MessageSummary.builder()
-            .unreadCount(unreadCount)
-            .lastMessageContent(lastMessageContent)
-            .lastMessageTime(lastMessageTime)
-            .build();
-    }
-
-    @Getter
-    @Builder
-    public static class MessageSummary {
-        private Integer unreadCount;
-        private String lastMessageContent;
-        private LocalDateTime lastMessageTime;
+        return ChatMessageSummary.from(unreadCount, lastMessageContent, lastMessageTime);
     }
 }
