@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageCommand;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -23,7 +22,7 @@ public record ChatMessageResponse(
     Boolean isImage
 ) {
 
-    public static ChatMessageResponse toResponse(ChatMessageCommand message) {
+    public static ChatMessageResponse toResponse(ChatMessage message) {
         return new ChatMessageResponse(
             message.userId(),
             message.userNickname(),

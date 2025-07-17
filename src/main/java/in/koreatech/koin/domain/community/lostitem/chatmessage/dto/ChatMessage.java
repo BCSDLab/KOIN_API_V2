@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.lostitem.chatmessage.model;
+package in.koreatech.koin.domain.community.lostitem.chatmessage.dto;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,7 @@ import lombok.Builder;
 @Builder
 @Schema(description = "채팅 메시지 객체")
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record ChatMessageCommand(
+public record ChatMessage(
     @Schema(description = "user 테이블 PK")
     Integer userId,
 
@@ -30,13 +30,5 @@ public record ChatMessageCommand(
     @Schema(description = "이미지 url 여부")
     Boolean isImage
 ) {
-    public static ChatMessageCommand toCommand(ChatMessageEntity message) {
-        return new ChatMessageCommand(
-            message.getUserId(),
-            message.getNickName(),
-            message.getContents(),
-            message.getCreatedAt(),
-            message.getIsImage()
-        );
-    }
+
 }

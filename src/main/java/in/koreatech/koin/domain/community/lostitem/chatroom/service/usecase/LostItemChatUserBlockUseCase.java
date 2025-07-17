@@ -65,17 +65,11 @@ public class LostItemChatUserBlockUseCase {
         return userId.equals(articleAuthorId) ? ownerId : articleAuthorId;
     }
 
-    private Optional<LostItemChatUserBlockEntity> readByBlockerUserIdAndBlockedUserIdAndIsActive(
-        Integer blockerUserId, Integer blockedUserId, Boolean isActive
-    ) {
-        return userBlockRepository.findByBlockerUserAndBlockedUserAndIsActive(blockerUserId, blockedUserId, isActive);
-    }
-
     private Boolean alreadyBlockedByMe(Integer userId, Integer otherUserId) {
         return userBlockRepository.findByBlockerUserAndBlockedUserAndIsActive(userId, otherUserId, true).isPresent();
     }
 
-    public void updateOrCreateBlockInfo(Integer userId, Integer otherUserId) {
+    private void updateOrCreateBlockInfo(Integer userId, Integer otherUserId) {
         var existingBlockInfo = readByBlockerUserIdAndBlockedUserIdAndIsActive(userId, otherUserId, false);
         if(existingBlockInfo.isPresent()) {
             userBlockRepository.updateIsActiveByBlockerAndBlockedUser(userId, otherUserId, true);
@@ -89,4 +83,11 @@ public class LostItemChatUserBlockUseCase {
             userBlockRepository.save(entity);
         }
     }
+
+    private Optional<LostItemChatUserBlockEntity> readByBlockerUserIdAndBlockedUserIdAndIsActive(
+        Integer blockerUserId, Integer blockedUserId, Boolean isActive
+    ) {
+        return userBlockRepository.findByBlockerUserAndBlockedUserAndIsActive(blockerUserId, blockedUserId, isActive);
+    }
+
 }

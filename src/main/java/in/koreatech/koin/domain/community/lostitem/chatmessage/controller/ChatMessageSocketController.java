@@ -7,7 +7,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 
 import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageResponse;
-import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageCommand;
+import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessage;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.service.ChatMessageService;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.util.WebSocketSessionTracker;
 import in.koreatech.koin.socket.config.auth.UserPrincipal;
@@ -28,7 +28,7 @@ public class ChatMessageSocketController {
         @DestinationVariable Integer articleId,
         @DestinationVariable Integer chatRoomId,
         UserPrincipal principal,
-        ChatMessageCommand message
+        ChatMessage message
     ) {
         String destination = "/topic/chat/" + articleId + "/" + chatRoomId;
         Integer subscriptionCount = sessionTracker.getSubscriptionCount(destination);
@@ -36,7 +36,7 @@ public class ChatMessageSocketController {
 
         chatService.saveMessage(articleId, chatRoomId, userId, subscriptionCount, message);
 
-        var sendMessage = ChatMessageResponse.toResponse(message);
+        ChatMessageResponse sendMessage = ChatMessageResponse.toResponse(message);
         simpMessageSendingOperations.convertAndSend(destination, sendMessage);
 
         eventPublisher.publishEvent(MessageSendEvent.from(articleId, chatRoomId, userId, message));

@@ -1,20 +1,20 @@
 package in.koreatech.koin.domain.community.lostitem.chatmessage.event;
 
-import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageCommand;
+import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessage;
 
 public record MessageSendEvent(
     Integer articleId,
     Integer chatRoomId,
     Integer userId,
-    ChatMessageCommand messageCommand
+    ChatMessage chatMessage
 ) {
 
     public static MessageSendEvent from(
         Integer articleId,
         Integer chatRoomId,
         Integer userId,
-        ChatMessageCommand messageCommand
+        ChatMessage chatMessage
     ) {
-        return new MessageSendEvent(articleId, chatRoomId, userId, messageCommand);
+        return new MessageSendEvent(articleId, chatRoomId, userId, chatMessage);
     }
 }

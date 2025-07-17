@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.domain.community.lostitem.chatmessage.exception.MessageProcessingException;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageEntity;
-import in.koreatech.koin.domain.community.lostitem.chatmessage.model.redis.ChatMessageRedisEntity;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -26,9 +25,8 @@ public class ChatMessageRedisRepository {
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public ChatMessageEntity save(ChatMessageEntity message) {
+    public void save(ChatMessageEntity messageEntity) {
         try {
-            ChatMessageRedisEntity messageEntity = ChatMessageRedisEntity.toRedisEntity(message);
             String messageJson = objectMapper.writeValueAsString(messageEntity);
             String chatRoomKey = getChatRoomKey(messageEntity.getArticleId(), messageEntity.getChatRoomId());
 
@@ -38,7 +36,6 @@ public class ChatMessageRedisRepository {
         } catch (JsonProcessingException e) {
             throw new MessageProcessingException("메시지 저장 실패");
         }
-        return message;
     }
 
     public List<ChatMessageEntity> findByArticleIdAndChatRoomId(Integer articleId, Integer chatRoomId) {
@@ -62,7 +59,7 @@ public class ChatMessageRedisRepository {
                 try {
                     String tsidKey = value.substring(0, value.indexOf(SEPARATOR));
                     String json = value.substring(value.indexOf(SEPARATOR) + 1);
-                    ChatMessageRedisEntity message = objectMapper.readValue(json, ChatMessageRedisEntity.class);
+                    ChatMessageEntity message = objectMapper.readValue(json, ChatMessageEntity.class);
 
                     // 자신이 보낸 메시지이거나 이미 읽은 메시지는 업데이트하지 않음
                     if (message.getUserId().equals(userId) || Boolean.TRUE.equals(message.getIsRead())) {

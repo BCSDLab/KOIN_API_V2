@@ -63,7 +63,7 @@ public class ChatMessageSendService {
             event.articleId(),
             event.chatRoomId(),
             sender.getNickname(),
-            event.messageCommand().content(),
+            event.chatMessage().content(),
             partner
         );
 

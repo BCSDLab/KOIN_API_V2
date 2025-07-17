@@ -38,15 +38,15 @@ public class LostItemChatMessageEntity {
     @Field("created_at")
     private LocalDateTime createdAt;
 
-    public static LostItemChatMessageEntity from(ChatMessageEntity domainMessage) {
+    public static LostItemChatMessageEntity from(ChatMessageEntity message) {
         return LostItemChatMessageEntity.builder()
-            .tsid(domainMessage.getId().toString())
-            .userId(domainMessage.getUserId())
-            .isRead(domainMessage.getIsRead())
-            .isDeleted(domainMessage.getIsDeleted())
-            .nickName(domainMessage.getNickName())
-            .contents(domainMessage.getContents())
-            .createdAt(domainMessage.getCreatedAt())
+            .tsid(message.getId().toString())
+            .userId(message.getUserId())
+            .isRead(message.getIsRead())
+            .isDeleted(message.getIsDeleted())
+            .nickName(message.getNickName())
+            .contents(message.getContents())
+            .createdAt(message.getCreatedAt())
             .build();
     }
 }
