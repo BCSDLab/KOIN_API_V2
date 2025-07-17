@@ -15,6 +15,7 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,16 +30,22 @@ public class Admin {
     @Column(name = "user_id", nullable = false)
     private Integer id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @NotNull
+    @Size(max = 100)
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "login_id", nullable = false, unique = true)
+    @NotNull
+    @Size(max = 30)
+    @Column(name = "login_id", nullable = false, unique = true, length = 30)
     private String loginId;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "team_type", nullable = false)
     private TeamType teamType;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "track_type", nullable = false)
     private TrackType trackType;

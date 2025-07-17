@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,7 @@ public class Student {
     @Column(name = "user_id")
     private Integer id;
 
+    @Size(max = 20)
     @Column(name = "student_number", length = 20)
     private String studentNumber;
 

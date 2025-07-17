@@ -40,6 +40,8 @@ public class Owner {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    @NotNull
+    @Size(max = 12)
     @Column(name = "company_registration_number", nullable = false, unique = true, length = 12)
     private String companyRegistrationNumber;
 
@@ -49,6 +51,8 @@ public class Owner {
     @Column(name = "grant_event", columnDefinition = "TINYINT")
     private boolean grantEvent;
 
+    @NotNull
+    @Size(max = 11)
     @Column(name = "account", nullable = false, unique = true, length = 11)
     private String account;
 

@@ -23,6 +23,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,33 +42,42 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Size(max = 50)
     @Column(name = "name", length = 50)
     private String name;
 
+    @Size(max = 50)
     @Column(name = "nickname", unique = true, length = 50)
     private String nickname;
 
-    @Column(name = "anonymous_nickname", unique = true)
+    @Size(max = 20)
+    @Column(name = "anonymous_nickname", unique = true, length = 20)
     private String anonymousNickname = "익명_" + RandomStringUtils.randomAlphanumeric(13);
 
+    @Size(max = 20)
     @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
 
+    @Size(max = 100)
     @Column(name = "email", unique = true, length = 100)
     private String email;
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @Column(name = "user_id", unique = true)
+    @Size(max = 30)
+    @Column(name = "user_id", unique = true, length = 30)
     private String loginId;
 
+    @NotNull
     @Column(name = "password", nullable = false)
     private String loginPw;
 
     @Column(name = "device_token")
     private String deviceToken;
 
+    @NotNull
+    @Size(max = 20)
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false, length = 20)
     private UserType userType;

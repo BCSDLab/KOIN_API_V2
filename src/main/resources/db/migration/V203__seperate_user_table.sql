@@ -1,7 +1,6 @@
 -- 영양사
 ALTER TABLE coop
-    MODIFY COLUMN coop_id VARCHAR(255) NOT NULL,
-    ADD CONSTRAINT uq_coop_id UNIQUE (coop_id);
+    MODIFY COLUMN coop_id VARCHAR(255) NOT NULL;
 
 -- 사장님
 ALTER TABLE owners
@@ -40,7 +39,7 @@ ALTER TABLE `users`
 UPDATE `users` u
     JOIN `students` s
 ON u.id = s.user_id
-    SET u.anonymous_nickname = s.anonymous_nickname
+    SET u.anonymous_nickname = s.anonymous_nickname;
 
 UPDATE `users`
 SET `anonymous_nickname` = CONCAT('익명_', SUBSTRING(CONCAT(MD5(RAND()), MD5(RAND())), 1, 13))
