@@ -40,7 +40,7 @@ public class PaymentIdempotencyKey extends BaseEntity {
 
     @NotNull
     @Size(max = 300)
-    @Column(name = "idempotency_key",length = 300, nullable = false)
+    @Column(name = "idempotency_key", length = 300, nullable = false)
     private String idempotencyKey;
 
     @Builder
