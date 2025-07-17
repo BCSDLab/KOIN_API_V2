@@ -77,9 +77,8 @@ public class User extends BaseEntity {
     private String deviceToken;
 
     @NotNull
-    @Size(max = 20)
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false, length = 20)
+    @Column(name = "user_type", nullable = false)
     private UserType userType;
 
     @Column(name = "gender", columnDefinition = "INT")
