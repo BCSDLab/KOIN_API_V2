@@ -2,11 +2,15 @@ package in.koreatech.koin.domain.order.address.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import in.koreatech.koin.domain.order.address.model.RoadNameAddressDocument;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AddressSearchResponse(
@@ -63,6 +67,21 @@ public record AddressSearchResponse(
                 juso.rn()
             );
         }
+
+        public static AddressInfo from(RoadNameAddressDocument document) {
+            return new AddressInfo(
+                document.getRoadAddress(),
+                document.getJibunAddress(),
+                document.getEngAddress(),
+                document.getZipNo(),
+                document.getBdNm(),
+                document.getSiNm(),
+                document.getSggNm(),
+                document.getEmdNm(),
+                document.getLiNm(),
+                document.getRn()
+            );
+        }
     }
 
     public static AddressSearchResponse from(RoadNameAddressApiResponse apiResponse) {
@@ -82,6 +101,19 @@ public record AddressSearchResponse(
             common.totalCount(),
             common.currentPage(),
             common.countPerPage(),
+            addressInfos
+        );
+    }
+
+    public static AddressSearchResponse from(Page<RoadNameAddressDocument> page) {
+        List<AddressInfo> addressInfos = page.getContent().stream()
+            .map(AddressInfo::from)
+            .collect(Collectors.toList());
+
+        return new AddressSearchResponse(
+            String.valueOf(page.getTotalElements()),
+            page.getNumber() + 1,
+            page.getSize(),
             addressInfos
         );
     }
