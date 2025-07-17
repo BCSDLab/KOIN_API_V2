@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleSummary;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageEntity;
@@ -25,6 +26,7 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -56,7 +58,7 @@ public class LostItemChatRoomInfoUseCase {
 
         return chatRoomInfoList.stream()
             .flatMap(entity -> {
-                if (userRepository.findById(entity.getOwnerId()).isEmpty()) {
+                if (!userRepository.existsById(entity.getOwnerId())) {
                     return Stream.empty();
                 }
 
@@ -69,8 +71,8 @@ public class LostItemChatRoomInfoUseCase {
                 var responseBuilder = ChatRoomListResponse.builder()
                     .articleId(entity.getArticleId())
                     .chatRoomId(entity.getChatRoomId())
-                    .articleTitle(articleSummary.getArticleTitle())
-                    .lostItemImageUrl(articleSummary.getItemImage());
+                    .articleTitle(articleSummary.articleTitle())
+                    .lostItemImageUrl(articleSummary.lostItemImage());
 
                 if (messageSummary == null && entity.getAuthorId().equals(userId)) {
                     return Stream.empty();
@@ -115,19 +117,8 @@ public class LostItemChatRoomInfoUseCase {
         return chatRoomInfoRepository.findByArticleIdAndMessageSenderId(lostItemArticleId, messageSendUserId);
     }
 
-    public ArticleSummary getArticleSummary(Integer articleId) {
-        return lostItemArticleRepository.findByArticleId(articleId)
-            .map(lostItemArticle -> {
-                String title = lostItemArticle.getArticle().getTitle();
-                String imageUrl = (lostItemArticle.getImages() != null && !lostItemArticle.getImages().isEmpty())
-                    ? lostItemArticle.getImages().get(0).getImageUrl()
-                    : null;
-                return ArticleSummary.builder()
-                    .articleTitle(title)
-                    .itemImage(imageUrl)
-                    .build();
-            })
-            .orElse(null);
+    public LostItemArticleSummary getArticleSummary(Integer articleId) {
+        return lostItemArticleRepository.getArticleSummary(articleId);
     }
 
     private void validateAuthor(User user) {
@@ -205,13 +196,6 @@ public class LostItemChatRoomInfoUseCase {
             .lastMessageContent(lastMessageContent)
             .lastMessageTime(lastMessageTime)
             .build();
-    }
-
-    @Getter
-    @Builder
-    public static class ArticleSummary {
-        private String articleTitle;
-        private String itemImage;
     }
 
     @Getter
