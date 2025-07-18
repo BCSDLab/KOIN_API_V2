@@ -50,7 +50,7 @@ public record ClubEventCreateRequest(
     String content
 ) {
     public ClubEventCreateRequest {
-        if (endDate.isBefore(startDate)) {
+        if (!endDate.isAfter(startDate)) {
             throw CustomException.of(INVALID_CLUB_EVENT_PERIOD);
         }
     }
