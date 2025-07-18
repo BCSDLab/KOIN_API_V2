@@ -21,6 +21,7 @@ public class OrderableShopEventService {
 
     public OrderableShopEventsResponse getOrderableShopEvents(Integer orderableShopId) {
         OrderableShop orderableShop = orderableShopRepository.getByIdWithShopEvent(orderableShopId);
+
         return OrderableShopEventsResponse.of(orderableShop, clock);
     }
 

@@ -7,6 +7,8 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -20,8 +22,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopEventsResponse(
 
-    @Schema(description = "이벤트 목록")
-    List<InnerOrderableShopEventResponse> events
+    @Schema(description = "상점 이벤트 목록")
+    List<InnerOrderableShopEventResponse> shopEvents
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -76,27 +78,20 @@ public record OrderableShopEventsResponse(
     }
 
     public static OrderableShopEventsResponse of(OrderableShop orderableShop, Clock clock) {
-        List<InnerOrderableShopEventResponse> innerOrderableShopEventResponses = new ArrayList<>();
-        for (EventArticle eventArticle : orderableShop.getShop().getEventArticles()) {
-            if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
-                !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
-                innerOrderableShopEventResponses.add(InnerOrderableShopEventResponse.from(eventArticle, orderableShop.getId()));
-            }
-        }
-        return new OrderableShopEventsResponse(innerOrderableShopEventResponses);
+        List<InnerOrderableShopEventResponse> eventResponses = toEventResponses(orderableShop, clock).toList();
+        return new OrderableShopEventsResponse(eventResponses);
     }
 
     public static OrderableShopEventsResponse of(List<OrderableShop> orderableShops, Clock clock) {
-        List<InnerOrderableShopEventResponse> innerOrderableShopEventResponses = new ArrayList<>();
-        for (OrderableShop orderableShop : orderableShops) {
-            for (EventArticle eventArticle : orderableShop.getShop().getEventArticles()) {
-                if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
-                    !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
-                    innerOrderableShopEventResponses.add(
-                        InnerOrderableShopEventResponse.from(eventArticle, orderableShop.getId()));
-                }
-            }
-        }
-        return new OrderableShopEventsResponse(innerOrderableShopEventResponses);
+        List<InnerOrderableShopEventResponse> eventResponses = orderableShops.stream()
+            .flatMap(orderableShop -> toEventResponses(orderableShop, clock))
+            .toList();
+
+        return new OrderableShopEventsResponse(eventResponses);
+    }
+
+    private static Stream<InnerOrderableShopEventResponse> toEventResponses(OrderableShop shop, Clock clock) {
+        return shop.getOngoingEvent(clock).stream()
+            .map(eventArticle -> InnerOrderableShopEventResponse.from(eventArticle, shop.getId()));
     }
 }

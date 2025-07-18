@@ -37,6 +37,7 @@ public interface OrderableShopApi {
                                 "name": "가장 맛있는 족발",
                                 "is_delivery_available": true,
                                 "is_takeout_available": false,
+                                "service_event": false,
                                 "minimum_order_amount": 10000,
                                 "rating_average": 4,
                                 "review_count": 2,

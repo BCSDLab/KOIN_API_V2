@@ -20,9 +20,9 @@ public interface OrderableShopEventApi {
         value = {
             @ApiResponse(responseCode = "200", description = "특정 주문 가능 상점 이벤트 조회 성공",
                 content = @Content(mediaType = "application/json", examples = {
-                    @ExampleObject(name = "성공", value = """
+                    @ExampleObject(name = "해당 상점 이벤트 존재", value = """
                             {
-                              "events": [
+                              "shop_events": [
                                 {
                                   "orderable_shop_id": 1,
                                   "shop_id": 1,
@@ -39,11 +39,27 @@ public interface OrderableShopEventApi {
                               ]
                             }
                         """
+                    ),
+                    @ExampleObject(name = "해당 상점 이벤트 없음", value = """
+                            {
+                              "shop_events": []
+                            }
+                        """
                     )
                 })
             ),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "404", description = "주문 가능 상점을 찾을 수 없음",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "상점 미존재", value = """
+                        {
+                          "code": "NOT_FOUND_ORDERABLE_SHOP",
+                          "message": "상점이 존재하지 않습니다.",
+                          "errorTraceId": "b630af74-f0e5-4faf-808f-5406ab104848"
+                        }
+                        """
+                    )
+                })
+            )
         }
     )
     @Operation(summary = "특정 주문 가능 상점의 모든 이벤트 조회")
@@ -58,7 +74,7 @@ public interface OrderableShopEventApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "성공", value = """
                             {
-                              "events": [
+                              "shop_events": [
                                 {
                                   "orderable_shop_id": 1,
                                   "shop_id": 1,
@@ -77,9 +93,7 @@ public interface OrderableShopEventApi {
                         """
                     )
                 })
-            ),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+            )
         }
     )
     @Operation(summary = "모든 주문 가능 상점의 모든 이벤트 조회")
