@@ -55,5 +55,5 @@ SET
     nickname = NULL,
     phone_number = NULL,
     email = NULL
-WHERE user_type NOT IN ('GENERAL', 'STUDENT', 'COUNCIL');
+WHERE user_type NOT IN ('GENERAL', 'STUDENT', 'COUNCIL', 'COOP');
 
