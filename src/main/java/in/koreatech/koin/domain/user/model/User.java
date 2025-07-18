@@ -52,7 +52,7 @@ public class User extends BaseEntity {
 
     @Size(max = 20)
     @Column(name = "anonymous_nickname", unique = true, length = 20)
-    private String anonymousNickname = "익명_" + RandomStringUtils.randomAlphanumeric(13);
+    private String anonymousNickname;
 
     @Size(max = 20)
     @Column(name = "phone_number", unique = true, length = 20)
@@ -113,7 +113,7 @@ public class User extends BaseEntity {
     ) {
         this.name = name;
         this.nickname = nickname;
-        this.anonymousNickname = anonymousNickname;
+        this.anonymousNickname = Objects.requireNonNullElse(anonymousNickname, RandomStringUtils.randomAlphabetic(13));
         this.phoneNumber = phoneNumber;
         this.userType = userType;
         this.email = email;
