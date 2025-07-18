@@ -6,6 +6,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin._common.util.datetime.DateTimes;
+
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,5 +139,10 @@ public class EventArticle extends BaseEntity {
                 .eventArticle(this)
                 .thumbnailImage(imageUrl)
                 .build());
+    }
+
+    public boolean isOngoing(Clock clock) {
+        return !this.startDate.isAfter(LocalDate.now(clock)) &&
+            !this.endDate.isBefore(LocalDate.now(clock));
     }
 }

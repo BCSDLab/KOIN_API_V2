@@ -3,8 +3,10 @@ package in.koreatech.koin.domain.order.shop.model.entity.shop;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
@@ -15,6 +17,7 @@ import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
+import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -109,5 +112,11 @@ public class OrderableShop extends BaseEntity {
             .map(OrderableShopImage::getImageUrl)
             .findFirst()
             .orElse(null);
+    }
+
+    public List<EventArticle> getOngoingEvent(Clock clock) {
+        return this.shop.getEventArticles().stream()
+            .filter(eventArticle -> eventArticle.isOngoing(clock))
+            .collect(Collectors.toList());
     }
 }

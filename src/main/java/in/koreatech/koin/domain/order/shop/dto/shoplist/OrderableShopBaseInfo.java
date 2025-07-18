@@ -11,6 +11,7 @@ public record OrderableShopBaseInfo(
     String name,
     Boolean isDeliveryAvailable,
     Boolean isTakeoutAvailable,
+    Boolean serviceEvent,
     Integer minimumOrderAmount,
     Double ratingAverage,
     Long reviewCount,
