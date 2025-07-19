@@ -44,7 +44,7 @@ public record ClubRecruitmentResponse(
         return new ClubRecruitmentResponse(
             clubRecruitment.getId(),
             clubRecruitment.getClubRecruitmentStatus().name(),
-            clubRecruitment.getDday(),
+            clubRecruitment.getClubRecruitmentDday().getDday(),
             clubRecruitment.getStartDate(),
             clubRecruitment.getEndDate(),
             clubRecruitment.getImageUrl(),

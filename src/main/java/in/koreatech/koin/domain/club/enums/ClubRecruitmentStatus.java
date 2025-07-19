@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.club.enums;
 
+import java.time.LocalDate;
+
 import lombok.Getter;
 
 @Getter
@@ -10,4 +12,30 @@ public enum ClubRecruitmentStatus {
     CLOSED,
     ALWAYS,
     ;
+
+    public static ClubRecruitmentStatus resolve(
+        Boolean isAlwaysRecruiting,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        LocalDate today = LocalDate.now();
+
+        if (isAlwaysRecruiting == null && startDate == null && endDate == null) {
+            return NONE;
+        }
+
+        if (Boolean.TRUE.equals(isAlwaysRecruiting)) {
+            return ALWAYS;
+        }
+
+        if (startDate != null && today.isBefore(startDate)) {
+            return BEFORE;
+        }
+
+        if (endDate != null && today.isAfter(endDate)) {
+            return CLOSED;
+        }
+
+        return RECRUITING;
+    }
 }
