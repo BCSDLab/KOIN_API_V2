@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
 import in.koreatech.koin._common.event.UserDeleteEvent;
+import in.koreatech.koin._common.event.UserMarketingAgreementEvent;
 import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -30,6 +30,7 @@ import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdatePasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.model.User;
@@ -73,7 +74,10 @@ public class UserService {
         );
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
-        eventPublisher.publishEvent(new UserRegisterEvent(user.getId(), request.marketingNotificationAgreement()));
+        eventPublisher.publishEvent(
+            new UserMarketingAgreementEvent(user.getId(), request.marketingNotificationAgreement())
+        );
+        eventPublisher.publishEvent(new UserRegisterEvent(user.getPhoneNumber()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }
 
@@ -92,21 +96,28 @@ public class UserService {
     }
 
     @Transactional
+    public void updatePassword(Integer userId, UserUpdatePasswordRequest request) {
+        User user = userRepository.getById(userId);
+        user.updatePassword(passwordEncoder, request.newPassword());
+    }
+
+    @Transactional
     public UserLoginResponse loginV2(UserLoginRequestV2 request, UserAgentInfo userAgentInfo) {
         User user;
         String loginId = request.loginId();
         if (loginId.matches("^\\d{11}$")) {
-            user = userRepository.getByPhoneNumber(loginId);
+            user = userRepository.getByPhoneNumberAndUserTypeIn(loginId, KOIN_USER_TYPES);
         } else {
-            user = userRepository.getByLoginId(loginId);
+            user = userRepository.getByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES);
         }
         user.requireSameLoginPw(passwordEncoder, request.loginPw());
+        user.updateLastLoggedTime(LocalDateTime.now());
         return createLoginResponse(user, userAgentInfo);
     }
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request, UserAgentInfo userAgentInfo) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email(), KOIN_USER_TYPES);
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
         return createLoginResponse(user, userAgentInfo);
@@ -143,7 +154,7 @@ public class UserService {
             ownerRepository.deleteByUserId(userId);
         }
         userRepository.delete(user);
-        eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
+        eventPublisher.publishEvent(new UserDeleteEvent(user.getPhoneNumber(), user.getUserType()));
     }
 
     public UserFindLoginIdResponse findIdBySms(UserFindIdBySmsRequest request) {

@@ -38,7 +38,7 @@ public record AdminOwnerResponse(
     @Schema(description = "가게 id 목록", requiredMode = NOT_REQUIRED)
     List<Integer> shopsId,
 
-    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = NOT_REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "01012341234", requiredMode = NOT_REQUIRED)
     String phoneNumber,
 
     @Schema(description = "인증 여부", example = "true", requiredMode = REQUIRED)
@@ -74,7 +74,7 @@ public record AdminOwnerResponse(
                 .map(OwnerAttachment::getUrl)
                 .collect(Collectors.toList()),
             shopsId,
-            owner.getUser().getPhoneNumber(),
+            owner.getAccount(),
             owner.getUser().isAuthed(),
             owner.getUser().getUserType().getValue(),
             owner.getUser().getGender() == null ? null : owner.getUser().getGender().ordinal(),

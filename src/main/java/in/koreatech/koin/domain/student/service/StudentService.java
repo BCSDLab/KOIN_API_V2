@@ -16,7 +16,7 @@ import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
 import in.koreatech.koin._common.event.StudentFindPasswordEvent;
 import in.koreatech.koin._common.event.StudentRegisterEvent;
 import in.koreatech.koin._common.event.StudentRegisterRequestEvent;
-import in.koreatech.koin._common.event.UserRegisterEvent;
+import in.koreatech.koin._common.event.UserMarketingAgreementEvent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
@@ -47,6 +47,7 @@ import in.koreatech.koin.domain.user.dto.UserChangePasswordSubmitRequest;
 import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
 import in.koreatech.koin.domain.user.model.PasswordResetToken;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserPasswordResetTokenRedisRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
@@ -90,7 +91,7 @@ public class StudentService {
 
     @Transactional
     public StudentLoginResponse studentLogin(StudentLoginRequest request, UserAgentInfo userAgentInfo) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email(), UserType.KOIN_STUDENT_TYPES);
         user.requireSameLoginPw(passwordEncoder, request.password());
         userValidationService.checkUserAuthentication(request.email());
 
@@ -127,9 +128,9 @@ public class StudentService {
             user
         );
 
-        updateStudentInfo(student, request.studentNumber(), request.major());
         user.update(request.email(), request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
+        updateStudentInfo(student, request.studentNumber(), request.major());
 
         return UpdateStudentResponse.from(student);
     }
@@ -310,14 +311,15 @@ public class StudentService {
         studentRepository.save(student);
         userRepository.save(student.getUser());
         eventPublisher.publishEvent(
-            new UserRegisterEvent(student.getUser().getId(), request.marketingNotificationAgreement())
+            new UserMarketingAgreementEvent(student.getUser().getId(), request.marketingNotificationAgreement())
         );
+        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getPhoneNumber()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }
 
     @Transactional
     public void findPassword(UserFindPasswordRequest request, String serverURL) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmailAndUserTypeIn(request.email(), UserType.KOIN_STUDENT_TYPES);
         String resetToken = UUID.randomUUID().toString();
         passwordResetTokenRepository.save(PasswordResetToken.of(resetToken, user.getId()));
         eventPublisher.publishEvent(new StudentFindPasswordEvent(request.email(), serverURL, resetToken));

@@ -7,13 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,12 +28,14 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @Entity
 @Table(name = "users")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
+@ToString(exclude = {"loginPw", "profileImageUrl"})
 public class User extends BaseEntity {
 
     @Id
@@ -45,23 +47,26 @@ public class User extends BaseEntity {
     private String name;
 
     @Size(max = 50)
-    @Column(name = "nickname", length = 50, unique = true)
+    @Column(name = "nickname", unique = true, length = 50)
     private String nickname;
 
     @Size(max = 20)
-    @Column(name = "phone_number", length = 20)
+    @Column(name = "anonymous_nickname", unique = true, length = 20)
+    private String anonymousNickname;
+
+    @Size(max = 20)
+    @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
 
     @Size(max = 100)
-    @Column(name = "email", length = 100)
+    @Column(name = "email", unique = true, length = 100)
     private String email;
 
-    @Size(max = 255)
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
+    @Size(max = 30)
+    @Column(name = "user_id", unique = true, length = 30)
     private String loginId;
 
     @NotNull
@@ -73,18 +78,16 @@ public class User extends BaseEntity {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false, length = 20)
+    @Column(name = "user_type", nullable = false)
     private UserType userType;
 
     @Column(name = "gender", columnDefinition = "INT")
     @Enumerated(value = EnumType.ORDINAL)
     private UserGender gender;
 
-    @NotNull
     @Column(name = "is_authed", nullable = false)
     private boolean isAuthed = false;
 
-    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
@@ -93,13 +96,14 @@ public class User extends BaseEntity {
 
     @Builder
     private User(
-        String loginId,
-        String loginPw,
-        String nickname,
         String name,
+        String nickname,
+        String anonymousNickname,
         String phoneNumber,
         UserType userType,
         String email,
+        String loginId,
+        String loginPw,
         UserGender gender,
         boolean isAuthed,
         LocalDateTime lastLoggedAt,
@@ -107,13 +111,14 @@ public class User extends BaseEntity {
         Boolean isDeleted,
         String deviceToken
     ) {
-        this.loginId = loginId;
-        this.loginPw = loginPw;
-        this.nickname = nickname;
         this.name = name;
+        this.nickname = nickname;
+        this.anonymousNickname = Objects.requireNonNullElse(anonymousNickname, RandomStringUtils.randomAlphabetic(13));
         this.phoneNumber = phoneNumber;
         this.userType = userType;
         this.email = email;
+        this.loginId = loginId;
+        this.loginPw = loginPw;
         this.gender = gender;
         this.isAuthed = isAuthed;
         this.lastLoggedAt = lastLoggedAt;
@@ -168,19 +173,19 @@ public class User extends BaseEntity {
 
     public void requireSamePhoneNumber(String phoneNumber) {
         if (isNotSamePhoneNumber(phoneNumber)) {
-            throw new KoinIllegalArgumentException("전화번호가 일치하지 않습니다.");
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_PHONE_NUMBER, this);
         }
     }
 
     public void requireSameEmail(String email) {
         if (isNotSameEmail(email)) {
-            throw new KoinIllegalArgumentException("이메일이 일치하지 않습니다.");
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_EMAIL, this);
         }
     }
 
     public void requireSameLoginPw(PasswordEncoder passwordEncoder, String loginPw) {
         if (isNotSameLoginPw(passwordEncoder, loginPw)) {
-            throw new KoinIllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_PASSWORD, this);
         }
     }
 
@@ -203,7 +208,7 @@ public class User extends BaseEntity {
 
     private void ensureNotDeleted() {
         if (isDeleted) {
-            throw AuthenticationException.withDetail("탈퇴한 계정입니다. userId: " + id);
+            throw CustomException.of(ApiResponseCode.WITHDRAWN_USER, "userId: " + id);
         }
     }
 
@@ -212,7 +217,7 @@ public class User extends BaseEntity {
         if (permittedUserTypesList.contains(this.userType)) {
             return;
         }
-        throw AuthorizationException.withDetail("인가되지 않은 유저 타입입니다. userId: " + id);
+        throw CustomException.of(ApiResponseCode.FORBIDDEN_USER_TYPE, "userId: " + id);
     }
 
     private void ensureAuthed() {
@@ -220,10 +225,10 @@ public class User extends BaseEntity {
             return;
         }
         switch (this.userType) {
-            case OWNER -> throw AuthorizationException.withDetail("관리자 인증 대기중입니다. userId: " + id);
-            case STUDENT -> throw AuthorizationException.withDetail("아우누리에서 인증메일을 확인해주세요. userId: " + id);
-            case ADMIN -> throw AuthorizationException.withDetail("PL 인증 대기중입니다. userId: " + id);
-            default -> throw AuthorizationException.withDetail("유효하지 않은 계정입니다. userId: " + id);
+            case OWNER -> throw CustomException.of(ApiResponseCode.FORBIDDEN_OWNER, "userId: " + id);
+            case STUDENT -> throw CustomException.of(ApiResponseCode.FORBIDDEN_STUDENT, "userId: " + id);
+            case ADMIN -> throw CustomException.of(ApiResponseCode.FORBIDDEN_ADMIN, "userId: " + id);
+            default -> throw CustomException.of(ApiResponseCode.FORBIDDEN_ACCOUNT, "userId: " + id);
         }
     }
 

@@ -7,56 +7,34 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
+import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 
 public interface UserRepository extends Repository<User, Integer> {
 
+    // Create
     User save(User user);
+
+    // Read
+    Optional<User> findById(Integer id);
 
     Optional<User> findByEmail(String email);
 
     Optional<User> findByEmailAndUserTypeIn(String email, List<UserType> userTypes);
 
-    Optional<User> findByPhoneNumber(String phoneNumber);
-
     Optional<User> findByPhoneNumberAndUserType(String phoneNumber, UserType userType);
 
     Optional<User> findByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes);
-
-    Optional<User> findById(Integer id);
 
     Optional<User> findByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes);
 
     Optional<User> findByNickname(String nickname);
 
-    Optional<User> findByLoginId(String loginId);
+    List<User> findAllByName(String name);
 
-    default User getByEmail(String email) {
-        return findByEmail(email)
-            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));
-    }
-
-    default User getByPhoneNumberAndUserType(String phoneNumber, UserType userType) {
-        return findByPhoneNumberAndUserType(phoneNumber, userType)
-            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
-    }
-
-    default User getByPhoneNumber(String phoneNumber) {
-        return findByPhoneNumber(phoneNumber)
-            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
-    }
-
-    default User getById(Integer userId) {
-        return findById(userId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
-    }
-
-    default User getByLoginId(String loginId) {
-        return findByLoginId(loginId)
-            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
-    }
+    List<User> findAllByIdIn(List<Integer> ids);
 
     boolean existsByNicknameAndUserTypeIn(String nickname, List<UserType> userTypes);
 
@@ -68,27 +46,33 @@ public interface UserRepository extends Repository<User, Integer> {
 
     void delete(User user);
 
-    List<User> findAllByName(String name);
-
-    List<User> findAllByIdIn(List<Integer> ids);
-
-    default Map<Integer, User> findAllByIdInMap(List<Integer> ids) {
-        return findAllByIdIn(ids).stream()
-            .collect(Collectors.toMap(User::getId, user -> user));
+    default User getById(Integer userId) {
+        return findById(userId)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_USER, "userId: " + userId));
     }
 
     default User getByEmailAndUserTypeIn(String email, List<UserType> userTypes) {
         return findByEmailAndUserTypeIn(email, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_USER, "email: " + email));
+    }
+
+    default User getByPhoneNumberAndUserType(String phoneNumber, UserType userType) {
+        return findByPhoneNumberAndUserType(phoneNumber, userType)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_USER, "account: " + phoneNumber));
     }
 
     default User getByPhoneNumberAndUserTypeIn(String phoneNumber, List<UserType> userTypes) {
         return findByPhoneNumberAndUserTypeIn(phoneNumber, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("phoneNumber: " + phoneNumber));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_USER, "account: " + phoneNumber));
     }
 
     default User getByLoginIdAndUserTypeIn(String loginId, List<UserType> userTypes) {
         return findByLoginIdAndUserTypeIn(loginId, userTypes)
-            .orElseThrow(() -> UserNotFoundException.withDetail("loginId: " + loginId));
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_USER, "loginId: " + loginId));
+    }
+
+    default Map<Integer, User> getAllByIdInMap(List<Integer> ids) {
+        return findAllByIdIn(ids).stream()
+            .collect(Collectors.toMap(User::getId, user -> user));
     }
 }

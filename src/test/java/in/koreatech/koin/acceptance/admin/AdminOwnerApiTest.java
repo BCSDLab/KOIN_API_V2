@@ -107,7 +107,7 @@ public class AdminOwnerApiTest extends AcceptanceTest {
             .andExpect(content().json(String.format("""
                 {
                     "id": 1,
-                    "email": "hysoo@naver.com",
+                    "email": null,
                     "name": "테스트용_현수",
                     "nickname": "현수",
                     "company_registration_number": "123-45-67190",
@@ -153,7 +153,7 @@ public class AdminOwnerApiTest extends AcceptanceTest {
             .andExpect(content().json("""
                 {
                     "company_registration_number" : "123-45-67190",
-                    "email" : "hysoo@naver.com",
+                    "email" : null,
                     "gender" : 0,
                     "grant_shop" : false,
                     "grant_event" : false,
@@ -215,7 +215,6 @@ public class AdminOwnerApiTest extends AcceptanceTest {
                 .loginPw(passwordEncoder.encode("1234"))
                 .nickname("사장님" + i)
                 .name("테스트용(인증X)" + i)
-                .phoneNumber("0109776511" + i)
                 .userType(OWNER)
                 .gender(MAN)
                 .email("testchulsu@gmail.com" + i)
@@ -226,6 +225,7 @@ public class AdminOwnerApiTest extends AcceptanceTest {
 
             Owner owner = Owner.builder()
                 .user(user)
+                .account(String.format("0101234%04d", i))
                 .companyRegistrationNumber("118-80-567" + i)
                 .grantShop(true)
                 .grantEvent(true)
@@ -272,7 +272,6 @@ public class AdminOwnerApiTest extends AcceptanceTest {
                 .loginPw(passwordEncoder.encode("1234"))
                 .nickname("사장님" + i)
                 .name("테스트용(인증X)" + i)
-                .phoneNumber("0109776511" + i)
                 .userType(OWNER)
                 .gender(MAN)
                 .email("testchulsu@gmail.com" + i)
@@ -283,6 +282,7 @@ public class AdminOwnerApiTest extends AcceptanceTest {
 
             Owner owner = Owner.builder()
                 .user(user)
+                .account(String.format("0101234%04d", i))
                 .companyRegistrationNumber("118-80-567" + i)
                 .grantShop(true)
                 .grantEvent(true)

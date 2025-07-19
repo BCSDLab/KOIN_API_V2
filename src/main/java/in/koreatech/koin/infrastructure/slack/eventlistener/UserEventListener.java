@@ -7,6 +7,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.UserDeleteEvent;
 import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
+import in.koreatech.koin._common.event.UserRegisterEvent;
 import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin.infrastructure.slack.client.SlackClient;
 import in.koreatech.koin.infrastructure.slack.model.SlackNotificationFactory;
@@ -19,6 +20,13 @@ public class UserEventListener {
 
     private final SlackClient slackClient;
     private final SlackNotificationFactory slackNotificationFactory;
+
+    @Async
+    @TransactionalEventListener
+    public void onUserRegisterEvent(UserRegisterEvent event) {
+        var notification = slackNotificationFactory.generateUserRegisterCompleteNotification(event.phoneNumber());
+        slackClient.sendMessage(notification);
+    }
 
     @Async
     @TransactionalEventListener

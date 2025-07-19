@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.MajorAcceptanceFixture;
@@ -105,7 +106,7 @@ public class StudentApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "anonymous_nickname": "익명",
+                    "anonymous_nickname": "익명_주노",
                     "email": "juno@koreatech.ac.kr",
                     "gender": 0,
                     "major": "컴퓨터공학부",
@@ -177,7 +178,7 @@ public class StudentApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                     {
-                        "anonymous_nickname": "익명",
+                        "anonymous_nickname": "익명_주노",
                         "email": "juno@koreatech.ac.kr",
                         "gender": 1,
                         "major": "기계공학부",
@@ -401,7 +402,7 @@ public class StudentApiTest extends AcceptanceTest {
             )
             .andReturn();
 
-        User user = userRepository.getByEmail("koko123@koreatech.ac.kr");
+        User user = userRepository.getByEmailAndUserTypeIn("koko123@koreatech.ac.kr", UserType.KOIN_USER_TYPES);
         assertThat(studentRedisRepository.findById("koko123@koreatech.ac.kr")).isEmpty();
 
         assertThat(user.isAuthed()).isTrue();

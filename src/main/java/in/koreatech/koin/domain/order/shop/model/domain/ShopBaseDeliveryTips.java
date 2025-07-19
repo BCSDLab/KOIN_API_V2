@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.ShopBaseDeliveryTip;
@@ -65,5 +66,24 @@ public class ShopBaseDeliveryTips {
         return baseDeliveryTips.stream()
             .sorted(Comparator.comparing(ShopBaseDeliveryTip::getOrderAmount))
             .collect(Collectors.toList());
+    }
+
+    public Integer calculateDeliveryTip(Integer orderAmount) {
+        // 비즈니스 로직 상 비어 있으면 안 되지만 오류로 비어 있는 경우를 대비
+        if (baseDeliveryTips.isEmpty()) {
+            return 0;
+        }
+
+        // 현재 주문 금액이 만족 하는 모든 구간 중 기준 금액(orderAmount)이 가장 높은 구간 찾기
+        Optional<ShopBaseDeliveryTip> fitBaseDeliveryTip = baseDeliveryTips.stream()
+            .filter(baseDeliveryTip -> orderAmount >= baseDeliveryTip.getOrderAmount())
+            .max(Comparator.comparing(ShopBaseDeliveryTip::getOrderAmount));
+
+        if (fitBaseDeliveryTip.isPresent()) {
+            return fitBaseDeliveryTip.get().getFee();
+        }
+
+        // 최소 주문 금액 미달. 가장 비싼 배달비 적용.
+        return getSortedByOrderAmount().get(0).getFee();
     }
 }

@@ -394,7 +394,7 @@ class AbtestApiTest extends AcceptanceTest {
                     {
                     "id": 3,
                     "name" : "박성빈",
-                    "detail": "01098765439"
+                    "detail": null
                     }
                   ]
                 }

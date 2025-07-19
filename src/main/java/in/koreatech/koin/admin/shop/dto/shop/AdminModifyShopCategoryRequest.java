@@ -15,7 +15,7 @@ import jakarta.validation.constraints.Size;
 public record AdminModifyShopCategoryRequest(
     @Schema(description = "이미지 URL", example = "https://static.koreatech.in/test.png", requiredMode = RequiredMode.REQUIRED)
     @NotBlank(message = "이미지 URL은 필수입니다.")
-    @Size(max = 100, message = "이미지 URL은 255자 이하로 입력해주세요.")
+    @Size(max = 255, message = "이미지 URL은 255자 이하로 입력해주세요.")
     String imageUrl,
 
     @Schema(description = "이름", example = "햄버거", requiredMode = RequiredMode.REQUIRED)

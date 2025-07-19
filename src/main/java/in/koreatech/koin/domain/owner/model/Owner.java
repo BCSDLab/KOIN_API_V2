@@ -40,9 +40,9 @@ public class Owner {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @Size(max = 12)
     @NotNull
-    @Column(name = "company_registration_number", nullable = false, length = 12, unique = true)
+    @Size(max = 12)
+    @Column(name = "company_registration_number", nullable = false, unique = true, length = 12)
     private String companyRegistrationNumber;
 
     @Column(name = "grant_shop", columnDefinition = "TINYINT")
@@ -51,8 +51,9 @@ public class Owner {
     @Column(name = "grant_event", columnDefinition = "TINYINT")
     private boolean grantEvent;
 
-    @Size(max = 255)
-    @Column(name = "account")
+    @NotNull
+    @Size(max = 11)
+    @Column(name = "account", nullable = false, unique = true, length = 11)
     private String account;
 
     @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true)

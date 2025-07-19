@@ -35,6 +35,7 @@ public interface OrderableShopMenuApi {
                                 "name": "후라이드 치킨",
                                 "description": "바삭하고 고소한 오리지널 후라이드",
                                 "thumbnail_image": "https://example.com/images/fried_chicken.jpg",
+                                "is_sold_out": false,
                                 "prices": [
                                   {
                                     "id": 1,
@@ -48,6 +49,7 @@ public interface OrderableShopMenuApi {
                                 "name": "양념 치킨",
                                 "description": "달콤매콤한 특제 양념 소스",
                                 "thumbnail_image": "https://example.com/images/seasoned_chicken.jpg",
+                                "is_sold_out": false,
                                 "prices": [
                                   {
                                     "id": 2,
@@ -67,6 +69,7 @@ public interface OrderableShopMenuApi {
                                 "name": "감자튀김",
                                 "description": "치킨과 함께 먹으면 더욱 맛있는 바삭한 감자튀김",
                                 "thumbnail_image": "https://example.com/images/fries.jpg",
+                                "is_sold_out": false,
                                 "prices": [
                                   {
                                     "id": 3,
@@ -91,9 +94,9 @@ public interface OrderableShopMenuApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "status": 404,
-                          "error": "Not Found",
-                          "message": "해당 상점이 존재하지 않습니다 : 1"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP",
+                          "message": "상점이 존재하지 않습니다.",
+                          "errorTraceId": "b630af74-f0e5-4faf-808f-5406ab104848"
                         }
                         """
                     )
@@ -189,9 +192,9 @@ public interface OrderableShopMenuApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "메뉴 미존재", value = """
                         {
-                          "status": 404,
-                          "error": "Not Found",
-                          "message": "해당 메뉴가 존재하지 않습니다 : 999"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP_MENU",
+                          "message": "메뉴가 존재하지 않습니다",
+                          "errorTraceId": "8abfd670-c8bf-4cee-9ab5-33fa53801990"
                         }
                         """
                     )
@@ -220,7 +223,7 @@ public interface OrderableShopMenuApi {
                     @ExampleObject(name = "성공", value = """
                         {
                           "count": 2,
-                          "menuGroups": [
+                          "menu_group": [
                             {
                               "id": 1,
                               "name": "메인 메뉴"
@@ -239,9 +242,9 @@ public interface OrderableShopMenuApi {
                 content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "상점 미존재", value = """
                         {
-                          "status": 404,
-                          "error": "Not Found",
-                          "message": "해당 상점이 존재하지 않습니다 : 1"
+                          "code": "NOT_FOUND_ORDERABLE_SHOP",
+                          "message": "상점이 존재하지 않습니다.",
+                          "errorTraceId": "c01f770c-9f1e-4824-a062-34c6af52c119"
                         }
                         """
                     )

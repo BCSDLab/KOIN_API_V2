@@ -159,7 +159,7 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 등록")
     @PostMapping("/lost-item")
     ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     );
 
@@ -176,6 +176,6 @@ public interface ArticleApi {
     @DeleteMapping("/lost-item/{id}")
     ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer councilId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer councilId
     );
 }

@@ -6,10 +6,4 @@ public record ShopBaseDeliveryTipRange(
     Integer fee
 ) {
 
-    public boolean isInRange(Integer orderAmount) {
-        if (orderAmount < fromAmount) {
-            return false;
-        }
-        return toAmount == null || orderAmount < toAmount;
-    }
 }

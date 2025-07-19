@@ -104,6 +104,21 @@ public class SlackNotificationFactory {
     }
 
     /**
+     * 일반인 가입 완료 알림
+     */
+    public SlackNotification generateUserRegisterCompleteNotification(
+        String content
+    ) {
+        return SlackNotification.builder()
+            .slackUrl(eventNotificationUrl)
+            .text(String.format("""
+                `%s(일반인)님이 가입하셨습니다.`
+                """, content)
+            )
+            .build();
+    }
+
+    /**
      * 유저 탈퇴 알림
      */
     public SlackNotification generateUserDeleteNotification(

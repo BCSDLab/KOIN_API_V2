@@ -29,7 +29,7 @@ public class StudentEventListener {
     @Async
     @TransactionalEventListener
     public void onStudentRegisterEvent(StudentRegisterEvent event) {
-        var notification = slackNotificationFactory.generateStudentRegisterCompleteNotification(event.email());
+        var notification = slackNotificationFactory.generateStudentRegisterCompleteNotification(event.phoneNumber());
         slackClient.sendMessage(notification);
     }
 }

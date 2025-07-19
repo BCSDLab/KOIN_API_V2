@@ -71,7 +71,8 @@ public class AdminUserService {
 
     @Transactional
     public AdminLoginResponse adminLogin(AdminLoginRequest request, UserAgentInfo userAgentInfo) {
-        User user = adminUserRepository.getByEmail(request.email());
+        Admin admin = adminRepository.getByEmail(request.email());
+        User user = admin.getUser();
         adminUserValidation.validateAdminLogin(user, request);
 
         String accessToken = jwtProvider.createToken(user);

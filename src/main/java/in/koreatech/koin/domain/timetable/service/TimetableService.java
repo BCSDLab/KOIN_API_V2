@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.RequestTooFastException;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
@@ -129,7 +130,7 @@ public class TimetableService {
             timetableLecture.delete();
             entityManager.flush();
         } catch (OptimisticLockException e) {
-            throw new RequestTooFastException("요청이 너무 빠릅니다. 다시 시도해주세요.");
+            throw CustomException.of(ApiResponseCode.REQUEST_TOO_FAST);
         }
     }
 

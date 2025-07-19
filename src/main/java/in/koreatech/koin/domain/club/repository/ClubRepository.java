@@ -3,15 +3,17 @@ package in.koreatech.koin.domain.club.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubCategory;
 import jakarta.persistence.LockModeType;
 
 public interface ClubRepository extends Repository<Club, Integer> {
@@ -21,7 +23,8 @@ public interface ClubRepository extends Repository<Club, Integer> {
     Optional<Club> findById(Integer id);
 
     default Club getById(Integer id) {
-        return findById(id).orElseThrow(() -> ClubNotFoundException.withDetail("id : " + id));
+        return findById(id)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CLUB));
     }
 
     @Query("SELECT c.id FROM Club c WHERE c.id IN :ids")
@@ -41,25 +44,14 @@ public interface ClubRepository extends Repository<Club, Integer> {
         return club;
     }
 
+    @Query("SELECT c FROM Club c WHERE c.isActive = true AND c.name LIKE CONCAT(:query, '%') ORDER BY c.name")
+    List<Club> findByNamePrefix(String query, Pageable pageable);
+
     @Modifying
     @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")
     void incrementHitsByValue(Integer id, Integer value);
 
-    @Modifying
-    @Query("UPDATE Club c SET c.hits = c.hits + 1 WHERE c.id = :id")
-    void incrementHits(Integer id);
-
     Club save(Club club);
-
-    List<Club> findByClubCategory(ClubCategory category);
-
-    List<Club> findByIsActiveTrueAndClubCategoryOrderByIdAsc(ClubCategory category);
-
-    List<Club> findByIsActiveTrueAndClubCategoryOrderByHitsDesc(ClubCategory category);
-
-    List<Club> findByIsActiveTrueOrderByHitsDesc();
-
-    List<Club> findByIsActiveTrueOrderByIdAsc();
 
     void deleteById(Integer id);
 }

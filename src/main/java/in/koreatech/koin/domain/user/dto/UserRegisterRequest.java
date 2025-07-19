@@ -22,12 +22,12 @@ import jakarta.validation.constraints.Size;
 public record UserRegisterRequest(
     @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
     @NotBlank(message = "이름은 필수입니다.")
-    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "한글은 2-5자, 영문은 2-30자 이어야 합니다.")
+    @Pattern(regexp = "^(?:[가-힣]{2,5}|[A-Za-z]{2,30})$", message = "이름은 한글 2-5자 또는 영문 2-30자로 입력해주세요.")
     String name,
 
     @Schema(description = "닉네임", example = "캔따개", requiredMode = NOT_REQUIRED)
     @Size(max = 10, message = "닉네임은 최대 10자입니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
     String nickname,
 
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = NOT_REQUIRED)
@@ -46,7 +46,7 @@ public record UserRegisterRequest(
 
     @Schema(description = "로그인 아이디", example = "example123", requiredMode = REQUIRED)
     @NotBlank(message = "아이디는 필수입니다.")
-    @Pattern(regexp = "^[A-Za-z0-9._-]{5,13}$", message = "5-13자의 영문자, 숫자, 특수문자만 사용할 수 있습니다.")
+    @Pattern(regexp = "^(?=.*[a-z])[a-z0-9._-]{5,13}$", message = "5-13자의 영소문자(필수), 숫자, 특수문자만 사용할 수 있습니다.")
     String loginId,
 
     @Schema(description = "비밀번호 (SHA 256 해싱된 값)", example = "cd06f8c2b0dd065faf6...", requiredMode = REQUIRED)

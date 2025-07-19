@@ -84,7 +84,7 @@ public record StudentWithAcademicResponse(
         }
         return new StudentWithAcademicResponse(
             student.getId(),
-            student.getAnonymousNickname(),
+            user.getAnonymousNickname(),
             user.getEmail(),
             userGender,
             student.getDepartment() == null ? null : student.getDepartment().getName(),

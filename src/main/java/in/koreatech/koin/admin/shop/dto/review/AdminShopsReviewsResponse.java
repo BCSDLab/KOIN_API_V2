@@ -87,7 +87,7 @@ public record AdminShopsReviewsResponse(
 
         public static InnerReviewResponse from(ShopReview review) {
             String nickName = Optional.ofNullable(review.getReviewer().getUser().getNickname())
-                                      .orElse(review.getReviewer().getAnonymousNickname());
+                                      .orElse(review.getReviewer().getUser().getAnonymousNickname());
 
             return new InnerReviewResponse(
                 review.getId(),

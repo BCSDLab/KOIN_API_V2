@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.code.ApiResponseCodes;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
@@ -25,6 +27,7 @@ import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdatePasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -93,7 +96,7 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "로그인 V2")
+    @Operation(summary = "일반인/학생/총동 통합 로그인")
     @PostMapping("/v2/users/login")
     ResponseEntity<UserLoginResponse> loginV2(
         @RequestBody @Valid UserLoginRequestV2 request,
@@ -214,6 +217,23 @@ public interface UserApi {
     ResponseEntity<UserUpdateResponse> updateUser(
         @Auth(permit = {GENERAL}) Integer userId,
         @Valid @RequestBody UserUpdateRequest request
+    );
+
+    @Operation(
+        summary = "사용자 비밀번호 변경",
+        description = "입력한 로그인 ID의 사용자 비밀번호를 수정합니다."
+    )
+    @ApiResponseCodes({
+        ApiResponseCode.OK,
+        ApiResponseCode.ILLEGAL_ARGUMENT,
+        ApiResponseCode.FORBIDDEN_USER_TYPE,
+        ApiResponseCode.NOT_FOUND_USER
+    })
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/users/password")
+    ResponseEntity<Void> updatePassword(
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Valid @RequestBody UserUpdatePasswordRequest request
     );
 
     @ApiResponses(

@@ -52,6 +52,7 @@ public class OrderableShopListQueryRepository {
                 shop.name,
                 orderableShop.delivery,
                 orderableShop.takeout,
+                orderableShop.serviceEvent,
                 orderableShop.minimumOrderAmount,
                 avgRatingExpression,
                 shopReview.id.count(),

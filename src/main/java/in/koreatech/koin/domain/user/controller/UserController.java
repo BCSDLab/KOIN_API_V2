@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
+import in.koreatech.koin.domain.user.dto.UserUpdatePasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserUpdateResponse;
 import in.koreatech.koin.domain.user.service.UserService;
@@ -140,6 +141,15 @@ public class UserController implements UserApi {
     ) {
         UserUpdateResponse response = userService.updateUser(userId, request);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/users/password")
+    public ResponseEntity<Void> updatePassword(
+        @Auth(permit = {GENERAL, STUDENT, OWNER, COOP, COUNCIL}) Integer userId,
+        @Valid @RequestBody UserUpdatePasswordRequest request
+    ) {
+        userService.updatePassword(userId, request);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/user")
