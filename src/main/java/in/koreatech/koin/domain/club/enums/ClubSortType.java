@@ -48,16 +48,32 @@ public enum ClubSortType {
     RECRUITING_DEADLINE_ASC {
         @Override
         public List<OrderSpecifier<?>> getOrderSpecifiers() {
+            /**
+             * 우선순위
+             * 1. 마감일이 짧은 동아리
+             * 2. 상시 모집인 동아리
+             * 3. 모집 전인 동아리
+             */
+            NumberTemplate<Integer> recruitmentStatusPriority = Expressions.numberTemplate(
+                Integer.class,
+                """
+                    case
+                        when {0} = true then 1
+                        when {1} > current_date then 2
+                        else 0
+                    end
+                    """,
+                clubRecruitment.isAlwaysRecruiting,
+                clubRecruitment.startDate
+            );
+
             NumberTemplate<Integer> deadlineGap = Expressions.numberTemplate(
                 Integer.class,
                 "datediff({0}, current_date)",
                 clubRecruitment.endDate
             );
 
-            return List.of(
-                deadlineGap.asc(),
-                clubRecruitment.isAlwaysRecruiting.desc()
-            );
+            return List.of(recruitmentStatusPriority.asc(), deadlineGap.asc());
         }
 
         @Override

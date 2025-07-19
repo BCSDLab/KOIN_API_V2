@@ -1,12 +1,10 @@
 package in.koreatech.koin.domain.club.model;
 
-import static in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus.*;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 import in.koreatech.koin._common.model.BaseEntity;
 import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
@@ -65,7 +63,7 @@ public class ClubRecruitment extends BaseEntity {
     private Club club;
 
     @Transient
-    private Integer Dday;
+    private ClubRecruitmentDday clubRecruitmentDday;
 
     @Transient
     private ClubRecruitmentStatus clubRecruitmentStatus;
@@ -103,24 +101,7 @@ public class ClubRecruitment extends BaseEntity {
 
     @PostLoad
     private void calculateRecruitmentInfo() {
-        LocalDate today = LocalDate.now();
-
-        if (this.isAlwaysRecruiting) {
-            this.clubRecruitmentStatus = ALWAYS;
-            this.Dday = null;
-            return;
-        }
-
-        if (today.isBefore(this.startDate)) {
-            this.clubRecruitmentStatus = BEFORE;
-            this.Dday = null;
-        }
-        else if (!today.isAfter(this.endDate)) {
-            this.clubRecruitmentStatus = RECRUITING;
-            this.Dday = (int)ChronoUnit.DAYS.between(today, endDate);
-        } else {
-            this.clubRecruitmentStatus = CLOSED;
-            this.Dday = null;
-        }
+        this.clubRecruitmentStatus = ClubRecruitmentStatus.from(isAlwaysRecruiting, startDate, endDate);
+        this.clubRecruitmentDday = ClubRecruitmentDday.from(clubRecruitmentStatus, endDate);
     }
 }
