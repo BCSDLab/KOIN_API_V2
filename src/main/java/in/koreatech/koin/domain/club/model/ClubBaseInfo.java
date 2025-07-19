@@ -52,7 +52,7 @@ public record ClubBaseInfo(
             return null;
         }
 
-        int period = (int) DAYS.between(startDate, endDate);
+        int period = (int) DAYS.between(today, endDate);
         return period >= 0 ? period : null;
     }
 
