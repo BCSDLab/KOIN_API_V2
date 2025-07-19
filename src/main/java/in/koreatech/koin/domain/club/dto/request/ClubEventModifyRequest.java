@@ -49,7 +49,7 @@ public record ClubEventModifyRequest(
     String content
 ) {
     public ClubEventModifyRequest {
-        if (endDate.isBefore(startDate)) {
+        if (!endDate.isAfter(startDate)) {
             throw CustomException.of(INVALID_CLUB_EVENT_PERIOD);
         }
     }
