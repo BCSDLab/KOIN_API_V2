@@ -54,10 +54,7 @@ public enum ClubSortType {
                 clubRecruitment.endDate
             );
 
-            return List.of(
-                deadlineGap.asc(),
-                clubRecruitment.isAlwaysRecruiting.desc()
-            );
+            return List.of(deadlineGap.asc());
         }
 
         @Override
