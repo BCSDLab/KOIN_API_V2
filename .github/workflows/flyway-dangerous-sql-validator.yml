@@ -23,10 +23,11 @@ jobs:
               ${{ github.event.pull_request.base.sha }} \
               ${{ github.event.pull_request.head.sha }}
           )
+          
           NON_FLYWAY_FILES_CHANGES=$(
             echo "$CHANGED_FILES" \
-             | grep -v '^src/main/resources/db/migration/' \
-             || true
+              | grep -v '^src/main/resources/db/migration/' \
+              || true
           )
           
           DANGEROUS_SQL_COMMANDS=$(
@@ -39,6 +40,13 @@ jobs:
           )
           
           if [[ -n "$DANGEROUS_SQL_COMMANDS" && -n "$NON_FLYWAY_FILES_CHANGES" ]]; then
-            echo "::error::코드 변경사항과 파괴적 SQL 명령이 동시에 감지되었습니다. PR을 분리하거나 위험 SQL을 제거한 후 다시 시도해주세요."
+            echo "::error::코드 변경사항과 파괴적 SQL 명령이 동시에 감지되었습니다."
+            echo ""
+            echo "🔴 감지된 위험 SQL 명령어 목록:"
+            echo "$DANGEROUS_SQL_COMMANDS"
+            echo ""
+            echo "📂 Flyway 디렉토리 외 변경된 파일 목록:"
+            echo "$NON_FLYWAY_FILES_CHANGES"
             exit 1
           fi
+
