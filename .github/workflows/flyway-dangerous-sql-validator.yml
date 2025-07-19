@@ -20,30 +20,24 @@ jobs:
         run: |
           BASE=${{ github.event.pull_request.base.sha }}
           HEAD=${{ github.event.pull_request.head.sha }}
-
+          
           CHANGED_FILES=$(git diff --name-only "$BASE" "$HEAD")
-
+          
           NON_FLYWAY_FILES_CHANGES=$(echo "$CHANGED_FILES" \
             | grep -v '^src/main/resources/db/migration/' || true)
-
-          # 위험 SQL이 포함된 파일명과 해당 줄 추출
+          
           DANGEROUS_SQL=$(git diff --unified=0 "$BASE" "$HEAD" -- src/main/resources/db/migration/*.sql \
             | grep -i -wE "^\+.*\b(DROP|TRUNCATE|RENAME|CHANGE)\b" || true)
-
+          
           if [[ -n "$DANGEROUS_SQL" && -n "$NON_FLYWAY_FILES_CHANGES" ]]; then
             echo "::error::코드 변경사항과 파괴적 SQL 명령이 동시에 감지되었습니다."
             echo ""
             echo "🔴 감지된 위험 SQL 내용:"
           
-            # 파일 단위로 묶어서 출력
-            echo "$DANGEROUS_SQL" | awk '
-              /^diff --git/ {file=$4}
-              /^\+\+\+/ {next}
-              /^\+/ && file != "" {
-                gsub(/^.{1}/, "", $0);  # remove '+'
-                print "📄 " file ": " $0
-              }
-            '
-
+            # 🔽 sed 방식이 더 안정적
+            echo "$DANGEROUS_SQL" \
+              | sed -n -E 's/^diff --git a\/.* b\/(.*)/📄 \1:/p; s/^\+(.+)/    \1/p'
+          
             exit 1
           fi
+    
