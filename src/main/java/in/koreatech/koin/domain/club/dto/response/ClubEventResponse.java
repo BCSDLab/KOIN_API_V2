@@ -32,7 +32,7 @@ public record ClubEventResponse(
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime endDate,
 
-    @Schema(description = "행사 소개 (요약)", example = "BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.")
+    @Schema(description = "행사 내용", example = "BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.")
     String introduce,
 
     @Schema(description = "행사 상세 내용", example = "여러 동아리원들과 자신의 생각, 경험에 대해 나눠요,")
