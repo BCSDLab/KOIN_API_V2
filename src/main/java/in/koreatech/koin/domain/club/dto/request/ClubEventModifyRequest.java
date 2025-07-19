@@ -40,7 +40,7 @@ public record ClubEventModifyRequest(
     @NotNull(message = "행사 종료일은 필수입니다.")
     LocalDateTime endDate,
 
-    @Schema(description = "행사 내용 (요약)", example = "BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.", requiredMode = REQUIRED)
+    @Schema(description = "행사 내용", example = "BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.", requiredMode = REQUIRED)
     @NotBlank(message = "행사 내용은 필수입니다.")
     @Size(max = 70, message = "행사 내용은 70자 이내여야 합니다.")
     String introduce,
