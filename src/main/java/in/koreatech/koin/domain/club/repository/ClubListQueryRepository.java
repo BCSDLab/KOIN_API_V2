@@ -51,10 +51,7 @@ public class ClubListQueryRepository {
             .leftJoin(clubRecruitment).on(clubRecruitment.club.id.eq(club.id));
 
         if (userId != null) {
-            baseQuery.leftJoin(clubLike).on(
-                clubLike.club.id.eq(club.id)
-                    .and(clubLike.user.id.eq(userId))
-            );
+            baseQuery.leftJoin(clubLike).on(clubLike.club.id.eq(club.id).and(clubLike.user.id.eq(userId)));
         }
 
         return baseQuery
@@ -72,10 +69,7 @@ public class ClubListQueryRepository {
 
         if (isRecruiting) {
             builder.and(clubRecruitment.id.isNotNull());
-            builder.and(
-                clubRecruitment.endDate.goe(LocalDate.now())
-                    .or(clubRecruitment.isAlwaysRecruiting.isTrue())
-            );
+            builder.and(clubRecruitment.endDate.goe(LocalDate.now()).or(clubRecruitment.isAlwaysRecruiting.isTrue()));
         }
 
         builder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(normalizedQuery));
