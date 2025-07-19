@@ -13,7 +13,7 @@ public enum ClubRecruitmentStatus {
     ALWAYS,
     ;
 
-    public static ClubRecruitmentStatus resolve(
+    public static ClubRecruitmentStatus from(
         Boolean isAlwaysRecruiting,
         LocalDate startDate,
         LocalDate endDate

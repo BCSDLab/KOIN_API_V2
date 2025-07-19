@@ -101,7 +101,7 @@ public class ClubRecruitment extends BaseEntity {
 
     @PostLoad
     private void calculateRecruitmentInfo() {
-        this.clubRecruitmentStatus = ClubRecruitmentStatus.resolve(isAlwaysRecruiting, startDate, endDate);
+        this.clubRecruitmentStatus = ClubRecruitmentStatus.from(isAlwaysRecruiting, startDate, endDate);
         this.clubRecruitmentDday = ClubRecruitmentDday.from(clubRecruitmentStatus, endDate);
     }
 }

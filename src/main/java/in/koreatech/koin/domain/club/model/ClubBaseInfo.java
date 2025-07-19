@@ -17,11 +17,11 @@ public record ClubBaseInfo(
     Boolean isAlwaysRecruiting
 ) {
     public ClubRecruitmentStatus getRecruitmentStatus() {
-        return ClubRecruitmentStatus.resolve(isAlwaysRecruiting, startDate, endDate);
+        return ClubRecruitmentStatus.from(isAlwaysRecruiting, startDate, endDate);
     }
 
     public Integer getRecruitmentPeriod() {
-        ClubRecruitmentStatus clubRecruitmentStatus = ClubRecruitmentStatus.resolve(isAlwaysRecruiting, startDate, endDate);
+        ClubRecruitmentStatus clubRecruitmentStatus = ClubRecruitmentStatus.from(isAlwaysRecruiting, startDate, endDate);
         return ClubRecruitmentDday.from(clubRecruitmentStatus, endDate).getDday();
     }
 }
