@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +18,6 @@ import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomInfoResp
 import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomListResponse;
 import in.koreatech.koin.domain.community.lostitem.chatroom.usecase.LostItemChatRoomMessageUseCase;
 import in.koreatech.koin.domain.community.lostitem.chatroom.usecase.LostItemChatRoomUseCase;
-import in.koreatech.koin.domain.community.lostitem.chatroom.usecase.LostItemChatUserBlockUseCase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -28,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 public class LostItemChatRoomController implements LostItemChatRoomApi {
 
     private final LostItemChatRoomUseCase lostItemChatRoomUseCase;
-    private final LostItemChatUserBlockUseCase lostItemChatUserBlockUseCase;
     private final LostItemChatRoomMessageUseCase lostItemChatRoomMessageUseCase;
 
     @PostMapping("/lost-item/{articleId}")
@@ -48,26 +45,6 @@ public class LostItemChatRoomController implements LostItemChatRoomApi {
     ) {
         ChatRoomInfoResponse response = lostItemChatRoomUseCase.getLostItemChatRoom(articleId, userId, chatRoomId);
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/lost-item/{articleId}/{chatRoomId}/block")
-    public ResponseEntity<?> blockChatUser(
-        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer userId,
-        @PathVariable("articleId") Integer articleId,
-        @PathVariable("chatRoomId") Integer chatRoomId
-    ) {
-        lostItemChatUserBlockUseCase.blockUser(articleId, chatRoomId, userId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @DeleteMapping("/lost-item/{articleId}/{chatRoomId}/unblock")
-    public ResponseEntity<?> unblockChatUser(
-        @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
-        @PathVariable("articleId") Integer articleId,
-        @PathVariable("chatRoomId") Integer chatRoomId
-    ) {
-        lostItemChatUserBlockUseCase.unblockUser(articleId, chatRoomId, studentId);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/lost-item/{articleId}/{chatRoomId}/messages")
