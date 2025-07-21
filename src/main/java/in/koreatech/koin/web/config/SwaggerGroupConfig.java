@@ -85,7 +85,7 @@ public class SwaggerGroupConfig {
     @Bean
     public GroupedOpenApi socketApi() {
         return createGroupedOpenApi(
-            "6. socket API",
+            "6. chat API",
             new String[] { "in.koreatech.koin.domain.community.lostitem.chatroom" });
     }
 
