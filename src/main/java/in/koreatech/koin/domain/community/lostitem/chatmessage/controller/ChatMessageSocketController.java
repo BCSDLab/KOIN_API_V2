@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
-@Slf4j
 @RequiredArgsConstructor
 public class ChatMessageSocketController {
 
@@ -32,7 +31,6 @@ public class ChatMessageSocketController {
         UserPrincipal principal,
         ChatMessage message
     ) {
-        log.info("ChatMessageSocketController Handle Running in thread: " + Thread.currentThread().getName());
         String destination = "/topic/chat/" + articleId + "/" + chatRoomId;
         Integer subscriptionCount = sessionTracker.getSubscriptionCount(destination);
         Integer userId = principal.getUserId();
