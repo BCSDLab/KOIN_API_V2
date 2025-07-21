@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.lostitem.chatroom.service.usecase;
+package in.koreatech.koin.domain.community.lostitem.chatroom.service;
 
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class LostItemArticleInfoUseCase {
+public class LostItemArticleInfoService {
 
     private final LostItemArticleRepository lostItemArticleRepository;
     private final ArticleRepository articleRepository;

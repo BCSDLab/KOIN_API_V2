@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.model.MobileAppPath;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.event.MessageSendEvent;
 import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatRoomInfoRepository;
-import in.koreatech.koin.domain.community.lostitem.chatroom.service.usecase.LostItemChatRoomInfoUseCase;
+import in.koreatech.koin.domain.community.lostitem.chatroom.service.LostItemChatRoomInfoService;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
@@ -37,7 +37,7 @@ public class ChatMessageSendService {
     private final WebSocketUserSessionService webSocketUserSessionService;
     private final SimpMessageSendingOperations simpMessageSendingOperations;
 
-    private final LostItemChatRoomInfoUseCase chatRoomInfoUseCase;
+    private final LostItemChatRoomInfoService chatRoomInfoUseCase;
 
     @Transactional(readOnly = true)
     public void handle(MessageSendEvent event) {

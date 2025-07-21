@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.lostitem.chatroom.service.usecase;
+package in.koreatech.koin.domain.community.lostitem.chatroom.service;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -24,14 +24,11 @@ import in.koreatech.koin.domain.community.lostitem.chatmessage.repository.ChatMe
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 
-import lombok.Builder;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
-public class LostItemChatRoomInfoUseCase {
+public class LostItemChatRoomInfoService {
 
     private final LostItemArticleRepository lostItemArticleRepository;
     private final LostItemChatRoomInfoRepository chatRoomInfoRepository;

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.lostitem.chatroom.service.usecase;
+package in.koreatech.koin.domain.community.lostitem.chatroom.service;
 
 import java.util.Optional;
 
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class LostItemChatUserBlockUseCase {
+public class LostItemChatUserBlockService {
 
     private final LostItemChatUserBlockRepository userBlockRepository;
     private final LostItemChatRoomInfoRepository chatRoomInfoRepository;

@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.community.lostitem.chatroom.service.LostItemChatRoomService;
+import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomInfoResponse;
 import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomListResponse;
-import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageResponse;
+import in.koreatech.koin.domain.community.lostitem.chatroom.usecase.LostItemChatRoomMessageUseCase;
+import in.koreatech.koin.domain.community.lostitem.chatroom.usecase.LostItemChatRoomUseCase;
+import in.koreatech.koin.domain.community.lostitem.chatroom.usecase.LostItemChatUserBlockUseCase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,14 +27,16 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/chatroom")
 public class LostItemChatRoomController implements LostItemChatRoomApi {
 
-    private final LostItemChatRoomService lostItemChatRoomService;
+    private final LostItemChatRoomUseCase lostItemChatRoomUseCase;
+    private final LostItemChatUserBlockUseCase lostItemChatUserBlockUseCase;
+    private final LostItemChatRoomMessageUseCase lostItemChatRoomMessageUseCase;
 
     @PostMapping("/lost-item/{articleId}")
     public ResponseEntity<ChatRoomInfoResponse> createLostItemChatRoom(
         @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer userId,
         @PathVariable("articleId") Integer articleId
     ) {
-        ChatRoomInfoResponse response = lostItemChatRoomService.getOrCreateLostItemChatRoom(articleId, userId);
+        ChatRoomInfoResponse response = lostItemChatRoomUseCase.getOrCreateLostItemChatRoom(articleId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -42,7 +46,7 @@ public class LostItemChatRoomController implements LostItemChatRoomApi {
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
-        ChatRoomInfoResponse response = lostItemChatRoomService.getLostItemChatRoom(articleId, userId, chatRoomId);
+        ChatRoomInfoResponse response = lostItemChatRoomUseCase.getLostItemChatRoom(articleId, userId, chatRoomId);
         return ResponseEntity.ok(response);
     }
 
@@ -52,7 +56,7 @@ public class LostItemChatRoomController implements LostItemChatRoomApi {
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
-        lostItemChatRoomService.blockUser(articleId, chatRoomId, userId);
+        lostItemChatUserBlockUseCase.blockUser(articleId, chatRoomId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -62,7 +66,7 @@ public class LostItemChatRoomController implements LostItemChatRoomApi {
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
-        lostItemChatRoomService.unblockUser(articleId, chatRoomId, studentId);
+        lostItemChatUserBlockUseCase.unblockUser(articleId, chatRoomId, studentId);
         return ResponseEntity.ok().build();
     }
 
@@ -72,7 +76,7 @@ public class LostItemChatRoomController implements LostItemChatRoomApi {
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
-        var result = lostItemChatRoomService.getAllMessages(articleId, chatRoomId, userId);
+        var result = lostItemChatRoomMessageUseCase.getAllChatRoomMessages(articleId, chatRoomId, userId);
         return ResponseEntity.ok(result);
     }
 
@@ -80,6 +84,6 @@ public class LostItemChatRoomController implements LostItemChatRoomApi {
     public ResponseEntity<List<ChatRoomListResponse>> getAllChatRoomInfo(
         @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer userId
     ) {
-        return ResponseEntity.ok(lostItemChatRoomService.getAllChatRoomInfoByUserId(userId));
+        return ResponseEntity.ok(lostItemChatRoomUseCase.getAllChatRoomInfoByUserId(userId));
     }
 }
