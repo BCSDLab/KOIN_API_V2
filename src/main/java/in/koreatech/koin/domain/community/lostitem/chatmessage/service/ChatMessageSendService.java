@@ -71,7 +71,7 @@ public class ChatMessageSendService {
     }
 
     /**
-     * 알림 전송 가능 여부를 확인하는 메서드 <br>
+     * 알림 전송 가능 여부를 확인하는 메서드
      * 현재 웹소켓 연결이 끊겨 있고, 디바이스 토큰이 존재 하며, 채팅 알림 받기를 설정한 사용자에게만 푸시 전송
      */
     private boolean isNotificationEligible(Integer partnerId) {
@@ -80,9 +80,6 @@ public class ChatMessageSendService {
             isSubscribedToChatNotification(partnerId);
     }
 
-    /**
-     * 웹소켓 세션이 활성 상태인지 확인
-     */
     private boolean isActiveSession(Integer partnerId) {
         return webSocketUserSessionService.read(partnerId)
             .map(WebSocketUserSession::getStatus)
@@ -92,24 +89,15 @@ public class ChatMessageSendService {
             .isPresent();
     }
 
-    /**
-     * 사용자가 디바이스 토큰을 가지고 있는지 확인
-     */
     private boolean hasDeviceToken(Integer partnerId) {
         User partner = userRepository.getById(partnerId);
         return partner.getDeviceToken() != null;
     }
 
-    /**
-     * 사용자가 채팅 알림을 설정했는지 확인
-     */
     private boolean isSubscribedToChatNotification(Integer partnerId) {
         return notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(partnerId, NotificationSubscribeType.LOST_ITEM_CHAT);
     }
 
-    /**
-     * 상대방 userId 얻기
-     */
     private Integer getPartnerId(Integer articleId, Integer chatRoomId, Integer userId) {
         var chatRoomInfo = chatRoomInfoRepository.getByArticleIdAndChatRoomId(articleId, chatRoomId);
 
