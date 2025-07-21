@@ -44,6 +44,7 @@ public class LostItemChatRoomUseCase {
         );
     }
 
+    @Transactional(readOnly = true)
     public List<ChatRoomListResponse> getAllChatRoomInfoByUserId(Integer userId) {
         return chatRoomInfoService.getAllChatRoomInfo(userId);
     }
