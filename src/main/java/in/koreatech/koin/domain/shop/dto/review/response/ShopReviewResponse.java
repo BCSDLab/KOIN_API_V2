@@ -50,7 +50,7 @@ public record ShopReviewResponse(
     public static ShopReviewResponse from(ShopReview review) {
         String nickName = review.getReviewer().getUser().getNickname();
         if (nickName == null) {
-            nickName = review.getReviewer().getAnonymousNickname();
+            nickName = review.getReviewer().getUser().getAnonymousNickname();
         }
         return new ShopReviewResponse(
             review.getId(),

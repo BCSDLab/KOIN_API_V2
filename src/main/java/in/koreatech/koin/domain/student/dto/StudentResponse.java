@@ -61,7 +61,7 @@ public record StudentResponse(
         return new StudentResponse(
             student.getId(),
             user.getLoginId(),
-            student.getAnonymousNickname(),
+            user.getAnonymousNickname(),
             user.getEmail(),
             user.getGender() != null ? user.getGender().ordinal() : null,
             student.getDepartment() == null ? null : student.getDepartment().getName(),

@@ -180,7 +180,7 @@ public class CoopService {
 
     @Transactional
     public CoopLoginResponse coopLogin(CoopLoginRequest request, UserAgentInfo userAgentInfo) {
-        Coop coop = coopRepository.getByCoopId(request.id());
+        Coop coop = coopRepository.getByLoginId(request.id());
         User user = coop.getUser();
 
         user.requireSameLoginPw(passwordEncoder, request.password());

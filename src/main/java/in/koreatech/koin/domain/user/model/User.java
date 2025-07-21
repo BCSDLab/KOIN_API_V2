@@ -7,12 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
-import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin._common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,23 +47,26 @@ public class User extends BaseEntity {
     private String name;
 
     @Size(max = 50)
-    @Column(name = "nickname", length = 50, unique = true)
+    @Column(name = "nickname", unique = true, length = 50)
     private String nickname;
 
     @Size(max = 20)
-    @Column(name = "phone_number", length = 20)
+    @Column(name = "anonymous_nickname", unique = true, length = 20)
+    private String anonymousNickname;
+
+    @Size(max = 20)
+    @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
 
     @Size(max = 100)
-    @Column(name = "email", length = 100)
+    @Column(name = "email", unique = true, length = 100)
     private String email;
 
-    @Size(max = 255)
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
+    @Size(max = 30)
+    @Column(name = "user_id", unique = true, length = 30)
     private String loginId;
 
     @NotNull
@@ -74,18 +78,16 @@ public class User extends BaseEntity {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false, length = 20)
+    @Column(name = "user_type", nullable = false)
     private UserType userType;
 
     @Column(name = "gender", columnDefinition = "INT")
     @Enumerated(value = EnumType.ORDINAL)
     private UserGender gender;
 
-    @NotNull
     @Column(name = "is_authed", nullable = false)
     private boolean isAuthed = false;
 
-    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
@@ -94,13 +96,14 @@ public class User extends BaseEntity {
 
     @Builder
     private User(
-        String loginId,
-        String loginPw,
-        String nickname,
         String name,
+        String nickname,
+        String anonymousNickname,
         String phoneNumber,
         UserType userType,
         String email,
+        String loginId,
+        String loginPw,
         UserGender gender,
         boolean isAuthed,
         LocalDateTime lastLoggedAt,
@@ -108,13 +111,14 @@ public class User extends BaseEntity {
         Boolean isDeleted,
         String deviceToken
     ) {
-        this.loginId = loginId;
-        this.loginPw = loginPw;
-        this.nickname = nickname;
         this.name = name;
+        this.nickname = nickname;
+        this.anonymousNickname = Objects.requireNonNullElse(anonymousNickname, RandomStringUtils.randomAlphabetic(13));
         this.phoneNumber = phoneNumber;
         this.userType = userType;
         this.email = email;
+        this.loginId = loginId;
+        this.loginPw = loginPw;
         this.gender = gender;
         this.isAuthed = isAuthed;
         this.lastLoggedAt = lastLoggedAt;

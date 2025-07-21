@@ -32,10 +32,6 @@ public class Student {
     @Column(name = "user_id")
     private Integer id;
 
-    @Size(max = 255)
-    @Column(name = "anonymous_nickname", unique = true)
-    private String anonymousNickname = "익명_" + System.currentTimeMillis();
-
     @Size(max = 20)
     @Column(name = "student_number", length = 20)
     private String studentNumber;
@@ -61,21 +57,19 @@ public class Student {
 
     @Builder
     private Student(
-        String anonymousNickname,
         String studentNumber,
         Department department,
         UserIdentity userIdentity,
         boolean isGraduated,
-        User user,
-        Major major
+        Major major,
+        User user
     ) {
-        this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
         this.department = department;
         this.userIdentity = userIdentity;
         this.isGraduated = isGraduated;
-        this.user = user;
         this.major = major;
+        this.user = user;
     }
 
     public void updateInfo(String studentNumber, Department department) {

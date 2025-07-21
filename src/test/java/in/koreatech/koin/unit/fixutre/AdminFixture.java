@@ -15,6 +15,8 @@ public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (e
 
     public static Admin 코인_운영자() {
         return Admin.builder()
+            .email("juno@koreatech.ac.kr")
+            .loginId("test_id")
             .trackType(BACKEND)
             .teamType(USER)
             .canCreateAdmin(true)
@@ -24,8 +26,6 @@ public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (e
                     .name("테스트용_코인운영자")
                     .nickname("코인운영자")
                     .phoneNumber("01012342344")
-                    .email("juno@koreatech.ac.kr")
-                    .loginId("test_id")
                     .loginPw("test_pw")
                     .userType(ADMIN)
                     .gender(MAN)
@@ -38,6 +38,8 @@ public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (e
 
     public static Admin 영희_운영자() {
         return Admin.builder()
+            .email("koinadmin1@koreatech.ac.kr")
+            .loginId("test_id")
             .trackType(BACKEND)
             .teamType(BUSINESS)
             .canCreateAdmin(false)
@@ -47,8 +49,6 @@ public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (e
                     .name("테스트용_코인운영자")
                     .nickname("코인운영자1")
                     .phoneNumber("01012342347")
-                    .email("koinadmin1@koreatech.ac.kr")
-                    .loginId("test_id")
                     .loginPw("test_pw")
                     .userType(ADMIN)
                     .gender(WOMAN)
@@ -61,6 +61,8 @@ public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (e
 
     public static Admin 미인증_진구_운영자() {
         return Admin.builder()
+            .email("koinadmin2@koreatech.ac.kr")
+            .loginId("test_id")
             .trackType(BACKEND)
             .teamType(CAMPUS)
             .canCreateAdmin(true)
@@ -70,8 +72,6 @@ public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (e
                     .name("테스트용_코인운영자")
                     .nickname("코인운영자2")
                     .phoneNumber("01012342347")
-                    .email("koinadmin2@koreatech.ac.kr")
-                    .loginId("test_id")
                     .loginPw("test_pw")
                     .userType(ADMIN)
                     .gender(WOMAN)

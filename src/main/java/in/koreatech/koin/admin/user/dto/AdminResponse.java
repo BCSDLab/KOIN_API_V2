@@ -37,7 +37,7 @@ public record AdminResponse(
 
         return new AdminResponse(
             admin.getId(),
-            user.getEmail(),
+            admin.getEmail(),
             user.getName(),
             admin.getTrackType().getValue(),
             admin.getTeamType().getValue(),

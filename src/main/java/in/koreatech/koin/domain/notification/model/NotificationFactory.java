@@ -185,7 +185,7 @@ public class NotificationFactory {
     }
 
     private String generateClubRecruitmentSchemeUri(MobileAppPath path, Integer clubId) {
-        return String.format("%s-recruitment?id=%d", path, clubId);
+        return String.format("%s-recruitment?id=%d", path.getPath(), clubId);
     }
 
     private String generateSchemeUri(MobileAppPath path, Integer eventId) {

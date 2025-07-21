@@ -99,7 +99,7 @@ public record ShopReviewsResponse(
         public static InnerReviewResponse from(ShopReview review, Integer userId) {
             String nickName = review.getReviewer().getUser().getNickname();
             if (nickName == null) {
-                nickName = review.getReviewer().getAnonymousNickname();
+                nickName = review.getReviewer().getUser().getAnonymousNickname();
             }
             boolean isReported = review.getReports().stream()
                 .filter(it -> it.getReportStatus() != DISMISSED)

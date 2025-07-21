@@ -53,7 +53,7 @@ public record AdminStudentUpdateResponse(
         User user = student.getUser();
 
         return new AdminStudentUpdateResponse(
-            student.getAnonymousNickname(),
+            user.getAnonymousNickname(),
             user.getEmail(),
             user.getGender() != null ? user.getGender().ordinal() : null,
             student.getDepartment() == null ? null : student.getDepartment().getName(),

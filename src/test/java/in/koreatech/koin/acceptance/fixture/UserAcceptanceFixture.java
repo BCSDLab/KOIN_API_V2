@@ -77,6 +77,8 @@ public final class UserAcceptanceFixture {
     public Admin 코인_운영자() {
         return adminRepository.save(
             Admin.builder()
+                .email("juno@koreatech.ac.kr")
+                .loginId("juno")
                 .trackType(BACKEND)
                 .teamType(USER)
                 .canCreateAdmin(true)
@@ -86,11 +88,8 @@ public final class UserAcceptanceFixture {
                         .loginPw(passwordEncoder.encode("1234"))
                         .nickname("코인운영자")
                         .name("테스트용_코인운영자")
-                        .phoneNumber("01012342344")
                         .userType(ADMIN)
                         .gender(MAN)
-                        .email("juno@koreatech.ac.kr")
-                        .loginId("juno")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -102,6 +101,8 @@ public final class UserAcceptanceFixture {
     public Admin 영희_운영자() {
         return adminRepository.save(
             Admin.builder()
+                .email("koinadmin1@koreatech.ac.kr")
+                .loginId("koinadmin1")
                 .trackType(BACKEND)
                 .teamType(BUSINESS)
                 .canCreateAdmin(false)
@@ -111,11 +112,8 @@ public final class UserAcceptanceFixture {
                         .loginPw(passwordEncoder.encode("1234"))
                         .nickname("코인운영자1")
                         .name("테스트용_코인운영자")
-                        .phoneNumber("01012342347")
                         .userType(ADMIN)
                         .gender(WOMAN)
-                        .email("koinadmin1@koreatech.ac.kr")
-                        .loginId("koinadmin1")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -127,6 +125,8 @@ public final class UserAcceptanceFixture {
     public Admin 진구_운영자() {
         return adminRepository.save(
             Admin.builder()
+                .email("koinadmin2@koreatech.ac.kr")
+                .loginId("koinadmin2")
                 .trackType(BACKEND)
                 .teamType(CAMPUS)
                 .canCreateAdmin(true)
@@ -136,11 +136,8 @@ public final class UserAcceptanceFixture {
                         .loginPw(passwordEncoder.encode("1234"))
                         .nickname("코인운영자2")
                         .name("테스트용_코인운영자")
-                        .phoneNumber("01012342347")
                         .userType(ADMIN)
                         .gender(WOMAN)
-                        .email("koinadmin2@koreatech.ac.kr")
-                        .loginId("koinadmin2")
                         .isAuthed(false)
                         .isDeleted(false)
                         .build()
@@ -153,7 +150,6 @@ public final class UserAcceptanceFixture {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2019136135")
-                .anonymousNickname("익명")
                 .department(department)
                 .major(major)
                 .userIdentity(UNDERGRADUATE)
@@ -161,8 +157,9 @@ public final class UserAcceptanceFixture {
                 .user(
                     User.builder()
                         .loginPw(passwordEncoder.encode("1234"))
-                        .nickname("준호")
                         .name("테스트용_준호")
+                        .nickname("준호")
+                        .anonymousNickname("익명_주노")
                         .phoneNumber("01012345678")
                         .userType(STUDENT)
                         .gender(MAN)
@@ -180,19 +177,19 @@ public final class UserAcceptanceFixture {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2020136111")
-                .anonymousNickname("익명111")
                 .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
                     User.builder()
-                        .loginPw(passwordEncoder.encode("1234"))
                         .name("테스트용_익명")
+                        .anonymousNickname("익명")
                         .phoneNumber("01011111111")
                         .userType(STUDENT)
                         .gender(MAN)
                         .email("lyw4888@koreatech.ac.kr")
                         .loginId("lyw4888")
+                        .loginPw(passwordEncoder.encode("1234"))
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()
@@ -205,7 +202,6 @@ public final class UserAcceptanceFixture {
         return studentRepository.save(
             Student.builder()
                 .studentNumber("2023100514")
-                .anonymousNickname("익명123")
                 .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
@@ -214,6 +210,7 @@ public final class UserAcceptanceFixture {
                         .loginPw(passwordEncoder.encode("1234"))
                         .nickname("빈")
                         .name("박성빈")
+                        .anonymousNickname("익명")
                         .phoneNumber("01099411123")
                         .userType(STUDENT)
                         .gender(MAN)
@@ -232,11 +229,8 @@ public final class UserAcceptanceFixture {
             .loginPw(passwordEncoder.encode("1234"))
             .nickname("성빈")
             .name("박성빈")
-            .phoneNumber("01098765439")
             .userType(OWNER)
             .gender(MAN)
-            .email("testsungbeenowner@naver.com")
-            .loginId("testsungbeen")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -273,11 +267,8 @@ public final class UserAcceptanceFixture {
             .loginPw(passwordEncoder.encode("1234"))
             .nickname("현수")
             .name("테스트용_현수")
-            .phoneNumber("01098765432")
             .userType(OWNER)
             .gender(MAN)
-            .email("hysoo@naver.com")
-            .loginId("hysoo")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -315,11 +306,8 @@ public final class UserAcceptanceFixture {
             .loginPw(passwordEncoder.encode("1234"))
             .nickname("준영")
             .name("테스트용_준영")
-            .phoneNumber("01097765112")
             .userType(OWNER)
             .gender(MAN)
-            .email("testjoonyoung@gmail.com")
-            .loginId("testjoonyoung")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -450,7 +438,7 @@ public final class UserAcceptanceFixture {
 
         Coop coop = Coop.builder()
             .user(user)
-            .coopId("coop")
+            .loginId("coop")
             .build();
 
         return coopRepository.save(coop);

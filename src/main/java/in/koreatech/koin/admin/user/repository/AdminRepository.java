@@ -13,13 +13,21 @@ import in.koreatech.koin.admin.user.exception.AdminNotFoundException;
 import in.koreatech.koin.admin.user.model.Admin;
 
 public interface AdminRepository extends Repository<Admin, Integer> {
+
     Admin save(Admin admin);
 
     Optional<Admin> findById(Integer id);
 
+    Optional<Admin> findByEmail(String email);
+
     default Admin getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> AdminNotFoundException.withDetail("adminId : " + id));
+    }
+
+    default Admin getByEmail(String email) {
+        return findByEmail(email)
+            .orElseThrow(() -> AdminNotFoundException.withDetail("email : " + email));
     }
 
     @Query("SELECT COUNT(*) FROM Admin")
@@ -32,4 +40,5 @@ public interface AdminRepository extends Repository<Admin, Integer> {
         (:#{#condition.teamType?.name()} IS NULL OR a.teamType = :#{#condition.teamType})
         """)
     Page<Admin> findByConditions(@Param("condition") AdminsCondition adminsCondition, Pageable pageable);
+
 }
