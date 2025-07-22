@@ -1,10 +1,6 @@
 package in.koreatech.koin.domain.order.shop.service;
 
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,10 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopDetailInfo;
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenStatus;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse.ShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopListQueryRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderableShopListService {
 
     private final OrderableShopListQueryRepository orderableShopListQueryRepository;
+    private final OrderableShopOpenInfoProcessor orderableShopOpenInfoProcessor;
 
     public List<OrderableShopsResponse> getOrderableShops(
         OrderableShopsSortCriteria sortCriteria,
@@ -56,57 +52,18 @@ public class OrderableShopListService {
 
     private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfo,
         List<Integer> shopIds) {
-        var shopCategories = findAllShopCategoriesByShopIds(shopIds);
-        var shopImages = findAllShopImagesByShopIds(shopIds);
-        var shopOpensSchedule = findAllShopOpensByShopIds(shopIds);
+        Map<Integer, List<Integer>> shopCategories =
+            orderableShopListQueryRepository.findAllCategoriesByShopIds(shopIds);
 
-        var todayShopOpens = extractTodayOpenSchedule(shopOpensSchedule);
-        var shopOpenStatus = extractShopOpenStatus(shopBaseInfo, todayShopOpens);
+        Map<Integer, List<String>> shopImages =
+            orderableShopListQueryRepository.findAllShopImagesByShopIds(shopIds);
+
+        Map<Integer, List<OrderableShopOpenInfo>> shopOpensSchedule =
+            orderableShopListQueryRepository.findAllShopOpensByShopIds(shopIds);
+
+        var todayShopOpens = orderableShopOpenInfoProcessor.extractTodayOpenSchedule(shopOpensSchedule);
+        var shopOpenStatus = orderableShopOpenInfoProcessor.extractShopOpenStatus(shopBaseInfo, todayShopOpens);
 
         return new OrderableShopDetailInfo(shopCategories, shopImages, shopOpensSchedule, shopOpenStatus);
-    }
-
-    private Map<Integer, List<Integer>> findAllShopCategoriesByShopIds(List<Integer> shopIds) {
-        return orderableShopListQueryRepository.findAllCategoriesByShopIds(shopIds);
-    }
-
-    private Map<Integer, List<String>> findAllShopImagesByShopIds(List<Integer> shopIds) {
-        return orderableShopListQueryRepository.findAllShopImagesByShopIds(shopIds);
-    }
-
-    private Map<Integer, List<ShopOpenInfo>> findAllShopOpensByShopIds(List<Integer> shopIds) {
-        return orderableShopListQueryRepository.findAllShopOpensByShopIds(shopIds);
-    }
-
-    private Map<Integer, ShopOpenInfo> extractTodayOpenSchedule(Map<Integer, List<ShopOpenInfo>> allShopOpens) {
-        String today = LocalDateTime.now().getDayOfWeek().toString();
-        Map<Integer, ShopOpenInfo> result = new HashMap<>();
-
-        for (Map.Entry<Integer, List<ShopOpenInfo>> entry : allShopOpens.entrySet()) {
-            for (ShopOpenInfo openInfo : entry.getValue()) {
-                if (openInfo != null && today.equals(openInfo.dayOfWeek())) {
-                    result.put(entry.getKey(), openInfo);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    private Map<Integer, OrderableShopOpenStatus> extractShopOpenStatus(
-        List<OrderableShopBaseInfo> shopBaseInfos,
-        Map<Integer, ShopOpenInfo> shopOpens
-    ) {
-        DayOfWeek dayOfWeekToday = LocalDateTime.now().getDayOfWeek();
-        LocalTime nowTime = LocalTime.now();
-
-        return shopBaseInfos.stream()
-            .collect(Collectors.toMap(
-                OrderableShopBaseInfo::shopId,
-                shopInfo -> {
-                    ShopOpenInfo shopOpen = shopOpens.getOrDefault(shopInfo.shopId(), null);
-                    return shopInfo.determineOpenStatus(shopOpen, dayOfWeekToday, nowTime);
-                }
-            ));
     }
 }

@@ -1,14 +1,13 @@
 package in.koreatech.koin.domain.order.shop.dto.shoplist;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopsResponse(
@@ -26,7 +25,7 @@ public record OrderableShopsResponse(
     Boolean isOpen,
     List<Integer> categoryIds,
     List<String> imageUrls,
-    List<ShopOpenInfo> open,
+    List<OrderableShopOpenInfo> open,
     OrderableShopOpenStatus openStatus
 ) {
 
@@ -34,7 +33,7 @@ public record OrderableShopsResponse(
         OrderableShopBaseInfo info,
         Map<Integer, List<Integer>> categoryMap,
         Map<Integer, List<String>> imageMap,
-        Map<Integer, List<ShopOpenInfo>> openMap,
+        Map<Integer, List<OrderableShopOpenInfo>> openMap,
         Map<Integer, OrderableShopOpenStatus> openStatusMap
     ) {
         Integer shopId = info.shopId();
@@ -56,28 +55,5 @@ public record OrderableShopsResponse(
             openMap.getOrDefault(shopId, new ArrayList<>()),
             openStatusMap.getOrDefault(shopId, null)
         );
-    }
-
-    @JsonNaming(value = SnakeCaseStrategy.class)
-    public record ShopOpenInfo(
-        @JsonIgnore
-        Integer shopId,
-        String dayOfWeek,
-        Boolean closed,
-        LocalTime openTime,
-        LocalTime closeTime
-    ) {
-
-        public Boolean isScheduledToOpenAt(DayOfWeek currentDayOfWeek, LocalTime currentTime) {
-            if (this.closed() || this.openTime == null || this.closeTime == null) {
-                return false;
-            }
-
-            DayOfWeek scheduledDay = DayOfWeek.valueOf(this.dayOfWeek().toUpperCase());
-
-            return scheduledDay.equals(currentDayOfWeek) &&
-                !currentTime.isBefore(this.openTime()) &&
-                currentTime.isBefore(this.closeTime());
-        }
     }
 }

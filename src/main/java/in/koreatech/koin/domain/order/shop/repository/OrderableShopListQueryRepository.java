@@ -26,8 +26,8 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse.ShopOpenInfo;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -147,15 +147,15 @@ public class OrderableShopListQueryRepository {
             ));
     }
 
-    public Map<Integer, List<ShopOpenInfo>> findAllShopOpensByShopIds(List<Integer> shopIds) {
+    public Map<Integer, List<OrderableShopOpenInfo>> findAllShopOpensByShopIds(List<Integer> shopIds) {
         return queryFactory
             .select(shopOpen)
             .from(shopOpen)
             .where(shopOpen.shop.id.in(shopIds))
             .fetch()
             .stream()
-            .map(opens -> new ShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(),
+            .map(opens -> new OrderableShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(),
                 opens.getOpenTime(), opens.getCloseTime()))
-            .collect(Collectors.groupingBy(ShopOpenInfo::shopId));
+            .collect(Collectors.groupingBy(OrderableShopOpenInfo::shopId));
     }
 }

@@ -9,6 +9,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopSearchRelatedKeywordResponse(
+    @Schema(description = "주문 가능 상점 검색 입력 키워드", example = "치킨ㄱ")
+    String searchKeyword,
+    @Schema(description = "주문 가능 상점 검색 처리 키워드", example = "치킨")
+    String processedSearchKeyword,
     @Schema(description = "주문 가능 상점 이름 관련 연관 키워드 개수", example = "5")
     Integer shopNameSearchResultCount,
     @Schema(description = "주문 가능 상점 메뉴 이름 관련 연관 키워드 개수", example = "5")
@@ -40,10 +44,14 @@ public record OrderableShopSearchRelatedKeywordResponse(
     }
 
     public static OrderableShopSearchRelatedKeywordResponse from(
+        String searchKeyword,
+        String processedSearchKeyword,
         List<InnerShopNameSearchRelatedKeywordResult> shopNameSearchResult,
         List<InnerMenuNameSearchRelatedKeywordResult> menuNameSearchResult
     ) {
         return new OrderableShopSearchRelatedKeywordResponse(
+            searchKeyword,
+            processedSearchKeyword,
             shopNameSearchResult.size(),
             menuNameSearchResult.size(),
             shopNameSearchResult,
