@@ -9,3 +9,5 @@ CREATE TABLE IF NOT EXISTS `koin`.`payment_idempotency_key`
     UNIQUE KEY `uk_idempotency_key_user_id` (`user_id`),
     CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `koin`.`users` (`id`)
 );
+
+DROP TABLE IF EXISTS `koin`.`payment_idempotency_key`;
