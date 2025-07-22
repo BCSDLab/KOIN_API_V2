@@ -60,11 +60,11 @@ public class Order extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = FALSE;
 
-    @JoinColumn(name = "orderable_shop_id")
+    @JoinColumn(name = "orderable_shop_id", nullable = false, updatable = false)
     @ManyToOne(fetch = LAZY)
     private OrderableShop orderableShop;
 
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
     @ManyToOne(fetch = LAZY)
     private User user;
 
