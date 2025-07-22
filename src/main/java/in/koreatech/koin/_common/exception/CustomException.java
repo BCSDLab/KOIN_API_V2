@@ -19,12 +19,23 @@ public class CustomException extends RuntimeException {
         this.detail = detail;
     }
 
+    private CustomException(ApiResponseCode errorCode, String detail, Throwable cause) {
+        super(errorCode.getMessage(), cause);
+        this.errorCode = errorCode;
+        this.detail = detail;
+    }
+
+
     public static CustomException of(ApiResponseCode errorCode) {
         return new CustomException(errorCode, "");
     }
 
-    public static CustomException of(ApiResponseCode errorCode, Object errorObject) {
-        return new CustomException(errorCode, Objects.toString(errorObject, ""));
+    public static CustomException of(ApiResponseCode errorCode, String detail) {
+        return new CustomException(errorCode, detail);
+    }
+
+    public static CustomException of(ApiResponseCode errorCode, String detail, Throwable cause) {
+        return new CustomException(errorCode, detail, cause);
     }
 
     public String getFullMessage() {

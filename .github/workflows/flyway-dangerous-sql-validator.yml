@@ -18,27 +18,32 @@ jobs:
 
       - name: Validate Dangerous SQL and Non-Flyway Changes
         run: |
-          CHANGED_FILES=$(
-            git diff --name-only \
-              ${{ github.event.pull_request.base.sha }} \
-              ${{ github.event.pull_request.head.sha }}
-          )
-          NON_FLYWAY_FILES_CHANGES=$(
-            echo "$CHANGED_FILES" \
-             | grep -v '^src/main/resources/db/migration/' \
-             || true
-          )
-          
-          DANGEROUS_SQL_COMMANDS=$(
-            git diff --unified=0 \
-              ${{ github.event.pull_request.base.sha }} \
-              ${{ github.event.pull_request.head.sha }} \
-              -- src/main/resources/db/migration/*.sql \
-              | grep -i -wE "^\+.*\b(DROP|TRUNCATE|RENAME|CHANGE)\b" \
-              || true
-          )
-          
-          if [[ -n "$DANGEROUS_SQL_COMMANDS" && -n "$NON_FLYWAY_FILES_CHANGES" ]]; then
-            echo "::error::코드 변경사항과 파괴적 SQL 명령이 동시에 감지되었습니다. PR을 분리하거나 위험 SQL을 제거한 후 다시 시도해주세요."
+          BASE=${{ github.event.pull_request.base.sha }}
+          HEAD=${{ github.event.pull_request.head.sha }}
+
+          CHANGED_FILES=$(git diff --name-only "$BASE" "$HEAD")
+
+          NON_FLYWAY_FILES_CHANGES=$(echo "$CHANGED_FILES" \
+            | grep -v '^src/main/resources/db/migration/' || true)
+
+          echo "🔍 변경된 Flyway SQL 파일 검사 중..."
+
+          DANGEROUS_FOUND=0
+
+          for file in $(git diff --name-only "$BASE" "$HEAD" -- src/main/resources/db/migration/*.sql); do
+            ADDED_SQL=$(git diff "$BASE" "$HEAD" -- "$file" \
+              | grep -i -wE "^\+.*\b(DROP|TRUNCATE|RENAME|CHANGE)\b" || true)
+
+            if [[ -n "$ADDED_SQL" ]]; then
+              echo "::error::⚠️ 위험 SQL 감지됨"
+              echo "파일: $file"
+              echo "$ADDED_SQL" | sed 's/^/    /'
+              DANGEROUS_FOUND=1
+            fi
+          done
+
+          if [[ "$DANGEROUS_FOUND" -eq 1 && -n "$NON_FLYWAY_FILES_CHANGES" ]]; then
+            echo ""
+            echo "::error::블루그린 배포에서 스키마 충돌로 인해 서버 안정성을 보장할 수 없습니다."
             exit 1
           fi
