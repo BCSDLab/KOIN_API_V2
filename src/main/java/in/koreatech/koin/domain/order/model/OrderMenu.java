@@ -36,9 +36,6 @@ public class OrderMenu {
     @Column(name = "menu_name", nullable = false, updatable = false)
     private String menuName;
 
-    @Column(name = "menu_option_name", updatable = false)
-    private String menuOptionName;
-
     @NotNull
     @Column(name = "menu_price", nullable = false, updatable = false)
     private Integer menuPrice;

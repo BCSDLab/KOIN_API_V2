@@ -16,10 +16,3 @@ ALTER TABLE `koin`.`order_takeout`
 UPDATE `koin`.`order_takeout`
 SET `to_owner` = NULL
 WHERE TRIM(`to_owner`) = '';]
-
-ALTER TABLE `koin`.`order_menu`
-    MODIFY `menu_option_name` varchar(255) NULL COMMENT '메뉴 옵션 이름'
-
-UPDATE `koin`.`order_menu`
-SET `menu_option_name` = NULL
-WHERE TRIM(`menu_option_name`) = '';
