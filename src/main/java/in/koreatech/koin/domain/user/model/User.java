@@ -173,19 +173,19 @@ public class User extends BaseEntity {
 
     public void requireSamePhoneNumber(String phoneNumber) {
         if (isNotSamePhoneNumber(phoneNumber)) {
-            throw CustomException.of(ApiResponseCode.NOT_MATCHED_PHONE_NUMBER, this);
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_PHONE_NUMBER, "phoneNumber: " + phoneNumber);
         }
     }
 
     public void requireSameEmail(String email) {
         if (isNotSameEmail(email)) {
-            throw CustomException.of(ApiResponseCode.NOT_MATCHED_EMAIL, this);
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_EMAIL, "email: " + email);
         }
     }
 
     public void requireSameLoginPw(PasswordEncoder passwordEncoder, String loginPw) {
         if (isNotSameLoginPw(passwordEncoder, loginPw)) {
-            throw CustomException.of(ApiResponseCode.NOT_MATCHED_PASSWORD, this);
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_PASSWORD, "loginPw: " + loginPw);
         }
     }
 

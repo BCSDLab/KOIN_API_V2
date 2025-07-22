@@ -45,7 +45,7 @@ public class VerificationCount {
 
     public void incrementVerificationCount() {
         if (verificationCount >= maxVerificationCount) {
-            throw CustomException.of(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION, this);
+            throw CustomException.of(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION, "count: " + verificationCount);
         }
         verificationCount++;
     }
