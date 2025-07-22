@@ -9,3 +9,10 @@ WHERE TRIM(`to_owner`) = '';
 UPDATE `koin`.`order_delivery`
 SET `to_rider` = NULL
 WHERE TRIM(`to_rider`) = '';
+
+ALTER TABLE `koin`.`order_takeout`
+    MODIFY COLUMN `to_owner` VARCHAR (50) NULL COMMENT '사장님 전달 메시지';
+
+UPDATE `koin`.`order_takeout`
+SET `to_owner` = NULL
+WHERE TRIM(`to_owner`) = '';]
