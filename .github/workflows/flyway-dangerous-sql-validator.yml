@@ -30,12 +30,17 @@ jobs:
 
           DANGEROUS_FOUND=0
 
-          for file in $(git diff --name-only "$BASE" "$HEAD" -- src/main/resources/db/migration/*.sql); do
+          git diff --name-only "$BASE" "$HEAD" -- src/main/resources/db/migration/*.sql | while read -r file; do
+            [ -z "$file" ] && continue
+            [ ! -f "$file" ] && continue
+          
+            filename=$(basename "$file")
             ADDED_SQL=$(git diff "$BASE" "$HEAD" -- "$file" \
               | grep -i -wE "^\+.*\b(DROP|TRUNCATE|RENAME|CHANGE)\b" || true)
 
             if [[ -n "$ADDED_SQL" ]]; then
-              echo "::error::🔴 위험 SQL 감지됨 - 파일: $file"
+              echo "::error::⚠️ 위험 SQL 감지됨"
+              echo "파일: $file"
               echo "$ADDED_SQL" | sed 's/^/    /'
               DANGEROUS_FOUND=1
             fi
@@ -43,7 +48,7 @@ jobs:
 
           if [[ "$DANGEROUS_FOUND" -eq 1 && -n "$NON_FLYWAY_FILES_CHANGES" ]]; then
             echo ""
-            echo "::error::⚠️ 위험 SQL과 Flyway 외 코드 변경이 동시에 감지되었습니다. 코드 배포 안전성을 보장할 수 없습니다."
+            echo "::error::블루그린 배포에서 스키마 충돌로 인해 서버 안정성을 보장할 수 없습니다."
             exit 1
           fi
 
