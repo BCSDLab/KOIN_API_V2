@@ -30,11 +30,7 @@ jobs:
 
           DANGEROUS_FOUND=0
 
-          git diff --name-only "$BASE" "$HEAD" -- src/main/resources/db/migration/*.sql | while read -r file; do
-            [ -z "$file" ] && continue
-            [ ! -f "$file" ] && continue
-          
-            filename=$(basename "$file")
+          for file in $(git diff --name-only "$BASE" "$HEAD" -- src/main/resources/db/migration/*.sql); do
             ADDED_SQL=$(git diff "$BASE" "$HEAD" -- "$file" \
               | grep -i -wE "^\+.*\b(DROP|TRUNCATE|RENAME|CHANGE)\b" || true)
 
