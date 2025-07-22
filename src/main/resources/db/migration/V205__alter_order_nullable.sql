@@ -15,4 +15,4 @@ ALTER TABLE `koin`.`order_takeout`
 
 UPDATE `koin`.`order_takeout`
 SET `to_owner` = NULL
-WHERE TRIM(`to_owner`) = '';]
+WHERE TRIM(`to_owner`) = '';
