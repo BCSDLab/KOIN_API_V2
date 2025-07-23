@@ -24,7 +24,7 @@ public record OrderableShopsResponse(
     Integer maximumDeliveryTip,
     Boolean isOpen,
     List<Integer> categoryIds,
-    List<String> imageUrls,
+    List<OrderableShopImageInfo> images,
     List<OrderableShopOpenInfo> open,
     OrderableShopOpenStatus openStatus
 ) {
@@ -32,7 +32,7 @@ public record OrderableShopsResponse(
     public static OrderableShopsResponse of(
         OrderableShopBaseInfo info,
         Map<Integer, List<Integer>> categoryMap,
-        Map<Integer, List<String>> imageMap,
+        Map<Integer, List<OrderableShopImageInfo>> images,
         Map<Integer, List<OrderableShopOpenInfo>> openMap,
         Map<Integer, OrderableShopOpenStatus> openStatusMap
     ) {
@@ -51,7 +51,7 @@ public record OrderableShopsResponse(
             info.maximumDeliveryTip(),
             info.isOpen(),
             categoryMap.getOrDefault(shopId, new ArrayList<>()),
-            imageMap.getOrDefault(shopId, new ArrayList<>()),
+            images.getOrDefault(info.orderableShopId(), new ArrayList<>()),
             openMap.getOrDefault(shopId, new ArrayList<>()),
             openStatusMap.getOrDefault(shopId, null)
         );

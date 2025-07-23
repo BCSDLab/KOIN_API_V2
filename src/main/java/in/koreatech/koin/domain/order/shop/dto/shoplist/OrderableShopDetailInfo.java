@@ -7,7 +7,7 @@ import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
 
 public record OrderableShopDetailInfo (
     Map<Integer, List<Integer>> shopCategories,
-    Map<Integer, List<String>> shopImages,
+    Map<Integer, List<OrderableShopImageInfo>> shopImages,
     Map<Integer, List<OrderableShopOpenInfo>> shopOpens,
     Map<Integer, OrderableShopOpenStatus> shopOpenStatus
 ) {

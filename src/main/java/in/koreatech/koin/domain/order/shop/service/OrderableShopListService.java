@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopDetailInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopImageInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
@@ -55,8 +56,9 @@ public class OrderableShopListService {
         Map<Integer, List<Integer>> shopCategories =
             orderableShopListQueryRepository.findAllCategoriesByShopIds(shopIds);
 
-        Map<Integer, List<String>> shopImages =
-            orderableShopListQueryRepository.findAllShopImagesByShopIds(shopIds);
+        List<Integer> orderableShopIds = shopBaseInfo.stream().map(OrderableShopBaseInfo::orderableShopId).toList();
+        Map<Integer, List<OrderableShopImageInfo>> shopImages =
+            orderableShopListQueryRepository.findAllOrderableShopImagesByOrderableShopIds(orderableShopIds);
 
         Map<Integer, List<OrderableShopOpenInfo>> shopOpensSchedule =
             orderableShopListQueryRepository.findAllShopOpensByShopIds(shopIds);

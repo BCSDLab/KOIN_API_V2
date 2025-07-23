@@ -49,8 +49,11 @@ public interface OrderableShopApi {
                                   3,
                                   5
                                 ],
-                                "image_urls": [
-                                  "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg"
+                                "images": [
+                                  {
+                                    "image_url": "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg",
+                                    "is_thumbnail": true
+                                  }
                                 ],
                                 "open": [
                                   {

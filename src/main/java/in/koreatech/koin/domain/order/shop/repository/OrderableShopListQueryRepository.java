@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.order.shop.repository;
 
 import static in.koreatech.koin.domain.order.shop.model.entity.delivery.QShopBaseDeliveryTip.shopBaseDeliveryTip;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop.orderableShop;
+import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShopImage.orderableShopImage;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QShopOperation.shopOperation;
 import static in.koreatech.koin.domain.shop.model.review.QShopReview.shopReview;
 import static in.koreatech.koin.domain.shop.model.shop.QShop.shop;
@@ -26,8 +27,10 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopImageInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShopImage;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -134,19 +137,6 @@ public class OrderableShopListQueryRepository {
             ));
     }
 
-    public Map<Integer, List<String>> findAllShopImagesByShopIds(List<Integer> shopIds) {
-        return queryFactory
-            .select(shopImage.shop.id, shopImage.imageUrl)
-            .from(shopImage)
-            .where(shopImage.shop.id.in(shopIds))
-            .fetch()
-            .stream()
-            .collect(Collectors.groupingBy(
-                tuple -> tuple.get(shopImage.shop.id),
-                Collectors.mapping(tuple -> tuple.get(shopImage.imageUrl), Collectors.toList())
-            ));
-    }
-
     public Map<Integer, List<OrderableShopOpenInfo>> findAllShopOpensByShopIds(List<Integer> shopIds) {
         return queryFactory
             .select(shopOpen)
@@ -157,5 +147,16 @@ public class OrderableShopListQueryRepository {
             .map(opens -> new OrderableShopOpenInfo(opens.getShop().getId(), opens.getDayOfWeek(), opens.isClosed(),
                 opens.getOpenTime(), opens.getCloseTime()))
             .collect(Collectors.groupingBy(OrderableShopOpenInfo::shopId));
+    }
+
+    public Map<Integer, List<OrderableShopImageInfo>> findAllOrderableShopImagesByOrderableShopIds(List<Integer> orderableShopIds) {
+        return queryFactory
+            .select(orderableShopImage)
+            .from(orderableShopImage)
+            .where(orderableShopImage.orderableShop.id.in(orderableShopIds))
+            .fetch()
+            .stream()
+            .map(image -> new OrderableShopImageInfo(image.getOrderableShop().getId(), image.getImageUrl(), image.getIsThumbnail()))
+            .collect(Collectors.groupingBy(OrderableShopImageInfo::orderableShopId));
     }
 }
