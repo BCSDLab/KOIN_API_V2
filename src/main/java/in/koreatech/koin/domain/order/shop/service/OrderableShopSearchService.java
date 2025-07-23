@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse;
+import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerMenuNameSearchRelatedKeywordResult;
+import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerShopNameSearchRelatedKeywordResult;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultSortCriteria;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
@@ -22,74 +24,42 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OrderableShopSearchService {
 
     private final OrderableShopSearchQueryRepository orderableShopSearchQueryRepository;
-    private final OrderableShopListQueryRepository orderableShopListQueryRepository;
-    private final OrderableShopOpenInfoProcessor orderableShopOpenInfoProcessor;
 
-    private static final String BLANK = " ";
-    private static final String EMPTY = "";
-
-    @Transactional(readOnly = true)
-    public OrderableShopSearchRelatedKeywordResponse searchRelatedKeyword(String keyword) {
-        String trimmedKeyword = removeBlank(keyword);
-        String processedKeyword = HangulCleaner.removeIncompleteHangul(trimmedKeyword);
-        var shopNameSearchResult = orderableShopSearchQueryRepository.findAllOrderableShopByKeyword(processedKeyword);
-        var menuNameSearchResult = orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeyword);
-        return OrderableShopSearchRelatedKeywordResponse.from(
-            keyword, processedKeyword, shopNameSearchResult, menuNameSearchResult
-        );
+    public List<InnerShopNameSearchRelatedKeywordResult> findShopNamesByKeyword(String processedKeyword) {
+        return orderableShopSearchQueryRepository.findAllOrderableShopByKeyword(processedKeyword);
     }
 
-    @Transactional(readOnly = true)
-    public OrderableShopSearchResultResponse searchByKeyword(String keyword, OrderableShopSearchResultSortCriteria sortCriteria) {
-        String trimmedKeyword = removeBlank(keyword);
-        String processedKeyword = HangulCleaner.removeIncompleteHangul(trimmedKeyword);
+    public List<InnerMenuNameSearchRelatedKeywordResult> findMenuNamesByKeyword(String processedKeyword) {
+        return orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeyword);
+    }
+
+    public List<OrderableShopBaseInfo> findOrderableShopsByKeyword(String processedKeyword) {
         var searchAtMenuName = orderableShopSearchQueryRepository.searchOrderableShopsByMenuKeyword(processedKeyword);
         var searchAtShopName = orderableShopSearchQueryRepository.searchOrderableShopsByShopNameKeyword(processedKeyword);
-
-        List<OrderableShopBaseInfo> shopBaseInfo = combinedShopBaseInfo(searchAtMenuName, searchAtShopName);
-        if(shopBaseInfo.isEmpty()) {
-            return OrderableShopSearchResultResponse.empty(keyword, processedKeyword);
-        }
-
-        List<Integer> orderableShopIds = shopBaseInfo.stream().map(OrderableShopBaseInfo::orderableShopId).toList();
-        Map<Integer, String> orderableShopThumbnailImageMap = orderableShopSearchQueryRepository.findOrderableShopThumbnailImageByOrderableShopIds(
-            orderableShopIds);
-        Map<Integer, List<String>> containMenuNameMap = orderableShopSearchQueryRepository.findOrderableShopContainMenuNameByOrderableShopIds(
-            orderableShopIds, processedKeyword);
-
-        List<Integer> shopIds = shopBaseInfo.stream().map(OrderableShopBaseInfo::shopId).toList();
-        Map<Integer, List<OrderableShopOpenInfo>> orderableShopOpenInfoMap =
-            orderableShopListQueryRepository.findAllShopOpensByShopIds(shopIds);
-        Map<Integer, OrderableShopOpenInfo> todayShopOpens =
-            orderableShopOpenInfoProcessor.extractTodayOpenSchedule(orderableShopOpenInfoMap);
-        Map<Integer, OrderableShopOpenStatus> shopOpenStatusMap =
-            orderableShopOpenInfoProcessor.extractShopOpenStatus(shopBaseInfo, todayShopOpens);
-
-        return OrderableShopSearchResultResponse.from(
-            keyword, processedKeyword, shopBaseInfo, orderableShopThumbnailImageMap,
-            shopOpenStatusMap, containMenuNameMap, sortCriteria
-        );
+        return combineAndDeduplicateShopBaseInfo(searchAtMenuName, searchAtShopName);
     }
 
-    private List<OrderableShopBaseInfo> combinedShopBaseInfo(
-        List<OrderableShopBaseInfo> searchAtMenuName, List<OrderableShopBaseInfo> searchAtShopName
+    public Map<Integer, String> findThumbnailUrlsByOrderableShopIds(List<Integer> orderableShopIds) {
+        return orderableShopSearchQueryRepository.findOrderableShopThumbnailImageByOrderableShopIds(orderableShopIds);
+    }
+
+    public Map<Integer, List<String>> findMatchingMenuNamesByOrderableShopIds(List<Integer> orderableShopIds, String processedKeyword) {
+        return orderableShopSearchQueryRepository.findOrderableShopContainMenuNameByOrderableShopIds(orderableShopIds, processedKeyword);
+    }
+
+    private List<OrderableShopBaseInfo> combineAndDeduplicateShopBaseInfo(
+        List<OrderableShopBaseInfo> fromMenuSearch, List<OrderableShopBaseInfo> fromShopNameSearch
     ) {
-        return new ArrayList<>(Stream.concat(
-                searchAtMenuName.stream(),
-                searchAtShopName.stream()
-            )
+        return new ArrayList<>(Stream.concat(fromMenuSearch.stream(), fromShopNameSearch.stream())
             .collect(Collectors.toMap(
                 OrderableShopBaseInfo::shopId,
                 Function.identity(),
                 (existing, replacement) -> existing
             ))
             .values());
-    }
-
-    private String removeBlank(String query) {
-        return query.replaceAll(BLANK, EMPTY);
     }
 }

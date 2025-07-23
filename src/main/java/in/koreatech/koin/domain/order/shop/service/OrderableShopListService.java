@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
+import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopListQueryRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderableShopListService {
 
     private final OrderableShopListQueryRepository orderableShopListQueryRepository;
-    private final OrderableShopOpenInfoProcessor orderableShopOpenInfoProcessor;
+    private final ShopOpenScheduleService shopOpenScheduleService;
 
     public List<OrderableShopsResponse> getOrderableShops(
         OrderableShopsSortCriteria sortCriteria,
@@ -63,8 +64,8 @@ public class OrderableShopListService {
         Map<Integer, List<OrderableShopOpenInfo>> shopOpensSchedule =
             orderableShopListQueryRepository.findAllShopOpensByShopIds(shopIds);
 
-        var todayShopOpens = orderableShopOpenInfoProcessor.extractTodayOpenSchedule(shopOpensSchedule);
-        var shopOpenStatus = orderableShopOpenInfoProcessor.extractShopOpenStatus(shopBaseInfo, todayShopOpens);
+        Map<Integer, OrderableShopOpenStatus> shopOpenStatus =
+            shopOpenScheduleService.determineShopOpenStatuses(shopBaseInfo);
 
         return new OrderableShopDetailInfo(shopCategories, shopImages, shopOpensSchedule, shopOpenStatus);
     }

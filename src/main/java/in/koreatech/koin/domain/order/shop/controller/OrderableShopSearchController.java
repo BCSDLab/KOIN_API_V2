@@ -10,26 +10,27 @@ import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRel
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultSortCriteria;
 import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchService;
+import in.koreatech.koin.domain.order.shop.usecase.OrderableShopSearchUseCase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 public class OrderableShopSearchController implements OrderableShopSearchApi {
 
-    private final OrderableShopSearchService orderableShopSearchService;
+    private final OrderableShopSearchUseCase orderableShopSearchUseCase;
 
     @GetMapping("/order/shop/search/{keyword}/related")
-    public ResponseEntity<OrderableShopSearchRelatedKeywordResponse> getSearchRelatedKeyword(
+    public ResponseEntity<OrderableShopSearchRelatedKeywordResponse> searchRelatedKeyword(
         @PathVariable(name = "keyword") String keyword
     ) {
-        return ResponseEntity.ok(orderableShopSearchService.searchRelatedKeyword(keyword));
+        return ResponseEntity.ok(orderableShopSearchUseCase.searchRelatedKeyword(keyword));
     }
 
     @GetMapping("/order/shop/search/{keyword}")
-    public ResponseEntity<OrderableShopSearchResultResponse> getSearchResult(
+    public ResponseEntity<OrderableShopSearchResultResponse> searchOrderableShop(
         @RequestParam(name = "sorter", defaultValue = "NONE") OrderableShopSearchResultSortCriteria sortBy,
         @PathVariable(name = "keyword") String keyword
     ) {
-        return ResponseEntity.ok(orderableShopSearchService.searchByKeyword(keyword, sortBy));
+        return ResponseEntity.ok(orderableShopSearchUseCase.searchByKeyword(keyword, sortBy));
     }
 }

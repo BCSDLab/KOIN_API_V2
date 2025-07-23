@@ -74,7 +74,7 @@ public interface OrderableShopSearchApi {
             - 키워드가 미완성된 자음/모음을 포함하는 경우 제거됩니다. ex) "치킨ㅋ" => "치킨"
         """)
     @GetMapping("/order/shop/search/{keyword}/related")
-    ResponseEntity<OrderableShopSearchRelatedKeywordResponse> getSearchRelatedKeyword(
+    ResponseEntity<OrderableShopSearchRelatedKeywordResponse> searchRelatedKeyword(
         @PathVariable(name = "keyword") String keyword
     );
 
@@ -147,7 +147,7 @@ public interface OrderableShopSearchApi {
             - 키워드가 미완성된 자음/모음을 포함하는 경우 제거됩니다. ex) "치킨ㅋ" => "치킨"
         """)
     @GetMapping("/order/shop/search/{keyword}")
-    ResponseEntity<OrderableShopSearchResultResponse> getSearchResult(
+    ResponseEntity<OrderableShopSearchResultResponse> searchOrderableShop(
         @RequestParam(name = "sorter", defaultValue = "NONE") OrderableShopSearchResultSortCriteria sortBy,
         @PathVariable(name = "keyword") String keyword
     );

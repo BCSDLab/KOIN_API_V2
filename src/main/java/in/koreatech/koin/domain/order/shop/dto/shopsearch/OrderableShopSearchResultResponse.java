@@ -90,14 +90,14 @@ public record OrderableShopSearchResultResponse(
         String searchKeyword,
         String processedSearchKeyword,
         List<OrderableShopBaseInfo> shopBaseInfo,
-        Map<Integer, String> orderableShopThumbnailImageMap,
-        Map<Integer, OrderableShopOpenStatus> shopOpenStatus,
+        Map<Integer, String> thumbnailImageMap,
+        Map<Integer, OrderableShopOpenStatus> openStatusMap,
         Map<Integer, List<String>> containMenuNameMap,
         OrderableShopSearchResultSortCriteria sortCriteria
     ) {
         List<InnerOrderableShopSearchResult> searchResults = shopBaseInfo.stream()
             .map(orderableShopBaseInfo -> InnerOrderableShopSearchResult.from(
-                    orderableShopBaseInfo, orderableShopThumbnailImageMap, shopOpenStatus, containMenuNameMap))
+                    orderableShopBaseInfo, thumbnailImageMap, openStatusMap, containMenuNameMap))
             .sorted(sortCriteria.getComparator().thenComparing(InnerOrderableShopSearchResult::name))
             .toList();
 
