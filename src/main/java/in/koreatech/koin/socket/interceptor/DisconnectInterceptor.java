@@ -9,8 +9,8 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.socket.config.auth.UserPrincipal;
-import in.koreatech.koin.socket.domain.session.service.UserSessionService;
-import in.koreatech.koin.socket.domain.session.model.UserSessionStatus;
+import in.koreatech.koin.socket.session.service.WebSocketUserSessionService;
+import in.koreatech.koin.socket.session.model.WebSocketUserSessionStatus;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
  * WebSocket의 STOMP 연결 해제 요청을 가로채 사용자 세션 관리를 수행하는 인터셉터입니다.
  * <p>
  * 사용자가 WebSocket 연결을 종료할 때 호출되며 해당 사용자의 세션 상태를 비활성화합니다.
- * 연결 해제를 요청할 때, 사용자 정보를 확인하고 사용자 세션의 상태를 {@link UserSessionStatus#INACTIVE}로 업데이트합니다.
+ * 연결 해제를 요청할 때, 사용자 정보를 확인하고 사용자 세션의 상태를 {@link WebSocketUserSessionStatus#INACTIVE}로 업데이트합니다.
  * </p>
  *
  * <p>
@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DisconnectInterceptor implements ChannelInterceptor {
 
-    private final UserSessionService userSessionService;
+    private final WebSocketUserSessionService webSocketUserSessionService;
 
     @Override
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
@@ -42,9 +42,9 @@ public class DisconnectInterceptor implements ChannelInterceptor {
             UserPrincipal principal = (UserPrincipal) accessor.getUser();
 
             if (principal != null) {
-                userSessionService.updateUserStatus(
+                webSocketUserSessionService.updateUserStatus(
                     principal.getUserId(),
-                    UserSessionStatus.INACTIVE
+                    WebSocketUserSessionStatus.INACTIVE
                 );
             }
         }
