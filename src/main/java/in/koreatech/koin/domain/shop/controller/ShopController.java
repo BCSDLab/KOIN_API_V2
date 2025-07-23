@@ -4,12 +4,15 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import in.koreatech.koin.domain.shop.dto.search.response.RelatedKeywordResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
 import in.koreatech.koin.domain.shop.service.ShopSearchService;
 import in.koreatech.koin.domain.shop.service.ShopService;
 import in.koreatech.koin._common.auth.Auth;
@@ -61,6 +64,19 @@ public class ShopController implements ShopApi {
             shopsFilterCriterias = Collections.emptyList();
         }
         var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias, query);
+        return ResponseEntity.ok(shops);
+    }
+
+    @GetMapping("/v3/shops")
+    public ResponseEntity<ShopsResponseV3> getShopsV3(
+        @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteriaV3 sortBy,
+        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteriaV3> shopsFilterCriterias,
+        @RequestParam(name = "query", required = false, defaultValue = "") String query
+    ) {
+        if (shopsFilterCriterias == null) {
+            shopsFilterCriterias = Collections.emptyList();
+        }
+        var shops = shopService.getShopsV3(sortBy, shopsFilterCriterias, query);
         return ResponseEntity.ok(shops);
     }
 
