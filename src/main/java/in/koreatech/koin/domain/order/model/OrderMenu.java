@@ -32,10 +32,6 @@ public class OrderMenu {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    // Deprecated
-    @Column(name = "menu_option_name", updatable = false)
-    private String menuOptionName;
-
     @NotBlank
     @Column(name = "menu_name", nullable = false, updatable = false)
     private String menuName;
