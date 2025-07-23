@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.order.shop.dto.shoplist;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse.ShopOpenInfo;
+import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
 
 public record OrderableShopBaseInfo(
     Integer shopId,
@@ -28,7 +28,7 @@ public record OrderableShopBaseInfo(
      * OrderableShopOpenStatus.CLOSED: 사장님이 영업 중 상태를 설정 하지 않았으며, 가게의 원래 영업 시간에도 포함 되지 않는 시간
      */
     public OrderableShopOpenStatus determineOpenStatus(
-        ShopOpenInfo shopOpenInfos,
+        OrderableShopOpenInfo shopOpenInfos,
         DayOfWeek currentDayOfWeek,
         LocalTime currentTime
     ) {

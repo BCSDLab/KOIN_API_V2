@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.shop.dto.shoplist;
+package in.koreatech.koin.domain.order.shop.model.domain;
 
 public enum OrderableShopOpenStatus {
 
