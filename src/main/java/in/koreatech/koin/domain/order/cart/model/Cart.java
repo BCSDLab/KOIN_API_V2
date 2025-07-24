@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -125,6 +126,7 @@ public class Cart extends BaseEntity {
         }
     }
 
+    @Builder
     private Cart(
         User user,
         OrderableShop orderableShop
