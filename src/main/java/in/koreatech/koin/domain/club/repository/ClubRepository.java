@@ -46,10 +46,11 @@ public interface ClubRepository extends Repository<Club, Integer> {
 
     @Query(value = """
         SELECT * FROM club c 
-        WHERE c.is_active = true AND REPLACE(c.name, ' ', '') LIKE CONCAT(:query, '%') 
+        WHERE c.is_active = true 
+          AND LOWER(REPLACE(c.name, ' ', '')) LIKE CONCAT(:query, '%') 
         ORDER BY c.name
         """, nativeQuery = true)
-    List<Club> findByNamePrefix(@Param("query") String query, Pageable pageable);
+    List<Club> findByNamePrefix(@Param("query") String normalizedQuery, Pageable pageable);
 
     @Modifying
     @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")
