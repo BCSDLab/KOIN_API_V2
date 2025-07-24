@@ -28,11 +28,11 @@ public class OrderableShopController implements OrderableShopApi {
     @GetMapping("/order/shops")
     public ResponseEntity<List<OrderableShopsResponse>> getOrderableShops(
         @RequestParam(name = "sorter", defaultValue = "NONE") OrderableShopsSortCriteria sortBy,
-        @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsSortCriteria,
+        @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsFilterCriteria,
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount
     ) {
         List<OrderableShopsResponse> orderableShops = orderableShopListService.getOrderableShops(sortBy,
-            orderableShopsSortCriteria, minimumOrderAmount);
+            orderableShopsFilterCriteria, minimumOrderAmount);
         return ResponseEntity.ok(orderableShops);
     }
 

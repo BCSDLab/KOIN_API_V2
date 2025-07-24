@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin._common.duplicate.DuplicateGuard;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
@@ -235,6 +236,17 @@ public interface CartApi {
                     }
                     """)
             })
+        ),
+        @ApiResponse(responseCode = "409", description = "중복 요청",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "중복 요청(따닥) 발생", summary = "중복 요청 발생", value = """
+                    {
+                        "code": "REQUEST_TOO_FAST",
+                        "message": "요청이 너무 빠릅니다. 다시 요청해주세요.",
+                        "errorTraceId": "94920181-d210-4252-8092-860bd002651d"
+                    }
+                    """)
+            })
         )
     })
     @Operation(summary = "장바구니에 상품 담기", description = """
@@ -249,7 +261,11 @@ public interface CartApi {
         - **orderableShopMenuOptionIds**: 선택한 옵션 목록 (선택 사항)
           - **optionGroupId**: 옵션 그룹 ID
           - **optionId**: 옵션 ID
+        
+        ### 중복 요청 처리
+        - 0.1초 이내에 같은 요청이 도착한 경우, 둘 중 하나는 중복 요청으로 판단하여 409 에러가 반환됩니다.
         """)
+    @DuplicateGuard(key = "#userId + ':' + #cartAddItemRequest.toString()")
     @PostMapping("/cart/add")
     ResponseEntity<Void> addItem(
         @RequestBody @Valid CartAddItemRequest cartAddItemRequest,

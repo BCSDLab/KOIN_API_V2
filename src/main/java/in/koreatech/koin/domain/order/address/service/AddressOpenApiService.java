@@ -44,7 +44,7 @@ public class AddressOpenApiService {
      * */
     private AddressSearchResponse searchAddressFallback(AddressSearchRequest request, CustomException e) {
         if (e.getErrorCode().getHttpStatus().is5xxServerError()) {
-            log.warn("[External API-5xx] Address Search fallback method 실행. 로컬 DB 에서 결과를 반환합니다. {}", e.getMessage());
+            log.warn("[Address API-5xx] 로컬 DB 에서 결과를 반환합니다. {}", e.getMessage());
             return searchAddressFromLocal(request);
         }
         throw CustomException.of(e.getErrorCode(), e.getMessage());
@@ -55,7 +55,7 @@ public class AddressOpenApiService {
      * 로컬 DB에서 결과 반환
      * */
     private AddressSearchResponse searchAddressFallback(AddressSearchRequest request, CallNotPermittedException e) {
-        log.warn("[CircuitBreaker : OPEN] Address Search fallback method 실행. 로컬 DB 에서 결과를 반환합니다.");
+        log.error("[Address API CircuitBreaker OPEN] 로컬 DB 에서 결과를 반환합니다.");
         return searchAddressFromLocal(request);
     }
 

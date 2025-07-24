@@ -50,7 +50,8 @@ public class SwaggerGroupConfig {
             "3. Campus API",
             new String[] {
                 "in.koreatech.koin.domain.bus",
-                "in.koreatech.koin.domain.community",
+                "in.koreatech.koin.domain.community.article",
+                "in.koreatech.koin.domain.community.keyword",
                 "in.koreatech.koin.domain.coop",
                 "in.koreatech.koin.domain.coopshop",
                 "in.koreatech.koin.domain.dining",
@@ -84,8 +85,8 @@ public class SwaggerGroupConfig {
     @Bean
     public GroupedOpenApi socketApi() {
         return createGroupedOpenApi(
-            "6. socket API",
-            new String[] { "in.koreatech.koin.socket" });
+            "6. chat API",
+            new String[] { "in.koreatech.koin.domain.community.lostitem.chatroom" });
     }
 
     @Bean

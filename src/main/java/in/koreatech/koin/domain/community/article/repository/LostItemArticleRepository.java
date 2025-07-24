@@ -10,7 +10,7 @@ import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundExcep
 import in.koreatech.koin.domain.community.article.model.KoinArticle;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 
-public interface LostItemArticleRepository extends Repository<LostItemArticle, Integer> {
+public interface LostItemArticleRepository extends Repository<LostItemArticle, Integer>, LostItemArticleCustomRepository {
 
     KoinArticle save(LostItemArticle article);
 
