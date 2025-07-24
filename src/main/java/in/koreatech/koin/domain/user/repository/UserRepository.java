@@ -44,6 +44,8 @@ public interface UserRepository extends Repository<User, Integer> {
 
     boolean existsByEmailAndUserTypeIn(String email, List<UserType> userTypes);
 
+    boolean existsById(Integer id);
+
     void delete(User user);
 
     default User getById(Integer userId) {

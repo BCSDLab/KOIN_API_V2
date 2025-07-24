@@ -4,6 +4,8 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import in.koreatech.koin.domain.shop.dto.search.response.RelatedKeywordResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
@@ -11,6 +13,7 @@ import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -80,6 +83,28 @@ public interface ShopApi {
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias,
         @RequestParam(name = "query", required = false) String query
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "정렬, 필터가 있는 모든 상점 조회 V3", description = """
+        ### 주변 상점 조회 V3
+        - **V2에서 달라진 점**
+            - 이미지 응답값 추가
+            - 주문 가능 상점인 경우, 응답값에서 제외
+        """
+    )
+    @GetMapping("/v3/shops")
+    ResponseEntity<ShopsResponseV3> getShopsV3(
+        @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteriaV3 sortBy,
+        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteriaV3> shopsFilterCriterias,
+        @RequestParam(name = "query", required = false, defaultValue = "") String query
     );
 
     @ApiResponses(

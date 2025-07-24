@@ -1,18 +1,27 @@
 package in.koreatech.koin.domain.shop.repository.shop.dto;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import in.koreatech.koin.domain.shop.model.event.QEventArticle;
-import in.koreatech.koin.domain.shop.model.review.QShopReview;
-import in.koreatech.koin.domain.shop.model.shop.QShop;
+import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop.orderableShop;
+import static in.koreatech.koin.domain.shop.model.shop.QShop.shop;
+import static in.koreatech.koin.domain.shop.model.shop.QShopImage.shopImage;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Repository;
+
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop;
+import in.koreatech.koin.domain.shop.model.event.QEventArticle;
+import in.koreatech.koin.domain.shop.model.review.QShopReview;
+import in.koreatech.koin.domain.shop.model.shop.QShop;
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -55,5 +64,25 @@ public class ShopCustomRepository {
             map.put(result.get(0, Integer.class), shopResult);
         }
         return map;
+    }
+
+    public Map<Integer, List<String>> findAllShopImage() {
+        return queryFactory
+            .select(shop.id, shopImage.imageUrl)
+            .from(shopImage)
+            .innerJoin(shopImage.shop, shop)
+            .fetch()
+            .stream()
+            .collect(Collectors.groupingBy(
+                tuple -> tuple.get(shop.id),
+                Collectors.mapping(tuple -> tuple.get(shopImage.imageUrl), Collectors.toList())
+            ));
+    }
+
+    public List<Integer> findAllOrderableShopId() {
+        return queryFactory
+            .select(orderableShop.shop.id)
+            .from(orderableShop)
+            .fetch();
     }
 }
