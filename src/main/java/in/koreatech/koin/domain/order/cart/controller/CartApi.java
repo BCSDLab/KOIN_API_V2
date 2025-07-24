@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin.domain.order.cart.aop.AddItemIdempotent;
+import in.koreatech.koin._common.duplicate.DuplicateGuard;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
@@ -265,7 +265,7 @@ public interface CartApi {
         ### 중복 요청 처리
         - 0.1초 이내에 같은 요청이 도착한 경우, 둘 중 하나는 중복 요청으로 판단하여 409 에러가 반환됩니다.
         """)
-    @AddItemIdempotent
+    @DuplicateGuard(key = "#userId + ':' + #cartAddItemRequest.toString()")
     @PostMapping("/cart/add")
     ResponseEntity<Void> addItem(
         @RequestBody @Valid CartAddItemRequest cartAddItemRequest,
