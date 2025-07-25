@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.order.shop.repository;
 
-
 import static in.koreatech.koin.domain.order.shop.model.entity.delivery.QShopBaseDeliveryTip.shopBaseDeliveryTip;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop.orderableShop;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShopImage.orderableShopImage;
@@ -8,7 +7,6 @@ import static in.koreatech.koin.domain.order.shop.model.entity.shop.QShopOperati
 import static in.koreatech.koin.domain.shop.model.review.QShopReview.shopReview;
 import static in.koreatech.koin.domain.shop.model.shop.QShop.shop;
 import static in.koreatech.koin.domain.shop.model.shop.QShopCategoryMap.shopCategoryMap;
-import static in.koreatech.koin.domain.shop.model.shop.QShopImage.shopImage;
 import static in.koreatech.koin.domain.shop.model.shop.QShopOpen.shopOpen;
 
 import java.util.List;
@@ -30,7 +28,6 @@ import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopImageInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
-import in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShopImage;
 import lombok.RequiredArgsConstructor;
 
 @Repository

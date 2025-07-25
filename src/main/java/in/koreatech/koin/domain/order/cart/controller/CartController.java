@@ -44,7 +44,7 @@ public class CartController implements CartApi {
     }
 
     @PostMapping("/cart/add")
-    @DuplicateGuard(key = "#userId + ':' + #cartAddItemRequest.toString()")
+    @DuplicateGuard(key = "#userId + ':' + #cartAddItemRequest.toString()", timeoutSeconds = 300)
     public ResponseEntity<Void> addItem(
         @RequestBody @Valid CartAddItemRequest cartAddItemRequest,
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
