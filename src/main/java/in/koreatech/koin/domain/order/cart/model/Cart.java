@@ -59,14 +59,14 @@ public class Cart extends BaseEntity {
         }
     }
 
-    public void addItem(OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options) {
-        // 장바구니에 옵션 까지 전부 동일한 메뉴가 이미 존재 하는 경우, 수량 1 증가
+    public void addItem(OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options, Integer quantity) {
+        // 장바구니에 옵션 까지 전부 동일한 메뉴가 이미 존재 하는 경우, 담긴 상품 수량 증가
         Optional<CartMenuItem> existingItem = findSameItem(menu, price, options);
 
         if (existingItem.isPresent()) {
-            existingItem.get().increaseQuantity();
+            existingItem.get().increaseQuantity(quantity);
         } else {
-            CartMenuItem newItem = CartMenuItem.create(this, menu, price, options);
+            CartMenuItem newItem = CartMenuItem.create(this, menu, price, options, quantity);
             this.cartMenuItems.add(newItem);
         }
     }

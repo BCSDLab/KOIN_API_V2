@@ -12,8 +12,8 @@ public class CartMenuItemFixture {
     private CartMenuItemFixture() {}
 
     public static CartMenuItem createCartMenuItemWithoutOption(
-        Cart cart, OrderableShopMenu menu, OrderableShopMenuPrice menuPrice
+        Cart cart, OrderableShopMenu menu, OrderableShopMenuPrice menuPrice, Integer quantity
     ) {
-        return CartMenuItem.create(cart, menu, menuPrice, List.of());
+        return CartMenuItem.create(cart, menu, menuPrice, List.of(), quantity);
     }
 }

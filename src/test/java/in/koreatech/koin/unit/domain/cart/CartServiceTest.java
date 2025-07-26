@@ -40,6 +40,7 @@ import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuRepo
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.unit.fixutre.CartFixture;
+import in.koreatech.koin.unit.fixutre.CartMenuItemFixture;
 import in.koreatech.koin.unit.fixutre.OrderableShopFixture;
 import in.koreatech.koin.unit.fixutre.OrderableShopMenuFixture;
 import in.koreatech.koin.unit.fixutre.UserFixture;
@@ -71,26 +72,26 @@ public class CartServiceTest {
 
     private User user;
     private OrderableShop orderableShop;
-    private OrderableShopMenu menuA;
-    private OrderableShopMenu menuB;
+    private OrderableShopMenu menuGimbap;
+    private OrderableShopMenu menuRamen;
     private OrderableShopMenu menuSoldOut;
-    private OrderableShopMenuPrice menuPriceA;
-    private OrderableShopMenuPrice menuPriceB;
-    private OrderableShopMenuPrice menuPriceC;
-    private OrderableShopMenuOption option1;
-    private OrderableShopMenuOption option2;
-    private OrderableShopMenuOption option3;
-    private OrderableShopMenuOption option4;
-    private OrderableShopMenuOption option5;
-    private OrderableShopMenuOption option6;
-    private OrderableShopMenuOption option7;
-    private OrderableShopMenuOption option8;
+    private OrderableShopMenuPrice gimbapPriceA;
+    private OrderableShopMenuPrice gimbapPriceB;
+    private OrderableShopMenuPrice ramenPriceA;
     private OrderableShopMenuOptionGroup toppingGroup;
     private OrderableShopMenuOptionGroup sourceGroup;
     private OrderableShopMenuOptionGroup alcoholGroup;
-    private OrderableShopMenuOptionGroupMap optionGroupMap;
-    private OrderableShopMenuOptionGroupMap optionGroupMapB;
-    private OrderableShopMenuOptionGroupMap optionGroupMapC;
+    private OrderableShopMenuOption toppingOptionA;
+    private OrderableShopMenuOption toppingOptionB;
+    private OrderableShopMenuOption sourceOptionA;
+    private OrderableShopMenuOption sourceOptionB;
+    private OrderableShopMenuOption alcoholOptionA;
+    private OrderableShopMenuOption alcoholOptionB;
+    private OrderableShopMenuOption alcoholOptionC;
+    private OrderableShopMenuOption alcoholOptionD;
+    private OrderableShopMenuOptionGroupMap toppingOptionGroupMap;
+    private OrderableShopMenuOptionGroupMap sourceOptionGroupMap;
+    private OrderableShopMenuOptionGroupMap alcoholOptionGroupMap;
     private Cart cart;
 
     @BeforeEach
@@ -101,16 +102,16 @@ public class CartServiceTest {
         orderableShop = OrderableShopFixture.김밥천국();
         ReflectionTestUtils.setField(orderableShop, "id", 101);
 
-        menuA = OrderableShopMenuFixture.createMenu(orderableShop, "김밥", 201);
-        menuB = OrderableShopMenuFixture.createMenu(orderableShop, "라면", 202);
+        menuGimbap = OrderableShopMenuFixture.createMenu(orderableShop, "김밥", 201);
+        menuRamen = OrderableShopMenuFixture.createMenu(orderableShop, "라면", 202);
         menuSoldOut = OrderableShopMenuFixture.createSoldOutMenu(orderableShop, "떡볶이", 203);
 
-        menuPriceA = OrderableShopMenuFixture.createMenuPrice(menuA, "소고기 김밥", 6000, 301);
-        menuPriceB = OrderableShopMenuFixture.createMenuPrice(menuA, "참치 김밥", 5500, 302);
-        ReflectionTestUtils.setField(menuA, "menuPrices", List.of(menuPriceA, menuPriceB));
+        gimbapPriceA = OrderableShopMenuFixture.createMenuPrice(menuGimbap, "소고기 김밥", 6000, 301);
+        gimbapPriceB = OrderableShopMenuFixture.createMenuPrice(menuGimbap, "참치 김밥", 5500, 302);
+        ReflectionTestUtils.setField(menuGimbap, "menuPrices", List.of(gimbapPriceA, gimbapPriceB));
 
-        menuPriceC = OrderableShopMenuFixture.createMenuPrice(menuB, "신라면", 5500, 303);
-        ReflectionTestUtils.setField(menuB, "menuPrices", List.of(menuPriceC));
+        ramenPriceA = OrderableShopMenuFixture.createMenuPrice(menuRamen, "신라면", 5500, 303);
+        ReflectionTestUtils.setField(menuRamen, "menuPrices", List.of(ramenPriceA));
 
         toppingGroup = OrderableShopMenuFixture.createMenuOptionGroupWithEmptyMenuOption(
             orderableShop, "토핑 추가", 0, 2, false, 401
@@ -124,46 +125,46 @@ public class CartServiceTest {
             orderableShop, "술 추가", 2, 3, false, 403
         );
 
-        option1 = OrderableShopMenuFixture.createMenuOption(toppingGroup, "치즈 추가", 500, 501);
-        option2 = OrderableShopMenuFixture.createMenuOption(toppingGroup, "단무지 추가",300, 502);
-        option3 = OrderableShopMenuFixture.createMenuOption(sourceGroup, "캡사이신 추가",300, 503);
-        option4 = OrderableShopMenuFixture.createMenuOption(sourceGroup, "겨자 추가",300, 504);
-        option5 = OrderableShopMenuFixture.createMenuOption(alcoholGroup, "참이슬",4500, 505);
-        option6 = OrderableShopMenuFixture.createMenuOption(alcoholGroup, "테라",2500, 506);
-        option7 = OrderableShopMenuFixture.createMenuOption(alcoholGroup, "처음처럼",2500, 507);
-        option8 = OrderableShopMenuFixture.createMenuOption(alcoholGroup, "카스",2500, 508);
+        toppingOptionA = OrderableShopMenuFixture.createMenuOption(toppingGroup, "치즈 추가", 500, 501);
+        toppingOptionB = OrderableShopMenuFixture.createMenuOption(toppingGroup, "단무지 추가",300, 502);
+        sourceOptionA = OrderableShopMenuFixture.createMenuOption(sourceGroup, "캡사이신 추가",300, 503);
+        sourceOptionB = OrderableShopMenuFixture.createMenuOption(sourceGroup, "겨자 추가",300, 504);
+        alcoholOptionA = OrderableShopMenuFixture.createMenuOption(alcoholGroup, "참이슬",4500, 505);
+        alcoholOptionB = OrderableShopMenuFixture.createMenuOption(alcoholGroup, "테라",2500, 506);
+        alcoholOptionC = OrderableShopMenuFixture.createMenuOption(alcoholGroup, "처음처럼",2500, 507);
+        alcoholOptionD = OrderableShopMenuFixture.createMenuOption(alcoholGroup, "카스",2500, 508);
 
-        ReflectionTestUtils.setField(toppingGroup, "menuOptions", List.of(option1, option2));
-        ReflectionTestUtils.setField(sourceGroup, "menuOptions", List.of(option3, option4));
-        ReflectionTestUtils.setField(alcoholGroup, "menuOptions", List.of(option5, option6, option7, option8));
+        ReflectionTestUtils.setField(toppingGroup, "menuOptions", List.of(toppingOptionA, toppingOptionB));
+        ReflectionTestUtils.setField(sourceGroup, "menuOptions", List.of(sourceOptionA, sourceOptionB));
+        ReflectionTestUtils.setField(alcoholGroup, "menuOptions", List.of(alcoholOptionA, alcoholOptionB, alcoholOptionC, alcoholOptionD));
 
-        optionGroupMap = OrderableShopMenuFixture.createMenuOptionGroupMap(toppingGroup, menuA, 601);
-        ReflectionTestUtils.setField(menuA, "menuOptionGroupMap", List.of(optionGroupMap));
+        toppingOptionGroupMap = OrderableShopMenuFixture.createMenuOptionGroupMap(toppingGroup, menuGimbap, 601);
+        ReflectionTestUtils.setField(menuGimbap, "menuOptionGroupMap", List.of(toppingOptionGroupMap));
 
-        optionGroupMapB = OrderableShopMenuFixture.createMenuOptionGroupMap(sourceGroup, menuB, 602);
-        ReflectionTestUtils.setField(menuB, "menuOptionGroupMap", List.of(optionGroupMapB));
+        sourceOptionGroupMap = OrderableShopMenuFixture.createMenuOptionGroupMap(sourceGroup, menuRamen, 602);
+        ReflectionTestUtils.setField(menuRamen, "menuOptionGroupMap", List.of(sourceOptionGroupMap));
 
-        optionGroupMapC = OrderableShopMenuFixture.createMenuOptionGroupMap(alcoholGroup, menuB, 603);
-        ReflectionTestUtils.setField(menuB, "menuOptionGroupMap", List.of(optionGroupMapC));
+        alcoholOptionGroupMap = OrderableShopMenuFixture.createMenuOptionGroupMap(alcoholGroup, menuRamen, 603);
+        ReflectionTestUtils.setField(menuRamen, "menuOptionGroupMap", List.of(alcoholOptionGroupMap));
 
         cart = CartFixture.createCart(user, orderableShop);
     }
 
     @Test
-    @DisplayName("장바구니 상품 추가 성공")
+    @DisplayName("장바구니 상품 추가 성공 - 장바구니에 담긴 상품이 없을 때")
     void addItem_Success() {
         when(orderableShopRepository.getById(orderableShop.getId())).thenReturn(orderableShop);
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
         when(userRepository.getById(user.getId())).thenReturn(user);
 
-        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuA));
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuGimbap));
         when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option1, option2));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuA.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), menuA.getId(), menuPriceA.getId(), List.of()
+            user.getId(), orderableShop.getId(), menuGimbap.getId(), gimbapPriceA.getId(), List.of(), 1
         );
 
         // When
@@ -174,7 +175,103 @@ public class CartServiceTest {
         assertThat(cart.getCartMenuItems()).hasSize(1);
 
         CartMenuItem existItem = cart.getCartMenuItems().get(0);
-        assertThat(existItem.getOrderableShopMenu().getId()).isEqualTo(menuA.getId());
+        assertThat(existItem.getOrderableShopMenu().getId()).isEqualTo(menuGimbap.getId());
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 추가 성공 - 장바구니에 담긴 상품이 있을 때")
+    void addItem_Success_CartItemExist() {
+        Cart existItemCart = CartFixture.createCart(user, orderableShop);
+        existItemCart.addItem(menuRamen, ramenPriceA, List.of(), 2);
+
+        when(orderableShopRepository.getById(orderableShop.getId())).thenReturn(orderableShop);
+        when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(existItemCart));
+        when(userRepository.getById(user.getId())).thenReturn(user);
+
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuGimbap));
+        when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
+
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
+
+        CartAddItemCommand command = new CartAddItemCommand(
+            user.getId(), orderableShop.getId(), menuGimbap.getId(), gimbapPriceA.getId(), List.of(), 1
+        );
+
+        // When
+        cartService.addItem(command);
+
+        // Then
+        verify(em).persist(existItemCart);
+        assertThat(existItemCart.getCartMenuItems()).hasSize(2);
+
+        CartMenuItem existItem = existItemCart.getCartMenuItems().get(0);
+        assertThat(existItem.getOrderableShopMenu().getId()).isEqualTo(menuRamen.getId());
+        assertThat(existItem.getQuantity()).isEqualTo(2);
+
+        CartMenuItem addedItem = existItemCart.getCartMenuItems().get(1);
+        assertThat(addedItem.getOrderableShopMenu().getId()).isEqualTo(menuGimbap.getId());
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 추가 성공 - 추가 하는 상품의 개수가 2개 이상인 경우")
+    void addItem_Success_ExtraQuantity() {
+        when(orderableShopRepository.getById(orderableShop.getId())).thenReturn(orderableShop);
+        when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
+        when(userRepository.getById(user.getId())).thenReturn(user);
+
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuGimbap));
+        when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
+
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
+
+        CartAddItemCommand command = new CartAddItemCommand(
+            user.getId(), orderableShop.getId(), menuGimbap.getId(), gimbapPriceA.getId(), List.of(), 7
+        );
+
+        // When
+        cartService.addItem(command);
+
+        // Then
+        verify(em).persist(cart);
+        assertThat(cart.getCartMenuItems()).hasSize(1);
+
+        CartMenuItem existItem = cart.getCartMenuItems().get(0);
+        assertThat(existItem.getOrderableShopMenu().getId()).isEqualTo(menuGimbap.getId());
+        assertThat(existItem.getQuantity()).isEqualTo(7);
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 추가 성공 - 이미 존재하는 상품의 수량이 증가하는 경우")
+    void addItem_Success_AddCartItemMerged() {
+        Cart existItemCart = CartFixture.createCart(user, orderableShop);
+        existItemCart.addItem(menuGimbap, gimbapPriceA, List.of(), 2);
+
+        when(orderableShopRepository.getById(orderableShop.getId())).thenReturn(orderableShop);
+        when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(existItemCart));
+        when(userRepository.getById(user.getId())).thenReturn(user);
+
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuGimbap));
+        when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
+
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
+
+        CartAddItemCommand command = new CartAddItemCommand(
+            user.getId(), orderableShop.getId(), menuGimbap.getId(), gimbapPriceA.getId(), List.of(), 7
+        );
+
+        // When
+        cartService.addItem(command);
+
+        // Then
+        verify(em).persist(existItemCart);
+        assertThat(existItemCart.getCartMenuItems()).hasSize(1);
+
+        CartMenuItem existItem = existItemCart.getCartMenuItems().get(0);
+        assertThat(existItem.getOrderableShopMenu().getId()).isEqualTo(menuGimbap.getId());
+        assertThat(existItem.getQuantity()).isEqualTo(9);
     }
 
     @Test
@@ -185,7 +282,7 @@ public class CartServiceTest {
         when(orderableShopRepository.getById(orderableShopA.getId())).thenReturn(orderableShopA);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShopA.getId(), 1, 1, List.of()
+            user.getId(), orderableShopA.getId(), 1, 1, List.of(), 1
         );
 
         // When & Then
@@ -211,7 +308,7 @@ public class CartServiceTest {
         when(userRepository.getById(user.getId())).thenReturn(user);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), newShop.getId(), 1, 1, List.of()
+            user.getId(), newShop.getId(), 1, 1, List.of(), 1
         );
 
         // When & Then
@@ -240,7 +337,7 @@ public class CartServiceTest {
             ));
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), 1, 1, List.of()
+            user.getId(), orderableShop.getId(), 1, 1, List.of(), 1
         );
 
         // When & Then
@@ -265,11 +362,11 @@ public class CartServiceTest {
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(existingCart));
         when(userRepository.getById(user.getId())).thenReturn(user);
 
-        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(existingShop.getId(), List.of(menuA));
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(existingShop.getId(), List.of(menuGimbap));
         when(orderableShopMenuRepository.getAllByOrderableShopId(existingShop.getId())).thenReturn(orderableShopMenus);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), existingShop.getId(), 99, 1, List.of()
+            user.getId(), existingShop.getId(), 99, 1, List.of(), 1
         );
 
         // When & Then
@@ -295,7 +392,7 @@ public class CartServiceTest {
         when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), menuSoldOut.getId(), 1, List.of()
+            user.getId(), orderableShop.getId(), menuSoldOut.getId(), 1, List.of(), 1
         );
 
         // When & Then
@@ -317,11 +414,11 @@ public class CartServiceTest {
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(existingCart));
         when(userRepository.getById(user.getId())).thenReturn(user);
 
-        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuA));
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuGimbap));
         when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), menuA.getId(), menuPriceC.getId(), List.of()
+            user.getId(), orderableShop.getId(), menuGimbap.getId(), ramenPriceA.getId(), List.of(), 1
         );
 
         // When & Then
@@ -341,14 +438,14 @@ public class CartServiceTest {
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.empty());
         when(userRepository.getById(user.getId())).thenReturn(user);
 
-        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuB));
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuRamen));
         when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option3, option4, option5, option6, option7, option8));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuB.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(sourceOptionA, sourceOptionB, alcoholOptionA, alcoholOptionB, alcoholOptionC, alcoholOptionD));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), menuB.getId(), menuPriceC.getId(), List.of()
+            user.getId(), orderableShop.getId(), menuRamen.getId(), ramenPriceA.getId(), List.of(), 1
         );
 
         // When & Then
@@ -368,15 +465,15 @@ public class CartServiceTest {
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.empty());
         when(userRepository.getById(user.getId())).thenReturn(user);
 
-        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuA));
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuGimbap));
         when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option1, option2));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuA.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), menuA.getId(), menuPriceA.getId(),
-            List.of(new CartAddItemCommand.Option(toppingGroup.getId(), option3.getId()))
+            user.getId(), orderableShop.getId(), menuGimbap.getId(), gimbapPriceA.getId(),
+            List.of(new CartAddItemCommand.Option(toppingGroup.getId(), sourceOptionA.getId())), 1
         );
 
         // When & Then
@@ -396,15 +493,15 @@ public class CartServiceTest {
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.empty());
         when(userRepository.getById(user.getId())).thenReturn(user);
 
-        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuA));
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuGimbap));
         when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option1, option2));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuA.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), menuA.getId(), menuPriceA.getId(),
-            List.of(new CartAddItemCommand.Option(sourceGroup.getId(), option1.getId()))
+            user.getId(), orderableShop.getId(), menuGimbap.getId(), gimbapPriceA.getId(),
+            List.of(new CartAddItemCommand.Option(sourceGroup.getId(), toppingOptionA.getId())), 1
         );
 
         // When & Then
@@ -424,18 +521,18 @@ public class CartServiceTest {
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.empty());
         when(userRepository.getById(user.getId())).thenReturn(user);
 
-        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuB));
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuRamen));
         when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option3, option4, option5, option6, option7, option8));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuB.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(sourceOptionA, sourceOptionB, alcoholOptionA, alcoholOptionB, alcoholOptionC, alcoholOptionD));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), menuB.getId(), menuPriceC.getId(),
+            user.getId(), orderableShop.getId(), menuRamen.getId(), ramenPriceA.getId(),
             List.of(
-                new CartAddItemCommand.Option(sourceGroup.getId(), option3.getId()),
-                new CartAddItemCommand.Option(alcoholGroup.getId(), option5.getId())
-            )
+                new CartAddItemCommand.Option(sourceGroup.getId(), sourceOptionA.getId()),
+                new CartAddItemCommand.Option(alcoholGroup.getId(), alcoholOptionA.getId())
+            ), 1
         );
 
         // When & Then
@@ -455,20 +552,20 @@ public class CartServiceTest {
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.empty());
         when(userRepository.getById(user.getId())).thenReturn(user);
 
-        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuB));
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuRamen));
         when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option3, option4, option5, option6, option7, option8));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuB.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(sourceOptionA, sourceOptionB, alcoholOptionA, alcoholOptionB, alcoholOptionC, alcoholOptionD));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
         CartAddItemCommand command = new CartAddItemCommand(
-            user.getId(), orderableShop.getId(), menuB.getId(), menuPriceC.getId(),
-            List.of(new CartAddItemCommand.Option(sourceGroup.getId(), option3.getId()),
-                new CartAddItemCommand.Option(alcoholGroup.getId(), option5.getId()),
-                new CartAddItemCommand.Option(alcoholGroup.getId(), option6.getId()),
-                new CartAddItemCommand.Option(alcoholGroup.getId(), option7.getId()),
-                new CartAddItemCommand.Option(alcoholGroup.getId(), option8.getId())
-            )
+            user.getId(), orderableShop.getId(), menuRamen.getId(), ramenPriceA.getId(),
+            List.of(new CartAddItemCommand.Option(sourceGroup.getId(), sourceOptionA.getId()),
+                new CartAddItemCommand.Option(alcoholGroup.getId(), alcoholOptionA.getId()),
+                new CartAddItemCommand.Option(alcoholGroup.getId(), alcoholOptionB.getId()),
+                new CartAddItemCommand.Option(alcoholGroup.getId(), alcoholOptionC.getId()),
+                new CartAddItemCommand.Option(alcoholGroup.getId(), alcoholOptionD.getId())
+            ), 1
         );
 
         // When & Then
@@ -481,22 +578,48 @@ public class CartServiceTest {
     }
 
     @Test
+    @DisplayName("장바구니 상품 추가 실패 - 추가 상품 수량이 1개 미만인 경우")
+    void addItem_Fail_IllegalQuantity() {
+        when(orderableShopRepository.getById(orderableShop.getId())).thenReturn(orderableShop);
+        when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
+        when(userRepository.getById(user.getId())).thenReturn(user);
+
+        OrderableShopMenus orderableShopMenus = new OrderableShopMenus(orderableShop.getId(), List.of(menuGimbap));
+        when(orderableShopMenuRepository.getAllByOrderableShopId(orderableShop.getId())).thenReturn(orderableShopMenus);
+
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
+
+        CartAddItemCommand command = new CartAddItemCommand(
+            user.getId(), orderableShop.getId(), menuGimbap.getId(), gimbapPriceA.getId(), List.of(), 0
+        );
+
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            cartService.addItem(command);
+        });
+
+        assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.ILLEGAL_STATE);
+        assertThat(exception.getDetail()).isEqualTo("수량은 1 이상이어야 합니다.");
+    }
+
+    @Test
     @DisplayName("장바구니 상품 수정 성공 - 장바구니에 동일 구성 상품이 없어 기존 아이템이 직접 수정되는 경우")
     void updateItem_Success_UpdateCartItemDirectly() {
         // Given
-        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 1);
+        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 1);
         ReflectionTestUtils.setField(itemToUpdate, "id", 7);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemToUpdate)));
 
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option1, option2));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuA.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
 
         // 장바구니에 담긴 상품의 가격 옵션과 선택 옵션을 모두 변경 - 모두 유효한 값으로 변경
         CartUpdateItemRequest request = new CartUpdateItemRequest(
-            menuPriceB.getId(),
-            List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), option2.getId()))
+            gimbapPriceB.getId(),
+            List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), toppingOptionB.getId()))
         );
 
         // When
@@ -507,34 +630,34 @@ public class CartServiceTest {
 
         CartMenuItem updatedItem = cart.getCartMenuItems().get(0);
 
-        assertThat(updatedItem.getOrderableShopMenuPrice().getId()).isEqualTo(menuPriceB.getId());
+        assertThat(updatedItem.getOrderableShopMenuPrice().getId()).isEqualTo(gimbapPriceB.getId());
         assertThat(updatedItem.getIsModified()).isTrue();
         assertThat(updatedItem.getCartMenuItemOptions()).hasSize(1);
-        assertThat(updatedItem.getCartMenuItemOptions().get(0).getOrderableShopMenuOption().getId()).isEqualTo(option2.getId());
+        assertThat(updatedItem.getCartMenuItemOptions().get(0).getOrderableShopMenuOption().getId()).isEqualTo(toppingOptionB.getId());
     }
 
     @Test
     @DisplayName("장바구니 상품 수정 성공 - 장바구니에 동일 구성 상품이 있어 해당 상품의 수량이 증가되고 기존 상품은 삭제되는 경우")
     void updateItem_Success_UpdateCartItemMerged() {
         // Given
-        // 장바구니에 상품 2개 미리 담기. menuA - 수정 대상, menuB - 병합 대상
-        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 1);
+        // 장바구니에 상품 2개 미리 담기. menuGimbap - 수정 대상, menuRamen - 병합 대상
+        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 1);
         ReflectionTestUtils.setField(itemToUpdate, "id", 777);
 
-        CartMenuItem existingItem = CartFixture.cartMenuItem(cart, menuA, menuPriceB, List.of(option2), 3);
+        CartMenuItem existingItem = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceB, List.of(toppingOptionB), 3);
         ReflectionTestUtils.setField(existingItem, "id", 888);
 
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemToUpdate, existingItem)));
 
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option1, option2));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuA.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
 
         // 장바구니에 담긴 상품(itemToUpdate)의 가격 옵션과 선택 옵션을 existingItem 과 동일하게 변경
         CartUpdateItemRequest request = new CartUpdateItemRequest(
-            menuPriceB.getId(),
-            List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), option2.getId()))
+            gimbapPriceB.getId(),
+            List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), toppingOptionB.getId()))
         );
 
         // When
@@ -554,7 +677,7 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수정 실패 - 수정 시도한 가격 옵션이 해당 메뉴에 속해 있지 않은 경우")
     void updateItem_Fail_InvalidMenuPriceOption() {
         // Given
-        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 1);
+        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 1);
         ReflectionTestUtils.setField(itemA, "id", 777);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemA)));
 
@@ -562,8 +685,8 @@ public class CartServiceTest {
 
         // 장바구니에 담긴 상품의 가격 옵션을 유효하지 않은 ID로 변경 시도
         CartUpdateItemRequest request = new CartUpdateItemRequest(
-            menuPriceC.getId(),
-            List.of(new CartUpdateItemRequest.InnerOptionRequest(sourceGroup.getId(), option3.getId()))
+            ramenPriceA.getId(),
+            List.of(new CartUpdateItemRequest.InnerOptionRequest(sourceGroup.getId(), sourceOptionA.getId()))
         );
 
         // When & Then
@@ -579,18 +702,18 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수정 실패 - 필수적으로 선택되어야 하는 옵션 그룹이 선택되지 않은 경우")
     void updateItem_Fail_RequiredOptionGroupSelectedMissing() {
         // Given
-        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuB, menuPriceC, List.of(option3), 1);
+        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuRamen, ramenPriceA, List.of(sourceOptionA), 1);
         ReflectionTestUtils.setField(itemA, "id", 777);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemA)));
 
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option3));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuB.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(sourceOptionA));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
         // 필수 옵션 그룹 선택을 누락한 요청 생성
         CartUpdateItemRequest request = new CartUpdateItemRequest(
-            menuPriceC.getId(),
+            ramenPriceA.getId(),
             List.of()
         );
 
@@ -607,19 +730,19 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수정 실패 - 메뉴에 존재하지 않는 옵션 ID인 경우")
     void updateItem_Fail_InvalidOption() {
         // Given
-        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 1);
+        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 1);
         ReflectionTestUtils.setField(itemA, "id", 777);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemA)));
 
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option1, option2));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuA.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(toppingOptionA, toppingOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuGimbap.getId())).thenReturn(menuOptions);
 
         // 메뉴에 속하지 않는 옵션 으로 변경 하는 요청 생성
         CartUpdateItemRequest request = new CartUpdateItemRequest(
-            menuPriceB.getId(),
-            List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), option3.getId()))
+            gimbapPriceB.getId(),
+            List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), sourceOptionA.getId()))
         );
 
         // When & Then
@@ -635,19 +758,19 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수정 실패 - 요청한 옵션 그룹 ID가 실제 해당 옵션의 옵션 그룹 ID와 일치 하지 않는 경우")
     void updateItem_Fail_InvalidOptionInGroup() {
         // Given
-        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuB, menuPriceC, List.of(option3), 1);
+        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuRamen, ramenPriceA, List.of(sourceOptionA), 1);
         ReflectionTestUtils.setField(itemA, "id", 777);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemA)));
 
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option3, option4, option5, option6));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuB.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(sourceOptionA, sourceOptionB, alcoholOptionA, alcoholOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
         // 옵션 그룹과 옵션 ID가 일치하지 않는 요청 생성
         CartUpdateItemRequest request = new CartUpdateItemRequest(
-            menuPriceC.getId(),
-            List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), option4.getId()))
+            ramenPriceA.getId(),
+            List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), sourceOptionB.getId()))
         );
 
         // When & Then
@@ -663,24 +786,24 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수정 실패 - 옵션 그룹의 최소 선택 개수를 만족하지 못한 경우")
     void updateItem_Fail_MaxSelectionNotMet() {
         // Given
-        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuB, menuPriceC, List.of(option3), 1);
+        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuRamen, ramenPriceA, List.of(sourceOptionA), 1);
         ReflectionTestUtils.setField(itemA, "id", 777);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemA)));
 
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
         OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(
-            List.of(option3, option4, option5, option6, option7, option8)
+            List.of(sourceOptionA, sourceOptionB, alcoholOptionA, alcoholOptionB, alcoholOptionC, alcoholOptionD)
         );
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuB.getId())).thenReturn(menuOptions);
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
         CartUpdateItemRequest request = new CartUpdateItemRequest(
-            menuPriceC.getId(),
-            List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), option5.getId()),
-                new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), option6.getId()),
-                new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), option7.getId()),
-                new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), option8.getId()),
-                new CartUpdateItemRequest.InnerOptionRequest(sourceGroup.getId(), option3.getId()))
+            ramenPriceA.getId(),
+            List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), alcoholOptionA.getId()),
+                new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), alcoholOptionB.getId()),
+                new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), alcoholOptionC.getId()),
+                new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), alcoholOptionD.getId()),
+                new CartUpdateItemRequest.InnerOptionRequest(sourceGroup.getId(), sourceOptionA.getId()))
         );
 
         // When & Then
@@ -696,19 +819,19 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수정 실패 - 옵션 그룹의 최대 선택 개수를 만족하지 못한 경우")
     void updateItem_Fail_MinSelectionNotMet() {
         // Given
-        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuB, menuPriceC, List.of(option3), 1);
+        CartMenuItem itemA = CartFixture.cartMenuItem(cart, menuRamen, ramenPriceA, List.of(sourceOptionA), 1);
         ReflectionTestUtils.setField(itemA, "id", 777);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemA)));
 
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
-        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(option3, option4, option5, option6));
-        when(orderableShopMenuOptionRepository.getAllByMenuId(menuB.getId())).thenReturn(menuOptions);
+        OrderableShopMenuOptions menuOptions = new OrderableShopMenuOptions(List.of(sourceOptionA, sourceOptionB, alcoholOptionA, alcoholOptionB));
+        when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
         CartUpdateItemRequest request = new CartUpdateItemRequest(
-            menuPriceC.getId(),
-            List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), option5.getId()),
-                new CartUpdateItemRequest.InnerOptionRequest(sourceGroup.getId(), option3.getId()))
+            ramenPriceA.getId(),
+            List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), alcoholOptionA.getId()),
+                new CartUpdateItemRequest.InnerOptionRequest(sourceGroup.getId(), sourceOptionA.getId()))
         );
 
         // When & Then
@@ -724,7 +847,7 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수량 변경 성공 - 정상적인 수량으로 변경하는 경우")
     void updateItemQuantity_Success() {
         // Given
-        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 7);
+        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 7);
         ReflectionTestUtils.setField(itemToUpdate, "id", 7);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemToUpdate)));
 
@@ -746,7 +869,7 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수량 변경 실패 - 수량이 Null인 경우")
     void updateItemQuantity_Fail_QuantityValueInvalid_Null() {
         // Given
-        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 7);
+        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 7);
         ReflectionTestUtils.setField(itemToUpdate, "id", 7);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemToUpdate)));
 
@@ -765,7 +888,7 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수량 변경 실패 - 수량이 0인 경우")
     void updateItemQuantity_Fail_QuantityValueInvalid_Zero() {
         // Given
-        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 7);
+        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 7);
         ReflectionTestUtils.setField(itemToUpdate, "id", 7);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemToUpdate)));
 
@@ -784,7 +907,7 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 수량 변경 실패 - 수량이 음수인 경우")
     void updateItemQuantity_Fail_QuantityValueInvalid_Negative () {
         // Given
-        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 7);
+        CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 7);
         ReflectionTestUtils.setField(itemToUpdate, "id", 7);
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemToUpdate)));
 
@@ -804,10 +927,10 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 삭제 성공 - 유효한 상품 ID인 경우")
     void deleteItem_Success_ValidCartItemId() {
         // Given
-        CartMenuItem existingItem = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 1);
+        CartMenuItem existingItem = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 1);
         ReflectionTestUtils.setField(existingItem, "id", 777);
 
-        CartMenuItem deletedItem = CartFixture.cartMenuItem(cart, menuA, menuPriceB, List.of(option2), 3);
+        CartMenuItem deletedItem = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceB, List.of(toppingOptionB), 3);
         ReflectionTestUtils.setField(deletedItem, "id", 888);
 
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(existingItem, deletedItem)));
@@ -829,10 +952,10 @@ public class CartServiceTest {
     @DisplayName("장바구니 상품 삭제 실패 - 유효하지 않은 상품 ID인 경우")
     void deleteItem_Fail_InvalidCartItemId() {
         // Given
-        CartMenuItem existingItem = CartFixture.cartMenuItem(cart, menuA, menuPriceA, List.of(option1), 1);
+        CartMenuItem existingItem = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA, List.of(toppingOptionA), 1);
         ReflectionTestUtils.setField(existingItem, "id", 777);
 
-        CartMenuItem deletedItem = CartFixture.cartMenuItem(cart, menuA, menuPriceB, List.of(option2), 3);
+        CartMenuItem deletedItem = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceB, List.of(toppingOptionB), 3);
         ReflectionTestUtils.setField(deletedItem, "id", 888);
 
         ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(existingItem, deletedItem)));
