@@ -73,12 +73,14 @@ public class CartMenuItem extends BaseEntity {
         this.isModified = isModified;
     }
 
-    public static CartMenuItem create(Cart cart, OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options) {
+    public static CartMenuItem create(Cart cart, OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options, Integer quantity) {
+        validateQuantity(quantity); // 수량 검증
+
         CartMenuItem cartMenuItem = CartMenuItem.builder()
             .cart(cart)
             .orderableShopMenu(menu)
             .orderableShopMenuPrice(price)
-            .quantity(1)
+            .quantity(quantity)
             .isModified(false)
             .build();
 
@@ -98,6 +100,16 @@ public class CartMenuItem extends BaseEntity {
             throw CustomException.of(ApiResponseCode.INVALID_CART_ITEM_QUANTITY, "수량은 1 이상이어야 합니다.");
         }
         this.quantity = quantity;
+    }
+
+
+    private static void validateQuantity(Integer quantity) {
+        if (quantity == null) {
+            throw CustomException.of(ApiResponseCode.ILLEGAL_STATE, "수량은 null일 수 없습니다.");
+        }
+        if (quantity <= 0) {
+            throw CustomException.of(ApiResponseCode.ILLEGAL_STATE, "수량은 1 이상이어야 합니다.");
+        }
     }
 
     public void increaseQuantity() {

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -24,7 +26,13 @@ public record CartAddItemRequest(
     @NotNull(message = "orderableShopMenuPriceId는 필수값입니다.")
     Integer orderableShopMenuPriceId,
     @Schema(description = "주문 가능 상점 메뉴 옵션 가격 ID")
-    List<InnerOptionRequest> orderableShopMenuOptionIds
+    List<InnerOptionRequest> orderableShopMenuOptionIds,
+
+    @Schema(description = "메뉴 개수", example = "1", requiredMode = REQUIRED)
+    @NotNull(message = "quantity는 필수값입니다.")
+    @Min(value = 1, message = "수량은 최소 1 입니다.")
+    @Max(value = 10, message = "수량은 최대 10 입니다.")
+    Integer quantity
 ) {
 
     public CartAddItemCommand toCommand(Integer userId) {
@@ -35,7 +43,7 @@ public record CartAddItemRequest(
             : List.of();
 
         return new CartAddItemCommand(userId, orderableShopId, orderableShopMenuId, orderableShopMenuPriceId,
-            options);
+            options, quantity);
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)

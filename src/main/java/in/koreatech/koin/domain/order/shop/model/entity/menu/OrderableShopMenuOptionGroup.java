@@ -22,6 +22,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -77,5 +78,23 @@ public class OrderableShopMenuOptionGroup extends BaseEntity {
         if (maxSelect != null && selectionCount > maxSelect) {
             throw CustomException.of(ApiResponseCode.MAX_SELECTION_EXCEEDED);
         }
+    }
+
+    public void addMenuOption(OrderableShopMenuOption orderableShopMenuOption) {
+        menuOptions.add(orderableShopMenuOption);
+    }
+
+    @Builder
+    public OrderableShopMenuOptionGroup(OrderableShop orderableShop, String name, String description,
+        Boolean isRequired,
+        Integer minSelect, Integer maxSelect, Boolean isDeleted, List<OrderableShopMenuOption> menuOptions) {
+        this.orderableShop = orderableShop;
+        this.name = name;
+        this.description = description;
+        this.isRequired = isRequired;
+        this.minSelect = minSelect;
+        this.maxSelect = maxSelect;
+        this.isDeleted = isDeleted;
+        this.menuOptions = menuOptions;
     }
 }

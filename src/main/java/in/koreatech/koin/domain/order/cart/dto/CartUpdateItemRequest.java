@@ -29,7 +29,7 @@ public record CartUpdateItemRequest(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerOptionRequest(
+    public record InnerOptionRequest(
         @Schema(description = "옵션 그룹 ID", example = "1")
         Integer optionGroupId,
         @Schema(description = "옵션 ID", example = "2")

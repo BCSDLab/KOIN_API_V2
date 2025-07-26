@@ -183,7 +183,8 @@ public class Shop extends BaseEntity {
         Integer hit,
         String bank,
         String accountNumber,
-        ShopCategory shopMainCategory
+        ShopCategory shopMainCategory,
+        ShopOperation shopOperation
     ) {
         this.owner = owner;
         this.name = name;
@@ -203,6 +204,7 @@ public class Shop extends BaseEntity {
         this.bank = bank;
         this.accountNumber = accountNumber;
         this.shopMainCategory = shopMainCategory;
+        this.shopOperation = shopOperation;
     }
 
     public void modifyShop(

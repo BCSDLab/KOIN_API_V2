@@ -205,6 +205,48 @@ public interface CartApi {
                       "message": "상점의 영업시간이 아닙니다.",
                       "errorTraceId": "ae4feff5-5f37-4f91-b8b6-a5957fd5bb10"
                     }
+                    """),
+                @ExampleObject(name = "추가 수량 1 미만", summary = "추가 수량 1 미만", value = """
+                    {
+                      "code": "INVALID_REQUEST_BODY",
+                      "message": "수량은 최소 1 입니다.",
+                      "errorTraceId": "b5327d2e-77a4-4d76-88f0-fc3e6f829512",
+                      "fieldErrors": [
+                        {
+                          "field": "quantity",
+                          "message": "수량은 최소 1 입니다.",
+                          "constraint": "Min"
+                        }
+                      ]
+                    }
+                    """),
+                @ExampleObject(name = "추가 수량 10 초과", summary = "추가 수량 10 초과", value = """
+                    {
+                      "code": "INVALID_REQUEST_BODY",
+                      "message": "수량은 최대 10 입니다.",
+                      "errorTraceId": "13780c0b-b15c-459c-b854-fcdca7e68489",
+                      "fieldErrors": [
+                        {
+                          "field": "quantity",
+                          "message": "수량은 최대 10 입니다.",
+                          "constraint": "Max"
+                        }
+                      ]
+                    }
+                    """),
+                @ExampleObject(name = "추가 수량 null", summary = "추가 수량 null", value = """
+                    {
+                      "code": "INVALID_REQUEST_BODY",
+                      "message": "quantity는 필수값입니다.",
+                      "errorTraceId": "5969c702-ab15-40d3-b71a-6dec2a16a4c1",
+                      "fieldErrors": [
+                        {
+                          "field": "quantity",
+                          "message": "quantity는 필수값입니다.",
+                          "constraint": "NotNull"
+                        }
+                      ]
+                    }
                     """)
             })
         ),
@@ -261,6 +303,7 @@ public interface CartApi {
         - **orderableShopMenuOptionIds**: 선택한 옵션 목록 (선택 사항)
           - **optionGroupId**: 옵션 그룹 ID
           - **optionId**: 옵션 ID
+        - **quantity**: 추가 수량 (null, 0 이하의 값, 11 이상의 값을 허용하지 않습니다.)
         
         ### 중복 요청 처리
         - 0.1초 이내에 같은 요청이 도착한 경우, 둘 중 하나는 중복 요청으로 판단하여 409 에러가 반환됩니다.

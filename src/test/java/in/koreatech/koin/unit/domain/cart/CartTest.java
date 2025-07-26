@@ -58,7 +58,7 @@ public class CartTest {
             Cart cart = spy(CartFixture.createCart(user, orderableShop));
 
             // when
-            cart.addItem(menu, menuPrice, menuOptions);
+            cart.addItem(menu, menuPrice, menuOptions, 1);
 
             // then
             List<CartMenuItem> cartMenuItems = cart.getCartMenuItems();
@@ -77,10 +77,10 @@ public class CartTest {
         void 장바구니에_동일한_상품이_존재하면_수량이_1_증가한다() {
             // given
             Cart cart = spy(CartFixture.createCart(user, orderableShop));
-            cart.addItem(menu, menuPrice, menuOptions);
+            cart.addItem(menu, menuPrice, menuOptions, 1);
 
             // when
-            cart.addItem(menu, menuPrice, menuOptions);
+            cart.addItem(menu, menuPrice, menuOptions, 1);
 
             // then
             List<CartMenuItem> cartMenuItems = cart.getCartMenuItems();
@@ -94,13 +94,13 @@ public class CartTest {
         void 기존과_다른_상품을_추가하면_새로운_상품으로_담긴다() {
             // given
             Cart cart = spy(CartFixture.createCart(user, orderableShop));
-            cart.addItem(menu, menuPrice, menuOptions);
+            cart.addItem(menu, menuPrice, menuOptions, 1);
 
             OrderableShopMenu newMenu = OrderableShopMenuFixture.createMenu(orderableShop, "라면", 16);
             OrderableShopMenuPrice newMenuPrice = OrderableShopMenuFixture.createMenuPrice(newMenu, "매운맛", 7000, 31);
 
             // when
-            cart.addItem(newMenu, newMenuPrice, Collections.emptyList());
+            cart.addItem(newMenu, newMenuPrice, Collections.emptyList(), 1);
 
             // then
             List<CartMenuItem> cartMenuItems = cart.getCartMenuItems();

@@ -44,7 +44,7 @@ public class CartService {
         OrderableShopMenu menu = validateAndGetMenu(addItemCommand);
         List<OrderableShopMenuOption> selectedOptions = validateAndGetOptions(addItemCommand);
 
-        cart.addItem(menu, menu.getMenuPriceById(addItemCommand.shopMenuPriceId()), selectedOptions);
+        cart.addItem(menu, menu.getMenuPriceById(addItemCommand.shopMenuPriceId()), selectedOptions, addItemCommand.quantity());
         em.persist(cart);
     }
 

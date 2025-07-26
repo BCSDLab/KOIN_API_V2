@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,4 +40,11 @@ public class OrderableShopMenuOptionGroupMap {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Builder
+    public OrderableShopMenuOptionGroupMap(OrderableShopMenuOptionGroup optionGroup, OrderableShopMenu menu,
+        Boolean isDeleted) {
+        this.optionGroup = optionGroup;
+        this.menu = menu;
+        this.isDeleted = isDeleted;
+    }
 }

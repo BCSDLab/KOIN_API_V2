@@ -1,15 +1,13 @@
 package in.koreatech.koin._common.exception;
 
-import java.util.Objects;
-
 import org.springframework.util.StringUtils;
 
 import in.koreatech.koin._common.code.ApiResponseCode;
 import lombok.Getter;
 
+@Getter
 public class CustomException extends RuntimeException {
 
-    @Getter
     private final ApiResponseCode errorCode;
     private final String detail;
 
