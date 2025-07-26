@@ -117,6 +117,7 @@ public class ClubCreateRedis {
     public Club toClub(ClubCategory category) {
         return Club.builder()
             .name(this.name)
+            .normalizedName(normalize(name))
             .imageUrl(this.imageUrl)
             .clubCategory(category)
             .location(this.location)
@@ -135,5 +136,9 @@ public class ClubCreateRedis {
             .club(club)
             .user(requester)
             .build();
+    }
+
+    private String normalize(String name) {
+        return name.replaceAll("\\s+", "").toLowerCase();
     }
 }

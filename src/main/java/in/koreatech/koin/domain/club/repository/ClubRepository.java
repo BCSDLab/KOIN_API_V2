@@ -44,7 +44,10 @@ public interface ClubRepository extends Repository<Club, Integer> {
         return club;
     }
 
-    @Query("SELECT c FROM Club c WHERE c.isActive = true AND c.name LIKE CONCAT(:query, '%') ORDER BY c.name")
+    @Query("""
+        SELECT c FROM Club c
+        WHERE c.isActive = true AND c.normalizedName LIKE CONCAT(:query, '%') ORDER BY c.normalizedName
+        """)
     List<Club> findByNamePrefix(String query, Pageable pageable);
 
     @Modifying
