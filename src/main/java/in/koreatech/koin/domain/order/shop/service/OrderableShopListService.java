@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopCategoryFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopDetailInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopImageInfo;
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
@@ -30,9 +30,12 @@ public class OrderableShopListService {
     public List<OrderableShopsResponse> getOrderableShops(
         OrderableShopsSortCriteria sortCriteria,
         List<OrderableShopsFilterCriteria> filterCriteria,
+        OrderableShopCategoryFilterCriteria categoryFilterCriteria,
         Integer minimumAmount
     ) {
-        List<OrderableShopBaseInfo> shopBaseInfo = findAllOrderableShopBaseInfo(filterCriteria, minimumAmount);
+        List<OrderableShopBaseInfo> shopBaseInfo = orderableShopListQueryRepository.findAllOrderableShopInfo(
+            filterCriteria, categoryFilterCriteria, minimumAmount
+        );
         if (shopBaseInfo.isEmpty()) {
             return Collections.emptyList();
         }
@@ -42,14 +45,9 @@ public class OrderableShopListService {
 
         return shopBaseInfo.stream()
             .map(baseInfo -> OrderableShopsResponse.of(baseInfo, shopDetailInfo.shopCategories(),
-                shopDetailInfo.shopImages(), shopDetailInfo.shopOpens(), shopDetailInfo.shopOpenStatus()))
+                shopDetailInfo.shopImages(), shopDetailInfo.shopOpenStatus()))
             .sorted(sortCriteria.getComparator().thenComparing(OrderableShopsResponse::name))
             .collect(Collectors.toList());
-    }
-
-    private List<OrderableShopBaseInfo> findAllOrderableShopBaseInfo(List<OrderableShopsFilterCriteria> filterCriteria,
-        Integer minimumAmount) {
-        return orderableShopListQueryRepository.findAllOrderableShopInfo(filterCriteria, minimumAmount);
     }
 
     private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfo,
@@ -61,12 +59,9 @@ public class OrderableShopListService {
         Map<Integer, List<OrderableShopImageInfo>> shopImages =
             orderableShopListQueryRepository.findAllOrderableShopImagesByOrderableShopIds(orderableShopIds);
 
-        Map<Integer, List<OrderableShopOpenInfo>> shopOpensSchedule =
-            orderableShopListQueryRepository.findAllShopOpensByShopIds(shopIds);
-
         Map<Integer, OrderableShopOpenStatus> shopOpenStatus =
             shopOpenScheduleService.determineShopOpenStatuses(shopBaseInfo);
 
-        return new OrderableShopDetailInfo(shopCategories, shopImages, shopOpensSchedule, shopOpenStatus);
+        return new OrderableShopDetailInfo(shopCategories, shopImages, shopOpenStatus);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopDeliveryResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoDetailResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoSummaryResponse;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopCategoryFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
@@ -55,50 +56,6 @@ public interface OrderableShopApi {
                                     "is_thumbnail": true
                                   }
                                 ],
-                                "open": [
-                                  {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "TUESDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "WEDNESDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "THURSDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "SATURDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  }
-                                ],
                                 "open_status": "OPERATING"
                               }
                             ]
@@ -139,6 +96,9 @@ public interface OrderableShopApi {
 
         @Parameter(description = "적용할 필터 목록. 복수 선택 가능.")
         @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsSortCriteria,
+
+        @Parameter(description = "카테고리 필터 목록")
+        @RequestParam(name = "category_filter", required = false, defaultValue = "ALL") OrderableShopCategoryFilterCriteria orderableShopCategoryFilterCriteria,
 
         @Parameter(description = "최소 주문 금액 필터 (단위: 원). null 가능")
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount

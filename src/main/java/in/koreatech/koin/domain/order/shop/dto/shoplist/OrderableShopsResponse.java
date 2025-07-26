@@ -25,7 +25,6 @@ public record OrderableShopsResponse(
     Boolean isOpen,
     List<Integer> categoryIds,
     List<OrderableShopImageInfo> images,
-    List<OrderableShopOpenInfo> open,
     OrderableShopOpenStatus openStatus
 ) {
 
@@ -33,7 +32,6 @@ public record OrderableShopsResponse(
         OrderableShopBaseInfo info,
         Map<Integer, List<Integer>> categoryMap,
         Map<Integer, List<OrderableShopImageInfo>> images,
-        Map<Integer, List<OrderableShopOpenInfo>> openMap,
         Map<Integer, OrderableShopOpenStatus> openStatusMap
     ) {
         Integer shopId = info.shopId();
@@ -52,7 +50,6 @@ public record OrderableShopsResponse(
             info.isOpen(),
             categoryMap.getOrDefault(shopId, new ArrayList<>()),
             images.getOrDefault(info.orderableShopId(), new ArrayList<>()),
-            openMap.getOrDefault(shopId, new ArrayList<>()),
             openStatusMap.getOrDefault(shopId, null)
         );
     }

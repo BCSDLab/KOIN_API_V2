@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.order.shop.dto.shoplist;
 
-
 import static in.koreatech.koin.domain.order.shop.model.entity.delivery.QShopBaseDeliveryTip.shopBaseDeliveryTip;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop.orderableShop;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QShopOperation.shopOperation;

@@ -265,7 +265,7 @@ public interface CartApi {
         ### 중복 요청 처리
         - 0.1초 이내에 같은 요청이 도착한 경우, 둘 중 하나는 중복 요청으로 판단하여 409 에러가 반환됩니다.
         """)
-    @DuplicateGuard(key = "#userId + ':' + #cartAddItemRequest.toString()")
+    @DuplicateGuard(key = "#userId + ':' + #cartAddItemRequest.toString()", timeoutSeconds = 300)
     @PostMapping("/cart/add")
     ResponseEntity<Void> addItem(
         @RequestBody @Valid CartAddItemRequest cartAddItemRequest,
