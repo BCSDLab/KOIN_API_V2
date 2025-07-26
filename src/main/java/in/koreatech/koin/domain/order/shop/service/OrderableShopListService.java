@@ -12,7 +12,6 @@ import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopCategoryFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopDetailInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopImageInfo;
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
@@ -34,7 +33,9 @@ public class OrderableShopListService {
         OrderableShopCategoryFilterCriteria categoryFilterCriteria,
         Integer minimumAmount
     ) {
-        List<OrderableShopBaseInfo> shopBaseInfo = findAllOrderableShopBaseInfo(filterCriteria, minimumAmount);
+        List<OrderableShopBaseInfo> shopBaseInfo = orderableShopListQueryRepository.findAllOrderableShopInfo(
+            filterCriteria, categoryFilterCriteria, minimumAmount
+        );
         if (shopBaseInfo.isEmpty()) {
             return Collections.emptyList();
         }
@@ -45,15 +46,8 @@ public class OrderableShopListService {
         return shopBaseInfo.stream()
             .map(baseInfo -> OrderableShopsResponse.of(baseInfo, shopDetailInfo.shopCategories(),
                 shopDetailInfo.shopImages(), shopDetailInfo.shopOpenStatus()))
-            .filter(orderableShopsResponse ->
-                categoryFilterCriteria.matches(orderableShopsResponse.categoryIds()))
             .sorted(sortCriteria.getComparator().thenComparing(OrderableShopsResponse::name))
             .collect(Collectors.toList());
-    }
-
-    private List<OrderableShopBaseInfo> findAllOrderableShopBaseInfo(List<OrderableShopsFilterCriteria> filterCriteria,
-        Integer minimumAmount) {
-        return orderableShopListQueryRepository.findAllOrderableShopInfo(filterCriteria, minimumAmount);
     }
 
     private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfo,
