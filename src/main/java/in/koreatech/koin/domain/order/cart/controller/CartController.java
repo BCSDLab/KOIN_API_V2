@@ -17,6 +17,7 @@ import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.duplicate.DuplicateGuard;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartItemsCountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
@@ -123,5 +124,13 @@ public class CartController implements CartApi {
     ) {
         cartQueryService.validateCart(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/cart/items/count")
+    public ResponseEntity<CartItemsCountSummaryResponse> getCartItemsTotalCount(
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    ) {
+        CartItemsCountSummaryResponse cartItemsTotalCount = cartQueryService.getCartItemsCountSummary(userId);
+        return ResponseEntity.ok(cartItemsTotalCount);
     }
 }

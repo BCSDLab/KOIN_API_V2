@@ -16,6 +16,7 @@ import in.koreatech.koin._common.auth.Auth;
 import in.koreatech.koin._common.duplicate.DuplicateGuard;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartItemsCountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
@@ -856,5 +857,51 @@ public interface CartApi {
     @GetMapping("/cart/validate")
     ResponseEntity<Void> getCartValidateResult(
         @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "장바구니 상품 개수 정보 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니에 상품이 존재하는 경우", value = """
+                        {
+                          "itemTypeCount": 2,
+                          "totalQuantity": 7
+                        }
+                        """
+                ),
+                @ExampleObject(name = "장바구니에 상품이 비어있는 경우", value = """
+                        {
+                          "itemTypeCount": 0,
+                          "totalQuantity": 0
+                        }
+                        """
+                )
+            })
+        ),
+        @ApiResponse(responseCode = "401", description = "인증 정보 오류",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "인증 정보 오류", summary = "인증 정보 오류", value = """
+                    {
+                      "code": "",
+                      "message": "올바르지 않은 인증정보입니다.",
+                      "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
+                    }
+                    """)
+            })
+        )
+    })
+    @Operation(
+        summary = "장바구니에 담긴 상품 개수 조회",
+        description = """
+            ## 장바구니 상품 개수 조회
+            - 상점의 배달/포장 가능 여부와 관계 없이 장바구니에 담긴 상품의 종류와 총 수량 정보를 반환합니다.
+            - EX) 담긴 상품의 종류가 2개고 각각 3개, 4개의 수량 이라면
+              - **itemTypeCount** : 2
+              - **totalQuantity** : 7
+            """
+    )
+    @GetMapping("/cart/items/count")
+    ResponseEntity<CartItemsCountSummaryResponse> getCartItemsTotalCount(
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId
     );
 }

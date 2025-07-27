@@ -126,6 +126,16 @@ public class Cart extends BaseEntity {
         }
     }
 
+    public Integer getItemTypeCount() {
+        return this.cartMenuItems.size();
+    }
+
+    public Integer getTotalQuantity() {
+        return this.cartMenuItems.stream()
+            .mapToInt(CartMenuItem::getQuantity)
+            .sum();
+    }
+
     @Builder
     private Cart(
         User user,

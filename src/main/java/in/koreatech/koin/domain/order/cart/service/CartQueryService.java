@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin._common.code.ApiResponseCode;
 import in.koreatech.koin._common.exception.CustomException;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartItemsCountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
@@ -82,6 +83,11 @@ public class CartQueryService {
         OrderableShop orderableShop = cart.getOrderableShop();
         orderableShop.requireShopOpen();
         orderableShop.requireMinimumOrderAmount(cart.calculateItemsAmount());
+    }
+
+    public CartItemsCountSummaryResponse getCartItemsCountSummary(Integer userId) {
+        Optional<Cart> cart = cartRepository.findCartByUserId(userId);
+        return cart.map(CartItemsCountSummaryResponse::from).orElseGet(CartItemsCountSummaryResponse::empty);
     }
 
     private Cart getCartOrThrow(Integer userId) {
