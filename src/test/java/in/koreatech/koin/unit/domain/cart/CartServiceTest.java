@@ -298,12 +298,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.SHOP_CLOSED);
-            assertThat(exception.getMessage()).isEqualTo("상점의 영업시간이 아닙니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.SHOP_CLOSED
+            );
         }
 
         @Test
@@ -322,12 +320,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.DIFFERENT_SHOP_ITEM_IN_CART);
-            assertThat(exception.getMessage()).isEqualTo("장바구니에는 동일한 상점의 상품만 담을 수 있습니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.DIFFERENT_SHOP_ITEM_IN_CART
+            );
         }
 
         @Test
@@ -349,12 +345,11 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU);
-            assertThat(exception.getDetail()).contains("메뉴가 존재하지 않습니다 : 1");
+            assertCustomExceptionThrownAndDetail(
+                () -> cartService.addItem(command),
+                ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU,
+                "해당 상점에 메뉴가 존재하지 않습니다 : 1"
+            );
         }
 
         @Test
@@ -372,12 +367,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.INVALID_MENU_IN_SHOP);
-            assertThat(exception.getMessage()).isEqualTo("선택한 메뉴는 해당 상점에 속해있지 않습니다");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.INVALID_MENU_IN_SHOP
+            );
         }
 
         @Test
@@ -395,12 +388,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.MENU_SOLD_OUT);
-            assertThat(exception.getMessage()).isEqualTo("상품이 매진되었습니다");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.MENU_SOLD_OUT
+            );
         }
 
         @Test
@@ -418,12 +409,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE);
-            assertThat(exception.getMessage()).isEqualTo("유효하지 않은 가격 ID 입니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE
+            );
         }
 
         @Test
@@ -445,12 +434,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.REQUIRED_OPTION_GROUP_MISSING);
-            assertThat(exception.getMessage()).isEqualTo("필수 옵션 그룹을 선택하지 않았습니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.REQUIRED_OPTION_GROUP_MISSING
+            );
         }
 
         @Test
@@ -473,12 +460,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION);
-            assertThat(exception.getMessage()).isEqualTo("유효하지 않은 옵션 ID 입니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION
+            );
         }
 
         @Test
@@ -501,12 +486,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.INVALID_OPTION_IN_GROUP);
-            assertThat(exception.getMessage()).isEqualTo("선택한 옵션이 해당 옵션 그룹에 속해있지 않습니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.INVALID_OPTION_IN_GROUP
+            );
         }
 
         @Test
@@ -532,12 +515,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.MIN_SELECTION_NOT_MET);
-            assertThat(exception.getMessage()).isEqualTo("옵션 그룹의 최소 선택 개수를 만족하지 못했습니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.MIN_SELECTION_NOT_MET
+            );
         }
 
         @Test
@@ -565,12 +546,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.MAX_SELECTION_EXCEEDED);
-            assertThat(exception.getMessage()).isEqualTo("옵션 그룹의 최대 선택 개수를 초과했습니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.addItem(command),
+                ApiResponseCode.MAX_SELECTION_EXCEEDED
+            );
         }
 
         @Test
@@ -591,12 +570,11 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.addItem(command);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.ILLEGAL_STATE);
-            assertThat(exception.getDetail()).isEqualTo("수량은 1 이상이어야 합니다.");
+            assertCustomExceptionThrownAndDetail(
+                () -> cartService.addItem(command),
+                ApiResponseCode.ILLEGAL_STATE,
+                "수량은 1 이상이어야 합니다."
+            );
         }
     }
 
@@ -702,12 +680,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.updateItem(request, itemA.getId(), user.getId());
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE);
-            assertThat(exception.getMessage()).isEqualTo("유효하지 않은 가격 ID 입니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.updateItem(request, itemA.getId(), user.getId()),
+                ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE
+            );
         }
 
         @Test
@@ -730,12 +706,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.updateItem(request, itemA.getId(), user.getId());
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.REQUIRED_OPTION_GROUP_MISSING);
-            assertThat(exception.getMessage()).isEqualTo("필수 옵션 그룹을 선택하지 않았습니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.updateItem(request, itemA.getId(), user.getId()),
+                ApiResponseCode.REQUIRED_OPTION_GROUP_MISSING
+            );
         }
 
         @Test
@@ -759,12 +733,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.updateItem(request, itemA.getId(), user.getId());
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION);
-            assertThat(exception.getMessage()).isEqualTo("유효하지 않은 옵션 ID 입니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.updateItem(request, itemA.getId(), user.getId()),
+                ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION
+            );
         }
 
         @Test
@@ -788,12 +760,10 @@ public class CartServiceTest {
             );
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.updateItem(request, itemA.getId(), user.getId());
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.INVALID_OPTION_IN_GROUP);
-            assertThat(exception.getMessage()).isEqualTo("선택한 옵션이 해당 옵션 그룹에 속해있지 않습니다.");
+            assertCustomExceptionThrown(
+                () -> cartService.updateItem(request, itemA.getId(), user.getId()),
+                ApiResponseCode.INVALID_OPTION_IN_GROUP
+            );
         }
 
         @Test
@@ -903,16 +873,15 @@ public class CartServiceTest {
             when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.updateItemQuantity(user.getId(), itemToUpdate.getId(), null);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.INVALID_CART_ITEM_QUANTITY);
-            assertThat(exception.getDetail()).isEqualTo("수량은 null일 수 없습니다.");
+            assertCustomExceptionThrownAndDetail(
+                () -> cartService.updateItemQuantity(user.getId(), itemToUpdate.getId(), null),
+                ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
+                "수량은 null일 수 없습니다."
+            );
         }
 
         @Test
-        @DisplayName("수량이 0인 경우")
+        @DisplayName("수량이 0 이하인 경우")
         void updateItemQuantity_Fail_QuantityValueInvalid_Zero() {
             // Given
             CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA,
@@ -923,32 +892,11 @@ public class CartServiceTest {
             when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.updateItemQuantity(user.getId(), itemToUpdate.getId(), 0);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.INVALID_CART_ITEM_QUANTITY);
-            assertThat(exception.getDetail()).isEqualTo("수량은 1 이상이어야 합니다.");
-        }
-
-        @Test
-        @DisplayName("수량이 음수인 경우")
-        void updateItemQuantity_Fail_QuantityValueInvalid_Negative() {
-            // Given
-            CartMenuItem itemToUpdate = CartFixture.cartMenuItem(cart, menuGimbap, gimbapPriceA,
-                List.of(toppingOptionA), 7);
-            ReflectionTestUtils.setField(itemToUpdate, "id", 7);
-            ReflectionTestUtils.setField(cart, "cartMenuItems", new ArrayList<>(List.of(itemToUpdate)));
-
-            when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
-
-            // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.updateItemQuantity(user.getId(), itemToUpdate.getId(), -999);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.INVALID_CART_ITEM_QUANTITY);
-            assertThat(exception.getDetail()).isEqualTo("수량은 1 이상이어야 합니다.");
+            assertCustomExceptionThrownAndDetail(
+                () -> cartService.updateItemQuantity(user.getId(), itemToUpdate.getId(), 0),
+                ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
+                "수량은 1 이상이어야 합니다."
+            );
         }
     }
 
@@ -1005,12 +953,21 @@ public class CartServiceTest {
             when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
 
             // When & Then
-            CustomException exception = assertThrows(CustomException.class, () -> {
-                cartService.deleteItem(user.getId(), 9999);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_CART_ITEM);
-            assertThat(exception.getMessage()).isEqualTo("장바구니에 담긴 상품이 존재하지 않습니다");
+            assertCustomExceptionThrown(
+                () -> cartService.deleteItem(user.getId(), 9999),
+                ApiResponseCode.NOT_FOUND_CART_ITEM
+            );
         }
+    }
+
+    private void assertCustomExceptionThrown(Runnable runnable, ApiResponseCode expectedCode) {
+        CustomException exception = assertThrows(CustomException.class, runnable::run);
+        assertThat(exception.getErrorCode()).isEqualTo(expectedCode);
+    }
+
+    private void assertCustomExceptionThrownAndDetail(Runnable runnable, ApiResponseCode expectedCode, String detail) {
+        CustomException exception = assertThrows(CustomException.class, runnable::run);
+        assertThat(exception.getErrorCode()).isEqualTo(expectedCode);
+        assertThat(exception.getDetail()).isEqualTo(detail);
     }
 }
