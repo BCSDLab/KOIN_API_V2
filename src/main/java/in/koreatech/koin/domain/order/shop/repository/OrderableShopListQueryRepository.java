@@ -1,14 +1,13 @@
 package in.koreatech.koin.domain.order.shop.repository;
 
-
 import static in.koreatech.koin.domain.order.shop.model.entity.delivery.QShopBaseDeliveryTip.shopBaseDeliveryTip;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop.orderableShop;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShopImage.orderableShopImage;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QShopOperation.shopOperation;
 import static in.koreatech.koin.domain.shop.model.review.QShopReview.shopReview;
 import static in.koreatech.koin.domain.shop.model.shop.QShop.shop;
+import static in.koreatech.koin.domain.shop.model.shop.QShopCategory.shopCategory;
 import static in.koreatech.koin.domain.shop.model.shop.QShopCategoryMap.shopCategoryMap;
-import static in.koreatech.koin.domain.shop.model.shop.QShopImage.shopImage;
 import static in.koreatech.koin.domain.shop.model.shop.QShopOpen.shopOpen;
 
 import java.util.List;
@@ -21,16 +20,17 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopCategoryFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopImageInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
-import in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShopImage;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -41,14 +41,16 @@ public class OrderableShopListQueryRepository {
 
     public List<OrderableShopBaseInfo> findAllOrderableShopInfo(
         List<OrderableShopsFilterCriteria> filterCriteria,
+        OrderableShopCategoryFilterCriteria orderableShopCategoryFilterCriteria,
         Integer minimumAmount
     ) {
         var minimumTipSubquery = getMinimumDeliveryTipSubquery(); // 최소 배달비 서브 쿼리
         var maximumTipSubquery = getMaximumDeliveryTipSubquery(); // 최대 배달비 서브 쿼리
-        var avgRatingExpression = getReviewRatingAvgExpression(); // 리뷰 평균 점수 반올림 표현식
+        var averageReviewRatingSubquery = getAvgReviewRatingSubquery(); // 리뷰 평균 별점 서브 쿼리
+        var reviewCountSubquery = getReviewCountSubquery(); // 리뷰 개수 서브 쿼리
         BooleanBuilder filter = orderableShopSearchFilter(filterCriteria, minimumAmount); // 동적 쿼리 필터
 
-        return queryFactory
+        JPAQuery<OrderableShopBaseInfo> baseQuery = queryFactory
             .select(Projections.constructor(OrderableShopBaseInfo.class,
                 shop.id,
                 orderableShop.id,
@@ -57,26 +59,26 @@ public class OrderableShopListQueryRepository {
                 orderableShop.takeout,
                 orderableShop.serviceEvent,
                 orderableShop.minimumOrderAmount,
-                avgRatingExpression,
-                shopReview.id.count(),
+                averageReviewRatingSubquery,
+                reviewCountSubquery,
                 minimumTipSubquery,
                 maximumTipSubquery,
                 shopOperation.isOpen
             ))
             .from(shop)
             .innerJoin(orderableShop).on(orderableShop.shop.id.eq(shop.id))
-            .innerJoin(shopOperation).on(shopOperation.shop.id.eq(orderableShop.shop.id))
-            .leftJoin(shopReview).on(shopReview.shop.id.eq(shop.id)
-                .and(shopReview.isDeleted.isFalse())
-            )
+            .innerJoin(shopOperation).on(shopOperation.shop.id.eq(orderableShop.shop.id));
+
+        // 카테고리 필터 조건이 있는 경우에만 shop_categories 동적 으로 조인
+        if (!orderableShopCategoryFilterCriteria.equals(OrderableShopCategoryFilterCriteria.ALL)) {
+            baseQuery = baseQuery
+                .innerJoin(shopCategoryMap).on(shopCategoryMap.shop.id.eq(shop.id))
+                .innerJoin(shopCategory).on(shopCategory.id.eq(shopCategoryMap.shopCategory.id));
+
+            filter.and(shopCategory.id.eq(orderableShopCategoryFilterCriteria.getValue()));
+        }
+        return baseQuery
             .where(filter)
-            .groupBy(
-                shop.id,
-                shop.name,
-                orderableShop.delivery,
-                orderableShop.takeout,
-                orderableShop.minimumOrderAmount
-            )
             .fetch();
     }
 
@@ -116,12 +118,24 @@ public class OrderableShopListQueryRepository {
             .where(shopBaseDeliveryTip.shop.id.eq(shop.id));
     }
 
-    private NumberExpression<Double> getReviewRatingAvgExpression() {
+    private NumberTemplate<Double> getAvgReviewRatingSubquery() {
         return Expressions.numberTemplate(
             Double.class,
             "ROUND(COALESCE({0}, 0.0), 1)",
-            shopReview.rating.avg()
+            JPAExpressions
+                .select(shopReview.rating.avg().coalesce(0.0))
+                .from(shopReview)
+                .where(shopReview.shop.id.eq(shop.id)
+                    .and(shopReview.isDeleted.isFalse()))
         );
+    }
+
+    private JPQLQuery<Long> getReviewCountSubquery() {
+        return JPAExpressions
+            .select(shopReview.id.count())
+            .from(shopReview)
+            .where(shopReview.shop.id.eq(shop.id)
+                .and(shopReview.isDeleted.isFalse()));
     }
 
     public Map<Integer, List<Integer>> findAllCategoriesByShopIds(List<Integer> shopIds) {
