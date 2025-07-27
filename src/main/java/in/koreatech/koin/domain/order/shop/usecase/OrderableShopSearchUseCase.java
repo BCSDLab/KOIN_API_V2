@@ -10,8 +10,8 @@ import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRel
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultSortCriteria;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
-import in.koreatech.koin.domain.order.shop.service.SearchKeywordProcessor;
 import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchService;
+import in.koreatech.koin.domain.order.shop.service.SearchKeywordProcessor;
 import in.koreatech.koin.domain.order.shop.service.ShopOpenScheduleService;
 import lombok.RequiredArgsConstructor;
 

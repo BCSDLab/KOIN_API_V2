@@ -40,7 +40,6 @@ import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuRepo
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.unit.fixutre.CartFixture;
-import in.koreatech.koin.unit.fixutre.CartMenuItemFixture;
 import in.koreatech.koin.unit.fixutre.OrderableShopFixture;
 import in.koreatech.koin.unit.fixutre.OrderableShopMenuFixture;
 import in.koreatech.koin.unit.fixutre.UserFixture;
