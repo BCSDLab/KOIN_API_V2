@@ -41,7 +41,7 @@ public class CartTest {
     @BeforeEach
     void setUp() {
         user = UserFixture.코인_유저();
-        orderableShop = OrderableShopFixture.김밥천국();
+        orderableShop = OrderableShopFixture.김밥천국(101);
 
         menuGimbap = OrderableShopMenuFixture.createMenu(orderableShop, "김밥", 15);
         menuGimbapPrice = OrderableShopMenuFixture.createMenuPrice(menuGimbap, "소고기 김밥", 6000, 30);

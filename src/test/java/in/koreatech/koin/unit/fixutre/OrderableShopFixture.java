@@ -10,7 +10,7 @@ public class OrderableShopFixture {
 
     private OrderableShopFixture() {}
 
-    public static OrderableShop 김밥천국() {
+    public static OrderableShop 김밥천국(Integer id) {
         ShopOperation shopOperation = ShopOperation.builder()
             .isOpen(true)
             .isDeleted(false)
@@ -36,7 +36,7 @@ public class OrderableShopFixture {
             .shopOperation(shopOperation)
             .build();
 
-        ReflectionTestUtils.setField(shop, "id", 1);
+        ReflectionTestUtils.setField(shop, "id", id);
         ReflectionTestUtils.setField(shopOperation, "shop", shop);
 
         OrderableShop orderableShop = OrderableShop.builder()
@@ -96,7 +96,7 @@ public class OrderableShopFixture {
         return orderableShop;
     }
 
-    public static OrderableShop 김밥천국_영업_안함() {
+    public static OrderableShop 영업시간이_아닌_김밥천국() {
         ShopOperation shopOperation = ShopOperation.builder()
             .isOpen(false)
             .isDeleted(false)
