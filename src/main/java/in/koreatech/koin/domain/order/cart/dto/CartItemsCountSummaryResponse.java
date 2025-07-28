@@ -1,8 +1,13 @@
 package in.koreatech.koin.domain.order.cart.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record CartItemsCountSummaryResponse(
 
     @Schema(description = "장바구니에 담긴 상품 종류 개수", example = "2")
