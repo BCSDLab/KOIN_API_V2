@@ -31,22 +31,32 @@ public class CartTest {
 
     private User user;
     private OrderableShop orderableShop;
-    private OrderableShopMenu menu;
-    private OrderableShopMenuPrice menuPrice;
-    private List<OrderableShopMenuOption> menuOptions;
+    private OrderableShopMenu menuGimbap;
+    private OrderableShopMenu menuRamen;
+    private OrderableShopMenuPrice menuGimbapPrice;
+    private OrderableShopMenuPrice menuRamenPrice;
+    private List<OrderableShopMenuOption> menuGimbapOptions;
+    private List<OrderableShopMenuOption> menuRamenOptions;
 
     @BeforeEach
     void setUp() {
         user = UserFixture.코인_유저();
-        orderableShop = OrderableShopFixture.김밥천국();
+        orderableShop = OrderableShopFixture.김밥천국(101);
 
-        menu = OrderableShopMenuFixture.createMenu(orderableShop, "김밥", 15);
-        menuPrice = OrderableShopMenuFixture.createMenuPrice(menu, "소고기 김밥", 6000, 30);
-        menuOptions = List.of(
+        menuGimbap = OrderableShopMenuFixture.createMenu(orderableShop, "김밥", 15);
+        menuGimbapPrice = OrderableShopMenuFixture.createMenuPrice(menuGimbap, "소고기 김밥", 6000, 30);
+        menuGimbapOptions = List.of(
             OrderableShopMenuFixture.createMenuOption("단무지", 1000, 45)
         );
 
-        ReflectionTestUtils.setField(menu, "menuPrices", List.of(menuPrice));
+        menuRamen = OrderableShopMenuFixture.createMenu(orderableShop, "라면", 16);
+        menuRamenPrice = OrderableShopMenuFixture.createMenuPrice(menuRamen, "신라면", 5500, 303);
+        menuRamenOptions = List.of(
+            OrderableShopMenuFixture.createMenuOption("단무지", 1000, 45)
+        );
+
+        ReflectionTestUtils.setField(menuGimbap, "menuPrices", List.of(menuGimbapPrice));
+        ReflectionTestUtils.setField(menuRamen, "menuPrices", List.of(menuRamenPrice));
     }
 
     @Nested
@@ -58,7 +68,7 @@ public class CartTest {
             Cart cart = spy(CartFixture.createCart(user, orderableShop));
 
             // when
-            cart.addItem(menu, menuPrice, menuOptions);
+            cart.addItem(menuGimbap, menuGimbapPrice, menuGimbapOptions, 1);
 
             // then
             List<CartMenuItem> cartMenuItems = cart.getCartMenuItems();
@@ -66,8 +76,8 @@ public class CartTest {
 
             CartMenuItem addedItem = cartMenuItems.get(0);
             assertEquals(1, addedItem.getQuantity());
-            assertEquals(menu.getId(), addedItem.getOrderableShopMenu().getId());
-            assertEquals(menuPrice.getId(), addedItem.getOrderableShopMenuPrice().getId());
+            assertEquals(menuGimbap.getId(), addedItem.getOrderableShopMenu().getId());
+            assertEquals(menuGimbapPrice.getId(), addedItem.getOrderableShopMenuPrice().getId());
             assertThat(addedItem.getCartMenuItemOptions())
                 .extracting(option -> option.getOrderableShopMenuOption().getId())
                 .containsExactlyInAnyOrder(45);
@@ -77,10 +87,10 @@ public class CartTest {
         void 장바구니에_동일한_상품이_존재하면_수량이_1_증가한다() {
             // given
             Cart cart = spy(CartFixture.createCart(user, orderableShop));
-            cart.addItem(menu, menuPrice, menuOptions);
+            cart.addItem(menuGimbap, menuGimbapPrice, menuGimbapOptions, 1);
 
             // when
-            cart.addItem(menu, menuPrice, menuOptions);
+            cart.addItem(menuGimbap, menuGimbapPrice, menuGimbapOptions, 1);
 
             // then
             List<CartMenuItem> cartMenuItems = cart.getCartMenuItems();
@@ -94,13 +104,13 @@ public class CartTest {
         void 기존과_다른_상품을_추가하면_새로운_상품으로_담긴다() {
             // given
             Cart cart = spy(CartFixture.createCart(user, orderableShop));
-            cart.addItem(menu, menuPrice, menuOptions);
+            cart.addItem(menuGimbap, menuGimbapPrice, menuGimbapOptions, 1);
 
             OrderableShopMenu newMenu = OrderableShopMenuFixture.createMenu(orderableShop, "라면", 16);
             OrderableShopMenuPrice newMenuPrice = OrderableShopMenuFixture.createMenuPrice(newMenu, "매운맛", 7000, 31);
 
             // when
-            cart.addItem(newMenu, newMenuPrice, Collections.emptyList());
+            cart.addItem(newMenu, newMenuPrice, Collections.emptyList(), 1);
 
             // then
             List<CartMenuItem> cartMenuItems = cart.getCartMenuItems();
@@ -122,4 +132,19 @@ public class CartTest {
         }
     }
 
+    @Test
+    void 장바구니에_담긴_상품의_종류와_총_수량을_확인한다() {
+        // Given
+        Cart cart = spy(CartFixture.createCart(user, orderableShop));
+        cart.addItem(menuGimbap, menuGimbapPrice, menuGimbapOptions, 3);
+        cart.addItem(menuRamen, menuRamenPrice, menuRamenOptions, 4);
+
+        // When
+        Integer itemTypeCount = cart.getItemTypeCount();
+        Integer totalQuantity = cart.getTotalQuantity();
+
+        // Then
+        assertEquals(2, itemTypeCount);
+        assertEquals(7, totalQuantity);
+    }
 }

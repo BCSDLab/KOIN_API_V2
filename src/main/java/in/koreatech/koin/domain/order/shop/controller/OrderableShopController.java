@@ -30,9 +30,12 @@ public class OrderableShopController implements OrderableShopApi {
     public ResponseEntity<List<OrderableShopsResponse>> getOrderableShops(
         @RequestParam(name = "sorter", defaultValue = "NONE") OrderableShopsSortCriteria sortBy,
         @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsFilterCriteria,
-        @RequestParam(name = "category_filter", required = false, defaultValue = "ALL") OrderableShopCategoryFilterCriteria orderableShopCategoryFilterCriteria,
+        @RequestParam(name = "category_filter", required = false) Integer categoryFilterId,
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount
     ) {
+        OrderableShopCategoryFilterCriteria orderableShopCategoryFilterCriteria =
+            OrderableShopCategoryFilterCriteria.fromValue(categoryFilterId);
+
         List<OrderableShopsResponse> orderableShops = orderableShopListService.getOrderableShops(sortBy,
             orderableShopsFilterCriteria, orderableShopCategoryFilterCriteria, minimumOrderAmount);
         return ResponseEntity.ok(orderableShops);

@@ -1,7 +1,9 @@
 package in.koreatech.koin.domain.order.shop.dto.shoplist;
 
-import java.util.List;
+import java.util.Objects;
 
+import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin._common.exception.CustomException;
 import lombok.Getter;
 
 @Getter
@@ -27,5 +29,18 @@ public enum OrderableShopCategoryFilterCriteria {
     OrderableShopCategoryFilterCriteria(String name, Integer value) {
         this.name = name;
         this.value = value;
+    }
+
+    public static OrderableShopCategoryFilterCriteria fromValue(Integer value) {
+        if (value == null) {
+            return ALL;
+        }
+
+        for (OrderableShopCategoryFilterCriteria criteria : values()) {
+            if (Objects.equals(criteria.value, value)) {
+                return criteria;
+            }
+        }
+        throw CustomException.of(ApiResponseCode.ILLEGAL_ARGUMENT);
     }
 }

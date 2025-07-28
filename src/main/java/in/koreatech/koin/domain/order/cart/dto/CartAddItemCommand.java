@@ -7,7 +7,8 @@ public record CartAddItemCommand(
     Integer shopId,
     Integer shopMenuId,
     Integer shopMenuPriceId,
-    List<Option> options
+    List<Option> options,
+    Integer quantity
 ) {
 
     public record Option(

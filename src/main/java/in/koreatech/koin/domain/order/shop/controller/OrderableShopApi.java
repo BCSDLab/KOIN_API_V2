@@ -63,8 +63,18 @@ public interface OrderableShopApi {
                     )
                 })
             ),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "400", description = "잘못된 카테고리 ID",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "잘못된 카테고리 ID", value = """
+                        {
+                          "code": "ILLEGAL_ARGUMENT",
+                          "message": "잘못된 인자가 전달되었습니다.",
+                          "errorTraceId": "ff8c3490-754e-4ba9-b805-e15132e7f478"
+                        }
+                        """
+                    )
+                })
+            )
         }
     )
     @Operation(summary = "주문 가능한 모든 상점 조회", description = """
@@ -83,6 +93,19 @@ public interface OrderableShopApi {
             - **DELIVERY_AVAILABLE**: 배달 가능한 상점
             - **TAKEOUT_AVAILABLE**: 포장 가능한 상점
             - **FREE_DELIVERY_TIP**: 배달비 무료 상점
+        - **카테고리 필터**: category_filter. 카테고리 ID로 상점을 필터링
+            - **null**: 전체 카테고리 (기본)
+            - **2**: 치킨
+            - **3**: 피자/버거
+            - **4**: 도시락/분식
+            - **5**: 족발
+            - **6**: 중국집
+            - **7**: 고깃집
+            - **8**: 한식
+            - **9**: 주점
+            - **10**: 카페
+            - **11**: 콜밴
+            - **12**: 기타
         - **최소 주문 금액 필터**: minimum_order_amount. 해당 최소 주문 금액 이하의 상점을 반환
         - **open_status**: 현재 요일과 시간을 고려 하여 상점의 영업 상태를 결정.
             - **OPERATING**: 영업중
@@ -98,7 +121,7 @@ public interface OrderableShopApi {
         @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsSortCriteria,
 
         @Parameter(description = "카테고리 필터 목록")
-        @RequestParam(name = "category_filter", required = false, defaultValue = "ALL") OrderableShopCategoryFilterCriteria orderableShopCategoryFilterCriteria,
+        @RequestParam(name = "category_filter", required = false) Integer categoryFilterId,
 
         @Parameter(description = "최소 주문 금액 필터 (단위: 원). null 가능")
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount
