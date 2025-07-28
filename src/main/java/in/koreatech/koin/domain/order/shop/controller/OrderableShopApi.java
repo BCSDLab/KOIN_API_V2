@@ -94,7 +94,7 @@ public interface OrderableShopApi {
             - **TAKEOUT_AVAILABLE**: 포장 가능한 상점
             - **FREE_DELIVERY_TIP**: 배달비 무료 상점
         - **카테고리 필터**: category_filter. 카테고리 ID로 상점을 필터링
-            - **null**: 전체 카테고리 (기본)
+            - **1 or null**: 전체 카테고리 (기본)
             - **2**: 치킨
             - **3**: 피자/버거
             - **4**: 도시락/분식

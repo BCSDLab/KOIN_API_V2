@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public enum OrderableShopCategoryFilterCriteria {
 
-    ALL("ALL", null),
+    ALL("ALL", 1),
     CHICKEN("CHICKEN", 2),
     PIZZA_BUGGER("PIZZA_BUGGER", 3),
     DOSIRAK_BUNSIK("DOSIRAK_BUNSIK", 4),
