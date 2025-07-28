@@ -864,15 +864,15 @@ public interface CartApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "장바구니에 상품이 존재하는 경우", value = """
                         {
-                          "itemTypeCount": 2,
-                          "totalQuantity": 7
+                          "item_type_count": 2,
+                          "total_quantity": 7
                         }
                         """
                 ),
                 @ExampleObject(name = "장바구니에 상품이 비어있는 경우", value = """
                         {
-                          "itemTypeCount": 0,
-                          "totalQuantity": 0
+                          "item_type_count": 0,
+                          "total_quantity": 0
                         }
                         """
                 )
@@ -896,8 +896,8 @@ public interface CartApi {
             ## 장바구니 상품 개수 조회
             - 상점의 배달/포장 가능 여부와 관계 없이 장바구니에 담긴 상품의 종류와 총 수량 정보를 반환합니다.
             - EX) 담긴 상품의 종류가 2개고 각각 3개, 4개의 수량 이라면
-              - **itemTypeCount** : 2
-              - **totalQuantity** : 7
+              - **item_type_count** : 2
+              - **total_quantity** : 7
             """
     )
     @GetMapping("/cart/items/count")
