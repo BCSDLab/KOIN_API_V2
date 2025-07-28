@@ -9,10 +9,10 @@ import java.util.function.Function;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin._common.event.ImageDeletedEvent;
-import in.koreatech.koin._common.event.ImageSensitiveDeletedEvent;
-import in.koreatech.koin._common.event.ImagesDeletedEvent;
-import in.koreatech.koin._common.event.ImagesSensitiveDeletedEvent;
+import in.koreatech.koin.common.event.ImageDeletedEvent;
+import in.koreatech.koin.common.event.ImageSensitiveDeletedEvent;
+import in.koreatech.koin.common.event.ImagesDeletedEvent;
+import in.koreatech.koin.common.event.ImagesSensitiveDeletedEvent;
 import lombok.RequiredArgsConstructor;
 
 @Component

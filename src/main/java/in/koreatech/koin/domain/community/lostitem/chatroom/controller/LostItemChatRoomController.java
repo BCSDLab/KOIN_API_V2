@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomInfoResponse;
 import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomListResponse;

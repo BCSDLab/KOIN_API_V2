@@ -6,7 +6,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
 
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -24,8 +24,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import in.koreatech.koin._common.apiloadbalancer.ApiLoadBalance;
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin.global.apiloadbalancer.ApiLoadBalance;
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;

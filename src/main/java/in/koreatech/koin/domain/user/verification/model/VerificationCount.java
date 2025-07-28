@@ -5,8 +5,8 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.util.StringUtils;
 
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
 import lombok.Getter;
 import lombok.ToString;
 

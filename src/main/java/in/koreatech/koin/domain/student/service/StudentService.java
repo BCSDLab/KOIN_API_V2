@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
-import in.koreatech.koin._common.event.StudentFindPasswordEvent;
-import in.koreatech.koin._common.event.StudentRegisterEvent;
-import in.koreatech.koin._common.event.StudentRegisterRequestEvent;
-import in.koreatech.koin._common.event.UserMarketingAgreementEvent;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
+import in.koreatech.koin.common.event.StudentFindPasswordEvent;
+import in.koreatech.koin.common.event.StudentRegisterEvent;
+import in.koreatech.koin.common.event.StudentRegisterRequestEvent;
+import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;

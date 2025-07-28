@@ -9,8 +9,8 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.socket.config.auth.UserPrincipal;
 import in.koreatech.koin.socket.session.model.WebSocketUserSession;

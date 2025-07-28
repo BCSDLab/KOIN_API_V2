@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.history.exception;
 
-import in.koreatech.koin._common.exception.custom.DataNotFoundException;
+import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 
 public class AdminActivityHistoryNotFoundException extends DataNotFoundException {
 

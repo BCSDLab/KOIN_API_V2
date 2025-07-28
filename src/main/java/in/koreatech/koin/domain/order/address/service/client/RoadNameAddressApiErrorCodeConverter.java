@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.order.address.service.client;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin.global.code.ApiResponseCode;
 
 @Component
 public class RoadNameAddressApiErrorCodeConverter {

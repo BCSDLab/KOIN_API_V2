@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.benefit.exception;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 
 public class BenefitLimitException extends KoinIllegalStateException {
 

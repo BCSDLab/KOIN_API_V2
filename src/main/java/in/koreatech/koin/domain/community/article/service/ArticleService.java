@@ -34,13 +34,13 @@ import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywor
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
-import in.koreatech.koin._common.event.ArticleKeywordEvent;
+import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service

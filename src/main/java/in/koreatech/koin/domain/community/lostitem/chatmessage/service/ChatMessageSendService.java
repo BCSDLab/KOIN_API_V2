@@ -7,7 +7,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.model.MobileAppPath;
+import in.koreatech.koin.common.model.MobileAppPath;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.event.MessageSendEvent;
 import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatRoomInfoRepository;
 import in.koreatech.koin.domain.community.lostitem.chatroom.service.LostItemChatRoomInfoService;

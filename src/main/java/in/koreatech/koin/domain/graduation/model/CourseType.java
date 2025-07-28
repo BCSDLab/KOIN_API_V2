@@ -10,7 +10,7 @@ import org.hibernate.annotations.Where;
 
 import com.google.firebase.database.annotations.NotNull;
 
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

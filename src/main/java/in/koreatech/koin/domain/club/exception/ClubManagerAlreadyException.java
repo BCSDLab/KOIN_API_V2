@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.exception;
 
-import in.koreatech.koin._common.exception.custom.KoinException;
+import in.koreatech.koin.global.exception.custom.KoinException;
 
 public class ClubManagerAlreadyException extends KoinException {
     private static final String DEFAULT_MESSAGE = "이미 동아리의 관리자입니다.";

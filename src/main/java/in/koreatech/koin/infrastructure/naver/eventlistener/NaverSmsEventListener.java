@@ -1,13 +1,11 @@
 package in.koreatech.koin.infrastructure.naver.eventlistener;
 
-import static org.springframework.transaction.event.TransactionPhase.*;
-
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.OwnerSmsVerificationSendEvent;
-import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
+import in.koreatech.koin.common.event.OwnerSmsVerificationSendEvent;
+import in.koreatech.koin.common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 import lombok.RequiredArgsConstructor;
 

@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.shop.repository.shop.ShopReviewNotificationRedis
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.apiloadbalancer.ApiLoadBalance;
+import in.koreatech.koin.global.apiloadbalancer.ApiLoadBalance;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.timetableV3.dto.response.TakeAllTimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.service.TimetableLectureServiceV3;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
 @RestController

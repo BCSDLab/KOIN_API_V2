@@ -5,12 +5,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
-import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.common.event.UserEmailVerificationSendEvent;
+import in.koreatech.koin.common.event.UserSmsVerificationSendEvent;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.model.VerificationChannel;
 import in.koreatech.koin.domain.user.verification.model.VerificationCode;

@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.bus.exception;
 
-import in.koreatech.koin._common.exception.custom.ExternalServiceException;
+import in.koreatech.koin.global.exception.custom.ExternalServiceException;
 
 public class BusOpenApiException extends ExternalServiceException {
 

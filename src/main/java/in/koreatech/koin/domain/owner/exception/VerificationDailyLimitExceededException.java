@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.owner.exception;
 
-import in.koreatech.koin._common.exception.custom.KoinException;
+import in.koreatech.koin.global.exception.custom.KoinException;
 
 public class VerificationDailyLimitExceededException extends KoinException {
 

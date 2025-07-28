@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleSummary;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
