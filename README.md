@@ -58,16 +58,17 @@ src
 │   │       ├── admin                 # 관리자 기능
 │   │       ├── common                # 도메인 간 공용 클래스
 │   │       ├── domain                # 핵심 도메인별 기능 분리
-│   │       │   └── function
-│   │       │       ├── controller
-│   │       │       ├── dto
-│   │       │       │   ├── request.java
-│   │       │       │   └── response.java
-│   │       │       ├── enums
-│   │       │       ├── model
-│   │       │       ├── repository
-│   │       │       ├── service
-│   │       │       └── utils
+│   │       │   ├── User
+│   │       │   │   ├── controller
+│   │       │   │   ├── dto
+│   │       │   │   │   ├── Request.java
+│   │       │   │   │   └── Response.java
+│   │       │   │   ├── enums
+│   │       │   │   ├── model
+│   │       │   │   ├── repository
+│   │       │   │   ├── service
+│   │       │   │   └── utils
+│   │       │   └── ...
 │   │       ├── global                # 전역 설정, 예외, 필터 등 시스템 구조
 │   │       ├── infrastructure        # 외부 시스템 연동 (메일, 슬랙 등)
 │   │       ├── socket                # 웹소켓 관련 코드
@@ -101,3 +102,14 @@ src
 | <img src="https://github.com/asa9874.png" width="130"> | <img src="https://github.com/taejinn.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> | <img src="https://github.com/dldb-chamchi.png" width="130"> |
 | :--: | :--: | :--: | :--: |
 | [박종범](https://github.com/asa9874) | [박태진](https://github.com/taejinn) | [이동훈](https://github.com/dh2906) | [임아리](https://github.com/dldb-chamchi) |
+
+
+
+
+> 📝 [BCSD 블로그](https://blog.bcsdlab.com/introduce)
+
+> 🤖 [Koin App(Android) 설치하기](https://play.google.com/store/apps/details?id=in.koreatech.koin&hl=ko)
+
+> 🍎 [Koin App(IOS) 설치하기](https://apps.apple.com/bh/app/%EC%BD%94%EC%9D%B8-koreatech-in-%ED%95%9C%EA%B8%B0%EB%8C%80-%EC%BB%A4%EB%AE%A4%EB%8B%88%ED%8B%B0/id1500848622)
+
+> 👉 [Koin Web 바로가기](https://koreatech.in/)
