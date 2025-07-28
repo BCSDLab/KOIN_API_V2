@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemReportRequest;
 import in.koreatech.koin.domain.community.article.service.LostItemReportService;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

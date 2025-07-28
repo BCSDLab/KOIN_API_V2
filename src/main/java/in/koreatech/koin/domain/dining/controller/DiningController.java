@@ -16,8 +16,8 @@ import in.koreatech.koin.domain.dining.dto.DiningResponse;
 import in.koreatech.koin.domain.dining.dto.DiningSearchResponse;
 import in.koreatech.koin.domain.dining.model.DiningPlace;
 import in.koreatech.koin.domain.dining.service.DiningService;
-import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin._common.auth.UserId;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import lombok.RequiredArgsConstructor;
 
 @RestController

@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin._common.event.ShopsCacheRefreshEvent;
+import in.koreatech.koin.common.event.ShopsCacheRefreshEvent;
 import lombok.RequiredArgsConstructor;
 
 @Aspect

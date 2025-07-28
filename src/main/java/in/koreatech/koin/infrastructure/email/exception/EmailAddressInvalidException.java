@@ -1,6 +1,6 @@
 package in.koreatech.koin.infrastructure.email.exception;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 
 public class EmailAddressInvalidException extends KoinIllegalArgumentException {
 

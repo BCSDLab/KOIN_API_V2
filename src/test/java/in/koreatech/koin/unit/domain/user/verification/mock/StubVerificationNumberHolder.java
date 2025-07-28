@@ -1,6 +1,6 @@
 package in.koreatech.koin.unit.domain.user.verification.mock;
 
-import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.common.util.random.VerificationNumberGenerator;
 
 public class StubVerificationNumberHolder implements VerificationNumberGenerator {
 

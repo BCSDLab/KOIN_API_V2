@@ -6,11 +6,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.common.util.random.VerificationNumberGenerator;
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
 @RedisHash(value = "userVerificationStatus")

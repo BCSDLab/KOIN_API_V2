@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.infrastructure.s3.dto.UploadFileResponse;
 import in.koreatech.koin.infrastructure.s3.dto.UploadFilesResponse;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlRequest;

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
@@ -25,7 +25,7 @@ import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
 import in.koreatech.koin.domain.user.dto.UserChangePasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
-import in.koreatech.koin.web.host.ServerURL;
+import in.koreatech.koin.global.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

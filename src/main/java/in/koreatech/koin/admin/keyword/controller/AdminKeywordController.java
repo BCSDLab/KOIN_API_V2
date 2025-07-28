@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.admin.keyword.service.AdminKeywordService;
 import in.koreatech.koin.admin.keyword.dto.AdminFilteredKeywordsResponse;
 import in.koreatech.koin.admin.keyword.dto.AdminKeywordFilterRequest;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

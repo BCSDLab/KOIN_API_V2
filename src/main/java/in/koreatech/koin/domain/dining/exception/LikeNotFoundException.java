@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.dining.exception;
 
-import in.koreatech.koin._common.exception.custom.DataNotFoundException;
+import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 
 public class LikeNotFoundException extends DataNotFoundException {
     private static final String DEFAULT_MESSAGE = "좋아요를 누른적이 없는 식단입니다!";

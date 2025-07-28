@@ -10,7 +10,7 @@ import in.koreatech.koin.domain.shop.dto.menu.request.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.menu.response.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.menu.response.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.menu.response.ShopMenuResponse;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

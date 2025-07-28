@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.code.ApiResponseCodes;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;

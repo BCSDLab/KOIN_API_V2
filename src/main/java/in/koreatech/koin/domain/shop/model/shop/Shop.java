@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTips;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopMenuOrigins;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.ShopOperation;
@@ -23,7 +23,6 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
-import in.koreatech.koin.domain.shop.model.menu.MenuOrigin;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -33,7 +32,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;

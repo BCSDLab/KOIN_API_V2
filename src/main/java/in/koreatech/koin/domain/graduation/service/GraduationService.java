@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
-import in.koreatech.koin._common.exception.custom.DuplicationException;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
+import in.koreatech.koin.global.exception.custom.DuplicationException;
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GeneralEducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;

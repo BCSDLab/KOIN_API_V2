@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.code.ApiResponseCodes;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerCategoryDescriptionModifyRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerCategoriesResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerCategoryResponse;

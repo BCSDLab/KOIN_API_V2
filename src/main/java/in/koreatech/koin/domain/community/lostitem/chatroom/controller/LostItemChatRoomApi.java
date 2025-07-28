@@ -5,15 +5,12 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.code.ApiResponseCodes;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomInfoResponse;
 import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomListResponse;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageResponse;

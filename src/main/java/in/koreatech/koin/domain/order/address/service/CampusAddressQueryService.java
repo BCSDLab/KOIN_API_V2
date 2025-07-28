@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.order.address.service;
 
-import static in.koreatech.koin._common.cache.CacheKey.CAMPUS_DELIVERY_ADDRESS_CACHE;
+import static in.koreatech.koin.global.cache.CacheKey.CAMPUS_DELIVERY_ADDRESS_CACHE;
 
 import java.util.List;
 

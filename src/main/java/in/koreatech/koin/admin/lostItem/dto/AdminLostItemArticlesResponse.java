@@ -14,7 +14,7 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.model.LostItemReport;
 import in.koreatech.koin.domain.shop.model.review.ReportStatus;
-import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.common.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)

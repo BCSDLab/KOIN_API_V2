@@ -1,6 +1,6 @@
 package in.koreatech.koin.unit.fixutre;
 
-import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.model.VerificationChannel;
 import in.koreatech.koin.domain.user.verification.model.VerificationCode;
 import in.koreatech.koin.domain.user.verification.model.VerificationCount;

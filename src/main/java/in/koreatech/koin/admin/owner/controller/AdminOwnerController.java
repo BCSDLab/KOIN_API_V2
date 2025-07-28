@@ -18,7 +18,7 @@ import in.koreatech.koin.admin.owner.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.owner.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.owner.dto.AdminOwnersResponse;
 import in.koreatech.koin.admin.owner.dto.OwnersCondition;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

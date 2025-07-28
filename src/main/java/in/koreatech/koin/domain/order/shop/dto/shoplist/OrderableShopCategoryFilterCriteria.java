@@ -2,8 +2,8 @@ package in.koreatech.koin.domain.order.shop.dto.shoplist;
 
 import java.util.Objects;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
 
 @Getter

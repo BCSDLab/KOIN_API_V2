@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;

@@ -9,8 +9,8 @@ import org.springframework.data.domain.Sort.Direction;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin._common.model.Criteria;
-import in.koreatech.koin._common.model.Criteria.Sort;
+import in.koreatech.koin.common.model.Criteria;
+import in.koreatech.koin.common.model.Criteria.Sort;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 

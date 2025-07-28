@@ -5,7 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
 import in.koreatech.koin.domain.order.address.dto.RoadNameAddressApiResponse;

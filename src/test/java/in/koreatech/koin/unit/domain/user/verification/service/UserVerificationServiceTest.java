@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
 import in.koreatech.koin.unit.domain.user.verification.mock.DummyApplicationEventPublisher;

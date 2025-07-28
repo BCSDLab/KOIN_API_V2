@@ -16,7 +16,7 @@ import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.service.OwnerShopService;
 import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

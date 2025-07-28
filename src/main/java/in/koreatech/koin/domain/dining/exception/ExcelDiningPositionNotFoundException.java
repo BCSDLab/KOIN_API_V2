@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.dining.exception;
 
-import in.koreatech.koin._common.exception.custom.DataNotFoundException;
+import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 
 public class ExcelDiningPositionNotFoundException extends DataNotFoundException {
     private static final String DEFAULT_MESSAGE = "알맞는 ExcelDiningPosition이 존재하지 않습니다.";
