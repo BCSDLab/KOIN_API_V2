@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.cache;
+package in.koreatech.koin.infrastructure.config;
 
 import static org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.fromSerializer;
 
@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import in.koreatech.koin.global.cache.CacheKey;
 
 @Configuration
 @Profile("!test")
