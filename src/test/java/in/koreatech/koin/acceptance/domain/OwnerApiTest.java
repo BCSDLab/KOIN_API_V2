@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.infrastructure.slack.eventlistener.OwnerEventListener;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -51,6 +54,9 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @MockBean
+    private OwnerEventListener ownerEventListener;
 
     @Test
     void 사장님이_로그인을_진행한다() throws Exception {

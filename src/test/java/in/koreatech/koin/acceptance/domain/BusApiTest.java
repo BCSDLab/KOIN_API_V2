@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,9 @@ import in.koreatech.koin.domain.bus.service.city.model.CityBusCache;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.city.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
+import in.koreatech.koin.domain.bus.service.express.client.PublicExpressBusClient;
+import in.koreatech.koin.domain.bus.service.express.client.StaticExpressBusClient;
+import in.koreatech.koin.domain.bus.service.express.client.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
@@ -59,6 +63,15 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private BusCacheService busCacheService;
+
+    @MockBean
+    private PublicExpressBusClient publicExpressBusClient;
+
+    @MockBean
+    private TmoneyExpressBusClient tmoneyExpressBusClient;
+
+    @MockBean
+    private StaticExpressBusClient staticExpressBusClient;
 
     @BeforeAll
     void setUp() {

@@ -19,10 +19,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.domain.notification.eventlistener.ShopEventListener;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
@@ -94,6 +96,9 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
     private EventArticleAcceptanceFixture eventArticleFixture;
+
+    @MockBean
+    private ShopEventListener shopEventListener;
 
     private Owner owner_현수;
     private String token_현수;

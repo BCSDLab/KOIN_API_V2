@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -35,11 +36,13 @@ import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.MajorAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.infrastructure.slack.eventlistener.StudentEventListener;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class StudentApiTest extends AcceptanceTest {
+
     @Autowired
     private StudentRepository studentRepository;
 
@@ -63,6 +66,9 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Autowired
     private MajorAcceptanceFixture majorFixture;
+
+    @MockBean
+    private StudentEventListener studentEventListener;
 
     @BeforeAll
     void setup() {

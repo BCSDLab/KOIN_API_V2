@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.coop.service.CoopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
+import in.koreatech.koin.domain.notification.eventlistener.CoopEventListener;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.DiningAcceptanceFixture;
@@ -50,11 +52,8 @@ class DiningApiTest extends AcceptanceTest {
     @Autowired
     private CoopShopAcceptanceFixture coopShopFixture;
 
-    @Autowired
-    private CoopService coopService;
-
-    @Autowired
-    private DiningNotifyCacheRepository diningNotifyCacheRepository;
+    @MockBean
+    private CoopEventListener coopEventListener;
 
     private Dining A코너_점심;
     private Dining B코너_점심;

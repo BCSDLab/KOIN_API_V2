@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
+import in.koreatech.koin.domain.notification.eventlistener.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.acceptance.fixture.ArticleAcceptanceFixture;
@@ -63,6 +65,9 @@ public class KeywordApiTest extends AcceptanceTest {
 
     @Autowired
     private ArticleAcceptanceFixture articleFixture;
+
+    @MockBean
+    private ArticleKeywordEventListener articleKeywordEventListener;
 
     private Student 준호_학생;
     private Admin 관리자;

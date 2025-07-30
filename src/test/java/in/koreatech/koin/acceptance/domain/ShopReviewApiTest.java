@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -36,14 +37,12 @@ import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopReviewReportCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopReviewReportAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.infrastructure.slack.eventlistener.ReviewEventListener;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class ShopReviewApiTest extends AcceptanceTest {
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
 
     @Autowired
     private UserAcceptanceFixture userFixture;
@@ -62,6 +61,9 @@ class ShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
     private ShopReviewReportCategoryAcceptanceFixture shopReviewReportCategoryFixture;
+
+    @MockBean
+    private ReviewEventListener reviewEventListener;
 
     private ShopReview 준호_학생_리뷰;
     private ShopReview 익명_학생_리뷰;
