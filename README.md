@@ -1,27 +1,34 @@
-# Koin - 한기대 학생들의 필수 앱
+##   Koin - 한기대 학생들의 필수 앱 (KoreaTech IN)
 
 ![Image](https://github.com/user-attachments/assets/75742ede-7e33-435c-9330-c9b6ab232231)
 
-> 한국기술교육대학교의 학식, 주변 식당, 버스, 시간표, 공지사항 등 필요한 정보를 한눈에 확인 가능한   
-> **DAU 1,100명 이상**의 **Java/Spring** 기반 커뮤니티 서비스입니다.
+> [!IMPORTANT]   
+> 한국기술교육대학교의 학식, 주변 식당, 버스, 시간표, 공지사항 등 필수 정보를 제공하는   
+> **DAU 1,100명 이상**의 **Java / Spring** 기반 커뮤니티 서비스입니다.   
 
-> 현재 3개의 팀(**Campus, Business, User**)으로 나뉘어, 여러 직무(**BackEnd / FrontEnd / Android / IOS / Design / DA / PM / Security**)로 팀을 구성하여 각자 전문성을 살려 기능을 개발하고 있어요.
+> 현재 3개의 팀(**Campus, Business, User**)으로 나뉘어,   
+> 여러 직무의 팀원들과 각자 전문성을 살려 프로덕트를 개발하고 있습니다.   
+> (BackEnd / FrontEnd / Android / iOS / Design / DA / PM / Security)
 
-# ⚙️ Tech Stack
+---
 
-## 🖥️ Backend
+### ⚙️ Tech Stack
+
+#### 🖥️ Backend
 ![Image](https://github.com/user-attachments/assets/7b409909-051a-4918-9374-29f654cd8ca7)
 
-## ☁️ Infra
+#### ☁️ Infra
 ![Image](https://github.com/user-attachments/assets/747c5fab-40d0-4b69-881b-ba7335061389)
 
-## 🏗️ Infra Structure
+#### 🏗️ Infra Structure
 ![Image](https://github.com/user-attachments/assets/5727bb18-242b-4edb-930a-cee08a90f2ad)
 
-## 📦 Server Instance
+#### 📦 Server Instance
 ![Image](https://github.com/user-attachments/assets/5bf5c67a-b008-4652-b45e-e7606803df82)
 
-# ☀️ 주요 기능
+---
+
+### ☀️ 주요 기능
 <details>
 <summary> Koin의 주요 기능을 열어서 확인해보세요!</summary>
 
@@ -47,7 +54,9 @@
 
 </details>
 
-## 🗂️ Package Structure
+---
+
+### 🗂️ Package Structure
 ```
 src
 ├── main
@@ -86,7 +95,10 @@ src
     │       └── KoinApplicationTest.java
     └── resources
 ```
-## 🧑‍🧑‍🧒‍🧒 백엔드 구성원들
+
+---
+
+### 🧑‍🧑‍🧒‍🧒 Team Members
 
 | <img src="https://github.com/user-attachments/assets/7f3ce35a-0b5d-4755-b5c3-2baef4a2677f" width="130"> | <img src="https://github.com/user-attachments/assets/530d5b55-26a0-4b85-ac65-d0da0e5f895a" width="130"> | <img src="https://github.com/user-attachments/assets/1210988c-4ed0-4759-949c-b435bb81e803" width="130"> | <img src="https://github.com/user-attachments/assets/25e3bc7a-0c9e-4fca-97f8-6bbfb45079ee" width="130"> |
 | :--: | :--: | :--: | :--: |
@@ -96,18 +108,16 @@ src
 | :--: | :--: | :--: | :--: |
 | [정빈](https://github.com/duehee) | [현식](https://github.com/Choon0414) | [인화](https://github.com/kih1015) | [두현](https://github.com/DHkimgit) |
 
-
 | <img src="https://github.com/asa9874.png" width="130"> | <img src="https://github.com/taejinn.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> | <img src="https://github.com/dldb-chamchi.png" width="130"> |
 | :--: | :--: | :--: | :--: |
 | [박종범](https://github.com/asa9874) | [박태진](https://github.com/taejinn) | [이동훈](https://github.com/dh2906) | [임아리](https://github.com/dldb-chamchi) |
+   
+   
+--- 
 
-
-
-
-> 📝 [BCSD 블로그](https://blog.bcsdlab.com/introduce)
-
-> 🤖 [Koin App(Android) 설치하기](https://play.google.com/store/apps/details?id=in.koreatech.koin&hl=ko)
-
-> 🍎 [Koin App(IOS) 설치하기](https://apps.apple.com/bh/app/%EC%BD%94%EC%9D%B8-koreatech-in-%ED%95%9C%EA%B8%B0%EB%8C%80-%EC%BB%A4%EB%AE%A4%EB%8B%88%ED%8B%B0/id1500848622)
-
+> [!TIP]   
+> #### BCSD 동아리 정보와 App 설치는 아래에서 확인할 수 있습니다.   
+> 📝 [BCSD 블로그](https://blog.bcsdlab.com/introduce)   
+> 🤖 [Koin App(Android) 설치하기](https://play.google.com/store/apps/details?id=in.koreatech.koin&hl=ko)   
+> 🍎 [Koin App(IOS) 설치하기](https://apps.apple.com/bh/app/%EC%BD%94%EC%9D%B8-koreatech-in-%ED%95%9C%EA%B8%B0%EB%8C%80-%EC%BB%A4%EB%AE%A4%EB%8B%88%ED%8B%B0/id1500848622)   
 > 👉 [Koin Web 바로가기](https://koreatech.in/)
