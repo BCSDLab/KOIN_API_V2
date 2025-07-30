@@ -13,12 +13,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
@@ -32,7 +29,8 @@ import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.verification.model.VerificationCode;
 import in.koreatech.koin.domain.user.verification.repository.VerificationCodeRedisRepository;
-import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -56,9 +54,6 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private VerificationCodeRedisRepository verificationCodeRedisRepository;
-
-    @MockBean
-    private NaverSmsService naverSmsService;
 
     @BeforeAll
     void setup() {
