@@ -18,7 +18,7 @@ import java.time.Duration;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @TestConfiguration
-public class TestRedisConfiguration {
+public class TestRedisConfig {
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {

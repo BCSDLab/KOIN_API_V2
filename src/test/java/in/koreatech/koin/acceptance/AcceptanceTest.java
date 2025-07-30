@@ -21,8 +21,8 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
-import in.koreatech.koin.config.TestJpaConfiguration;
-import in.koreatech.koin.config.TestRedisConfiguration;
+import in.koreatech.koin.config.TestJpaConfig;
+import in.koreatech.koin.config.TestRedisConfig;
 import in.koreatech.koin.config.TestResilience4jConfig;
 import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.service.express.client.PublicExpressBusClient;
@@ -42,9 +42,9 @@ import jakarta.persistence.EntityManager;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import({DBInitializer.class,
-    TestJpaConfiguration.class,
+    TestJpaConfig.class,
     TestTimeConfig.class,
-    TestRedisConfiguration.class,
+    TestRedisConfig.class,
     TestResilience4jConfig.class})
 @ActiveProfiles("test")
 @Transactional
