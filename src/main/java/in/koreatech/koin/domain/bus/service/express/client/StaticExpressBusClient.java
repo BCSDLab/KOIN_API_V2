@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
 
 @Component
 @ApiLoadBalance(ratio = 0)
+@Profile("!test")
 public class StaticExpressBusClient extends ExpressBusClient {
 
     public StaticExpressBusClient(

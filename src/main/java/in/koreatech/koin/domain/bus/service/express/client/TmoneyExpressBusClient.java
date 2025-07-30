@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -45,6 +46,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  */
 @Component
 @ApiLoadBalance(ratio = 9)
+@Profile("!test")
 public class TmoneyExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apigw.tmoney.co.kr:5556/gateway/xzzIbtListGet/v1/ibt_list";
