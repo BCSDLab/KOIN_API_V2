@@ -7,24 +7,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.domain.student.model.Department;
-import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.TimeTableV2AcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.timetable.model.Semester;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.user.model.User;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TimetableFrameApiV3Test extends AcceptanceTest {
     @Autowired
     private TimeTableV2AcceptanceFixture timetableV2Fixture;

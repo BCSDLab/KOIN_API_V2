@@ -6,28 +6,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.acceptance.support.JsonAssertions;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import in.koreatech.koin.acceptance.support.JsonAssertions;
 
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired

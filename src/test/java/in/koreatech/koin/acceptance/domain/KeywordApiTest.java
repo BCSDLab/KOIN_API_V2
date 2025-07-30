@@ -13,13 +13,17 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.ArticleAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.KeywordAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
@@ -31,15 +35,7 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserM
 import in.koreatech.koin.domain.notification.eventlistener.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.ArticleAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.KeywordAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class KeywordApiTest extends AcceptanceTest {
 
     @Autowired
@@ -245,10 +241,10 @@ public class KeywordApiTest extends AcceptanceTest {
                 post("/articles/keyword/notification")
                     .header("Authorization", "Bearer " + adminToken)
                     .content("""
-                    {
-                        "update_notification": %s
-                    }
-                    """.formatted(articleIds.toString()))
+                        {
+                            "update_notification": %s
+                        }
+                        """.formatted(articleIds.toString()))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
@@ -275,10 +271,10 @@ public class KeywordApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/articles/keyword/notification")
                     .content("""
-                    {
-                        "update_notification": %s
-                    }
-                    """.formatted(articleIds.toString()))
+                        {
+                            "update_notification": %s
+                        }
+                        """.formatted(articleIds.toString()))
                     .header("Authorization", "Bearer " + adminToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -357,10 +353,10 @@ public class KeywordApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/articles/keyword/notification")
                     .content("""
-                    {
-                        "update_notification": %s
-                    }
-                    """.formatted(articleIds.toString()))
+                        {
+                            "update_notification": %s
+                        }
+                        """.formatted(articleIds.toString()))
                     .header("Authorization", "Bearer " + token)
                     .contentType(MediaType.APPLICATION_JSON)
             )

@@ -15,26 +15,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.infrastructure.slack.eventlistener.OwnerEventListener;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
@@ -241,10 +237,10 @@ class OwnerApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/owners/exists/company-number")
                     .content("""
-                                {
-                                   "company_number": "123-45-67190"
-                                }
-                            """)
+                            {
+                               "company_number": "123-45-67190"
+                            }
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
@@ -258,10 +254,10 @@ class OwnerApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/owners/exists/company-number")
                     .content("""
-                                {
-                                   "company_number": "%s"
-                                }
-                            """.formatted(owner.getCompanyRegistrationNumber()))
+                            {
+                               "company_number": "%s"
+                            }
+                        """.formatted(owner.getCompanyRegistrationNumber()))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isConflict());
@@ -283,10 +279,10 @@ class OwnerApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/owners/exists/company-number")
                     .content("""
-                                {
-                                   "company_number": "1234567890"
-                                }
-                            """)
+                            {
+                               "company_number": "1234567890"
+                            }
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());

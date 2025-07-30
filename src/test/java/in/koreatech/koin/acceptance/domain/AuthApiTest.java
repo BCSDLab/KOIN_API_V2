@@ -7,11 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -21,9 +19,6 @@ import in.koreatech.koin.acceptance.support.JsonAssertions;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.RefreshTokenRedisRepository;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AuthApiTest extends AcceptanceTest {
 
     @Autowired

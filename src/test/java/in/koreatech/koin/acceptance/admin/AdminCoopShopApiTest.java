@@ -6,23 +6,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 class AdminCoopShopApiTest extends AcceptanceTest {
-
-    @Autowired
-    private CoopShopRepository coopShopRepository;
 
     @Autowired
     private CoopShopAcceptanceFixture coopShopFixture;

@@ -11,14 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.student.model.Department;
@@ -26,13 +26,7 @@ import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.MajorAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 public class AdminStudentApiTest extends AcceptanceTest {
 
     @Autowired
@@ -49,9 +43,6 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private MajorAcceptanceFixture majorFixture;
 
     @Autowired
     private DepartmentRepository departmentRepository;

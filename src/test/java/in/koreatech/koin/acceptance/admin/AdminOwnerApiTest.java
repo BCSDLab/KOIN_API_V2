@@ -6,19 +6,18 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerShopRedisRepository;
 import in.koreatech.koin.admin.user.model.Admin;
@@ -28,19 +27,11 @@ import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 public class AdminOwnerApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminOwnerRepository adminOwnerRepository;
-
-    @Autowired
-    private AdminOwnerShopRedisRepository adminOwnerShopRedisRepository;
 
     @Autowired
     private OwnerShopRedisRepository ownerShopRedisRepository;
