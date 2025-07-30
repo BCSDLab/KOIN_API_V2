@@ -22,18 +22,16 @@ import org.testcontainers.utility.DockerImageName;
 import in.koreatech.koin.acceptance.support.DBInitializer;
 import in.koreatech.koin.config.TestJpaConfiguration;
 import in.koreatech.koin.config.TestRedisConfiguration;
-import in.koreatech.koin.config.TestResilience4jConfig;
 import in.koreatech.koin.config.TestTimeConfig;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @Import({DBInitializer.class,
     TestJpaConfiguration.class,
     TestTimeConfig.class,
-    TestRedisConfiguration.class,
-    TestResilience4jConfig.class})
-@ActiveProfiles("test")
+    TestRedisConfiguration.class})
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AcceptanceTest {
