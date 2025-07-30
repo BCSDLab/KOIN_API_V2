@@ -1,6 +1,6 @@
 package in.koreatech.koin.acceptance.admin;
 
-import static in.koreatech.koin.domain.community.article.model.Board.*;
+import static in.koreatech.koin.domain.community.article.model.Board.KOIN_NOTICE_BOARD_ID;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -9,23 +9,18 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.KoinNoticeAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.KoinNoticeAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@Transactional
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AdminNoticeApiTest extends AcceptanceTest {
 
     @Autowired
@@ -64,13 +59,13 @@ public class AdminNoticeApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 관리자_권한으로_코인_공지사항_게시글을_작성한다() throws Exception{
+    void 관리자_권한으로_코인_공지사항_게시글을_작성한다() throws Exception {
         String jsonBody = """
-        {
-            "title": "[코인 캠퍼스팀] 공지사항 테스트",
-            "content": "<html><head><title>일반공지사항</title></head></html>"
-        }
-        """;
+            {
+                "title": "[코인 캠퍼스팀] 공지사항 테스트",
+                "content": "<html><head><title>일반공지사항</title></head></html>"
+            }
+            """;
 
         mockMvc.perform(
                 post("/admin/notice")
@@ -142,11 +137,11 @@ public class AdminNoticeApiTest extends AcceptanceTest {
 
         // 코인 공지사항 게시글 수정
         String jsonBody = """
-        {
-            "title": "[코인 캠퍼스팀] 공지사항 테스트 수정",
-            "content": "<html><head><title>일반공지사항 수정</title></head></html>"
-        }
-        """;
+            {
+                "title": "[코인 캠퍼스팀] 공지사항 테스트 수정",
+                "content": "<html><head><title>일반공지사항 수정</title></head></html>"
+            }
+            """;
 
         mockMvc.perform(
                 put("/admin/notice/{id}", noticeId)
@@ -160,7 +155,8 @@ public class AdminNoticeApiTest extends AcceptanceTest {
 
         assertSoftly(softly -> {
             softly.assertThat(updateNotice.getTitle()).isEqualTo("[코인 캠퍼스팀] 공지사항 테스트 수정");
-            softly.assertThat(updateNotice.getContent()).isEqualTo("<html><head><title>일반공지사항 수정</title></head></html>");
+            softly.assertThat(updateNotice.getContent())
+                .isEqualTo("<html><head><title>일반공지사항 수정</title></head></html>");
         });
     }
 }

@@ -7,26 +7,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.domain.student.model.Department;
-import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.LectureAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.TimeTableV2AcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetable.model.Semester;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
+import in.koreatech.koin.domain.user.model.User;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TimetableApiTest extends AcceptanceTest {
 
     @Autowired
@@ -285,7 +280,7 @@ class TimetableApiTest extends AcceptanceTest {
         lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         lectureFixture.HRD_개론(semester.getSemester());
 
-       timetableV2Fixture.시간표1(user, semester);
+        timetableV2Fixture.시간표1(user, semester);
 
         mockMvc.perform(
                 post("/timetables")
@@ -385,26 +380,26 @@ class TimetableApiTest extends AcceptanceTest {
                 post("/timetables")
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                        {
-                          "timetable": [
                            {
-                                "regular_number": "25",
-                                "code": "ARB244",
-                                "design_score": "0",
-                                "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
-                                "class_place": null,
-                                "memo": null,
-                                "grades": "3",
-                                "class_title": "건축구조의 이해 및 실습",
-                                "lecture_class": "01",
-                                "target": "디자 1 건축",
-                                "professor": "황현식",
-                                "department": "디자인ㆍ건축공학부"
+                             "timetable": [
+                              {
+                                   "regular_number": "25",
+                                   "code": "ARB244",
+                                   "design_score": "0",
+                                   "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                                   "class_place": null,
+                                   "memo": null,
+                                   "grades": "3",
+                                   "class_title": "건축구조의 이해 및 실습",
+                                   "lecture_class": "01",
+                                   "target": "디자 1 건축",
+                                   "professor": "황현식",
+                                   "department": "디자인ㆍ건축공학부"
+                              }
+                            ],
+                             "semester": "20192"
                            }
-                         ],
-                          "semester": "20192"
-                        }
-                     """)
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
@@ -413,26 +408,26 @@ class TimetableApiTest extends AcceptanceTest {
                 post("/timetables")
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                        {
-                          "timetable": [
                            {
-                                "regular_number": "22",
-                                "code": "BSM590",
-                                "design_score": "0",
-                                "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
-                                "class_place": null,
-                                "memo": null,
-                                "grades": "3",
-                                "class_title": "컴퓨팅사고",
-                                "lecture_class": "06",
-                                "target": "기공1",
-                                "professor": "박한수,최준호",
-                                "department": "기계공학부"
+                             "timetable": [
+                              {
+                                   "regular_number": "22",
+                                   "code": "BSM590",
+                                   "design_score": "0",
+                                   "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                                   "class_place": null,
+                                   "memo": null,
+                                   "grades": "3",
+                                   "class_title": "컴퓨팅사고",
+                                   "lecture_class": "06",
+                                   "target": "기공1",
+                                   "professor": "박한수,최준호",
+                                   "department": "기계공학부"
+                              }
+                            ],
+                             "semester": "20192"
                            }
-                         ],
-                          "semester": "20192"
-                        }
-                     """)
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
