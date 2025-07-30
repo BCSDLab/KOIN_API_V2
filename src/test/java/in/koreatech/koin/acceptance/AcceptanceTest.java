@@ -3,6 +3,7 @@ package in.koreatech.koin.acceptance;
 import java.time.Clock;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +15,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -21,6 +23,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.config.TestJpaConfiguration;
 import in.koreatech.koin.config.TestRedisConfiguration;
+import in.koreatech.koin.config.TestResilience4jConfig;
 import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.service.express.client.PublicExpressBusClient;
 import in.koreatech.koin.domain.bus.service.express.client.StaticExpressBusClient;
@@ -41,8 +44,11 @@ import jakarta.persistence.EntityManager;
 @Import({DBInitializer.class,
     TestJpaConfiguration.class,
     TestTimeConfig.class,
-    TestRedisConfiguration.class})
+    TestRedisConfiguration.class,
+    TestResilience4jConfig.class})
 @ActiveProfiles("test")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AcceptanceTest {
 
     private static final String ROOT = "test";
