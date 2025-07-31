@@ -6,18 +6,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
+import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CoopShopApiTest extends AcceptanceTest {
 
     @Autowired

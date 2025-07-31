@@ -6,11 +6,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.BenefitCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -19,18 +26,7 @@ import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BenefitApiTest extends AcceptanceTest {
 
     @Autowired
@@ -119,39 +115,39 @@ public class BenefitApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-                {
-                  "benefits": [
                     {
-                      "id": 1,
-                      "title": "배달비 아끼기",
-                      "detail": "계좌이체하면 배달비가 무료(할인)인 상점들을 모아뒀어요.",
-                      "on_image_url": "https://stage-static.koreatech.in/shop/benefit/deliveryOn.png",
-                      "off_image_url": "https://stage-static.koreatech.in/shop/benefit/deliveryOff.png"
-                    },
-                    {
-                      "id": 2,
-                      "title": "최소주문금액 무료",
-                      "detail": "계좌이체하면 최소주문금액이 무료인 상점들을 모아뒀어요.",
-                      "on_image_url": "https://stage-static.koreatech.in/shop/benefit/paidOn.png",
-                      "off_image_url": "https://stage-static.koreatech.in/shop/benefit/paidOff.png"
-                    },
-                    {
-                      "id": 3,
-                      "title": "서비스 증정",
-                      "detail": "계좌이체하면 서비스를 주는 상점들을 모아뒀어요.",
-                      "on_image_url": "https://stage-static.koreatech.in/shop/benefit/serviceOn.png",
-                      "off_image_url": "https://stage-static.koreatech.in/shop/benefit/serviceOff.png"
-                    },
-                    {
-                      "id": 4,
-                      "title": "가게까지 픽업",
-                      "detail": "사장님께서 직접 가게까지 데려다주시는 상점들을 모아뒀어요.",
-                      "on_image_url": "https://stage-static.koreatech.in/shop/benefit/pickUpOn.png",
-                      "off_image_url": "https://stage-static.koreatech.in/shop/benefit/pickUpOff.png"
+                      "benefits": [
+                        {
+                          "id": 1,
+                          "title": "배달비 아끼기",
+                          "detail": "계좌이체하면 배달비가 무료(할인)인 상점들을 모아뒀어요.",
+                          "on_image_url": "https://stage-static.koreatech.in/shop/benefit/deliveryOn.png",
+                          "off_image_url": "https://stage-static.koreatech.in/shop/benefit/deliveryOff.png"
+                        },
+                        {
+                          "id": 2,
+                          "title": "최소주문금액 무료",
+                          "detail": "계좌이체하면 최소주문금액이 무료인 상점들을 모아뒀어요.",
+                          "on_image_url": "https://stage-static.koreatech.in/shop/benefit/paidOn.png",
+                          "off_image_url": "https://stage-static.koreatech.in/shop/benefit/paidOff.png"
+                        },
+                        {
+                          "id": 3,
+                          "title": "서비스 증정",
+                          "detail": "계좌이체하면 서비스를 주는 상점들을 모아뒀어요.",
+                          "on_image_url": "https://stage-static.koreatech.in/shop/benefit/serviceOn.png",
+                          "off_image_url": "https://stage-static.koreatech.in/shop/benefit/serviceOff.png"
+                        },
+                        {
+                          "id": 4,
+                          "title": "가게까지 픽업",
+                          "detail": "사장님께서 직접 가게까지 데려다주시는 상점들을 모아뒀어요.",
+                          "on_image_url": "https://stage-static.koreatech.in/shop/benefit/pickUpOn.png",
+                          "off_image_url": "https://stage-static.koreatech.in/shop/benefit/pickUpOff.png"
+                        }
+                      ]
                     }
-                  ]
-                }
-            """));
+                """));
     }
 
     @Test
@@ -161,181 +157,181 @@ public class BenefitApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json(String.format("""
-                    {
-                      "count": 4,
-                      "shops": [
                         {
-                          "category_ids": [],
-                          "delivery": true,
-                          "id": %d,
-                          "name": "김밥천국",
-                          "open": [
+                          "count": 4,
+                          "shops": [
                             {
-                              "day_of_week": "MONDAY",
-                              "closed": false,
-                              "open_time": "00:00",
-                              "close_time": "21:00"
+                              "category_ids": [],
+                              "delivery": true,
+                              "id": %d,
+                              "name": "김밥천국",
+                              "open": [
+                                {
+                                  "day_of_week": "MONDAY",
+                                  "closed": false,
+                                  "open_time": "00:00",
+                                  "close_time": "21:00"
+                                },
+                                {
+                                  "day_of_week": "FRIDAY",
+                                  "closed": false,
+                                  "open_time": "00:00",
+                                  "close_time": "00:00"
+                                }
+                              ],
+                              "pay_bank": true,
+                              "pay_card": true,
+                              "phone": "010-7574-1212",
+                              "is_event": false,
+                              "is_open": true,
+                              "average_rate": 5.0,
+                              "review_count": 1,
+                              "benefit_detail": "무료"
                             },
                             {
-                              "day_of_week": "FRIDAY",
-                              "closed": false,
-                              "open_time": "00:00",
-                              "close_time": "00:00"
+                              "category_ids": [],
+                              "delivery": true,
+                              "id": %d,
+                              "name": "마슬랜 치킨",
+                              "open": [
+                                {
+                                  "day_of_week": "MONDAY",
+                                  "closed": false,
+                                  "open_time": "00:00",
+                                  "close_time": "21:00"
+                                },
+                                {
+                                  "day_of_week": "FRIDAY",
+                                  "closed": false,
+                                  "open_time": "00:00",
+                                  "close_time": "00:00"
+                                }
+                              ],
+                              "pay_bank": true,
+                              "pay_card": true,
+                              "phone": "010-7574-1212",
+                              "is_event": false,
+                              "is_open": true,
+                              "average_rate": 4.0,
+                              "review_count": 1
+                            },
+                            {
+                              "category_ids": [],
+                              "delivery": true,
+                              "id": %d,
+                              "name": "티바",
+                              "open": [
+                                {
+                                  "day_of_week": "SUNDAY",
+                                  "closed": false,
+                                  "open_time": "00:00",
+                                  "close_time": "00:00"
+                                },
+                                {
+                                  "day_of_week": "MONDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "TUESDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "WEDNESDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "THURSDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "FRIDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "SATURDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                }
+                              ],
+                              "pay_bank": true,
+                              "pay_card": true,
+                              "phone": "010-7788-9900",
+                              "is_event": false,
+                              "is_open": true,
+                              "average_rate": 4.0,
+                              "review_count": 1
+                            },
+                            {
+                              "category_ids": [],
+                              "delivery": true,
+                              "id": %d,
+                              "name": "신전 떡볶이",
+                              "open": [
+                                {
+                                  "day_of_week": "SUNDAY",
+                                  "closed": false,
+                                  "open_time": "00:00",
+                                  "close_time": "00:00"
+                                },
+                                {
+                                  "day_of_week": "MONDAY",
+                                  "closed": false,
+                                  "open_time": "12:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "TUESDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "WEDNESDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "THURSDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "FRIDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                },
+                                {
+                                  "day_of_week": "SATURDAY",
+                                  "closed": false,
+                                  "open_time": "11:30",
+                                  "close_time": "21:30"
+                                }
+                              ],
+                              "pay_bank": true,
+                              "pay_card": true,
+                              "phone": "010-7788-9900",
+                              "is_event": false,
+                              "is_open": false,
+                              "average_rate": 5.0,
+                              "review_count": 1
                             }
-                          ],
-                          "pay_bank": true,
-                          "pay_card": true,
-                          "phone": "010-7574-1212",
-                          "is_event": false,
-                          "is_open": true,
-                          "average_rate": 5.0,
-                          "review_count": 1,
-                          "benefit_detail": "무료"
-                        },
-                        {
-                          "category_ids": [],
-                          "delivery": true,
-                          "id": %d,
-                          "name": "마슬랜 치킨",
-                          "open": [
-                            {
-                              "day_of_week": "MONDAY",
-                              "closed": false,
-                              "open_time": "00:00",
-                              "close_time": "21:00"
-                            },
-                            {
-                              "day_of_week": "FRIDAY",
-                              "closed": false,
-                              "open_time": "00:00",
-                              "close_time": "00:00"
-                            }
-                          ],
-                          "pay_bank": true,
-                          "pay_card": true,
-                          "phone": "010-7574-1212",
-                          "is_event": false,
-                          "is_open": true,
-                          "average_rate": 4.0,
-                          "review_count": 1
-                        },
-                        {
-                          "category_ids": [],
-                          "delivery": true,
-                          "id": %d,
-                          "name": "티바",
-                          "open": [
-                            {
-                              "day_of_week": "SUNDAY",
-                              "closed": false,
-                              "open_time": "00:00",
-                              "close_time": "00:00"
-                            },
-                            {
-                              "day_of_week": "MONDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "TUESDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "WEDNESDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "THURSDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "FRIDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "SATURDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            }
-                          ],
-                          "pay_bank": true,
-                          "pay_card": true,
-                          "phone": "010-7788-9900",
-                          "is_event": false,
-                          "is_open": true,
-                          "average_rate": 4.0,
-                          "review_count": 1
-                        },
-                        {
-                          "category_ids": [],
-                          "delivery": true,
-                          "id": %d,
-                          "name": "신전 떡볶이",
-                          "open": [
-                            {
-                              "day_of_week": "SUNDAY",
-                              "closed": false,
-                              "open_time": "00:00",
-                              "close_time": "00:00"
-                            },
-                            {
-                              "day_of_week": "MONDAY",
-                              "closed": false,
-                              "open_time": "12:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "TUESDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "WEDNESDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "THURSDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "FRIDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            },
-                            {
-                              "day_of_week": "SATURDAY",
-                              "closed": false,
-                              "open_time": "11:30",
-                              "close_time": "21:30"
-                            }
-                          ],
-                          "pay_bank": true,
-                          "pay_card": true,
-                          "phone": "010-7788-9900",
-                          "is_event": false,
-                          "is_open": false,
-                          "average_rate": 5.0,
-                          "review_count": 1
+                          ]
                         }
-                      ]
-                    }
-                """,
+                    """,
                 김밥천국.getId(),
                 마슬랜.getId(),
                 영업중인_티바.getId(),

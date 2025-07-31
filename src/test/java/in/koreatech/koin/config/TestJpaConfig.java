@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @TestConfiguration
 @EnableJpaAuditing(dateTimeProviderRef = "dateTimeProvider")
-public class TestJpaConfiguration {
+public class TestJpaConfig {
 
 }

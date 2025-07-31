@@ -91,8 +91,7 @@ src
     │   └── in.koreatech.koin
     │       ├── acceptance            # 인수 테스트
     │       ├── config                # 테스트 환경 설정
-    │       ├── unit                  # 유닛 테스트
-    │       └── KoinApplicationTest.java
+    │       └── unit                  # 유닛 테스트
     └── resources
 ```
 

@@ -13,13 +13,17 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewReportAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopReviewReportCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
@@ -30,16 +34,7 @@ import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepositor
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewReportCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopReviewReportAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 class ShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
@@ -112,18 +107,18 @@ class ShopReviewApiTest extends AcceptanceTest {
         mockMvc.perform(post("/shops/{shopId}/reviews", 티바.getId())
                 .header("Authorization", "Bearer " + token_준호)
                 .content(String.format("""
-                {
-                  "rating": 4,
-                  "content": "정말 맛있어요~!",
-                  "image_urls": [
-                    "https://static.koreatech.in/example.png"
-                  ],
-                  "menu_names": [
-                    "치킨",
-                    "피자"
-                  ]
-                }
-                """))
+                    {
+                      "rating": 4,
+                      "content": "정말 맛있어요~!",
+                      "image_urls": [
+                        "https://static.koreatech.in/example.png"
+                      ],
+                      "menu_names": [
+                        "치킨",
+                        "피자"
+                      ]
+                    }
+                    """))
                 .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
@@ -134,20 +129,20 @@ class ShopReviewApiTest extends AcceptanceTest {
         mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
                 .header("Authorization", "Bearer " + token_준호)
                 .content(String.format("""
-                {
-                  "rating": 4,
-                  "content": "정말 맛있어요~!",
-                  "image_urls": [
-                    "https://static.koreatech.in/example.png"
-                  ],
-                  "menu_names": [
-                    " "
-                  ]
-                }
-                """))
+                    {
+                      "rating": 4,
+                      "content": "정말 맛있어요~!",
+                      "image_urls": [
+                        "https://static.koreatech.in/example.png"
+                      ],
+                      "menu_names": [
+                        " "
+                      ]
+                    }
+                    """))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                """)
+                    """)
             )
             .andExpect(status().isBadRequest());
     }
@@ -157,17 +152,17 @@ class ShopReviewApiTest extends AcceptanceTest {
         mockMvc.perform(post("/shops/{shopId}/reviews", 티바.getId())
                 .header("Authorization", "Bearer " + token_준호)
                 .content(String.format("""
-                {
-                  "rating": 4,
-                  "image_urls": [
-                    "https://static.koreatech.in/example.png"
-                  ],
-                  "menu_names": [
-                    "치킨",
-                    "피자"
-                  ]
-                }
-                """))
+                    {
+                      "rating": 4,
+                      "image_urls": [
+                        "https://static.koreatech.in/example.png"
+                      ],
+                      "menu_names": [
+                        "치킨",
+                        "피자"
+                      ]
+                    }
+                    """))
                 .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
@@ -179,17 +174,17 @@ class ShopReviewApiTest extends AcceptanceTest {
         mockMvc.perform(put("/shops/{shopId}/reviews/{reviewId}", 신전_떡볶이.getId(), 준호_학생_리뷰.getId())
                 .header("Authorization", "Bearer " + token_준호)
                 .content(String.format("""
-                {
-                  "rating": 3,
-                  "content": "정말 맛있어요!",
-                  "image_urls": [
-                    "https://static.koreatech.in/example1.png"
-                  ],
-                  "menu_names": [
-                    "피자"
-                  ]
-                }
-                """))
+                    {
+                      "rating": 3,
+                      "content": "정말 맛있어요!",
+                      "image_urls": [
+                        "https://static.koreatech.in/example1.png"
+                      ],
+                      "menu_names": [
+                        "피자"
+                      ]
+                    }
+                    """))
                 .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isNoContent());
@@ -442,7 +437,7 @@ class ShopReviewApiTest extends AcceptanceTest {
         mockMvc.perform(get("/shops/reviews/reports/categories")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                """)
+                    """)
             )
             .andExpect(status().isOk())
             .andExpect(content().json(String.format("""
@@ -486,19 +481,19 @@ class ShopReviewApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + token_준호)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                {
-                  "reports": [
                     {
-                      "title": "기타",
-                      "content": "적절치 못한 리뷰인 것 같습니다."
-                    },
-                    {
-                      "title": "스팸",
-                      "content": "광고가 포함된 리뷰입니다."
+                      "reports": [
+                        {
+                          "title": "기타",
+                          "content": "적절치 못한 리뷰인 것 같습니다."
+                        },
+                        {
+                          "title": "스팸",
+                          "content": "광고가 포함된 리뷰입니다."
+                        }
+                      ]
                     }
-                  ]
-                }
-                """)
+                    """)
             )
             .andExpect(status().isNoContent());
 
@@ -545,7 +540,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 .queryParam("page", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                """)
+                    """)
             )
             .andExpect(status().isOk());
 
@@ -691,7 +686,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 .queryParam("sorter", "OLDEST")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                """)
+                    """)
             )
             .andExpect(status().isOk())
             .andExpect(content().json(String.format("""
@@ -1231,13 +1226,13 @@ class ShopReviewApiTest extends AcceptanceTest {
         mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
                 .header("Authorization", "Bearer " + token_준호)
                 .content("""
-                {
-                  "rating": 4,
-                  "content": "정말 맛있어요~!",
-                  "image_urls": ["https://static.koreatech.in/example.png"],
-                  "menu_names": ["치킨", "피자"]
-                }
-                """)
+                    {
+                      "rating": 4,
+                      "content": "정말 맛있어요~!",
+                      "image_urls": ["https://static.koreatech.in/example.png"],
+                      "menu_names": ["치킨", "피자"]
+                    }
+                    """)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
     }

@@ -6,19 +6,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.acceptance.fixture.LectureAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
+import in.koreatech.koin.domain.timetable.model.Semester;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LectureApiTest extends AcceptanceTest {
 
     @Autowired
