@@ -13,6 +13,9 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record CartUpdateItemRequest(
+
+    @Schema(description = "메뉴 수량", example = "2")
+    Integer quantity,
     @Schema(description = "새롭게 선택한 메뉴 가격 ID", example = "2", requiredMode = REQUIRED)
     @NotNull
     Integer orderableShopMenuPriceId,

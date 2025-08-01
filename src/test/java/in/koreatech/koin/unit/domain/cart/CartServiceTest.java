@@ -599,6 +599,7 @@ public class CartServiceTest {
 
             // 장바구니에 담긴 상품의 가격 옵션과 선택 옵션을 모두 변경 - 모두 유효한 값으로 변경
             CartUpdateItemRequest request = new CartUpdateItemRequest(
+                1,
                 gimbapPriceB.getId(),
                 List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), toppingOptionB.getId()))
             );
@@ -641,6 +642,7 @@ public class CartServiceTest {
 
             // 장바구니에 담긴 상품(itemToUpdate)의 가격 옵션과 선택 옵션을 existingItem 과 동일하게 변경
             CartUpdateItemRequest request = new CartUpdateItemRequest(
+                1,
                 gimbapPriceB.getId(),
                 List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), toppingOptionB.getId()))
             );
@@ -675,6 +677,7 @@ public class CartServiceTest {
 
             // 장바구니에 담긴 상품의 가격 옵션을 유효하지 않은 ID로 변경 시도
             CartUpdateItemRequest request = new CartUpdateItemRequest(
+                1,
                 ramenPriceA.getId(),
                 List.of(new CartUpdateItemRequest.InnerOptionRequest(sourceGroup.getId(), sourceOptionA.getId()))
             );
@@ -701,6 +704,7 @@ public class CartServiceTest {
 
             // 필수 옵션 그룹 선택을 누락한 요청 생성
             CartUpdateItemRequest request = new CartUpdateItemRequest(
+                1,
                 ramenPriceA.getId(),
                 List.of()
             );
@@ -728,6 +732,7 @@ public class CartServiceTest {
 
             // 메뉴에 속하지 않는 옵션 으로 변경 하는 요청 생성
             CartUpdateItemRequest request = new CartUpdateItemRequest(
+                1,
                 gimbapPriceB.getId(),
                 List.of(new CartUpdateItemRequest.InnerOptionRequest(toppingGroup.getId(), sourceOptionA.getId()))
             );
@@ -755,6 +760,7 @@ public class CartServiceTest {
 
             // 옵션 그룹과 옵션 ID가 일치하지 않는 요청 생성
             CartUpdateItemRequest request = new CartUpdateItemRequest(
+                1,
                 ramenPriceA.getId(),
                 List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), sourceOptionB.getId()))
             );
@@ -782,6 +788,7 @@ public class CartServiceTest {
             when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
             CartUpdateItemRequest request = new CartUpdateItemRequest(
+                1,
                 ramenPriceA.getId(),
                 List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), alcoholOptionA.getId()),
                     new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), alcoholOptionB.getId()),
@@ -814,6 +821,7 @@ public class CartServiceTest {
             when(orderableShopMenuOptionRepository.getAllByMenuId(menuRamen.getId())).thenReturn(menuOptions);
 
             CartUpdateItemRequest request = new CartUpdateItemRequest(
+                1,
                 ramenPriceA.getId(),
                 List.of(new CartUpdateItemRequest.InnerOptionRequest(alcoholGroup.getId(), alcoholOptionA.getId()),
                     new CartUpdateItemRequest.InnerOptionRequest(sourceGroup.getId(), sourceOptionA.getId()))

@@ -477,6 +477,7 @@ public interface CartApi {
                 @ExampleObject(name = "성공", value = """
                         {
                           "id": 101,
+                          "quantity": 2,
                           "name": "후라이드 치킨",
                           "description": "바삭하고 고소한 오리지널 후라이드",
                           "images": [

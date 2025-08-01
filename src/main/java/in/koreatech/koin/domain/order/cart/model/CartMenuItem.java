@@ -145,12 +145,13 @@ public class CartMenuItem extends BaseEntity {
         return existingOptionIds.equals(newOptionIds);
     }
 
-    public void updatePriceAndOptions(OrderableShopMenuPrice newPrice, List<OrderableShopMenuOption> newOptions) {
+    public void update(OrderableShopMenuPrice newPrice, List<OrderableShopMenuOption> newOptions, Integer newQuantity) {
         this.orderableShopMenuPrice = newPrice;
         this.cartMenuItemOptions.clear();
         if (newOptions != null) {
             newOptions.forEach(option -> this.cartMenuItemOptions.add(CartMenuItemOption.create(this, option)));
         }
+        updateQuantity(newQuantity);
         this.isModified = true;
     }
 
