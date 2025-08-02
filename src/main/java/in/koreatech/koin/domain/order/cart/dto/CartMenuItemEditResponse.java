@@ -22,14 +22,19 @@ public record CartMenuItemEditResponse(
 
     @Schema(description = "메뉴 수량", example = "2")
     Integer quantity,
+
     @Schema(description = "메뉴 이름", example = "후라이드 치킨")
     String name,
+
     @Schema(description = "메뉴 설명", example = "바삭하고 고소한 오리지널 후라이드", nullable = true)
     String description,
+
     @Schema(description = "메뉴 이미지 URL 목록", nullable = true)
     List<String> images,
+
     @Schema(description = "메뉴 가격 정보 목록")
     List<InnerPriceResponse> prices,
+
     @Schema(description = "메뉴 옵션 그룹 목록")
     List<InnerOptionGroupResponse> optionGroups
 ) {
