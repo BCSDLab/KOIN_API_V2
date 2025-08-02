@@ -100,7 +100,7 @@ public class LostItemChatRoomInfoService {
         validateAuthor(lostItemArticle.getAuthor());
         validateSelfChat(messageSendUserId, lostItemArticle.getAuthor().getId());
 
-        Integer nextChatRoomId = getNextChatRoomId(lostItemArticle.getId());
+        Integer nextChatRoomId = getNextChatRoomId(articleId);
         chatRoomInfoRepository.save(
             LostItemChatRoomInfoEntity.toEntity(
                 articleId, nextChatRoomId, messageSendUserId, lostItemArticle.getAuthor().getId()
