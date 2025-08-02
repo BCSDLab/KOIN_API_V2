@@ -67,11 +67,10 @@ public class CartService {
     @Transactional
     public void updateItem(CartUpdateItemRequest request, Integer cartMenuItemId, Integer userId) {
         Cart cart = getCartOrThrow(userId);
-        CartMenuItem itemToUpdate = cart.getCartMenuItem(cartMenuItemId);
+        CartMenuItem cartItem = cart.getCartMenuItem(cartMenuItemId);
 
         // 새로운 가격 및 옵션 구성의 유효성 검증
-        OrderableShopMenu menu = itemToUpdate.getOrderableShopMenu();
-        Integer originalQuantity = itemToUpdate.getQuantity();
+        OrderableShopMenu menu = cartItem.getOrderableShopMenu();
 
         menu.requiredMenuPriceById(request.orderableShopMenuPriceId());
         OrderableShopMenuPrice newPrice = menu.getMenuPriceById(request.orderableShopMenuPriceId());
@@ -80,15 +79,15 @@ public class CartService {
         List<OrderableShopMenuOption> newSelectedOptions = shopMenuOptions.resolveSelectedOptions(request.toOptions());
 
         // 변경 후의 구성이 장바구니에 이미 존재 하는지 확인
-        Optional<CartMenuItem> existingSameItem = cart.findSameItem(menu, newPrice, newSelectedOptions, itemToUpdate.getId());
+        Optional<CartMenuItem> existingSameItem = cart.findSameItem(menu, newPrice, newSelectedOptions, cartItem.getId());
 
         if (existingSameItem.isPresent()) {
             // 장바구니에 동일한 구성한 상품 존재시 수량을 합치고 기존 상품 삭제
-            existingSameItem.get().increaseQuantity(originalQuantity);
-            cart.removeItem(itemToUpdate.getId());
+            existingSameItem.get().increaseQuantity(request.quantity());
+            cart.removeItem(cartItem.getId());
         } else {
             // 동일 구성 상품 없으면 현재 상품의 구성을 직접 변경
-            itemToUpdate.updatePriceAndOptions(newPrice, newSelectedOptions);
+            cartItem.update(newPrice, newSelectedOptions, request.quantity());
         }
     }
 

@@ -477,6 +477,7 @@ public interface CartApi {
                 @ExampleObject(name = "성공", value = """
                         {
                           "id": 101,
+                          "quantity": 2,
                           "name": "후라이드 치킨",
                           "description": "바삭하고 고소한 오리지널 후라이드",
                           "images": [
@@ -674,6 +675,7 @@ public interface CartApi {
             - **동일 구성 상품이 없으면**: 현재 상품의 가격과 옵션을 요청된 내용으로 수정합니다.
             
         ### 요청 Body 필드 설명
+        - **quantity**: 새롭게 변경할 메뉴 개수 (필수)
         - **orderableShopMenuPriceId**: 새롭게 선택한 메뉴 가격 ID (필수)
         - **options**: 새롭게 선택한 옵션 목록 (선택 사항)
           - **optionGroupId**: 옵션 그룹 ID
