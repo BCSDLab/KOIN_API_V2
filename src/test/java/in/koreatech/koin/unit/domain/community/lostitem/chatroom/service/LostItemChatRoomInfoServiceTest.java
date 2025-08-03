@@ -102,8 +102,8 @@ public class LostItemChatRoomInfoServiceTest {
             when(chatRoomInfoRepository.findByArticleIdAndMessageSenderId(articleId, messageSenderId)).thenReturn(
                 Optional.empty());
             when(lostItemArticleRepository.getByArticleId(articleId)).thenReturn(lostItemArticle);
-            LostItemChatRoomInfoEntity lostItemChatRoomInfoA = LostItemChatFixture.분실물_게시글_채팅방(articleId, 1, authorId, 3);
-            LostItemChatRoomInfoEntity lostItemChatRoomInfoB = LostItemChatFixture.분실물_게시글_채팅방(articleId, 2, authorId, 4);
+            LostItemChatRoomInfoEntity lostItemChatRoomInfoA = LostItemChatFixture.분실물_게시글_채팅방(articleId, 1, authorId, 888);
+            LostItemChatRoomInfoEntity lostItemChatRoomInfoB = LostItemChatFixture.분실물_게시글_채팅방(articleId, 2, authorId, 999);
             when(chatRoomInfoRepository.findByArticleId(articleId)).thenReturn(List.of(lostItemChatRoomInfoA, lostItemChatRoomInfoB));
 
             // when
