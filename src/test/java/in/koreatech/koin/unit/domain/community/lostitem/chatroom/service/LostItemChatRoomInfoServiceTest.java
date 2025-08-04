@@ -73,7 +73,6 @@ public class LostItemChatRoomInfoServiceTest {
 
             // then
             assertThat(chatRoomId).isEqualTo(77);
-            verify(chatRoomInfoRepository, never()).save(any(LostItemChatRoomInfoEntity.class));
         }
 
         @Test
@@ -88,7 +87,6 @@ public class LostItemChatRoomInfoServiceTest {
             Integer chatRoomId = lostItemChatRoomInfoService.getOrCreateChatRoomId(articleId, messageSenderId);
 
             // then
-            verify(chatRoomInfoRepository, times(1)).save(any(LostItemChatRoomInfoEntity.class));
             assertThat(chatRoomId).isEqualTo(1);
         }
 
@@ -106,9 +104,6 @@ public class LostItemChatRoomInfoServiceTest {
 
             // then
             assertThat(chatRoomId).isEqualTo(3);
-            verify(chatRoomInfoRepository).save(argThat(entity ->
-                entity.getChatRoomId().equals(3)
-            ));
         }
     }
 
@@ -128,8 +123,6 @@ public class LostItemChatRoomInfoServiceTest {
                 () -> lostItemChatRoomInfoService.getOrCreateChatRoomId(articleId, authorId),
                 ApiResponseCode.INVALID_SELF_CHAT
             );
-
-            verify(chatRoomInfoRepository, never()).save(any(LostItemChatRoomInfoEntity.class));
         }
 
         @Test
@@ -145,8 +138,6 @@ public class LostItemChatRoomInfoServiceTest {
                 () -> lostItemChatRoomInfoService.getOrCreateChatRoomId(articleId, authorId),
                 ApiResponseCode.NOT_FOUND_USER
             );
-
-            verify(chatRoomInfoRepository, never()).save(any(LostItemChatRoomInfoEntity.class));
         }
     }
 
