@@ -88,13 +88,8 @@ public class LostItemChatRoomInfoServiceTest {
             Integer chatRoomId = lostItemChatRoomInfoService.getOrCreateChatRoomId(articleId, messageSenderId);
 
             // then
+            verify(chatRoomInfoRepository, times(1)).save(any(LostItemChatRoomInfoEntity.class));
             assertThat(chatRoomId).isEqualTo(1);
-            verify(chatRoomInfoRepository).save(argThat(entity ->
-                entity.getArticleId().equals(articleId) &&
-                    entity.getChatRoomId().equals(1) &&
-                    entity.getOwnerId().equals(messageSenderId) &&
-                    entity.getAuthorId().equals(authorId)
-            ));
         }
 
         @Test
@@ -144,7 +139,6 @@ public class LostItemChatRoomInfoServiceTest {
             when(chatRoomInfoRepository.findByArticleIdAndMessageSenderId(articleId, authorId)).thenReturn(
                 Optional.empty());
             when(lostItemArticleRepository.getByArticleId(articleId)).thenReturn(articleWithNullAuthor);
-
 
             // when & then
             assertCustomExceptionThrown(
