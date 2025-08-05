@@ -61,7 +61,7 @@ public class ShopService {
         return ShopResponse.from(shop, now);
     }
 
-    public ShopSummaryResponse getShopV2(Integer shopId) {
+    public ShopSummaryResponse getShopSummary(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
         LocalDateTime now = LocalDateTime.now(clock);
         ShopInfo shopInfo = shopCustomRepository.findAllShopInfo(now).get(shopId);
