@@ -47,7 +47,7 @@ public class ShopController implements ShopApi {
 
     @GetMapping("/shops/{id}/summary")
     public ResponseEntity<ShopSummaryResponse> getShopSummary(
-        @Parameter(in = PATH) @PathVariable Integer id
+        @PathVariable Integer id
     ) {
         ShopSummaryResponse response = shopService.getShopSummary(id);
         return ResponseEntity.ok(response);
