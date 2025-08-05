@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -40,24 +41,28 @@ public record ShopSummaryResponse(
         @Schema(description = "이미지 Thumbnail 여부", example = "true", requiredMode = REQUIRED)
         Boolean isThumbnail
     ) {
-        public static InnerImageResponse from(ShopImage shopImage) {
+        public static InnerImageResponse from(ShopImage shopImage, boolean isThumbnail) {
             return new InnerImageResponse(
                 shopImage.getImageUrl(),
-                false
+                isThumbnail
             );
         }
     }
 
     public static ShopSummaryResponse from(Shop shop, ShopInfo shopInfo) {
+        List<ShopImage> images = shop.getShopImages();
+
+        List<InnerImageResponse> imageResponses = IntStream.range(0, images.size())
+            .mapToObj(index -> InnerImageResponse.from(images.get(index), index == 0))
+            .toList();
+
         return new ShopSummaryResponse(
             shop.getId(),
             shop.getName(),
             shop.getIntroduction(),
             shopInfo.averageRate(),
             shopInfo.reviewCount(),
-            shop.getShopImages().stream()
-                .map(InnerImageResponse::from)
-                .toList()
+            imageResponses
         );
     }
 }
