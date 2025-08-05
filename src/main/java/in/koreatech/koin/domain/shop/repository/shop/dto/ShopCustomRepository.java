@@ -17,7 +17,6 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop;
 import in.koreatech.koin.domain.shop.model.event.QEventArticle;
 import in.koreatech.koin.domain.shop.model.review.QShopReview;
 import in.koreatech.koin.domain.shop.model.shop.QShop;

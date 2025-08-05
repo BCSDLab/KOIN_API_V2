@@ -2,8 +2,22 @@ package in.koreatech.koin.domain.shop.service;
 
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.REVIEW_PROMPT;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.benefit.repository.BenefitCategoryMapRepository;
+import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.domain.shop.cache.ShopsCacheService;
 import in.koreatech.koin.domain.shop.cache.dto.ShopsCache;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
@@ -12,6 +26,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
@@ -23,20 +38,8 @@ import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopReviewNotificationRedisRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
-import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -56,6 +59,13 @@ public class ShopService {
         Shop shop = shopRepository.getById(shopId);
         LocalDate now = LocalDate.now(clock);
         return ShopResponse.from(shop, now);
+    }
+
+    public ShopResponseV2 getShopV2(Integer shopId) {
+        Shop shop = shopRepository.getById(shopId);
+        LocalDateTime now = LocalDateTime.now(clock);
+        ShopInfo shopInfo = shopCustomRepository.findAllShopInfo(now).get(shopId);
+        return ShopResponseV2.from(shop, shopInfo);
     }
 
     public ShopsResponse getShops() {
