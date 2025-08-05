@@ -18,7 +18,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
-import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
@@ -56,9 +56,9 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 상점 조회 V2")
-    @GetMapping("/v2/shops/{id}")
-    ResponseEntity<ShopResponseV2> getShopByIdV2(
+    @Operation(summary = "특정 상점 요약 정보 조회")
+    @GetMapping("/shops/{id}/summary")
+    ResponseEntity<ShopSummaryResponse> getShopSummary(
         @Parameter(in = PATH) @PathVariable Integer id
     );
 

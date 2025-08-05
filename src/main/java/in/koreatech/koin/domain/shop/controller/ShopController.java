@@ -20,7 +20,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
-import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
@@ -45,11 +45,11 @@ public class ShopController implements ShopApi {
         return ResponseEntity.ok(shopResponse);
     }
 
-    @GetMapping("/v2/shops/{id}")
-    public ResponseEntity<ShopResponseV2> getShopByIdV2(
-        @PathVariable Integer id
+    @GetMapping("/shops/{id}/summary")
+    public ResponseEntity<ShopSummaryResponse> getShopSummary(
+        @Parameter(in = PATH) @PathVariable Integer id
     ) {
-        ShopResponseV2 response = shopService.getShopV2(id);
+        ShopSummaryResponse response = shopService.getShopV2(id);
         return ResponseEntity.ok(response);
     }
 

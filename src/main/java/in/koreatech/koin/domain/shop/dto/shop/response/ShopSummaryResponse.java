@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record ShopResponseV2(
+public record ShopSummaryResponse(
     @Schema(description = "상점 Id", example = "1", requiredMode = REQUIRED)
     Integer shopId,
 
@@ -48,8 +48,8 @@ public record ShopResponseV2(
         }
     }
 
-    public static ShopResponseV2 from(Shop shop, ShopInfo shopInfo) {
-        return new ShopResponseV2(
+    public static ShopSummaryResponse from(Shop shop, ShopInfo shopInfo) {
+        return new ShopSummaryResponse(
             shop.getId(),
             shop.getName(),
             shop.getIntroduction(),
