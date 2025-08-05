@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.dto.shop.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public record ShopSummaryResponse(
     @Schema(description = "상점 이름", example = "수신반점", requiredMode = REQUIRED)
     String name,
 
-    @Schema(description = "상점 소개", example = "안녕하세요 수신 반점입니다.", requiredMode = REQUIRED)
+    @Schema(description = "상점 소개", example = "안녕하세요 수신 반점입니다.", requiredMode = NOT_REQUIRED)
     String introduction,
 
     @Schema(description = "리뷰 평균 평점", example = "4.5", requiredMode = REQUIRED)
