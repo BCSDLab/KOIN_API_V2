@@ -39,7 +39,7 @@ public class ChatMessageSendService {
 
     private final LostItemChatRoomInfoService chatRoomInfoUseCase;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void handle(MessageSendEvent event) {
         Integer partnerId = getPartnerId(
             event.articleId(), event.chatRoomId(), event.userId()
