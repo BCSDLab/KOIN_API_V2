@@ -46,4 +46,8 @@ public class OrderDelivery {
     @NotNull
     @Column(name = "delivery_tip", nullable = false, updatable = false)
     private Integer deliveryTip;
+
+    @NotNull
+    @Column(name = "provide_cutlery", nullable = false, updatable = false, columnDefinition = "TINYINT(1)")
+    private Boolean provideCutlery;
 }

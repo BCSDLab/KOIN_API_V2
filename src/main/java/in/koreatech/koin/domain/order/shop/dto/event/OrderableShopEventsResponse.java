@@ -5,9 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -21,7 +19,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopEventsResponse(
-
     @Schema(description = "상점 이벤트 목록")
     List<InnerOrderableShopEventResponse> shopEvents
 ) {

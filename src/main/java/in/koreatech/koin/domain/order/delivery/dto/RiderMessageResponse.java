@@ -2,19 +2,17 @@ package in.koreatech.koin.domain.order.delivery.dto;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.delivery.model.RiderMessage;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record RiderMessageResponse(
     @Schema(description = "요청 사항 수", example = "5")
     Integer count,
+
     @Schema(description = "배달 기사 요청 사항 목록")
     List<InnerRiderMessageResponse> contents)
 {
