@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.order.shop.dto.menu;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -14,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record OrderableShopMenuGroupResponse(
     @Schema(description = "그룹 개수", example = "7")
     Integer count,
+
     @Schema(description = "메뉴 그룹")
     List<InnerMenuGroupResponse> menuGroups
 ) {
@@ -22,6 +22,7 @@ public record OrderableShopMenuGroupResponse(
     private record InnerMenuGroupResponse(
         @Schema(description = "메뉴 그룹 ID")
         Integer id,
+
         @Schema(description = "메뉴 그룹 이름")
         String name
     ) {
