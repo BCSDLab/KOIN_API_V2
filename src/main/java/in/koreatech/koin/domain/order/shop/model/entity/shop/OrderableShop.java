@@ -98,9 +98,6 @@ public class OrderableShop extends BaseEntity {
     }
 
     public void requireMinimumOrderAmount(Integer totalOrderAmount) {
-        if (totalOrderAmount == null || totalOrderAmount < 0) {
-            throw new KoinIllegalArgumentException("주문 금액은 null이거나 음수일 수 없습니다.");
-        }
         if (totalOrderAmount < minimumOrderAmount) {
             throw CustomException.of(ApiResponseCode.ORDER_AMOUNT_BELOW_MINIMUM);
         }
