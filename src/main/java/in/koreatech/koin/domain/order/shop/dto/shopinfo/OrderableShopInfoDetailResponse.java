@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -23,28 +22,40 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record OrderableShopInfoDetailResponse(
     @Schema(description = "상점 ID", example = "14")
     Integer shopId,
+
     @Schema(description = "주문 가능 상점 ID", example = "1")
     Integer orderableShopId,
+
     @Schema(description = "상점 이름", example = "멕시카나 치킨 - 병천점")
     String name,
+
     @Schema(description = "상점 주소", example = "충청남도 천안시 동남구 병천면 병천리 163-12")
     String address,
+
     @Schema(description = "상점 영업 시작 시간", example = "11:30")
-    @DateTimeFormat(pattern = "HH:mm")
+    @JsonFormat(pattern = "HH:mm")
     LocalTime openTime,
+
     @Schema(description = "상점 영업 종료 시간", example = "20:30")
-    @DateTimeFormat(pattern = "HH:mm")
+    @JsonFormat(pattern = "HH:mm")
     LocalTime closeTime,
+
     @Schema(description = "상점 휴무일", example = "[\"TUESDAY\", \"SUNDAY\"]")
     List<String> closedDays,
+
     @Schema(description = "상점 전화 번호", example = "010-1234-5678")
     String phone,
+
     @Schema(description = "가게 소개", example = "안녕하세요 맛있는 족발입니다. 고객님에게 신선한 음식을 제공합니다")
     String introduction,
+
     @Schema(description = "가게 알림", example = "*행사 이벤트 진행중입니다*\\n단체 주문 시 20% 할인 합니다.")
     String notice,
+
     List<DeliveryTipsResponse> deliveryTips,
+
     OwnerInfo ownerInfo,
+
     List<MenuOriginResponse> origins
 ) {
 
@@ -86,8 +97,10 @@ public record OrderableShopInfoDetailResponse(
     public record DeliveryTipsResponse(
         @Schema(description = "주문 금액 하한", example = "10000")
         Integer fromAmount,
+
         @Schema(description = "주문 금액 상한", example = "10000")
         Integer toAmount,
+
         @Schema(description = "주문 금액 구간별 배달팁", example = "2500")
         Integer fee
     ) {
@@ -111,6 +124,7 @@ public record OrderableShopInfoDetailResponse(
     public record MenuOriginResponse(
         @Schema(description = "메뉴 재료", example = "김치")
         String ingredient,
+
         @Schema(description = "원산지", example = "국내산")
         String origin
     ) {
@@ -133,10 +147,13 @@ public record OrderableShopInfoDetailResponse(
     public record OwnerInfo(
         @Schema(description = "사장님 이름", example = "홍길동")
         String name,
+
         @Schema(description = "상호명", example = "맛있는 족발 - 병천점")
         String shopName,
+
         @Schema(description = "사업자 주소", example = "충청남도 천안시 동남구 190 -12")
         String address,
+
         @Schema(description = "사업자 등록번호", example = "홍길동")
         String companyRegistrationNumber
     ) {

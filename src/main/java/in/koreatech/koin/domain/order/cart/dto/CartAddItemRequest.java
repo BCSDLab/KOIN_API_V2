@@ -15,16 +15,18 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record CartAddItemRequest(
-
     @Schema(description = "주문 가능 상점 ID", example = "3", requiredMode = REQUIRED)
     @NotNull(message = "orderableShopId는 필수값입니다.")
     Integer orderableShopId,
+
     @Schema(description = "주문 가능 상점 메뉴 ID", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "orderableShopMenuId는 필수값입니다.")
     Integer orderableShopMenuId,
+
     @Schema(description = "주문 가능 상점 메뉴 가격 ID", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "orderableShopMenuPriceId는 필수값입니다.")
     Integer orderableShopMenuPriceId,
+
     @Schema(description = "주문 가능 상점 메뉴 옵션 가격 ID")
     List<InnerOptionRequest> orderableShopMenuOptionIds,
 

@@ -1,20 +1,19 @@
 package in.koreatech.koin.domain.order.address.dto;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
-import in.koreatech.koin.domain.order.address.model.RoadNameAddressDocument;
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import in.koreatech.koin.domain.order.address.model.RoadNameAddressDocument;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AddressSearchResponse(
-
     @Schema(description = "전체 검색 데이터 수")
     String totalCount,
 
@@ -32,22 +31,31 @@ public record AddressSearchResponse(
     public record AddressInfo(
         @Schema(description = "전체 도로명 주소")
         String roadAddress,
+
         @Schema(description = "지번 주소")
         String jibunAddress,
+
         @Schema(description = "영문 주소")
         String engAddress,
+
         @Schema(description = "우편번호")
         String zipNo,
+
         @Schema(description = "건물명")
         String bdNm,
+
         @Schema(description = "시도명")
         String siNm,
+
         @Schema(description = "시군구명")
         String sggNm,
+
         @Schema(description = "읍면동명")
         String emdNm,
+
         @Schema(description = "법정리명")
         String liNm,
+
         @Schema(description = "도로명")
         String rn
 

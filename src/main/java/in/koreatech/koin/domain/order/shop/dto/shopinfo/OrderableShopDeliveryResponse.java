@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record OrderableShopDeliveryResponse(
     @Schema(description = "상점 교내 배달 가능 여부", example = "true")
     Boolean campusDelivery,
+
     @Schema(description = "상점 교외 배달 가능 여부", example = "true")
     Boolean offCampusDelivery
 ) {

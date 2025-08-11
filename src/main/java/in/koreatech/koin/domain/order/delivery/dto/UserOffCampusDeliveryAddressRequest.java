@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record UserOffCampusDeliveryAddressRequest(
-
     @Schema(description = "우편 번호", example = "31253", requiredMode = REQUIRED)
     @NotNull(message = "우편번호는 필수입니다.")
     String zipNumber,
