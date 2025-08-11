@@ -78,11 +78,14 @@ public class CartQueryService {
         return CartPaymentSummaryResponse.from(cart, orderType);
     }
 
-    public void validateCart(Integer userId) {
+    public void validateCart(Integer userId, OrderType orderType) {
         Cart cart = getCartOrThrow(userId);
         OrderableShop orderableShop = cart.getOrderableShop();
         orderableShop.requireShopOpen();
-        orderableShop.requireMinimumOrderAmount(cart.calculateItemsAmount());
+
+        if (orderType == OrderType.DELIVERY) {
+            orderableShop.requireMinimumOrderAmount(cart.calculateItemsAmount());
+        }
     }
 
     public CartItemsCountSummaryResponse getCartItemsCountSummary(Integer userId) {

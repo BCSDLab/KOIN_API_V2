@@ -104,9 +104,10 @@ public class Cart extends BaseEntity {
     }
 
     public Integer calculateItemsAmount() {
-        return this.cartMenuItems.stream()
+        int sum = this.cartMenuItems.stream()
             .mapToInt(CartMenuItem::calculateTotalAmount)
             .sum();
+        return Math.max(0, sum);
     }
 
     public Integer calculateDeliveryFee(OrderType orderType) {
