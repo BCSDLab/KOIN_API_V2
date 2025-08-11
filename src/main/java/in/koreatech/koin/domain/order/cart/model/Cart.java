@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
@@ -16,6 +14,8 @@ import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOp
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,7 +59,8 @@ public class Cart extends BaseEntity {
         }
     }
 
-    public void addItem(OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options, Integer quantity) {
+    public void addItem(OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options,
+        Integer quantity) {
         // 장바구니에 옵션 까지 전부 동일한 메뉴가 이미 존재 하는 경우, 담긴 상품 수량 증가
         Optional<CartMenuItem> existingItem = findSameItem(menu, price, options);
 
@@ -104,9 +105,9 @@ public class Cart extends BaseEntity {
     }
 
     public Integer calculateItemsAmount() {
-        return this.cartMenuItems.stream()
+        return Math.max(0, this.cartMenuItems.stream()
             .mapToInt(CartMenuItem::calculateTotalAmount)
-            .sum();
+            .sum());
     }
 
     public Integer calculateDeliveryFee(OrderType orderType) {
