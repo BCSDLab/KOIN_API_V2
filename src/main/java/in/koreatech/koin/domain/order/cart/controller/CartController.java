@@ -121,7 +121,7 @@ public class CartController implements CartApi {
     @GetMapping("/cart/validate")
     public ResponseEntity<Void> getCartValidateResult(
         @Auth(permit = {GENERAL, STUDENT}) Integer userId,
-        @RequestParam(name = "type") OrderType orderType
+        @RequestParam(name = "order_type") OrderType orderType
     ) {
         cartQueryService.validateCart(userId, orderType);
         return ResponseEntity.ok().build();

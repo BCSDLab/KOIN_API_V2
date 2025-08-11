@@ -852,17 +852,17 @@ public interface CartApi {
         summary = "장바구니 검증",
         description = """
             ## 장바구니 검증
-            - 주문 타입이 배달(OrderType.DELIVERY) 일 경우
+            - 주문 타입이 배달(order_type=DELIVERY) 일 경우
               - 상점이 현재 주문 가능 상태(영업 중) 인지 검증합니다.
               - 장바구니에 담긴 상품의 총 금액이 상점의 최소 주문 금액을 충족하는지 검증합니다.
-            - 주문 타입이 포장(OrderType.TAKE_OUT) 일 경우
+            - 주문 타입이 포장(order_type=TAKE_OUT) 일 경우
               - 상점이 현재 주문 가능 상태(영업 중) 인지 검증합니다.
             """
     )
     @GetMapping("/cart/validate")
     ResponseEntity<Void> getCartValidateResult(
         @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId,
-        @RequestParam(name = "type") OrderType orderType
+        @RequestParam(name = "order_type") OrderType orderType
     );
 
     @ApiResponses(value = {
