@@ -68,13 +68,13 @@ public record OrderableShopSearchRelatedKeywordResponse(
 
     public static OrderableShopSearchRelatedKeywordResponse from(
         String searchKeyword,
-        String processedSearchKeyword,
+        List<String> processedSearchKeywords,
         List<ShopNameKeywordHit> shopNameSearchResult,
         List<MenuNameKeywordHit> menuNameSearchResult
     ) {
         return new OrderableShopSearchRelatedKeywordResponse(
             searchKeyword,
-            processedSearchKeyword,
+            String.join(" ", processedSearchKeywords),
             shopNameSearchResult.size(),
             menuNameSearchResult.size(),
             shopNameSearchResult.stream().map(InnerShopNameSearchRelatedKeywordResult::from).toList(),

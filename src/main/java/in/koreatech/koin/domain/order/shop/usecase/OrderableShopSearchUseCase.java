@@ -28,13 +28,13 @@ public class OrderableShopSearchUseCase {
 
     @Transactional(readOnly = true)
     public OrderableShopSearchRelatedKeywordResponse getRelatedSearchKeyword(String rawKeyword) {
-        String processedKeyword = searchKeywordSanitizer.sanitizeKeyword(rawKeyword);
+        List<String> processedKeywords = searchKeywordSanitizer.sanitizeToKeywords(rawKeyword);
 
-        var shopNameResults = orderableShopSearchService.findShopNamesByKeyword(processedKeyword);
-        var menuNameResults = orderableShopSearchService.findMenuNamesByKeyword(processedKeyword);
+        var shopNameResults = orderableShopSearchService.findShopNamesByKeyword(processedKeywords);
+        var menuNameResults = orderableShopSearchService.findMenuNamesByKeyword(processedKeywords);
 
         return OrderableShopSearchRelatedKeywordResponse.from(
-            rawKeyword, processedKeyword, shopNameResults, menuNameResults
+            rawKeyword, processedKeywords, shopNameResults, menuNameResults
         );
     }
 

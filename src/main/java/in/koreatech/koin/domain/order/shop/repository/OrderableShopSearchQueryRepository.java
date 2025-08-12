@@ -32,7 +32,7 @@ public class OrderableShopSearchQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<ShopNameKeywordHit> findAllOrderableShopByKeyword(String keyword) {
+    public List<ShopNameKeywordHit> findAllOrderableShopByKeyword(List<String> keywords) {
         return queryFactory
             .select(Projections.constructor(ShopNameKeywordHit.class,
                 orderableShop.id,
@@ -40,11 +40,11 @@ public class OrderableShopSearchQueryRepository {
             ))
             .from(shop)
             .innerJoin(orderableShop).on(orderableShop.shop.id.eq(shop.id))
-            .where(shop.name.contains(keyword))
+            .where(shopNameContainsAnyOfKeywords(keywords))
             .fetch();
     }
 
-    public List<MenuNameKeywordHit> findAllMenuByKeyword(String keyword) {
+    public List<MenuNameKeywordHit> findAllMenuByKeyword(List<String> keywords) {
         return queryFactory
             .select(Projections.constructor(MenuNameKeywordHit.class,
                 orderableShop.id,
@@ -54,7 +54,7 @@ public class OrderableShopSearchQueryRepository {
             .from(orderableShopMenu)
             .innerJoin(orderableShop).on(orderableShopMenu.orderableShop.eq(orderableShop))
             .innerJoin(shop).on(orderableShop.shop.eq(shop))
-            .where(orderableShopMenu.name.contains(keyword))
+            .where(menuNameContainsAnyOfKeywords(keywords))
             .fetch();
     }
 

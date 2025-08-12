@@ -21,12 +21,12 @@ public class OrderableShopSearchService {
 
     private final OrderableShopSearchQueryRepository orderableShopSearchQueryRepository;
 
-    public List<ShopNameKeywordHit> findShopNamesByKeyword(String processedKeyword) {
-        return orderableShopSearchQueryRepository.findAllOrderableShopByKeyword(processedKeyword);
+    public List<ShopNameKeywordHit> findShopNamesByKeyword(List<String> processedKeywords) {
+        return orderableShopSearchQueryRepository.findAllOrderableShopByKeyword(processedKeywords);
     }
 
-    public List<MenuNameKeywordHit> findMenuNamesByKeyword(String processedKeyword) {
-        return orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeyword);
+    public List<MenuNameKeywordHit> findMenuNamesByKeyword(List<String> processedKeywords) {
+        return orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeywords);
     }
 
     public List<OrderableShopBaseInfo> findOrderableShopsByKeywords(List<String> processedKeywords) {

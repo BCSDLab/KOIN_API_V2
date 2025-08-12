@@ -33,14 +33,6 @@ public class OrderableShopSearchKeywordSanitizer {
             .collect(Collectors.toList());
     }
 
-    public String sanitizeKeyword(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return EMPTY;
-        }
-
-        return processKeyword(keyword.replaceAll(BLANK_REGEX, EMPTY));
-    }
-
     /**
      * 키워드 정리: 특수문자 제거 → 불완전한 한글 제거
      */
