@@ -180,14 +180,16 @@ public class OrderableShopSearchQueryRepository {
 
     /**
      * 키워드 리스트 중 하나라도 상점 이름에 포함되는 BooleanExpression을 생성
-     * (shop.name LIKE '%keyword1%' OR shop.name LIKE '%keyword2%' OR ...)
+     * ((shop.name LIKE '%keyword1%' OR shop.internal_name LIKE '%keyword1%') OR ...)
      */
     private BooleanExpression shopNameContainsAnyOfKeywords(List<String> keywords) {
         if (keywords == null || keywords.isEmpty()) {
             return null;
         }
+
         return keywords.stream()
-            .map(shop.name::contains)
+            .map(keyword -> shop.name.contains(keyword)
+                .or(shop.internalName.contains(keyword)))
             .reduce(BooleanExpression::or)
             .orElse(null);
     }
