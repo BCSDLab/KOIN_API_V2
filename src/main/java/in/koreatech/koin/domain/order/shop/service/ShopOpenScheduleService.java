@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopListQueryRepository;

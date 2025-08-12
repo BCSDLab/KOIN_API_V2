@@ -10,15 +10,11 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse;
+import in.koreatech.koin.domain.order.shop.model.readmodel.MenuNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerMenuNameSearchRelatedKeywordResult;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerShopNameSearchRelatedKeywordResult;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultSortCriteria;
-import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
-import in.koreatech.koin.domain.order.shop.repository.OrderableShopListQueryRepository;
+import in.koreatech.koin.domain.order.shop.model.readmodel.ShopNameKeywordHit;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopSearchQueryRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -29,11 +25,11 @@ public class OrderableShopSearchService {
 
     private final OrderableShopSearchQueryRepository orderableShopSearchQueryRepository;
 
-    public List<InnerShopNameSearchRelatedKeywordResult> findShopNamesByKeyword(String processedKeyword) {
+    public List<ShopNameKeywordHit> findShopNamesByKeyword(String processedKeyword) {
         return orderableShopSearchQueryRepository.findAllOrderableShopByKeyword(processedKeyword);
     }
 
-    public List<InnerMenuNameSearchRelatedKeywordResult> findMenuNamesByKeyword(String processedKeyword) {
+    public List<MenuNameKeywordHit> findMenuNamesByKeyword(String processedKeyword) {
         return orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeyword);
     }
 
