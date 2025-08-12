@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse.OrderableShopSearchResult;
 import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
@@ -25,7 +26,8 @@ public class OrderableShopSearchUseCase {
     private final ShopOpenScheduleService shopOpenScheduleService;
     private final SearchKeywordProcessor searchKeywordProcessor;
 
-    public OrderableShopSearchRelatedKeywordResponse searchRelatedKeyword(String rawKeyword) {
+    @Transactional(readOnly = true)
+    public OrderableShopSearchRelatedKeywordResponse getRelatedSearchKeyword(String rawKeyword) {
         String processedKeyword = searchKeywordProcessor.process(rawKeyword);
 
         var shopNameResults = orderableShopSearchService.findShopNamesByKeyword(processedKeyword);
@@ -36,7 +38,8 @@ public class OrderableShopSearchUseCase {
         );
     }
 
-    public OrderableShopSearchResultResponse searchByKeyword(
+    @Transactional(readOnly = true)
+    public OrderableShopSearchResultResponse searchOrderableShopByKeyword(
         String rawKeyword,
         OrderableShopSearchResultSortCriteria sortCriteria
     ) {

@@ -8,19 +8,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.shop.model.readmodel.MenuNameKeywordHit;
 import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerMenuNameSearchRelatedKeywordResult;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerShopNameSearchRelatedKeywordResult;
 import in.koreatech.koin.domain.order.shop.model.readmodel.ShopNameKeywordHit;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopSearchQueryRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class OrderableShopSearchService {
 
     private final OrderableShopSearchQueryRepository orderableShopSearchQueryRepository;

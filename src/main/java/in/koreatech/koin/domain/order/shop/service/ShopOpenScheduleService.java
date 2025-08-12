@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ShopOpenScheduleService {
 
     private final OrderableShopListQueryRepository orderableShopListQueryRepository;
