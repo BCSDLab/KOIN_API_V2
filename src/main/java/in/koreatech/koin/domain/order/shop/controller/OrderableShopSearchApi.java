@@ -73,9 +73,9 @@ public interface OrderableShopSearchApi {
             - 키워드에서 공백이 제거됩니다.
             - 키워드가 미완성된 자음/모음을 포함하는 경우 제거됩니다. ex) "치킨ㅋ" => "치킨"
         """)
-    @GetMapping("/order/shop/search/{keyword}/related")
+    @GetMapping("/order/shop/search/related")
     ResponseEntity<OrderableShopSearchRelatedKeywordResponse> getRelatedKeyword(
-        @PathVariable(name = "keyword") String keyword
+        @RequestParam(name = "keyword") String keyword
     );
 
     @ApiResponses(
@@ -146,9 +146,9 @@ public interface OrderableShopSearchApi {
             - 키워드에서 공백이 제거됩니다.
             - 키워드가 미완성된 자음/모음을 포함하는 경우 제거됩니다. ex) "치킨ㅋ" => "치킨"
         """)
-    @GetMapping("/order/shop/search/{keyword}")
+    @GetMapping("/order/shop/search")
     ResponseEntity<OrderableShopSearchResultResponse> searchOrderableShop(
         @RequestParam(name = "sorter", defaultValue = "NONE") OrderableShopSearchResultSortCriteria sortBy,
-        @PathVariable(name = "keyword") String keyword
+        @RequestParam(name = "keyword") String keyword
     );
 }

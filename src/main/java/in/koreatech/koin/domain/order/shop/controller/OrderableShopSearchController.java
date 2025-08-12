@@ -19,17 +19,17 @@ public class OrderableShopSearchController implements OrderableShopSearchApi {
 
     private final OrderableShopSearchUseCase orderableShopSearchUseCase;
 
-    @GetMapping("/order/shop/search/{keyword}/related")
+    @GetMapping("/order/shop/search/related")
     public ResponseEntity<OrderableShopSearchRelatedKeywordResponse> getRelatedKeyword(
-        @PathVariable(name = "keyword") String keyword
+        @RequestParam(name = "keyword") String keyword
     ) {
         return ResponseEntity.ok(orderableShopSearchUseCase.getRelatedSearchKeyword(keyword));
     }
 
-    @GetMapping("/order/shop/search/{keyword}")
+    @GetMapping("/order/shop/search")
     public ResponseEntity<OrderableShopSearchResultResponse> searchOrderableShop(
         @RequestParam(name = "sorter", defaultValue = "NONE") OrderableShopSearchResultSortCriteria sortBy,
-        @PathVariable(name = "keyword") String keyword
+        @RequestParam(name = "keyword") String keyword
     ) {
         return ResponseEntity.ok(orderableShopSearchUseCase.searchOrderableShopByKeyword(keyword, sortBy));
     }
