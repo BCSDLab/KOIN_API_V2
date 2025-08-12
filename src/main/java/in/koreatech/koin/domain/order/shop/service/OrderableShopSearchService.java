@@ -33,9 +33,9 @@ public class OrderableShopSearchService {
         return orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeyword);
     }
 
-    public List<OrderableShopBaseInfo> findOrderableShopsByKeyword(String processedKeyword) {
-        var searchAtMenuName = orderableShopSearchQueryRepository.searchOrderableShopsByMenuKeyword(processedKeyword);
-        var searchAtShopName = orderableShopSearchQueryRepository.searchOrderableShopsByShopNameKeyword(processedKeyword);
+    public List<OrderableShopBaseInfo> findOrderableShopsByKeywords(List<String> processedKeywords) {
+        var searchAtMenuName = orderableShopSearchQueryRepository.searchOrderableShopsByMenuKeyword(processedKeywords);
+        var searchAtShopName = orderableShopSearchQueryRepository.searchOrderableShopsByShopNameKeyword(processedKeywords);
         return combineAndDeduplicateShopBaseInfo(searchAtMenuName, searchAtShopName);
     }
 
@@ -43,8 +43,8 @@ public class OrderableShopSearchService {
         return orderableShopSearchQueryRepository.findOrderableShopThumbnailImageByOrderableShopIds(orderableShopIds);
     }
 
-    public Map<Integer, List<String>> findMatchingMenuNamesByOrderableShopIds(List<Integer> orderableShopIds, String processedKeyword) {
-        return orderableShopSearchQueryRepository.findOrderableShopContainMenuNameByOrderableShopIds(orderableShopIds, processedKeyword);
+    public Map<Integer, List<String>> findMatchingMenuNamesByOrderableShopIds(List<Integer> orderableShopIds, List<String> processedKeywords) {
+        return orderableShopSearchQueryRepository.findOrderableShopContainMenuNameByOrderableShopIds(orderableShopIds, processedKeywords);
     }
 
     private List<OrderableShopBaseInfo> combineAndDeduplicateShopBaseInfo(
