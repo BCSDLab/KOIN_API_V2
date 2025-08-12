@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
@@ -20,11 +19,11 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class ShopOpenScheduleService {
+public class OrderableShopOpenStatusEvaluator {
 
     private final OrderableShopListQueryRepository orderableShopListQueryRepository;
 
-    public Map<Integer, OrderableShopOpenStatus> determineShopOpenStatuses(List<OrderableShopBaseInfo> shopBaseInfos) {
+    public Map<Integer, OrderableShopOpenStatus> findOpenStatusByShopBasicInfos(List<OrderableShopBaseInfo> shopBaseInfos) {
         if (shopBaseInfos == null || shopBaseInfos.isEmpty()) {
             return Collections.emptyMap();
         }

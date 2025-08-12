@@ -14,8 +14,8 @@ import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRes
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultSortCriteria;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
 import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchService;
-import in.koreatech.koin.domain.order.shop.service.SearchKeywordProcessor;
-import in.koreatech.koin.domain.order.shop.service.ShopOpenScheduleService;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchKeywordSanitizer;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopOpenStatusEvaluator;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,12 +23,12 @@ import lombok.RequiredArgsConstructor;
 public class OrderableShopSearchUseCase {
 
     private final OrderableShopSearchService orderableShopSearchService;
-    private final ShopOpenScheduleService shopOpenScheduleService;
-    private final SearchKeywordProcessor searchKeywordProcessor;
+    private final OrderableShopOpenStatusEvaluator orderableShopOpenStatusEvaluator;
+    private final OrderableShopSearchKeywordSanitizer searchKeywordSanitizer;
 
     @Transactional(readOnly = true)
     public OrderableShopSearchRelatedKeywordResponse getRelatedSearchKeyword(String rawKeyword) {
-        String processedKeyword = searchKeywordProcessor.process(rawKeyword);
+        String processedKeyword = searchKeywordSanitizer.sanitizeKeyword(rawKeyword);
 
         var shopNameResults = orderableShopSearchService.findShopNamesByKeyword(processedKeyword);
         var menuNameResults = orderableShopSearchService.findMenuNamesByKeyword(processedKeyword);
@@ -43,7 +43,7 @@ public class OrderableShopSearchUseCase {
         String rawKeyword,
         OrderableShopSearchResultSortCriteria sortCriteria
     ) {
-        List<String> processedKeywords = searchKeywordProcessor.processToKeywords(rawKeyword);
+        List<String> processedKeywords = searchKeywordSanitizer.sanitizeToKeywords(rawKeyword);
         if (processedKeywords.isEmpty()) {
             return OrderableShopSearchResultResponse.empty(rawKeyword, processedKeywords);
         }
@@ -74,7 +74,7 @@ public class OrderableShopSearchUseCase {
             orderableShopIds);
         Map<Integer, List<String>> containMenuNameMap = orderableShopSearchService.findMatchingMenuNamesByOrderableShopIds(
             orderableShopIds, processedKeywords);
-        Map<Integer, OrderableShopOpenStatus> openStatusMap = shopOpenScheduleService.determineShopOpenStatuses(shops);
+        Map<Integer, OrderableShopOpenStatus> openStatusMap = orderableShopOpenStatusEvaluator.findOpenStatusByShopBasicInfos(shops);
 
         return new OrderableShopSearchResultDetails(thumbnailImageMap, containMenuNameMap, openStatusMap);
     }

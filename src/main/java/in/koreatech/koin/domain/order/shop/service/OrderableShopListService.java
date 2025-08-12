@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderableShopListService {
 
     private final OrderableShopListQueryRepository orderableShopListQueryRepository;
-    private final ShopOpenScheduleService shopOpenScheduleService;
+    private final OrderableShopOpenStatusEvaluator orderableShopOpenStatusEvaluator;
 
     public List<OrderableShopsResponse> getOrderableShops(
         OrderableShopsSortCriteria sortCriteria,
@@ -60,7 +60,7 @@ public class OrderableShopListService {
             orderableShopListQueryRepository.findAllOrderableShopImagesByOrderableShopIds(orderableShopIds);
 
         Map<Integer, OrderableShopOpenStatus> shopOpenStatus =
-            shopOpenScheduleService.determineShopOpenStatuses(shopBaseInfo);
+            orderableShopOpenStatusEvaluator.findOpenStatusByShopBasicInfos(shopBaseInfo);
 
         return new OrderableShopDetailInfo(shopCategories, shopImages, shopOpenStatus);
     }

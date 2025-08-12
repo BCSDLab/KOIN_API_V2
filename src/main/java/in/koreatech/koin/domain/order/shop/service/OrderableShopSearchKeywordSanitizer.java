@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 /**
- * 주문 가능 상점 검색 키워드 전처리
+ * 주문 가능 상점 검색 키워드 정제기
  * 1. 공백 제거
  * 2. 한글 자음, 모음을 제거 ex) 짜장ㅁ => 짜장
  * 3. 특수문자 제거
  */
 @Component
-public class SearchKeywordProcessor {
+public class OrderableShopSearchKeywordSanitizer {
 
     private static final String BLANK_REGEX = "\\s+";
     private static final String EMPTY = "";
@@ -22,7 +22,7 @@ public class SearchKeywordProcessor {
     private static final String HANGUL_VOWELS = "[ㅏ-ㅣ]";
     private static final String ALLOWED_CHARACTERS = "[^가-힣a-zA-Z0-9]";
 
-    public List<String> processToKeywords(String keyword) {
+    public List<String> sanitizeToKeywords(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();
         }
@@ -33,7 +33,7 @@ public class SearchKeywordProcessor {
             .collect(Collectors.toList());
     }
 
-    public String process(String keyword) {
+    public String sanitizeKeyword(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return EMPTY;
         }

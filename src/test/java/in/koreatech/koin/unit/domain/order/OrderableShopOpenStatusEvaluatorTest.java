@@ -14,14 +14,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
-import in.koreatech.koin.domain.order.shop.service.ShopOpenScheduleService;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopOpenStatusEvaluator;
 import in.koreatech.koin.unit.fixutre.OrderableShopOpenInfoFixture;
 
 @ExtendWith(MockitoExtension.class)
-public class ShopOpenScheduleServiceTest {
+public class OrderableShopOpenStatusEvaluatorTest {
 
     @InjectMocks
-    private ShopOpenScheduleService shopOpenScheduleService;
+    private OrderableShopOpenStatusEvaluator orderableShopOpenStatusEvaluator;
 
     private OrderableShopOpenInfo 수요일;
 
@@ -37,7 +37,7 @@ public class ShopOpenScheduleServiceTest {
         Boolean shopIsOpen = true; // 영업 중 상태 = shopIsOpen 이 true
 
         // When
-        OrderableShopOpenStatus orderableShopOpenStatus = shopOpenScheduleService.determineOpenStatus(수요일,
+        OrderableShopOpenStatus orderableShopOpenStatus = orderableShopOpenStatusEvaluator.determineOpenStatus(수요일,
             DayOfWeek.TUESDAY, LocalTime.now(), shopIsOpen);
 
         //Then
@@ -52,7 +52,7 @@ public class ShopOpenScheduleServiceTest {
         LocalTime now = LocalTime.of(12, 0);
 
         // When
-        OrderableShopOpenStatus orderableShopOpenStatus = shopOpenScheduleService.determineOpenStatus(수요일,
+        OrderableShopOpenStatus orderableShopOpenStatus = orderableShopOpenStatusEvaluator.determineOpenStatus(수요일,
             DayOfWeek.WEDNESDAY, now, shopIsOpen);
 
         //Then
@@ -67,7 +67,7 @@ public class ShopOpenScheduleServiceTest {
         LocalTime now = LocalTime.of(23, 0);
 
         // When
-        OrderableShopOpenStatus orderableShopOpenStatus = shopOpenScheduleService.determineOpenStatus(수요일,
+        OrderableShopOpenStatus orderableShopOpenStatus = orderableShopOpenStatusEvaluator.determineOpenStatus(수요일,
             DayOfWeek.WEDNESDAY, now, shopIsOpen);
 
         //Then
