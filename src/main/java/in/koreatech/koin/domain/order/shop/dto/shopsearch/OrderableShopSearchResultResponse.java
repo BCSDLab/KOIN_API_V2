@@ -23,11 +23,11 @@ public record OrderableShopSearchResultResponse(
     Integer resultCount,
 
     @Schema(description = "주문 가능 상점 검색 결과")
-    List<InnerOrderableShopSearchResult> searchResults
+    List<OrderableShopSearchResult> searchResults
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerOrderableShopSearchResult(
+    public record OrderableShopSearchResult(
         @Schema(description = "주문 가능 상점 식별자", example = "5")
         Integer orderableShopId,
 
@@ -71,14 +71,14 @@ public record OrderableShopSearchResultResponse(
         List<String> containMenuName
     ) {
 
-        public static InnerOrderableShopSearchResult from(
+        public static OrderableShopSearchResult from(
             OrderableShopBaseInfo info,
-            Map<Integer, String> thumbnailImageByOrderableShopId,
-            Map<Integer, OrderableShopOpenStatus> openStatusByShopId,
-            Map<Integer, List<String>> containMenuNamesByOrderableShopId
+            String thumbnailImage,
+            OrderableShopOpenStatus openStatus,
+            List<String> containMenuNames
         ) {
             Integer orderableShopId = info.orderableShopId();
-            return new InnerOrderableShopSearchResult(
+            return new OrderableShopSearchResult(
                 orderableShopId,
                 info.name(),
                 info.isDeliveryAvailable(),
@@ -90,33 +90,32 @@ public record OrderableShopSearchResultResponse(
                 info.minimumDeliveryTip(),
                 info.maximumDeliveryTip(),
                 info.isOpen(),
-                thumbnailImageByOrderableShopId.getOrDefault(orderableShopId, null),
-                openStatusByShopId.getOrDefault(info.shopId(), null),
-                containMenuNamesByOrderableShopId.getOrDefault(orderableShopId, Collections.emptyList())
+                thumbnailImage,
+                openStatus,
+                containMenuNames
             );
         }
-
     }
 
-    public static OrderableShopSearchResultResponse empty(String searchKeyword, String processedSearchKeyword) {
-        return new OrderableShopSearchResultResponse(searchKeyword, processedSearchKeyword, 0, Collections.emptyList());
+    public static OrderableShopSearchResultResponse empty(String searchKeyword, List<String> processedSearchKeywords) {
+        return new OrderableShopSearchResultResponse(
+            searchKeyword,
+            String.join(" ", processedSearchKeywords),
+            0,
+            Collections.emptyList()
+        );
     }
 
     public static OrderableShopSearchResultResponse from(
         String searchKeyword,
-        String processedSearchKeyword,
-        List<OrderableShopBaseInfo> shopBaseInfo,
-        Map<Integer, String> thumbnailImageByOrderableShopId,
-        Map<Integer, OrderableShopOpenStatus> openStatusByShopId,
-        Map<Integer, List<String>> containMenuNamesByOrderableShopId,
-        OrderableShopSearchResultSortCriteria sortCriteria
+        List<String> processedSearchKeywords,
+        List<OrderableShopSearchResult> searchResults
     ) {
-        List<InnerOrderableShopSearchResult> searchResults = shopBaseInfo.stream()
-            .map(orderableShopBaseInfo -> InnerOrderableShopSearchResult.from(
-                    orderableShopBaseInfo, thumbnailImageByOrderableShopId, openStatusByShopId, containMenuNamesByOrderableShopId))
-            .sorted(sortCriteria.getComparator().thenComparing(InnerOrderableShopSearchResult::name))
-            .toList();
-
-        return new OrderableShopSearchResultResponse(searchKeyword, processedSearchKeyword, searchResults.size(), searchResults);
+        return new OrderableShopSearchResultResponse(
+            searchKeyword,
+            String.join(" ", processedSearchKeywords),
+            searchResults.size(),
+            searchResults
+        );
     }
 }

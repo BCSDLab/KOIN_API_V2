@@ -1,5 +1,10 @@
 package in.koreatech.koin.domain.order.shop.service;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,6 +19,17 @@ public class SearchKeywordProcessor {
     private static final String EMPTY = "";
     private static final String HANGUL_CONSONANTS = "[ㄱ-ㅎ]";
     private static final String HANGUL_VOWELS = "[ㅏ-ㅣ]";
+
+    public List<String> processToKeywords(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(keyword.trim().split(BLANK_REGEX))
+            .map(this::removeIncompleteHangul)
+            .filter(k -> !k.isBlank())
+            .collect(Collectors.toList());
+    }
 
     public String process(String keyword) {
         if (keyword == null || keyword.isBlank()) {
