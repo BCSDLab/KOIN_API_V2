@@ -73,9 +73,9 @@ public record OrderableShopSearchResultResponse(
 
         public static InnerOrderableShopSearchResult from(
             OrderableShopBaseInfo info,
-            Map<Integer, String> thumbnailImageMap,
-            Map<Integer, OrderableShopOpenStatus> openStatusMap,
-            Map<Integer, List<String>> containMenuNameMap
+            Map<Integer, String> thumbnailImageByOrderableShopId,
+            Map<Integer, OrderableShopOpenStatus> openStatusByShopId,
+            Map<Integer, List<String>> containMenuNamesByOrderableShopId
         ) {
             Integer orderableShopId = info.orderableShopId();
             return new InnerOrderableShopSearchResult(
@@ -90,9 +90,9 @@ public record OrderableShopSearchResultResponse(
                 info.minimumDeliveryTip(),
                 info.maximumDeliveryTip(),
                 info.isOpen(),
-                thumbnailImageMap.getOrDefault(orderableShopId, null),
-                openStatusMap.getOrDefault(info.shopId(), null),
-                containMenuNameMap.getOrDefault(orderableShopId, Collections.emptyList())
+                thumbnailImageByOrderableShopId.getOrDefault(orderableShopId, null),
+                openStatusByShopId.getOrDefault(info.shopId(), null),
+                containMenuNamesByOrderableShopId.getOrDefault(orderableShopId, Collections.emptyList())
             );
         }
 
@@ -106,14 +106,14 @@ public record OrderableShopSearchResultResponse(
         String searchKeyword,
         String processedSearchKeyword,
         List<OrderableShopBaseInfo> shopBaseInfo,
-        Map<Integer, String> thumbnailImageMap,
-        Map<Integer, OrderableShopOpenStatus> openStatusMap,
-        Map<Integer, List<String>> containMenuNameMap,
+        Map<Integer, String> thumbnailImageByOrderableShopId,
+        Map<Integer, OrderableShopOpenStatus> openStatusByShopId,
+        Map<Integer, List<String>> containMenuNamesByOrderableShopId,
         OrderableShopSearchResultSortCriteria sortCriteria
     ) {
         List<InnerOrderableShopSearchResult> searchResults = shopBaseInfo.stream()
             .map(orderableShopBaseInfo -> InnerOrderableShopSearchResult.from(
-                    orderableShopBaseInfo, thumbnailImageMap, openStatusMap, containMenuNameMap))
+                    orderableShopBaseInfo, thumbnailImageByOrderableShopId, openStatusByShopId, containMenuNamesByOrderableShopId))
             .sorted(sortCriteria.getComparator().thenComparing(InnerOrderableShopSearchResult::name))
             .toList();
 

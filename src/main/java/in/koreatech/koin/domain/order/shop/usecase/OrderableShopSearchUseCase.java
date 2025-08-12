@@ -49,9 +49,9 @@ public class OrderableShopSearchUseCase {
             rawKeyword,
             processedKeyword,
             shopBaseInfos,
-            detailInfo.thumbnailImageMap(),
-            detailInfo.openStatusMap(),
-            detailInfo.containMenuNameMap(),
+            detailInfo.thumbnailImageByOrderableShopId(),
+            detailInfo.openStatusByShopId(),
+            detailInfo.containMenuNamesByOrderableShopId(),
             sortCriteria
         );
     }
@@ -67,8 +67,8 @@ public class OrderableShopSearchUseCase {
     }
 
     private record DetailInfo(
-        Map<Integer, String> thumbnailImageMap,
-        Map<Integer, List<String>> containMenuNameMap,
-        Map<Integer, OrderableShopOpenStatus> openStatusMap
+        Map<Integer, String> thumbnailImageByOrderableShopId,
+        Map<Integer, List<String>> containMenuNamesByOrderableShopId,
+        Map<Integer, OrderableShopOpenStatus> openStatusByShopId
     ) {}
 }
