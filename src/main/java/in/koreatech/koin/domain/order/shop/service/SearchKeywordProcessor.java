@@ -2,6 +2,11 @@ package in.koreatech.koin.domain.order.shop.service;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * 주문 가능 상점 검색 키워드 전처리
+ * 1. 공백 제거
+ * 2. 한글 자음, 모음을 제거 ex) 짜장ㅁ => 짜장
+ * */
 @Component
 public class SearchKeywordProcessor {
 
