@@ -23,7 +23,7 @@ public class OrderableShopSearchController implements OrderableShopSearchApi {
     public ResponseEntity<OrderableShopSearchRelatedKeywordResponse> getRelatedKeyword(
         @RequestParam(name = "keyword") String keyword
     ) {
-        return ResponseEntity.ok(orderableShopSearchUseCase.getRelatedSearchKeyword(keyword));
+        return ResponseEntity.ok(orderableShopSearchUseCase.searchRelatedKeyword(keyword));
     }
 
     @GetMapping("/order/shop/search")

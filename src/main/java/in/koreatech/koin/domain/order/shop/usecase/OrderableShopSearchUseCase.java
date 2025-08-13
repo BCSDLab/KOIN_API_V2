@@ -7,15 +7,15 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse.OrderableShopSearchResult;
-import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse;
+import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResult;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultSortCriteria;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
-import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchService;
-import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchKeywordSanitizer;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.service.OrderableShopOpenStatusEvaluator;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchKeywordSanitizer;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,7 +27,7 @@ public class OrderableShopSearchUseCase {
     private final OrderableShopSearchKeywordSanitizer searchKeywordSanitizer;
 
     @Transactional(readOnly = true)
-    public OrderableShopSearchRelatedKeywordResponse getRelatedSearchKeyword(String rawKeyword) {
+    public OrderableShopSearchRelatedKeywordResponse searchRelatedKeyword(String rawKeyword) {
         List<String> processedKeywords = searchKeywordSanitizer.sanitizeToKeywords(rawKeyword);
 
         var shopNameResults = orderableShopSearchService.findShopNamesByKeyword(processedKeywords);

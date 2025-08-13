@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.order.shop.dto.shopsearch;
 
 import java.util.Comparator;
 
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse.OrderableShopSearchResult;
 import lombok.Getter;
 
 @Getter
