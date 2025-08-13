@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.fixutre;
+package in.koreatech.koin.unit.fixture;
 
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;

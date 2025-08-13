@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.fixutre;
+package in.koreatech.koin.unit.fixture;
 
 import static in.koreatech.koin.admin.user.enums.TeamType.*;
 import static in.koreatech.koin.admin.user.enums.TrackType.BACKEND;

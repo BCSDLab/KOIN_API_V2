@@ -15,7 +15,7 @@ import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
 import in.koreatech.koin.domain.order.delivery.service.DeliveryAddressValidator;
-import in.koreatech.koin.unit.fixutre.AddressFixture;
+import in.koreatech.koin.unit.fixture.AddressFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class DeliveryAddressValidatorTest {

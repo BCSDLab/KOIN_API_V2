@@ -14,8 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
+import in.koreatech.koin.unit.fixture.OrderableShopOpenInfoFixture;
 import in.koreatech.koin.domain.order.shop.service.OrderableShopOpenStatusEvaluator;
-import in.koreatech.koin.unit.fixutre.OrderableShopOpenInfoFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderableShopOpenStatusEvaluatorTest {
