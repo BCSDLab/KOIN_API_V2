@@ -2,7 +2,6 @@ package in.koreatech.koin.unit.domain.community.lostitem.chatroom.service;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -26,9 +25,9 @@ import in.koreatech.koin.domain.community.lostitem.chatroom.service.LostItemChat
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.unit.fixutre.LostItemArticleFixture;
-import in.koreatech.koin.unit.fixutre.LostItemChatFixture;
-import in.koreatech.koin.unit.fixutre.UserFixture;
+import in.koreatech.koin.unit.fixture.LostItemArticleFixture;
+import in.koreatech.koin.unit.fixture.LostItemChatFixture;
+import in.koreatech.koin.unit.fixture.UserFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class LostItemChatRoomInfoServiceTest {

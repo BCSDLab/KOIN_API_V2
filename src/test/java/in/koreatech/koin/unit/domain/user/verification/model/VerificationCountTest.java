@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.user.verification.model.VerificationCount;
-import in.koreatech.koin.unit.fixutre.VerificationFixture;
+import in.koreatech.koin.unit.fixture.VerificationFixture;
 
 class VerificationCountTest {
 
