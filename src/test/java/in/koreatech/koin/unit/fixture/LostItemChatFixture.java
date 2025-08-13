@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.fixutre;
+package in.koreatech.koin.unit.fixture;
 
 import in.koreatech.koin.domain.community.lostitem.chatroom.model.LostItemChatRoomInfoEntity;
 

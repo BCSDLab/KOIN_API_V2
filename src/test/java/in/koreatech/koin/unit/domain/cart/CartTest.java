@@ -21,10 +21,10 @@ import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOp
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.unit.fixutre.CartFixture;
-import in.koreatech.koin.unit.fixutre.OrderableShopFixture;
-import in.koreatech.koin.unit.fixutre.OrderableShopMenuFixture;
-import in.koreatech.koin.unit.fixutre.UserFixture;
+import in.koreatech.koin.unit.fixture.CartFixture;
+import in.koreatech.koin.unit.fixture.OrderableShopFixture;
+import in.koreatech.koin.unit.fixture.OrderableShopMenuFixture;
+import in.koreatech.koin.unit.fixture.UserFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class CartTest {
