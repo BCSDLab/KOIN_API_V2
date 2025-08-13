@@ -5,6 +5,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.order.shop.model.readmodel.MenuNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.ShopNameKeywordHit;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -35,6 +37,12 @@ public record OrderableShopSearchRelatedKeywordResponse(
         String orderableShopName
     ) {
 
+        public static InnerShopNameSearchRelatedKeywordResult from(ShopNameKeywordHit shopNameKeywordHit) {
+            return new InnerShopNameSearchRelatedKeywordResult(
+                shopNameKeywordHit.orderableShopId(),
+                shopNameKeywordHit.orderableShopName()
+            );
+        }
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -49,21 +57,28 @@ public record OrderableShopSearchRelatedKeywordResponse(
         String menuName
     ) {
 
+        public static InnerMenuNameSearchRelatedKeywordResult from(MenuNameKeywordHit menuNameKeywordHit) {
+            return new InnerMenuNameSearchRelatedKeywordResult(
+                menuNameKeywordHit.orderableShopId(),
+                menuNameKeywordHit.orderableShopName(),
+                menuNameKeywordHit.menuName()
+            );
+        }
     }
 
     public static OrderableShopSearchRelatedKeywordResponse from(
         String searchKeyword,
-        String processedSearchKeyword,
-        List<InnerShopNameSearchRelatedKeywordResult> shopNameSearchResult,
-        List<InnerMenuNameSearchRelatedKeywordResult> menuNameSearchResult
+        List<String> processedSearchKeywords,
+        List<ShopNameKeywordHit> shopNameSearchResult,
+        List<MenuNameKeywordHit> menuNameSearchResult
     ) {
         return new OrderableShopSearchRelatedKeywordResponse(
             searchKeyword,
-            processedSearchKeyword,
+            String.join(" ", processedSearchKeywords),
             shopNameSearchResult.size(),
             menuNameSearchResult.size(),
-            shopNameSearchResult,
-            menuNameSearchResult
+            shopNameSearchResult.stream().map(InnerShopNameSearchRelatedKeywordResult::from).toList(),
+            menuNameSearchResult.stream().map(InnerMenuNameSearchRelatedKeywordResult::from).toList()
         );
     }
 }

@@ -26,7 +26,7 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopCategoryFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopImageInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;

@@ -70,12 +70,12 @@ public interface OrderableShopSearchApi {
         - 상점 이름 중, 주어진 키워드와 일치하는 주문 가능 상점 이름, 식별자 목록을 반환합니다.
         - 메뉴 이름 중, 주어진 키워드와 일치하는 메뉴 이름과 해당 메뉴를 판매하는 주문 가능 상점 이름, 식별자 목록을 반환합니다.
         - **검색 키워드 처리**
-            - 키워드에서 공백이 제거됩니다.
             - 키워드가 미완성된 자음/모음을 포함하는 경우 제거됩니다. ex) "치킨ㅋ" => "치킨"
+            - 검색 키워드가 "페리카나 치킨" 인 경우 공백을 기준으로 "페리카나", "치킨" 두개의 키워드로 분리되어 OR 조건으로 검색합니다.
         """)
-    @GetMapping("/order/shop/search/{keyword}/related")
-    ResponseEntity<OrderableShopSearchRelatedKeywordResponse> searchRelatedKeyword(
-        @PathVariable(name = "keyword") String keyword
+    @GetMapping("/order/shop/search/related")
+    ResponseEntity<OrderableShopSearchRelatedKeywordResponse> getRelatedKeyword(
+        @RequestParam(name = "keyword") String keyword
     );
 
     @ApiResponses(
@@ -143,12 +143,12 @@ public interface OrderableShopSearchApi {
             - **CLOSED**: 영업 종료
         - 검색 결과가 존재 하지 않는 경우 **search_results** 필드는 빈 배열을 반환 합니다.
         - **검색 키워드 처리**
-            - 키워드에서 공백이 제거됩니다.
             - 키워드가 미완성된 자음/모음을 포함하는 경우 제거됩니다. ex) "치킨ㅋ" => "치킨"
+            - 검색 키워드가 "페리카나 치킨" 인 경우 공백을 기준으로 "페리카나", "치킨" 두개의 키워드로 분리되어 OR 조건으로 검색합니다.
         """)
-    @GetMapping("/order/shop/search/{keyword}")
+    @GetMapping("/order/shop/search")
     ResponseEntity<OrderableShopSearchResultResponse> searchOrderableShop(
         @RequestParam(name = "sorter", defaultValue = "NONE") OrderableShopSearchResultSortCriteria sortBy,
-        @PathVariable(name = "keyword") String keyword
+        @RequestParam(name = "keyword") String keyword
     );
 }

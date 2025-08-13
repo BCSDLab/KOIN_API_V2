@@ -1,18 +1,21 @@
 package in.koreatech.koin.domain.order.shop.usecase;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse;
+import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResult;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultSortCriteria;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopOpenStatusEvaluator;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchKeywordSanitizer;
 import in.koreatech.koin.domain.order.shop.service.OrderableShopSearchService;
-import in.koreatech.koin.domain.order.shop.service.SearchKeywordProcessor;
-import in.koreatech.koin.domain.order.shop.service.ShopOpenScheduleService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,55 +23,80 @@ import lombok.RequiredArgsConstructor;
 public class OrderableShopSearchUseCase {
 
     private final OrderableShopSearchService orderableShopSearchService;
-    private final ShopOpenScheduleService shopOpenScheduleService;
-    private final SearchKeywordProcessor searchKeywordProcessor;
+    private final OrderableShopOpenStatusEvaluator orderableShopOpenStatusEvaluator;
+    private final OrderableShopSearchKeywordSanitizer searchKeywordSanitizer;
 
+    @Transactional(readOnly = true)
     public OrderableShopSearchRelatedKeywordResponse searchRelatedKeyword(String rawKeyword) {
-        String processedKeyword = searchKeywordProcessor.process(rawKeyword);
+        List<String> processedKeywords = searchKeywordSanitizer.sanitizeToKeywords(rawKeyword);
 
-        var shopNameResults = orderableShopSearchService.findShopNamesByKeyword(processedKeyword);
-        var menuNameResults = orderableShopSearchService.findMenuNamesByKeyword(processedKeyword);
+        var shopNameResults = orderableShopSearchService.findShopNamesByKeyword(processedKeywords);
+        var menuNameResults = orderableShopSearchService.findMenuNamesByKeyword(processedKeywords);
 
         return OrderableShopSearchRelatedKeywordResponse.from(
-            rawKeyword, processedKeyword, shopNameResults, menuNameResults
+            rawKeyword, processedKeywords, shopNameResults, menuNameResults
         );
     }
 
-    public OrderableShopSearchResultResponse searchByKeyword(String rawKeyword, OrderableShopSearchResultSortCriteria sortCriteria) {
-        String processedKeyword = searchKeywordProcessor.process(rawKeyword);
-
-        List<OrderableShopBaseInfo> shopBaseInfos = orderableShopSearchService.findOrderableShopsByKeyword(processedKeyword);
-
-        if (shopBaseInfos.isEmpty()) {
-            return OrderableShopSearchResultResponse.empty(rawKeyword, processedKeyword);
+    @Transactional(readOnly = true)
+    public OrderableShopSearchResultResponse searchOrderableShopByKeyword(
+        String rawKeyword,
+        OrderableShopSearchResultSortCriteria sortCriteria
+    ) {
+        List<String> processedKeywords = searchKeywordSanitizer.sanitizeToKeywords(rawKeyword);
+        if (processedKeywords.isEmpty()) {
+            return OrderableShopSearchResultResponse.empty(rawKeyword, processedKeywords);
         }
 
-        DetailInfo detailInfo = fetchEnrichmentDataForShops(shopBaseInfos, processedKeyword);
+        List<OrderableShopBaseInfo> shopBaseInfos = orderableShopSearchService.findOrderableShopsByKeywords(
+            processedKeywords);
+        if (shopBaseInfos.isEmpty()) {
+            return OrderableShopSearchResultResponse.empty(rawKeyword, processedKeywords);
+        }
 
-        return OrderableShopSearchResultResponse.from(
-            rawKeyword,
-            processedKeyword,
-            shopBaseInfos,
-            detailInfo.thumbnailImageMap(),
-            detailInfo.openStatusMap(),
-            detailInfo.containMenuNameMap(),
-            sortCriteria
-        );
+        OrderableShopSearchResultDetails shopDetailInfos = collectSearchResultDetailInfo(shopBaseInfos,
+            processedKeywords);
+
+        var combineAndSortSearchResults = combineSearchResults(shopBaseInfos, shopDetailInfos)
+            .stream()
+            .sorted(sortCriteria.getComparator().thenComparing(OrderableShopSearchResult::name))
+            .toList();
+        return OrderableShopSearchResultResponse.from(rawKeyword, processedKeywords, combineAndSortSearchResults);
     }
 
-    private DetailInfo fetchEnrichmentDataForShops(List<OrderableShopBaseInfo> shops, String processedKeyword) {
+    private OrderableShopSearchResultDetails collectSearchResultDetailInfo(
+        List<OrderableShopBaseInfo> shops,
+        List<String> processedKeywords
+    ) {
         List<Integer> orderableShopIds = shops.stream().map(OrderableShopBaseInfo::orderableShopId).toList();
 
-        Map<Integer, String> thumbnailImageMap = orderableShopSearchService.findThumbnailUrlsByOrderableShopIds(orderableShopIds);
-        Map<Integer, List<String>> containMenuNameMap = orderableShopSearchService.findMatchingMenuNamesByOrderableShopIds(orderableShopIds, processedKeyword);
-        Map<Integer, OrderableShopOpenStatus> openStatusMap = shopOpenScheduleService.determineShopOpenStatuses(shops);
+        Map<Integer, String> thumbnailImageMap = orderableShopSearchService.findThumbnailUrlsByOrderableShopIds(
+            orderableShopIds);
+        Map<Integer, List<String>> containMenuNameMap = orderableShopSearchService.findMatchingMenuNamesByOrderableShopIds(
+            orderableShopIds, processedKeywords);
+        Map<Integer, OrderableShopOpenStatus> openStatusMap = orderableShopOpenStatusEvaluator.findOpenStatusByShopBasicInfos(shops);
 
-        return new DetailInfo(thumbnailImageMap, containMenuNameMap, openStatusMap);
+        return new OrderableShopSearchResultDetails(thumbnailImageMap, containMenuNameMap, openStatusMap);
     }
 
-    private record DetailInfo(
-        Map<Integer, String> thumbnailImageMap,
-        Map<Integer, List<String>> containMenuNameMap,
-        Map<Integer, OrderableShopOpenStatus> openStatusMap
-    ) {}
+    private List<OrderableShopSearchResult> combineSearchResults(
+        List<OrderableShopBaseInfo> shopBaseInfos,
+        OrderableShopSearchResultDetails shopDetailInfos
+    ) {
+        return shopBaseInfos.stream().map(it -> OrderableShopSearchResult.from(
+                it,
+                shopDetailInfos.thumbnailImageByOrderableShopId.getOrDefault(it.orderableShopId(), null),
+                shopDetailInfos.openStatusByShopId.getOrDefault(it.shopId(), null),
+                shopDetailInfos.containMenuNamesByOrderableShopId.getOrDefault(it.orderableShopId(),
+                    Collections.emptyList())
+            )
+        ).toList();
+    }
+
+    private record OrderableShopSearchResultDetails(
+        Map<Integer, String> thumbnailImageByOrderableShopId,
+        Map<Integer, List<String>> containMenuNamesByOrderableShopId,
+        Map<Integer, OrderableShopOpenStatus> openStatusByShopId
+    ) {
+    }
 }

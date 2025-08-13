@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopCategoryFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopDetailInfo;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopImageInfo;
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderableShopListService {
 
     private final OrderableShopListQueryRepository orderableShopListQueryRepository;
-    private final ShopOpenScheduleService shopOpenScheduleService;
+    private final OrderableShopOpenStatusEvaluator orderableShopOpenStatusEvaluator;
 
     public List<OrderableShopsResponse> getOrderableShops(
         OrderableShopsSortCriteria sortCriteria,
@@ -50,17 +50,17 @@ public class OrderableShopListService {
             .collect(Collectors.toList());
     }
 
-    private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfo,
+    private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfos,
         List<Integer> shopIds) {
         Map<Integer, List<Integer>> shopCategories =
             orderableShopListQueryRepository.findAllCategoriesByShopIds(shopIds);
 
-        List<Integer> orderableShopIds = shopBaseInfo.stream().map(OrderableShopBaseInfo::orderableShopId).toList();
+        List<Integer> orderableShopIds = shopBaseInfos.stream().map(OrderableShopBaseInfo::orderableShopId).toList();
         Map<Integer, List<OrderableShopImageInfo>> shopImages =
             orderableShopListQueryRepository.findAllOrderableShopImagesByOrderableShopIds(orderableShopIds);
 
         Map<Integer, OrderableShopOpenStatus> shopOpenStatus =
-            shopOpenScheduleService.determineShopOpenStatuses(shopBaseInfo);
+            orderableShopOpenStatusEvaluator.findOpenStatusByShopBasicInfos(shopBaseInfos);
 
         return new OrderableShopDetailInfo(shopCategories, shopImages, shopOpenStatus);
     }
