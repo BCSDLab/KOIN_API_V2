@@ -50,17 +50,17 @@ public class OrderableShopListService {
             .collect(Collectors.toList());
     }
 
-    private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfo,
+    private OrderableShopDetailInfo findAllOrderableShopDetailInfo(List<OrderableShopBaseInfo> shopBaseInfos,
         List<Integer> shopIds) {
         Map<Integer, List<Integer>> shopCategories =
             orderableShopListQueryRepository.findAllCategoriesByShopIds(shopIds);
 
-        List<Integer> orderableShopIds = shopBaseInfo.stream().map(OrderableShopBaseInfo::orderableShopId).toList();
+        List<Integer> orderableShopIds = shopBaseInfos.stream().map(OrderableShopBaseInfo::orderableShopId).toList();
         Map<Integer, List<OrderableShopImageInfo>> shopImages =
             orderableShopListQueryRepository.findAllOrderableShopImagesByOrderableShopIds(orderableShopIds);
 
         Map<Integer, OrderableShopOpenStatus> shopOpenStatus =
-            orderableShopOpenStatusEvaluator.findOpenStatusByShopBasicInfos(shopBaseInfo);
+            orderableShopOpenStatusEvaluator.findOpenStatusByShopBasicInfos(shopBaseInfos);
 
         return new OrderableShopDetailInfo(shopCategories, shopImages, shopOpenStatus);
     }

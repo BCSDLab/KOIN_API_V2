@@ -9,7 +9,6 @@ package in.koreatech.koin.domain.order.shop.model.readmodel;
  * */
 public record ShopNameKeywordHit(
     Integer orderableShopId,
-
     String orderableShopName
 ) {
 

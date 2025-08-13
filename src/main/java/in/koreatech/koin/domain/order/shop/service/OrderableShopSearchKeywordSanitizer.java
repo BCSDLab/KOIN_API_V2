@@ -20,7 +20,7 @@ public class OrderableShopSearchKeywordSanitizer {
     private static final String EMPTY = "";
     private static final String HANGUL_CONSONANTS = "[ㄱ-ㅎ]";
     private static final String HANGUL_VOWELS = "[ㅏ-ㅣ]";
-    private static final String ALLOWED_CHARACTERS = "[^가-힣a-zA-Z0-9]";
+    private static final String ALLOWED_CHARACTERS_REGEX = "[^가-힣a-zA-Z0-9]";
 
     public List<String> sanitizeToKeywords(String keyword) {
         if (keyword == null || keyword.isBlank()) {
@@ -58,6 +58,6 @@ public class OrderableShopSearchKeywordSanitizer {
     private String removeSpecialCharacters(String input) {
         if (input == null) return null;
 
-        return input.replaceAll(ALLOWED_CHARACTERS, EMPTY);
+        return input.replaceAll(ALLOWED_CHARACTERS_REGEX, EMPTY);
     }
 }

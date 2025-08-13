@@ -10,9 +10,7 @@ package in.koreatech.koin.domain.order.shop.model.readmodel;
  * */
 public record MenuNameKeywordHit(
     Integer orderableShopId,
-
     String orderableShopName,
-
     String menuName
 ) {
 }

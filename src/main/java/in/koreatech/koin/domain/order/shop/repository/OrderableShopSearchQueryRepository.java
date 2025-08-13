@@ -145,12 +145,6 @@ public class OrderableShopSearchQueryRepository {
     }
 
     public Map<Integer, List<String>> findOrderableShopContainMenuNameByOrderableShopIds(List<Integer> orderableShopIds, List<String> keywords) {
-        BooleanExpression keywordCondition = null;
-        for (String keyword : keywords) {
-            BooleanExpression condition = orderableShopMenu.name.contains(keyword);
-            keywordCondition = keywordCondition == null ? condition : keywordCondition.or(condition);
-        }
-
         return queryFactory
             .select(orderableShopMenu.orderableShop.id, orderableShopMenu.name)
             .from(orderableShopMenu)
