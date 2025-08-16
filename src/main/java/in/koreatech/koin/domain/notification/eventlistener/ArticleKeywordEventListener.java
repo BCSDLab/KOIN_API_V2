@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin._common.event.ArticleKeywordEvent;
@@ -94,7 +95,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             subscribe.getUser()
         );
 
-        keywordService.updateLastNotifiedArticle(userId, article.getId());
+        keywordService.createNotifiedArticleStatus(userId, article.getId());
         return notification;
     }
 

@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,13 +30,8 @@ public class UserNotificationStatus extends BaseEntity {
     @Column(name = "last_notified_article_id", nullable = false)
     private Integer lastNotifiedArticleId;
 
-    @Builder
     public UserNotificationStatus(Integer userId, Integer lastNotifiedArticleId) {
         this.userId = userId;
         this.lastNotifiedArticleId = lastNotifiedArticleId;
-    }
-
-    public void updateLastNotifiedArticleId(Integer articleId) {
-        this.lastNotifiedArticleId = articleId;
     }
 }
