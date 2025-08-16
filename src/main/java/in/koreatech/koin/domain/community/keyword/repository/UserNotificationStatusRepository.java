@@ -9,10 +9,9 @@ import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 
 public interface UserNotificationStatusRepository extends Repository<UserNotificationStatus, Integer> {
 
-    @Query("SELECT u.lastNotifiedArticleId FROM UserNotificationStatus u WHERE u.userId = :userId")
-    Optional<Integer> findLastNotifiedArticleIdByUserId(Integer userId);
+    void save(UserNotificationStatus status);
 
     Optional<UserNotificationStatus> findByUserId(Integer userId);
 
-    void save(UserNotificationStatus status);
+    boolean existsByLastNotifiedArticleIdAndUserId(Integer lastNotificationArticleId, Integer userId);
 }

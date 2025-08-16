@@ -46,7 +46,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             .stream()
             .filter(this::hasDeviceToken)
             .filter(subscribe -> isKeywordRegistered(event, subscribe))
-            .filter(subscribe -> isNewArticle(event, subscribe))
+            .filter(subscribe -> isNewNotifiedArticleId(event.articleId(), subscribe))
             .filter(subscribe -> !isMyArticle(event, subscribe))
             .map(subscribe -> createAndRecordNotification(article, board, event.keyword(), subscribe))
             .toList();
@@ -64,12 +64,9 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getId()));
     }
 
-    private boolean isNewArticle(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
+    private boolean isNewNotifiedArticleId(Integer articleId, NotificationSubscribe subscribe) {
         Integer userId = subscribe.getUser().getId();
-        Integer lastNotifiedId = userNotificationStatusRepository
-            .findLastNotifiedArticleIdByUserId(userId)
-            .orElse(0);
-        return !lastNotifiedId.equals(event.articleId());
+        return !userNotificationStatusRepository.existsByLastNotifiedArticleIdAndUserId(articleId, userId);
     }
 
     private boolean isMyArticle(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
