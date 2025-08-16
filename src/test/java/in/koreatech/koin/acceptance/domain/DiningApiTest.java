@@ -281,7 +281,6 @@ class DiningApiTest extends AcceptanceTest {
             .andReturn();
 
         forceVerify(() -> verify(coopEventListener).onDiningSoldOutRequest(any()));
-        clear();
         setUp();
     }
 
@@ -302,7 +301,6 @@ class DiningApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andReturn();
         forceVerify(() -> verify(coopEventListener, never()).onDiningSoldOutRequest(any()));
-        clear();
         setUp();
     }
 
@@ -323,7 +321,6 @@ class DiningApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andReturn();
         forceVerify(() -> verify(coopEventListener, never()).onDiningSoldOutRequest(any()));
-        clear();
         setUp();
     }
 
@@ -485,7 +482,6 @@ class DiningApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
-        clear();
         setUp();
     }
 
@@ -495,7 +491,6 @@ class DiningApiTest extends AcceptanceTest {
         coopService.sendDiningNotify();
 
         forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
-        clear();
         setUp();
     }
 
@@ -506,7 +501,6 @@ class DiningApiTest extends AcceptanceTest {
         coopService.sendDiningNotify();
 
         forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
-        clear();
         setUp();
     }
 
@@ -517,7 +511,6 @@ class DiningApiTest extends AcceptanceTest {
         coopService.sendDiningNotify();
 
         forceVerify(() -> verify(coopEventListener).onDiningImageUploadRequest(any()));
-        clear();
         setUp();
     }*/
 
