@@ -51,7 +51,7 @@ public class DBInitializer {
 
     @Transactional
     public void initIncrement() {
-        String sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'test' AND AUTO_INCREMENT >= 1";
+        String sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'test' AND AUTO_INCREMENT > 1";
         List<String> dirtyTables = entityManager.createNativeQuery(sql).getResultList();
         for (String tableName: dirtyTables) {
             entityManager.createNativeQuery(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName)).executeUpdate();
