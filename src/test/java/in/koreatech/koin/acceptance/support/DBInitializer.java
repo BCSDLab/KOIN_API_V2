@@ -36,15 +36,18 @@ public class DBInitializer {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    private void findDatabaseTableNames() {
-        String sql = "SHOW TABLES";
-        tableNames = entityManager.createNativeQuery(sql).getResultList();
-    }
-
-    private void truncateAllTable() {
+    private void truncateDirtyTables() {
+        String sql = """
+            SELECT TABLE_NAME
+            FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_SCHEMA = 'test'
+              AND TABLE_TYPE = 'BASE TABLE'
+              AND (AUTO_INCREMENT > 1 OR AUTO_INCREMENT IS NULL)
+            """;
+        List<String> dirtyTables = entityManager.createNativeQuery(sql).getResultList();
         setForeignKeyCheck(OFF);
-        for (String tableName: tableNames) {
-            entityManager.createNativeQuery(String.format("TRUNCATE TABLE `%s`", tableName)).executeUpdate();
+        for (String dirtyTable : dirtyTables) {
+            entityManager.createNativeQuery(String.format("TRUNCATE TABLE `%s`", dirtyTable)).executeUpdate();
         }
         setForeignKeyCheck(ON);
     }
@@ -64,11 +67,8 @@ public class DBInitializer {
 
     @Transactional
     public void clear() {
-        if (tableNames.isEmpty()) {
-            findDatabaseTableNames();
-        }
         entityManager.clear();
-        truncateAllTable();
+        truncateDirtyTables();
         clearRedis();
         clearMongo();
     }
