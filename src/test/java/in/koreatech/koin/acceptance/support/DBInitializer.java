@@ -1,9 +1,6 @@
 package in.koreatech.koin.acceptance.support;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
@@ -20,12 +17,6 @@ public class DBInitializer {
 
     private static final int OFF = 0;
     private static final int ON = 1;
-    private static final int COLUMN_INDEX = 1;
-
-    private List<String> tableNames = new ArrayList<>();
-
-    @Autowired
-    private DataSource dataSource;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -56,8 +47,9 @@ public class DBInitializer {
     public void initIncrement() {
         String sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'test' AND AUTO_INCREMENT > 1";
         List<String> dirtyTables = entityManager.createNativeQuery(sql).getResultList();
-        for (String tableName: dirtyTables) {
-            entityManager.createNativeQuery(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName)).executeUpdate();
+        for (String tableName : dirtyTables) {
+            entityManager.createNativeQuery(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName))
+                .executeUpdate();
         }
     }
 
