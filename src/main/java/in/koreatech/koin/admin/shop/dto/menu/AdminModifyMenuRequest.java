@@ -10,10 +10,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin._common.validation.NotBlankElement;
-import in.koreatech.koin._common.validation.SingleMenuPrice;
-import in.koreatech.koin._common.validation.UniqueId;
-import in.koreatech.koin._common.validation.UniqueUrl;
+import in.koreatech.koin.global.validation.NotBlankElement;
+import in.koreatech.koin.global.validation.SingleMenuPrice;
+import in.koreatech.koin.global.validation.UniqueId;
+import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;

@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.notification.eventlistener;
 
-import static in.koreatech.koin._common.model.MobileAppPath.SHOP;
+import static in.koreatech.koin.common.model.MobileAppPath.SHOP;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.EventArticleCreateShopEvent;
+import in.koreatech.koin.common.event.EventArticleCreateShopEvent;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;

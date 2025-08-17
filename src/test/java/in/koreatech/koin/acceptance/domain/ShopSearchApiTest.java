@@ -5,7 +5,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.MenuAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.MenuCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.MenuSearchKeyWord;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -13,23 +24,7 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.shop.repository.menu.MenuSearchKeywordRepository;
-import in.koreatech.koin.acceptance.fixture.MenuCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.MenuAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-
-@Transactional
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ShopSearchApiTest extends AcceptanceTest {
 
     @Autowired
@@ -73,65 +68,65 @@ class ShopSearchApiTest extends AcceptanceTest {
         shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
         shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
         menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
-                .keyword("짜장면")
-                .build());
+            .keyword("짜장면")
+            .build());
         menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
-                .keyword("마늘치킨")
-                .build());
+            .keyword("마늘치킨")
+            .build());
         menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
-                .keyword("짜장밥")
-                .build());
+            .keyword("짜장밥")
+            .build());
         menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
-                .keyword("마늘통구이")
-                .build());
+            .keyword("마늘통구이")
+            .build());
         menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
-                .keyword("짜장")
-                .build());
+            .keyword("짜장")
+            .build());
         menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
     }
 
     @Test
     void 검색_문자와_관련된_키워드를_조회한다() throws Exception {
         mockMvc.perform(
-                        get("/shops/search/related/짜")
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().json(String.format("""
+                get("/shops/search/related/짜")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
+                {
+                    "keywords": [
                         {
-                            "keywords": [
-                                {
-                                    "keyword": "짜장",
-                                    "shop_ids": [1],
-                                    "shop_id": null
-                                },
-                                {
-                                    "keyword": "짜장면",
-                                    "shop_ids": [1],
-                                    "shop_id": null
-                                }
-                            ]
+                            "keyword": "짜장",
+                            "shop_ids": [1],
+                            "shop_id": null
+                        },
+                        {
+                            "keyword": "짜장면",
+                            "shop_ids": [1],
+                            "shop_id": null
                         }
-                        """)))
-                .andDo(print());
+                    ]
+                }
+                """)))
+            .andDo(print());
     }
 
     @Test
     void 검색_문자와_관련된_키워드를_조회한다_상점인_경우에는_상점id도_조회된다() throws Exception {
         mockMvc.perform(
-                        get("/shops/search/related/마")
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().json(String.format("""
+                get("/shops/search/related/마")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
+                {
+                    "keywords": [
                         {
-                            "keywords": [
-                                {
-                                    "keyword": "마슬랜 치킨",
-                                    "shop_ids": [],
-                                    "shop_id": 1
-                                }
-                            ]
+                            "keyword": "마슬랜 치킨",
+                            "shop_ids": [],
+                            "shop_id": 1
                         }
-                        """)))
-                .andDo(print());
+                    ]
+                }
+                """)))
+            .andDo(print());
     }
 }

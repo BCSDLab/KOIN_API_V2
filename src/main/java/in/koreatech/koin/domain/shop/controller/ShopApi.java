@@ -3,14 +3,26 @@ package in.koreatech.koin.domain.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import in.koreatech.koin.domain.shop.dto.search.response.RelatedKeywordResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,12 +30,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "(Normal) Shop: 상점", description = "상점 정보를 관리한다")
 public interface ShopApi {
@@ -39,6 +45,18 @@ public interface ShopApi {
     @Operation(summary = "특정 상점 조회")
     @GetMapping("/shops/{id}")
     ResponseEntity<ShopResponse> getShopById(
+        @Parameter(in = PATH) @PathVariable Integer id
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 상점 요약 정보 조회")
+    @GetMapping("/shops/{id}/summary")
+    ResponseEntity<ShopSummaryResponse> getShopSummary(
         @Parameter(in = PATH) @PathVariable Integer id
     );
 
@@ -80,6 +98,28 @@ public interface ShopApi {
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias,
         @RequestParam(name = "query", required = false) String query
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "정렬, 필터가 있는 모든 상점 조회 V3", description = """
+        ### 주변 상점 조회 V3
+        - **V2에서 달라진 점**
+            - 이미지 응답값 추가
+            - 주문 가능 상점인 경우, 응답값에서 제외
+        """
+    )
+    @GetMapping("/v3/shops")
+    ResponseEntity<ShopsResponseV3> getShopsV3(
+        @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteriaV3 sortBy,
+        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteriaV3> shopsFilterCriterias,
+        @RequestParam(name = "query", required = false, defaultValue = "") String query
     );
 
     @ApiResponses(

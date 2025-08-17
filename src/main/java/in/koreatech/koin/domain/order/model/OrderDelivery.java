@@ -35,17 +35,19 @@ public class OrderDelivery {
     @Column(name = "address", length = 100, nullable = false, updatable = false)
     private String address;
 
-    @NotNull
     @Size(max = 50)
-    @Column(name = "to_owner", length = 50, nullable = false, updatable = false)
+    @Column(name = "to_owner", length = 50, updatable = false)
     private String toOwner;
 
-    @NotNull
     @Size(max = 50)
-    @Column(name = "to_rider", length = 50, nullable = false, updatable = false)
+    @Column(name = "to_rider", length = 50, updatable = false)
     private String toRider;
 
     @NotNull
     @Column(name = "delivery_tip", nullable = false, updatable = false)
     private Integer deliveryTip;
+
+    @NotNull
+    @Column(name = "provide_cutlery", nullable = false, updatable = false, columnDefinition = "TINYINT(1)")
+    private Boolean provideCutlery;
 }

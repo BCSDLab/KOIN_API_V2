@@ -9,7 +9,7 @@ import java.util.List;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;

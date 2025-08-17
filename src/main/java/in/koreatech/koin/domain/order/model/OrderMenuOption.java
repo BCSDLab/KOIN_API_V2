@@ -28,6 +28,10 @@ public class OrderMenuOption {
     private Integer id;
 
     @NotBlank
+    @Column(name = "option_group_name", nullable = false, updatable = false)
+    private String optionGroupName;
+
+    @NotBlank
     @Column(name = "option_name", nullable = false, updatable = false)
     private String optionName;
 

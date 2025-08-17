@@ -6,9 +6,9 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
@@ -73,12 +73,14 @@ public class CartMenuItem extends BaseEntity {
         this.isModified = isModified;
     }
 
-    public static CartMenuItem create(Cart cart, OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options) {
+    public static CartMenuItem create(Cart cart, OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options, Integer quantity) {
+        validateQuantity(quantity); // 수량 검증
+
         CartMenuItem cartMenuItem = CartMenuItem.builder()
             .cart(cart)
             .orderableShopMenu(menu)
             .orderableShopMenuPrice(price)
-            .quantity(1)
+            .quantity(quantity)
             .isModified(false)
             .build();
 
@@ -98,6 +100,16 @@ public class CartMenuItem extends BaseEntity {
             throw CustomException.of(ApiResponseCode.INVALID_CART_ITEM_QUANTITY, "수량은 1 이상이어야 합니다.");
         }
         this.quantity = quantity;
+    }
+
+
+    private static void validateQuantity(Integer quantity) {
+        if (quantity == null) {
+            throw CustomException.of(ApiResponseCode.ILLEGAL_STATE, "수량은 null일 수 없습니다.");
+        }
+        if (quantity <= 0) {
+            throw CustomException.of(ApiResponseCode.ILLEGAL_STATE, "수량은 1 이상이어야 합니다.");
+        }
     }
 
     public void increaseQuantity() {
@@ -133,12 +145,13 @@ public class CartMenuItem extends BaseEntity {
         return existingOptionIds.equals(newOptionIds);
     }
 
-    public void updatePriceAndOptions(OrderableShopMenuPrice newPrice, List<OrderableShopMenuOption> newOptions) {
+    public void update(OrderableShopMenuPrice newPrice, List<OrderableShopMenuOption> newOptions, Integer newQuantity) {
         this.orderableShopMenuPrice = newPrice;
         this.cartMenuItemOptions.clear();
         if (newOptions != null) {
             newOptions.forEach(option -> this.cartMenuItemOptions.add(CartMenuItemOption.create(this, option)));
         }
+        updateQuantity(newQuantity);
         this.isModified = true;
     }
 

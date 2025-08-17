@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.service;
 
-import static in.koreatech.koin._common.model.MobileAppPath.CLUB;
+import static in.koreatech.koin.common.model.MobileAppPath.CLUB;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

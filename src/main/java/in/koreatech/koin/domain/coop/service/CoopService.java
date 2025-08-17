@@ -38,10 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.event.DiningImageUploadEvent;
-import in.koreatech.koin._common.event.DiningSoldOutEvent;
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.common.event.DiningImageUploadEvent;
+import in.koreatech.koin.common.event.DiningSoldOutEvent;
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;

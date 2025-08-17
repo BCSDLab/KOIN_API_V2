@@ -3,26 +3,32 @@ package in.koreatech.koin.domain.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
-import in.koreatech.koin.domain.shop.dto.search.response.RelatedKeywordResponse;
-import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
-import in.koreatech.koin.domain.shop.service.ShopSearchService;
-import in.koreatech.koin.domain.shop.service.ShopService;
-import in.koreatech.koin._common.auth.Auth;
-import io.swagger.v3.oas.annotations.Parameter;
 import java.util.Collections;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import in.koreatech.koin.domain.shop.dto.search.response.RelatedKeywordResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
+import in.koreatech.koin.domain.shop.service.ShopSearchService;
+import in.koreatech.koin.domain.shop.service.ShopService;
+import in.koreatech.koin.global.auth.Auth;
+import io.swagger.v3.oas.annotations.Parameter;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,6 +43,14 @@ public class ShopController implements ShopApi {
     ) {
         ShopResponse shopResponse = shopService.getShop(id);
         return ResponseEntity.ok(shopResponse);
+    }
+
+    @GetMapping("/shops/{id}/summary")
+    public ResponseEntity<ShopSummaryResponse> getShopSummary(
+        @PathVariable Integer id
+    ) {
+        ShopSummaryResponse response = shopService.getShopSummary(id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/shops")
@@ -61,6 +75,19 @@ public class ShopController implements ShopApi {
             shopsFilterCriterias = Collections.emptyList();
         }
         var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias, query);
+        return ResponseEntity.ok(shops);
+    }
+
+    @GetMapping("/v3/shops")
+    public ResponseEntity<ShopsResponseV3> getShopsV3(
+        @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteriaV3 sortBy,
+        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteriaV3> shopsFilterCriterias,
+        @RequestParam(name = "query", required = false, defaultValue = "") String query
+    ) {
+        if (shopsFilterCriterias == null) {
+            shopsFilterCriterias = Collections.emptyList();
+        }
+        var shops = shopService.getShopsV3(sortBy, shopsFilterCriterias, query);
         return ResponseEntity.ok(shops);
     }
 

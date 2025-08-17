@@ -1,24 +1,20 @@
 package in.koreatech.koin.acceptance.domain;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.acceptance.fixture.MemberAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.TechStackAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.TrackAcceptanceFixture;
+import in.koreatech.koin.domain.member.model.Track;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TrackApiTest extends AcceptanceTest {
 
     @Autowired

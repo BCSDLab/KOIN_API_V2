@@ -19,7 +19,7 @@ import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationRespon
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
 @RestController

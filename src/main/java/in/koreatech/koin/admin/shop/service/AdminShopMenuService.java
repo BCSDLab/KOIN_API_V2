@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.model.menu.*;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.infrastructure.s3.service.ImageDeleteService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

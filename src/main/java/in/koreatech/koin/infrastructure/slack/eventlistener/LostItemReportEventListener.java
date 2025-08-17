@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.LostItemReportEvent;
+import in.koreatech.koin.common.event.LostItemReportEvent;
 import in.koreatech.koin.infrastructure.slack.client.SlackClient;
 import in.koreatech.koin.infrastructure.slack.model.SlackNotification;
 import in.koreatech.koin.infrastructure.slack.model.SlackNotificationFactory;

@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.order.delivery.service;
 
-import static in.koreatech.koin._common.cache.CacheKey.RIDER_MESSAGES_CACHE;
+import static in.koreatech.koin.global.cache.CacheKey.RIDER_MESSAGES_CACHE;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

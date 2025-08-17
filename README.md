@@ -1,35 +1,34 @@
-# Koin - 한기대 학생들을 위한 단 하나의 서비스
+##   Koin - 한기대 학생들의 필수 앱 (KoreaTech IN)
 
 ![Image](https://github.com/user-attachments/assets/75742ede-7e33-435c-9330-c9b6ab232231)
 
-## 👋 Build Communities, Share Dreams - BCSD
-안녕하세요! 한국기술교육대학교의 BCSD, BackEnd 트랙에 오신 걸 환영합니다.
+> [!IMPORTANT]   
+> 한국기술교육대학교의 학식, 주변 식당, 버스, 시간표, 공지사항 등 필수 정보를 제공하는   
+> **DAU 1,100명 이상**의 **Java / Spring** 기반 커뮤니티 서비스입니다.   
 
-코인은 한국기술교육대학교 학생들을 위하여 제공하는 커뮤니티 플랫폼 서비스에요.
-
-한기대 학생들의 편의를 위한 기능들을 분석하고, 개발하며, 서비스를 제공하고 있어요.
-
-BCSD는 현재 3개의 팀(**Campus, Business, User**)으로 나뉘어 각자의 도메인에 집중하는 프로젝트를 진행하고 있어요.
-
-팀 내에서도 9개의 트랙(**BackEnd / FrontEnd / Android / IOS / Design(UI/UX) / DA / PM / Security / Game**) 등 다양한 트랙의 구성원들로 이루어져 각자의 전문성을 살려 기능을 개발하고 있어요.
-
-BCSD는 기술적인 고민 및 해결 방안에 대해 서로 공유하며, 상호협력을 통한 성장을 도모하고 있어요.
-
-BCSD가 추구하는 방향성에 대한 정보는 아래 블로그를 통해 확인할 수 있어요.
-
-> 📝 [BCSD 블로그](https://blog.bcsdlab.com/introduce)
+> 현재 3개의 팀(**Campus, Business, User**)으로 나뉘어,   
+> 여러 직무의 팀원들과 각자 전문성을 살려 프로덕트를 개발하고 있습니다.   
+> (BackEnd / FrontEnd / Android / iOS / Design / DA / PM / Security)
 
 ---
 
-어떤 기능을 제공하는지 직접 확인해보세요.
+### ⚙️ Tech Stack
 
-> 👉 [Koin Web 바로가기](https://koreatech.in/)
+#### 🖥️ Backend
+![Image](https://github.com/user-attachments/assets/7b409909-051a-4918-9374-29f654cd8ca7)
 
-> 🤖 [Koin App(Android) 설치하기](https://play.google.com/store/apps/details?id=in.koreatech.koin&hl=ko)
+#### ☁️ Infra
+![Image](https://github.com/user-attachments/assets/747c5fab-40d0-4b69-881b-ba7335061389)
 
-> 🍎 [Koin App(IOS) 설치하기](https://apps.apple.com/bh/app/%EC%BD%94%EC%9D%B8-koreatech-in-%ED%95%9C%EA%B8%B0%EB%8C%80-%EC%BB%A4%EB%AE%A4%EB%8B%88%ED%8B%B0/id1500848622)
+#### 🏗️ Infra Structure
+![Image](https://github.com/user-attachments/assets/5727bb18-242b-4edb-930a-cee08a90f2ad)
 
-# ☀️ 주요 기능
+#### 📦 Server Instance
+![Image](https://github.com/user-attachments/assets/5bf5c67a-b008-4652-b45e-e7606803df82)
+
+---
+
+### ☀️ 주요 기능
 <details>
 <summary> Koin의 주요 기능을 열어서 확인해보세요!</summary>
 
@@ -55,44 +54,32 @@ BCSD가 추구하는 방향성에 대한 정보는 아래 블로그를 통해 �
 
 </details>
 
-# ⚙️ Tech Stack
+---
 
-## 🖥️ Backend
-![Image](https://github.com/user-attachments/assets/7b409909-051a-4918-9374-29f654cd8ca7)
-
-## ☁️ Infra
-![Image](https://github.com/user-attachments/assets/747c5fab-40d0-4b69-881b-ba7335061389)
-
-## 🏗️ Infra Structure
-![Image](https://github.com/user-attachments/assets/5727bb18-242b-4edb-930a-cee08a90f2ad)
-
-## 📦 Server Instance
-![Image](https://github.com/user-attachments/assets/5bf5c67a-b008-4652-b45e-e7606803df82)
-
-## 🗂️ Repository Structure
+### 🗂️ Package Structure
 ```
 src
 ├── main
 │   ├── java
 │   │   └── in.koreatech.koin
-│   │       ├── _common               # 공통 유틸, 예외, 설정
 │   │       ├── admin                 # 관리자 기능
+│   │       ├── common                # 도메인 간 공용 클래스
 │   │       ├── domain                # 핵심 도메인별 기능 분리
-│   │       │   └── function
-│   │       │       ├── controller
-│   │       │       ├── dto
-│   │       │       │   ├── request
-│   │       │       │   └── response
-│   │       │       ├── enums
-│   │       │       ├── exception
-│   │       │       ├── model
-│   │       │       ├── repository
-│   │       │       ├── service
-│   │       │       └── utils
+│   │       │   ├── User
+│   │       │   │   ├── controller
+│   │       │   │   ├── dto
+│   │       │   │   │   ├── Request.java
+│   │       │   │   │   └── Response.java
+│   │       │   │   ├── enums
+│   │       │   │   ├── model
+│   │       │   │   ├── repository
+│   │       │   │   ├── service
+│   │       │   │   └── utils
+│   │       │   └── ...
+│   │       ├── global                # 전역 설정, 예외, 필터 등 시스템 구조
 │   │       ├── infrastructure        # 외부 시스템 연동 (메일, 슬랙 등)
-│   │       ├── socket                # WebSocket 관련 코드
-│   │       ├── web                   # Web 관련 설정 코드
-│   │       └── KoinApplication       
+│   │       ├── socket                # 웹소켓 관련 코드
+│   │       └── KoinApplication.java      
 │   └── resources
 │       ├── db.migration              # Flyway 기반 마이그레이션
 │       ├── mail                      # 이메일 템플릿
@@ -102,23 +89,34 @@ src
 └── test
     ├── java
     │   └── in.koreatech.koin
-    │       ├── acceptance            # 사용자 기능 테스트
-    │       ├── admin.acceptance      # 관리자 기능 테스트
+    │       ├── acceptance            # 인수 테스트
     │       ├── config                # 테스트 환경 설정
-    │       ├── fixture               # 테스트용 더미 데이터
-    │       ├── support               # 테스트 헬퍼 및 유틸
-    │       ├── util                  # 공통 테스트 유틸
-    │       ├── AcceptanceTest        # 테스트 기본 세팅
-    │       └── KoinApplicationTest
+    │       └── unit                  # 유닛 테스트
     └── resources
 ```
 
-## 🧑‍🧑‍🧒‍🧒 백엔드 구성원들
-BCSD에서 열심히 달리고 있는 구성원들을 소개할게요.
-| <img src="https://github.com/user-attachments/assets/7f3ce35a-0b5d-4755-b5c3-2baef4a2677f" width="130" height="130"> | <img src="https://github.com/user-attachments/assets/530d5b55-26a0-4b85-ac65-d0da0e5f895a" width="130" height="130"> | <img src="https://github.com/user-attachments/assets/74c64b62-bf71-44d0-b08b-0f0ff0c58840" width="130" height="130"> | <img src="https://github.com/user-attachments/assets/1210988c-4ed0-4759-949c-b435bb81e803" width="130" height="130"> | <img src="https://github.com/user-attachments/assets/25e3bc7a-0c9e-4fca-97f8-6bbfb45079ee" width="130" height="130"> |
-| :----------------------------------------------: | :----------------------------------------------: | :----------------------------------------------: | :----------------------------------------------: | :----------------------------------------------: |
-|      [진호](https://github.com/BaeJinho4028)       |      [성현](https://github.com/krSeonghyeon)       |      [준기](https://github.com/dradnats1012)       |      [관규](https://github.com/Soundbar91)       |      [성빈](https://github.com/ImTotem)       |
+---
 
-| <img src="https://github.com/user-attachments/assets/d0ae5872-2ae6-45f8-aae8-fa053fa475e5" width="130" height="130"> | <img src="https://github.com/user-attachments/assets/b3373849-7ed8-46a3-81f2-fdae8e52d82a" width="130" height="130"> | <img src="https://github.com/user-attachments/assets/740ba508-ff2a-48e9-8efe-81635dd310ff" width="130" height="130"> | <img src="https://github.com/user-attachments/assets/b217bbd3-9a6e-4262-abd3-46acb1fd3cbd" width="130" height="130"> | <img src="https://github.com/user-attachments/assets/6068f003-71cc-4119-93bf-97c9a27ed256" width="130" height="130"> |
-| :----------------------------------------------: | :----------------------------------------------: | :----------------------------------------------: | :----------------------------------------------: | :----------------------------------------------: |
-|      [정빈](https://github.com/duehee)       |      [현식](https://github.com/Choon0414)       |      [다희](https://github.com/daheeParkk)       |      [인화](https://github.com/kih1015)       |      [두현](https://github.com/DHkimgit)      |
+### 🧑‍🧑‍🧒‍🧒 Team Members
+
+| <img src="https://github.com/user-attachments/assets/7f3ce35a-0b5d-4755-b5c3-2baef4a2677f" width="130"> | <img src="https://github.com/user-attachments/assets/530d5b55-26a0-4b85-ac65-d0da0e5f895a" width="130"> | <img src="https://github.com/user-attachments/assets/1210988c-4ed0-4759-949c-b435bb81e803" width="130"> | <img src="https://github.com/user-attachments/assets/25e3bc7a-0c9e-4fca-97f8-6bbfb45079ee" width="130"> |
+| :--: | :--: | :--: | :--: |
+| [진호](https://github.com/BaeJinho4028) | [성현](https://github.com/krSeonghyeon) | [관규](https://github.com/Soundbar91) | [성빈](https://github.com/ImTotem) |
+
+| <img src="https://github.com/user-attachments/assets/d0ae5872-2ae6-45f8-aae8-fa053fa475e5" width="130"> | <img src="https://github.com/user-attachments/assets/b3373849-7ed8-46a3-81f2-fdae8e52d82a" width="130"> | <img src="https://github.com/user-attachments/assets/b217bbd3-9a6e-4262-abd3-46acb1fd3cbd" width="130"> | <img src="https://github.com/user-attachments/assets/6068f003-71cc-4119-93bf-97c9a27ed256" width="130"> |
+| :--: | :--: | :--: | :--: |
+| [정빈](https://github.com/duehee) | [현식](https://github.com/Choon0414) | [인화](https://github.com/kih1015) | [두현](https://github.com/DHkimgit) |
+
+| <img src="https://github.com/asa9874.png" width="130"> | <img src="https://github.com/taejinn.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> | <img src="https://github.com/dldb-chamchi.png" width="130"> |
+| :--: | :--: | :--: | :--: |
+| [박종범](https://github.com/asa9874) | [박태진](https://github.com/taejinn) | [이동훈](https://github.com/dh2906) | [임아리](https://github.com/dldb-chamchi) |
+   
+   
+--- 
+
+> [!TIP]   
+> #### BCSD 동아리 정보와 App 설치는 아래에서 확인할 수 있습니다.   
+> 📝 [BCSD 블로그](https://blog.bcsdlab.com/introduce)   
+> 🤖 [Koin App(Android) 설치하기](https://play.google.com/store/apps/details?id=in.koreatech.koin&hl=ko)   
+> 🍎 [Koin App(IOS) 설치하기](https://apps.apple.com/bh/app/%EC%BD%94%EC%9D%B8-koreatech-in-%ED%95%9C%EA%B8%B0%EB%8C%80-%EC%BB%A4%EB%AE%A4%EB%8B%88%ED%8B%B0/id1500848622)   
+> 👉 [Koin Web 바로가기](https://koreatech.in/)

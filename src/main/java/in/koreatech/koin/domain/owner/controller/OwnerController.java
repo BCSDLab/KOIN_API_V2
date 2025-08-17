@@ -12,7 +12,7 @@ import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisteredInfoResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.service.OwnerService;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

@@ -16,7 +16,7 @@ import com.google.firebase.messaging.ApsAlert;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 
-import in.koreatech.koin._common.model.MobileAppPath;
+import in.koreatech.koin.common.model.MobileAppPath;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

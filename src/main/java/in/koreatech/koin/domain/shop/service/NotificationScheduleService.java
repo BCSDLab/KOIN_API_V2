@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin._common.model.MobileAppPath.SHOP;
+import static in.koreatech.koin.common.model.MobileAppPath.SHOP;
 
 import java.time.Clock;
 import java.time.LocalDateTime;

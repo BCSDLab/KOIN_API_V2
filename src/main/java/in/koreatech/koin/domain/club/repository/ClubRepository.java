@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
 import jakarta.persistence.LockModeType;
@@ -44,13 +44,11 @@ public interface ClubRepository extends Repository<Club, Integer> {
         return club;
     }
 
-    @Query(value = """
-        SELECT * FROM club c 
-        WHERE c.is_active = true 
-          AND LOWER(REPLACE(c.name, ' ', '')) LIKE CONCAT(:query, '%') 
-        ORDER BY c.name
-        """, nativeQuery = true)
-    List<Club> findByNamePrefix(@Param("query") String normalizedQuery, Pageable pageable);
+    @Query("""
+        SELECT c FROM Club c
+        WHERE c.isActive = true AND c.normalizedName LIKE CONCAT(:query, '%') ORDER BY c.normalizedName
+        """)
+    List<Club> findByNamePrefix(String query, Pageable pageable);
 
     @Modifying
     @Query("UPDATE Club c SET c.hits = c.hits + :value WHERE c.id = :id")

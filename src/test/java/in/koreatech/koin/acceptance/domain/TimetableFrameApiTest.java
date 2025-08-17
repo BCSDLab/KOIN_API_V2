@@ -1,19 +1,22 @@
 package in.koreatech.koin.acceptance.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.TestInstance.Lifecycle;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.CourseTypeAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.LectureAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.TimeTableV2AcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Lecture;
@@ -22,16 +25,7 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.acceptance.fixture.CourseTypeAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.LectureAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.TimeTableV2AcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(Lifecycle.PER_CLASS)
 public class TimetableFrameApiTest extends AcceptanceTest {
 
     @Autowired
@@ -266,39 +260,39 @@ public class TimetableFrameApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-            {
-                "semesters": {
-                    "20241": [
-                        {
-                            "id": 1,
-                            "timetable_name": "시간표1",
-                            "is_main": true
-                        },
-                        {
-                            "id": 2,
-                            "timetable_name": "시간표2",
-                            "is_main": false
-                        }
-                    ],
-                    "20242": [
-                        {
-                            "id": 3,
-                            "timetable_name": "시간표1",
-                            "is_main": true
-                        },
-                        {
-                            "id": 4,
-                            "timetable_name": "시간표2",
-                            "is_main": false
-                        },
-                        {
-                            "id": 5,
-                            "timetable_name": "시간표3",
-                            "is_main": false
-                        }
-                    ]
+                {
+                    "semesters": {
+                        "20241": [
+                            {
+                                "id": 1,
+                                "timetable_name": "시간표1",
+                                "is_main": true
+                            },
+                            {
+                                "id": 2,
+                                "timetable_name": "시간표2",
+                                "is_main": false
+                            }
+                        ],
+                        "20242": [
+                            {
+                                "id": 3,
+                                "timetable_name": "시간표1",
+                                "is_main": true
+                            },
+                            {
+                                "id": 4,
+                                "timetable_name": "시간표2",
+                                "is_main": false
+                            },
+                            {
+                                "id": 5,
+                                "timetable_name": "시간표3",
+                                "is_main": false
+                            }
+                        ]
+                    }
                 }
-            }
-            """));
+                """));
     }
 }

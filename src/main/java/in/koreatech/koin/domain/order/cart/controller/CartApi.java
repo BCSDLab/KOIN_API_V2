@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartItemsCountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
@@ -204,6 +206,48 @@ public interface CartApi {
                       "message": "상점의 영업시간이 아닙니다.",
                       "errorTraceId": "ae4feff5-5f37-4f91-b8b6-a5957fd5bb10"
                     }
+                    """),
+                @ExampleObject(name = "추가 수량 1 미만", summary = "추가 수량 1 미만", value = """
+                    {
+                      "code": "INVALID_REQUEST_BODY",
+                      "message": "수량은 최소 1 입니다.",
+                      "errorTraceId": "b5327d2e-77a4-4d76-88f0-fc3e6f829512",
+                      "fieldErrors": [
+                        {
+                          "field": "quantity",
+                          "message": "수량은 최소 1 입니다.",
+                          "constraint": "Min"
+                        }
+                      ]
+                    }
+                    """),
+                @ExampleObject(name = "추가 수량 10 초과", summary = "추가 수량 10 초과", value = """
+                    {
+                      "code": "INVALID_REQUEST_BODY",
+                      "message": "수량은 최대 10 입니다.",
+                      "errorTraceId": "13780c0b-b15c-459c-b854-fcdca7e68489",
+                      "fieldErrors": [
+                        {
+                          "field": "quantity",
+                          "message": "수량은 최대 10 입니다.",
+                          "constraint": "Max"
+                        }
+                      ]
+                    }
+                    """),
+                @ExampleObject(name = "추가 수량 null", summary = "추가 수량 null", value = """
+                    {
+                      "code": "INVALID_REQUEST_BODY",
+                      "message": "quantity는 필수값입니다.",
+                      "errorTraceId": "5969c702-ab15-40d3-b71a-6dec2a16a4c1",
+                      "fieldErrors": [
+                        {
+                          "field": "quantity",
+                          "message": "quantity는 필수값입니다.",
+                          "constraint": "NotNull"
+                        }
+                      ]
+                    }
                     """)
             })
         ),
@@ -235,6 +279,17 @@ public interface CartApi {
                     }
                     """)
             })
+        ),
+        @ApiResponse(responseCode = "409", description = "중복 요청",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "중복 요청(따닥) 발생", summary = "중복 요청 발생", value = """
+                    {
+                        "code": "REQUEST_TOO_FAST",
+                        "message": "요청이 너무 빠릅니다. 다시 요청해주세요.",
+                        "errorTraceId": "94920181-d210-4252-8092-860bd002651d"
+                    }
+                    """)
+            })
         )
     })
     @Operation(summary = "장바구니에 상품 담기", description = """
@@ -249,7 +304,12 @@ public interface CartApi {
         - **orderableShopMenuOptionIds**: 선택한 옵션 목록 (선택 사항)
           - **optionGroupId**: 옵션 그룹 ID
           - **optionId**: 옵션 ID
+        - **quantity**: 추가 수량 (null, 0 이하의 값, 11 이상의 값을 허용하지 않습니다.)
+        
+        ### 중복 요청 처리
+        - 0.1초 이내에 같은 요청이 도착한 경우, 둘 중 하나는 중복 요청으로 판단하여 409 에러가 반환됩니다.
         """)
+    @DuplicateGuard(key = "#userId + ':' + #cartAddItemRequest.toString()", timeoutSeconds = 300)
     @PostMapping("/cart/add")
     ResponseEntity<Void> addItem(
         @RequestBody @Valid CartAddItemRequest cartAddItemRequest,
@@ -417,6 +477,7 @@ public interface CartApi {
                 @ExampleObject(name = "성공", value = """
                         {
                           "id": 101,
+                          "quantity": 2,
                           "name": "후라이드 치킨",
                           "description": "바삭하고 고소한 오리지널 후라이드",
                           "images": [
@@ -614,6 +675,7 @@ public interface CartApi {
             - **동일 구성 상품이 없으면**: 현재 상품의 가격과 옵션을 요청된 내용으로 수정합니다.
             
         ### 요청 Body 필드 설명
+        - **quantity**: 새롭게 변경할 메뉴 개수 (필수)
         - **orderableShopMenuPriceId**: 새롭게 선택한 메뉴 가격 ID (필수)
         - **options**: 새롭게 선택한 옵션 목록 (선택 사항)
           - **optionGroupId**: 옵션 그룹 ID
@@ -790,12 +852,62 @@ public interface CartApi {
         summary = "장바구니 검증",
         description = """
             ## 장바구니 검증
-            - 장바구니의 상품 주문 금액이 상점의 최소 주문 금액을 충족하는지 검증합니다.
-            - 상점이 현재 주문 가능 상태(영업 중) 인지 검증합니다.
+            - 주문 타입이 배달(order_type=DELIVERY) 일 경우
+              - 상점이 현재 주문 가능 상태(영업 중) 인지 검증합니다.
+              - 장바구니에 담긴 상품의 총 금액이 상점의 최소 주문 금액을 충족하는지 검증합니다.
+            - 주문 타입이 포장(order_type=TAKE_OUT) 일 경우
+              - 상점이 현재 주문 가능 상태(영업 중) 인지 검증합니다.
             """
     )
     @GetMapping("/cart/validate")
     ResponseEntity<Void> getCartValidateResult(
-        @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId
+        @Parameter(hidden = true) @Auth(permit = {GENERAL, STUDENT}) Integer userId,
+        @RequestParam(name = "order_type") OrderType orderType
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "장바구니 상품 개수 정보 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "장바구니에 상품이 존재하는 경우", value = """
+                        {
+                          "item_type_count": 2,
+                          "total_quantity": 7
+                        }
+                        """
+                ),
+                @ExampleObject(name = "장바구니에 상품이 비어있는 경우", value = """
+                        {
+                          "item_type_count": 0,
+                          "total_quantity": 0
+                        }
+                        """
+                )
+            })
+        ),
+        @ApiResponse(responseCode = "401", description = "인증 정보 오류",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "인증 정보 오류", summary = "인증 정보 오류", value = """
+                    {
+                      "code": "",
+                      "message": "올바르지 않은 인증정보입니다.",
+                      "errorTraceId": "5ba40351-6d27-40e5-90e3-80c5cf08a1ac"
+                    }
+                    """)
+            })
+        )
+    })
+    @Operation(
+        summary = "장바구니에 담긴 상품 개수 조회",
+        description = """
+            ## 장바구니 상품 개수 조회
+            - 상점의 배달/포장 가능 여부와 관계 없이 장바구니에 담긴 상품의 종류와 총 수량 정보를 반환합니다.
+            - EX) 담긴 상품의 종류가 2개고 각각 3개, 4개의 수량 이라면
+              - **item_type_count** : 2
+              - **total_quantity** : 7
+            """
+    )
+    @GetMapping("/cart/items/count")
+    ResponseEntity<CartItemsCountSummaryResponse> getCartItemsTotalCount(
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId
     );
 }

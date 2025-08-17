@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.notification.eventlistener;
 
-import static in.koreatech.koin._common.model.MobileAppPath.DINING;
+import static in.koreatech.koin.common.model.MobileAppPath.DINING;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_IMAGE_UPLOAD;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 
@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.DiningImageUploadEvent;
-import in.koreatech.koin._common.event.DiningSoldOutEvent;
+import in.koreatech.koin.common.event.DiningImageUploadEvent;
+import in.koreatech.koin.common.event.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;

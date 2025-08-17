@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record UserDeliveryAddressResponse(
     @Schema(description = "사용자 배달 주소 ID", example = "16")
     Integer userDeliveryAddressId,
+
     @Schema(description = "전체 주소 (도로명)", example = "충청남도 천안시 동남구 병천면 충절로 1628-17 에듀윌 301호")
     String fullAddress
 ) {

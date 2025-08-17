@@ -2,8 +2,8 @@ package in.koreatech.koin.domain.order.cart.model;
 
 import java.util.List;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

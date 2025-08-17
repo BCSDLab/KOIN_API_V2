@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.club.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
-import static in.koreatech.koin._common.code.ApiResponseCode.INVALID_CLUB_EVENT_PERIOD;
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_CLUB_EVENT_PERIOD;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -10,10 +10,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.validation.UniqueUrl;
-import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
