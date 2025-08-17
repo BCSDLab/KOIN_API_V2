@@ -13,5 +13,5 @@ public interface UserNotificationStatusRepository extends Repository<UserNotific
 
     Optional<UserNotificationStatus> findByUserId(Integer userId);
 
-    boolean existsByLastNotifiedArticleIdAndUserId(Integer lastNotificationArticleId, Integer userId);
+    boolean existsByNotifiedArticleIdAndUserId(Integer notifiedArticleId, Integer userId);
 }

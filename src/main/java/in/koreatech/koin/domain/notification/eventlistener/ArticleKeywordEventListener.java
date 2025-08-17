@@ -66,7 +66,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
 
     private boolean isNewNotifiedArticleId(Integer articleId, NotificationSubscribe subscribe) {
         Integer userId = subscribe.getUser().getId();
-        return !userNotificationStatusRepository.existsByLastNotifiedArticleIdAndUserId(articleId, userId);
+        return !userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId);
     }
 
     private boolean isMyArticle(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
