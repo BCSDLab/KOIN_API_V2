@@ -94,7 +94,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             subscribe.getUser()
         );
 
-        keywordService.updateLastNotifiedArticle(userId, article.getId());
+        keywordService.createNotifiedArticleStatus(userId, article.getId());
         return notification;
     }
 
