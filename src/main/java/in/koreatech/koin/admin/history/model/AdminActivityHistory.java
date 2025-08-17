@@ -5,7 +5,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.history.enums.HttpMethodType;
-import in.koreatech.koin.admin.operators.model.Admin;
+import in.koreatech.koin.admin.operator.model.Admin;
 import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

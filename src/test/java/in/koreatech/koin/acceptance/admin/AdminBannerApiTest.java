@@ -16,7 +16,7 @@ import in.koreatech.koin.acceptance.fixture.BannerAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.BannerCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.banner.repository.AdminBannerRepository;
-import in.koreatech.koin.admin.operators.model.Admin;
+import in.koreatech.koin.admin.operator.model.Admin;
 import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
 

@@ -21,7 +21,7 @@ import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.MajorAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
-import in.koreatech.koin.admin.operators.model.Admin;
+import in.koreatech.koin.admin.operator.model.Admin;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;

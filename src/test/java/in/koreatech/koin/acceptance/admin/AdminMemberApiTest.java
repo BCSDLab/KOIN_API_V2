@@ -15,7 +15,7 @@ import in.koreatech.koin.acceptance.fixture.MemberAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.TrackAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
-import in.koreatech.koin.admin.operators.model.Admin;
+import in.koreatech.koin.admin.operator.model.Admin;
 import in.koreatech.koin.domain.member.model.Member;
 
 public class AdminMemberApiTest extends AcceptanceTest {

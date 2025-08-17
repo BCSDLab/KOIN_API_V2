@@ -20,7 +20,7 @@ import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerShopRedisRepository;
-import in.koreatech.koin.admin.operators.model.Admin;
+import in.koreatech.koin.admin.operator.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.model.OwnerShop;

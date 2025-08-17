@@ -15,7 +15,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.LandAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
-import in.koreatech.koin.admin.operators.model.Admin;
+import in.koreatech.koin.admin.operator.model.Admin;
 import in.koreatech.koin.domain.land.model.Land;
 
 class AdminLandApiTest extends AcceptanceTest {

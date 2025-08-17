@@ -8,7 +8,7 @@ import static lombok.AccessLevel.PROTECTED;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.common.model.BaseEntity;
-import in.koreatech.koin.admin.operators.model.Admin;
+import in.koreatech.koin.admin.operator.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
