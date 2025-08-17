@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.model;
+package in.koreatech.koin.admin.operators.model;
 
 import static lombok.AccessLevel.PROTECTED;
 

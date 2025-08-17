@@ -5,7 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 

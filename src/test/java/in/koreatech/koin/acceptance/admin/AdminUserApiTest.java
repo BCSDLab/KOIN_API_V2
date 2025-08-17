@@ -16,7 +16,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.acceptance.support.JsonAssertions;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.student.model.Department;

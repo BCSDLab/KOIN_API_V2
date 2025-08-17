@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.BannerCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
 
 public class AdminBannerCategoryApiTest extends AcceptanceTest {

@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.admin.operators.dto.request.AdminsCondition;
 import in.koreatech.koin.admin.operators.exception.AdminNotFoundException;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 
 public interface AdminRepository extends Repository<Admin, Integer> {
 

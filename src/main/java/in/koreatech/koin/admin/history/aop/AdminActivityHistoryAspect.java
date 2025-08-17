@@ -17,7 +17,7 @@ import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import in.koreatech.koin.admin.history.repository.AdminActivityHistoryRepository;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.global.auth.AuthContext;
 import jakarta.servlet.http.HttpServletRequest;

@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.VersionAcceptanceFixture;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.admin.version.repository.AdminVersionRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;

@@ -29,7 +29,7 @@ import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopParentCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;

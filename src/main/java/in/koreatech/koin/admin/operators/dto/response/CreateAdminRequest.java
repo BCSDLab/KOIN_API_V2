@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.admin.operators.enums.TeamType;
 import in.koreatech.koin.admin.operators.enums.TrackType;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

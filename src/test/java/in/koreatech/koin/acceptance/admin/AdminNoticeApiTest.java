@@ -16,7 +16,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.KoinNoticeAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;

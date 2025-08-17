@@ -6,7 +6,7 @@ import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserGender.WOMAN;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.domain.user.model.User;
 
 public class AdminFixture { // TODO : 메서드명 명확하게 변경 필요 (ex.미인증_운영자())
