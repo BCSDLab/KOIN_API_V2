@@ -22,7 +22,7 @@ import in.koreatech.koin.admin.operators.dto.response.AdminsResponse;
 import in.koreatech.koin.admin.operators.dto.response.CreateAdminRequest;
 import in.koreatech.koin.admin.operators.model.Admin;
 import in.koreatech.koin.admin.operators.repository.AdminRepository;
-import in.koreatech.koin.admin.user.validation.AdminUserValidation;
+import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
@@ -38,8 +38,9 @@ public class AdminService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final AdminRepository adminRepository;
-    private final AdminUserValidation adminUserValidation;
+    private final AdminValidation adminValidation;
     private final RefreshTokenService refreshTokenService;
+    private final AdminUserRepository adminUserRepository;
 
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
@@ -48,7 +49,7 @@ public class AdminService {
             throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
 
-        adminUserValidation.validateEmailForAdminCreated(request.email());
+        adminValidation.validateEmailForAdminCreated(request.email());
         Admin savedAdmin = adminRepository.save(request.toAdmin(passwordEncoder));
 
         return AdminResponse.from(savedAdmin);
@@ -66,7 +67,7 @@ public class AdminService {
     public AdminLoginResponse adminLogin(AdminLoginRequest request, UserAgentInfo userAgentInfo) {
         Admin admin = adminRepository.getByEmail(request.email());
         User user = admin.getUser();
-        adminUserValidation.validateAdminLogin(user, request);
+        adminValidation.validateAdminLogin(user, request);
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = refreshTokenService.createRefreshToken(user.getId(), userAgentInfo.getType());
