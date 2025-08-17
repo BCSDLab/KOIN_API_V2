@@ -17,7 +17,7 @@ import org.hibernate.annotations.Where;
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
 import in.koreatech.koin.admin.notice.model.KoinNotice;
-import in.koreatech.koin.admin.operator.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleRequest;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;

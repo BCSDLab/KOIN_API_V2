@@ -25,7 +25,7 @@ import in.koreatech.koin.acceptance.fixture.ShopReviewAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopReviewReportAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.shop.repository.review.AdminShopReviewRepository;
-import in.koreatech.koin.admin.operator.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;

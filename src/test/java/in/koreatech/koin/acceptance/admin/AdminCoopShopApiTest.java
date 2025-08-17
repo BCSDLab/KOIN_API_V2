@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import in.koreatech.koin.admin.operator.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 
 class AdminCoopShopApiTest extends AcceptanceTest {
