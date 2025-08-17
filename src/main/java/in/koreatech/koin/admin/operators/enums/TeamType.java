@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.enums;
+package in.koreatech.koin.admin.operators.enums;
 
 import lombok.Getter;
 

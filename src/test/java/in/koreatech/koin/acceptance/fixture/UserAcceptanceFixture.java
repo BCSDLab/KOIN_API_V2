@@ -1,7 +1,7 @@
 package in.koreatech.koin.acceptance.fixture;
 
-import static in.koreatech.koin.admin.user.enums.TeamType.*;
-import static in.koreatech.koin.admin.user.enums.TrackType.BACKEND;
+import static in.koreatech.koin.admin.operators.enums.TeamType.*;
+import static in.koreatech.koin.admin.operators.enums.TrackType.BACKEND;
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserGender.WOMAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;

@@ -5,8 +5,8 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.user.enums.TeamType;
-import in.koreatech.koin.admin.user.enums.TrackType;
+import in.koreatech.koin.admin.operators.enums.TeamType;
+import in.koreatech.koin.admin.operators.enums.TrackType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

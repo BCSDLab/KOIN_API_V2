@@ -7,8 +7,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.user.enums.TeamType;
-import in.koreatech.koin.admin.user.enums.TrackType;
+import in.koreatech.koin.admin.operators.enums.TeamType;
+import in.koreatech.koin.admin.operators.enums.TrackType;
 import in.koreatech.koin.common.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
