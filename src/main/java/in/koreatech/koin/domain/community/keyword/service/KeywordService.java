@@ -2,6 +2,10 @@ package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+package in.koreatech.koin.domain.community.keyword.service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -12,10 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
-import in.koreatech.koin._common.event.ArticleKeywordEvent;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -27,6 +27,7 @@ import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest
 import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin._common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
@@ -36,6 +37,9 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserM
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin._common.concurrent.ConcurrencyGuard;
+import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
