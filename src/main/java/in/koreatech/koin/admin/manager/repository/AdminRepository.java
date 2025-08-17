@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.repository;
+package in.koreatech.koin.admin.manager.repository;
 
 import java.util.Optional;
 
@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.admin.user.dto.AdminsCondition;
-import in.koreatech.koin.admin.user.exception.AdminNotFoundException;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.manager.dto.request.AdminsCondition;
+import in.koreatech.koin.admin.manager.exception.AdminNotFoundException;
+import in.koreatech.koin.admin.manager.model.Admin;
 
 public interface AdminRepository extends Repository<Admin, Integer> {
 

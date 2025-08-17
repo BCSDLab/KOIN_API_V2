@@ -1,11 +1,11 @@
-package in.koreatech.koin.admin.user.dto;
+package in.koreatech.koin.admin.manager.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 

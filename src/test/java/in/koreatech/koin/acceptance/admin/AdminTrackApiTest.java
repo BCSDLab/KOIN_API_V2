@@ -18,7 +18,7 @@ import in.koreatech.koin.acceptance.fixture.TrackAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.member.repository.AdminTechStackRepository;
 import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.student.model.Department;

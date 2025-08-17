@@ -1,9 +1,9 @@
-package in.koreatech.koin.admin.user.model;
+package in.koreatech.koin.admin.manager.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.admin.user.enums.TeamType;
-import in.koreatech.koin.admin.user.enums.TrackType;
+import in.koreatech.koin.admin.manager.enums.TeamType;
+import in.koreatech.koin.admin.manager.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

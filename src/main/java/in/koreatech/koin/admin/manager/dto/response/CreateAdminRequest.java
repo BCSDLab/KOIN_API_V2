@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.dto;
+package in.koreatech.koin.admin.manager.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
@@ -8,9 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.user.enums.TeamType;
-import in.koreatech.koin.admin.user.enums.TrackType;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.manager.enums.TeamType;
+import in.koreatech.koin.admin.manager.enums.TrackType;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

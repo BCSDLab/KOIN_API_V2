@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.dto;
+package in.koreatech.koin.admin.manager.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;

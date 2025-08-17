@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.dto;
+package in.koreatech.koin.admin.manager.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
@@ -7,8 +7,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.user.enums.TeamType;
-import in.koreatech.koin.admin.user.enums.TrackType;
+import in.koreatech.koin.admin.manager.enums.TeamType;
+import in.koreatech.koin.admin.manager.enums.TrackType;
 import in.koreatech.koin.common.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 

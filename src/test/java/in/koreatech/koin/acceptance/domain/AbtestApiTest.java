@@ -27,7 +27,7 @@ import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
 import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;

@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.exception;
+package in.koreatech.koin.admin.manager.exception;
 
 import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 
