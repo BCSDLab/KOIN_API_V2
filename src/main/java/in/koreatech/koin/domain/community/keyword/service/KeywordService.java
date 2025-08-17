@@ -200,12 +200,7 @@ public class KeywordService {
     }
 
     @Transactional
-    public void updateLastNotifiedArticle(Integer userId, Integer articleId) {
-        UserNotificationStatus status = userNotificationStatusRepository.findByUserId(userId)
-            .orElseGet(() -> new UserNotificationStatus(userId, articleId));
-
-        status.updateLastNotifiedArticleId(articleId);
-
-        userNotificationStatusRepository.save(status);
+    public void createNotifiedArticleStatus(Integer userId, Integer articleId) {
+        userNotificationStatusRepository.save(new UserNotificationStatus(userId, articleId));
     }
 }

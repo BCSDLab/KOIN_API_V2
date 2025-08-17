@@ -63,8 +63,6 @@ public class ArticleService {
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
-    private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
-    private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
     private final UserRepository userRepository;
