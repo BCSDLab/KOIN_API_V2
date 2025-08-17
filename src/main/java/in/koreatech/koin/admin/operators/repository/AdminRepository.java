@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.repository;
+package in.koreatech.koin.admin.operators.repository;
 
 import java.util.Optional;
 

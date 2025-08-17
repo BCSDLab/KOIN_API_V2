@@ -26,7 +26,7 @@ import in.koreatech.koin.admin.operators.dto.request.AdminsCondition;
 import in.koreatech.koin.admin.operators.dto.response.AdminsResponse;
 import in.koreatech.koin.admin.operators.dto.response.CreateAdminRequest;
 import in.koreatech.koin.admin.operators.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
+import in.koreatech.koin.admin.operators.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.model.User;

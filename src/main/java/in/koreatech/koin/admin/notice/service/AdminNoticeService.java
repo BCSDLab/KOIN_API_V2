@@ -16,7 +16,7 @@ import in.koreatech.koin.admin.notice.dto.AdminNoticeResponse;
 import in.koreatech.koin.admin.notice.dto.AdminNoticesResponse;
 import in.koreatech.koin.admin.notice.repository.AdminKoinNoticeRepository;
 import in.koreatech.koin.admin.operators.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
+import in.koreatech.koin.admin.operators.repository.AdminRepository;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;

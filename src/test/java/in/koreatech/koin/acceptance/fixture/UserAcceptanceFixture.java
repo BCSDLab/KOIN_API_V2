@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.admin.operators.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
+import in.koreatech.koin.admin.operators.repository.AdminRepository;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.owner.model.Owner;

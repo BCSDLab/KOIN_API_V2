@@ -9,7 +9,7 @@ import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.admin.operators.dto.request.AdminLoginRequest;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
+import in.koreatech.koin.admin.operators.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.infrastructure.email.exception.DuplicationEmailException;
