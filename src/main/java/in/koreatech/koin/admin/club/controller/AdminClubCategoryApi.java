@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.admin.club.dto.response.AdminClubCategoriesResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

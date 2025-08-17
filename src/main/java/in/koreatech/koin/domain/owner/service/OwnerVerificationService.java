@@ -6,9 +6,9 @@ import java.util.Optional;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin._common.event.OwnerSmsVerificationSendEvent;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.common.event.OwnerSmsVerificationSendEvent;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;

@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.infrastructure.naver.dto.NaverSmsResponse;
 import in.koreatech.koin.infrastructure.naver.dto.NaverSmsSendRequest;
 import in.koreatech.koin.infrastructure.naver.exception.NaverSmsException;

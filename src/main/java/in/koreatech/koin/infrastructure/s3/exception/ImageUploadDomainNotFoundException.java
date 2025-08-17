@@ -1,6 +1,6 @@
 package in.koreatech.koin.infrastructure.s3.exception;
 
-import in.koreatech.koin._common.exception.custom.DataNotFoundException;
+import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 
 public class ImageUploadDomainNotFoundException extends DataNotFoundException {
 

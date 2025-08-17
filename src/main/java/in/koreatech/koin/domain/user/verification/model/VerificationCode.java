@@ -6,15 +6,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.common.util.random.VerificationNumberGenerator;
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
 @RedisHash(value = "userVerificationStatus")
-@ToString
 public class VerificationCode {
 
     private static final long SMS_VERIFICATION_EXPIRATION_SECONDS = 60 * 3L; // 3분
@@ -51,14 +49,14 @@ public class VerificationCode {
 
     public void detectAbnormalUsage() {
         if (trialCount >= MAX_TRIAL_COUNT) {
-            throw CustomException.of(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, this);
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, "trialCount: " + trialCount);
         }
     }
 
     public void verify(String inputCode) {
         if (isCodeMismatched(inputCode)) {
             trialCount++;
-            throw CustomException.of(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, this);
+            throw CustomException.of(ApiResponseCode.NOT_MATCHED_VERIFICATION_CODE, "inputCode: " + inputCode);
         }
         this.isVerified = true;
         this.expiration = VERIFIED_EXPIRATION_SECONDS;
@@ -66,7 +64,7 @@ public class VerificationCode {
 
     public void requireVerified() {
         if (isNotVerified()) {
-            throw CustomException.of(ApiResponseCode.FORBIDDEN_VERIFICATION, this);
+            throw CustomException.of(ApiResponseCode.FORBIDDEN_VERIFICATION, "VerificationCodeId: " + id);
         }
     }
 

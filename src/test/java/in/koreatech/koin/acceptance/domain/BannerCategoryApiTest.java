@@ -4,19 +4,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.domain.banner.model.BannerCategory;
 import in.koreatech.koin.acceptance.fixture.BannerCategoryAcceptanceFixture;
+import in.koreatech.koin.domain.banner.model.BannerCategory;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BannerCategoryApiTest extends AcceptanceTest {
 
     @Autowired

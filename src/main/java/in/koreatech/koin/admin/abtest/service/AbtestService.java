@@ -41,7 +41,7 @@ import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

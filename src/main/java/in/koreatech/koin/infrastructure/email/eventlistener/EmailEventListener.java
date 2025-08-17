@@ -4,9 +4,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.StudentFindPasswordEvent;
-import in.koreatech.koin._common.event.StudentRegisterRequestEvent;
-import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
+import in.koreatech.koin.common.event.StudentFindPasswordEvent;
+import in.koreatech.koin.common.event.StudentRegisterRequestEvent;
+import in.koreatech.koin.common.event.UserEmailVerificationSendEvent;
 import in.koreatech.koin.infrastructure.email.form.EmailForm;
 import in.koreatech.koin.infrastructure.email.form.StudentFindPasswordEmailForm;
 import in.koreatech.koin.infrastructure.email.form.StudentRegisterRequestEmailForm;

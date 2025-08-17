@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,4 +40,11 @@ public class ShopOperation {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
+    @Builder
+    public ShopOperation(Shop shop, boolean isOpen, boolean isDeleted) {
+        this.shop = shop;
+        this.isOpen = isOpen;
+        this.isDeleted = isDeleted;
+    }
 }

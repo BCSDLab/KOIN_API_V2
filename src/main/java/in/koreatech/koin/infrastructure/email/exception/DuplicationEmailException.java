@@ -1,6 +1,6 @@
 package in.koreatech.koin.infrastructure.email.exception;
 
-import in.koreatech.koin._common.exception.custom.DuplicationException;
+import in.koreatech.koin.global.exception.custom.DuplicationException;
 
 public class DuplicationEmailException extends DuplicationException {
 

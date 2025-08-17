@@ -5,10 +5,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.UserDeleteEvent;
-import in.koreatech.koin._common.event.UserEmailVerificationSendEvent;
-import in.koreatech.koin._common.event.UserRegisterEvent;
-import in.koreatech.koin._common.event.UserSmsVerificationSendEvent;
+import in.koreatech.koin.common.event.UserDeleteEvent;
+import in.koreatech.koin.common.event.UserEmailVerificationSendEvent;
+import in.koreatech.koin.common.event.UserRegisterEvent;
+import in.koreatech.koin.common.event.UserSmsVerificationSendEvent;
 import in.koreatech.koin.infrastructure.slack.client.SlackClient;
 import in.koreatech.koin.infrastructure.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;

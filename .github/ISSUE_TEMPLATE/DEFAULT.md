@@ -1,10 +1,12 @@
 ---
 name: Default Issue
 about: 기본 양식
-title: ''
+title: '[팀명] 이슈명'
 labels: ''
 assignees: ''
 
 ---
 
-# 어떤 이슈인가요?
+### 🔍 개요
+
+* 

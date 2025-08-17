@@ -6,8 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerActiveChangeRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerModifyRequest;

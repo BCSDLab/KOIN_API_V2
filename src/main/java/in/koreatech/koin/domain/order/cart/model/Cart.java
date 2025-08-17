@@ -7,15 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -58,14 +59,15 @@ public class Cart extends BaseEntity {
         }
     }
 
-    public void addItem(OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options) {
-        // 장바구니에 옵션 까지 전부 동일한 메뉴가 이미 존재 하는 경우, 수량 1 증가
+    public void addItem(OrderableShopMenu menu, OrderableShopMenuPrice price, List<OrderableShopMenuOption> options,
+        Integer quantity) {
+        // 장바구니에 옵션 까지 전부 동일한 메뉴가 이미 존재 하는 경우, 담긴 상품 수량 증가
         Optional<CartMenuItem> existingItem = findSameItem(menu, price, options);
 
         if (existingItem.isPresent()) {
-            existingItem.get().increaseQuantity();
+            existingItem.get().increaseQuantity(quantity);
         } else {
-            CartMenuItem newItem = CartMenuItem.create(this, menu, price, options);
+            CartMenuItem newItem = CartMenuItem.create(this, menu, price, options, quantity);
             this.cartMenuItems.add(newItem);
         }
     }
@@ -103,9 +105,9 @@ public class Cart extends BaseEntity {
     }
 
     public Integer calculateItemsAmount() {
-        return this.cartMenuItems.stream()
+        return Math.max(0, this.cartMenuItems.stream()
             .mapToInt(CartMenuItem::calculateTotalAmount)
-            .sum();
+            .sum());
     }
 
     public Integer calculateDeliveryFee(OrderType orderType) {
@@ -125,6 +127,17 @@ public class Cart extends BaseEntity {
         }
     }
 
+    public Integer getItemTypeCount() {
+        return this.cartMenuItems.size();
+    }
+
+    public Integer getTotalQuantity() {
+        return this.cartMenuItems.stream()
+            .mapToInt(CartMenuItem::getQuantity)
+            .sum();
+    }
+
+    @Builder
     private Cart(
         User user,
         OrderableShop orderableShop

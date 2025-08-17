@@ -29,8 +29,11 @@ public class OrderTakeout {
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Order order;
 
-    @NotNull
     @Size(max = 50)
-    @Column(name = "to_owner", length = 50, nullable = false, updatable = false)
+    @Column(name = "to_owner", length = 50, updatable = false)
     private String toOwner;
+
+    @NotNull
+    @Column(name = "provide_cutlery", nullable = false, updatable = false, columnDefinition = "TINYINT(1)")
+    private Boolean provideCutlery;
 }

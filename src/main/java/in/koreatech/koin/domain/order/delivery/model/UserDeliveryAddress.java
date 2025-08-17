@@ -5,8 +5,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;

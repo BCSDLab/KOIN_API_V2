@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.user.verification.dto.VerifyEmailVerificationReq
 import in.koreatech.koin.domain.user.verification.dto.VerifySmsVerificationRequest;
 import in.koreatech.koin.domain.user.verification.model.VerificationChannel;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
-import in.koreatech.koin.web.ipaddress.IpAddress;
+import in.koreatech.koin.global.ipaddress.IpAddress;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

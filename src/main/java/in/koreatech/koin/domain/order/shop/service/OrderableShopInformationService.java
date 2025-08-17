@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.order.shop.service;
 
-import static in.koreatech.koin._common.cache.CacheKey.ORDERABLE_SHOP_INFO_SUMMARY_CACHE;
-import static in.koreatech.koin._common.cache.CacheKey.ORDERABLE_SHOP_MENUS_CACHE;
+import static in.koreatech.koin.global.cache.CacheKey.ORDERABLE_SHOP_INFO_SUMMARY_CACHE;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

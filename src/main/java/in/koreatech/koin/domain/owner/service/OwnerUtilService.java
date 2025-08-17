@@ -1,11 +1,9 @@
 package in.koreatech.koin.domain.owner.service;
 
-import java.util.UUID;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin._common.event.OwnerRegisterEvent;
+import in.koreatech.koin.common.event.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;

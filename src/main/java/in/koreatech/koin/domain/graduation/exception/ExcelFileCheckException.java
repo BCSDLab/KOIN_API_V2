@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.graduation.exception;
 
-import in.koreatech.koin._common.exception.custom.DataNotFoundException;
+import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 
 public class ExcelFileCheckException extends DataNotFoundException {
     private static final String DEFAULT_MESSAGE = "엑셀 파일 형식이 아닙니다.";

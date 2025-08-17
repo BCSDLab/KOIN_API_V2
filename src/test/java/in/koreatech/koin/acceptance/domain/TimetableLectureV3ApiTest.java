@@ -9,12 +9,16 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.CourseTypeAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.LectureAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.TimeTableV2AcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.timetable.model.Lecture;
@@ -22,16 +26,7 @@ import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.acceptance.fixture.CourseTypeAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.LectureAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.SemesterAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.TimeTableV2AcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TimetableLectureV3ApiTest extends AcceptanceTest {
 
     @Autowired

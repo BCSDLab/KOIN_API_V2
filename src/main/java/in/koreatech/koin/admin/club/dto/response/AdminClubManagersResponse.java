@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;

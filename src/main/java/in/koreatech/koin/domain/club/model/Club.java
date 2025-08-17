@@ -9,7 +9,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,6 +39,11 @@ public class Club extends BaseEntity {
     @Size(max = 50)
     @Column(name = "name", length = 50, nullable = false)
     private String name;
+
+    @NotNull
+    @Size(max = 50)
+    @Column(name = "normalized_name", length = 50, nullable = false)
+    private String normalizedName;
 
     @NotNull
     @Column(name = "hits", nullable = false, columnDefinition = "INT UNSIGNED DEFAULT 0")
@@ -106,6 +111,7 @@ public class Club extends BaseEntity {
     private Club(
         Integer id,
         String name,
+        String normalizedName,
         Integer hits,
         Integer lastWeekHits,
         String description,
@@ -119,6 +125,7 @@ public class Club extends BaseEntity {
     ) {
         this.id = id;
         this.name = name;
+        this.normalizedName = normalizedName;
         this.hits = hits;
         this.lastWeekHits = lastWeekHits;
         this.description = description;
@@ -152,11 +159,33 @@ public class Club extends BaseEntity {
         Boolean isActive
     ) {
         this.name = name;
+        this.normalizedName = normalized(name);
         this.imageUrl = imageUrl;
         this.clubCategory = clubCategory;
         this.location = location;
         this.description = description;
         this.isActive = isActive;
+    }
+
+    public void update(
+        String name,
+        String imageUrl,
+        ClubCategory category,
+        String location,
+        String description,
+        Boolean isLikeHidden
+    ) {
+        this.name = name;
+        this.normalizedName = normalized(name);
+        this.imageUrl = imageUrl;
+        this.clubCategory = category;
+        this.location = location;
+        this.description = description;
+        this.isLikeHidden = isLikeHidden;
+    }
+
+    private String normalized(String name) {
+        return name.replaceAll("\\s+", "").toLowerCase();
     }
 
     public void updateActive(Boolean active) {
@@ -169,22 +198,6 @@ public class Club extends BaseEntity {
 
     public void cancelLikes() {
         this.likes--;
-    }
-
-    public void update(
-        String name,
-        String imageUrl,
-        ClubCategory category,
-        String location,
-        String description,
-        Boolean isLikeHidden
-    ) {
-        this.name = name;
-        this.imageUrl = imageUrl;
-        this.clubCategory = category;
-        this.location = location;
-        this.description = description;
-        this.isLikeHidden = isLikeHidden;
     }
 
     public void updateIntroduction(String introduction) {

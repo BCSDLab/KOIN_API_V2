@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.notification.eventlistener;
 
-import static in.koreatech.koin._common.model.MobileAppPath.CLUB;
+import static in.koreatech.koin.common.model.MobileAppPath.CLUB;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.ClubRecruitmentChangeEvent;
+import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
 import in.koreatech.koin.domain.club.model.ClubRecruitmentSubscription;
 import in.koreatech.koin.domain.club.repository.ClubRecruitmentSubscriptionRepository;
 import in.koreatech.koin.domain.notification.model.Notification;

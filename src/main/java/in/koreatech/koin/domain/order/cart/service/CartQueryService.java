@@ -5,9 +5,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartItemsCountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
@@ -77,11 +78,19 @@ public class CartQueryService {
         return CartPaymentSummaryResponse.from(cart, orderType);
     }
 
-    public void validateCart(Integer userId) {
+    public void validateCart(Integer userId, OrderType orderType) {
         Cart cart = getCartOrThrow(userId);
         OrderableShop orderableShop = cart.getOrderableShop();
         orderableShop.requireShopOpen();
-        orderableShop.requireMinimumOrderAmount(cart.calculateItemsAmount());
+
+        if (orderType == OrderType.DELIVERY) {
+            orderableShop.requireMinimumOrderAmount(cart.calculateItemsAmount());
+        }
+    }
+
+    public CartItemsCountSummaryResponse getCartItemsCountSummary(Integer userId) {
+        Optional<Cart> cart = cartRepository.findCartByUserId(userId);
+        return cart.map(CartItemsCountSummaryResponse::from).orElseGet(CartItemsCountSummaryResponse::empty);
     }
 
     private Cart getCartOrThrow(Integer userId) {

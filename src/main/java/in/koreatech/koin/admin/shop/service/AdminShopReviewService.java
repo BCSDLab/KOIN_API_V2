@@ -19,7 +19,7 @@ import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
-import in.koreatech.koin._common.model.Criteria;
+import in.koreatech.koin.common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service

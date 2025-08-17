@@ -7,10 +7,9 @@ import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Component;
 
 @Component

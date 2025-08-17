@@ -1,6 +1,6 @@
 package in.koreatech.koin.infrastructure.naver.exception;
 
-import in.koreatech.koin._common.exception.custom.ExternalServiceException;
+import in.koreatech.koin.global.exception.custom.ExternalServiceException;
 
 public class NaverSmsException extends ExternalServiceException {
 

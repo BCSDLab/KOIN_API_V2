@@ -10,26 +10,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.domain.student.model.Department;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NotificationApiTest extends AcceptanceTest {
 
     @Autowired
@@ -75,72 +70,72 @@ class NotificationApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-                {
-                    "is_permit": false,
-                    "subscribes": [
-                        {
-                            "type": "SHOP_EVENT",
-                            "is_permit": true,
-                            "detail_subscribes": [
-                               \s
-                            ]
-                        },
-                        {
-                            "type": "DINING_SOLD_OUT",
-                            "is_permit": false,
-                            "detail_subscribes": [
-                                {
-                                    "detail_type": "BREAKFAST",
-                                    "is_permit": false
-                                },
-                                {
-                                    "detail_type": "LUNCH",
-                                    "is_permit": false
-                                },
-                                {
-                                    "detail_type": "DINNER",
-                                    "is_permit": false
-                                }
-                            ]
-                        },
-                         {
-                             "type": "DINING_IMAGE_UPLOAD",
-                             "is_permit": false,
-                             "detail_subscribes": [
-                                \s
-                             ]
-                         },
-                         {
-                             "type": "ARTICLE_KEYWORD",
-                             "is_permit": false,
-                             "detail_subscribes": [
-                                \s
-                             ]
-                         },
-                         {
-                             "type": "REVIEW_PROMPT",
-                             "is_permit": false,
-                             "detail_subscribes": [
-                                \s
-                             ]
-                         },
-                         {
-                             "type": "LOST_ITEM_CHAT",
-                             "is_permit": false,
-                             "detail_subscribes": [
-                                \s
-                             ]
-                         },
-                         {
-                             "type": "MARKETING",
-                             "is_permit": false,
-                             "detail_subscribes": [
-                                \s
-                             ]
-                         }
-                    ]
-                }
-            """))
+                    {
+                        "is_permit": false,
+                        "subscribes": [
+                            {
+                                "type": "SHOP_EVENT",
+                                "is_permit": true,
+                                "detail_subscribes": [
+                                   \s
+                                ]
+                            },
+                            {
+                                "type": "DINING_SOLD_OUT",
+                                "is_permit": false,
+                                "detail_subscribes": [
+                                    {
+                                        "detail_type": "BREAKFAST",
+                                        "is_permit": false
+                                    },
+                                    {
+                                        "detail_type": "LUNCH",
+                                        "is_permit": false
+                                    },
+                                    {
+                                        "detail_type": "DINNER",
+                                        "is_permit": false
+                                    }
+                                ]
+                            },
+                             {
+                                 "type": "DINING_IMAGE_UPLOAD",
+                                 "is_permit": false,
+                                 "detail_subscribes": [
+                                    \s
+                                 ]
+                             },
+                             {
+                                 "type": "ARTICLE_KEYWORD",
+                                 "is_permit": false,
+                                 "detail_subscribes": [
+                                    \s
+                                 ]
+                             },
+                             {
+                                 "type": "REVIEW_PROMPT",
+                                 "is_permit": false,
+                                 "detail_subscribes": [
+                                    \s
+                                 ]
+                             },
+                             {
+                                 "type": "LOST_ITEM_CHAT",
+                                 "is_permit": false,
+                                 "detail_subscribes": [
+                                    \s
+                                 ]
+                             },
+                             {
+                                 "type": "MARKETING",
+                                 "is_permit": false,
+                                 "detail_subscribes": [
+                                    \s
+                                 ]
+                             }
+                        ]
+                    }
+                """))
             .andReturn();
     }
 
@@ -150,10 +145,10 @@ class NotificationApiTest extends AcceptanceTest {
         MvcResult result = mockMvc.perform(
                 post("/notification")
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .header("Authorization", "Bearer " + userToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -171,10 +166,10 @@ class NotificationApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/notification")
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .header("Authorization", "Bearer " + userToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -183,10 +178,10 @@ class NotificationApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/notification/subscribe")
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .header("Authorization", "Bearer " + userToken)
                     .queryParam("type", notificationType)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -276,10 +271,10 @@ class NotificationApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/notification")
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .header("Authorization", "Bearer " + userToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -289,10 +284,10 @@ class NotificationApiTest extends AcceptanceTest {
                 post("/notification/subscribe")
                     .queryParam("type", notificationType)
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .header("Authorization", "Bearer " + userToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -302,10 +297,10 @@ class NotificationApiTest extends AcceptanceTest {
                 post("/notification/subscribe/detail")
                     .queryParam("detail_type", notificationDetailType)
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .header("Authorization", "Bearer " + userToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -315,10 +310,10 @@ class NotificationApiTest extends AcceptanceTest {
                 get("/notification")
                     .queryParam("detail_type", notificationDetailType)
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .header("Authorization", "Bearer " + userToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -429,10 +424,10 @@ class NotificationApiTest extends AcceptanceTest {
                 post("/notification")
                     .header("Authorization", "Bearer " + userToken)
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
@@ -442,10 +437,10 @@ class NotificationApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + userToken)
                     .queryParam("type", notificationType)
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isNoContent());
@@ -557,10 +552,10 @@ class NotificationApiTest extends AcceptanceTest {
                 post("/notification")
                     .header("Authorization", "Bearer " + userToken)
                     .content(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                    """, deviceToken))
+                        {
+                          "device_token": "%s"
+                        }
+                        """, deviceToken))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
