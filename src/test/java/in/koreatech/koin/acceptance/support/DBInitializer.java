@@ -36,10 +36,6 @@ public class DBInitializer {
     }
 
     private void truncateDirtyTables() {
-        if (tableNames.isEmpty()) {
-            findDatabaseTableNames();
-        }
-
         setForeignKeyCheck(OFF);
         for (String tableName : tableNames) {
             long count = ((Number) entityManager
@@ -69,6 +65,9 @@ public class DBInitializer {
 
     @Transactional
     public void clear() {
+        if (tableNames.isEmpty()) {
+            findDatabaseTableNames();
+        }
         entityManager.clear();
         truncateDirtyTables();
         clearRedis();
