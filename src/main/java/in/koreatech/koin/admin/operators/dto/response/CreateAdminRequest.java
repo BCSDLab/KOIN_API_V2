@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.dto;
+package in.koreatech.koin.admin.operators.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
