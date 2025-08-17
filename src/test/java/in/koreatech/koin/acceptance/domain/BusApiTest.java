@@ -258,8 +258,6 @@ class BusApiTest extends AcceptanceTest {
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, never()).storeRemainTime();
         verify(staticExpressBusClient, never()).storeRemainTime();
-        clear();
-        setUp();
     }
 
     @Test
@@ -273,7 +271,5 @@ class BusApiTest extends AcceptanceTest {
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, times(1)).storeRemainTime();
         verify(staticExpressBusClient, never()).storeRemainTime();
-        clear();
-        setUp();
     }
 }

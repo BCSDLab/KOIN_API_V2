@@ -244,7 +244,6 @@ public class KeywordApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(articleKeywordEventListener).onKeywordRequest(any()));
-        clear();
         setup();
     }
 
@@ -275,7 +274,6 @@ public class KeywordApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(articleKeywordEventListener, never()).onKeywordRequest(any()));
-        clear();
         setup();
     }
 
@@ -357,7 +355,6 @@ public class KeywordApiTest extends AcceptanceTest {
             )
             .andExpect(status().isForbidden());
         forceVerify(() -> verify(articleKeywordEventListener, never()).onKeywordRequest(any()));
-        clear();
         setup();
     }
 }

@@ -509,7 +509,6 @@ class ShopReviewApiTest extends AcceptanceTest {
                 softly.assertThat(shopReviewReport2.get().getContent()).isEqualTo("광고가 포함된 리뷰입니다.");
                 softly.assertThat(shopReviewReport2.get().getReportStatus()).isEqualTo(UNHANDLED);
                 forceVerify(() -> verify(reviewEventListener).onReviewReportRegister(any()));
-                clear();
                 setUp();
             }
         );

@@ -361,7 +361,6 @@ public class StudentApiTest extends AcceptanceTest {
                 softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
                 softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
                 forceVerify(() -> verify(studentEventListener).onStudentRegisterRequestEvent(any()));
-                clear();
                 setup();
             }
         );
@@ -402,7 +401,6 @@ public class StudentApiTest extends AcceptanceTest {
 
         assertThat(user.isAuthed()).isTrue();
         forceVerify(() -> verify(studentEventListener).onStudentRegisterEvent(any()));
-        clear();
         setup();
     }
 
