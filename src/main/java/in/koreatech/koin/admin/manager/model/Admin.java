@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.manager.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.admin.manager.enums.TeamType;
@@ -9,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
@@ -27,7 +29,7 @@ import lombok.NoArgsConstructor;
 public class Admin {
 
     @Id
-    @Column(name = "user_id", nullable = false)
+    @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
     @NotNull
@@ -39,6 +41,11 @@ public class Admin {
     @Size(max = 30)
     @Column(name = "login_id", nullable = false, unique = true, length = 30)
     private String loginId;
+
+    @NotNull
+    @Size(max = 10)
+    @Column(name = "name", nullable = false, length = 10)
+    private String name;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -63,18 +70,18 @@ public class Admin {
 
     @Builder
     private Admin(
-        Integer id,
         String email,
         String loginId,
+        String name,
         TeamType teamType,
         TrackType trackType,
         boolean canCreateAdmin,
         boolean superAdmin,
         User user
-        ) {
-        this.id = id;
+    ) {
         this.email = email;
         this.loginId = loginId;
+        this.name = name;
         this.teamType = teamType;
         this.trackType = trackType;
         this.canCreateAdmin = canCreateAdmin;
