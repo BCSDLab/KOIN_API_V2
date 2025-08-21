@@ -37,6 +37,9 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     List<Shop> findAll();
 
+    @Query("SELECT s FROM Shop s JOIN FETCH s.eventArticles e WHERE s.isDeleted = false AND e.isDeleted = false")
+    List<Shop> findAllWithEventArticles();
+
     @Query("""
         SELECT new in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse(
             s.id,
