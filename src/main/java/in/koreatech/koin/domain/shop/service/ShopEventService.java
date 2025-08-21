@@ -24,7 +24,7 @@ public class ShopEventService {
     }
 
     public ShopEventsWithBannerUrlResponse getAllEvents() {
-        List<Shop> shops = shopRepository.findAll();
+        List<Shop> shops = shopRepository.findAllWithEventArticles();
         return ShopEventsWithBannerUrlResponse.of(shops, clock);
     }
 }
