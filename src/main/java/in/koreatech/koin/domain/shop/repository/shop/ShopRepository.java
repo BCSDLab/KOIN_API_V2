@@ -29,15 +29,16 @@ public interface ShopRepository extends Repository<Shop, Integer> {
     }
 
     @Query("""
-        select s
-        from Shop s
-        left join fetch s.shopOperation op
-        where s.isDeleted = false
+        SELECT s
+        FROM Shop s
+        LEFT JOIN FETCH s.shopOperation op
+        WHERE s.isDeleted = false
     """)
     List<Shop> findAll();
 
     @Query("""
-        SELECT s FROM Shop s
+        SELECT s
+        FROM Shop s
         JOIN FETCH s.eventArticles e
         LEFT JOIN FETCH s.shopOperation op
         LEFT JOIN FETCH s.shopMainCategory mc
