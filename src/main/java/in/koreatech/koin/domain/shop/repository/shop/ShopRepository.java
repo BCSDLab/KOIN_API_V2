@@ -23,21 +23,27 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     Optional<Shop> findById(Integer shopId);
 
-    Optional<Shop> findByOwnerId(Integer ownerId);
-
     default Shop getById(Integer shopId) {
         return findById(shopId)
             .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
     }
 
-    default Shop getByOwnerId(Integer ownerId) {
-        return findByOwnerId(ownerId)
-            .orElseThrow(() -> ShopNotFoundException.withDetail("ownerId: " + ownerId));
-    }
-
+    @Query("""
+        SELECT s
+        FROM Shop s
+        LEFT JOIN FETCH s.shopOperation op
+        WHERE s.isDeleted = false
+    """)
     List<Shop> findAll();
 
-    @Query("SELECT s FROM Shop s JOIN FETCH s.eventArticles e WHERE s.isDeleted = false AND e.isDeleted = false")
+    @Query("""
+        SELECT s
+        FROM Shop s
+        JOIN FETCH s.eventArticles e
+        LEFT JOIN FETCH s.shopOperation op
+        LEFT JOIN FETCH s.shopMainCategory mc
+        WHERE s.isDeleted = false AND e.isDeleted = false
+    """)
     List<Shop> findAllWithEventArticles();
 
     @Query("""
