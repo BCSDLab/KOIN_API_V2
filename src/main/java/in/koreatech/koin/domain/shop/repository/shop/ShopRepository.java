@@ -28,6 +28,12 @@ public interface ShopRepository extends Repository<Shop, Integer> {
             .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
     }
 
+    @Query("""
+        select s
+        from Shop s
+        left join fetch s.shopOperation op
+        where s.isDeleted = false
+    """)
     List<Shop> findAll();
 
     @Query("""
