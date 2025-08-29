@@ -22,21 +22,21 @@ public class StudentTest {
     @Mock
     private Major major;
 
-    @Mock
-    private Department otherDepartment;
-
-    @Mock
-    private Major otherMajor;
-
     private Student student;
 
     @BeforeEach
     void init() {
-        student = StudentFixture.코인_학생(department, major);
+        student = StudentFixture.준호_학생(department, major);
     }
 
     @Nested
     class UpdateTest {
+
+        @Mock
+        private Department otherDepartment;
+
+        @Mock
+        private Major otherMajor;
 
         @Test
         void 학번과_학과를_변경하면_학번과_학과만_변경된다() {
