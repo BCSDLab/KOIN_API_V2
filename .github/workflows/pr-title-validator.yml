@@ -26,4 +26,5 @@ jobs:
             chore
             hotfix
             release
+            test
           requireScope: false

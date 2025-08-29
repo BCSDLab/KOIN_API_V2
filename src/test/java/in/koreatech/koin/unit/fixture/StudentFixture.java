@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 
-public class StudentFixture { // TODO : 메서드명 명확하게 변경 필요 (ex.미인증_코인_학생())
+public class StudentFixture {
 
     private StudentFixture() {}
 
