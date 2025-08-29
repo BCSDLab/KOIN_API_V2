@@ -32,6 +32,7 @@ public class StudentTest {
     @Nested
     class UpdateTest {
 
+        // given
         @Mock
         private Department otherDepartment;
 
@@ -40,7 +41,9 @@ public class StudentTest {
 
         @Test
         void 학번과_학과를_변경하면_학번과_학과만_변경된다() {
+            // when
             student.updateInfo("2023100657", otherDepartment);
+            // then
             assertThat(student.getStudentNumber()).isEqualTo("2023100657");
             assertThat(student.getDepartment()).isSameAs(otherDepartment);
 
@@ -49,7 +52,9 @@ public class StudentTest {
 
         @Test
         void 학번만_변경하면_학번만_변경된다() {
+            // when
             student.updateStudentNumber("2023100657");
+            // then
             assertThat(student.getStudentNumber()).isEqualTo("2023100657");
 
             assertThat(student.getDepartment()).isSameAs(department);
@@ -58,7 +63,9 @@ public class StudentTest {
 
         @Test
         void 학부와_전공을_변경하면_학부와_전공만_변경된다() {
+            // when
             student.updateDepartmentMajor(otherDepartment, otherMajor);
+            // then
             assertThat(student.getDepartment()).isSameAs(otherDepartment);
             assertThat(student.getMajor()).isSameAs(otherMajor);
 
@@ -67,7 +74,9 @@ public class StudentTest {
 
         @Test
         void 학번_학부_전공을_변경하면_학번_학부_전공만_변경된다() {
+            // when
             student.updateStudentAcademicInfo("2023100657", otherDepartment, otherMajor);
+            // then
             assertThat(student.getStudentNumber()).isEqualTo("2023100657");
             assertThat(student.getDepartment()).isSameAs(otherDepartment);
             assertThat(student.getMajor()).isSameAs(otherMajor);
@@ -78,13 +87,17 @@ public class StudentTest {
 
             @Test
             void 학번이_같으면_false를_반환한다() {
+                // when
                 boolean result = student.isNotSameStudentNumber("2019136135");
+                // then
                 assertThat(result).isFalse();
             }
 
             @Test
             void 학번이_다르면_true를_반환한다() {
+                // when
                 boolean result = student.isNotSameStudentNumber("2023100657");
+                // then
                 assertThat(result).isTrue();
             }
         }
@@ -94,13 +107,17 @@ public class StudentTest {
 
             @Test
             void 학부가_같으면_false를_반환한다() {
+                // when
                 boolean result = student.isNotSameDepartment(department);
+                // then
                 assertThat(result).isFalse();
             }
 
             @Test
             void 학부가_다르면_true를_반환한다() {
+                // when
                 boolean result = student.isNotSameDepartment(otherDepartment);
+                // then
                 assertThat(result).isTrue();
             }
         }
