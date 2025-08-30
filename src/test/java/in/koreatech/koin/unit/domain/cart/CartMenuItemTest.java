@@ -1,7 +1,6 @@
 package in.koreatech.koin.unit.domain.cart;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -10,8 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
@@ -75,25 +72,35 @@ class CartMenuItemTest {
         }
 
         @Test
-        void 수량이_null이거나_0이하면_예외가_발생한다() {
+        void 수량이_null이면_예외가_발생한다() {
             // given
             Integer nullQuantity = null;
-            Integer zeroQuantity = 0;
-
             // when & then
             assertEquals(ApiResponseCode.ILLEGAL_STATE,
                     assertThrows(CustomException.class, () -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, nullQuantity)).getErrorCode());
+        }
 
+        @Test
+        void 수량이_0이하면_예외가_발생한다() {
+            // given
+            int zeroQuantity = 0;
+            int negativeQuantity = -1;
+
+            // when & then
             assertEquals(ApiResponseCode.ILLEGAL_STATE,
                     assertThrows(CustomException.class, () -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, zeroQuantity)).getErrorCode());
+
+            assertEquals(ApiResponseCode.ILLEGAL_STATE,
+                    assertThrows(CustomException.class, () -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, negativeQuantity)).getErrorCode());
         }
+
     }
 
     @Nested
     class UpdateQuantityTest {
 
         @Test
-        void 정상적인_수량으로_업데이트하면_수량이_변경된다() {
+        void 수량을_0이상으로_업데이트하면_수량이_변경된다() {
             // given
             CartMenuItem cartMenuItem = createCartMenuItem(1);
             int newQuantity = 5;
@@ -106,18 +113,29 @@ class CartMenuItemTest {
         }
 
         @Test
-        void 잘못된_수량으로_업데이트하면_예외가_발생한다() {
+        void 수량을_0이하로_업데이트하면_예외가_발생한다() {
             // given
             CartMenuItem cartMenuItem = createCartMenuItem(1);
-            Integer nullQuantity = null;
+            Integer negativeQuantity = -1;
             Integer zeroQuantity = 0;
 
             // when & then
             assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
-                    assertThrows(CustomException.class, () -> cartMenuItem.updateQuantity(nullQuantity)).getErrorCode());
+                    assertThrows(CustomException.class, () -> cartMenuItem.updateQuantity(negativeQuantity)).getErrorCode());
 
             assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
                     assertThrows(CustomException.class, () -> cartMenuItem.updateQuantity(zeroQuantity)).getErrorCode());
+        }
+
+        @Test
+        void 수량을_null로_업데이트하면_예외가_발생한다() {
+            // given
+            CartMenuItem cartMenuItem = createCartMenuItem(1);
+            Integer nullQuantity = null;
+
+            // when & then
+            assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
+                    assertThrows(CustomException.class, () -> cartMenuItem.updateQuantity(nullQuantity)).getErrorCode());
         }
     }
 
@@ -125,7 +143,7 @@ class CartMenuItemTest {
     class IncreaseQuantityTest {
 
         @Test
-        void 수량을_증가시키면_수량이_증가한다() {
+        void 동일한_메뉴아이템을_추가하면_수량이_증가한다() {
             // given
             CartMenuItem cartMenuItem = createCartMenuItem(2);
             int expectedQuantity = 6; // 2 + 1 + 3
@@ -148,10 +166,10 @@ class CartMenuItemTest {
             CartMenuItem cartMenuItem = createCartMenuItem(1);
 
             // when
-            boolean result = cartMenuItem.isSameItem(menu, menuPrice, menuOptions);
+            boolean isSame = cartMenuItem.isSameItem(menu, menuPrice, menuOptions);
 
             // then
-            assertThat(result).isTrue();
+            assertThat(isSame).isTrue();
         }
 
         @Test
