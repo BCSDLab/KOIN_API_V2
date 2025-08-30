@@ -2,6 +2,8 @@ package in.koreatech.koin.unit.domain.cart;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -18,13 +20,13 @@ import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOp
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.unit.fixture.CartFixture;
 import in.koreatech.koin.unit.fixture.OrderableShopFixture;
 import in.koreatech.koin.unit.fixture.OrderableShopMenuFixture;
 import in.koreatech.koin.unit.fixture.UserFixture;
 
-@ExtendWith(MockitoExtension.class)
 class CartMenuItemTest {
 
     private User user;
@@ -79,11 +81,11 @@ class CartMenuItemTest {
             Integer zeroQuantity = 0;
 
             // when & then
-            assertThatThrownBy(() -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, nullQuantity))
-                    .isInstanceOf(CustomException.class);
+            assertEquals(ApiResponseCode.ILLEGAL_STATE,
+                    assertThrows(CustomException.class, () -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, nullQuantity)).getErrorCode());
 
-            assertThatThrownBy(() -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, zeroQuantity))
-                    .isInstanceOf(CustomException.class);
+            assertEquals(ApiResponseCode.ILLEGAL_STATE,
+                    assertThrows(CustomException.class, () -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, zeroQuantity)).getErrorCode());
         }
     }
 
@@ -111,11 +113,11 @@ class CartMenuItemTest {
             Integer zeroQuantity = 0;
 
             // when & then
-            assertThatThrownBy(() -> cartMenuItem.updateQuantity(nullQuantity))
-                    .isInstanceOf(CustomException.class);
+            assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
+                    assertThrows(CustomException.class, () -> cartMenuItem.updateQuantity(nullQuantity)).getErrorCode());
 
-            assertThatThrownBy(() -> cartMenuItem.updateQuantity(zeroQuantity))
-                    .isInstanceOf(CustomException.class);
+            assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
+                    assertThrows(CustomException.class, () -> cartMenuItem.updateQuantity(zeroQuantity)).getErrorCode());
         }
     }
 
@@ -213,8 +215,8 @@ class CartMenuItemTest {
             int invalidQuantity = 0;
 
             // when & then
-            assertThatThrownBy(() -> cartMenuItem.update(newPrice, List.of(), invalidQuantity))
-                    .isInstanceOf(CustomException.class);
+            assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
+                    assertThrows(CustomException.class, () -> cartMenuItem.update(newPrice, List.of(), invalidQuantity)).getErrorCode());
         }
     }
 
