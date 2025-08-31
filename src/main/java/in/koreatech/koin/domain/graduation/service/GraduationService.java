@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.graduation.service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,10 +13,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -409,72 +404,51 @@ public class GraduationService {
         Student student = studentRepository.getById(userId);
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
-        List<GradeExcelData> gradeExcelData = graduationExcelService.parseStudentGradeFromExcel(file);
-        Set<String> lectureNames = new HashSet<>(gradeExcelData.stream()
+        List<GradeExcelData> gradeExcelDatas = graduationExcelService.parseStudentGradeFromExcel(file);
+        Set<String> lectureNames = new HashSet<>(gradeExcelDatas.stream()
             .map(GradeExcelData::classTitle)
             .toList());
-        Set<String> lectureCodes = new HashSet<>(gradeExcelData.stream()
+        Set<String> lectureCodes = new HashSet<>(gradeExcelDatas.stream()
             .map(GradeExcelData::code)
             .toList());
-        Set<String> semesters = new HashSet<>(gradeExcelData.stream()
+        Set<String> semesters = new HashSet<>(gradeExcelDatas.stream()
             .map(GradeExcelData::semester)
             .toList());
-        Set<String> years = new HashSet<>(gradeExcelData.stream()
+        Set<String> years = new HashSet<>(gradeExcelDatas.stream()
             .map(GradeExcelData::year)
             .toList());
         List<TimetableLecture> timetableLectures = new ArrayList<>();
 
-        try (InputStream inputStream = file.getInputStream();
-             Workbook workbook = new HSSFWorkbook(inputStream)
-        ) {
-            Sheet sheet = workbook.getSheetAt(0);
-            TimetableFrame graduationFrame = null;
-            String currentSemester = "default";
+        TimetableFrame graduationFrame = null;
+        String currentSemester = "default";
 
-            Map<String, List<Lecture>> lectureMap = loadLectures(semesters, lectureCodes);
-            Map<String, Catalog> catalogByNameMap = loadCatalogByLectureName(lectureNames, studentYear);
-            Map<String, Catalog> catalogByCodeMap = loadCatalogByCode(lectureCodes, years);
+        Map<String, List<Lecture>> lectureMap = loadLectures(semesters, lectureCodes);
+        Map<String, Catalog> catalogByNameMap = loadCatalogByLectureName(lectureNames, studentYear);
+        Map<String, Catalog> catalogByCodeMap = loadCatalogByCode(lectureCodes, years);
             /*
                 이수구분선택이란? : 대학요람(Catalog)에 없어서 매핑되지 않는 과목들의 기본 매핑입니다.
                 현재로서 파악된 것은 K-MOOC / 단기, 장기현장실습 / 2019-1학기 과목들이 매핑됩니다.
             */
-            for (Row row : sheet) {
-                GradeExcelData data = extractExcelData(row);
-                if (row.getRowNum() == 0 || skipRow(data)) {
-                    continue;
-                }
-                if (data.classTitle().equals(TOTAL)) {
-                    break;
-                }
+        for (GradeExcelData data : gradeExcelDatas) {
 
-                String semester = getKoinSemester(data.semester(), data.year());
+            String semester = getKoinSemester(data.semester(), data.year());
 
-                List<Lecture> lectures = lectureMap.get(semester + "_" + data.code());
-                Lecture lecture = findBestMatchingLecture(lectures, data.lectureClass());
+            List<Lecture> lectures = lectureMap.get(semester + "_" + data.code());
+            Lecture lecture = findBestMatchingLecture(lectures, data.lectureClass());
 
-                CatalogResult catalogResult = findCourseType(lecture, data, studentYear, catalogByNameMap,
-                    catalogByCodeMap);
-                CourseType courseType = catalogResult.courseType();
-                GeneralEducationArea generalEducationArea = catalogResult.generalEducation();
+            CatalogResult catalogResult = findCourseType(lecture, data, studentYear, catalogByNameMap,
+                catalogByCodeMap);
+            CourseType courseType = catalogResult.courseType();
+            GeneralEducationArea generalEducationArea = catalogResult.generalEducation();
 
-                graduationFrame = updateAndCreateFrame(userId, semester, currentSemester, graduationFrame);
-                currentSemester = semester;
+            graduationFrame = updateAndCreateFrame(userId, semester, currentSemester, graduationFrame);
+            currentSemester = semester;
 
-                timetableLectures.add(
-                    createTimetableLecture(data, lecture, graduationFrame, courseType, generalEducationArea));
-            }
-            timetableLectureRepositoryV2.saveAll(timetableLectures);
+            timetableLectures.add(
+                createTimetableLecture(data, lecture, graduationFrame, courseType, generalEducationArea));
         }
-    }
 
-    private GradeExcelData extractExcelData(Row row) {
-        return GradeExcelData.fromRow(row);
-    }
-
-    private boolean skipRow(GradeExcelData gradeExcelData) {
-        return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-            gradeExcelData.grade().equals(FAIL) ||
-            gradeExcelData.grade().equals(UNSATISFACTORY);
+        timetableLectureRepositoryV2.saveAll(timetableLectures);
     }
 
     // 분반 문제를 해결하기 위해서, 강의들을 전부 가져오도록 했음
