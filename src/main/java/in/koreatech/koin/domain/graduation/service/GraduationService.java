@@ -83,6 +83,7 @@ public class GraduationService {
     private final SemesterRepositoryV3 semesterRepositoryV3;
     private final CatalogRepository catalogRepository;
     private final GeneralEducationAreaRepository generalEducationAreaRepository;
+    private final GraduationExcelService graduationExcelService;
 
     private static final String MIDDLE_TOTAL = "소 계";
     private static final String TOTAL = "합 계";
@@ -408,32 +409,27 @@ public class GraduationService {
         Student student = studentRepository.getById(userId);
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
+        List<GradeExcelData> gradeExcelData = graduationExcelService.parseStudentGradeFromExcel(file);
+        Set<String> lectureNames = new HashSet<>(gradeExcelData.stream()
+            .map(GradeExcelData::classTitle)
+            .toList());
+        Set<String> lectureCodes = new HashSet<>(gradeExcelData.stream()
+            .map(GradeExcelData::code)
+            .toList());
+        Set<String> semesters = new HashSet<>(gradeExcelData.stream()
+            .map(GradeExcelData::semester)
+            .toList());
+        Set<String> years = new HashSet<>(gradeExcelData.stream()
+            .map(GradeExcelData::year)
+            .toList());
+        List<TimetableLecture> timetableLectures = new ArrayList<>();
+
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new HSSFWorkbook(inputStream)
         ) {
             Sheet sheet = workbook.getSheetAt(0);
             TimetableFrame graduationFrame = null;
             String currentSemester = "default";
-
-            Set<String> lectureNames = new HashSet<>();
-            Set<String> lectureCodes = new HashSet<>();
-            Set<String> semesters = new HashSet<>();
-            Set<String> years = new HashSet<>();
-            List<TimetableLecture> timetableLectures = new ArrayList<>();
-
-            for (Row row : sheet) {
-                GradeExcelData data = extractExcelData(row);
-                if (row.getRowNum() == 0 || skipRow(data)) {
-                    continue;
-                }
-                if (data.classTitle().equals(TOTAL)) {
-                    break;
-                }
-                lectureNames.add(data.classTitle());
-                lectureCodes.add(data.code());
-                semesters.add(getKoinSemester(data.semester(), data.year()));
-                years.add(data.year());
-            }
 
             Map<String, List<Lecture>> lectureMap = loadLectures(semesters, lectureCodes);
             Map<String, Catalog> catalogByNameMap = loadCatalogByLectureName(lectureNames, studentYear);
