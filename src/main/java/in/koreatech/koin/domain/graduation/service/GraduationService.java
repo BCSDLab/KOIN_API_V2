@@ -22,14 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.exception.custom.DuplicationException;
 import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GeneralEducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.enums.GeneralEducationAreaEnum;
-import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
-import in.koreatech.koin.domain.graduation.exception.ExcelFileNotFoundException;
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CatalogResult;
 import in.koreatech.koin.domain.graduation.model.CourseType;
@@ -63,6 +59,8 @@ import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
+import in.koreatech.koin.global.exception.custom.DuplicationException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -407,7 +405,6 @@ public class GraduationService {
 
     @Transactional
     public void readStudentGradeExcelFile(MultipartFile file, Integer userId) throws IOException {
-        checkFiletype(file);
         Student student = studentRepository.getById(userId);
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
@@ -471,23 +468,6 @@ public class GraduationService {
                     createTimetableLecture(data, lecture, graduationFrame, courseType, generalEducationArea));
             }
             timetableLectureRepositoryV2.saveAll(timetableLectures);
-        }
-    }
-
-    private void checkFiletype(MultipartFile file) {
-        if (file == null) {
-            throw new ExcelFileNotFoundException("파일이 있는지 확인 해주세요.");
-        }
-
-        String fileName = file.getOriginalFilename();
-        int findDot = fileName.lastIndexOf(".");
-        if (findDot == -1) {
-            throw new ExcelFileNotFoundException("파일의 형식이 맞는지 확인 해주세요.");
-        }
-
-        String extension = fileName.substring(findDot + 1);
-        if (!extension.equals("xls") && !extension.equals("xlsx")) {
-            throw new ExcelFileCheckException("엑셀 파일인지 확인 해주세요.");
         }
     }
 

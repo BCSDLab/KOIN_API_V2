@@ -1,10 +1,10 @@
 package in.koreatech.koin.domain.graduation.controller;
 
-import java.io.IOException;
-import java.util.List;
-
 import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
+import java.io.IOException;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +20,7 @@ import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.validation.FileTypeValid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -37,7 +38,7 @@ public class GraduationController implements GraduationApi {
 
     @PostMapping("/graduation/excel/upload")
     public ResponseEntity<String> uploadStudentGradeExcelFile(
-        @RequestParam(value = "file") MultipartFile file,
+        @FileTypeValid(extensions = {"xls", "xlsx"}) @RequestParam(value = "file") MultipartFile file,
         @Auth(permit = {UserType.STUDENT}) Integer userId
     ) {
         try {
