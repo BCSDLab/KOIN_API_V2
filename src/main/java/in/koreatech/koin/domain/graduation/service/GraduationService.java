@@ -430,8 +430,7 @@ public class GraduationService {
                 현재로서 파악된 것은 K-MOOC / 단기, 장기현장실습 / 2019-1학기 과목들이 매핑됩니다.
             */
         for (GradeExcelData data : gradeExcelDatas) {
-
-            String semester = getKoinSemester(data.semester(), data.year());
+            String semester = data.getKoinSemester();
 
             List<Lecture> lectures = lectureMap.get(semester + "_" + data.code());
             Lecture lecture = findBestMatchingLecture(lectures, data.lectureClass());
@@ -469,15 +468,6 @@ public class GraduationService {
         return catalogRepository.findAllByCodeInAndYearIn(lectureCodes, years).stream().collect(Collectors.
             toMap(c -> c.getCode() + "_" + c.getYear(), Function.identity(), (existing, duplicate) -> duplicate
             ));
-    }
-
-    private String getKoinSemester(String semester, String year) {
-        if (semester.equals("1") || semester.equals("2")) {
-            return year + semester;
-        } else if (semester.equals("동계")) {
-            return year + "-" + "겨울";
-        } else
-            return year + "-" + "여름";
     }
 
     private Lecture findBestMatchingLecture(List<Lecture> lectures, String lectureClass) {

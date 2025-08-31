@@ -27,4 +27,13 @@ public record GradeExcelData(
     public boolean isTotal() {
         return classTitle.equals(TOTAL);
     }
+
+    public String getKoinSemester() {
+        if (semester.equals("1") || semester.equals("2")) {
+            return year + semester;
+        } else if (semester.equals("동계")) {
+            return year + "-" + "겨울";
+        } else
+            return year + "-" + "여름";
+    }
 }
