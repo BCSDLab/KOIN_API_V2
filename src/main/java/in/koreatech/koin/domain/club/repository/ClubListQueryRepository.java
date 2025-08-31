@@ -72,7 +72,10 @@ public class ClubListQueryRepository {
             builder.and(clubRecruitment.endDate.goe(LocalDate.now()).or(clubRecruitment.isAlwaysRecruiting.isTrue()));
         }
 
-        builder.and(Expressions.stringTemplate("LOWER(REPLACE({0}, ' ', ''))", club.name).contains(normalizedQuery));
+        if (!normalizedQuery.isBlank()) {
+            builder.and(club.normalizedName.contains(normalizedQuery));
+        }
+
         builder.and(club.isActive.isTrue());
 
         return builder;

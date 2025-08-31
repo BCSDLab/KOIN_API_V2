@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.service.city.client.CityBusClient;
 import in.koreatech.koin.domain.bus.service.city.client.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.service.express.client.ExpressBusClient;
-import in.koreatech.koin._common.apiloadbalancer.ApiLoadBalancer;
+import in.koreatech.koin.global.apiloadbalancer.ApiLoadBalancer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuGroup;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
@@ -98,9 +98,6 @@ public class OrderableShop extends BaseEntity {
     }
 
     public void requireMinimumOrderAmount(Integer totalOrderAmount) {
-        if (totalOrderAmount == null || totalOrderAmount < 0) {
-            throw new KoinIllegalArgumentException("주문 금액은 null이거나 음수일 수 없습니다.");
-        }
         if (totalOrderAmount < minimumOrderAmount) {
             throw CustomException.of(ApiResponseCode.ORDER_AMOUNT_BELOW_MINIMUM);
         }

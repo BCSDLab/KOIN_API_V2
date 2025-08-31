@@ -11,16 +11,21 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.BenefitCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -28,16 +33,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AdminBenefitApiTest extends AcceptanceTest {
 
     @Autowired
@@ -240,36 +236,36 @@ public class AdminBenefitApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json(String.format("""
-                    {
-                      "count": 4,
-                      "shops": [
                         {
-                          "shop_benefit_map_id": %d,
-                          "id": %d,
-                          "name": "김밥천국",
-                          "detail": "설명1"
-                        },
-                        {
-                          "shop_benefit_map_id": %d,
-                          "id": %d,
-                          "name": "마슬랜 치킨",
-                          "detail": "설명2"
-                        },
-                        {
-                          "shop_benefit_map_id": %d,
-                          "id": %d,
-                          "name": "티바",
-                          "detail": "설명3"
-                        },
-                        {
-                          "shop_benefit_map_id": %d,
-                          "id": %d,
-                          "name": "신전 떡볶이",
-                          "detail": "설명4"
+                          "count": 4,
+                          "shops": [
+                            {
+                              "shop_benefit_map_id": %d,
+                              "id": %d,
+                              "name": "김밥천국",
+                              "detail": "설명1"
+                            },
+                            {
+                              "shop_benefit_map_id": %d,
+                              "id": %d,
+                              "name": "마슬랜 치킨",
+                              "detail": "설명2"
+                            },
+                            {
+                              "shop_benefit_map_id": %d,
+                              "id": %d,
+                              "name": "티바",
+                              "detail": "설명3"
+                            },
+                            {
+                              "shop_benefit_map_id": %d,
+                              "id": %d,
+                              "name": "신전 떡볶이",
+                              "detail": "설명4"
+                            }
+                          ]
                         }
-                      ]
-                    }
-                """,
+                    """,
                 김밥천국_혜택.getId(), 김밥천국.getId(),
                 마슬랜_혜택.getId(), 마슬랜.getId(),
                 티바_혜택.getId(), 영업중인_티바.getId(),
@@ -342,8 +338,8 @@ public class AdminBenefitApiTest extends AcceptanceTest {
         transactionTemplate.executeWithoutResult(status -> {
             List<BenefitCategoryMap> updatedBenefit =
                 adminBenefitCategoryMapRepository.findAllByIdIn(
-                List.of(김밥천국_혜택.getId(), 마슬랜_혜택.getId())
-            );
+                    List.of(김밥천국_혜택.getId(), 마슬랜_혜택.getId())
+                );
 
             Map<Integer, String> details = updatedBenefit.stream()
                 .collect(Collectors.toMap(

@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.service;
 
-import static in.koreatech.koin._common.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
+import static in.koreatech.koin.global.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,11 +13,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.event.ClubCreateEvent;
-import in.koreatech.koin._common.event.ClubRecruitmentChangeEvent;
-import in.koreatech.koin._common.exception.CustomException;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.common.event.ClubCreateEvent;
+import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;

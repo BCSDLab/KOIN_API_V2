@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AddressSearchRequest(
-
     @Schema(description = "검색할 주소 키워드", example = "병천면 충절로", requiredMode = REQUIRED)
     @NotBlank
     String keyword,

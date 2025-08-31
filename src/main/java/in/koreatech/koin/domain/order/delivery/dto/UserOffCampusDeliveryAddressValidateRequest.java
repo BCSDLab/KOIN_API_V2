@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record UserOffCampusDeliveryAddressValidateRequest(
-
     @Schema(description = "시/도", example = "충청남도")
     @NotBlank(message = "시/도는 필수입니다.")
     String siDo,

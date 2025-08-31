@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopDeliveryResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoDetailResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoSummaryResponse;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopCategoryFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
@@ -49,51 +50,10 @@ public interface OrderableShopApi {
                                   3,
                                   5
                                 ],
-                                "image_urls": [
-                                  "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg"
-                                ],
-                                "open": [
+                                "images": [
                                   {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "TUESDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "WEDNESDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "THURSDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "SATURDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
-                                  },
-                                  {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "16:00:00",
-                                    "close_time": "00:00:00"
+                                    "image_url": "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg",
+                                    "is_thumbnail": true
                                   }
                                 ],
                                 "open_status": "OPERATING"
@@ -103,8 +63,18 @@ public interface OrderableShopApi {
                     )
                 })
             ),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "400", description = "잘못된 카테고리 ID",
+                content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "잘못된 카테고리 ID", value = """
+                        {
+                          "code": "ILLEGAL_ARGUMENT",
+                          "message": "잘못된 인자가 전달되었습니다.",
+                          "errorTraceId": "ff8c3490-754e-4ba9-b805-e15132e7f478"
+                        }
+                        """
+                    )
+                })
+            )
         }
     )
     @Operation(summary = "주문 가능한 모든 상점 조회", description = """
@@ -123,6 +93,19 @@ public interface OrderableShopApi {
             - **DELIVERY_AVAILABLE**: 배달 가능한 상점
             - **TAKEOUT_AVAILABLE**: 포장 가능한 상점
             - **FREE_DELIVERY_TIP**: 배달비 무료 상점
+        - **카테고리 필터**: category_filter. 카테고리 ID로 상점을 필터링
+            - **1 or null**: 전체 카테고리 (기본)
+            - **2**: 치킨
+            - **3**: 피자/버거
+            - **4**: 도시락/분식
+            - **5**: 족발
+            - **6**: 중국집
+            - **7**: 고깃집
+            - **8**: 한식
+            - **9**: 주점
+            - **10**: 카페
+            - **11**: 콜밴
+            - **12**: 기타
         - **최소 주문 금액 필터**: minimum_order_amount. 해당 최소 주문 금액 이하의 상점을 반환
         - **open_status**: 현재 요일과 시간을 고려 하여 상점의 영업 상태를 결정.
             - **OPERATING**: 영업중
@@ -136,6 +119,9 @@ public interface OrderableShopApi {
 
         @Parameter(description = "적용할 필터 목록. 복수 선택 가능.")
         @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsSortCriteria,
+
+        @Parameter(description = "카테고리 필터 목록")
+        @RequestParam(name = "category_filter", required = false) Integer categoryFilterId,
 
         @Parameter(description = "최소 주문 금액 필터 (단위: 원). null 가능")
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount

@@ -20,7 +20,7 @@ import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameUpdateRequ
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFrameResponseV3;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFramesResponseV3;
 import in.koreatech.koin.domain.timetableV3.service.TimetableFrameServiceV3;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

@@ -18,7 +18,7 @@ import in.koreatech.koin.admin.member.dto.AdminMemberResponse;
 import in.koreatech.koin.admin.member.dto.AdminMembersResponse;
 import in.koreatech.koin.admin.member.enums.TrackTag;
 import in.koreatech.koin.admin.member.service.AdminMemberService;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

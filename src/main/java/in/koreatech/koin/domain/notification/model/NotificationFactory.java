@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.model.MobileAppPath;
+import in.koreatech.koin.common.model.MobileAppPath;
 
 @Component
 public class NotificationFactory {

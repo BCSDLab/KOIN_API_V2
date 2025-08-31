@@ -83,6 +83,7 @@ public record AdminClubCreateRequest(
     public Club toEntity(ClubCategory clubCategory) {
         return Club.builder()
             .name(name)
+            .normalizedName(normalize(name))
             .lastWeekHits(0)
             .isActive(true)
             .likes(0)
@@ -94,5 +95,9 @@ public record AdminClubCreateRequest(
             .location(location)
             .isLikeHidden(false)
             .build();
+    }
+
+    private String normalize(String name) {
+        return name.replaceAll("\\s+", "").toLowerCase();
     }
 }

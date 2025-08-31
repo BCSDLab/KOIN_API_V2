@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.controller;
 
-import static in.koreatech.koin._common.code.ApiResponseCode.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin._common.auth.Auth;
-import in.koreatech.koin._common.auth.UserId;
-import in.koreatech.koin._common.code.ApiResponseCodes;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;

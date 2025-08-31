@@ -2,7 +2,7 @@ package in.koreatech.koin.socket.util;
 
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 
 
 public record SubscribeDestination(

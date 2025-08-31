@@ -17,12 +17,19 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.EventArticleAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.MenuAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.MenuCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
@@ -41,19 +48,7 @@ import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.acceptance.fixture.EventArticleAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.MenuCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.MenuAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import jakarta.transaction.Transactional;
 
-@Transactional
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
@@ -87,7 +82,8 @@ class OwnerShopApiTest extends AcceptanceTest {
     private ShopParentCategoryAcceptanceFixture shopParentCategoryFixture;
 
     @Autowired
-    private ShopNotificationMessageAcceptanceFixture shopNotificationMessageFixture;;
+    private ShopNotificationMessageAcceptanceFixture shopNotificationMessageFixture;
+    ;
 
     @Autowired
     private MenuCategoryAcceptanceFixture menuCategoryFixture;
@@ -238,7 +234,6 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(result.getShopImages()).hasSize(3);
                 softly.assertThat(result.getShopOpens()).hasSize(7);
                 softly.assertThat(result.getShopCategories()).hasSize(1);
-                System.out.println("dsa");
             }
         );
     }
@@ -832,7 +827,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             }
         );
         forceVerify(() -> verify(shopEventListener, times(1)).onShopEventCreate(any()));
-        clear();
         setUp();
     }
 

@@ -4,7 +4,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CreateInvalidationRequest;

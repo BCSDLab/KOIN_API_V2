@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.lostItem.dto.AdminLostItemArticlesResponse;
 import in.koreatech.koin.admin.lostItem.dto.AdminModifyLostItemArticleReportStatusRequest;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

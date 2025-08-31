@@ -11,12 +11,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.util.random.VerificationNumberGenerator;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.user.verification.model.VerificationCode;
 import in.koreatech.koin.unit.domain.user.verification.mock.StubVerificationNumberHolder;
-import in.koreatech.koin.unit.fixutre.VerificationFixture;
+import in.koreatech.koin.unit.fixture.VerificationFixture;
 
 class VerificationCodeTest {
 

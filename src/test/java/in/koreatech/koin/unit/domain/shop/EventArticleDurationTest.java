@@ -7,31 +7,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestTimeConfig.class}, initializers = ConfigDataApplicationContextInitializer.class)
+@ExtendWith(MockitoExtension.class)
 public class EventArticleDurationTest {
-
-    @Autowired
-    private TestTimeConfig testTimeConfig;
-
-    @AfterEach
-    void tearDown() {
-        testTimeConfig.setOriginTime();
-    }
 
     private Clock createClock(LocalDateTime dateTime) {
         return Clock.fixed(
@@ -49,11 +35,15 @@ public class EventArticleDurationTest {
         void ongoingEvent() {
             // given: "오늘"을 2024년 7월 25일로 설정
             LocalDateTime now = LocalDateTime.of(2024, 7, 25, 10, 0);
-            testTimeConfig.setCurrTime(now);
             Clock clock = createClock(now);
 
             EventArticle eventArticle = EventArticle.builder().build();
-            LocalDate startDate = LocalDate.from(now.minusDays(1));
+            LocalDate startDate = null;
+            try {
+                startDate = LocalDate.from(now.minusDays(1));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             LocalDate endDate = LocalDate.from(now.plusDays(1));
             ReflectionTestUtils.setField(eventArticle, "startDate", startDate);
             ReflectionTestUtils.setField(eventArticle, "endDate", endDate);
@@ -70,7 +60,6 @@ public class EventArticleDurationTest {
         void eventStartsToday() {
             // given: "오늘"을 2024년 7월 25일로 설정
             LocalDateTime now = LocalDateTime.of(2024, 7, 25, 0, 0);
-            testTimeConfig.setCurrTime(now);
             Clock clock = createClock(now);
 
             EventArticle eventArticle = EventArticle.builder().build();
@@ -91,7 +80,6 @@ public class EventArticleDurationTest {
         void eventEndsToday() {
             // given: "오늘"을 2024년 7월 25일로 설정
             LocalDateTime now = LocalDateTime.of(2024, 7, 25, 23, 59);
-            testTimeConfig.setCurrTime(now);
             Clock clock = createClock(now);
 
             EventArticle eventArticle = EventArticle.builder().build();
@@ -112,7 +100,6 @@ public class EventArticleDurationTest {
         void eventNotStarted() {
             // given: "오늘"을 2024년 7월 25일로 설정
             LocalDateTime now = LocalDateTime.of(2024, 7, 25, 10, 0);
-            testTimeConfig.setCurrTime(now);
             Clock clock = createClock(now);
 
             EventArticle eventArticle = EventArticle.builder().build();
@@ -133,7 +120,6 @@ public class EventArticleDurationTest {
         void eventEnded() {
             // given: "오늘"을 2024년 7월 25일로 설정
             LocalDateTime now = LocalDateTime.of(2024, 7, 25, 10, 0);
-            testTimeConfig.setCurrTime(now);
             Clock clock = createClock(now);
 
             EventArticle eventArticle = EventArticle.builder().build();

@@ -17,7 +17,7 @@ import in.koreatech.koin.infrastructure.s3.dto.UploadFilesResponse;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlRequest;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlResponse;
 import in.koreatech.koin.infrastructure.s3.model.ImageUploadDomain;
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

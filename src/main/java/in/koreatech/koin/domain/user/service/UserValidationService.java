@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.code.ApiResponseCode;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.dto.validation.UserMatchLoginIdWithEmailRequest;
@@ -45,28 +45,28 @@ public class UserValidationService {
     public void requireUniqueNickname(String nickname) {
         if (StringUtils.hasText(nickname)
             && userRepository.existsByNicknameAndUserTypeIn(nickname, KOIN_USER_TYPES)) {
-            throw CustomException.of(ApiResponseCode.DUPLICATE_NICKNAME, this);
+            throw CustomException.of(ApiResponseCode.DUPLICATE_NICKNAME, "nickname: " + nickname);
         }
     }
 
     public void requireUniquePhoneNumber(String phoneNumber) {
         if (StringUtils.hasText(phoneNumber)
             && userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
-            throw CustomException.of(ApiResponseCode.DUPLICATE_PHONE_NUMBER, this);
+            throw CustomException.of(ApiResponseCode.DUPLICATE_PHONE_NUMBER, "phoneNumber: " + phoneNumber);
         }
     }
 
     public void requireUniqueEmail(String email) {
         if (StringUtils.hasText(email)
             && userRepository.existsByEmailAndUserTypeIn(email, KOIN_USER_TYPES)) {
-            throw CustomException.of(ApiResponseCode.DUPLICATE_EMAIL, this);
+            throw CustomException.of(ApiResponseCode.DUPLICATE_EMAIL, "email: " + email);
         }
     }
 
     public void requireUniqueLoginId(String loginId) {
         if (StringUtils.hasText(loginId)
             && userRepository.existsByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES)) {
-            throw CustomException.of(ApiResponseCode.DUPLICATE_LOGIN_ID, this);
+            throw CustomException.of(ApiResponseCode.DUPLICATE_LOGIN_ID, "loginId: " + loginId);
         }
     }
 
@@ -81,21 +81,21 @@ public class UserValidationService {
         if (userRepository.existsByLoginIdAndUserTypeIn(loginId, KOIN_USER_TYPES)) {
             return;
         }
-        throw CustomException.of(ApiResponseCode.NOT_FOUND_USER, this);
+        throw CustomException.of(ApiResponseCode.NOT_FOUND_USER, "loginId: " + loginId);
     }
 
     public void requirePhoneNumberExists(String phoneNumber) {
         if (userRepository.existsByPhoneNumberAndUserTypeIn(phoneNumber, KOIN_USER_TYPES)) {
             return;
         }
-        throw CustomException.of(ApiResponseCode.NOT_FOUND_USER, this);
+        throw CustomException.of(ApiResponseCode.NOT_FOUND_USER, "phoneNumber: " + phoneNumber);
     }
 
     public void requireEmailExists(String email) {
         if (userRepository.existsByEmailAndUserTypeIn(email, KOIN_USER_TYPES)) {
             return;
         }
-        throw CustomException.of(ApiResponseCode.NOT_FOUND_USER, this);
+        throw CustomException.of(ApiResponseCode.NOT_FOUND_USER, "email: " + email);
     }
 
     public void matchLoginIdWithPhoneNumber(UserMatchLoginIdWithPhoneNumberRequest request) {

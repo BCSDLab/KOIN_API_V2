@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.community.keyword.exception;
 
-import in.koreatech.koin._common.exception.custom.KoinException;
+import in.koreatech.koin.global.exception.custom.KoinException;
 
 public class KeywordLimitExceededException extends KoinException {
 

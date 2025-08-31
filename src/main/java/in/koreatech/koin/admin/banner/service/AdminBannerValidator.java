@@ -2,7 +2,7 @@ package in.koreatech.koin.admin.banner.service;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin._common.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 
 @Service
 public class AdminBannerValidator {

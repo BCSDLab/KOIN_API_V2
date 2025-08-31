@@ -1,7 +1,7 @@
 package in.koreatech.koin.acceptance.fixture;
 
-import static in.koreatech.koin.admin.user.enums.TeamType.*;
-import static in.koreatech.koin.admin.user.enums.TrackType.BACKEND;
+import static in.koreatech.koin.admin.manager.enums.TeamType.*;
+import static in.koreatech.koin.admin.manager.enums.TrackType.BACKEND;
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserGender.WOMAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.admin.manager.model.Admin;
+import in.koreatech.koin.admin.manager.repository.AdminRepository;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.owner.model.Owner;

@@ -9,13 +9,13 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin._common.auth.JwtProvider;
-import in.koreatech.koin._common.auth.exception.AuthenticationException;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthenticationException;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.socket.config.auth.UserPrincipal;
-import in.koreatech.koin.socket.domain.session.service.implement.UserReader;
-import in.koreatech.koin.socket.domain.session.model.UserSession;
-import in.koreatech.koin.socket.domain.session.service.UserSessionService;
-import in.koreatech.koin.socket.domain.session.model.UserSessionStatus;
+import in.koreatech.koin.socket.session.model.WebSocketUserSession;
+import in.koreatech.koin.socket.session.service.WebSocketUserSessionService;
+import in.koreatech.koin.socket.session.model.WebSocketUserSessionStatus;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
  *     <li>JWT 토큰을 통해 사용자의 인증을 수행합니다.</li>
  *     <li>인증된 사용자의 정보를 WebSocket 세션에 설정합니다.</li>
  *     <li>서버와 웹 소켓 연결을 처음 진행 하는 사용자라면 세션을 새로 생성합니다.</li>
- *     <li>웹 소켓 연결이 진행되었었던 사용자는 레디스에 저장된 세션의 상태 {@link UserSessionStatus#ACTIVE_APP}로 설정 합니다 </li>
+ *     <li>웹 소켓 연결이 진행되었었던 사용자는 레디스에 저장된 세션의 상태 {@link WebSocketUserSessionStatus#ACTIVE_APP}로 설정 합니다 </li>
  * </ul>
  * </p>
  */
@@ -40,8 +40,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConnectInterceptor implements ChannelInterceptor {
 
-    private final UserReader userReader;
-    private final UserSessionService userSessionService;
+    private final UserRepository userRepository;
+    private final WebSocketUserSessionService webSocketUserSessionService;
     private final JwtProvider jwtProvider;
 
     @Override
@@ -58,19 +58,19 @@ public class ConnectInterceptor implements ChannelInterceptor {
 
                 Integer userId = jwtProvider.getUserId(accessToken);
 
-                User user = userReader.readUser(userId);
+                User user = userRepository.getById(userId);
                 UserPrincipal principal = UserPrincipal.of(user);
 
                 // WebSocket 세션에 User Principal 설정
                 accessor.setUser(principal);
 
                 // 사용자 세션 활성화
-                if (userSessionService.exists(principal.getUserId())) {
-                    userSessionService.updateUserStatus(principal.getUserId(), UserSessionStatus.ACTIVE_APP);
+                if (webSocketUserSessionService.exists(principal.getUserId())) {
+                    webSocketUserSessionService.updateUserStatus(principal.getUserId(), WebSocketUserSessionStatus.ACTIVE_APP);
                 } else {
-                    userSessionService.save(
+                    webSocketUserSessionService.save(
                         principal.getUserId(),
-                        UserSession.of(principal.getUserId(), principal.getDeviceToken())
+                        WebSocketUserSession.of(principal.getUserId(), principal.getDeviceToken())
                     );
                 }
             } catch (Exception e) {

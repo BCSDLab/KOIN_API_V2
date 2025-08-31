@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.domain.order.delivery.dto.RiderMessageResponse;
 import in.koreatech.koin.domain.order.delivery.dto.UserCampusDeliveryAddressRequest;
 import in.koreatech.koin.domain.order.delivery.dto.UserDeliveryAddressResponse;

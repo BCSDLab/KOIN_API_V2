@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
@@ -36,7 +36,7 @@ import in.koreatech.koin.domain.user.dto.UserAuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserChangePasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserChangePasswordSubmitRequest;
 import in.koreatech.koin.domain.user.dto.UserFindPasswordRequest;
-import in.koreatech.koin.web.host.ServerURL;
+import in.koreatech.koin.global.host.ServerURL;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

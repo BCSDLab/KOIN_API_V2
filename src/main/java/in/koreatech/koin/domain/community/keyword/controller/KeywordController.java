@@ -17,7 +17,7 @@ import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

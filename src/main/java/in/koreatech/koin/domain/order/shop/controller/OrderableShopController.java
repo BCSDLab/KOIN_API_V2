@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopDeliveryResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoDetailResponse;
 import in.koreatech.koin.domain.order.shop.dto.shopinfo.OrderableShopInfoSummaryResponse;
+import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopCategoryFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsFilterCriteria;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopsSortCriteria;
@@ -28,11 +29,15 @@ public class OrderableShopController implements OrderableShopApi {
     @GetMapping("/order/shops")
     public ResponseEntity<List<OrderableShopsResponse>> getOrderableShops(
         @RequestParam(name = "sorter", defaultValue = "NONE") OrderableShopsSortCriteria sortBy,
-        @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsSortCriteria,
+        @RequestParam(name = "filter", required = false) List<OrderableShopsFilterCriteria> orderableShopsFilterCriteria,
+        @RequestParam(name = "category_filter", required = false) Integer categoryFilterId,
         @RequestParam(name = "minimum_order_amount", required = false) Integer minimumOrderAmount
     ) {
+        OrderableShopCategoryFilterCriteria orderableShopCategoryFilterCriteria =
+            OrderableShopCategoryFilterCriteria.fromValue(categoryFilterId);
+
         List<OrderableShopsResponse> orderableShops = orderableShopListService.getOrderableShops(sortBy,
-            orderableShopsSortCriteria, minimumOrderAmount);
+            orderableShopsFilterCriteria, orderableShopCategoryFilterCriteria, minimumOrderAmount);
         return ResponseEntity.ok(orderableShops);
     }
 

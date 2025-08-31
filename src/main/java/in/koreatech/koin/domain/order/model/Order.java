@@ -8,7 +8,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
@@ -60,11 +60,11 @@ public class Order extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = FALSE;
 
-    @JoinColumn(name = "orderable_shop_id")
+    @JoinColumn(name = "orderable_shop_id", nullable = false, updatable = false)
     @ManyToOne(fetch = LAZY)
     private OrderableShop orderableShop;
 
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
     @ManyToOne(fetch = LAZY)
     private User user;
 

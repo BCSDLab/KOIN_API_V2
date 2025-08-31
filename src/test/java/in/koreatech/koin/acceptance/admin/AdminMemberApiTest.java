@@ -7,22 +7,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
-import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.domain.member.model.Member;
 import in.koreatech.koin.acceptance.fixture.MemberAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.TrackAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
+import in.koreatech.koin.admin.manager.model.Admin;
+import in.koreatech.koin.domain.member.model.Member;
 
-@SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 public class AdminMemberApiTest extends AcceptanceTest {
 
     @Autowired

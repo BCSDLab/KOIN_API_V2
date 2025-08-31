@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculationRepository;
-import in.koreatech.koin._common.auth.AuthContext;
+import in.koreatech.koin.global.auth.AuthContext;
 import lombok.RequiredArgsConstructor;
 
 @Aspect

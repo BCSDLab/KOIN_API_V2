@@ -13,15 +13,16 @@ import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.acceptance.fixture.BusAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.VersionAcceptanceFixture;
+import in.koreatech.koin.acceptance.support.JsonAssertions;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
@@ -36,13 +37,7 @@ import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
 import in.koreatech.koin.domain.version.model.Version;
-import in.koreatech.koin.acceptance.fixture.BusAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.VersionAcceptanceFixture;
-import in.koreatech.koin.acceptance.support.JsonAssertions;
 
-@SuppressWarnings("NonAsciiCharacters")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BusApiTest extends AcceptanceTest {
 
     @Autowired
@@ -263,8 +258,6 @@ class BusApiTest extends AcceptanceTest {
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, never()).storeRemainTime();
         verify(staticExpressBusClient, never()).storeRemainTime();
-        clear();
-        setUp();
     }
 
     @Test
@@ -278,7 +271,5 @@ class BusApiTest extends AcceptanceTest {
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, times(1)).storeRemainTime();
         verify(staticExpressBusClient, never()).storeRemainTime();
-        clear();
-        setUp();
     }
 }

@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.abtest.exception;
 
-import in.koreatech.koin._common.exception.custom.DuplicationException;
+import in.koreatech.koin.global.exception.custom.DuplicationException;
 
 public class AbtestAlreadyExistException extends DuplicationException {
 

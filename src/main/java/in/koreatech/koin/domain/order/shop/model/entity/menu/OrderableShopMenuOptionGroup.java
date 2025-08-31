@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin._common.code.ApiResponseCode;
-import in.koreatech.koin._common.exception.CustomException;
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,6 +22,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -77,5 +78,23 @@ public class OrderableShopMenuOptionGroup extends BaseEntity {
         if (maxSelect != null && selectionCount > maxSelect) {
             throw CustomException.of(ApiResponseCode.MAX_SELECTION_EXCEEDED);
         }
+    }
+
+    public void addMenuOption(OrderableShopMenuOption orderableShopMenuOption) {
+        menuOptions.add(orderableShopMenuOption);
+    }
+
+    @Builder
+    public OrderableShopMenuOptionGroup(OrderableShop orderableShop, String name, String description,
+        Boolean isRequired,
+        Integer minSelect, Integer maxSelect, Boolean isDeleted, List<OrderableShopMenuOption> menuOptions) {
+        this.orderableShop = orderableShop;
+        this.name = name;
+        this.description = description;
+        this.isRequired = isRequired;
+        this.minSelect = minSelect;
+        this.maxSelect = maxSelect;
+        this.isDeleted = isDeleted;
+        this.menuOptions = menuOptions;
     }
 }

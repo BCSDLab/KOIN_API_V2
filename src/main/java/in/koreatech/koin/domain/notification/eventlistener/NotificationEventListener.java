@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.UserMarketingAgreementEvent;
+import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.shop.model.shop;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin._common.model.BaseEntity;
+import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartItemsCountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
@@ -43,6 +45,7 @@ public class CartController implements CartApi {
     }
 
     @PostMapping("/cart/add")
+    @DuplicateGuard(key = "#userId + ':' + #cartAddItemRequest.toString()", timeoutSeconds = 300)
     public ResponseEntity<Void> addItem(
         @RequestBody @Valid CartAddItemRequest cartAddItemRequest,
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
@@ -117,9 +120,18 @@ public class CartController implements CartApi {
 
     @GetMapping("/cart/validate")
     public ResponseEntity<Void> getCartValidateResult(
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId,
+        @RequestParam(name = "order_type") OrderType orderType
+    ) {
+        cartQueryService.validateCart(userId, orderType);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/cart/items/count")
+    public ResponseEntity<CartItemsCountSummaryResponse> getCartItemsTotalCount(
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     ) {
-        cartQueryService.validateCart(userId);
-        return ResponseEntity.ok().build();
+        CartItemsCountSummaryResponse cartItemsTotalCount = cartQueryService.getCartItemsCountSummary(userId);
+        return ResponseEntity.ok(cartItemsTotalCount);
     }
 }

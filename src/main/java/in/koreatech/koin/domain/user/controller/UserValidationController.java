@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin._common.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.domain.user.dto.validation.UserAccessTokenRequest;
 import in.koreatech.koin.domain.user.dto.validation.UserCorrectPasswordRequest;
 import in.koreatech.koin.domain.user.dto.validation.UserExistsEmailRequest;

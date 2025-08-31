@@ -7,10 +7,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin._common.event.ImageDeletedEvent;
-import in.koreatech.koin._common.event.ImageSensitiveDeletedEvent;
-import in.koreatech.koin._common.event.ImagesDeletedEvent;
-import in.koreatech.koin._common.event.ImagesSensitiveDeletedEvent;
+import in.koreatech.koin.common.event.ImageDeletedEvent;
+import in.koreatech.koin.common.event.ImageSensitiveDeletedEvent;
+import in.koreatech.koin.common.event.ImagesDeletedEvent;
+import in.koreatech.koin.common.event.ImagesSensitiveDeletedEvent;
 import in.koreatech.koin.infrastructure.s3.client.CloudFrontClientWrapper;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;

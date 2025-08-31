@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.ownershop.service;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin._common.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
