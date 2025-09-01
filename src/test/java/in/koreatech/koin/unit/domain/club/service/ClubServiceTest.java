@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,8 +22,11 @@ import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
+import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubHot;
+import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.repository.ClubEventImageRepository;
@@ -225,6 +230,74 @@ public class ClubServiceTest {
         assertThatThrownBy(() -> clubService.updateClubIntroduction(clubId, request, studentId))
             .isInstanceOf(AuthorizationException.class)
             .hasMessageContaining("권한이 없습니다.");
+    }
+
+    @Test
+    void 활성화된_동아리를_상세_조회한다() {
+        Integer clubId = 1;
+        Integer studentId = 1;
+        Club club = ClubFixture.활성화_BCSD_동아리();
+
+        List<ClubSNS> snsList = List.of(
+            new ClubSNS(club, SNSType.INSTAGRAM, "https://instagram.com/bcsdlab")
+        );
+
+        ClubHot clubHot1 = ClubHot.builder()
+            .id(1)
+            .club(club)
+            .ranking(1)
+            .periodHits(100)
+            .startDate(LocalDate.of(2025, 8, 21))
+            .endDate(LocalDate.of(2025, 8, 21))
+            .build();
+
+        ClubHot clubHot2 = ClubHot.builder()
+            .id(2)
+            .club(club)
+            .ranking(1)
+            .periodHits(150)
+            .startDate(LocalDate.of(2025, 8, 28))
+            .endDate(LocalDate.of(2025, 8, 28))
+            .build();
+
+        when(clubRepository.getById(clubId)).thenReturn(club);
+        when(clubSNSRepository.findAllByClub(club)).thenReturn(snsList);
+        when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+        when(clubLikeRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+        when(clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+        when(clubHotRepository.findTopByClubIdOrderByIdDesc(clubId)).thenReturn(Optional.of(clubHot2));
+        when(clubHotRepository.findAllByOrderByIdDesc()).thenReturn(List.of(clubHot2, clubHot1));
+
+        // when
+        ClubResponse response = clubService.getClub(clubId, studentId);
+
+        // then
+        assertThat(response.name()).isEqualTo(club.getName());
+        assertThat(response.manager()).isTrue();
+        assertThat(response.isLiked()).isTrue();
+        assertThat(response.isRecruitSubscribed()).isTrue();
+
+        assertThat(response.hotStatus()).isNotNull();
+        assertThat(response.hotStatus().month()).isEqualTo(8);
+        assertThat(response.hotStatus().weekOfMonth()).isEqualTo(4);
+        assertThat(response.hotStatus().streakCount()).isEqualTo(2);
+
+        verify(clubHitsRedisRepository).incrementHits(clubId);
+    }
+
+    @Test
+    void 비활성화된_동아리를_상세_조회_시_예외를_발생한다() {
+        // given
+        Integer clubId = 1;
+        Integer studentId = 1;
+        Club club = ClubFixture.비활성화_BCSD_동아리();
+
+        when(clubRepository.getById(clubId)).thenReturn(club);
+
+        // when / then
+        assertThatThrownBy(() -> clubService.getClub(clubId, studentId))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("비활성화 동아리입니다.");
     }
 }
 
