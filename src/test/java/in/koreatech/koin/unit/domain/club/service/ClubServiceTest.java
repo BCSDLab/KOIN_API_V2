@@ -81,7 +81,7 @@ public class ClubServiceTest {
     @Mock private ClubEventRepository clubEventRepository;
     @Mock private ClubEventImageRepository clubEventImageRepository;
     @Mock private ClubEventSubscriptionRepository clubEventSubscriptionRepository;
-    
+
     @InjectMocks private ClubService clubService;
 
     @Nested
@@ -264,6 +264,7 @@ public class ClubServiceTest {
 
         @Test
         void 활성화된_동아리를_상세_조회한다() {
+            // given
             Club club = ClubFixture.활성화_BCSD_동아리(1);
 
             List<ClubSNS> snsList = List.of(
@@ -315,9 +316,11 @@ public class ClubServiceTest {
 
         @Test
         void 비활성화된_동아리를_상세_조회_시_예외를_발생한다() {
+            // given
             Club club = ClubFixture.비활성화_BCSD_동아리(1);
             when(clubRepository.getById(clubId)).thenReturn(club);
 
+            // when / then
             assertThatThrownBy(() -> clubService.getClub(clubId, studentId))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("비활성화 동아리입니다.");
@@ -351,7 +354,8 @@ public class ClubServiceTest {
                 ClubBaseInfoFixture.동아리_기본_정보(3, "테스트3", "공연", ClubRecruitmentStatus.NONE)
             );
 
-            when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
+            when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId))
+                .thenReturn(clubBaseInfos);
 
             // when
             ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
@@ -373,10 +377,13 @@ public class ClubServiceTest {
             query = null;
             userId = 1;
 
-            when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
+            when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId))
+                .thenReturn(clubBaseInfos);
 
             // when
-            ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
+            ClubsByCategoryResponse response = clubService.getClubByCategory(
+                categoryId, isRecruiting, sortType, query, userId
+            );
 
             // then
             assertThat(response.clubs())
@@ -390,21 +397,23 @@ public class ClubServiceTest {
             // given
             List<ClubBaseInfo> clubBaseInfos = List.of(
                 ClubBaseInfoFixture.동아리_기본_정보(1, "BCSD Lab", "학술", ClubRecruitmentStatus.RECRUITING)
-
             );
 
             query = "Lab";
 
-            when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
+            when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId))
+                .thenReturn(clubBaseInfos);
 
             // when
-            ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
+            ClubsByCategoryResponse response = clubService.getClubByCategory(
+                categoryId, isRecruiting, sortType, query, userId
+            );
 
             // then
             assertThat(response.clubs())
                 .hasSize(1)
                 .extracting("name")
-                .anyMatch(name -> ((String) name).toLowerCase().contains(query.toLowerCase()));
+                .anyMatch(name -> ((String)name).toLowerCase().contains(query.toLowerCase()));
         }
 
         @Test
@@ -417,10 +426,13 @@ public class ClubServiceTest {
 
             isRecruiting = true;
 
-            when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
+            when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId))
+                .thenReturn(clubBaseInfos);
 
             // when
-            ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
+            ClubsByCategoryResponse response = clubService.getClubByCategory(
+                categoryId, isRecruiting, sortType, query, userId
+            );
 
             // then
             assertThat(response.clubs())
@@ -441,7 +453,7 @@ public class ClubServiceTest {
             assertThatThrownBy(() -> clubService.getClubByCategory(categoryId, isRecruiting, sortType1, query, userId))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
-                    CustomException ce = (CustomException) ex;
+                    CustomException ce = (CustomException)ex;
                     assertThat(ce.getErrorCode()).isEqualTo(ApiResponseCode.NOT_ALLOWED_RECRUITING_SORT_TYPE);
                     assertThat(ce.getMessage()).contains("해당 정렬 방식은 모집 중일 때만 사용할 수 있습니다.");
                 });
@@ -449,7 +461,7 @@ public class ClubServiceTest {
             assertThatThrownBy(() -> clubService.getClubByCategory(categoryId, isRecruiting, sortType2, query, userId))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
-                    CustomException ce = (CustomException) ex;
+                    CustomException ce = (CustomException)ex;
                     assertThat(ce.getErrorCode()).isEqualTo(ApiResponseCode.NOT_ALLOWED_RECRUITING_SORT_TYPE);
                     assertThat(ce.getMessage()).contains("해당 정렬 방식은 모집 중일 때만 사용할 수 있습니다.");
                 });
