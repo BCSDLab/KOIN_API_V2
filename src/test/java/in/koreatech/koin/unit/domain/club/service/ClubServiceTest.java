@@ -22,8 +22,11 @@ import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
+import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubBaseInfo;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubHot;
 import in.koreatech.koin.domain.club.model.ClubSNS;
@@ -48,6 +51,8 @@ import in.koreatech.koin.domain.club.service.ClubService;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.unit.fixture.ClubFixture;
 
 @ExtendWith(MockitoExtension.class)
@@ -298,6 +303,200 @@ public class ClubServiceTest {
         assertThatThrownBy(() -> clubService.getClub(clubId, studentId))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("비활성화 동아리입니다.");
+    }
+
+    @Test
+    void 모든_동아리를_조회한다() {
+        // given
+        List<ClubBaseInfo> clubBaseInfos = List.of(
+            new ClubBaseInfo(
+                1,
+                "BCSD Lab",
+                "학술",
+                100,
+                "https://bcsdlab.com/static/img/logo.d89d9cc.png",
+                true,
+                false,
+                LocalDate.now().minusDays(1),
+                LocalDate.now(),
+                false
+                ),
+            new ClubBaseInfo(
+                2,
+                "테스트",
+                "테스트",
+                100,
+                "https://example.com/static/img/logo.png",
+                true,
+                false,
+                LocalDate.now().minusDays(1),
+                LocalDate.now(),
+                false
+            )
+        );
+
+        Integer categoryId = null;
+        Boolean isRecruiting = false;
+        ClubSortType sortType = ClubSortType.CREATED_AT_ASC;
+        String query = null;
+        Integer userId = 1;
+
+        when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
+
+        // when
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
+
+        // then
+        assertThat(response.clubs()).hasSize(2);
+    }
+
+    @Test
+    void 특정_카테고리를_지닌_모든_동아리를_조회한다() {
+        // given
+        List<ClubBaseInfo> clubBaseInfos = List.of(
+            new ClubBaseInfo(
+                1,
+                "BCSD Lab",
+                "학술",
+                100,
+                "https://bcsdlab.com/static/img/logo.d89d9cc.png",
+                true,
+                false,
+                LocalDate.now().minusDays(1),
+                LocalDate.now(),
+                false
+            )
+        );
+
+        Integer categoryId = 1;
+        Boolean isRecruiting = false;
+        ClubSortType sortType = ClubSortType.CREATED_AT_ASC;
+        String query = null;
+        Integer userId = 1;
+
+        when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
+
+        // when
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
+
+        // then
+        assertThat(response.clubs())
+            .hasSize(1)
+            .extracting("category")
+            .containsExactly("학술");
+    }
+
+    @Test
+    void query_내용을_지닌_모든_동아리를_조회한다() {
+        // given
+        List<ClubBaseInfo> clubBaseInfos = List.of(
+            new ClubBaseInfo(
+                1,
+                "BCSD Lab",
+                "학술",
+                100,
+                "https://bcsdlab.com/static/img/logo.d89d9cc.png",
+                true,
+                false,
+                LocalDate.now().minusDays(1),
+                LocalDate.now(),
+                false
+            )
+        );
+
+        Integer categoryId = null;
+        Boolean isRecruiting = false;
+        ClubSortType sortType = ClubSortType.CREATED_AT_ASC;
+        String query = "Lab";
+        Integer userId = 1;
+
+        when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
+
+        // when
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
+
+        // then
+        assertThat(response.clubs())
+            .hasSize(1)
+            .extracting("name")
+            .anyMatch(name -> ((String) name).toLowerCase().contains(query.toLowerCase()));
+    }
+
+    @Test
+    void 인원_모집중인_모든_동아리를_조회한다() {
+        // given
+        List<ClubBaseInfo> clubBaseInfos = List.of(
+            new ClubBaseInfo(
+                1,
+                "BCSD Lab",
+                "학술",
+                100,
+                "https://bcsdlab.com/static/img/logo.d89d9cc.png",
+                true,
+                false,
+                null,
+                null,
+                true
+            ),
+            new ClubBaseInfo(
+                2,
+                "테스트",
+                "테스트",
+                100,
+                "https://example.com/static/img/logo.png",
+                true,
+                false,
+                LocalDate.now().minusDays(1),
+                LocalDate.now(),
+                false
+            )
+        );
+
+        Integer categoryId = null;
+        Boolean isRecruiting = true;
+        ClubSortType sortType = ClubSortType.CREATED_AT_ASC;
+        String query = null;
+        Integer userId = 1;
+
+        when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
+
+        // when
+        ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
+
+        // then
+        assertThat(response.clubs())
+            .hasSize(2)
+            .extracting("recruitmentInfo")
+            .extracting("status")
+            .containsAnyOf("ALWAYS", "RECRUITING");
+    }
+
+    @Test
+    void 동아리_모집_관련_정렬이지만_모집중이_아닌_옵션을_선택_시_예외를_발생한다() {
+        // given
+        Integer categoryId = null;
+        Boolean isRecruiting = false;
+        ClubSortType sortType1 = ClubSortType.RECRUITING_DEADLINE_ASC;
+        ClubSortType sortType2 = ClubSortType.RECRUITMENT_UPDATED_DESC;
+        String query = null;
+        Integer userId = 1;
+
+        // when / then
+        assertThatThrownBy(() -> clubService.getClubByCategory(categoryId, isRecruiting, sortType1, query, userId))
+            .isInstanceOf(CustomException.class)
+            .satisfies(ex -> {
+                CustomException ce = (CustomException) ex;
+                assertThat(ce.getErrorCode()).isEqualTo(ApiResponseCode.NOT_ALLOWED_RECRUITING_SORT_TYPE);
+                assertThat(ce.getMessage()).contains("해당 정렬 방식은 모집 중일 때만 사용할 수 있습니다.");
+            });
+
+        assertThatThrownBy(() -> clubService.getClubByCategory(categoryId, isRecruiting, sortType2, query, userId))
+            .isInstanceOf(CustomException.class)
+            .satisfies(ex -> {
+                CustomException ce = (CustomException) ex;
+                assertThat(ce.getErrorCode()).isEqualTo(ApiResponseCode.NOT_ALLOWED_RECRUITING_SORT_TYPE);
+                assertThat(ce.getMessage()).contains("해당 정렬 방식은 모집 중일 때만 사용할 수 있습니다.");
+            });
     }
 }
 
