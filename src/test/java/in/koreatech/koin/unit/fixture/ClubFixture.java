@@ -11,14 +11,14 @@ public class ClubFixture {
 
     private ClubFixture() {}
 
-    public static Club 활성화_BCSD_동아리() {
+    public static Club 활성화_BCSD_동아리(Integer id) {
         ClubCategory category = ClubCategory.builder()
             .id(1)
             .name("학술")
             .build();
 
         Club club = Club.builder()
-            .id(1)
+            .id(id)
             .name("BCSD Lab")
             .normalizedName("BCSDLab")
             .hits(1234)
@@ -38,14 +38,14 @@ public class ClubFixture {
         return club;
     }
 
-    public static Club 비활성화_BCSD_동아리() {
+    public static Club 비활성화_BCSD_동아리(Integer id) {
         ClubCategory category = ClubCategory.builder()
             .id(1)
             .name("학술")
             .build();
 
         Club club = Club.builder()
-            .id(1)
+            .id(id)
             .name("BCSD Lab")
             .normalizedName("BCSDLab")
             .hits(1234)
@@ -64,4 +64,6 @@ public class ClubFixture {
 
         return club;
     }
+
+
 }

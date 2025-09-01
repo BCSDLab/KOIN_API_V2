@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
+import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.model.Club;
@@ -55,6 +56,7 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.unit.fixture.ClubBaseInfoFixture;
 import in.koreatech.koin.unit.fixture.ClubFixture;
 
 @ExtendWith(MockitoExtension.class)
@@ -152,7 +154,7 @@ public class ClubServiceTest {
 
             clubId = 1;
             studentId = 1;
-            club = ClubFixture.활성화_BCSD_동아리();
+            club = ClubFixture.활성화_BCSD_동아리(1);
         }
 
         @Test
@@ -217,7 +219,7 @@ public class ClubServiceTest {
             request = new ClubIntroductionUpdateRequest("수정된 동아리 소개 문자열");
             clubId = 1;
             studentId = 1;
-            club = ClubFixture.활성화_BCSD_동아리();
+            club = ClubFixture.활성화_BCSD_동아리(1);
         }
 
         @Test
@@ -262,7 +264,7 @@ public class ClubServiceTest {
 
         @Test
         void 활성화된_동아리를_상세_조회한다() {
-            Club club = ClubFixture.활성화_BCSD_동아리();
+            Club club = ClubFixture.활성화_BCSD_동아리(1);
 
             List<ClubSNS> snsList = List.of(
                 new ClubSNS(club, SNSType.INSTAGRAM, "https://instagram.com/bcsdlab")
@@ -313,7 +315,7 @@ public class ClubServiceTest {
 
         @Test
         void 비활성화된_동아리를_상세_조회_시_예외를_발생한다() {
-            Club club = ClubFixture.비활성화_BCSD_동아리();
+            Club club = ClubFixture.비활성화_BCSD_동아리(1);
             when(clubRepository.getById(clubId)).thenReturn(club);
 
             assertThatThrownBy(() -> clubService.getClub(clubId, studentId))
@@ -344,30 +346,9 @@ public class ClubServiceTest {
         void 모든_동아리를_조회한다() {
             // given
             List<ClubBaseInfo> clubBaseInfos = List.of(
-                new ClubBaseInfo(
-                    1,
-                    "BCSD Lab",
-                    "학술",
-                    100,
-                    "https://bcsdlab.com/static/img/logo.d89d9cc.png",
-                    true,
-                    false,
-                    LocalDate.now().minusDays(1),
-                    LocalDate.now(),
-                    false
-                ),
-                new ClubBaseInfo(
-                    2,
-                    "테스트",
-                    "테스트",
-                    100,
-                    "https://example.com/static/img/logo.png",
-                    true,
-                    false,
-                    LocalDate.now().minusDays(1),
-                    LocalDate.now(),
-                    false
-                )
+                ClubBaseInfoFixture.동아리_기본_정보(1, "테스트1", "학술", ClubRecruitmentStatus.RECRUITING),
+                ClubBaseInfoFixture.동아리_기본_정보(2, "테스트2", "운동", ClubRecruitmentStatus.ALWAYS),
+                ClubBaseInfoFixture.동아리_기본_정보(3, "테스트3", "공연", ClubRecruitmentStatus.NONE)
             );
 
             when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId)).thenReturn(clubBaseInfos);
@@ -376,25 +357,14 @@ public class ClubServiceTest {
             ClubsByCategoryResponse response = clubService.getClubByCategory(categoryId, isRecruiting, sortType, query, userId);
 
             // then
-            assertThat(response.clubs()).hasSize(2);
+            assertThat(response.clubs()).hasSize(3);
         }
 
         @Test
         void 특정_카테고리를_지닌_모든_동아리를_조회한다() {
             // given
             List<ClubBaseInfo> clubBaseInfos = List.of(
-                new ClubBaseInfo(
-                    1,
-                    "BCSD Lab",
-                    "학술",
-                    100,
-                    "https://bcsdlab.com/static/img/logo.d89d9cc.png",
-                    true,
-                    false,
-                    LocalDate.now().minusDays(1),
-                    LocalDate.now(),
-                    false
-                )
+                ClubBaseInfoFixture.동아리_기본_정보(1, "테스트1", "학술", ClubRecruitmentStatus.RECRUITING)
             );
 
             categoryId = 1;
@@ -419,18 +389,8 @@ public class ClubServiceTest {
         void query_내용을_지닌_모든_동아리를_조회한다() {
             // given
             List<ClubBaseInfo> clubBaseInfos = List.of(
-                new ClubBaseInfo(
-                    1,
-                    "BCSD Lab",
-                    "학술",
-                    100,
-                    "https://bcsdlab.com/static/img/logo.d89d9cc.png",
-                    true,
-                    false,
-                    LocalDate.now().minusDays(1),
-                    LocalDate.now(),
-                    false
-                )
+                ClubBaseInfoFixture.동아리_기본_정보(1, "BCSD Lab", "학술", ClubRecruitmentStatus.RECRUITING)
+
             );
 
             query = "Lab";
@@ -451,30 +411,8 @@ public class ClubServiceTest {
         void 인원_모집중인_모든_동아리를_조회한다() {
             // given
             List<ClubBaseInfo> clubBaseInfos = List.of(
-                new ClubBaseInfo(
-                    1,
-                    "BCSD Lab",
-                    "학술",
-                    100,
-                    "https://bcsdlab.com/static/img/logo.d89d9cc.png",
-                    true,
-                    false,
-                    null,
-                    null,
-                    true
-                ),
-                new ClubBaseInfo(
-                    2,
-                    "테스트",
-                    "테스트",
-                    100,
-                    "https://example.com/static/img/logo.png",
-                    true,
-                    false,
-                    LocalDate.now().minusDays(1),
-                    LocalDate.now(),
-                    false
-                )
+                ClubBaseInfoFixture.동아리_기본_정보(1, "테스트1", "학술", ClubRecruitmentStatus.RECRUITING),
+                ClubBaseInfoFixture.동아리_기본_정보(2, "테스트2", "학술", ClubRecruitmentStatus.ALWAYS)
             );
 
             isRecruiting = true;
