@@ -111,4 +111,32 @@ public class TemporaryPayment {
             temporaryMenuItems
         );
     }
+
+    public static TemporaryPayment toTakeOutEntity(
+        String pgOrderId,
+        Integer userId,
+        Integer orderableShopId,
+        String phoneNumber,
+        String toOwner,
+        Boolean provideCutlery,
+        Integer totalProductPrice,
+        Integer totalPrice,
+        List<TemporaryMenuItems> temporaryMenuItems
+    ) {
+        return new TemporaryPayment(
+            pgOrderId,
+            userId,
+            orderableShopId,
+            phoneNumber,
+            OrderType.TAKE_OUT,
+            null,
+            toOwner,
+            null,
+            provideCutlery,
+            totalProductPrice,
+            null,
+            totalPrice,
+            temporaryMenuItems
+        );
+    }
 }

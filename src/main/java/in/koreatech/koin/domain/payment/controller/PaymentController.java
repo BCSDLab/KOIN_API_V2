@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.payment.dto.request.TemporaryDeliveryPaymentSaveRequest;
+import in.koreatech.koin.domain.payment.dto.request.TemporaryTakeoutPaymentSaveRequest;
 import in.koreatech.koin.domain.payment.dto.response.TemporaryPaymentResponse;
 import in.koreatech.koin.domain.payment.service.PaymentService;
 import in.koreatech.koin.global.auth.Auth;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/payments")
-public class PaymentController {
+public class PaymentController implements PaymentApi {
 
     private final PaymentService paymentService;
 
@@ -28,6 +29,15 @@ public class PaymentController {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         TemporaryPaymentResponse response = paymentService.createTemporaryDeliveryPayment(userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/takeout/temporary")
+    public ResponseEntity<TemporaryPaymentResponse> createTemporaryTakeoutPayment(
+        @RequestBody @Valid final TemporaryTakeoutPaymentSaveRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TemporaryPaymentResponse response = paymentService.createTemporaryTakeoutPayment(userId, request);
         return ResponseEntity.ok(response);
     }
 }
