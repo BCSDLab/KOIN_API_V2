@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import in.koreatech.koin.unit.fixture.ClubCategoryFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -184,10 +185,7 @@ public class ClubServiceTest {
                 false
             );
 
-            newCategory = ClubCategory.builder()
-                .id(2)
-                .name("문화")
-                .build();
+            newCategory = ClubCategoryFixture.동아리_카테고리(2, "문화");
 
             clubId = 1;
             studentId = 1;

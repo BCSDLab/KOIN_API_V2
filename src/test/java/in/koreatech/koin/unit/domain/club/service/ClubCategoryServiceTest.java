@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.List;
 
+import in.koreatech.koin.unit.fixture.ClubCategoryFixture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,14 +30,8 @@ public class ClubCategoryServiceTest {
     void 동아리의_모든_카테고리를_조회한다() {
         // given
         List<ClubCategory> clubCategories = List.of(
-            ClubCategory.builder()
-                .id(1)
-                .name("학술")
-                .build(),
-            ClubCategory.builder()
-                .id(2)
-                .name("운동")
-                .build()
+            ClubCategoryFixture.동아리_카테고리(1, "학술"),
+            ClubCategoryFixture.동아리_카테고리(2, "운동")
         );
         when(clubCategoryRepository.findAll()).thenReturn(clubCategories);
 

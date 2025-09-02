@@ -12,13 +12,9 @@ public class ClubFixture {
     private ClubFixture() {}
 
     public static Club 활성화_BCSD_동아리(Integer id) {
-        ClubCategory category = ClubCategory.builder()
-            .id(1)
-            .name("학술")
-            .build();
+        ClubCategory category = ClubCategoryFixture.동아리_카테고리(1, "학술");
 
         Club club = Club.builder()
-            .id(id)
             .name("BCSD Lab")
             .normalizedName("BCSDLab")
             .hits(1234)
@@ -33,19 +29,16 @@ public class ClubFixture {
             .clubCategory(category)
             .build();
 
+        ReflectionTestUtils.setField(club, "id", 1);
         ReflectionTestUtils.setField(club, "updatedAt", LocalDateTime.now());
 
         return club;
     }
 
     public static Club 비활성화_BCSD_동아리(Integer id) {
-        ClubCategory category = ClubCategory.builder()
-            .id(1)
-            .name("학술")
-            .build();
+        ClubCategory category = ClubCategoryFixture.동아리_카테고리(1, "학술");
 
         Club club = Club.builder()
-            .id(id)
             .name("BCSD Lab")
             .normalizedName("BCSDLab")
             .hits(1234)
@@ -60,10 +53,9 @@ public class ClubFixture {
             .clubCategory(category)
             .build();
 
+        ReflectionTestUtils.setField(club, "id", 1);
         ReflectionTestUtils.setField(club, "updatedAt", LocalDateTime.now());
 
         return club;
     }
-
-
 }
