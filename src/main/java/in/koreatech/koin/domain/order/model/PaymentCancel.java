@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -50,4 +51,19 @@ public class PaymentCancel {
     @JoinColumn(name = "payment_id")
     @ManyToOne(fetch = LAZY)
     private Payment payment;
+
+    @Builder
+    private PaymentCancel(
+        String transactionKey,
+        String cancelReason,
+        Integer cancelAmount,
+        LocalDateTime canceledAt,
+        Payment payment
+    ) {
+        this.transactionKey = transactionKey;
+        this.cancelReason = cancelReason;
+        this.cancelAmount = cancelAmount;
+        this.canceledAt = canceledAt;
+        this.payment = payment;
+    }
 }

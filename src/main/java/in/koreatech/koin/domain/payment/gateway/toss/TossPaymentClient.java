@@ -15,7 +15,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.koreatech.koin.domain.payment.gateway.toss.dto.request.TossPaymentCancelRequest;
 import in.koreatech.koin.domain.payment.gateway.toss.dto.request.TossPaymentConfirmRequest;
+import in.koreatech.koin.domain.payment.gateway.toss.dto.response.TossPaymentCancelResponse;
 import in.koreatech.koin.domain.payment.gateway.toss.dto.response.TossPaymentConfirmResponse;
 import in.koreatech.koin.domain.payment.gateway.toss.exception.TossPaymentErrorCode;
 import in.koreatech.koin.domain.payment.gateway.toss.exception.TossPaymentErrorResponse;
@@ -27,6 +29,7 @@ import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 public class TossPaymentClient {
 
     private static final String AUTH_PREFIX = "Basic ";
+    private static final String IDEMPOTENT_KEY = "Idempotency-Key";
 
     private final WebClient webClient;
     private final String secretKey;
@@ -60,6 +63,24 @@ public class TossPaymentClient {
             throw handleErrorResponse(e);
         } catch (Exception e) {
             throw CustomException.of(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public TossPaymentCancelResponse requestCancel(String paymentKey, String cancelReason, String IdempotencyKey) {
+        TossPaymentCancelRequest request = new TossPaymentCancelRequest(cancelReason);
+
+        try {
+            return webClient.post()
+                .uri("/{paymentKey}/cancel", paymentKey)
+                .header(IDEMPOTENT_KEY, IdempotencyKey)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(TossPaymentCancelResponse.class)
+                .block();
+        } catch (WebClientResponseException e) {
+            throw handleErrorResponse(e);
+        } catch (Exception e) {
+            throw new KoinIllegalStateException("서버 에러가 발생했습니다. 관리자에게 문의해주세요.");
         }
     }
 

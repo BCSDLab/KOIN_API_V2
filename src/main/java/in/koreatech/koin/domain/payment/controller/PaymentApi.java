@@ -3,17 +3,21 @@ package in.koreatech.koin.domain.payment.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import in.koreatech.koin.domain.payment.dto.request.PaymentCancelRequest;
 import in.koreatech.koin.domain.payment.dto.request.PaymentConfirmRequest;
 import in.koreatech.koin.domain.payment.dto.request.TemporaryDeliveryPaymentSaveRequest;
 import in.koreatech.koin.domain.payment.dto.request.TemporaryTakeoutPaymentSaveRequest;
+import in.koreatech.koin.domain.payment.dto.response.PaymentCancelResponse;
 import in.koreatech.koin.domain.payment.dto.response.PaymentConfirmResponse;
 import in.koreatech.koin.domain.payment.dto.response.TemporaryPaymentResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -85,6 +89,25 @@ public interface PaymentApi {
     @PostMapping("/confirm")
     ResponseEntity<PaymentConfirmResponse> confirmPayment(
         @RequestBody @Valid final PaymentConfirmRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @Operation(
+        summary = "결제 취소를 한다.",
+        description = """
+            ## 결제 취소
+            결제 키는 URL 경로에 포함되며, 결제 키에 해당하는 결제를 취소합니다.
+            취소 사유는 요청 본문에 포함됩니다.
+            
+            ## Path Variable
+            - `paymentId`: 결제 고유 ID
+            """
+    )
+    @PostMapping("/{paymentId}/cancel")
+    ResponseEntity<PaymentCancelResponse> cancelPayment(
+        @Parameter(description = "결제 고유 ID", example = "1")
+        @PathVariable(value = "paymentId") final Integer paymentId,
+        @RequestBody @Valid final PaymentCancelRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }
