@@ -62,25 +62,62 @@ import in.koreatech.koin.unit.fixture.ClubFixture;
 @ExtendWith(MockitoExtension.class)
 public class ClubServiceTest {
 
-    @Mock private ClubHotRedisRepository hotClubRedisRepository;
-    @Mock private ClubHotRepository clubHotRepository;
-    @Mock private ClubQnaRepository clubQnaRepository;
-    @Mock private ClubRepository clubRepository;
-    @Mock private StudentRepository studentRepository;
-    @Mock private ClubManagerRepository clubManagerRepository;
-    @Mock private ClubCategoryRepository clubCategoryRepository;
-    @Mock private ClubSNSRepository clubSNSRepository;
-    @Mock private ClubLikeRepository clubLikeRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private ClubCreateRedisRepository clubCreateRedisRepository;
-    @Mock private ApplicationEventPublisher eventPublisher;
-    @Mock private ClubHitsRedisRepository clubHitsRedisRepository;
-    @Mock private ClubRecruitmentRepository clubRecruitmentRepository;
-    @Mock private ClubListQueryRepository clubListQueryRepository;
-    @Mock private ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
-    @Mock private ClubEventRepository clubEventRepository;
-    @Mock private ClubEventImageRepository clubEventImageRepository;
-    @Mock private ClubEventSubscriptionRepository clubEventSubscriptionRepository;
+    @Mock
+    private ClubHotRedisRepository hotClubRedisRepository;
+
+    @Mock
+    private ClubHotRepository clubHotRepository;
+
+    @Mock
+    private ClubQnaRepository clubQnaRepository;
+
+    @Mock
+    private ClubRepository clubRepository;
+
+    @Mock
+    private StudentRepository studentRepository;
+
+    @Mock
+    private ClubManagerRepository clubManagerRepository;
+
+    @Mock
+    private ClubCategoryRepository clubCategoryRepository;
+
+    @Mock
+    private ClubSNSRepository clubSNSRepository;
+
+    @Mock
+    private ClubLikeRepository clubLikeRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ClubCreateRedisRepository clubCreateRedisRepository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private ClubHitsRedisRepository clubHitsRedisRepository;
+
+    @Mock
+    private ClubRecruitmentRepository clubRecruitmentRepository;
+
+    @Mock
+    private ClubListQueryRepository clubListQueryRepository;
+
+    @Mock
+    private ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
+
+    @Mock
+    private ClubEventRepository clubEventRepository;
+
+    @Mock
+    private ClubEventImageRepository clubEventImageRepository;
+
+    @Mock
+    private ClubEventSubscriptionRepository clubEventSubscriptionRepository;
 
     @InjectMocks private ClubService clubService;
 
