@@ -268,8 +268,28 @@ public class ClubServiceTest {
             // when
             ClubResponse response = clubService.updateClubIntroduction(clubId, request, studentId);
 
-            // then
+            // then / 소개가 정상적으로 바뀌었는 지 확인
             assertThat(response.introduction()).isEqualTo(request.introduction());
+
+            // then / 그 이외 필드에서 변경된 값이 있는 지 확인
+            assertThat(response.id()).isEqualTo(club.getId());
+            assertThat(response.name()).isEqualTo(club.getName());
+            assertThat(response.category()).isEqualTo(club.getClubCategory().getName());
+            assertThat(response.location()).isEqualTo(club.getLocation());
+            assertThat(response.imageUrl()).isEqualTo(club.getImageUrl());
+            assertThat(response.likes()).isEqualTo(club.getLikes());
+            assertThat(response.description()).isEqualTo(club.getDescription());
+            assertThat(response.instagram()).isEqualTo(getSNSUrl(club, SNSType.INSTAGRAM));
+            assertThat(response.googleForm()).isEqualTo(getSNSUrl(club, SNSType.GOOGLE_FORM));
+            assertThat(response.openChat()).isEqualTo(getSNSUrl(club, SNSType.OPEN_CHAT));
+            assertThat(response.phoneNumber()).isEqualTo(getSNSUrl(club, SNSType.PHONE_NUMBER));
+        }
+
+        Optional<String> getSNSUrl(Club club, SNSType type) {
+            return club.getClubSNSs().stream()
+                .filter(sns -> sns.getSnsType().equals(type))
+                .map(ClubSNS::getContact)
+                .findFirst();
         }
 
         @Test
