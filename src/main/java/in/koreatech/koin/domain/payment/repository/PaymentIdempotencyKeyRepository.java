@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.order.model.PaymentIdempotencyKey;
+import in.koreatech.koin.domain.payment.model.entity.PaymentIdempotencyKey;
 
 public interface PaymentIdempotencyKeyRepository extends Repository<PaymentIdempotencyKey, Integer> {
 

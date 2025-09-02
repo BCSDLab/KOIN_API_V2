@@ -18,7 +18,7 @@ import in.koreatech.koin.domain.order.model.OrderDelivery;
 import in.koreatech.koin.domain.order.model.OrderMenu;
 import in.koreatech.koin.domain.order.model.OrderMenuOption;
 import in.koreatech.koin.domain.order.model.OrderTakeout;
-import in.koreatech.koin.domain.order.model.Payment;
+import in.koreatech.koin.domain.payment.model.entity.Payment;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.model.PaymentIdempotencyKey;
+import in.koreatech.koin.domain.payment.model.entity.PaymentIdempotencyKey;
 import in.koreatech.koin.domain.payment.repository.PaymentIdempotencyKeyRepository;
 import lombok.RequiredArgsConstructor;
 

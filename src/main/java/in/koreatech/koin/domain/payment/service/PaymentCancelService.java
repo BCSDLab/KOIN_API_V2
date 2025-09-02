@@ -8,9 +8,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.model.Payment;
-import in.koreatech.koin.domain.order.model.PaymentCancel;
-import in.koreatech.koin.domain.order.model.PaymentStatus;
+import in.koreatech.koin.domain.payment.model.entity.Payment;
+import in.koreatech.koin.domain.payment.model.entity.PaymentCancel;
+import in.koreatech.koin.domain.payment.model.entity.PaymentStatus;
 import in.koreatech.koin.domain.payment.dto.response.PaymentCancelResponse;
 import in.koreatech.koin.domain.payment.gateway.pg.PaymentGatewayService;
 import in.koreatech.koin.domain.payment.gateway.pg.dto.PaymentGatewayCancelResponse;

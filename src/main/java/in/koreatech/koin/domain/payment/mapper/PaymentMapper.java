@@ -6,9 +6,9 @@ import java.time.OffsetDateTime;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.model.Payment;
-import in.koreatech.koin.domain.order.model.PaymentMethod;
-import in.koreatech.koin.domain.order.model.PaymentStatus;
+import in.koreatech.koin.domain.payment.model.entity.Payment;
+import in.koreatech.koin.domain.payment.model.entity.PaymentMethod;
+import in.koreatech.koin.domain.payment.model.entity.PaymentStatus;
 import in.koreatech.koin.domain.payment.gateway.pg.dto.PaymentGatewayConfirmResponse;
 
 @Component

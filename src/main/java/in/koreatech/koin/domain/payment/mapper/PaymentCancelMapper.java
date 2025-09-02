@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.order.model.Payment;
-import in.koreatech.koin.domain.order.model.PaymentCancel;
+import in.koreatech.koin.domain.payment.model.entity.Payment;
+import in.koreatech.koin.domain.payment.model.entity.PaymentCancel;
 import in.koreatech.koin.domain.payment.gateway.pg.dto.PaymentGatewayCancelResponse;
 
 @Component

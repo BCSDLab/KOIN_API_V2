@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.order.model.Payment;
+import in.koreatech.koin.domain.payment.model.entity.Payment;
 import in.koreatech.koin.global.exception.CustomException;
 
 public interface PaymentRepository extends Repository<Payment, Integer> {

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.model;
+package in.koreatech.koin.domain.payment.model.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
