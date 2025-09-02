@@ -189,7 +189,7 @@ public class ClubServiceTest {
 
             clubId = 1;
             studentId = 1;
-            club = ClubFixture.활성화_BCSD_동아리(1);
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
         }
 
         @Test
@@ -254,7 +254,7 @@ public class ClubServiceTest {
             request = new ClubIntroductionUpdateRequest("수정된 동아리 소개 문자열");
             clubId = 1;
             studentId = 1;
-            club = ClubFixture.활성화_BCSD_동아리(1);
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
         }
 
         @Test
@@ -300,7 +300,7 @@ public class ClubServiceTest {
         @Test
         void 활성화된_동아리를_상세_조회한다() {
             // given
-            Club club = ClubFixture.활성화_BCSD_동아리(1);
+            Club club = ClubFixture.활성화_BCSD_동아리(clubId);
 
             List<ClubSNS> snsList = List.of(
                 new ClubSNS(club, SNSType.INSTAGRAM, "https://instagram.com/bcsdlab")
@@ -352,7 +352,7 @@ public class ClubServiceTest {
         @Test
         void 비활성화된_동아리를_상세_조회_시_예외를_발생한다() {
             // given
-            Club club = ClubFixture.비활성화_BCSD_동아리(1);
+            Club club = ClubFixture.비활성화_BCSD_동아리(clubId);
             when(clubRepository.getById(clubId)).thenReturn(club);
 
             // when / then
