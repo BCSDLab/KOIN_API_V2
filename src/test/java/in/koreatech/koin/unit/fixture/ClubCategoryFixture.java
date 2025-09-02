@@ -5,6 +5,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class ClubCategoryFixture {
 
+    private ClubCategoryFixture() { }
+
     public static ClubCategory 동아리_카테고리(Integer id, String name) {
         ClubCategory clubCategory = ClubCategory.builder()
             .name(name)

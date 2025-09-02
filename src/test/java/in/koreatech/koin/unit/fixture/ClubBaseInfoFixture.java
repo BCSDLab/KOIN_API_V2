@@ -7,6 +7,8 @@ import in.koreatech.koin.domain.club.model.ClubBaseInfo;
 
 public class ClubBaseInfoFixture {
 
+    private ClubBaseInfoFixture() { }
+
     public static ClubBaseInfo 동아리_기본_정보(
         Integer id,
         String name,
