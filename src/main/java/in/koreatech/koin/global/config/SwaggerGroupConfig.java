@@ -108,7 +108,10 @@ public class SwaggerGroupConfig {
     public GroupedOpenApi orderApi() {
         return createGroupedOpenApi(
             "8. Business Order API",
-            new String[] { "in.koreatech.koin.domain.order" });
+            new String[] {
+                "in.koreatech.koin.domain.order",
+                "in.koreatech.koin.domain.payment",
+            });
     }
 
     private GroupedOpenApi createGroupedOpenApi(
