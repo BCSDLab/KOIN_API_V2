@@ -61,6 +61,7 @@ public enum ApiResponseCode {
     ORDER_AMOUNT_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "최소 주문 금액을 충족하지 않습니다."),
     INVALID_SELF_CHAT(HttpStatus.BAD_REQUEST, "자신이 올린 게시글에 메시지를 보낼 수 없습니다."),
     INVALID_WEBSOCKET_USER_SESSION(HttpStatus.BAD_REQUEST, "웹소켓 사용자 세션 탐색 실패"),
+    ORDER_PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "클라이언트 요청 금액이 서버 계산 결과와 다릅니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
