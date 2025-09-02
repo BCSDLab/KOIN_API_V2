@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.payment.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import in.koreatech.koin.domain.payment.dto.request.TemporaryDeliveryPaymentSave
 import in.koreatech.koin.domain.payment.dto.request.TemporaryTakeoutPaymentSaveRequest;
 import in.koreatech.koin.domain.payment.dto.response.PaymentCancelResponse;
 import in.koreatech.koin.domain.payment.dto.response.PaymentConfirmResponse;
+import in.koreatech.koin.domain.payment.dto.response.PaymentResponse;
 import in.koreatech.koin.domain.payment.dto.response.TemporaryPaymentResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -108,6 +110,14 @@ public interface PaymentApi {
         @Parameter(description = "결제 고유 ID", example = "1")
         @PathVariable(value = "paymentId") final Integer paymentId,
         @RequestBody @Valid final PaymentCancelRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @Operation(summary = "결제 단건 조회를 한다.")
+    @GetMapping("/{paymentId}")
+    ResponseEntity<PaymentResponse> getPayment(
+        @Parameter(description = "결제 고유 ID", example = "1")
+        @PathVariable(value = "paymentId") final Integer paymentId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

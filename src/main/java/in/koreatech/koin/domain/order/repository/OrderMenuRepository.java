@@ -10,5 +10,5 @@ public interface OrderMenuRepository extends Repository<OrderMenu, Integer> {
 
     void saveAll(Iterable<OrderMenu> orderMenus);
 
-    List<OrderMenu> findAllByOrderId(Integer orderId);
+    List<OrderMenu> findAllByOrderId(String orderId);
 }

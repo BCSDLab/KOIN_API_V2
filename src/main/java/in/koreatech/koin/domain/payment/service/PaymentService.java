@@ -8,6 +8,7 @@ import in.koreatech.koin.domain.payment.dto.request.TemporaryDeliveryPaymentSave
 import in.koreatech.koin.domain.payment.dto.request.TemporaryTakeoutPaymentSaveRequest;
 import in.koreatech.koin.domain.payment.dto.response.PaymentCancelResponse;
 import in.koreatech.koin.domain.payment.dto.response.PaymentConfirmResponse;
+import in.koreatech.koin.domain.payment.dto.response.PaymentResponse;
 import in.koreatech.koin.domain.payment.dto.response.TemporaryPaymentResponse;
 import in.koreatech.koin.domain.payment.model.domain.DeliveryPaymentInfo;
 import in.koreatech.koin.domain.payment.model.domain.PaymentCancelInfo;
@@ -24,6 +25,7 @@ public class PaymentService {
     private final TemporaryPaymentService temporaryPaymentService;
     private final PaymentConfirmService paymentConfirmService;
     private final PaymentCancelService paymentCancelService;
+    private final PaymentQueryService paymentQueryService;
 
     public TemporaryPaymentResponse createTemporaryDeliveryPayment(
         Integer userId, TemporaryDeliveryPaymentSaveRequest request
@@ -70,5 +72,10 @@ public class PaymentService {
         User user = userAuthenticationService.authenticateUser(userId);
         PaymentCancelInfo paymentCancelInfo = PaymentCancelInfo.of(request.cancelReason());
         return paymentCancelService.cancelPayment(user, paymentId, paymentCancelInfo);
+    }
+
+    public PaymentResponse getPayment(Integer userId, Integer paymentId) {
+        User user = userAuthenticationService.authenticateUser(userId);
+        return paymentQueryService.getPayment(user, paymentId);
     }
 }
