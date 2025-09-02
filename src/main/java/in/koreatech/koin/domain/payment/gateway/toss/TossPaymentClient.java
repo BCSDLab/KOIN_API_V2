@@ -89,8 +89,7 @@ public class TossPaymentClient {
             String rawBody = new String(e.getResponseBodyAsByteArray(), UTF_8);
             TossPaymentErrorResponse error = objectMapper.readValue(rawBody, TossPaymentErrorResponse.class);
             TossPaymentErrorCode tossPaymentErrorCode = TossPaymentErrorCode.fromCode(error.code());
-            return TossPaymentException.of(tossPaymentErrorCode.getMessage(), tossPaymentErrorCode.getStatusCode(),
-                tossPaymentErrorCode.getCode());
+            return TossPaymentException.of(tossPaymentErrorCode);
         } catch (Exception ex) {
             return new KoinIllegalStateException("서버 에러가 발생했습니다. 관리자에게 문의해주세요.");
         }

@@ -27,6 +27,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.WebUtils;
 
+import in.koreatech.koin.domain.payment.gateway.toss.exception.TossPaymentErrorCode;
+import in.koreatech.koin.domain.payment.gateway.toss.exception.TossPaymentException;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
@@ -51,6 +53,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         CustomException e
     ) {
         return buildErrorResponse(request, e.getErrorCode(), e.getFullMessage());
+    }
+
+    @ExceptionHandler(TossPaymentException.class)
+    public ResponseEntity<Object> handleTossPaymentException(
+        HttpServletRequest request,
+        TossPaymentException e
+    ) {
+        return buildErrorResponse(request, e.getTossPaymentErrorCode(), e.getFullMessage());
     }
 
     // 표준 예외 및 정의되어 있는 예외
@@ -206,6 +216,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private ResponseEntity<Object> buildErrorResponse(
         HttpServletRequest request,
         ApiResponseCode errorCode,
+        String errorMessage
+    ) {
+        String errorTraceId = UUID.randomUUID().toString();
+        requestLogging(request, errorCode.getHttpStatus().value(), errorMessage, errorTraceId);
+
+        ErrorResponse response = new ErrorResponse(
+            errorCode.getHttpStatus().value(),
+            errorCode.getCode(),
+            errorCode.getMessage(),
+            errorTraceId
+        );
+        return ResponseEntity.status(response.status()).body(response);
+    }
+
+    private ResponseEntity<Object> buildErrorResponse(
+        HttpServletRequest request,
+        TossPaymentErrorCode errorCode,
         String errorMessage
     ) {
         String errorTraceId = UUID.randomUUID().toString();
