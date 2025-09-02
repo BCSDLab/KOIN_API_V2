@@ -16,7 +16,7 @@ public class ClubFixture {
 
         Club club = Club.builder()
             .name("BCSD Lab")
-            .normalizedName("BCSDLab")
+            .normalizedName("bcsdlab")
             .hits(1234)
             .lastWeekHits(1000)
             .description("즐겁게 일하고 열심히 노는 IT 특성화 동아리")
@@ -40,7 +40,7 @@ public class ClubFixture {
 
         Club club = Club.builder()
             .name("BCSD Lab")
-            .normalizedName("BCSDLab")
+            .normalizedName("bcsdlab")
             .hits(1234)
             .lastWeekHits(1000)
             .description("즐겁게 일하고 열심히 노는 IT 특성화 동아리")
