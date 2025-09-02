@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.payment.model.redis;
 
+import static in.koreatech.koin.domain.order.model.OrderType.DELIVERY;
+import static in.koreatech.koin.domain.order.model.OrderType.TAKE_OUT;
+import static in.koreatech.koin.global.code.ApiResponseCode.MISMATCH_TEMPORARY_PAYMENT;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -7,8 +11,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import in.koreatech.koin.domain.order.model.Order;
+import in.koreatech.koin.domain.order.model.OrderDelivery;
+import in.koreatech.koin.domain.order.model.OrderTakeout;
 import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.payment.model.domain.TemporaryMenuItems;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
 
 @Getter
@@ -100,7 +110,7 @@ public class TemporaryPayment {
             userId,
             orderableShopId,
             phoneNumber,
-            OrderType.DELIVERY,
+            DELIVERY,
             address,
             toOwner,
             toRider,
@@ -128,7 +138,7 @@ public class TemporaryPayment {
             userId,
             orderableShopId,
             phoneNumber,
-            OrderType.TAKE_OUT,
+            TAKE_OUT,
             null,
             toOwner,
             null,
@@ -138,5 +148,61 @@ public class TemporaryPayment {
             totalPrice,
             temporaryMenuItems
         );
+    }
+
+    public Order toOrder(User user, OrderableShop orderableShop) {
+        Order order = Order.builder()
+            .id(pgOrderId)
+            .orderType(orderType)
+            .phoneNumber(phoneNumber)
+            .totalProductPrice(totalProductPrice)
+            .totalPrice(totalPrice)
+            .orderableShop(orderableShop)
+            .user(user)
+            .isDeleted(false)
+            .build();
+
+        if (orderType == DELIVERY) {
+            order.setOrderDelivery(OrderDelivery.builder()
+                .order(order)
+                .address(address)
+                .toOwner(toOwner)
+                .toRider(toRider)
+                .provideCutlery(provideCutlery)
+                .deliveryTip(deliveryFee)
+                .build());
+        } else if (orderType == TAKE_OUT) {
+            order.setOrderTakeout(OrderTakeout.builder()
+                .order(order)
+                .toOwner(toOwner)
+                .provideCutlery(provideCutlery)
+                .build());
+        }
+
+        return order;
+    }
+
+    public void validateMatches(String pgOrderId, Integer userId, Integer amount) {
+        validatePgOrderIdMatches(pgOrderId);
+        validateUserIdMatches(userId);
+        validateAmountMatches(amount);
+    }
+
+    private void validatePgOrderIdMatches(String pgOrderId) {
+        if (!pgOrderId.equals(this.pgOrderId)) {
+            throw CustomException.of(MISMATCH_TEMPORARY_PAYMENT);
+        }
+    }
+
+    private void validateUserIdMatches(Integer userId) {
+        if (!userId.equals(this.userId)) {
+            throw CustomException.of(MISMATCH_TEMPORARY_PAYMENT);
+        }
+    }
+
+    private void validateAmountMatches(Integer amount) {
+        if (!amount.equals(this.totalPrice)) {
+            throw CustomException.of(MISMATCH_TEMPORARY_PAYMENT);
+        }
     }
 }

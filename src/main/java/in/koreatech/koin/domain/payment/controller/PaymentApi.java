@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import in.koreatech.koin.domain.payment.dto.request.PaymentConfirmRequest;
 import in.koreatech.koin.domain.payment.dto.request.TemporaryDeliveryPaymentSaveRequest;
 import in.koreatech.koin.domain.payment.dto.request.TemporaryTakeoutPaymentSaveRequest;
+import in.koreatech.koin.domain.payment.dto.response.PaymentConfirmResponse;
 import in.koreatech.koin.domain.payment.dto.response.TemporaryPaymentResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,6 +65,26 @@ public interface PaymentApi {
     @PostMapping("/takeout/temporary")
     ResponseEntity<TemporaryPaymentResponse> createTemporaryTakeoutPayment(
         @RequestBody @Valid final TemporaryTakeoutPaymentSaveRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @Operation(
+        summary = "결제 승인을 한다.",
+        description = """
+            ## 결제 승인
+            임시 저장된 데이터(orderId, amount)와 요청 본문 데이터(orderId, amount)를 검증합니다.
+            검증에 성공하면 토스 페이먼츠에 결제 승인 요청을 합니다.
+            결제 승인 요청을 성공하면, 임시 저장 데이터를 DB에 저장하고 장바구니를 초기화합니다.
+            
+            ## 요청 Body 필드 설명
+            - `payment_key`: PG사에서 받은 결제 키 (필수)
+            - `order_id`: 주문 고유 번호 (필수)
+            - `amount`: 최종 결제 금액 (필수)
+            """
+    )
+    @PostMapping("/confirm")
+    ResponseEntity<PaymentConfirmResponse> confirmPayment(
+        @RequestBody @Valid final PaymentConfirmRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

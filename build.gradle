@@ -107,6 +107,9 @@ dependencies {
 
     // Cloudfront
     implementation 'software.amazon.awssdk:cloudfront'
+
+    // webflux
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 clean {

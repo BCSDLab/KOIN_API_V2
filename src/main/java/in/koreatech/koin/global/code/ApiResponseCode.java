@@ -62,6 +62,7 @@ public enum ApiResponseCode {
     INVALID_SELF_CHAT(HttpStatus.BAD_REQUEST, "자신이 올린 게시글에 메시지를 보낼 수 없습니다."),
     INVALID_WEBSOCKET_USER_SESSION(HttpStatus.BAD_REQUEST, "웹소켓 사용자 세션 탐색 실패"),
     ORDER_PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "클라이언트 요청 금액이 서버 계산 결과와 다릅니다."),
+    MISMATCH_TEMPORARY_PAYMENT(HttpStatus.BAD_REQUEST, "요청한 정보가 임시 결제 정보와 일치하지 않습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -98,6 +99,7 @@ public enum ApiResponseCode {
     NOT_FOUND_CART_ITEM(HttpStatus.NOT_FOUND, "장바구니에 담긴 상품이 존재하지 않습니다"),
     NOT_FOUND_ARTICLE(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."),
     NOT_FOUND_LOST_ITEM_CHATROOM(HttpStatus.NOT_FOUND, "분실물 게시글 채팅방이 존재하지 않습니다."),
+    NOT_FOUND_TEMPORARY_PAYMENT(HttpStatus.NOT_FOUND, "임시 결제 정보가 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
@@ -120,7 +122,8 @@ public enum ApiResponseCode {
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 오류가 발생했습니다."),
     CLIENT_ABORTED(HttpStatus.INTERNAL_SERVER_ERROR, "클라이언트에 의해 연결이 중단되었습니다."),
-    EXTERNAL_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 호출 중 오류가 발생했습니다.")
+    EXTERNAL_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 호출 중 오류가 발생했습니다."),
+    PAYMENT_CONFIRM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "결제 중 문제가 생겼습니다."),
     ;
 
     private final HttpStatus httpStatus;

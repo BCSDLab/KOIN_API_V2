@@ -18,6 +18,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -64,4 +65,23 @@ public class Payment {
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
+
+    @Builder
+    private Payment(
+        String paymentKey,
+        Integer amount,
+        PaymentStatus paymentStatus,
+        PaymentMethod paymentMethod,
+        LocalDateTime requestedAt,
+        LocalDateTime approvedAt,
+        Order order
+    ) {
+        this.paymentKey = paymentKey;
+        this.amount = amount;
+        this.paymentStatus = paymentStatus;
+        this.paymentMethod = paymentMethod;
+        this.requestedAt = requestedAt;
+        this.approvedAt = approvedAt;
+        this.order = order;
+    }
 }

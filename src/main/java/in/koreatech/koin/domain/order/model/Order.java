@@ -22,6 +22,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -73,4 +74,37 @@ public class Order extends BaseEntity {
 
     @OneToOne(mappedBy = "order", fetch = LAZY, cascade = ALL)
     private OrderTakeout orderTakeout;
+
+    @Builder
+    private Order(
+        String id,
+        OrderType orderType,
+        String phoneNumber,
+        Integer totalProductPrice,
+        Integer totalPrice,
+        Boolean isDeleted,
+        OrderableShop orderableShop,
+        User user,
+        OrderDelivery orderDelivery,
+        OrderTakeout orderTakeout
+    ) {
+        this.id = id;
+        this.orderType = orderType;
+        this.phoneNumber = phoneNumber;
+        this.totalProductPrice = totalProductPrice;
+        this.totalPrice = totalPrice;
+        this.isDeleted = isDeleted;
+        this.orderableShop = orderableShop;
+        this.user = user;
+        this.orderDelivery = orderDelivery;
+        this.orderTakeout = orderTakeout;
+    }
+
+    public void setOrderDelivery(OrderDelivery orderDelivery) {
+        this.orderDelivery = orderDelivery;
+    }
+
+    public void setOrderTakeout(OrderTakeout orderTakeout) {
+        this.orderTakeout = orderTakeout;
+    }
 }
