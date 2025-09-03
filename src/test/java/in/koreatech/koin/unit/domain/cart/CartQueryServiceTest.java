@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.*;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -88,9 +89,9 @@ public class CartQueryServiceTest {
 
         // 옵션 그룹
         toppingGroup = OrderableShopMenuFixture.createMenuOptionGroupWithEmptyMenuOption(
-                orderableShop, "토핑 추가", 0, 2, false, 401);
+            orderableShop, "토핑 추가", 0, 2, false, 401);
         sourceGroup = OrderableShopMenuFixture.createMenuOptionGroupWithEmptyMenuOption(
-                orderableShop, "소스 추가", 1, 2, true, 402);
+            orderableShop, "소스 추가", 1, 2, true, 402);
 
         // 옵션
         toppingOptionA = OrderableShopMenuFixture.createMenuOption(toppingGroup, "치즈 추가", 500, 501);
@@ -187,7 +188,8 @@ public class CartQueryServiceTest {
 
             // when & then
             assertEquals(ApiResponseCode.SHOP_NOT_DELIVERABLE,
-                    assertThrows(CustomException.class, () -> cartQueryService.getCartItems(userId, orderType)).getErrorCode());
+                assertThrows(CustomException.class,
+                    () -> cartQueryService.getCartItems(userId, orderType)).getErrorCode());
         }
 
         @Test
@@ -202,11 +204,11 @@ public class CartQueryServiceTest {
 
             // when & then
             assertEquals(ApiResponseCode.SHOP_NOT_TAKEOUT_AVAILABLE,
-                    assertThrows(CustomException.class, () -> cartQueryService.getCartItems(userId, orderType)).getErrorCode());
+                assertThrows(CustomException.class,
+                    () -> cartQueryService.getCartItems(userId, orderType)).getErrorCode());
         }
 
     }
-
 
     @Nested
     @DisplayName("장바구니 아이템 옵션 수정용 조회 테스트")
@@ -232,7 +234,8 @@ public class CartQueryServiceTest {
             when(orderableShopMenuRepository.getByIdWithMenuOptionGroups(menuGimbap.getId())).thenReturn(menuGimbap);
 
             // when
-            CartMenuItemEditResponse response = cartQueryService.getOrderableShopMenuForEditOptions(userId, gimbapCartItemId);
+            CartMenuItemEditResponse response = cartQueryService.getOrderableShopMenuForEditOptions(userId,
+                gimbapCartItemId);
 
             // then
             assertThat(response).isNotNull();
@@ -252,7 +255,8 @@ public class CartQueryServiceTest {
 
             // when & then
             assertEquals(ApiResponseCode.NOT_FOUND_CART_ITEM,
-                    assertThrows(CustomException.class, () -> cartQueryService.getOrderableShopMenuForEditOptions(userId, strangeCartMenuItemId)).getErrorCode());
+                assertThrows(CustomException.class, () -> cartQueryService.getOrderableShopMenuForEditOptions(userId,
+                    strangeCartMenuItemId)).getErrorCode());
         }
 
         @Test
@@ -262,14 +266,16 @@ public class CartQueryServiceTest {
 
             // when & then
             assertEquals(ApiResponseCode.NOT_FOUND_CART,
-                    assertThrows(CustomException.class, () -> cartQueryService.getOrderableShopMenuForEditOptions(userId, gimbapCartItemId)).getErrorCode());
+                assertThrows(CustomException.class, () ->
+                    cartQueryService.getOrderableShopMenuForEditOptions(userId, gimbapCartItemId)).getErrorCode());
         }
 
         @Test
         void 존재하지않는_메뉴의_장바구니아이템을_조회하면_예외가_발생한다() {
             // given
             OrderableShopMenu nonExistentMenu = OrderableShopMenuFixture.createMenu(orderableShop, "존재하지않는메뉴", 999);
-            OrderableShopMenuPrice nonExistentMenuPrice = OrderableShopMenuFixture.createMenuPrice(nonExistentMenu, "존재하지않는메뉴종류", 1000, 999);
+            OrderableShopMenuPrice nonExistentMenuPrice = OrderableShopMenuFixture.createMenuPrice(nonExistentMenu,
+                "존재하지않는메뉴종류", 1000, 999);
             ReflectionTestUtils.setField(nonExistentMenu, "menuPrices", List.of(nonExistentMenuPrice));
             ReflectionTestUtils.setField(nonExistentMenu, "menuImages", List.of());
 
@@ -280,11 +286,12 @@ public class CartQueryServiceTest {
 
             when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
             when(orderableShopMenuRepository.getByIdWithMenuOptionGroups(nonExistentMenu.getId())).thenThrow(
-                    CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU));
+                CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU));
 
             // when & then
             assertEquals(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU,
-                    assertThrows(CustomException.class, () -> cartQueryService.getOrderableShopMenuForEditOptions(userId, nonExistentCartItemId)).getErrorCode());
+                assertThrows(CustomException.class, () ->
+                    cartQueryService.getOrderableShopMenuForEditOptions(userId, nonExistentCartItemId)).getErrorCode());
         }
     }
 }
