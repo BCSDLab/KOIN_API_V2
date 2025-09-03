@@ -48,11 +48,11 @@ public class AdminActivityHistoryAspect {
     private void excludeGetMapping() {
     }
 
-    @Pointcut("!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.adminLogin(..)) && "
-        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.logout(..)) && "
-        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.refresh(..)) && "
-        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.createAdmin(..)) && "
-        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.adminPasswordChange(..)) && "
+    @Pointcut("!execution(* in.koreatech.koin.admin.manager.controller.AdminController.adminLogin(..)) && "
+        + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.logout(..)) && "
+        + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.refresh(..)) && "
+        + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.createAdmin(..)) && "
+        + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.adminPasswordChange(..)) && "
         + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.assignOrGetAbtestVariable(..)) &&"
         + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.issueAccessHistoryId(..))")
     private void excludeSpecificMethods() {
