@@ -436,10 +436,6 @@ public class ClubServiceTest {
             );
 
             categoryId = 1;
-            isRecruiting = false;
-            sortType = ClubSortType.CREATED_AT_ASC;
-            query = null;
-            userId = 1;
 
             when(clubListQueryRepository.findAllClubInfo(categoryId, sortType, isRecruiting, query, userId))
                 .thenReturn(clubBaseInfos);
