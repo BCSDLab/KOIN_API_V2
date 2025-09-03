@@ -114,16 +114,16 @@ public class CartQueryServiceTest {
         ReflectionTestUtils.setField(menuGimbap, "menuImages", List.of());
         ReflectionTestUtils.setField(menuRamen, "menuImages", List.of());
 
-        // 카트 생성
+        // 장바구니 생성
         cart = CartFixture.createCart(user, orderableShop);
     }
 
     @Nested
-    @DisplayName("카트 아이템 조회 테스트")
+    @DisplayName("장바구니 아이템 조회 테스트")
     class GetCartItemsTest {
 
         @Test
-        void 유저의_카트가_비어있지않으면_카트의_아이템이_조회된다() {
+        void 유저의_장바구니가_비어있지않으면_장바구니의_아이템이_조회된다() {
             // given
             Integer userId = user.getId();
             OrderType orderType = OrderType.DELIVERY;
@@ -144,7 +144,7 @@ public class CartQueryServiceTest {
         }
 
         @Test
-        void 유저의_카트가_비어있으면_빈_카트_응답이_반환된다() {
+        void 유저의_장바구니가_비어있으면_빈_장바구니_응답이_반환된다() {
             // given
             Integer userId = user.getId();
             OrderType orderType = OrderType.DELIVERY;
@@ -157,11 +157,10 @@ public class CartQueryServiceTest {
             assertThat(result).isNotNull();
             assertThat(result.items()).isEmpty();
             assertThat(result.totalAmount()).isEqualTo(0);
-
         }
 
         @Test
-        void 유저의_카트가_존재하지않으면_빈_카트_응답이_반환된다() {
+        void 유저의_장바구니가_존재하지않으면_빈_장바구니_응답이_반환된다() {
             // given
             Integer userId = user.getId();
             OrderType orderType = OrderType.DELIVERY;
@@ -177,7 +176,7 @@ public class CartQueryServiceTest {
         }
 
         @Test
-        void 배달이_불가능한_가게의_배달주문_카트_조회시_예외가_발생한다() {
+        void 배달이_불가능한_가게의_배달주문_장바구니_조회시_예외가_발생한다() {
             // given
             Integer userId = user.getId();
             OrderType orderType = OrderType.DELIVERY;
@@ -189,11 +188,10 @@ public class CartQueryServiceTest {
             // when & then
             assertEquals(ApiResponseCode.SHOP_NOT_DELIVERABLE,
                     assertThrows(CustomException.class, () -> cartQueryService.getCartItems(userId, orderType)).getErrorCode());
-
         }
 
         @Test
-        void 포장이_불가능한_가게의_포장주문_카트_조회시_예외가_발생한다() {
+        void 포장이_불가능한_가게의_포장주문_장바구니_조회시_예외가_발생한다() {
             // given
             Integer userId = user.getId();
             OrderType orderType = OrderType.TAKE_OUT;
@@ -205,14 +203,13 @@ public class CartQueryServiceTest {
             // when & then
             assertEquals(ApiResponseCode.SHOP_NOT_TAKEOUT_AVAILABLE,
                     assertThrows(CustomException.class, () -> cartQueryService.getCartItems(userId, orderType)).getErrorCode());
-
         }
 
     }
 
 
     @Nested
-    @DisplayName("카트 아이템 옵션 수정용 조회 테스트")
+    @DisplayName("장바구니 아이템 옵션 수정용 조회 테스트")
     class getOrderableShopMenuForEditOptionsTest {
 
         private Integer userId;
@@ -229,7 +226,7 @@ public class CartQueryServiceTest {
         }
 
         @Test
-        void 조회하는_카트아이템이_카트에_존재하면_해당_카트아이템의_메뉴와_옵션들이_조회된다() {
+        void 조회하는_장바구니아이템이_장바구니에_존재하면_해당_장바구니아이템의_메뉴와_옵션들이_조회된다() {
             // given
             when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
             when(orderableShopMenuRepository.getByIdWithMenuOptionGroups(menuGimbap.getId())).thenReturn(menuGimbap);
@@ -248,7 +245,7 @@ public class CartQueryServiceTest {
         }
 
         @Test
-        void 조회하는_카트아이템이_카트에_없으면_예외가_발생한다() {
+        void 조회하는_장바구니아이템이_장바구니에_없으면_예외가_발생한다() {
             // given
             Integer strangeCartMenuItemId = 999;
             when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
@@ -259,7 +256,7 @@ public class CartQueryServiceTest {
         }
 
         @Test
-        void 유저의_카트가_존재하지않으면_예외가_발생한다() {
+        void 유저의_장바구니가_존재하지않으면_예외가_발생한다() {
             // given
             when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.empty());
 
@@ -269,7 +266,7 @@ public class CartQueryServiceTest {
         }
 
         @Test
-        void 존재하지않는_메뉴의_카트아이템을_조회하면_예외가_발생한다() {
+        void 존재하지않는_메뉴의_장바구니아이템을_조회하면_예외가_발생한다() {
             // given
             OrderableShopMenu nonExistentMenu = OrderableShopMenuFixture.createMenu(orderableShop, "존재하지않는메뉴", 999);
             OrderableShopMenuPrice nonExistentMenuPrice = OrderableShopMenuFixture.createMenuPrice(nonExistentMenu, "존재하지않는메뉴종류", 1000, 999);
