@@ -155,10 +155,29 @@ public class ClubServiceTest {
 
             // then
             ArgumentCaptor<ClubCreateRedis> redisCaptor = ArgumentCaptor.forClass(ClubCreateRedis.class);
-            verify(clubCreateRedisRepository).save(redisCaptor.capture());
-
             ArgumentCaptor<ClubCreateEvent> eventCaptor = ArgumentCaptor.forClass(ClubCreateEvent.class);
+
+            verify(clubCreateRedisRepository).save(redisCaptor.capture());
             verify(eventPublisher).publishEvent(eventCaptor.capture());
+
+            ClubCreateRedis createRedis = redisCaptor.getValue();
+            ClubCreateEvent createEvent = eventCaptor.getValue();
+
+            assertThat(createRedis.getName()).isEqualTo(request.name());
+            assertThat(createRedis.getImageUrl()).isEqualTo(request.imageUrl());
+            assertThat(createRedis.getClubAdmins()).isEqualTo(request.clubManagers());
+            assertThat(createRedis.getClubCategoryId()).isEqualTo(request.clubCategoryId());
+            assertThat(createRedis.getLocation()).isEqualTo(request.location());
+            assertThat(createRedis.getDescription()).isEqualTo(request.description());
+            assertThat(createRedis.getInstagram()).isEqualTo(request.instagram());
+            assertThat(createRedis.getGoogleForm()).isEqualTo(request.googleForm());
+            assertThat(createRedis.getOpenChat()).isEqualTo(request.openChat());
+            assertThat(createRedis.getPhoneNumber()).isEqualTo(request.phoneNumber());
+            assertThat(createRedis.getRequesterId()).isEqualTo(studentId);
+            assertThat(createRedis.getRole()).isEqualTo(request.role());
+            assertThat(createRedis.getIsLikeHidden()).isEqualTo(request.isLikeHidden());
+
+            assertThat(createEvent.clubName()).isEqualTo(request.name());
         }
     }
 
