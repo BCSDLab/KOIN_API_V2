@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 import in.koreatech.koin.unit.fixture.ClubCategoryFixture;
+import in.koreatech.koin.unit.fixture.ClubHotFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -326,23 +327,8 @@ public class ClubServiceTest {
                 new ClubSNS(club, SNSType.INSTAGRAM, "https://instagram.com/bcsdlab")
             );
 
-            ClubHot clubHot1 = ClubHot.builder()
-                .id(1)
-                .club(club)
-                .ranking(1)
-                .periodHits(100)
-                .startDate(LocalDate.of(2025, 8, 21))
-                .endDate(LocalDate.of(2025, 8, 21))
-                .build();
-
-            ClubHot clubHot2 = ClubHot.builder()
-                .id(2)
-                .club(club)
-                .ranking(1)
-                .periodHits(150)
-                .startDate(LocalDate.of(2025, 8, 28))
-                .endDate(LocalDate.of(2025, 8, 28))
-                .build();
+            ClubHot clubHot1 = ClubHotFixture.인기_동아리(1, club);
+            ClubHot clubHot2 = ClubHotFixture.인기_동아리(2, club);
 
             when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubSNSRepository.findAllByClub(club)).thenReturn(snsList);
@@ -362,11 +348,15 @@ public class ClubServiceTest {
             assertThat(response.isRecruitSubscribed()).isTrue();
 
             assertThat(response.hotStatus()).isNotNull();
-            assertThat(response.hotStatus().month()).isEqualTo(8);
-            assertThat(response.hotStatus().weekOfMonth()).isEqualTo(4);
+            assertThat(response.hotStatus().month()).isEqualTo(LocalDate.now().getMonthValue());
+            assertThat(response.hotStatus().weekOfMonth()).isEqualTo(calculateWeekOfMonth(clubHot2.getStartDate()));
             assertThat(response.hotStatus().streakCount()).isEqualTo(2);
 
             verify(clubHitsRedisRepository).incrementHits(clubId);
+        }
+
+        int calculateWeekOfMonth(LocalDate startDate) {
+            return ((startDate.getDayOfMonth() - 1) / 7) + 1;
         }
 
         @Test
