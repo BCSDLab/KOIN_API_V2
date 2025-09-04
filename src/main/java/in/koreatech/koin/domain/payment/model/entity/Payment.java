@@ -47,13 +47,11 @@ public class Payment {
     private Integer amount;
 
     @NotNull
-    @Size(max = 30)
     @Enumerated(STRING)
     @Column(name = "status", length = 30, nullable = false)
     private PaymentStatus paymentStatus;
 
     @NotNull
-    @Size(max = 30)
     @Enumerated(STRING)
     @Column(name = "method", length = 30, nullable = false, updatable = false)
     private PaymentMethod paymentMethod;
