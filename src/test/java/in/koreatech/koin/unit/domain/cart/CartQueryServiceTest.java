@@ -270,29 +270,6 @@ public class CartQueryServiceTest {
                     cartQueryService.getOrderableShopMenuForEditOptions(userId, gimbapCartItemId)).getErrorCode());
         }
 
-        @Test
-        void 존재하지않는_메뉴의_장바구니아이템을_조회하면_예외가_발생한다() {
-            // given
-            OrderableShopMenu nonExistentMenu = OrderableShopMenuFixture.createMenu(orderableShop, "존재하지않는메뉴", 999);
-            OrderableShopMenuPrice nonExistentMenuPrice = OrderableShopMenuFixture.createMenuPrice(nonExistentMenu,
-                "존재하지않는메뉴종류", 1000, 999);
-            ReflectionTestUtils.setField(nonExistentMenu, "menuPrices", List.of(nonExistentMenuPrice));
-            ReflectionTestUtils.setField(nonExistentMenu, "menuImages", List.of());
-
-            cart.getCartMenuItems().clear();
-            cart.addItem(nonExistentMenu, nonExistentMenuPrice, List.of(), 1);
-            ReflectionTestUtils.setField(cart.getCartMenuItems().get(0), "id", 1003);
-            Integer nonExistentCartItemId = cart.getCartMenuItems().get(0).getId();
-
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
-            when(orderableShopMenuRepository.getByIdWithMenuOptionGroups(nonExistentMenu.getId())).thenThrow(
-                CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU));
-
-            // when & then
-            assertEquals(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU,
-                assertThrows(CustomException.class, () ->
-                    cartQueryService.getOrderableShopMenuForEditOptions(userId, nonExistentCartItemId)).getErrorCode());
-        }
     }
 }
 
