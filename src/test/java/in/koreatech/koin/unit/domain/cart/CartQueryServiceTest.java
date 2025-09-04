@@ -1,8 +1,7 @@
 package in.koreatech.koin.unit.domain.cart;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -187,9 +186,9 @@ public class CartQueryServiceTest {
             when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
 
             // when & then
-            assertEquals(ApiResponseCode.SHOP_NOT_DELIVERABLE,
-                assertThrows(CustomException.class,
-                    () -> cartQueryService.getCartItems(userId, orderType)).getErrorCode());
+            assertThatThrownBy(() -> cartQueryService.getCartItems(userId, orderType))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.SHOP_NOT_DELIVERABLE);
         }
 
         @Test
@@ -203,9 +202,9 @@ public class CartQueryServiceTest {
             when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
 
             // when & then
-            assertEquals(ApiResponseCode.SHOP_NOT_TAKEOUT_AVAILABLE,
-                assertThrows(CustomException.class,
-                    () -> cartQueryService.getCartItems(userId, orderType)).getErrorCode());
+            assertThatThrownBy(() -> cartQueryService.getCartItems(userId, orderType))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.SHOP_NOT_TAKEOUT_AVAILABLE);
         }
 
     }
@@ -254,9 +253,9 @@ public class CartQueryServiceTest {
             when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
 
             // when & then
-            assertEquals(ApiResponseCode.NOT_FOUND_CART_ITEM,
-                assertThrows(CustomException.class, () -> cartQueryService.getOrderableShopMenuForEditOptions(userId,
-                    strangeCartMenuItemId)).getErrorCode());
+            assertThatThrownBy(() -> cartQueryService.getOrderableShopMenuForEditOptions(userId, strangeCartMenuItemId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.NOT_FOUND_CART_ITEM);
         }
 
         @Test
@@ -265,11 +264,10 @@ public class CartQueryServiceTest {
             when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.empty());
 
             // when & then
-            assertEquals(ApiResponseCode.NOT_FOUND_CART,
-                assertThrows(CustomException.class, () ->
-                    cartQueryService.getOrderableShopMenuForEditOptions(userId, gimbapCartItemId)).getErrorCode());
+            assertThatThrownBy(() -> cartQueryService.getOrderableShopMenuForEditOptions(userId, gimbapCartItemId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.NOT_FOUND_CART);
         }
 
     }
 }
-
