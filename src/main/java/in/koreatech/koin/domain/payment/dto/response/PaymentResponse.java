@@ -112,8 +112,7 @@ public record PaymentResponse(
 
     public static PaymentResponse of(
         Payment payment,
-        Order order,
-        List<OrderMenu> orderMenus
+        Order order
     ) {
         OrderableShop orderableShop = order.getOrderableShop();
         Shop shop = orderableShop.getShop();
@@ -144,7 +143,7 @@ public record PaymentResponse(
             provideCutlery,
             payment.getAmount(),
             shop.getName(),
-            orderMenus.stream()
+            order.getOrderMenus().stream()
                 .map(InnerCartItemResponse::from)
                 .toList(),
             order.getOrderType().name(),

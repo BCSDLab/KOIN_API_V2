@@ -10,9 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
 import in.koreatech.koin.domain.order.model.Order;
 import in.koreatech.koin.domain.order.model.OrderMenu;
-import in.koreatech.koin.domain.payment.model.entity.Payment;
-import in.koreatech.koin.domain.payment.model.entity.PaymentStatus;
-import in.koreatech.koin.domain.order.repository.OrderMenuRepository;
 import in.koreatech.koin.domain.order.repository.OrderRepository;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
@@ -21,6 +18,8 @@ import in.koreatech.koin.domain.payment.gateway.pg.PaymentGatewayService;
 import in.koreatech.koin.domain.payment.gateway.pg.dto.PaymentGatewayConfirmResponse;
 import in.koreatech.koin.domain.payment.mapper.PaymentMapper;
 import in.koreatech.koin.domain.payment.model.domain.PaymentConfirmInfo;
+import in.koreatech.koin.domain.payment.model.entity.Payment;
+import in.koreatech.koin.domain.payment.model.entity.PaymentStatus;
 import in.koreatech.koin.domain.payment.model.redis.TemporaryPayment;
 import in.koreatech.koin.domain.payment.repository.PaymentRepository;
 import in.koreatech.koin.domain.payment.repository.TemporaryPaymentRedisRepository;
@@ -35,7 +34,6 @@ public class PaymentConfirmService {
     private final PaymentGatewayService paymentGatewayService;
     private final OrderableShopRepository orderableShopRepository;
     private final OrderRepository orderRepository;
-    private final OrderMenuRepository orderMenuRepository;
     private final PaymentRepository paymentRepository;
     private final TemporaryPaymentRedisRepository temporaryPaymentRedisRepository;
     private final CartRepository cartRepository;
@@ -52,16 +50,15 @@ public class PaymentConfirmService {
 
         OrderableShop orderableShop = orderableShopRepository.getById(temporaryPayment.getOrderableShopId());
         Order order = temporaryPayment.toOrder(user, orderableShop);
+        createOrderMenus(temporaryPayment, order).forEach(order::addOrderMenu);
         orderRepository.save(order);
-        List<OrderMenu> orderMenus = createOrderMenus(temporaryPayment, order);
-        orderMenuRepository.saveAll(orderMenus);
 
         Payment payment = paymentMapper.toEntity(order, pgResponse);
         paymentRepository.save(payment);
 
         cleanupAfterPaymentConfirm(paymentConfirmInfo.orderId(), user.getId());
 
-        return PaymentConfirmResponse.of(payment, order, orderMenus);
+        return PaymentConfirmResponse.of(payment, order);
     }
 
     private void validatePaymentStatus(String status) {
