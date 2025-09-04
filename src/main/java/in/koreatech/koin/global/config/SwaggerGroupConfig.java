@@ -28,7 +28,7 @@ public class SwaggerGroupConfig {
     public GroupedOpenApi adminApi() {
         return createGroupedOpenApi(
             "1. Admin API",
-            new String[] { "in.koreatech.koin.admin" });
+            new String[] {"in.koreatech.koin.admin"});
     }
 
     @Bean
@@ -79,14 +79,14 @@ public class SwaggerGroupConfig {
     public GroupedOpenApi abtestApi() {
         return createGroupedOpenApi(
             "5. abTest API",
-            new String[] { "in.koreatech.koin.admin.abtest" });
+            new String[] {"in.koreatech.koin.admin.abtest"});
     }
 
     @Bean
     public GroupedOpenApi socketApi() {
         return createGroupedOpenApi(
             "6. chat API",
-            new String[] { "in.koreatech.koin.domain.community.lostitem.chatroom" });
+            new String[] {"in.koreatech.koin.domain.community.lostitem.chatroom"});
     }
 
     @Bean
@@ -110,6 +110,14 @@ public class SwaggerGroupConfig {
             "8. Business Order API",
             new String[] {
                 "in.koreatech.koin.domain.order",
+            });
+    }
+
+    @Bean
+    public GroupedOpenApi paymentApi() {
+        return createGroupedOpenApi(
+            "9. Payment API",
+            new String[] {
                 "in.koreatech.koin.domain.payment",
             });
     }
