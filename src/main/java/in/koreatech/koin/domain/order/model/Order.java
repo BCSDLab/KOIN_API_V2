@@ -118,6 +118,9 @@ public class Order extends BaseEntity {
     }
 
     public void addOrderMenu(OrderMenu orderMenu) {
+        if (orderMenus == null) {
+            orderMenus = new ArrayList<>();
+        }
         this.orderMenus.add(orderMenu);
     }
 }
