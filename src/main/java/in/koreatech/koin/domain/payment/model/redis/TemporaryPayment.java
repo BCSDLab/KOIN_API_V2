@@ -40,6 +40,8 @@ public class TemporaryPayment {
 
     private String address;
 
+    private String addressDetail;
+
     private String toOwner;
 
     private String toRider;
@@ -66,6 +68,7 @@ public class TemporaryPayment {
         String phoneNumber,
         OrderType orderType,
         String address,
+        String addressDetail,
         String toOwner,
         String toRider,
         Boolean provideCutlery,
@@ -80,6 +83,7 @@ public class TemporaryPayment {
         this.phoneNumber = phoneNumber;
         this.orderType = orderType;
         this.address = address;
+        this.addressDetail = addressDetail;
         this.toOwner = toOwner;
         this.toRider = toRider;
         this.provideCutlery = provideCutlery;
@@ -97,6 +101,7 @@ public class TemporaryPayment {
         Integer orderableShopId,
         String phoneNumber,
         String address,
+        String addressDetail,
         String toOwner,
         String toRider,
         Boolean provideCutlery,
@@ -112,6 +117,7 @@ public class TemporaryPayment {
             phoneNumber,
             DELIVERY,
             address,
+            addressDetail,
             toOwner,
             toRider,
             provideCutlery,
@@ -140,6 +146,7 @@ public class TemporaryPayment {
             phoneNumber,
             TAKE_OUT,
             null,
+            null,
             toOwner,
             null,
             provideCutlery,
@@ -166,6 +173,7 @@ public class TemporaryPayment {
             order.setOrderDelivery(OrderDelivery.builder()
                 .order(order)
                 .address(address)
+                .addressDetail(addressDetail)
                 .toOwner(toOwner)
                 .toRider(toRider)
                 .provideCutlery(provideCutlery)

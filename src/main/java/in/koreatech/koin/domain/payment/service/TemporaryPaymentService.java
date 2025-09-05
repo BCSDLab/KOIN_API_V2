@@ -47,6 +47,7 @@ public class TemporaryPaymentService {
             orderableShop.getId(),
             deliveryPaymentInfo.phoneNumber(),
             deliveryPaymentInfo.address(),
+            deliveryPaymentInfo.addressDetail(),
             deliveryPaymentInfo.toOwner(),
             deliveryPaymentInfo.toRider(),
             deliveryPaymentInfo.provideCutlery(),

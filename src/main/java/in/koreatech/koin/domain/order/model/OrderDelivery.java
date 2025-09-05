@@ -35,9 +35,11 @@ public class OrderDelivery extends BaseEntity {
     private Order order;
 
     @NotBlank
-    @Size(max = 100)
-    @Column(name = "address", length = 100, nullable = false, updatable = false)
+    @Column(name = "address", length = 100, nullable = false, updatable = false, columnDefinition = "TEXT")
     private String address;
+
+    @Column(name = "address_detail", columnDefinition = "TEXT")
+    private String addressDetail;
 
     @Size(max = 50)
     @Column(name = "to_owner", length = 50, updatable = false)
@@ -68,6 +70,7 @@ public class OrderDelivery extends BaseEntity {
     private OrderDelivery(
         Order order,
         String address,
+        String addressDetail,
         String toOwner,
         String toRider,
         Integer deliveryTip,
@@ -78,6 +81,7 @@ public class OrderDelivery extends BaseEntity {
     ) {
         this.order = order;
         this.address = address;
+        this.addressDetail = addressDetail;
         this.toOwner = toOwner;
         this.toRider = toRider;
         this.deliveryTip = deliveryTip;
