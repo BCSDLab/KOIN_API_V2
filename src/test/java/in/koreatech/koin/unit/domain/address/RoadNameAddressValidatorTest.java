@@ -34,14 +34,15 @@ public class RoadNameAddressValidatorTest {
     private RoadNameAddressApiResponse successResponse;
     private RoadNameAddressApiResponse failResponse;
 
+    @BeforeEach
+    void setUpRoadNameAddressApiResponse() {
+        successResponse = AddressFixture.주소_검색_결과_한국기술교육대학교();
+        failResponse = AddressFixture.주소_검색_결과_없음();
+    }
+
     @Nested
     @DisplayName("도로명 주소 검증 성공")
     class ValidateSuccess {
-
-        @BeforeEach
-        void setUpRoadNameAddressApiResponse() {
-            successResponse = AddressFixture.주소_검색_결과_한국기술교육대학교();
-        }
 
         @Test
         void 정상적인_주소를_입력하여_검증을_통과한다() {
@@ -56,11 +57,6 @@ public class RoadNameAddressValidatorTest {
     @Nested
     @DisplayName("도로명 주소 검증 실패")
     class ValidateFail {
-
-        @BeforeEach
-        void setUpRoadNameAddressApiResponse() {
-            failResponse = AddressFixture.주소_검색_결과_없음();
-        }
 
         @Test
         void 비정상적인_주소를_입력하여_예외가_발생한다() {
