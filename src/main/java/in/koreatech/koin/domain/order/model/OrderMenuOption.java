@@ -6,8 +6,8 @@ import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.common.model.BaseEntity;
-import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
+import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOptionGroup;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -57,8 +57,8 @@ public class OrderMenuOption extends BaseEntity {
     private OrderMenu orderMenu;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "orderable_shop_menu_group_id", nullable = false)
-    private OrderableShopMenu orderableShopMenu;
+    @JoinColumn(name = "orderable_shop_menu_option_group_id", nullable = false)
+    private OrderableShopMenuOptionGroup orderableShopMenuOptionGroup;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "orderable_shop_menu_option_id", nullable = false)
@@ -72,7 +72,7 @@ public class OrderMenuOption extends BaseEntity {
         Integer quantity,
         Boolean isDeleted,
         OrderMenu orderMenu,
-        OrderableShopMenu orderableShopMenu,
+        OrderableShopMenuOptionGroup orderableShopMenuOptionGroup,
         OrderableShopMenuOption orderableShopMenuOption
     ) {
         this.optionGroupName = optionGroupName;
@@ -81,7 +81,7 @@ public class OrderMenuOption extends BaseEntity {
         this.quantity = quantity;
         this.isDeleted = isDeleted;
         this.orderMenu = orderMenu;
-        this.orderableShopMenu = orderableShopMenu;
+        this.orderableShopMenuOptionGroup = orderableShopMenuOptionGroup;
         this.orderableShopMenuOption = orderableShopMenuOption;
     }
 }

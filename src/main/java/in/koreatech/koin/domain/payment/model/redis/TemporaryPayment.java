@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.order.model.OrderType.TAKE_OUT;
 import static in.koreatech.koin.global.code.ApiResponseCode.MISMATCH_TEMPORARY_PAYMENT;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -16,7 +15,6 @@ import in.koreatech.koin.domain.order.model.OrderDelivery;
 import in.koreatech.koin.domain.order.model.OrderTakeout;
 import in.koreatech.koin.domain.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
-import in.koreatech.koin.domain.payment.model.domain.TemporaryMenuItems;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
@@ -54,8 +52,6 @@ public class TemporaryPayment {
 
     private Integer totalPrice;
 
-    private List<TemporaryMenuItems> temporaryMenuItems;
-
     @TimeToLive
     private Long expiryTime;
 
@@ -74,8 +70,7 @@ public class TemporaryPayment {
         Boolean provideCutlery,
         Integer totalProductPrice,
         Integer deliveryFee,
-        Integer totalPrice,
-        List<TemporaryMenuItems> temporaryMenuItems
+        Integer totalPrice
     ) {
         this.pgOrderId = pgOrderId;
         this.userId = userId;
@@ -90,7 +85,6 @@ public class TemporaryPayment {
         this.totalProductPrice = totalProductPrice;
         this.deliveryFee = deliveryFee;
         this.totalPrice = totalPrice;
-        this.temporaryMenuItems = temporaryMenuItems;
         this.expiryTime = CACHE_EXPIRE_SECOND;
         this.createdAt = LocalDateTime.now();
     }
@@ -107,8 +101,7 @@ public class TemporaryPayment {
         Boolean provideCutlery,
         Integer totalProductPrice,
         Integer deliveryFee,
-        Integer totalPrice,
-        List<TemporaryMenuItems> temporaryMenuItems
+        Integer totalPrice
     ) {
         return new TemporaryPayment(
             pgOrderId,
@@ -123,8 +116,7 @@ public class TemporaryPayment {
             provideCutlery,
             totalProductPrice,
             deliveryFee,
-            totalPrice,
-            temporaryMenuItems
+            totalPrice
         );
     }
 
@@ -136,8 +128,7 @@ public class TemporaryPayment {
         String toOwner,
         Boolean provideCutlery,
         Integer totalProductPrice,
-        Integer totalPrice,
-        List<TemporaryMenuItems> temporaryMenuItems
+        Integer totalPrice
     ) {
         return new TemporaryPayment(
             pgOrderId,
@@ -152,8 +143,7 @@ public class TemporaryPayment {
             provideCutlery,
             totalProductPrice,
             null,
-            totalPrice,
-            temporaryMenuItems
+            totalPrice
         );
     }
 
