@@ -1,7 +1,10 @@
-package in.koreatech.koin.domain.order.model;
+package in.koreatech.koin.domain.payment.model.entity;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -47,5 +50,13 @@ public class PaymentIdempotencyKey extends BaseEntity {
     ) {
         this.userId = userId;
         this.idempotencyKey = idempotencyKey;
+    }
+
+    public void updateIdempotencyKey(String idempotencyKey) {
+        this.idempotencyKey = idempotencyKey;
+    }
+
+    public boolean isOlderThanExpireDays() {
+        return ChronoUnit.DAYS.between(super.getUpdatedAt(), LocalDateTime.now()) >= EXPIRE_DAYS;
     }
 }

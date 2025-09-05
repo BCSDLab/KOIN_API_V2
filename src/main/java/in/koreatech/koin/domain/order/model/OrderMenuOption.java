@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -46,4 +47,19 @@ public class OrderMenuOption {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "order_menu_id", nullable = false)
     private OrderMenu orderMenu;
+
+    @Builder
+    private OrderMenuOption(
+        String optionGroupName,
+        String optionName,
+        Integer optionPrice,
+        Integer quantity,
+        OrderMenu orderMenu
+    ) {
+        this.optionGroupName = optionGroupName;
+        this.optionName = optionName;
+        this.optionPrice = optionPrice;
+        this.quantity = quantity;
+        this.orderMenu = orderMenu;
+    }
 }
