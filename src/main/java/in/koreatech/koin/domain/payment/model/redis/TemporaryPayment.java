@@ -152,7 +152,7 @@ public class TemporaryPayment {
 
     public Order toOrder(User user, OrderableShop orderableShop) {
         Order order = Order.builder()
-            .id(pgOrderId)
+            .pgOrderId(pgOrderId)
             .orderType(orderType)
             .phoneNumber(phoneNumber)
             .totalProductPrice(totalProductPrice)

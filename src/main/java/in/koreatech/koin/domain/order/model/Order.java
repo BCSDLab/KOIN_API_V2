@@ -3,9 +3,11 @@ package in.koreatech.koin.domain.order.model;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -38,10 +41,26 @@ import lombok.NoArgsConstructor;
 public class Order extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = IDENTITY)
+    @Column(name = "id", nullable = false, updatable = false)
+    Integer id;
+
     @NotBlank
     @Size(min = 6, max = 64)
-    @Column(name = "id", length = 64, nullable = false, updatable = false)
-    private String id;
+    @Column(name = "pg_order_id", length = 64, nullable = false, updatable = false)
+    private String pgOrderId;
+
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "orderable_shop_name", length = 255, nullable = false, updatable = false)
+    private String orderableShopName;
+
+    @NotBlank
+    @Column(name = "orderable_shop_address", nullable = false, updatable = false, columnDefinition = "TEXT")
+    private String orderableShopAddress;
+
+    @Column(name = "orderable_shop_address_detail", updatable = false, columnDefinition = "TEXT")
+    private String orderableShopAddressDetail;
 
     @NotNull
     @Enumerated(STRING)
@@ -57,9 +76,24 @@ public class Order extends BaseEntity {
     @Column(name = "total_product_price", nullable = false, updatable = false)
     private Integer totalProductPrice;
 
+    @Column(name = "discount_amount")
+    private Integer discountAmount;
+
     @NotNull
     @Column(name = "total_price", nullable = false, updatable = false)
     private Integer totalPrice;
+
+    @NotNull
+    @Enumerated(STRING)
+    @Column(name = "status", nullable = false)
+    private OrderStatus status;
+
+    @Column(name = "canceled_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime canceledAt;
+
+    @Size(max = 200)
+    @Column(name = "canceled_reason")
+    private String canceledReason;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
@@ -83,12 +117,19 @@ public class Order extends BaseEntity {
     private List<OrderMenu> orderMenus = new ArrayList<>();
 
     @Builder
-    private Order(
-        String id,
+    public Order(
+        String pgOrderId,
+        String orderableShopName,
+        String orderableShopAddress,
+        String orderableShopAddressDetail,
         OrderType orderType,
         String phoneNumber,
         Integer totalProductPrice,
+        Integer discountAmount,
         Integer totalPrice,
+        OrderStatus status,
+        LocalDateTime canceledAt,
+        String canceledReason,
         Boolean isDeleted,
         OrderableShop orderableShop,
         User user,
@@ -96,11 +137,18 @@ public class Order extends BaseEntity {
         OrderTakeout orderTakeout,
         List<OrderMenu> orderMenus
     ) {
-        this.id = id;
+        this.pgOrderId = pgOrderId;
+        this.orderableShopName = orderableShopName;
+        this.orderableShopAddress = orderableShopAddress;
+        this.orderableShopAddressDetail = orderableShopAddressDetail;
         this.orderType = orderType;
         this.phoneNumber = phoneNumber;
         this.totalProductPrice = totalProductPrice;
+        this.discountAmount = discountAmount;
         this.totalPrice = totalPrice;
+        this.status = status;
+        this.canceledAt = canceledAt;
+        this.canceledReason = canceledReason;
         this.isDeleted = isDeleted;
         this.orderableShop = orderableShop;
         this.user = user;
