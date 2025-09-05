@@ -3,11 +3,14 @@ package in.koreatech.koin.domain.order.model;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(schema = "koin", name = "order_menu")
 @NoArgsConstructor(access = PROTECTED)
-public class OrderMenu {
+public class OrderMenu extends BaseEntity {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)
@@ -34,23 +37,31 @@ public class OrderMenu {
     private Integer id;
 
     @NotBlank
-    @Column(name = "menu_name", nullable = false, updatable = false)
+    @Column(name = "name", nullable = false, updatable = false)
     private String menuName;
 
     @NotNull
-    @Column(name = "menu_price", nullable = false, updatable = false)
+    @Column(name = "price", nullable = false, updatable = false)
     private Integer menuPrice;
 
-    @Column(name = "menu_price_name", updatable = false)
+    @Column(name = "price_name", updatable = false)
     private String menuPriceName;
 
     @NotNull
     @Column(name = "quantity", nullable = false, updatable = false)
     private Integer quantity;
 
+    @NotNull
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = FALSE;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "order_id", nullable = false, updatable = false)
     private Order order;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "orderable_shop_menu_price_id", nullable = false, updatable = false)
+    private OrderableShopMenu orderableShopMenu;
 
     @OneToMany(mappedBy = "orderMenu", cascade = ALL, orphanRemoval = true)
     private List<OrderMenuOption> orderMenuOptions = new ArrayList<>();
@@ -58,16 +69,22 @@ public class OrderMenu {
     @Builder
     private OrderMenu(
         String menuName,
-        String menuPriceName,
         Integer menuPrice,
+        String menuPriceName,
         Integer quantity,
-        Order order
+        Boolean isDeleted,
+        Order order,
+        OrderableShopMenu orderableShopMenu,
+        List<OrderMenuOption> orderMenuOptions
     ) {
         this.menuName = menuName;
-        this.menuPriceName = menuPriceName;
         this.menuPrice = menuPrice;
+        this.menuPriceName = menuPriceName;
         this.quantity = quantity;
+        this.isDeleted = isDeleted;
         this.order = order;
+        this.orderableShopMenu = orderableShopMenu;
+        this.orderMenuOptions = orderMenuOptions;
     }
 
     public void setOrderMenuOptions(List<OrderMenuOption> orderMenuOptions) {
