@@ -1,5 +1,7 @@
-package in.koreatech.koin.domain.order.model;
+package in.koreatech.koin.domain.payment.model.entity;
 
+import static in.koreatech.koin.domain.payment.model.entity.PaymentStatus.CANCELED;
+import static in.koreatech.koin.global.code.ApiResponseCode.PAYMENT_ACCESS_DENIED;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -7,6 +9,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
 
+import in.koreatech.koin.domain.order.model.Order;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -18,6 +22,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,13 +47,11 @@ public class Payment {
     private Integer amount;
 
     @NotNull
-    @Size(max = 30)
     @Enumerated(STRING)
     @Column(name = "status", length = 30, nullable = false)
     private PaymentStatus paymentStatus;
 
     @NotNull
-    @Size(max = 30)
     @Enumerated(STRING)
     @Column(name = "method", length = 30, nullable = false, updatable = false)
     private PaymentMethod paymentMethod;
@@ -64,4 +67,33 @@ public class Payment {
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
+
+    @Builder
+    private Payment(
+        String paymentKey,
+        Integer amount,
+        PaymentStatus paymentStatus,
+        PaymentMethod paymentMethod,
+        LocalDateTime requestedAt,
+        LocalDateTime approvedAt,
+        Order order
+    ) {
+        this.paymentKey = paymentKey;
+        this.amount = amount;
+        this.paymentStatus = paymentStatus;
+        this.paymentMethod = paymentMethod;
+        this.requestedAt = requestedAt;
+        this.approvedAt = approvedAt;
+        this.order = order;
+    }
+
+    public void validateUserIdMatches(Integer userId) {
+        if (!userId.equals(this.order.getUser().getId())) {
+            throw CustomException.of(PAYMENT_ACCESS_DENIED);
+        }
+    }
+
+    public void cancel() {
+        this.paymentStatus = CANCELED;
+    }
 }

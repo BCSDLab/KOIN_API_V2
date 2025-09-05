@@ -11,6 +11,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,4 +37,15 @@ public class OrderTakeout {
     @NotNull
     @Column(name = "provide_cutlery", nullable = false, updatable = false, columnDefinition = "TINYINT(1)")
     private Boolean provideCutlery;
+
+    @Builder
+    private OrderTakeout(
+        Order order,
+        String toOwner,
+        Boolean provideCutlery
+    ) {
+        this.order = order;
+        this.toOwner = toOwner;
+        this.provideCutlery = provideCutlery;
+    }
 }
