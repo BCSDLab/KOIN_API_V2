@@ -36,6 +36,7 @@ public class OrderMenuItemsMapper {
             .quantity(cartMenuItem.getQuantity())
             .isDeleted(false)
             .orderableShopMenu(cartMenuItem.getOrderableShopMenu())
+            .orderableShopMenuPrice(price)
             .orderMenuOptions(options)
             .build();
     }

@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS `koin`.`order_menu`
 (
     `id`                                INT UNSIGNED    NOT NULL AUTO_INCREMENT COMMENT '주문 메뉴 ID',
     `order_id`                          INT UNSIGNED    NOT NULL COMMENT '주문 ID',
+    `orderable_shop_menu_id`            INT UNSIGNED    NOT NULL COMMENT '주문 가능 상점 메뉴 ID',
     `orderable_shop_menu_price_id`      INT UNSIGNED    NOT NULL COMMENT '주문 가능 상점 메뉴 가격 ID',
     `name`                              VARCHAR(255)    NOT NULL COMMENT '메뉴 이름',
     `price_name`                        VARCHAR(255)    NULL COMMENT '가격 이름',

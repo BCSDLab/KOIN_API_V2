@@ -11,6 +11,7 @@ import java.util.List;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
+import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -60,8 +61,12 @@ public class OrderMenu extends BaseEntity {
     private Order order;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "orderable_shop_menu_price_id", nullable = false, updatable = false)
+    @JoinColumn(name = "orderable_shop_menu_id", nullable = false, updatable = false)
     private OrderableShopMenu orderableShopMenu;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "orderable_shop_menu_price_id", nullable = false, updatable = false)
+    private OrderableShopMenuPrice orderableShopMenuPrice;
 
     @OneToMany(mappedBy = "orderMenu", cascade = ALL, orphanRemoval = true)
     private List<OrderMenuOption> orderMenuOptions = new ArrayList<>();
@@ -75,6 +80,7 @@ public class OrderMenu extends BaseEntity {
         Boolean isDeleted,
         Order order,
         OrderableShopMenu orderableShopMenu,
+        OrderableShopMenuPrice orderableShopMenuPrice,
         List<OrderMenuOption> orderMenuOptions
     ) {
         this.menuName = menuName;
@@ -84,6 +90,7 @@ public class OrderMenu extends BaseEntity {
         this.isDeleted = isDeleted;
         this.order = order;
         this.orderableShopMenu = orderableShopMenu;
+        this.orderableShopMenuPrice = orderableShopMenuPrice;
         this.orderMenuOptions = orderMenuOptions;
     }
 
