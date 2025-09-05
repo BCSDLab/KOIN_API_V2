@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.address.service.client;
+package in.koreatech.koin.domain.address.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class RoadNameAddressClient {
+public class RoadNameAddressClient implements AddressClient {
 
     private final RestTemplate restTemplate;
     private final RoadNameAddressApiErrorCodeConverter errorCodeConverter;

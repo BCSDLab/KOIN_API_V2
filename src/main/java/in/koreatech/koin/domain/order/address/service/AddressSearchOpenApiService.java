@@ -5,13 +5,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.domain.address.client.AddressClient;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
 import in.koreatech.koin.domain.order.address.dto.RoadNameAddressApiResponse;
 import in.koreatech.koin.domain.order.address.model.RoadNameAddressDocument;
 import in.koreatech.koin.domain.order.address.repository.RoadNameAddressRepository;
-import in.koreatech.koin.domain.order.address.service.client.RoadNameAddressClient;
+import in.koreatech.koin.global.exception.CustomException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AddressOpenApiService {
+public class AddressSearchOpenApiService {
 
-    private final RoadNameAddressClient roadNameAddressClient;
+    private final AddressClient roadNameAddressClient;
     private final RoadNameAddressRepository addressRepository;
     private static final String ROAD_NAME_ADDRESS = "roadNameAddress";
 

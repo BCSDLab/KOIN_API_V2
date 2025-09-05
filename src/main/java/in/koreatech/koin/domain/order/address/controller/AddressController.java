@@ -10,8 +10,8 @@ import in.koreatech.koin.domain.order.address.dto.AddressSearchRequest;
 import in.koreatech.koin.domain.order.address.dto.AddressSearchResponse;
 import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressRequestFilter;
 import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressResponse;
-import in.koreatech.koin.domain.order.address.service.AddressOpenApiService;
-import in.koreatech.koin.domain.order.address.service.CampusAddressQueryService;
+import in.koreatech.koin.domain.order.address.service.AddressSearchOpenApiService;
+import in.koreatech.koin.domain.order.address.service.CampusAddressSearchService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -19,14 +19,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AddressController implements AddressApi {
 
-    private final AddressOpenApiService addressOpenApiService;
-    private final CampusAddressQueryService campusAddressQueryService;
+    private final AddressSearchOpenApiService addressSearchOpenApiService;
+    private final CampusAddressSearchService campusAddressSearchService;
 
     @GetMapping("/address/search")
     public ResponseEntity<AddressSearchResponse> searchAddress(
         @ParameterObject @Valid AddressSearchRequest request
     ) {
-        AddressSearchResponse response = addressOpenApiService.searchAddress(request);
+        AddressSearchResponse response = addressSearchOpenApiService.searchAddress(request);
         return ResponseEntity.ok(response);
     }
 
@@ -34,7 +34,7 @@ public class AddressController implements AddressApi {
     public ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
         @RequestParam(name = "filter", defaultValue = "ALL") CampusDeliveryAddressRequestFilter filter
     ) {
-        CampusDeliveryAddressResponse response = campusAddressQueryService.getCampusDeliveryAddresses(filter);
+        CampusDeliveryAddressResponse response = campusAddressSearchService.getCampusDeliveryAddresses(filter);
         return ResponseEntity.ok(response);
     }
 }
