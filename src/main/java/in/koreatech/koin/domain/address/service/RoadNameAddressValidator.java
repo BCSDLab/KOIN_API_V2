@@ -29,7 +29,7 @@ public class RoadNameAddressValidator implements AddressValidator {
             }
         } catch (CustomException e) {
             if (e.getErrorCode() == ApiResponseCode.EXTERNAL_API_ERROR) {
-                log.error("[Address API-5xx] 주소 검증 과정에서 오류가 발생했습니다.");
+                log.error("[Address API-5xx] 주소 검증 과정에서 외부 API 호출에 실패했습니다.");
                 return;
             }
             throw CustomException.of(ApiResponseCode.INVALID_ADDRESS_FORMAT);
