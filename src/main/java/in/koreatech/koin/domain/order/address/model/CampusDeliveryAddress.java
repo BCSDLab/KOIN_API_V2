@@ -34,6 +34,9 @@ public class CampusDeliveryAddress extends BaseEntity {
     @Column(name = "short_address", nullable = false, length = 50)
     private String shortAddress;
 
+    @Column(name = "address")
+    private String address;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campus_address_type_id", nullable = false)
     private CampusDeliveryAddressType campusAddressType;

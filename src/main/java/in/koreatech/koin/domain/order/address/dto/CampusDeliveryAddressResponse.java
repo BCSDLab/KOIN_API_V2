@@ -32,6 +32,9 @@ public record CampusDeliveryAddressResponse(
         @Schema(description = "요약 주소", example = "101동(해울)")
         String shortAddress,
 
+        @Schema(description = "주소", example = "충남 천안시 동남구 병천면 충절로 1600 한국기술교육대학교 제1캠퍼스")
+        String address,
+
         @Schema(description = "위도", example = "36.76125794")
         BigDecimal latitude,
 
@@ -44,6 +47,7 @@ public record CampusDeliveryAddressResponse(
                 address.getCampusAddressType().getName(),
                 address.getFullAddress(),
                 address.getShortAddress(),
+                address.getAddress(),
                 address.getLatitude(),
                 address.getLongitude()
             );

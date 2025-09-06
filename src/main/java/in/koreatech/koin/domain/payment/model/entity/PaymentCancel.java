@@ -2,10 +2,12 @@ package in.koreatech.koin.domain.payment.model.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
 
+import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,9 +23,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "payment_cancel")
+@Table(name = "payment_cancel_v2")
 @NoArgsConstructor(access = PROTECTED)
-public class PaymentCancel {
+public class PaymentCancel extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -37,16 +39,20 @@ public class PaymentCancel {
 
     @NotNull
     @Size(max = 200)
-    @Column(name = "cancel_reason", length = 200, updatable = false, nullable = false)
+    @Column(name = "reason", length = 200, updatable = false, nullable = false)
     private String cancelReason;
 
     @NotNull
-    @Column(name = "cancel_amount", updatable = false, nullable = false)
+    @Column(name = "amount", updatable = false, nullable = false)
     private Integer cancelAmount;
 
     @NotNull
     @Column(name = "canceled_at", updatable = false, nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime canceledAt;
+
+    @NotNull
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = FALSE;
 
     @JoinColumn(name = "payment_id")
     @ManyToOne(fetch = LAZY)
@@ -58,12 +64,13 @@ public class PaymentCancel {
         String cancelReason,
         Integer cancelAmount,
         LocalDateTime canceledAt,
-        Payment payment
+        Boolean isDeleted, Payment payment
     ) {
         this.transactionKey = transactionKey;
         this.cancelReason = cancelReason;
         this.cancelAmount = cancelAmount;
         this.canceledAt = canceledAt;
+        this.isDeleted = isDeleted;
         this.payment = payment;
     }
 }

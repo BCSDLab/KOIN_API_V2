@@ -2,20 +2,19 @@ package in.koreatech.koin.domain.payment.service;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.PAYMENT_CONFIRM_ERROR;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
 import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.model.OrderMenu;
 import in.koreatech.koin.domain.order.repository.OrderRepository;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
 import in.koreatech.koin.domain.payment.dto.response.PaymentConfirmResponse;
 import in.koreatech.koin.domain.payment.gateway.pg.PaymentGatewayService;
 import in.koreatech.koin.domain.payment.gateway.pg.dto.PaymentGatewayConfirmResponse;
+import in.koreatech.koin.domain.payment.mapper.OrderMenuItemsMapper;
 import in.koreatech.koin.domain.payment.mapper.PaymentMapper;
 import in.koreatech.koin.domain.payment.model.domain.PaymentConfirmInfo;
 import in.koreatech.koin.domain.payment.model.entity.Payment;
@@ -38,6 +37,7 @@ public class PaymentConfirmService {
     private final TemporaryPaymentRedisRepository temporaryPaymentRedisRepository;
     private final CartRepository cartRepository;
     private final PaymentMapper paymentMapper;
+    private final OrderMenuItemsMapper orderMenuItemsMapper;
 
     @Transactional
     public PaymentConfirmResponse confirmPayment(User user, PaymentConfirmInfo paymentConfirmInfo) {
@@ -50,7 +50,8 @@ public class PaymentConfirmService {
 
         OrderableShop orderableShop = orderableShopRepository.getById(temporaryPayment.getOrderableShopId());
         Order order = temporaryPayment.toOrder(user, orderableShop);
-        createOrderMenus(temporaryPayment, order).forEach(order::addOrderMenu);
+        Cart cart = cartRepository.getCartByUserId(user.getId());
+        orderMenuItemsMapper.fromCart(cart).forEach(order::addOrderMenu);
         orderRepository.save(order);
 
         Payment payment = paymentMapper.toEntity(order, pgResponse);
@@ -66,12 +67,6 @@ public class PaymentConfirmService {
         if (!paymentStatus.isDone()) {
             throw CustomException.of(PAYMENT_CONFIRM_ERROR);
         }
-    }
-
-    private List<OrderMenu> createOrderMenus(TemporaryPayment temporaryPayment, Order order) {
-        return temporaryPayment.getTemporaryMenuItems().stream()
-            .map(temporaryMenuItems -> temporaryMenuItems.toOrderMenu(order))
-            .toList();
     }
 
     private void cleanupAfterPaymentConfirm(String orderId, Integer userId) {

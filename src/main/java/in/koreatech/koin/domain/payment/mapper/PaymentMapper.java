@@ -26,8 +26,12 @@ public class PaymentMapper {
             .amount(response.totalAmount())
             .paymentStatus(PaymentStatus.valueOf(response.status()))
             .paymentMethod(PaymentMethod.from(response.method()))
+            .description(response.orderName())
+            .easyPayCompany(response.provider())
             .requestedAt(requested)
             .approvedAt(approved)
+            .receipt(response.receipt())
+            .isDeleted(false)
             .order(order)
             .build();
     }
