@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.payment.model.redis;
 
+import static in.koreatech.koin.domain.order.model.OrderStatus.CONFIRMING;
 import static in.koreatech.koin.domain.order.model.OrderType.DELIVERY;
 import static in.koreatech.koin.domain.order.model.OrderType.TAKE_OUT;
 import static in.koreatech.koin.global.code.ApiResponseCode.MISMATCH_TEMPORARY_PAYMENT;
@@ -151,6 +152,7 @@ public class TemporaryPayment {
         Order order = Order.builder()
             .pgOrderId(pgOrderId)
             .orderType(orderType)
+            .status(CONFIRMING)
             .orderableShopAddress(orderableShop.getShop().getAddress())
             .orderableShopAddressDetail(orderableShop.getShop().getAddressDetail())
             .orderableShopName(orderableShop.getShop().getName())
