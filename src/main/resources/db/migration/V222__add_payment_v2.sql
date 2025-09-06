@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `koin`.`payment`
+CREATE TABLE IF NOT EXISTS `koin`.`payment_v2`
 (
     `id`                                INT UNSIGNED    NOT NULL    AUTO_INCREMENT COMMENT '고유 ID',
     `order_id`                          INT UNSIGNED    NOT NULL    COMMENT '주문 번호',
@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS `koin`.`payment`
     `updated_at`                        TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     PRIMARY KEY (`id`),
     UNIQUE KEY uq_payment_key (`id`),
-    CONSTRAINT fk_payment_order FOREIGN KEY (`order_id`) REFERENCES `koin`.`order` (`id`)
+    CONSTRAINT fk_payment_order_v2 FOREIGN KEY (`order_id`) REFERENCES `koin`.`order_v2` (`id`)
 );

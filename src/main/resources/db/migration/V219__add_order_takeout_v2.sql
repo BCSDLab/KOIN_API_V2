@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `koin`.`order_takeout`
+CREATE TABLE IF NOT EXISTS `koin`.`order_takeout_v2`
 (
     `order_id`                  INT UNSIGNED    NOT NULL                COMMENT '주문 ID',
     `to_owner`                  VARCHAR(50)     NOT NULL                COMMENT '사장님 전달 메시지',
@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS `koin`.`order_takeout`
     `created_at`                TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     `updated_at`                TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     PRIMARY KEY (order_id),
-    CONSTRAINT `fk_order_takeout_order` FOREIGN KEY (`order_id`) REFERENCES `koin`.`order` (`id`)
+    CONSTRAINT `fk_order_takeout_order_v2` FOREIGN KEY (`order_id`) REFERENCES `koin`.`order_v2` (`id`)
 );

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `koin`.`order_menu`
+CREATE TABLE IF NOT EXISTS `koin`.`order_menu_v2`
 (
     `id`                                INT UNSIGNED    NOT NULL AUTO_INCREMENT COMMENT '주문 메뉴 ID',
     `order_id`                          INT UNSIGNED    NOT NULL COMMENT '주문 ID',
@@ -12,5 +12,5 @@ CREATE TABLE IF NOT EXISTS `koin`.`order_menu`
     `created_at`                        TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     `updated_at`                        TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_order_menu_order` FOREIGN KEY (`order_id`) REFERENCES `koin`.`order` (`id`)
+    CONSTRAINT `fk_order_menu_order_v2` FOREIGN KEY (`order_id`) REFERENCES `koin`.`order_v2` (`id`)
 );

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `koin`.`payment_cancel`
+CREATE TABLE IF NOT EXISTS `koin`.`payment_cancel_v2`
 (
     `id`                                INT UNSIGNED    NOT NULL    AUTO_INCREMENT COMMENT '결제 취소 ID',
     `payment_id`                        INT UNSIGNED    NOT NULL    COMMENT '결제 ID',
@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS `koin`.`payment_cancel`
     `created_at`                        TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     `updated_at`                        TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_payment_cancel_payment` FOREIGN KEY (`payment_id`) REFERENCES `koin`.`payment` (`id`)
+    CONSTRAINT `fk_payment_cancel_payment_v2` FOREIGN KEY (`payment_id`) REFERENCES `koin`.`payment_v2` (`id`)
 );

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `koin`.`order`
+CREATE TABLE IF NOT EXISTS `koin`.`order_v2`
 (
     `id`                            INT UNSIGNED        NOT NULL AUTO_INCREMENT COMMENT '주문 고유 ID',
     `pg_order_id`                   VARCHAR(64)         NOT NULL COMMENT 'PG 주문 ID',

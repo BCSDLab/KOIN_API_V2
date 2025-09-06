@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(schema = "koin", name = "payment")
+@Table(schema = "koin", name = "payment_v2")
 @NoArgsConstructor(access = PROTECTED)
 public class Payment extends BaseEntity {
 

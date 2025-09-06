@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(schema = "koin", name = "order_menu_option")
+@Table(schema = "koin", name = "order_menu_option_v2")
 @NoArgsConstructor(access = PROTECTED)
 public class OrderMenuOption extends BaseEntity {
 

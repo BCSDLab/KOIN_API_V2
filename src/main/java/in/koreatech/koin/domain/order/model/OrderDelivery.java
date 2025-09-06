@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "order_delivery")
+@Table(name = "order_delivery_v2")
 @NoArgsConstructor(access = PROTECTED)
 public class OrderDelivery extends BaseEntity {
 

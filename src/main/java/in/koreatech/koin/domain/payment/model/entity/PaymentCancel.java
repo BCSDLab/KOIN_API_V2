@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "payment_cancel")
+@Table(name = "payment_cancel_v2")
 @NoArgsConstructor(access = PROTECTED)
 public class PaymentCancel extends BaseEntity {
 
