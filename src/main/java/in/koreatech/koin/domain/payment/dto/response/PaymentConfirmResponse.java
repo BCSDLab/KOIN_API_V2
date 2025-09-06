@@ -28,8 +28,11 @@ public record PaymentConfirmResponse(
     @Schema(description = "결제 고유 id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
-    @Schema(description = "배달 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600 은솔관 422호", requiredMode = NOT_REQUIRED)
+    @Schema(description = "배달 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600", requiredMode = NOT_REQUIRED)
     String deliveryAddress,
+
+    @Schema(description = "배달상세 주소", example = "은솔관 422호", requiredMode = NOT_REQUIRED)
+    String deliveryAddressDetails,
 
     @Schema(description = "가게 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600 은솔관 422호", requiredMode = NOT_REQUIRED)
     String shopAddress,
@@ -55,6 +58,9 @@ public record PaymentConfirmResponse(
     @Schema(description = "주문 방법", example = "DELIVERY", requiredMode = REQUIRED)
     String orderType,
 
+    @Schema(description = "간편결제사", example = "삼성페이", requiredMode = REQUIRED)
+    String easyPayCompany,
+
     @Schema(description = "결제 요청 일시", example = "2025.06.21 21:00", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy.MM.dd HH:mm")
     LocalDateTime requestedAt,
@@ -75,6 +81,9 @@ public record PaymentConfirmResponse(
         @Schema(description = "수량", example = "1", requiredMode = REQUIRED)
         Integer quantity,
 
+        @Schema(description = "메뉴 가격", example = "12300", requiredMode = REQUIRED)
+        Integer price,
+
         @Schema(description = "선택한 옵션 목록", requiredMode = NOT_REQUIRED)
         List<InnerMenuOptionResponse> options
     ) {
@@ -90,6 +99,7 @@ public record PaymentConfirmResponse(
             return new InnerCartItemResponse(
                 orderMenu.getMenuName(),
                 orderMenu.getQuantity(),
+                orderMenu.getMenuPrice(),
                 optionResponses
             );
         }
@@ -99,13 +109,18 @@ public record PaymentConfirmResponse(
     public record InnerMenuOptionResponse(
         @Schema(description = "옵션 그룹 이름", example = "소스 추가", requiredMode = NOT_REQUIRED)
         String optionGroupName,
+
         @Schema(description = "옵션 이름", example = "레드디핑 소스", requiredMode = REQUIRED)
-        String optionName
+        String optionName,
+
+        @Schema(description = "옵션 가격", example = "1000", requiredMode = REQUIRED)
+        Integer optionPrice
     ) {
         public static InnerMenuOptionResponse from(OrderMenuOption orderMenuOption) {
             return new InnerMenuOptionResponse(
                 orderMenuOption.getOptionGroupName(),
-                orderMenuOption.getOptionName()
+                orderMenuOption.getOptionName(),
+                orderMenuOption.getOptionPrice()
             );
         }
     }
@@ -118,6 +133,7 @@ public record PaymentConfirmResponse(
         Shop shop = orderableShop.getShop();
 
         String deliveryAddress = null;
+        String deliveryAddressDetails = null;
         String toOwner = null;
         String toRider = null;
         Boolean provideCutlery = null;
@@ -125,6 +141,7 @@ public record PaymentConfirmResponse(
         if (order.getOrderType() == DELIVERY) {
             OrderDelivery delivery = order.getOrderDelivery();
             deliveryAddress = delivery.getAddress();
+            deliveryAddressDetails = delivery.getAddressDetail();
             toOwner = delivery.getToOwner();
             toRider = delivery.getToRider();
             provideCutlery = delivery.getProvideCutlery();
@@ -137,6 +154,7 @@ public record PaymentConfirmResponse(
         return new PaymentConfirmResponse(
             payment.getId(),
             deliveryAddress,
+            deliveryAddressDetails,
             shop.getAddress(),
             toOwner,
             toRider,
@@ -147,6 +165,7 @@ public record PaymentConfirmResponse(
                 .map(InnerCartItemResponse::from)
                 .toList(),
             order.getOrderType().name(),
+            payment.getEasyPayCompany(),
             payment.getRequestedAt(),
             payment.getApprovedAt(),
             payment.getPaymentMethod().getDisplayName()
