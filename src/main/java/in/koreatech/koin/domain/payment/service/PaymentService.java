@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.payment.service;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.address.service.RoadNameAddressValidator;
+import in.koreatech.koin.domain.address.service.AddressValidator;
 import in.koreatech.koin.domain.payment.dto.request.PaymentCancelRequest;
 import in.koreatech.koin.domain.payment.dto.request.PaymentConfirmRequest;
 import in.koreatech.koin.domain.payment.dto.request.TemporaryDeliveryPaymentSaveRequest;
@@ -27,12 +27,12 @@ public class PaymentService {
     private final PaymentConfirmService paymentConfirmService;
     private final PaymentCancelService paymentCancelService;
     private final PaymentQueryService paymentQueryService;
-    private final RoadNameAddressValidator roadNameAddressValidator;
+    private final AddressValidator addressValidator;
 
     public TemporaryPaymentResponse createTemporaryDeliveryPayment(
         Integer userId, TemporaryDeliveryPaymentSaveRequest request
     ) {
-        roadNameAddressValidator.validateAddress(request.address());
+        addressValidator.validateAddress(request.address());
         User user = userAuthenticationService.authenticateUser(userId);
         DeliveryPaymentInfo deliveryPaymentInfo = DeliveryPaymentInfo.of(
             request.phoneNumber(),
