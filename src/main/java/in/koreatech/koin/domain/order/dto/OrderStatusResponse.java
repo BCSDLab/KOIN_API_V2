@@ -36,7 +36,7 @@ public record OrderStatusResponse(
         String statusLabel = null;
         OrderStatus status = order.getStatus();
         if (status != null) {
-            statusLabel = status.getDescription();
+            statusLabel = status.name();
         }
 
         LocalDateTime eta = null;
