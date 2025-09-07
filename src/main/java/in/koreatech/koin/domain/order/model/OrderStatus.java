@@ -9,7 +9,8 @@ public enum OrderStatus {
     PACKAGED("포장 완료"),
     DELIVERING("배달 중"),
     DELIVERED("배달 완료"),
-    CANCELED("취소");
+    CANCELED("취소"),
+    ;
 
     private final String description;
 

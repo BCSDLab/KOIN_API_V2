@@ -15,7 +15,7 @@ public enum OrderStatusCriteria {
     NONE("NONE") {
         @Override
         public BooleanExpression getPredicate() {
-            return null;
+            return order.status.in(DELIVERED, PACKAGED, OrderStatus.CANCELED);
         }
     },
     COMPLETED("COMPLETED") {
