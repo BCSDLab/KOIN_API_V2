@@ -118,7 +118,8 @@ public class Payment extends BaseEntity {
         }
     }
 
-    public void cancel() {
+    public void cancel(String reason) {
         this.paymentStatus = CANCELED;
+        this.order.cancel(reason);
     }
 }
