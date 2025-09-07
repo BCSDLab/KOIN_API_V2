@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.order.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -38,14 +40,24 @@ public class OrderTakeout {
     @Column(name = "provide_cutlery", nullable = false, updatable = false, columnDefinition = "TINYINT(1)")
     private Boolean provideCutlery;
 
+    @Column(name = "packaged_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime packagedAt;
+
+    @Column(name = "estimated_packaged_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime estimatedPackagedAt;
+
     @Builder
     private OrderTakeout(
         Order order,
         String toOwner,
-        Boolean provideCutlery
+        Boolean provideCutlery,
+        LocalDateTime packagedAt,
+        LocalDateTime estimatedPackagedAt
     ) {
         this.order = order;
         this.toOwner = toOwner;
         this.provideCutlery = provideCutlery;
+        this.packagedAt = packagedAt;
+        this.estimatedPackagedAt = estimatedPackagedAt;
     }
 }
