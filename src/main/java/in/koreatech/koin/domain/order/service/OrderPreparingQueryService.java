@@ -1,0 +1,36 @@
+package in.koreatech.koin.domain.order.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.order.dto.OrderPreparingResponse;
+import in.koreatech.koin.domain.order.model.Order;
+import in.koreatech.koin.domain.order.repository.OrderRepository;
+import in.koreatech.koin.domain.payment.repository.PaymentRepository;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class OrderPreparingQueryService {
+
+    private final OrderRepository orderRepository;
+    private final PaymentRepository paymentRepository;
+
+    @Transactional(readOnly = true)
+    public List<OrderPreparingResponse> listOrderPreparing(Integer userId) {
+        List<Order> orders = orderRepository.findOrderWithStatus(userId);
+
+        if (orders.isEmpty()) {
+            return List.of();
+        }
+
+        return orders.stream()
+            .map(order -> {
+                String desc = paymentRepository.findDescriptionByOrderId(order.getId()).orElse(null);
+                return OrderPreparingResponse.from(order, desc);
+            })
+            .toList();
+    }
+}
