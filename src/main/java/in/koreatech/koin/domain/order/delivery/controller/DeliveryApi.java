@@ -154,7 +154,8 @@ public interface DeliveryApi {
         """)
     @ApiResponseCodes({
         ApiResponseCode.OK,
-        ApiResponseCode.INVALID_DELIVERY_AREA
+        ApiResponseCode.INVALID_DELIVERY_AREA,
+        ApiResponseCode.INVALID_DELIVERY_BUILDING,
     })
     @PostMapping("/delivery/address/off-campus/validate")
     ResponseEntity<Void> validateOffCampusDeliveryAddress(
