@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.order.model;
 
-import static in.koreatech.koin.domain.order.model.OrderStatus.CANCELED;
+import static in.koreatech.koin.domain.order.model.OrderStatus.*;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -177,5 +177,13 @@ public class Order extends BaseEntity {
         this.status = CANCELED;
         this.canceledReason = cancelReason;
         this.canceledAt = LocalDateTime.now();
+    }
+
+    public void deliveryComplete() {
+        this.status = DELIVERED;
+    }
+
+    public void takeoutComplete() {
+        this.status = PACKAGED;
     }
 }
