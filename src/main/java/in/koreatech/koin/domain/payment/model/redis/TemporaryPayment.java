@@ -158,6 +158,7 @@ public class TemporaryPayment {
             .orderableShopName(orderableShop.getShop().getName())
             .phoneNumber(phoneNumber)
             .totalProductPrice(totalProductPrice)
+            .discountAmount(0) // 현재 할인 정책이 없기 때문에 0원 처리
             .totalPrice(totalPrice)
             .orderableShop(orderableShop)
             .user(user)
