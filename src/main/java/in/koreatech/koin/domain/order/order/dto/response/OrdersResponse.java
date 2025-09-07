@@ -61,8 +61,8 @@ public record OrdersResponse(
                 orderInfo.paymentId(),
                 orderInfo.orderShopId(),
                 orderInfo.orderableShopName(),
-                orderInfo.orderDate(),
-                orderInfo.orderStatus(),
+                orderInfo.orderDate().toLocalDate(),
+                orderInfo.orderStatus().name(),
                 orderInfo.orderTitle()
             );
         }
