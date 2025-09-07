@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItemOption;
+import in.koreatech.koin.domain.order.model.Order;
 import in.koreatech.koin.domain.order.model.OrderMenu;
 import in.koreatech.koin.domain.order.model.OrderMenuOption;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
@@ -16,32 +17,34 @@ import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPr
 @Component
 public class OrderMenuItemsMapper {
 
-    public List<OrderMenu> fromCart(Cart cart) {
+    public List<OrderMenu> toOrderMenus(Cart cart, Order order) {
         return cart.getCartMenuItems().stream()
-            .map(this::fromCartMenuItem)
+            .map(cartMenuItem -> toOrderMenu(cartMenuItem, order))
             .toList();
     }
 
-    private OrderMenu fromCartMenuItem(CartMenuItem cartMenuItem) {
-        List<OrderMenuOption> options = cartMenuItem.getCartMenuItemOptions().stream()
-            .map(this::fromCartMenuItemOption)
-            .toList();
-
+    private OrderMenu toOrderMenu(CartMenuItem cartMenuItem, Order order) {
         OrderableShopMenuPrice price = cartMenuItem.getOrderableShopMenuPrice();
-
-        return OrderMenu.builder()
+        OrderMenu orderMenu = OrderMenu.builder()
             .menuName(cartMenuItem.getOrderableShopMenu().getName())
             .menuPrice(price.getPrice())
             .menuPriceName(price.getName())
             .quantity(cartMenuItem.getQuantity())
             .isDeleted(false)
+            .order(order)
             .orderableShopMenu(cartMenuItem.getOrderableShopMenu())
             .orderableShopMenuPrice(price)
-            .orderMenuOptions(options)
             .build();
+
+        List<OrderMenuOption> orderMenuOptions = cartMenuItem.getCartMenuItemOptions().stream()
+            .map(cartMenuItemOption -> toOrderMenuOption(cartMenuItemOption, orderMenu))
+            .toList();
+
+        orderMenu.setOrderMenuOptions(orderMenuOptions);
+        return orderMenu;
     }
 
-    private OrderMenuOption fromCartMenuItemOption(CartMenuItemOption option) {
+    private OrderMenuOption toOrderMenuOption(CartMenuItemOption option, OrderMenu orderMenu) {
         OrderableShopMenuOption shopOption = option.getOrderableShopMenuOption();
         OrderableShopMenuOptionGroup optionGroup = shopOption.getOptionGroup();
 
@@ -51,6 +54,7 @@ public class OrderMenuItemsMapper {
             .optionPrice(option.getOptionPrice())
             .quantity(option.getQuantity())
             .isDeleted(false)
+            .orderMenu(orderMenu)
             .orderableShopMenuOption(shopOption)
             .orderableShopMenuOptionGroup(shopOption.getOptionGroup())
             .build();
