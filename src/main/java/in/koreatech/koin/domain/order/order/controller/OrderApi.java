@@ -5,7 +5,11 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.order.order.dto.request.OrderSearchPeriodCriteria;
+import in.koreatech.koin.domain.order.order.dto.request.OrderStatusCriteria;
+import in.koreatech.koin.domain.order.order.dto.request.OrderTypeCriteria;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +20,11 @@ public interface OrderApi {
 
     @GetMapping
     ResponseEntity<OrdersResponse> getOrders(
+        @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", required = false, defaultValue = "10") Integer limit,
+        @RequestParam(name = "period", required = false, defaultValue = "NONE") OrderSearchPeriodCriteria period,
+        @RequestParam(name = "status", required = false, defaultValue = "NONE") OrderStatusCriteria status,
+        @RequestParam(name = "type", required = false, defaultValue = "NONE") OrderTypeCriteria type,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }
