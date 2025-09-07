@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.model.OrderInfo;
+import in.koreatech.koin.domain.order.model.OrderSearchCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchCondition;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
 import in.koreatech.koin.domain.order.repository.OrderSearchQueryRepository;
@@ -18,7 +19,8 @@ public class OrderService {
     private final OrderSearchQueryRepository orderSearchQueryRepository;
 
     public OrdersResponse getOrders(Integer userId, OrderSearchCondition orderSearchCondition) {
-        Page<OrderInfo> orderPage = orderSearchQueryRepository.findOrdersByCondition(userId, orderSearchCondition);
+        OrderSearchCriteria orderSearchCriteria = OrderSearchCriteria.from(orderSearchCondition);
+        Page<OrderInfo> orderPage = orderSearchQueryRepository.findOrdersByCondition(userId, orderSearchCriteria);
         return OrdersResponse.of(orderPage);
     }
 }

@@ -17,7 +17,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.order.model.OrderInfo;
-import in.koreatech.koin.domain.order.order.dto.request.OrderSearchCondition;
+import in.koreatech.koin.domain.order.model.OrderSearchCriteria;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -26,13 +26,13 @@ public class OrderSearchQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public Page<OrderInfo> findOrdersByCondition(Integer userId, OrderSearchCondition condition) {
-        Pageable pageable = PageRequest.of(condition.page() - 1, condition.limit());
+    public Page<OrderInfo> findOrdersByCondition(Integer userId, OrderSearchCriteria criteria) {
+        Pageable pageable = PageRequest.of(criteria.page() - 1, criteria.limit());
         var predicate = allOf(
             order.user.id.eq(userId),
-            condition.period() != null ? condition.period().getPredicate() : null,
-            condition.status() != null ? condition.status().getPredicate() : null,
-            condition.type() != null ? condition.type().getPredicate() : null
+            criteria.period() != null ? criteria.period().getPredicate() : null,
+            criteria.status() != null ? criteria.status().getPredicate() : null,
+            criteria.type() != null ? criteria.type().getPredicate() : null
         );
 
         List<OrderInfo> results = jpaQueryFactory
