@@ -51,7 +51,7 @@ public class PaymentConfirmService {
         OrderableShop orderableShop = orderableShopRepository.getById(temporaryPayment.getOrderableShopId());
         Order order = temporaryPayment.toOrder(user, orderableShop);
         Cart cart = cartRepository.getCartByUserId(user.getId());
-        orderMenuItemsMapper.fromCart(cart).forEach(order::addOrderMenu);
+        orderMenuItemsMapper.toOrderMenus(cart, order).forEach(order::addOrderMenu);
         orderRepository.save(order);
 
         Payment payment = paymentMapper.toEntity(order, pgResponse);
