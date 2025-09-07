@@ -32,10 +32,10 @@ public class OrderTestService {
             throw CustomException.of(FORBIDDEN_ORDER);
         }
 
-        if (orderStatus == DELIVERED && order.getStatus() == DELIVERED) {
+        if (orderStatus.equals(DELIVERED) && order.getStatus().equals(DELIVERED)) {
             OrderDelivery orderDelivery = order.getOrderDelivery();
             orderDelivery.deliveryComplete();
-        } else if (orderStatus == PACKAGED && order.getStatus().equals(DELIVERED)) {
+        } else if (orderStatus.equals(PACKAGED) && order.getStatus().equals(DELIVERED)) {
             OrderTakeout orderTakeout = order.getOrderTakeout();
             orderTakeout.takeoutComplete();
         }
