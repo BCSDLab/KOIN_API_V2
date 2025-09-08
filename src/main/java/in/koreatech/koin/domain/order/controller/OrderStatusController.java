@@ -22,7 +22,7 @@ public class OrderStatusController implements OrderStatusApi {
     private final OrderStatusQueryService service;
 
     @GetMapping("/status")
-    public ResponseEntity<List<OrderStatusResponse>> getListActiveOrders(
+    public ResponseEntity<List<OrderStatusResponse>> getActiveOrders(
         @Auth(permit = STUDENT) Integer userId
     ) {
         return ResponseEntity.ok(service.getListLatestActive(userId));

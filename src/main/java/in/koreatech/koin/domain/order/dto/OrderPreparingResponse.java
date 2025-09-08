@@ -2,14 +2,13 @@ package in.koreatech.koin.domain.order.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.model.OrderStatus;
 import in.koreatech.koin.domain.order.model.OrderType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -27,9 +26,9 @@ public record OrderPreparingResponse(
     @Schema(description = "상점 썸네일 URL", example = "abcd.jpg", requiredMode = REQUIRED)
     String shopThumbnail,
 
-    @Schema(description = "예상 시각", example = "2025-09-07T17:45:00", requiredMode = REQUIRED)
+    @Schema(description = "예상 시각", example = "17:45", requiredMode = REQUIRED)
     @JsonFormat(pattern = "HH:mm")
-    LocalDateTime estimatedAt,
+    LocalTime estimatedAt,
 
     @Schema(description = "주문 상태", example = "COOKING", requiredMode = REQUIRED)
     String orderStatus,
@@ -42,11 +41,11 @@ public record OrderPreparingResponse(
 ) {
     public static OrderPreparingResponse from(Order order, String paymentDescription) {
 
-        LocalDateTime eta = null;
+        LocalTime estimatedTime = null;
         if (order.getOrderType() == OrderType.DELIVERY) {
-            eta = order.getOrderDelivery().getEstimatedArrivalAt();
+            estimatedTime = LocalTime.from(order.getOrderDelivery().getEstimatedArrivalAt());
         } else if (order.getOrderType() == OrderType.TAKE_OUT) {
-            eta = order.getOrderTakeout().getEstimatedPackagedAt();
+            estimatedTime = LocalTime.from(order.getOrderTakeout().getEstimatedPackagedAt());
         }
 
         return new OrderPreparingResponse(
@@ -54,7 +53,7 @@ public record OrderPreparingResponse(
             order.getOrderType().name(),
             order.getOrderableShopName(),
             order.getOrderableShop().getThumbnailImage(),
-            eta,
+            estimatedTime,
             order.getStatus().name(),
             paymentDescription,
             order.getTotalPrice()

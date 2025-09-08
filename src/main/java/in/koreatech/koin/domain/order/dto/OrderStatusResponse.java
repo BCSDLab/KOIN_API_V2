@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.order.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.model.Order;
 import in.koreatech.koin.domain.order.model.OrderType;
-import in.koreatech.koin.domain.order.model.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -24,9 +23,9 @@ public record OrderStatusResponse(
     @Schema(description = "주문 상태", example = "COOKING", requiredMode = REQUIRED)
     String orderStatus,
 
-    @Schema(description = "예상 시각", example = "2025-09-07T17:45:00", requiredMode = REQUIRED)
+    @Schema(description = "예상 시각", example = "17:45", requiredMode = REQUIRED)
     @JsonFormat(pattern = "HH:mm")
-    LocalDateTime estimatedAt,
+    LocalTime estimatedAt,
 
     @Schema(description = "상점 이름", example = "코인 병천점", requiredMode = REQUIRED)
     String shopName
@@ -34,18 +33,18 @@ public record OrderStatusResponse(
 
     public static OrderStatusResponse from(Order order) {
 
-        LocalDateTime eta = null;
+        LocalTime estimatedTime = null;
         if (order.getOrderType() == OrderType.DELIVERY) {
-            eta = order.getOrderDelivery().getEstimatedArrivalAt();
+            estimatedTime = LocalTime.from(order.getOrderDelivery().getEstimatedArrivalAt());
         } else if (order.getOrderType() == OrderType.TAKE_OUT) {
-            eta = order.getOrderTakeout().getEstimatedPackagedAt();
+            estimatedTime = LocalTime.from(order.getOrderTakeout().getEstimatedPackagedAt());
         }
 
         return new OrderStatusResponse(
             order.getId(),
             order.getOrderType().name(),
             order.getStatus().name(),
-            eta,
+            estimatedTime,
             order.getOrderableShopName());
     }
 }

@@ -17,12 +17,12 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/order")
-public class OrderPreparingController implements OrderPreparingApi{
+public class OrderPreparingController implements OrderPreparingApi {
 
     private final OrderPreparingQueryService service;
 
-    @GetMapping("inprogress")
-    public ResponseEntity<List<OrderPreparingResponse>> getListOrderPreparing(
+    @GetMapping("in-progress")
+    public ResponseEntity<List<OrderPreparingResponse>> getInprogressOrders(
         @Auth(permit = STUDENT) Integer userId
     ) {
         return ResponseEntity.ok(service.getListOrderPreparing(userId));
