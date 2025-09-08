@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.order.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.GENERAL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -18,14 +17,14 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/order")
-public class OrderPreparingController {
+public class OrderPreparingController implements OrderPreparingApi{
 
     private final OrderPreparingQueryService service;
 
-    @GetMapping("preparation")
-    public ResponseEntity<List<OrderPreparingResponse>> listOrderPreparing(
-        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+    @GetMapping("inprogress")
+    public ResponseEntity<List<OrderPreparingResponse>> getListOrderPreparing(
+        @Auth(permit = STUDENT) Integer userId
     ) {
-        return ResponseEntity.ok(service.listOrderPreparing(userId));
+        return ResponseEntity.ok(service.getListOrderPreparing(userId));
     }
 }

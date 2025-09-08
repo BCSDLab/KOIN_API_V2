@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.dto.OrderStatusResponse;
+import in.koreatech.koin.domain.order.model.Order;
 import in.koreatech.koin.domain.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -17,13 +18,9 @@ public class OrderStatusQueryService {
     private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
-    public List<OrderStatusResponse> listLatestActive(Integer userId) {
-        var orders = orderRepository.findOrderWithStatus(userId,
+    public List<OrderStatusResponse> getListLatestActive(Integer userId) {
+        List<Order> orders = orderRepository.findOrderWithStatus(userId,
             PageRequest.of(0, 1));
-
-        if (orders.isEmpty()) {
-            return List.of();
-        }
 
         return orders.stream().map(OrderStatusResponse::from).toList();
     }

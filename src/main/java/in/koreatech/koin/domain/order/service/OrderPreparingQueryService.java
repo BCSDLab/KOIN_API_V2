@@ -19,12 +19,8 @@ public class OrderPreparingQueryService {
     private final PaymentRepository paymentRepository;
 
     @Transactional(readOnly = true)
-    public List<OrderPreparingResponse> listOrderPreparing(Integer userId) {
+    public List<OrderPreparingResponse> getListOrderPreparing(Integer userId) {
         List<Order> orders = orderRepository.findOrderWithStatus(userId);
-
-        if (orders.isEmpty()) {
-            return List.of();
-        }
 
         return orders.stream()
             .map(order -> {
