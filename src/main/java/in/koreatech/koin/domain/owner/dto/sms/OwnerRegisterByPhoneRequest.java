@@ -67,7 +67,6 @@ public record OwnerRegisterByPhoneRequest(
             .loginPw(passwordEncoder.encode(password))
             .name(name)
             .email(null)
-            .phoneNumber(phoneNumber)
             .userType(OWNER)
             .isAuthed(false)
             .isDeleted(false)

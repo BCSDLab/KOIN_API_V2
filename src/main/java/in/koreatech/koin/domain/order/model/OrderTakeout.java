@@ -2,6 +2,9 @@ package in.koreatech.koin.domain.order.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDateTime;
+
+import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -11,18 +14,19 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "order_takeout")
+@Table(name = "order_takeout_v2")
 @NoArgsConstructor(access = PROTECTED)
-public class OrderTakeout {
+public class OrderTakeout extends BaseEntity {
 
     @Id
     @Column(name = "order_id", nullable = false, updatable = false)
-    private String id;
+    private Integer id;
 
     @MapsId
     @OneToOne
@@ -36,4 +40,31 @@ public class OrderTakeout {
     @NotNull
     @Column(name = "provide_cutlery", nullable = false, updatable = false, columnDefinition = "TINYINT(1)")
     private Boolean provideCutlery;
+
+    @Column(name = "packaged_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime packagedAt;
+
+    @Column(name = "estimated_packaged_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime estimatedPackagedAt;
+
+    @Builder
+    private OrderTakeout(
+        Order order,
+        String toOwner,
+        Boolean provideCutlery,
+        LocalDateTime packagedAt,
+        LocalDateTime estimatedPackagedAt
+    ) {
+        this.order = order;
+        this.toOwner = toOwner;
+        this.provideCutlery = provideCutlery;
+        this.packagedAt = packagedAt;
+        this.estimatedPackagedAt = estimatedPackagedAt;
+    }
+
+    public void takeoutComplete() {
+        this.packagedAt = LocalDateTime.now();
+        this.estimatedPackagedAt = LocalDateTime.now();
+        this.order.takeoutComplete();
+    }
 }

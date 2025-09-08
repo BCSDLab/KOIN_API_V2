@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.order.cart.model.Cart;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 public interface CartRepository extends JpaRepository<Cart, Integer> {
 
@@ -18,6 +20,11 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
         WHERE c.user.id = :userId
     """)
     Optional<Cart> findCartByUserId(@Param("userId") Integer userId);
+
+    default Cart getCartByUserId(Integer userId) {
+        return findCartByUserId(userId)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CART));
+    }
 
     void deleteByUserId(Integer userId);
 }
