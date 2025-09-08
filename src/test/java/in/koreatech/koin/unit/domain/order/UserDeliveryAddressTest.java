@@ -125,7 +125,7 @@ class UserDeliveryAddressTest {
     }
 
     @Nested
-    class StaticFactoryMethodTest {
+    class OfCampusMethodTest {
 
         @Test
         @DisplayName("ofCampus는 CAMPUS 타입의 주소 객체를 올바르게 생성한다")
@@ -150,6 +150,22 @@ class UserDeliveryAddressTest {
         }
 
         @Test
+        @DisplayName("ofCampus에 null 캠퍼스 주소를 전달하면 null이 저장된다")
+        void ofCampus에_null_캠퍼스_주소를_전달하면_null이_저장된다() {
+            // when
+            UserDeliveryAddress userAddress = UserDeliveryAddress.ofCampus(testUser, null);
+
+            // then
+            assertThat(userAddress.getUser()).isEqualTo(testUser);
+            assertThat(userAddress.getAddressType()).isEqualTo(AddressType.CAMPUS);
+            assertThat(userAddress.getCampusDeliveryAddress()).isNull();
+        }
+    }
+
+    @Nested
+    class OfOffCampusMethodTest {
+
+        @Test
         @DisplayName("ofOffCampus는 OFF_CAMPUS 타입의 주소 객체를 올바르게 생성한다")
         void ofOffCampus는_OFF_CAMPUS_타입의_주소_객체를_올바르게_생성한다() {
             // when
@@ -169,18 +185,6 @@ class UserDeliveryAddressTest {
 
             assertThat(lastUsedAt).isCloseTo(LocalDateTime.now(),
                     within(10, java.time.temporal.ChronoUnit.SECONDS));
-        }
-
-        @Test
-        @DisplayName("ofCampus에 null 캠퍼스 주소를 전달하면 null이 저장된다")
-        void ofCampus에_null_캠퍼스_주소를_전달하면_null이_저장된다() {
-            // when
-            UserDeliveryAddress userAddress = UserDeliveryAddress.ofCampus(testUser, null);
-
-            // then
-            assertThat(userAddress.getUser()).isEqualTo(testUser);
-            assertThat(userAddress.getAddressType()).isEqualTo(AddressType.CAMPUS);
-            assertThat(userAddress.getCampusDeliveryAddress()).isNull();
         }
 
         @Test
