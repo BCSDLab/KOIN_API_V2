@@ -49,8 +49,8 @@ class UserDeliveryAddressTest {
     class getFullDeliveryAddress_메소드는 {
 
         @Test
-        @DisplayName("주소 타입이 캠퍼스일 경우 캠퍼스 주소 객체의 getFullAddress를 호출한다")
-        void 주소_타입이_캠퍼스일_경우_캠퍼스_주소_객체의_getFullAddress를_호출한다() {
+        @DisplayName("주소 타입이 캠퍼스일 경우 캠퍼스의 전체 주소를 반환한다")
+        void 주소_타입이_캠퍼스일_경우_캠퍼스의_전체_주소를_반환한다() {
             // given
             UserDeliveryAddress userAddress = UserDeliveryAddress.builder()
                     .addressType(AddressType.CAMPUS)
