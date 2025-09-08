@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.order.order.service;
 
 import static in.koreatech.koin.domain.order.model.OrderStatus.DELIVERED;
 import static in.koreatech.koin.domain.order.model.OrderStatus.PACKAGED;
+import static in.koreatech.koin.domain.order.model.OrderType.DELIVERY;
+import static in.koreatech.koin.domain.order.model.OrderType.TAKE_OUT;
 import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_ORDER;
 
 import org.springframework.context.annotation.Profile;
@@ -34,10 +36,10 @@ public class OrderTestService {
             throw CustomException.of(FORBIDDEN_ORDER);
         }
 
-        if (orderStatus.equals(DELIVERED) && order.getStatus().equals(DELIVERED)) {
+        if (orderStatus.equals(DELIVERED) && order.getOrderType().equals(DELIVERY)) {
             OrderDelivery orderDelivery = order.getOrderDelivery();
             orderDelivery.deliveryComplete();
-        } else if (orderStatus.equals(PACKAGED) && order.getStatus().equals(DELIVERED)) {
+        } else if (orderStatus.equals(PACKAGED) && order.getOrderType().equals(TAKE_OUT)) {
             OrderTakeout orderTakeout = order.getOrderTakeout();
             orderTakeout.takeoutComplete();
         }
