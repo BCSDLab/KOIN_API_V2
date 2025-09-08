@@ -25,14 +25,7 @@ public interface PaymentRepository extends Repository<Payment, Integer> {
     Optional<Payment> findByOrderId(Integer orderId);
 
     default Payment getByOrderId(Integer orderId) {
-        return findById(orderId)
+        return findByOrderId(orderId)
             .orElseThrow(() -> CustomException.of(NOT_FOUND_PAYMENT));
-    }
-
-    @Query("SELECT p.description FROM Payment p WHERE p.order.id = :orderId")
-    Optional<String> findDescriptionByOrderId(@Param("orderId") Integer orderId);
-
-    default String getDescriptionByOrderId(Integer orderId) {
-        return findDescriptionByOrderId(orderId).orElseThrow(() -> CustomException.of(NOT_FOUND_PAYMENT));
     }
 }

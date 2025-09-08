@@ -20,24 +20,24 @@ public interface OrderPreparingApi {
         summary = "주문 내역 중 현재 활성화된(배달완료, 취소 제외) 주문을 조회한다",
         description = """
             ## 다음과 같은 항목을 반환한다.
-            가게 이름 ex) "코인 병천점"
-            주문 타입 ex)
+            - 가게 이름 ex) "코인 병천점"
+            - 주문 타입 ex)
                 DELIVERY
                 TAKEOUT
-            주문 상태 ex)
+            - 주문 상태 ex)
                 CONFIRMING
                 COOKING
                 PACKAGED
                 DELIVERING
                 DELIVERED
                 CANCELED
-            가게 사진(썸네일) ex) abcd.jpg
-            주문 내용 ex) 족발 메뉴 외 1건
-            예상 시각 ex) 17:45
-            총 결제 금액 ex) 50000
+            - 가게 사진(썸네일) ex) abcd.jpg
+            - 주문 내용 ex) 족발 메뉴 외 1건
+            - 예상 시각 ex) 17:45
+            - 총 결제 금액 ex) 50000
             """
     )
-    @GetMapping
+    @GetMapping("/in-progress")
     ResponseEntity<List<OrderPreparingResponse>> getInprogressOrders(
         @Auth(permit = STUDENT) Integer userId
     );

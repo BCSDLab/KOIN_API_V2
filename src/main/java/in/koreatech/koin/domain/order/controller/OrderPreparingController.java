@@ -21,10 +21,10 @@ public class OrderPreparingController implements OrderPreparingApi {
 
     private final OrderPreparingQueryService service;
 
-    @GetMapping("in-progress")
+    @GetMapping("/in-progress")
     public ResponseEntity<List<OrderPreparingResponse>> getInprogressOrders(
         @Auth(permit = STUDENT) Integer userId
     ) {
-        return ResponseEntity.ok(service.getListOrderPreparing(userId));
+        return ResponseEntity.ok(service.getInprogressOrders(userId));
     }
 }

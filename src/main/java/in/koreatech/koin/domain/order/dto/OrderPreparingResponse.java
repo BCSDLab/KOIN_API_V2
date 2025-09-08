@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.order.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalTime;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.model.Order;
 import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.payment.model.entity.Payment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -26,7 +28,7 @@ public record OrderPreparingResponse(
     @Schema(description = "상점 썸네일 URL", example = "abcd.jpg", requiredMode = REQUIRED)
     String shopThumbnail,
 
-    @Schema(description = "예상 시각", example = "17:45", requiredMode = REQUIRED)
+    @Schema(description = "예상 시각", example = "17:45", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "HH:mm")
     LocalTime estimatedAt,
 
@@ -39,13 +41,17 @@ public record OrderPreparingResponse(
     @Schema(description = "총 금액", example = "50000", requiredMode = REQUIRED)
     Integer totalAmount
 ) {
-    public static OrderPreparingResponse from(Order order, String paymentDescription) {
+    public static OrderPreparingResponse from(Order order, Payment payment) {
 
         LocalTime estimatedTime = null;
         if (order.getOrderType() == OrderType.DELIVERY) {
-            estimatedTime = LocalTime.from(order.getOrderDelivery().getEstimatedArrivalAt());
+            if (order.getOrderDelivery().getEstimatedArrivalAt() != null) {
+                estimatedTime = LocalTime.from(order.getOrderDelivery().getEstimatedArrivalAt());
+            }
         } else if (order.getOrderType() == OrderType.TAKE_OUT) {
-            estimatedTime = LocalTime.from(order.getOrderTakeout().getEstimatedPackagedAt());
+            if (order.getOrderTakeout().getEstimatedPackagedAt() != null){
+                estimatedTime = LocalTime.from(order.getOrderTakeout().getEstimatedPackagedAt());
+            }
         }
 
         return new OrderPreparingResponse(
@@ -55,7 +61,7 @@ public record OrderPreparingResponse(
             order.getOrderableShop().getThumbnailImage(),
             estimatedTime,
             order.getStatus().name(),
-            paymentDescription,
+            payment.getDescription(),
             order.getTotalPrice()
         );
     }
