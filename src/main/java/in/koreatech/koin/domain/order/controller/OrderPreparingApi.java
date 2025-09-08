@@ -21,16 +21,24 @@ public interface OrderPreparingApi {
         description = """
             ## 다음과 같은 항목을 반환한다.
             가게 이름 ex) "코인 병천점"
-            주문 타입 ex) DELIVERY or TAKEOUT
-            주문 상태 ex) COOKING, CONFIRMING ...
+            주문 타입 ex)
+                DELIVERY
+                TAKEOUT
+            주문 상태 ex)
+                CONFIRMING
+                COOKING
+                PACKAGED
+                DELIVERING
+                DELIVERED
+                CANCELED
             가게 사진(썸네일) ex) abcd.jpg
             주문 내용 ex) 족발 메뉴 외 1건
-            예상 시각 ex) 2025-09-07T17:45:00
+            예상 시각 ex) 17:45
             총 결제 금액 ex) 50000
             """
     )
     @GetMapping
-    ResponseEntity<List<OrderPreparingResponse>> getListOrderPreparing(
+    ResponseEntity<List<OrderPreparingResponse>> getInprogressOrders(
         @Auth(permit = STUDENT) Integer userId
     );
 }
