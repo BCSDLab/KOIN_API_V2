@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.order.repository.OrderRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.exception.CustomException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Profile("dev")
@@ -25,6 +26,7 @@ public class OrderTestService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public void updateOrderStatus(Integer orderId, Integer userId, OrderStatus orderStatus) {
         User user = userRepository.getById(userId);
         Order order = orderRepository.getById(orderId);
