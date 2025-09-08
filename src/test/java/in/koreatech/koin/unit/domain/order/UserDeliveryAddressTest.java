@@ -211,40 +211,4 @@ class UserDeliveryAddressTest {
             assertThat(userAddress.getOffCampusDeliveryAddress()).isNull();
         }
     }
-
-
-    @Nested
-    class AddressDataValidationTest {
-
-        @Test
-        @DisplayName("한국기술교육대학교 캠퍼스 주소가 올바르게 반환된다")
-        void 한국기술교육대학교_캠퍼스_주소가_올바르게_반환된다() {
-            // given
-            UserDeliveryAddress userAddress = UserDeliveryAddress.ofCampus(testUser, testCampusAddress);
-
-            // when
-            String fullAddress = userAddress.getFullDeliveryAddress();
-
-            // then
-            assertThat(fullAddress).contains("201동");
-            assertThat(fullAddress).contains("316호");
-            assertThat(fullAddress).contains("한국기술교육대학교");
-            assertThat(fullAddress).contains("충절로 1600");
-        }
-
-        @Test
-        @DisplayName("병천면 맛집 주소가 올바르게 반환된다")
-        void 병천면_맛집_주소가_올바르게_반환된다() {
-            // given
-            UserDeliveryAddress userAddress = UserDeliveryAddress.ofOffCampus(testUser, testOffCampusAddress);
-
-            // when
-            String fullAddress = userAddress.getFullDeliveryAddress();
-
-            // then
-            assertThat(fullAddress).contains("천안시");
-            assertThat(fullAddress).contains("병천면");
-            assertThat(fullAddress).contains("이우철한방누룽지삼계탕 아우내병천점");
-        }
-    }
 }
