@@ -8,6 +8,7 @@ import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_ORDER;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.model.Order;
 import in.koreatech.koin.domain.order.model.OrderDelivery;
@@ -17,7 +18,6 @@ import in.koreatech.koin.domain.order.repository.OrderRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.exception.CustomException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Profile("dev")
