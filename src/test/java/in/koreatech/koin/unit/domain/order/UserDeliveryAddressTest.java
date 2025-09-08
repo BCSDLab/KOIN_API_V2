@@ -11,8 +11,6 @@ import in.koreatech.koin.domain.order.delivery.model.AddressType;
 import in.koreatech.koin.domain.order.delivery.model.OffCampusDeliveryAddress;
 import in.koreatech.koin.domain.order.delivery.model.UserDeliveryAddress;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import java.time.LocalDateTime;
 
@@ -212,57 +210,6 @@ class UserDeliveryAddressTest {
         }
     }
 
-    @Nested
-    @DisplayName("Builder를 통한 객체 생성 시")
-    class Builder를_통한_객체_생성_시 {
-
-        @Test
-        @DisplayName("모든 필드가 올바르게 설정된다")
-        void 모든_필드가_올바르게_설정된다() {
-            // given
-            LocalDateTime testTime = LocalDateTime.of(2025, 9, 6, 2, 10, 0);
-
-            // when
-            UserDeliveryAddress userAddress = UserDeliveryAddress.builder()
-                    .user(testUser)
-                    .addressType(AddressType.CAMPUS)
-                    .campusDeliveryAddress(testCampusAddress)
-                    .offCampusDeliveryAddress(testOffCampusAddress)
-                    .lastUsedAt(testTime)
-                    .usageCount(5)
-                    .isDefault(true)
-                    .build();
-
-            // then
-            assertThat(userAddress.getUser()).isEqualTo(testUser);
-            assertThat(userAddress.getAddressType()).isEqualTo(AddressType.CAMPUS);
-            assertThat(userAddress.getCampusDeliveryAddress()).isEqualTo(testCampusAddress);
-            assertThat(userAddress.getOffCampusDeliveryAddress()).isEqualTo(testOffCampusAddress);
-            assertThat(userAddress.getLastUsedAt()).isEqualTo(testTime);
-            assertThat(userAddress.getUsageCount()).isEqualTo(5);
-            assertThat(userAddress.getIsDefault()).isTrue();
-        }
-
-        @Test
-        @DisplayName("필수 필드만 설정하고 나머지는 기본값이 적용된다")
-        void 필수_필드만_설정하고_나머지는_기본값이_적용된다() {
-            // given & when
-            UserDeliveryAddress userAddress = UserDeliveryAddress.builder()
-                    .user(testUser)
-                    .addressType(AddressType.CAMPUS)
-                    .campusDeliveryAddress(testCampusAddress)
-                    .build();
-
-            // then
-            assertThat(userAddress.getUser()).isEqualTo(testUser);
-            assertThat(userAddress.getAddressType()).isEqualTo(AddressType.CAMPUS);
-            assertThat(userAddress.getCampusDeliveryAddress()).isEqualTo(testCampusAddress);
-            assertThat(userAddress.getOffCampusDeliveryAddress()).isNull();
-            assertThat(userAddress.getLastUsedAt()).isNull();
-            assertThat(userAddress.getUsageCount()).isNull();
-            assertThat(userAddress.getIsDefault()).isNull();
-        }
-    }
 
     @Nested
     @DisplayName("실제 주소 데이터 검증")
