@@ -14,6 +14,8 @@ import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import java.time.LocalDateTime;
+
+import in.koreatech.koin.unit.fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,15 +30,7 @@ class UserDeliveryAddressTest {
 
     @BeforeEach
     void setUp() {
-        testUser = User.builder()
-                .nickname("코리")
-                .phoneNumber("01012345678")
-                .anonymousNickname("익명")
-                .userType(UserType.STUDENT)
-                .gender(UserGender.MAN)
-                .isAuthed(true)
-                .isDeleted(false)
-                .build();
+        testUser = UserFixture.코인_유저();
 
         testCampusAddress = mock(CampusDeliveryAddress.class);
         when(testCampusAddress.getFullAddress()).thenReturn("한국기술교육대학교 충청남도 천안시 동남구 충절로 1600 201동 316호");
