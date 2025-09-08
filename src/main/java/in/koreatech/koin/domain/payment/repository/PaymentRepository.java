@@ -21,4 +21,11 @@ public interface PaymentRepository extends Repository<Payment, Integer> {
         return findById(id)
             .orElseThrow(() -> CustomException.of(NOT_FOUND_PAYMENT));
     }
+
+    Optional<Payment> findByOrderId(Integer orderId);
+
+    default Payment getByOrderId(Integer orderId) {
+        return findById(orderId)
+            .orElseThrow(() -> CustomException.of(NOT_FOUND_PAYMENT));
+    }
 }
