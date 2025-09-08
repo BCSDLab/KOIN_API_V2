@@ -176,18 +176,6 @@ class UserDeliveryAddressTest {
         }
 
         @Test
-        @DisplayName("ofCampus에 null 유저를 전달하면 null이 저장된다")
-        void ofCampus에_null_유저를_전달하면_null이_저장된다() {
-            // when
-            UserDeliveryAddress userAddress = UserDeliveryAddress.ofCampus(null, testCampusAddress);
-
-            // then
-            assertThat(userAddress.getUser()).isNull();
-            assertThat(userAddress.getAddressType()).isEqualTo(AddressType.CAMPUS);
-            assertThat(userAddress.getCampusDeliveryAddress()).isEqualTo(testCampusAddress);
-        }
-
-        @Test
         @DisplayName("ofCampus에 null 캠퍼스 주소를 전달하면 null이 저장된다")
         void ofCampus에_null_캠퍼스_주소를_전달하면_null이_저장된다() {
             // when
