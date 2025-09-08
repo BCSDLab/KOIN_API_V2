@@ -30,7 +30,7 @@ class UserDeliveryAddressTest {
     void setUp() {
         testUser = User.builder()
                 .nickname("코리")
-                .phoneNumber("010-1234-5678")
+                .phoneNumber("01012345678")
                 .anonymousNickname("익명")
                 .userType(UserType.STUDENT)
                 .gender(UserGender.MAN)
