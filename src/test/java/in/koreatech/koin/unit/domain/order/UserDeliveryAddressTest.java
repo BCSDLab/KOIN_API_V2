@@ -1,6 +1,7 @@
 package in.koreatech.koin.unit.domain.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -149,7 +150,7 @@ class UserDeliveryAddressTest {
                     .isNotNull();
 
             assertThat(lastUsedAt).isCloseTo(LocalDateTime.now(),
-                    org.assertj.core.api.Assertions.within(10, java.time.temporal.ChronoUnit.SECONDS));
+                    within(10, java.time.temporal.ChronoUnit.SECONDS));
         }
 
         @Test
@@ -171,7 +172,7 @@ class UserDeliveryAddressTest {
                     .isNotNull();
 
             assertThat(lastUsedAt).isCloseTo(LocalDateTime.now(),
-                    org.assertj.core.api.Assertions.within(10, java.time.temporal.ChronoUnit.SECONDS));
+                    within(10, java.time.temporal.ChronoUnit.SECONDS));
         }
 
         @Test
