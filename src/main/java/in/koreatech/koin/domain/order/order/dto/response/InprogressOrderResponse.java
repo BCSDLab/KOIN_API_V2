@@ -1,5 +1,8 @@
-package in.koreatech.koin.domain.order.dto;
+package in.koreatech.koin.domain.order.order.dto.response;
 
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.CONFIRMING;
+import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
+import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -9,13 +12,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.order.order.model.Order;
 import in.koreatech.koin.domain.payment.model.entity.Payment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(SnakeCaseStrategy.class)
-public record OrderPreparingResponse(
+@JsonNaming(value = SnakeCaseStrategy.class)
+public record InprogressOrderResponse(
     @Schema(description = "주문 ID", example = "1", requiredMode = REQUIRED)
     Integer orderId,
 
@@ -25,7 +27,7 @@ public record OrderPreparingResponse(
     @Schema(description = "상점 이름", example = "코인 병천점", requiredMode = REQUIRED)
     String shopName,
 
-    @Schema(description = "상점 썸네일 URL", example = "abcd.jpg", requiredMode = REQUIRED)
+    @Schema(description = "상점 썸네일 URL", example = "https://static.koreatech.in/test.png", requiredMode = REQUIRED)
     String shopThumbnail,
 
     @Schema(description = "예상 시각", example = "17:45", requiredMode = NOT_REQUIRED)
@@ -41,20 +43,18 @@ public record OrderPreparingResponse(
     @Schema(description = "총 금액", example = "50000", requiredMode = REQUIRED)
     Integer totalAmount
 ) {
-    public static OrderPreparingResponse from(Order order, Payment payment) {
+    public static InprogressOrderResponse from(Order order, Payment payment) {
 
         LocalTime estimatedTime = null;
-        if (order.getOrderType() == OrderType.DELIVERY) {
-            if (order.getOrderDelivery().getEstimatedArrivalAt() != null) {
+        if (order.getStatus() != CONFIRMING) {
+            if (order.getOrderType() == DELIVERY) {
                 estimatedTime = LocalTime.from(order.getOrderDelivery().getEstimatedArrivalAt());
-            }
-        } else if (order.getOrderType() == OrderType.TAKE_OUT) {
-            if (order.getOrderTakeout().getEstimatedPackagedAt() != null){
+            } else if (order.getOrderType() == TAKE_OUT) {
                 estimatedTime = LocalTime.from(order.getOrderTakeout().getEstimatedPackagedAt());
             }
         }
 
-        return new OrderPreparingResponse(
+        return new InprogressOrderResponse(
             order.getId(),
             order.getOrderType().name(),
             order.getOrderableShopName(),

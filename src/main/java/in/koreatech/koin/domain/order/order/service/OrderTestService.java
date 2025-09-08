@@ -1,17 +1,17 @@
 package in.koreatech.koin.domain.order.order.service;
 
-import static in.koreatech.koin.domain.order.model.OrderStatus.DELIVERED;
-import static in.koreatech.koin.domain.order.model.OrderStatus.PACKAGED;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.DELIVERED;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.PACKAGED;
 import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_ORDER;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.model.OrderDelivery;
-import in.koreatech.koin.domain.order.model.OrderStatus;
-import in.koreatech.koin.domain.order.model.OrderTakeout;
-import in.koreatech.koin.domain.order.repository.OrderRepository;
+import in.koreatech.koin.domain.order.order.model.Order;
+import in.koreatech.koin.domain.order.order.model.OrderDelivery;
+import in.koreatech.koin.domain.order.order.model.OrderStatus;
+import in.koreatech.koin.domain.order.order.model.OrderTakeout;
+import in.koreatech.koin.domain.order.order.repository.OrderRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.exception.CustomException;

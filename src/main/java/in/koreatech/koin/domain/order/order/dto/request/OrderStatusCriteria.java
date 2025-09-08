@@ -1,12 +1,12 @@
 package in.koreatech.koin.domain.order.order.dto.request;
 
-import static in.koreatech.koin.domain.order.model.OrderStatus.DELIVERED;
-import static in.koreatech.koin.domain.order.model.OrderStatus.PACKAGED;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.DELIVERED;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.PACKAGED;
 import static in.koreatech.koin.domain.order.model.QOrder.order;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 
-import in.koreatech.koin.domain.order.model.OrderStatus;
+import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import lombok.Getter;
 
 @Getter

@@ -1,6 +1,6 @@
-package in.koreatech.koin.domain.order.model;
+package in.koreatech.koin.domain.order.order.model;
 
-import static in.koreatech.koin.domain.order.model.OrderStatus.*;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.*;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;

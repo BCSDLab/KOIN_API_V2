@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.repository;
+package in.koreatech.koin.domain.order.order.repository;
 
 import static com.querydsl.core.types.dsl.Expressions.allOf;
 import static in.koreatech.koin.domain.order.model.QOrder.order;
@@ -16,8 +16,8 @@ import org.springframework.stereotype.Repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import in.koreatech.koin.domain.order.model.OrderInfo;
-import in.koreatech.koin.domain.order.model.OrderSearchCriteria;
+import in.koreatech.koin.domain.order.order.model.OrderInfo;
+import in.koreatech.koin.domain.order.order.model.OrderSearchCriteria;
 import lombok.RequiredArgsConstructor;
 
 @Repository
