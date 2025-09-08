@@ -258,7 +258,7 @@ class UserDeliveryAddressTest {
         @Test
         @DisplayName("필수 필드만 설정하고 나머지는 기본값이 적용된다")
         void 필수_필드만_설정하고_나머지는_기본값이_적용된다() {
-            // when
+            // given & when
             UserDeliveryAddress userAddress = UserDeliveryAddress.builder()
                     .user(testUser)
                     .addressType(AddressType.CAMPUS)
