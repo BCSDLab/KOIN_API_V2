@@ -24,7 +24,7 @@ public class OrderPreparingQueryService {
 
         return orders.stream()
             .map(order -> {
-                String desc = paymentRepository.findDescriptionByOrderId(order.getId()).orElse(null);
+                String desc = paymentRepository.getDescriptionByOrderId(order.getId());
                 return OrderPreparingResponse.from(order, desc);
             })
             .toList();
