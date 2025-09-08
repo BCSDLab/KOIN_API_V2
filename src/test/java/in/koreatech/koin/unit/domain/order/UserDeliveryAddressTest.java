@@ -45,8 +45,7 @@ class UserDeliveryAddressTest {
     }
 
     @Nested
-    @DisplayName("getFullDeliveryAddress 메소드는")
-    class getFullDeliveryAddress_메소드는 {
+    class GetFullDeliveryAddressTest {
 
         @Test
         @DisplayName("주소 타입이 캠퍼스일 경우 캠퍼스의 전체 주소를 반환한다")
@@ -126,8 +125,7 @@ class UserDeliveryAddressTest {
     }
 
     @Nested
-    @DisplayName("정적 팩토리 메소드는")
-    class 정적_팩토리_메소드는 {
+    class StaticFactoryMethodTest {
 
         @Test
         @DisplayName("ofCampus는 CAMPUS 타입의 주소 객체를 올바르게 생성한다")
@@ -212,8 +210,7 @@ class UserDeliveryAddressTest {
 
 
     @Nested
-    @DisplayName("실제 주소 데이터 검증")
-    class 실제_주소_데이터_검증 {
+    class AddressDataValidationTest {
 
         @Test
         @DisplayName("한국기술교육대학교 캠퍼스 주소가 올바르게 반환된다")
