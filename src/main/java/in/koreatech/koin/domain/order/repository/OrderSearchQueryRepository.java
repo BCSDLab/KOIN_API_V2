@@ -1,7 +1,9 @@
 package in.koreatech.koin.domain.order.repository;
 
 import static com.querydsl.core.types.dsl.Expressions.allOf;
+import static com.querydsl.core.types.dsl.Expressions.anyOf;
 import static in.koreatech.koin.domain.order.model.QOrder.order;
+import static in.koreatech.koin.domain.order.model.QOrderMenu.orderMenu;
 import static in.koreatech.koin.domain.order.shop.model.entity.shop.QOrderableShop.orderableShop;
 import static in.koreatech.koin.domain.payment.model.entity.QPayment.payment;
 
@@ -32,7 +34,11 @@ public class OrderSearchQueryRepository {
             order.user.id.eq(userId),
             criteria.period() != null ? criteria.period().getPredicate() : null,
             criteria.status() != null ? criteria.status().getPredicate() : null,
-            criteria.type() != null ? criteria.type().getPredicate() : null
+            criteria.type() != null ? criteria.type().getPredicate() : null,
+            anyOf(
+                orderableShop.shop.internalName.contains(normalize(criteria.query())),
+                orderMenu.menuName.contains(normalize(criteria.query()))
+            )
         );
 
         List<OrderInfo> results = jpaQueryFactory
@@ -47,6 +53,7 @@ public class OrderSearchQueryRepository {
             .from(order)
             .innerJoin(payment).on(payment.order.id.eq(order.id))
             .innerJoin(orderableShop).on(orderableShop.id.eq(order.orderableShop.id))
+            .innerJoin(orderMenu).on(orderMenu.order.id.eq(order.id))
             .where(predicate)
             .orderBy(order.id.asc())
             .offset(pageable.getOffset())
@@ -57,9 +64,14 @@ public class OrderSearchQueryRepository {
             .selectFrom(order)
             .innerJoin(payment).on(payment.order.id.eq(order.id))
             .innerJoin(orderableShop).on(orderableShop.id.eq(order.orderableShop.id))
+            .innerJoin(orderMenu).on(orderMenu.order.id.eq(order.id))
             .where(predicate)
             .fetchCount();
 
         return new PageImpl<>(results, pageable, total);
+    }
+
+    private String normalize(String s) {
+        return s.replaceAll("\\s+", "").toLowerCase();
     }
 }
