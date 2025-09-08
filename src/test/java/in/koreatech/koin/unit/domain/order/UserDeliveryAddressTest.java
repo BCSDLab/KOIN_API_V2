@@ -84,8 +84,8 @@ class UserDeliveryAddressTest {
         }
 
         @Test
-        @DisplayName("주소 타입이 null이면 KoinIllegalStateException을 발생시킨다")
-        void 주소_타입이_null이면_예외를_발생시킨다() {
+        @DisplayName("주소 타입이 null이면 KoinIllegalStateException 예외가 발생한다")
+        void 주소_타입이_null이면_예외가_발생한다() {
             // given
             UserDeliveryAddress userAddress = UserDeliveryAddress.builder()
                     .addressType(null)
@@ -96,7 +96,7 @@ class UserDeliveryAddressTest {
         }
 
         @Test
-        @DisplayName("캠퍼스 타입인데 캠퍼스 주소가 null이면 NullPointerException을 발생시킨다")
+        @DisplayName("캠퍼스 타입인데 캠퍼스 주소가 null이면 NullPointerException 예외가 발생한다")
         void 캠퍼스_타입인데_캠퍼스_주소가_null이면_NPE가_발생한다() {
             // given
             UserDeliveryAddress userAddress = UserDeliveryAddress.builder()
@@ -110,7 +110,7 @@ class UserDeliveryAddressTest {
         }
 
         @Test
-        @DisplayName("교외 타입인데 교외 주소가 null이면 NullPointerException을 발생시킨다")
+        @DisplayName("교외 타입인데 교외 주소가 null이면 NullPointerException 예외가 발생한다")
         void 교외_타입인데_교외_주소가_null이면_NPE가_발생한다() {
             // given
             UserDeliveryAddress userAddress = UserDeliveryAddress.builder()
