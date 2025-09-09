@@ -12,13 +12,13 @@ public class ClubQnaFixture {
         Club club = ClubFixture.활성화_BCSD_동아리(clubId);
 
         ClubQna clubQna = ClubQna.builder()
+            .id(qnaId)
             .club(club)
             .content(content)
             .isManager(false)
             .isDeleted(false)
             .build();
 
-        ReflectionTestUtils.setField(clubQna, "id", qnaId);
         ReflectionTestUtils.setField(clubQna, "createdAt", LocalDateTime.now());
 
         return clubQna;

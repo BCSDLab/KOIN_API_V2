@@ -26,6 +26,6 @@ public class ClubHotFixture {
     public static ClubHotRedis 인기_동아리_레디스(Integer id, Integer clubId) {
         Club club = ClubFixture.활성화_BCSD_동아리(clubId);
 
-        return  ClubHotRedis.from(club);
+        return ClubHotRedis.from(club);
     }
 }
