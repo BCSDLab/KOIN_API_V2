@@ -1,11 +1,10 @@
 package in.koreatech.koin.unit.fixture;
 
-import java.time.LocalDateTime;
-
-import org.springframework.test.util.ReflectionTestUtils;
-
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubCategory;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDateTime;
 
 public class ClubFixture {
 
@@ -15,6 +14,7 @@ public class ClubFixture {
         ClubCategory category = ClubCategoryFixture.동아리_카테고리(1, "학술");
 
         Club club = Club.builder()
+            .id(id)
             .name("BCSD Lab")
             .normalizedName("bcsdlab")
             .hits(1234)
@@ -29,7 +29,6 @@ public class ClubFixture {
             .clubCategory(category)
             .build();
 
-        ReflectionTestUtils.setField(club, "id", 1);
         ReflectionTestUtils.setField(club, "updatedAt", LocalDateTime.now());
 
         return club;
@@ -39,6 +38,7 @@ public class ClubFixture {
         ClubCategory category = ClubCategoryFixture.동아리_카테고리(1, "학술");
 
         Club club = Club.builder()
+            .id(id)
             .name("BCSD Lab")
             .normalizedName("bcsdlab")
             .hits(1234)
@@ -53,7 +53,6 @@ public class ClubFixture {
             .clubCategory(category)
             .build();
 
-        ReflectionTestUtils.setField(club, "id", 1);
         ReflectionTestUtils.setField(club, "updatedAt", LocalDateTime.now());
 
         return club;
