@@ -1,7 +1,6 @@
 package in.koreatech.koin.unit.domain.cart;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -490,7 +489,8 @@ public class CartQueryServiceTest {
             // when & then
             assertThat(cart.calculateItemsAmount()).isEqualTo(24200);
             assertThat(orderableShop.getMinimumOrderAmount()).isEqualTo(15000);
-            cartQueryService.validateCart(userId, orderType); //15000 < 24200
+            assertThatCode(()->cartQueryService.validateCart(userId, orderType))
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -504,11 +504,12 @@ public class CartQueryServiceTest {
             // when & then
             assertThat(cart.calculateItemsAmount()).isEqualTo(6500);
             assertThat(orderableShop.getMinimumOrderAmount()).isEqualTo(15000);
-            cartQueryService.validateCart(userId, orderType);
+            assertThatCode(()->cartQueryService.validateCart(userId, orderType))
+                .doesNotThrowAnyException();
         }
 
         @Test
-        void 배달주문시_최소주문금액과_동일하면_검증이_성공한다(){
+        void 배달주문시_최소주문금액과_동일하면_검증이_성공한다() {
             // given
             Integer userId = user.getId();
             OrderType orderType = OrderType.DELIVERY;
@@ -520,7 +521,8 @@ public class CartQueryServiceTest {
             // when & then
             assertThat(cart.calculateItemsAmount()).isEqualTo(24200);
             assertThat(orderableShop.getMinimumOrderAmount()).isEqualTo(24200);
-            cartQueryService.validateCart(userId, orderType); //24200=24200
+            assertThatCode(()->cartQueryService.validateCart(userId, orderType))
+                .doesNotThrowAnyException(); //24200=24200
         }
 
         @Test
