@@ -1,6 +1,6 @@
 package in.koreatech.koin.infrastructure.s3.client;
 
-import static com.amazonaws.services.s3.model.DeleteObjectsRequest.*;
+import static com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -41,6 +42,7 @@ public class S3Client {
     private final S3Presigner.Builder presignerBuilder;
     private final AmazonS3 amazonS3;
     private final Clock clock;
+    private final WebClient webClient;
 
     public S3Client(
         @Value("${s3.bucket}") String bucketName,
@@ -54,6 +56,7 @@ public class S3Client {
         this.presignerBuilder = presignerBuilder;
         this.amazonS3 = amazonS3;
         this.clock = clock;
+        this.webClient = WebClient.builder().build();
     }
 
     public UploadUrlResponse getUploadUrl(String uploadFilePath) {
@@ -72,6 +75,18 @@ public class S3Client {
                 domainUrlPrefix + uploadFilePath,
                 LocalDateTime.now(clock).plusMinutes(URL_EXPIRATION_MINUTE)
             );
+        }
+    }
+
+    public String getContentFromUrl(String url) {
+        try {
+            return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        } catch (Exception e) {
+            throw new KoinIllegalStateException("S3 텍스트를 불러오던 중 문제가 발생했습니다. " + e.getMessage());
         }
     }
 
