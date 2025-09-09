@@ -1,9 +1,40 @@
 package in.koreatech.koin.unit.domain.club.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
+
+import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import in.koreatech.koin.common.event.ClubCreateEvent;
 import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
-import in.koreatech.koin.domain.club.dto.request.*;
-import in.koreatech.koin.domain.club.dto.response.*;
+import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
@@ -11,10 +42,30 @@ import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
 import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
-import in.koreatech.koin.domain.club.model.*;
+import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.model.ClubBaseInfo;
+import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.model.ClubHot;
+import in.koreatech.koin.domain.club.model.ClubLike;
+import in.koreatech.koin.domain.club.model.ClubManager;
+import in.koreatech.koin.domain.club.model.ClubQna;
+import in.koreatech.koin.domain.club.model.ClubRecruitment;
+import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.repository.*;
+import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
+import in.koreatech.koin.domain.club.repository.ClubEventImageRepository;
+import in.koreatech.koin.domain.club.repository.ClubEventRepository;
+import in.koreatech.koin.domain.club.repository.ClubEventSubscriptionRepository;
+import in.koreatech.koin.domain.club.repository.ClubHotRepository;
+import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
+import in.koreatech.koin.domain.club.repository.ClubListQueryRepository;
+import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
+import in.koreatech.koin.domain.club.repository.ClubRecruitmentRepository;
+import in.koreatech.koin.domain.club.repository.ClubRecruitmentSubscriptionRepository;
+import in.koreatech.koin.domain.club.repository.ClubRepository;
+import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
@@ -28,27 +79,13 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.unit.fixture.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import java.lang.reflect.Field;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import in.koreatech.koin.unit.fixture.ClubBaseInfoFixture;
+import in.koreatech.koin.unit.fixture.ClubCategoryFixture;
+import in.koreatech.koin.unit.fixture.ClubFixture;
+import in.koreatech.koin.unit.fixture.ClubHotFixture;
+import in.koreatech.koin.unit.fixture.ClubQnaFixture;
+import in.koreatech.koin.unit.fixture.StudentFixture;
+import in.koreatech.koin.unit.fixture.UserFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class ClubServiceTest {
@@ -680,6 +717,9 @@ public class ClubServiceTest {
         String content1;
         String content2;
 
+        ClubQna qna1;
+        ClubQna qna2;
+
         List<ClubQna> qnas;
 
         @BeforeEach
@@ -691,14 +731,16 @@ public class ClubServiceTest {
             content1 = "질문 내용 1";
             content2 = "질문 내용 2";
 
-            qnas = List.of(
-                ClubQnaFixture.QNA(clubId, qnaId1, content1),
-                ClubQnaFixture.QNA(clubId, qnaId2, content2)
-            );
+            qna1 = ClubQnaFixture.QNA(clubId, qnaId1, content1);
+            qna2 = ClubQnaFixture.QNA(clubId, qnaId2, content2);
+
+            ReflectionTestUtils.setField(qna1, "createdAt", LocalDateTime.now().minusMinutes(1));
+
+            qnas = List.of(qna1, qna2);
         }
 
         @Test
-        void 동아리의_QnA들을_조회하면_QnA_리스트가_반환된다() {
+        void 동아리의_QnA들을_조회하면_최신순으로_QnA_리스트가_반환된다() {
             // given
             when(clubQnaRepository.findAllByClubId(clubId)).thenReturn(qnas);
 
@@ -709,11 +751,12 @@ public class ClubServiceTest {
             verify(clubQnaRepository).findAllByClubId(clubId);
             assertThat(response.qnas()).hasSize(2);
 
-            assertThat(response.qnas().get(0).id()).isEqualTo(qnaId1);
-            assertThat(response.qnas().get(0).content()).isEqualTo(content1);
+            assertThat(response.qnas().get(0).id()).isEqualTo(qnaId2);
+            assertThat(response.qnas().get(0).content()).isEqualTo(content2);
 
-            assertThat(response.qnas().get(1).id()).isEqualTo(qnaId2);
-            assertThat(response.qnas().get(1).content()).isEqualTo(content2);
+            assertThat(response.qnas().get(1).id()).isEqualTo(qnaId1);
+            assertThat(response.qnas().get(1).content()).isEqualTo(content1);
+
         }
     }
 
