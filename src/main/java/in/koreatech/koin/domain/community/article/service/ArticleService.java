@@ -74,7 +74,10 @@ public class ArticleService {
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
         Article article = articleRepository.getById(articleId);
-        String content = s3Client.getContentFromUrl(article.getContent());
+        String content = article.getContent();
+        if (content.startsWith("https")) {
+            content = s3Client.getContentFromUrl(article.getContent());
+        }
         if (articleHitUserRepository.findByArticleIdAndPublicIp(articleId, publicIp).isEmpty()) {
             article.increaseKoinHit();
             articleHitUserRepository.save(ArticleHitUser.of(articleId, publicIp));
