@@ -179,11 +179,23 @@ public class Order extends BaseEntity {
         this.canceledAt = LocalDateTime.now();
     }
 
-    public void deliveryComplete() {
+    public void delivered() {
         this.status = DELIVERED;
     }
 
-    public void takeoutComplete() {
+    public void packaged() {
         this.status = PACKAGED;
+    }
+
+    public void cooking() {
+        this.status = COOKING;
+    }
+
+    public void pickedUp() {
+        this.status = PICKED_UP;
+    }
+
+    public void delivering() {
+        this.status = DELIVERING;
     }
 }

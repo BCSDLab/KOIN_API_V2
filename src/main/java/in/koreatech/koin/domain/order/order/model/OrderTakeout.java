@@ -62,9 +62,17 @@ public class OrderTakeout extends BaseEntity {
         this.estimatedPackagedAt = estimatedPackagedAt;
     }
 
-    public void takeoutComplete() {
+    public void packaged() {
         this.packagedAt = LocalDateTime.now();
+        this.order.packaged();
+    }
+
+    public void cooking() {
         this.estimatedPackagedAt = LocalDateTime.now();
-        this.order.takeoutComplete();
+        this.order.cooking();
+    }
+
+    public void pickedUp() {
+        this.order.pickedUp();
     }
 }
