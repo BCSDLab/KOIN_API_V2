@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
-import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.repository.OrderRepository;
+import in.koreatech.koin.domain.order.order.model.Order;
+import in.koreatech.koin.domain.order.order.repository.OrderRepository;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
 import in.koreatech.koin.domain.payment.dto.response.PaymentConfirmResponse;

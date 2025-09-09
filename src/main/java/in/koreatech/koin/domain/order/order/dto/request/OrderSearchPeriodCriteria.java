@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.order.order.dto.request;
 
-import static in.koreatech.koin.domain.order.model.QOrder.order;
+import static in.koreatech.koin.domain.order.order.model.QOrder.order;
 
 import java.time.LocalDateTime;
 
