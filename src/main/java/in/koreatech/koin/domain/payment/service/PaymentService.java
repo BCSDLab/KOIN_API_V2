@@ -38,6 +38,8 @@ public class PaymentService {
             request.phoneNumber(),
             request.address(),
             request.addressDetail(),
+            request.longitude(),
+            request.latitude(),
             request.toOwner(),
             request.toRider(),
             request.provideCutlery(),
