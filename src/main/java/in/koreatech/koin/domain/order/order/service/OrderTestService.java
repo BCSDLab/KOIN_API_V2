@@ -55,8 +55,6 @@ public class OrderTestService {
         } else if (orderStatus.equals(DELIVERING) && order.getOrderType().equals(DELIVERY)) {
             OrderDelivery orderDelivery = order.getOrderDelivery();
             orderDelivery.delivering();
-        } else if (orderStatus.equals(CANCELED)) {
-            order.cancel("테스트 주문 취소");
         }
     }
 }

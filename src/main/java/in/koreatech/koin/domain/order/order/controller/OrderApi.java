@@ -64,6 +64,7 @@ public interface OrderApi {
                 CONFIRMING
                 COOKING
                 PACKAGED
+                PICKED_UP
                 DELIVERING
                 DELIVERED
                 CANCELED
