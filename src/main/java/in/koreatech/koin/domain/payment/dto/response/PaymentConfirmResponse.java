@@ -6,6 +6,7 @@ import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,8 @@ import in.koreatech.koin.domain.order.order.model.OrderDelivery;
 import in.koreatech.koin.domain.order.order.model.OrderMenu;
 import in.koreatech.koin.domain.order.order.model.OrderMenuOption;
 import in.koreatech.koin.domain.order.order.model.OrderTakeout;
-import in.koreatech.koin.domain.payment.model.entity.Payment;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
+import in.koreatech.koin.domain.payment.model.entity.Payment;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -33,6 +34,12 @@ public record PaymentConfirmResponse(
 
     @Schema(description = "배달상세 주소", example = "은솔관 422호", requiredMode = NOT_REQUIRED)
     String deliveryAddressDetails,
+
+    @Schema(description = "배달 주소 위도", example = "36.76125794", requiredMode = NOT_REQUIRED)
+    BigDecimal longitude,
+
+    @Schema(description = "배달 주소 경도", example = "127.28372942", requiredMode = NOT_REQUIRED)
+    BigDecimal latitude,
 
     @Schema(description = "가게 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600 은솔관 422호", requiredMode = NOT_REQUIRED)
     String shopAddress,
@@ -134,6 +141,8 @@ public record PaymentConfirmResponse(
 
         String deliveryAddress = null;
         String deliveryAddressDetails = null;
+        BigDecimal longitude = null;
+        BigDecimal latitude = null;
         String toOwner = null;
         String toRider = null;
         Boolean provideCutlery = null;
@@ -142,6 +151,8 @@ public record PaymentConfirmResponse(
             OrderDelivery delivery = order.getOrderDelivery();
             deliveryAddress = delivery.getAddress();
             deliveryAddressDetails = delivery.getAddressDetail();
+            longitude = delivery.getLongitude();
+            latitude = delivery.getLatitude();
             toOwner = delivery.getToOwner();
             toRider = delivery.getToRider();
             provideCutlery = delivery.getProvideCutlery();
@@ -155,6 +166,8 @@ public record PaymentConfirmResponse(
             payment.getId(),
             deliveryAddress,
             deliveryAddressDetails,
+            longitude,
+            latitude,
             shop.getAddress(),
             toOwner,
             toRider,
