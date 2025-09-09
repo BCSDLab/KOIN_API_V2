@@ -232,7 +232,7 @@ public class CartQueryServiceTest {
         @Test
         void 조회하는_장바구니아이템이_장바구니에_존재하면_해당_장바구니아이템의_메뉴와_옵션들이_조회된다() {
             // given
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
+            when(cartRepository.getCartByUserId(userId)).thenReturn(cart);
             when(orderableShopMenuRepository.getByIdWithMenuOptionGroups(menuGimbap.getId())).thenReturn(menuGimbap);
 
             // when
@@ -253,25 +253,13 @@ public class CartQueryServiceTest {
         void 조회하는_장바구니아이템이_장바구니에_없으면_예외가_발생한다() {
             // given
             Integer strangeCartMenuItemId = 999;
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
+            when(cartRepository.getCartByUserId(userId)).thenReturn(cart);
 
             // when & then
             assertThatThrownBy(() -> cartQueryService.getOrderableShopMenuForEditOptions(userId, strangeCartMenuItemId))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.NOT_FOUND_CART_ITEM);
         }
-
-        @Test
-        void 유저의_장바구니가_존재하지않으면_예외가_발생한다() {
-            // given
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.empty());
-
-            // when & then
-            assertThatThrownBy(() -> cartQueryService.getOrderableShopMenuForEditOptions(userId, gimbapCartItemId))
-                .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.NOT_FOUND_CART);
-        }
-
     }
 
     @Nested
@@ -484,12 +472,12 @@ public class CartQueryServiceTest {
             OrderType orderType = OrderType.DELIVERY;
             cart.addItem(menuGimbap, gimbapPriceA, List.of(toppingOptionA, toppingOptionB), 1);
             cart.addItem(menuRamen, ramenPriceA, List.of(sourceOptionA), 3);
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
+            when(cartRepository.getCartByUserId(userId)).thenReturn(cart);
 
             // when & then
             assertThat(cart.calculateItemsAmount()).isEqualTo(24200);
             assertThat(orderableShop.getMinimumOrderAmount()).isEqualTo(15000);
-            assertThatCode(()->cartQueryService.validateCart(userId, orderType))
+            assertThatCode(() -> cartQueryService.validateCart(userId, orderType))
                 .doesNotThrowAnyException();
         }
 
@@ -499,12 +487,12 @@ public class CartQueryServiceTest {
             Integer userId = user.getId();
             OrderType orderType = OrderType.TAKE_OUT;
             cart.addItem(menuGimbap, gimbapPriceA, List.of(toppingOptionA), 1);
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
+            when(cartRepository.getCartByUserId(userId)).thenReturn(cart);
 
             // when & then
             assertThat(cart.calculateItemsAmount()).isEqualTo(6500);
             assertThat(orderableShop.getMinimumOrderAmount()).isEqualTo(15000);
-            assertThatCode(()->cartQueryService.validateCart(userId, orderType))
+            assertThatCode(() -> cartQueryService.validateCart(userId, orderType))
                 .doesNotThrowAnyException();
         }
 
@@ -516,26 +504,13 @@ public class CartQueryServiceTest {
             ReflectionTestUtils.setField(orderableShop, "minimumOrderAmount", 24200);
             cart.addItem(menuGimbap, gimbapPriceA, List.of(toppingOptionA, toppingOptionB), 1);
             cart.addItem(menuRamen, ramenPriceA, List.of(sourceOptionA), 3);
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
+            when(cartRepository.getCartByUserId(userId)).thenReturn(cart);
 
             // when & then
             assertThat(cart.calculateItemsAmount()).isEqualTo(24200);
             assertThat(orderableShop.getMinimumOrderAmount()).isEqualTo(24200);
-            assertThatCode(()->cartQueryService.validateCart(userId, orderType))
+            assertThatCode(() -> cartQueryService.validateCart(userId, orderType))
                 .doesNotThrowAnyException(); //24200=24200
-        }
-
-        @Test
-        void 장바구니가_존재하지않으면_예외가_발생한다() {
-            // given
-            Integer userId = user.getId();
-            OrderType orderType = OrderType.DELIVERY;
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.empty());
-
-            // when & then
-            assertThatThrownBy(() -> cartQueryService.validateCart(userId, orderType))
-                .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.NOT_FOUND_CART);
         }
 
         @Test
@@ -545,7 +520,7 @@ public class CartQueryServiceTest {
             OrderType orderType = OrderType.DELIVERY;
             cart.addItem(menuGimbap, gimbapPriceA, List.of(toppingOptionA, toppingOptionB), 1);
             cart.addItem(menuRamen, ramenPriceA, List.of(sourceOptionA), 3);
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
+            when(cartRepository.getCartByUserId(userId)).thenReturn(cart);
             ShopOperation closedShopOperation = ShopOperation.builder()
                 .shop(orderableShop.getShop())
                 .isOpen(false)
@@ -566,7 +541,7 @@ public class CartQueryServiceTest {
             Integer userId = user.getId();
             OrderType orderType = OrderType.DELIVERY;
             cart.addItem(menuGimbap, gimbapPriceA, List.of(toppingOptionA), 1);
-            when(cartRepository.findCartByUserId(userId)).thenReturn(Optional.of(cart));
+            when(cartRepository.getCartByUserId(userId)).thenReturn(cart);
 
             // when & then
             assertThat(cart.calculateItemsAmount()).isEqualTo(6500);
