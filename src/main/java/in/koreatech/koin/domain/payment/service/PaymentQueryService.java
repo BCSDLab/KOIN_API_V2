@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.payment.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.model.Order;
+import in.koreatech.koin.domain.order.order.model.Order;
 import in.koreatech.koin.domain.payment.dto.response.PaymentResponse;
 import in.koreatech.koin.domain.payment.model.entity.Payment;
 import in.koreatech.koin.domain.payment.repository.PaymentRepository;

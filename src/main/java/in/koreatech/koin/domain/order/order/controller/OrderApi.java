@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.order.order.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchPeriodCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderStatusCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderTypeCriteria;
+import in.koreatech.koin.domain.order.order.dto.response.InprogressOrderResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,5 +49,31 @@ public interface OrderApi {
         @RequestParam(name = "status", required = false, defaultValue = "NONE") OrderStatusCriteria status,
         @RequestParam(name = "type", required = false, defaultValue = "NONE") OrderTypeCriteria type,
         @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @Operation(
+        summary = "주문 내역 중 현재 활성화된(배달완료, 취소 제외) 주문을 조회한다",
+        description = """
+            ## 다음과 같은 항목을 반환한다.
+            - 가게 이름 ex) "코인 병천점"
+            - 주문 타입 ex)
+                DELIVERY
+                TAKE_OUT
+            - 주문 상태 ex)
+                CONFIRMING
+                COOKING
+                PACKAGED
+                DELIVERING
+                DELIVERED
+                CANCELED
+            - 가게 사진(썸네일) ex) https://static.koreatech.in/test.png
+            - 주문 내용 ex) 족발 메뉴 외 1건
+            - 예상 시각 ex) 17:45
+            - 총 결제 금액 ex) 50000
+            """
+    )
+    @GetMapping("/in-progress")
+    ResponseEntity<List<InprogressOrderResponse>> getInprogressOrders(
+        @Auth(permit = STUDENT) Integer userId
     );
 }

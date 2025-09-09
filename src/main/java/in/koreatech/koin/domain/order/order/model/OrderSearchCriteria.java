@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.model;
+package in.koreatech.koin.domain.order.order.model;
 
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchCondition;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchPeriodCriteria;
