@@ -91,10 +91,18 @@ public class OrderDelivery extends BaseEntity {
         this.estimatedArrivalAt = estimatedArrivalAt;
     }
 
-    public void deliveryComplete() {
-        this.dispatchedAt = LocalDateTime.now();
+    public void delivered() {
         this.completedAt = LocalDateTime.now();
+        this.order.delivered();
+    }
+
+    public void cooking() {
         this.estimatedArrivalAt = LocalDateTime.now();
-        this.order.deliveryComplete();
+        this.order.cooking();
+    }
+
+    public void delivering() {
+        this.dispatchedAt = LocalDateTime.now();
+        this.order.delivering();
     }
 }
