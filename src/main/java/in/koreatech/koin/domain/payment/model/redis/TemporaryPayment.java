@@ -185,6 +185,8 @@ public class TemporaryPayment {
                 .order(order)
                 .address(address)
                 .addressDetail(addressDetail)
+                .latitude(latitude)
+                .longitude(longitude)
                 .toOwner(toOwner)
                 .toRider(toRider)
                 .provideCutlery(provideCutlery)
