@@ -33,7 +33,7 @@ public interface OrderApi {
                 - LAST_1_YEAR : 최근 1년
             - status
                 - NONE : 기본값
-                - COMPLETED : 주문 완료, 포장 완료
+                - COMPLETED : 주문 완료, 포장 수령
                 - CANCELED : 주문 취소
             - type
                 - NONE : 기본값

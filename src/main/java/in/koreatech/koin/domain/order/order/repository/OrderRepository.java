@@ -32,6 +32,7 @@ public interface OrderRepository extends Repository<Order, Integer> {
         WHERE o.user.id = :userId
           AND o.status NOT IN (
             in.koreatech.koin.domain.order.order.model.OrderStatus.DELIVERED,
+            in.koreatech.koin.domain.order.order.model.OrderStatus.PICKED_UP,
             in.koreatech.koin.domain.order.order.model.OrderStatus.CANCELED
           )
         ORDER BY o.createdAt DESC
