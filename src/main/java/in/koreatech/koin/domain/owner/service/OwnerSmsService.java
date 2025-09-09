@@ -73,7 +73,7 @@ public class OwnerSmsService {
             .shopNumber(request.shopNumber())
             .build();
         ownerShopRedisRepository.save(ownerShop);
-        ownerInVerificationRedisRepository.deleteByVerify(newOwner.getUser().getPhoneNumber());
+        ownerInVerificationRedisRepository.deleteByVerify(newOwner.getAccount());
         ownerUtilService.sendSlackNotification(newOwner);
     }
 
