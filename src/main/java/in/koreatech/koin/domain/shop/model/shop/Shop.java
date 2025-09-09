@@ -79,6 +79,9 @@ public class Shop extends BaseEntity {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "address_detail")
+    private String addressDetail;
+
     @Column(name = "description")
     private String description;
 
@@ -327,5 +330,9 @@ public class Shop extends BaseEntity {
     public void cancelDelete() {
         this.isDeleted = false;
         reviews.forEach(ShopReview::cancelReview);
+    }
+
+    public String getFullAddress() {
+        return String.join(" ", this.address, this.addressDetail);
     }
 }
