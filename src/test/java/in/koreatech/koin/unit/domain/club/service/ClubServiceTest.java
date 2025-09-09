@@ -199,12 +199,13 @@ public class ClubServiceTest {
             clubId = 1;
             studentId = 1;
             club = ClubFixture.활성화_BCSD_동아리(clubId);
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
         }
 
         @Test
         void 동아리_관리자가_정보_수정_요청을_보낸_경우_정상적으로_처리한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubCategoryRepository.getById(request.clubCategoryId())).thenReturn(newCategory);
             when(clubLikeRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
@@ -240,7 +241,6 @@ public class ClubServiceTest {
         @Test
         void 동아리_관리자가_아닌_유저가_정보_수정_요청을_보낸_경우_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
 
             // when / then
@@ -264,12 +264,14 @@ public class ClubServiceTest {
             clubId = 1;
             studentId = 1;
             club = ClubFixture.활성화_BCSD_동아리(clubId);
+
+            // 공통 stub
+            when(clubRepository.getById(clubId)).thenReturn(club);
         }
 
         @Test
         void 동아리_관리자가_동아리_소개_수정_요청을_보낸_경우_정상적으로_처리한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubLikeRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
@@ -304,7 +306,6 @@ public class ClubServiceTest {
         @Test
         void 동아리_관리자가_아닌_유저가_동아리_소개_수정_요청을_보낸_경우_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
 
             // when / then
@@ -587,13 +588,14 @@ public class ClubServiceTest {
 
             club = spy(ClubFixture.활성화_BCSD_동아리(clubId));
             user = UserFixture.코인_유저();
+
+            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
+            when(userRepository.getById(userId)).thenReturn(user);
         }
 
         @Test
         void 유저가_동아리에_좋아요를_누르면_좋아요_수가_증가한다() {
             // given
-            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
-            when(userRepository.getById(userId)).thenReturn(user);
             when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(false);
 
             // when
@@ -614,8 +616,6 @@ public class ClubServiceTest {
         @Test
         void 이미_동아리에_좋아요를_눌렀다면_예외를_발생한다() {
             // given
-            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
-            when(userRepository.getById(userId)).thenReturn(user);
             when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(true);
 
             // when / then
@@ -640,13 +640,14 @@ public class ClubServiceTest {
 
             club = spy(ClubFixture.활성화_BCSD_동아리(clubId));
             user = UserFixture.코인_유저();
+
+            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
+            when(userRepository.getById(userId)).thenReturn(user);
         }
 
         @Test
         void 좋아요를_누른_동아리에서_좋아요를_취소한다() {
             // given
-            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
-            when(userRepository.getById(userId)).thenReturn(user);
             when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(true);
 
             // when
@@ -660,8 +661,6 @@ public class ClubServiceTest {
         @Test
         void 좋아요를_누르지_않은_상태에서_취소를_하면_예외를_발생한다() {
             // given
-            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
-            when(userRepository.getById(userId)).thenReturn(user);
             when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(false);
 
             // when / then
@@ -804,13 +803,14 @@ public class ClubServiceTest {
             parentQna = ClubQnaFixture.QNA(clubId, 1, "질문");
             question = new ClubQnaCreateRequest(null, "질문");
             answer = new ClubQnaCreateRequest(1, "답변");
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(studentRepository.getById(studentId)).thenReturn(student);
         }
 
         @Test
         void 관리자가_아닌_학생이_질문을_작성한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(studentRepository.getById(studentId)).thenReturn(student);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
 
             // when
@@ -834,8 +834,6 @@ public class ClubServiceTest {
         @Test
         void 관리자인_학생이_답변을_작성한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(studentRepository.getById(studentId)).thenReturn(student);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubQnaRepository.getById(answer.parentId())).thenReturn(parentQna);
 
@@ -860,8 +858,6 @@ public class ClubServiceTest {
         @Test
         void 관리자가_아닌_학생이_답변을_작성하면_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(studentRepository.getById(studentId)).thenReturn(student);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
 
             // when / then
@@ -873,8 +869,6 @@ public class ClubServiceTest {
         @Test
         void 관리자인_학생이_질문을_작성하면_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(studentRepository.getById(studentId)).thenReturn(student);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
 
             // when / then
@@ -900,15 +894,14 @@ public class ClubServiceTest {
             studentId = 1;
             student = mock(Student.class);
             clubQna = spy(ClubQnaFixture.QNA(clubId, qnaId, "질문"));
+
+            when(clubQnaRepository.getById(qnaId)).thenReturn(clubQna);
+            when(clubQna.getAuthor()).thenReturn(student);
+            when(student.getId()).thenReturn(studentId);
         }
 
         @Test
         void 관리자가_아닌_학생이_자신이_작성한_질문을_삭제한다() {
-            // given
-            when(clubQnaRepository.getById(qnaId)).thenReturn(clubQna);
-            when(clubQna.getAuthor()).thenReturn(student);
-            when(student.getId()).thenReturn(studentId);
-
             // when
             clubService.deleteQna(clubId, qnaId, studentId);
 
@@ -922,9 +915,6 @@ public class ClubServiceTest {
             // given
             Integer managerId = 2;
 
-            when(clubQnaRepository.getById(qnaId)).thenReturn(clubQna);
-            when(clubQna.getAuthor()).thenReturn(student);
-            when(student.getId()).thenReturn(studentId);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, managerId)).thenReturn(true);
 
             // when
@@ -939,9 +929,7 @@ public class ClubServiceTest {
         void 관리자가_아닌_학생이_자신이_작성하지_않은_QNA_글을_삭제하면_예외를_발생한다() {
             // given
             Integer requesterId = 2;
-            when(clubQnaRepository.getById(qnaId)).thenReturn(clubQna);
-            when(clubQna.getAuthor()).thenReturn(student);
-            when(student.getId()).thenReturn(studentId);
+
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, requesterId)).thenReturn(false);
 
             // when / then
@@ -977,15 +965,16 @@ public class ClubServiceTest {
 
             ReflectionTestUtils.setField(currentManager, "id", currentManagerId);
             ReflectionTestUtils.setField(changedManager, "id", changedManagerId);
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(userRepository.getById(currentManagerId)).thenReturn(currentManager);
+            when(userRepository.getByLoginIdAndUserTypeIn(changedManager.getLoginId(), UserType.KOIN_STUDENT_TYPES))
+                .thenReturn(changedManager);
         }
 
         @Test
         void 관리자_권한_위임에_성공한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(userRepository.getById(currentManagerId)).thenReturn(currentManager);
-            when(userRepository.getByLoginIdAndUserTypeIn(changedManager.getLoginId(), UserType.KOIN_STUDENT_TYPES))
-                .thenReturn(changedManager);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(true);
             when(clubManagerRepository.existsByClubAndUser(club, changedManager)).thenReturn(false);
 
@@ -1007,10 +996,6 @@ public class ClubServiceTest {
         @Test
         void 관리자가_아닌_유저가_권한_위임을_할_경우_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(userRepository.getById(currentManagerId)).thenReturn(currentManager);
-            when(userRepository.getByLoginIdAndUserTypeIn(changedManager.getLoginId(), UserType.KOIN_STUDENT_TYPES))
-                .thenReturn(changedManager);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(false);
 
             // when / then
@@ -1022,10 +1007,6 @@ public class ClubServiceTest {
         @Test
         void 권한_위임_대상이_이미_관리자면_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(userRepository.getById(currentManagerId)).thenReturn(currentManager);
-            when(userRepository.getByLoginIdAndUserTypeIn(changedManager.getLoginId(), UserType.KOIN_STUDENT_TYPES))
-                .thenReturn(changedManager);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(true);
             when(clubManagerRepository.existsByClubAndUser(club, changedManager)).thenReturn(true);
 
@@ -1067,13 +1048,14 @@ public class ClubServiceTest {
             );
 
             ReflectionTestUtils.setField(student, "id", studentId);
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(studentRepository.getById(studentId)).thenReturn(student);
         }
 
         @Test
         void 동아리_모집을_생성한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(studentRepository.getById(studentId)).thenReturn(student);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubRecruitmentRepository.findByClub(club)).thenReturn(Optional.empty());
 
@@ -1103,8 +1085,6 @@ public class ClubServiceTest {
         @Test
         void 관리자가_아닌_학생이_모집을_생성하면_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(studentRepository.getById(studentId)).thenReturn(student);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
 
             // when / then
@@ -1116,8 +1096,6 @@ public class ClubServiceTest {
         @Test
         void 동아리_모집이_이미_등록되어_있으면_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(studentRepository.getById(studentId)).thenReturn(student);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubRecruitmentRepository.findByClub(club)).thenReturn(Optional.of(ClubRecruitment.builder().build()));
 
