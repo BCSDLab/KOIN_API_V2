@@ -29,6 +29,9 @@ public record PaymentResponse(
     @Schema(description = "결제 고유 id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
+    @Schema(description = "주문 상점 고유 id", example = "1", requiredMode = REQUIRED)
+    Integer orderableShopId,
+
     @Schema(description = "배달 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600", requiredMode = NOT_REQUIRED)
     String deliveryAddress,
 
@@ -172,6 +175,7 @@ public record PaymentResponse(
 
         return new PaymentResponse(
             payment.getId(),
+            orderableShop.getId(),
             deliveryAddress,
             deliveryAddressDetails,
             shop.getAddress(),
