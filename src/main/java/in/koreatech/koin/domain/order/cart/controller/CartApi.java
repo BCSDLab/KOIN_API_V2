@@ -910,4 +910,10 @@ public interface CartApi {
     ResponseEntity<CartItemsCountSummaryResponse> getCartItemsTotalCount(
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     );
+
+    @PostMapping("/cart/reorder/{orderId}")
+    ResponseEntity<Void> reorderCartItems(
+        @PathVariable(name = "orderId") Integer orderId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 }
