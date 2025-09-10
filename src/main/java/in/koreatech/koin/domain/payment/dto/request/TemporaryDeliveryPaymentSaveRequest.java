@@ -47,7 +47,7 @@ public record TemporaryDeliveryPaymentSaveRequest(
     Integer totalMenuPrice,
 
     @Schema(description = "배달 타입", example = "OFF_CAMPUS", requiredMode = REQUIRED)
-    @NotBlank(message = "배달 타입은 필수 입력사항입니다.")
+    @NotNull(message = "배달 타입은 필수 입력사항입니다.")
     AddressType deliveryType,
 
     @Schema(description = "배달 팁", example = "1234", requiredMode = REQUIRED)
