@@ -42,11 +42,9 @@ public class OrderDelivery extends BaseEntity {
     @Column(name = "address_detail", columnDefinition = "TEXT")
     private String addressDetail;
 
-    @NotNull
     @Column(name = "latitude", nullable = false, precision = 10, scale = 8)
     private BigDecimal latitude;
 
-    @NotNull
     @Column(name = "longitude", nullable = false, precision = 11, scale = 8)
     private BigDecimal longitude;
 
