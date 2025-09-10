@@ -23,11 +23,11 @@ public record TemporaryDeliveryPaymentSaveRequest(
     @Schema(description = "배달 상세 주소", example = "은솔관 422호", requiredMode = NOT_REQUIRED)
     String addressDetail,
 
-    @Schema(description = "배달 주소 위도", example = "36.76125794", requiredMode = REQUIRED)
+    @Schema(description = "배달 주소 위도", example = "127.28372942", requiredMode = REQUIRED)
     @NotNull(message = "배달 주소 위도는 필수 입력사항입니다.")
     BigDecimal longitude,
 
-    @Schema(description = "배달 주소 경도", example = "127.28372942", requiredMode = REQUIRED)
+    @Schema(description = "배달 주소 경도", example = "36.76125794", requiredMode = REQUIRED)
     @NotNull(message = "배달 주소 경도는 필수 입력사항입니다.")
     BigDecimal latitude,
 
