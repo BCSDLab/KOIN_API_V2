@@ -748,15 +748,19 @@ public class ClubServiceTest {
             ClubQnasResponse response = clubService.getQnas(clubId);
 
             // then
+            ClubQnasResponse.InnerQnaResponse earlierQna = response.qnas().get(0);
+            ClubQnasResponse.InnerQnaResponse laterQna = response.qnas().get(1);
+
             verify(clubQnaRepository).findAllByClubId(clubId);
             assertThat(response.qnas()).hasSize(2);
 
-            assertThat(response.qnas().get(0).id()).isEqualTo(qnaId2);
-            assertThat(response.qnas().get(0).content()).isEqualTo(content2);
+            assertThat(earlierQna.id()).isEqualTo(qnaId2);
+            assertThat(earlierQna.content()).isEqualTo(content2);
 
-            assertThat(response.qnas().get(1).id()).isEqualTo(qnaId1);
-            assertThat(response.qnas().get(1).content()).isEqualTo(content1);
+            assertThat(laterQna.id()).isEqualTo(qnaId1);
+            assertThat(laterQna.content()).isEqualTo(content1);
 
+            assertThat(earlierQna.createdAt()).isAfter(laterQna.createdAt());
         }
     }
 
