@@ -74,21 +74,25 @@ public class OffCampusDeliveryAddressTest {
     @DisplayName("예외 케이스 테스트")
     class EdgeCaseTest {
 
-        @Test
-        void 건물명이_null인_주소와_비교하면_false를_반환한다() {
-            // given
+        private OffCampusDeliveryAddress createAddressWithBuilding(String building) {
             OffCampusDeliveryAddress baseAddress = AddressFixture.교외_배달_가능_지역();
-            OffCampusDeliveryAddress addressWithNullBuilding = OffCampusDeliveryAddress.builder()
+            return OffCampusDeliveryAddress.builder()
                     .zipNumber(baseAddress.getZipNumber())
                     .siDo(baseAddress.getSiDo())
                     .siGunGu(baseAddress.getSiGunGu())
                     .eupMyeonDong(baseAddress.getEupMyeonDong())
                     .road(baseAddress.getRoad())
-                    .building(null)
-                    .address("충청남도 천안시 동남구 병천면 충절로 1600")
-                    .detailAddress("한국기술교육대학교")
-                    .fullAddress("충청남도 천안시 동남구 병천면 충절로 1600 한국기술교육대학교")
+                    .building(building)
+                    .address(baseAddress.getAddress())
+                    .detailAddress(baseAddress.getDetailAddress())
+                    .fullAddress(baseAddress.getFullAddress())
                     .build();
+        }
+
+        @Test
+        void 건물명이_null인_주소와_비교하면_false를_반환한다() {
+            // given
+            OffCampusDeliveryAddress addressWithNullBuilding = createAddressWithBuilding(null);
 
             // when
             Boolean result = addressWithNullBuilding.isNotAllowedBuilding("한국기술교육대학교");
@@ -100,18 +104,7 @@ public class OffCampusDeliveryAddressTest {
         @Test
         void 빈_문자열_건물명과_비교하면_해당하는_결과를_반환한다() {
             // given
-            OffCampusDeliveryAddress baseAddress = AddressFixture.교외_배달_가능_지역();
-            OffCampusDeliveryAddress addressWithEmptyBuilding = OffCampusDeliveryAddress.builder()
-                    .zipNumber(baseAddress.getZipNumber())
-                    .siDo(baseAddress.getSiDo())
-                    .siGunGu(baseAddress.getSiGunGu())
-                    .eupMyeonDong(baseAddress.getEupMyeonDong())
-                    .road(baseAddress.getRoad())
-                    .building("")
-                    .address("충청남도 천안시 동남구 병천면 충절로 1600")
-                    .detailAddress("한국기술교육대학교")
-                    .fullAddress("충청남도 천안시 동남구 병천면 충절로 1600 한국기술교육대학교")
-                    .build();
+            OffCampusDeliveryAddress addressWithEmptyBuilding = createAddressWithBuilding("");
 
             // when
             Boolean result = addressWithEmptyBuilding.isNotAllowedBuilding("");
@@ -132,17 +125,7 @@ public class OffCampusDeliveryAddressTest {
         @Test
         void 영문_대소문자가_다른_건물명_테스트() {
             // given
-            OffCampusDeliveryAddress baseAddress = AddressFixture.교외_배달_가능_지역();
-            OffCampusDeliveryAddress addressWithEnglishBuilding = OffCampusDeliveryAddress.builder()
-                    .zipNumber(baseAddress.getZipNumber())
-                    .siDo(baseAddress.getSiDo())
-                    .siGunGu(baseAddress.getSiGunGu())
-                    .eupMyeonDong(baseAddress.getEupMyeonDong())
-                    .road(baseAddress.getRoad())
-                    .building("KoreaTech")
-                    .detailAddress(baseAddress.getDetailAddress())
-                    .fullAddress(baseAddress.getFullAddress())
-                    .build();
+            OffCampusDeliveryAddress addressWithEnglishBuilding = createAddressWithBuilding("KoreaTech");
 
             // when
             Boolean result = addressWithEnglishBuilding.isNotAllowedBuilding("KOREATECH");
