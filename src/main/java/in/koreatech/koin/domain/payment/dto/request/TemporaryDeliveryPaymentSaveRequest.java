@@ -4,8 +4,11 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.order.delivery.model.AddressType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,6 +22,14 @@ public record TemporaryDeliveryPaymentSaveRequest(
 
     @Schema(description = "배달 상세 주소", example = "은솔관 422호", requiredMode = NOT_REQUIRED)
     String addressDetail,
+
+    @Schema(description = "배달 주소 위도", example = "36.76125794", requiredMode = REQUIRED)
+    @NotNull(message = "배달 주소 위도는 필수 입력사항입니다.")
+    BigDecimal longitude,
+
+    @Schema(description = "배달 주소 경도", example = "127.28372942", requiredMode = REQUIRED)
+    @NotNull(message = "배달 주소 경도는 필수 입력사항입니다.")
+    BigDecimal latitude,
 
     @Schema(description = "연락처", example = "01012345678", requiredMode = REQUIRED)
     @NotBlank(message = "연락처는 필수 입력사항입니다.")
@@ -34,6 +45,10 @@ public record TemporaryDeliveryPaymentSaveRequest(
     @Schema(description = "메뉴 총 금액", example = "1234", requiredMode = REQUIRED)
     @NotNull(message = "메뉴 총 금액은 필수 입력사항입니다.")
     Integer totalMenuPrice,
+
+    @Schema(description = "배달 타입", example = "OFF_CAMPUS", requiredMode = REQUIRED)
+    @NotNull(message = "배달 타입은 필수 입력사항입니다.")
+    AddressType deliveryType,
 
     @Schema(description = "배달 팁", example = "1234", requiredMode = REQUIRED)
     @NotNull(message = "배달 팁은 필수 입력사항입니다.")

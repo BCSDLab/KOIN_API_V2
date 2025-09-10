@@ -39,9 +39,10 @@ public interface PaymentApi {
             ## 요청 Body 필드 설명
             - `address`: 배달 받을 주소 (필수)
             - `phone_number`: 수신자 연락처 (필수)
-            - `to_owner`: 사장님께 전달할 메시지 (선택)
+            - `to_owner`: 사장님에게 전달할 메시지 (선택)
             - `to_rider`: 라이더에게 전달할 메시지 (선택)
             - `total_menu_price`: 메뉴 총 금액 (필수)
+            - `delivery_type`: 배달 타입(필수, `CAMPUS`(교내 배달) & `OFF_CAMPUS`(교외 배달))
             - `delivery_tip`: 배달 팁 (필수)
             - `total_amount`: 총 결제 금액 (필수)
             """

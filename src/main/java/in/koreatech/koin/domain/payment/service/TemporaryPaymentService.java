@@ -42,6 +42,8 @@ public class TemporaryPaymentService {
             deliveryPaymentInfo.phoneNumber(),
             deliveryPaymentInfo.address(),
             deliveryPaymentInfo.addressDetail(),
+            deliveryPaymentInfo.longitude(),
+            deliveryPaymentInfo.latitude(),
             deliveryPaymentInfo.toOwner(),
             deliveryPaymentInfo.toRider(),
             deliveryPaymentInfo.provideCutlery(),
