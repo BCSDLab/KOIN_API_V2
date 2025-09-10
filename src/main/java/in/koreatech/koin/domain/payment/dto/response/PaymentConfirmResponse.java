@@ -29,6 +29,9 @@ public record PaymentConfirmResponse(
     @Schema(description = "결제 고유 id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
+    @Schema(description = "주문 상점 고유 id", example = "1", requiredMode = REQUIRED)
+    Integer orderableShopId,
+
     @Schema(description = "배달 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600", requiredMode = NOT_REQUIRED)
     String deliveryAddress,
 
@@ -52,6 +55,12 @@ public record PaymentConfirmResponse(
 
     @Schema(description = "수저, 포크 수령 여부", example = "true", requiredMode = REQUIRED)
     Boolean provideCutlery,
+
+    @Schema(description = "메뉴 총 금액", example = "500", requiredMode = REQUIRED)
+    Integer totalMenuPrice,
+
+    @Schema(description = "배달비", example = "500", requiredMode = NOT_REQUIRED)
+    Integer deliveryTip,
 
     @Schema(description = "결제 금액", example = "1000", requiredMode = REQUIRED)
     Integer amount,
@@ -143,6 +152,7 @@ public record PaymentConfirmResponse(
         String deliveryAddressDetails = null;
         BigDecimal longitude = null;
         BigDecimal latitude = null;
+        Integer deliveryTip = null;
         String toOwner = null;
         String toRider = null;
         Boolean provideCutlery = null;
@@ -153,6 +163,7 @@ public record PaymentConfirmResponse(
             deliveryAddressDetails = delivery.getAddressDetail();
             longitude = delivery.getLongitude();
             latitude = delivery.getLatitude();
+            deliveryTip = delivery.getDeliveryTip();
             toOwner = delivery.getToOwner();
             toRider = delivery.getToRider();
             provideCutlery = delivery.getProvideCutlery();
@@ -164,6 +175,7 @@ public record PaymentConfirmResponse(
 
         return new PaymentConfirmResponse(
             payment.getId(),
+            orderableShop.getId(),
             deliveryAddress,
             deliveryAddressDetails,
             longitude,
@@ -172,7 +184,9 @@ public record PaymentConfirmResponse(
             toOwner,
             toRider,
             provideCutlery,
-            payment.getAmount(),
+            order.getTotalProductPrice(),
+            deliveryTip,
+            order.getTotalPrice(),
             shop.getName(),
             order.getOrderMenus().stream()
                 .map(InnerCartItemResponse::from)
