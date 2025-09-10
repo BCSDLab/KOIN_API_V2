@@ -21,6 +21,9 @@ public record InprogressOrderResponse(
     @Schema(description = "주문 ID", example = "1", requiredMode = REQUIRED)
     Integer id,
 
+    @Schema(description = "결제 ID", example = "1", requiredMode = REQUIRED)
+    Integer paymentId,
+
     @Schema(description = "주문 타입", example = "TAKEOUT", requiredMode = REQUIRED)
     String orderType,
 
@@ -56,6 +59,7 @@ public record InprogressOrderResponse(
 
         return new InprogressOrderResponse(
             order.getId(),
+            payment.getId(),
             order.getOrderType().name(),
             order.getOrderableShopName(),
             order.getOrderableShop().getThumbnailImage(),
