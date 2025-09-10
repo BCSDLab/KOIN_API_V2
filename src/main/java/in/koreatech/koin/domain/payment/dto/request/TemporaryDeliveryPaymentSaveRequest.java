@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.order.delivery.model.AddressType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -44,6 +45,10 @@ public record TemporaryDeliveryPaymentSaveRequest(
     @Schema(description = "메뉴 총 금액", example = "1234", requiredMode = REQUIRED)
     @NotNull(message = "메뉴 총 금액은 필수 입력사항입니다.")
     Integer totalMenuPrice,
+
+    @Schema(description = "배달 타입", example = "OFF_CAMPUS", requiredMode = REQUIRED)
+    @NotBlank(message = "배달 타입은 필수 입력사항입니다.")
+    AddressType deliveryType,
 
     @Schema(description = "배달 팁", example = "1234", requiredMode = REQUIRED)
     @NotNull(message = "배달 팁은 필수 입력사항입니다.")
