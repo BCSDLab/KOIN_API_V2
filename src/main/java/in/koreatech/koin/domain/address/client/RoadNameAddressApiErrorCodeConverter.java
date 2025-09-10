@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.order.address.service.client;
+package in.koreatech.koin.domain.address.client;
 
 import org.springframework.stereotype.Component;
 

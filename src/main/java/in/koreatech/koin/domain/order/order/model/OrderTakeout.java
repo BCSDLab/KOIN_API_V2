@@ -1,7 +1,10 @@
-package in.koreatech.koin.domain.order.model;
+package in.koreatech.koin.domain.order.order.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDateTime;
+
+import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -17,13 +20,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "order_takeout")
+@Table(name = "order_takeout_v2")
 @NoArgsConstructor(access = PROTECTED)
-public class OrderTakeout {
+public class OrderTakeout extends BaseEntity {
 
     @Id
     @Column(name = "order_id", nullable = false, updatable = false)
-    private String id;
+    private Integer id;
 
     @MapsId
     @OneToOne
@@ -38,14 +41,38 @@ public class OrderTakeout {
     @Column(name = "provide_cutlery", nullable = false, updatable = false, columnDefinition = "TINYINT(1)")
     private Boolean provideCutlery;
 
+    @Column(name = "packaged_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime packagedAt;
+
+    @Column(name = "estimated_packaged_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime estimatedPackagedAt;
+
     @Builder
     private OrderTakeout(
         Order order,
         String toOwner,
-        Boolean provideCutlery
+        Boolean provideCutlery,
+        LocalDateTime packagedAt,
+        LocalDateTime estimatedPackagedAt
     ) {
         this.order = order;
         this.toOwner = toOwner;
         this.provideCutlery = provideCutlery;
+        this.packagedAt = packagedAt;
+        this.estimatedPackagedAt = estimatedPackagedAt;
+    }
+
+    public void packaged() {
+        this.packagedAt = LocalDateTime.now();
+        this.order.packaged();
+    }
+
+    public void cooking() {
+        this.estimatedPackagedAt = LocalDateTime.now();
+        this.order.cooking();
+    }
+
+    public void pickedUp() {
+        this.order.pickedUp();
     }
 }

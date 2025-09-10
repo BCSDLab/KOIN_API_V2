@@ -7,6 +7,7 @@ import in.koreatech.koin.global.exception.CustomException;
 public record DeliveryPaymentInfo(
     String phoneNumber,
     String address,
+    String addressDetail,
     String toOwner,
     String toRider,
     Boolean provideCutlery,
@@ -17,6 +18,7 @@ public record DeliveryPaymentInfo(
     public static DeliveryPaymentInfo of(
         String phoneNumber,
         String address,
+        String addressDetail,
         String toOwner,
         String toRider,
         Boolean provideCutlery,
@@ -27,6 +29,7 @@ public record DeliveryPaymentInfo(
         return new DeliveryPaymentInfo(
             phoneNumber,
             address,
+            addressDetail,
             toOwner,
             toRider,
             provideCutlery,

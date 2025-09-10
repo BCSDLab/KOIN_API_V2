@@ -13,9 +13,12 @@ import jakarta.validation.constraints.Pattern;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TemporaryDeliveryPaymentSaveRequest(
-    @Schema(description = "배달 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600 은솔관 422호", requiredMode = REQUIRED)
+    @Schema(description = "배달 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600", requiredMode = REQUIRED)
     @NotBlank(message = "배달 주소는 필수 입력사항입니다.")
     String address,
+
+    @Schema(description = "배달 상세 주소", example = "은솔관 422호", requiredMode = NOT_REQUIRED)
+    String addressDetail,
 
     @Schema(description = "연락처", example = "01012345678", requiredMode = REQUIRED)
     @NotBlank(message = "연락처는 필수 입력사항입니다.")
