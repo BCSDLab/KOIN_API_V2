@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.common.event.StudentFindPasswordEvent;
+import in.koreatech.koin.common.event.StudentRegisterEvent;
 import in.koreatech.koin.common.event.StudentRegisterRequestEvent;
 import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
@@ -101,13 +102,14 @@ class StudentServiceTest {
     private UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
 
     @Nested
-    class RegisterStudent {
+    class RegisterStudentTest {
 
         @Test
         void 학생이_가입한다() {
             // given
             String serverURL = "https://koin.test";
-            RegisterStudentRequest request = new RegisterStudentRequest("test@koreatech.ac.kr",
+            RegisterStudentRequest request = new RegisterStudentRequest(
+                "test@koreatech.ac.kr",
                 "이름",
                 "test_password",
                 "닉네임",
@@ -139,7 +141,7 @@ class StudentServiceTest {
     }
 
     @Nested
-    class RegisterStudentV2 {
+    class RegisterStudentV2Test {
 
         private Department department = new Department("컴퓨터공학부");
         private Major major = new Major("컴퓨터공학부", department);
@@ -159,45 +161,46 @@ class StudentServiceTest {
                 .build();
         }
 
-        // @Test
-        // void 학생이_가입한다V2() { //TODO 확인 필요
-        //     // given
-        //     user.getId();
-        //     RegisterStudentRequestV2 request = new RegisterStudentRequestV2(
-        //         "이름",
-        //         "닉네임",
-        //         "test@koreatech.ac.kr",
-        //         "010123456789",
-        //         UserGender.MAN,
-        //         "컴퓨터공학부",
-        //         "2019136135",
-        //         "123",
-        //         "test_password",
-        //         true);
-        //
-        //     when(departmentRepository.getByName("컴퓨터공학부")).thenReturn(department);
-        //     when(passwordEncoder.encode("test_password")).thenReturn("ENCODED");
-        //
-        //     // when
-        //     studentService.studentRegisterV2(request);
-        //
-        //     var eventCapture = ArgumentCaptor.forClass(UserMarketingAgreementEvent.class);
-        //     verify(eventPublisher).publishEvent(eventCapture.capture());
-        //     var event = eventCapture.getValue();
-        //
-        //     // then
-        //     assertThat(event.userId()).isEqualTo(1);
-        // }
+        @Test
+        void 학생이_가입한다V2() {
+            // given
+            RegisterStudentRequestV2 request = new RegisterStudentRequestV2(
+                "이름",
+                "닉네임",
+                "test@koreatech.ac.kr",
+                "010123456789",
+                UserGender.MAN,
+                "컴퓨터공학부",
+                "2019136135",
+                "123",
+                "test_password",
+                true);
+
+            when(departmentRepository.getByName("컴퓨터공학부")).thenReturn(department);
+            when(passwordEncoder.encode("test_password")).thenReturn("ENCODED");
+
+            // when
+            studentService.studentRegisterV2(request);
+
+            var registerCaptor = ArgumentCaptor.forClass(StudentRegisterEvent.class);
+            verify(eventPublisher).publishEvent(registerCaptor.capture());
+
+            // then
+            assertThat(registerCaptor.getValue().phoneNumber())
+                .isEqualTo("010123456789");
+        }
     }
 
     @Nested
-    class LoginStudent {
+    class LoginStudentTest {
 
         @Test
-        void 학생이_로그인_하면_lastLoggedAt이_갱신된다() {  //TODO 실객체 사용
+        void 학생이_로그인_하면_lastLoggedAt이_갱신된다() {
             // given
             User user = UserFixture.id_설정_코인_유저(1);
-            StudentLoginRequest request = new StudentLoginRequest("test@koreatech.ac.kr", "test_password");
+            StudentLoginRequest request = new StudentLoginRequest(
+                "test@koreatech.ac.kr",
+                "test_password");
             UserAgentInfo agentInfo = UserAgentInfo.builder()
                 .model("model")
                 .type("WEB")
@@ -227,7 +230,7 @@ class StudentServiceTest {
     }
 
     @Nested
-    class UpdateStudent {
+    class UpdateStudentTest {
 
         Department department = new Department("컴퓨터공학부");
         Major major = new Major("컴퓨터공학부", department);
@@ -241,7 +244,7 @@ class StudentServiceTest {
 
         @Test
         void 학번이_변경되면_학번이_새값으로_설정되고_리셋이_호출된다() {
-            //given
+            // given
             UpdateStudentRequest request = new UpdateStudentRequest(
                 UserGender.MAN,
                 0,
@@ -267,8 +270,8 @@ class StudentServiceTest {
         }
 
         @Test
-        void 학부가_변경되면_학부와_전공이_새값으로_설정되고_리셋이_호출된다() { //TODO 실객체 사용
-            //given
+        void 학부가_변경되면_학부와_전공이_새값으로_설정되고_리셋이_호출된다() {
+            // given
             UpdateStudentRequest request = new UpdateStudentRequest(
                 UserGender.MAN,
                 0,
@@ -280,14 +283,13 @@ class StudentServiceTest {
                 "2019136135",
                 "01012345678");
 
-            Department newDept = mock(Department.class);
-            Major firstMajor = mock(Major.class);
-            Major otherMajor = mock(Major.class);
+            Department newDept = new Department("컴퓨터공학부");
+            Major firstMajor = new Major("소프트웨어", newDept);
+            Major otherMajor = new Major("AI", newDept);
 
             when(studentRepository.getById(1)).thenReturn(student);
             when(departmentRepository.findByName("기계공학부")).thenReturn(Optional.of(newDept));
-            when(newDept.getId()).thenReturn(7);
-            when(majorRepository.findByDepartmentId(7)).thenReturn(List.of(firstMajor, otherMajor));
+            when(majorRepository.findByDepartmentId(newDept.getId())).thenReturn(List.of(firstMajor, otherMajor));
 
             // when
             UpdateStudentResponse result = studentService.updateStudent(1, request);
@@ -301,7 +303,7 @@ class StudentServiceTest {
     }
 
     @Nested
-    class UpdateStudentV2 {
+    class UpdateStudentV2Test {
 
         Department department = new Department("컴퓨터공학부");
         Major major = new Major("컴퓨터공학부", department);
@@ -339,8 +341,8 @@ class StudentServiceTest {
         }
 
         @Test
-        void 학부가_변경되면_학부와_전공이_새값으로_설정되고_리셋이_호출된다V2() { //TODO 실객체 사용
-            //given
+        void 학부가_변경되면_학부와_전공이_새값으로_설정되고_리셋이_호출된다V2() {
+            // given
             UpdateStudentRequestV2 request = new UpdateStudentRequestV2(
                 "new",
                 "닉네임",
@@ -351,18 +353,18 @@ class StudentServiceTest {
                 "2019136135",
                 "new_password");
 
-            Department newDept = mock(Department.class);
-            Major firstMajor = mock(Major.class);
-            Major otherMajor = mock(Major.class);
+            Department newDept = new Department("컴퓨터공학부");
+            Major firstMajor = new Major("소프트웨어", newDept);
+            Major otherMajor = new Major("AI", newDept);
 
             when(studentRepository.getById(1)).thenReturn(student);
             when(departmentRepository.findByName("기계공학부")).thenReturn(Optional.of(newDept));
-            when(newDept.getId()).thenReturn(7);
-            when(majorRepository.findByDepartmentId(7)).thenReturn(List.of(firstMajor, otherMajor));
+            when(majorRepository.findByDepartmentId(newDept.getId())).thenReturn(List.of(firstMajor, otherMajor));
 
-            // then
+            // when
             studentService.updateStudentV2(1, request);
 
+            // then
             assertThat(student.getStudentNumber()).isEqualTo("2019136135");
             assertThat(student.getDepartment()).isSameAs(newDept);
             assertThat(student.getMajor()).isSameAs(firstMajor);
@@ -370,26 +372,27 @@ class StudentServiceTest {
     }
 
     @Nested
-    class findPasswordTest { //TODO 실객체 사용
+    class findPasswordTest {
 
         @Test
         void 비밀번호_찾기를_성공한다() {
-            //given
+            // given
             User user = UserFixture.id_설정_코인_유저(1);
             String serverURL = "https://koin.test";
-            UserFindPasswordRequest request = mock(UserFindPasswordRequest.class);
-            when(request.email()).thenReturn("test@koreatech.ac.kr");
-            when(userRepository.getByEmailAndUserTypeIn(eq(request.email()), eq(UserType.KOIN_STUDENT_TYPES))).
-                thenReturn(user);
+            UserFindPasswordRequest request = new UserFindPasswordRequest("test@koreatech.ac.kr");
+            when(userRepository.getByEmailAndUserTypeIn(
+                eq(request.email()),
+                eq(UserType.KOIN_STUDENT_TYPES)))
+                .thenReturn(user);
 
-            //when
+            // when
             studentService.findPassword(request, serverURL);
 
             var eventCaptor = ArgumentCaptor.forClass(StudentFindPasswordEvent.class);
             verify(eventPublisher).publishEvent(eventCaptor.capture());
             var event = eventCaptor.getValue();
 
-            //then
+            // then
             assertThat(event.email()).isEqualTo("test@koreatech.ac.kr");
             assertThat(event.serverUrl()).isEqualTo(serverURL);
             assertThat(event.resetToken()).isNotNull();
@@ -397,7 +400,7 @@ class StudentServiceTest {
     }
 
     @Nested
-    class getTest {
+    class StudentGetTest {
 
         Department department = new Department("컴퓨터공학부");
         Major major = new Major("컴퓨터공학부", department);
@@ -436,7 +439,7 @@ class StudentServiceTest {
     }
 
     @Nested
-    class ChangePasswordTest {
+    class ChangePasswordTest { //TODO: 실객체 사용
 
         Department department = new Department("컴퓨터공학부");
         Major major = new Major("컴퓨터공학부", department);
@@ -454,8 +457,7 @@ class StudentServiceTest {
                 .user(user)
                 .build();
             Integer userId = user.getId();
-            UserChangePasswordRequest request = mock(UserChangePasswordRequest.class);
-            when(request.password()).thenReturn("new_password");
+            UserChangePasswordRequest request = new UserChangePasswordRequest("new_password");
             when(studentRepository.getById(userId)).thenReturn(studentA);
             when(passwordEncoder.encode("new_password")).thenReturn("new_password");
 
@@ -476,18 +478,17 @@ class StudentServiceTest {
             User user = UserFixture.코인_유저();
             String resetToken = "reset_token";
 
-            UserChangePasswordSubmitRequest request = mock(UserChangePasswordSubmitRequest.class);
+            UserChangePasswordSubmitRequest request = new UserChangePasswordSubmitRequest("new_password");
             PasswordResetToken passwordResetToken = mock(PasswordResetToken.class);
 
-            when(request.password()).thenReturn("new_password");
             when(passwordResetTokenRepository.getByResetToken(resetToken)).thenReturn(passwordResetToken);
             when(userRepository.getById(passwordResetToken.getId())).thenReturn(user);
             when(passwordEncoder.encode("new_password")).thenReturn("new_password");
 
-            // then
+            // when
             studentService.changePasswordSubmit(request, resetToken);
 
-            // when
+            // then
             assertThat(user.getLoginPw()).isEqualTo("new_password");
         }
     }
