@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.order.order.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import in.koreatech.koin.common.model.BaseEntity;
@@ -41,6 +42,12 @@ public class OrderDelivery extends BaseEntity {
     @Column(name = "address_detail", columnDefinition = "TEXT")
     private String addressDetail;
 
+    @Column(name = "latitude", nullable = false, precision = 10, scale = 8)
+    private BigDecimal latitude;
+
+    @Column(name = "longitude", nullable = false, precision = 11, scale = 8)
+    private BigDecimal longitude;
+
     @Size(max = 50)
     @Column(name = "to_owner", length = 50, updatable = false)
     private String toOwner;
@@ -71,6 +78,8 @@ public class OrderDelivery extends BaseEntity {
         Order order,
         String address,
         String addressDetail,
+        BigDecimal latitude,
+        BigDecimal longitude,
         String toOwner,
         String toRider,
         Integer deliveryTip,
@@ -82,6 +91,8 @@ public class OrderDelivery extends BaseEntity {
         this.order = order;
         this.address = address;
         this.addressDetail = addressDetail;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.toOwner = toOwner;
         this.toRider = toRider;
         this.deliveryTip = deliveryTip;
@@ -104,5 +115,9 @@ public class OrderDelivery extends BaseEntity {
     public void delivering() {
         this.dispatchedAt = LocalDateTime.now();
         this.order.delivering();
+    }
+
+    public void updateEstimatedArrivalAt() {
+        this.estimatedArrivalAt = LocalDateTime.now();
     }
 }
