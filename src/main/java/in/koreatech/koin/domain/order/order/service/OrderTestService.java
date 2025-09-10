@@ -44,8 +44,7 @@ public class OrderTestService {
                     OrderTakeout orderTakeout = order.getOrderTakeout();
                     orderTakeout.updateEstimatedPackagedAt();
                 }
-            }
-            else if (order.getOrderType().equals(DELIVERY)) {
+            } else if (order.getOrderType().equals(DELIVERY)) {
                 if (order.getOrderDelivery().getEstimatedArrivalAt() == null) {
                     OrderDelivery orderDelivery = order.getOrderDelivery();
                     orderDelivery.updateEstimatedArrivalAt();
