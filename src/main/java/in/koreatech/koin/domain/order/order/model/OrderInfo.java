@@ -7,9 +7,12 @@ public record OrderInfo(
     Integer paymentId,
     Integer orderShopId,
     String orderableShopName,
+    Boolean openStatus,
+    String orderableShopThumbnail,
     LocalDateTime orderDate,
     OrderStatus orderStatus,
-    String orderTitle
+    String orderTitle,
+    Integer totalAmount
 ) {
     
 }
