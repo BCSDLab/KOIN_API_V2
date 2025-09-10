@@ -144,22 +144,6 @@ class StudentServiceTest {
     class RegisterStudentV2Test {
 
         private Department department = new Department("컴퓨터공학부");
-        private Major major = new Major("컴퓨터공학부", department);
-
-        private Student student;
-        private User user = UserFixture.id_설정_코인_유저(1);
-
-        @BeforeEach
-        void init() {
-            student = Student.builder()
-                .studentNumber("2019136135")
-                .department(department)
-                .major(major)
-                .userIdentity(UNDERGRADUATE)
-                .isGraduated(false)
-                .user(user)
-                .build();
-        }
 
         @Test
         void 학생이_가입한다V2() {
@@ -439,7 +423,7 @@ class StudentServiceTest {
     }
 
     @Nested
-    class ChangePasswordTest { //TODO: 실객체 사용
+    class ChangePasswordTest {
 
         Department department = new Department("컴퓨터공학부");
         Major major = new Major("컴퓨터공학부", department);
