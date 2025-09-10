@@ -572,7 +572,7 @@ public class CartServiceTest {
             // When & Then
             assertCustomExceptionThrownAndDetail(
                 () -> cartService.addItem(command),
-                ApiResponseCode.ILLEGAL_STATE,
+                ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
                 "수량은 1 이상이어야 합니다."
             );
         }
