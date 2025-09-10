@@ -86,7 +86,7 @@ public class S3Client {
                 .bodyToMono(String.class)
                 .block();
         } catch (Exception e) {
-            throw new KoinIllegalStateException("S3 텍스트를 불러오던 중 문제가 발생했습니다. " + e.getMessage());
+            throw new KoinIllegalStateException("URL로 부터 데이터를 불러오던 중 문제가 발생했습니다. " + e.getMessage());
         }
     }
 
