@@ -75,4 +75,8 @@ public class OrderTakeout extends BaseEntity {
     public void pickedUp() {
         this.order.pickedUp();
     }
+
+    public void updateEstimatedPackagedAt() {
+        this.estimatedPackagedAt = LocalDateTime.now();
+    }
 }

@@ -105,4 +105,8 @@ public class OrderDelivery extends BaseEntity {
         this.dispatchedAt = LocalDateTime.now();
         this.order.delivering();
     }
+
+    public void updateEstimatedArrivalAt() {
+        this.estimatedArrivalAt = LocalDateTime.now();
+    }
 }

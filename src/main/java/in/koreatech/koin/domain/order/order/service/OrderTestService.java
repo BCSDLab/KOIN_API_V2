@@ -5,6 +5,9 @@ import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
 import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
 import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_ORDER;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,21 @@ public class OrderTestService {
         Order order = orderRepository.getById(orderId);
         if (!order.getUser().getId().equals(user.getId())) {
             throw CustomException.of(FORBIDDEN_ORDER);
+        }
+
+        if (orderStatus != CONFIRMING) {
+            if (order.getOrderType().equals(TAKE_OUT)) {
+                if (order.getOrderTakeout().getEstimatedPackagedAt() == null) {
+                    OrderTakeout orderTakeout = order.getOrderTakeout();
+                    orderTakeout.updateEstimatedPackagedAt();
+                }
+            }
+            else if (order.getOrderType().equals(DELIVERY)) {
+                if (order.getOrderDelivery().getEstimatedArrivalAt() == null) {
+                    OrderDelivery orderDelivery = order.getOrderDelivery();
+                    orderDelivery.updateEstimatedArrivalAt();
+                }
+            }
         }
 
         if (orderStatus.equals(COOKING)) {
