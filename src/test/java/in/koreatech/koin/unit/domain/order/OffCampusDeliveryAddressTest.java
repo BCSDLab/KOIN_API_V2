@@ -144,8 +144,6 @@ public class OffCampusDeliveryAddressTest {
         }
     }
 
-
-
     @Nested
     @DisplayName("인스턴스 필드가 null인 경우 테스트")
     class InstanceFieldNullTest {
