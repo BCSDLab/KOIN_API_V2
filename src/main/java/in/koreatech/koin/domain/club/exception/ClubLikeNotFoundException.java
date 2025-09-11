@@ -4,7 +4,7 @@ import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 
 public class ClubLikeNotFoundException extends DataNotFoundException {
 
-    private static final String DEFAULT_MESSAGE = "좋아요를 누른적이 없는 동아리입니다!";
+    private static final String DEFAULT_MESSAGE = "좋아요를 누른 적 없는 동아리입니다!";
 
     public ClubLikeNotFoundException(String message) {
         super(message);

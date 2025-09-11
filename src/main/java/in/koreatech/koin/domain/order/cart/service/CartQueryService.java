@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.order.cart.dto.CartResponse;
 import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.domain.order.cart.model.CartMenuItem;
 import in.koreatech.koin.domain.order.cart.repository.CartRepository;
-import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.order.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuRepository;
@@ -43,7 +43,7 @@ public class CartQueryService {
     }
 
     public CartMenuItemEditResponse getOrderableShopMenuForEditOptions(Integer userId, Integer cartMenuItemId) {
-        Cart cart = getCartOrThrow(userId);
+        Cart cart = cartRepository.getCartByUserId(userId);
         CartMenuItem cartMenuItem = cart.getCartMenuItem(cartMenuItemId);
 
         OrderableShopMenu menu = orderableShopMenuRepository.getByIdWithMenuOptionGroups(
@@ -79,7 +79,7 @@ public class CartQueryService {
     }
 
     public void validateCart(Integer userId, OrderType orderType) {
-        Cart cart = getCartOrThrow(userId);
+        Cart cart = cartRepository.getCartByUserId(userId);
         OrderableShop orderableShop = cart.getOrderableShop();
         orderableShop.requireShopOpen();
 
@@ -93,8 +93,4 @@ public class CartQueryService {
         return cart.map(CartItemsCountSummaryResponse::from).orElseGet(CartItemsCountSummaryResponse::empty);
     }
 
-    private Cart getCartOrThrow(Integer userId) {
-        return cartRepository.findCartByUserId(userId)
-            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CART));
-    }
 }
