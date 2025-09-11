@@ -1,7 +1,7 @@
 package in.koreatech.koin.unit.fixture;
 
-import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
+import in.koreatech.koin.domain.club.club.model.Club;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;

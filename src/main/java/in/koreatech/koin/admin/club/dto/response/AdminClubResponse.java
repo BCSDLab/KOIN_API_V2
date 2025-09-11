@@ -1,19 +1,18 @@
 package in.koreatech.koin.admin.club.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import in.koreatech.koin.domain.club.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.ClubManager;
+import in.koreatech.koin.domain.club.club.model.ClubSNS;
+import in.koreatech.koin.domain.user.model.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
-import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
-import in.koreatech.koin.domain.club.model.ClubSNS;
-import in.koreatech.koin.domain.user.model.User;
-import io.swagger.v3.oas.annotations.media.Schema;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminClubResponse(

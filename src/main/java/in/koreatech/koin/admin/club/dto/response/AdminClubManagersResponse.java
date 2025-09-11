@@ -1,24 +1,22 @@
 package in.koreatech.koin.admin.club.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import in.koreatech.koin.common.model.Criteria;
+import in.koreatech.koin.domain.club.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.ClubManager;
+import in.koreatech.koin.domain.club.club.model.redis.ClubCreateRedis;
+import in.koreatech.koin.domain.user.model.User;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.springframework.data.domain.Page;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
-import in.koreatech.koin.common.model.Criteria;
-import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
-import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
-import in.koreatech.koin.domain.user.model.User;
-import io.swagger.v3.oas.annotations.media.Schema;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminClubManagersResponse(

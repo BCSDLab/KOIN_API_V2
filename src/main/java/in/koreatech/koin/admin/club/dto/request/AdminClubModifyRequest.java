@@ -1,22 +1,17 @@
 package in.koreatech.koin.admin.club.dto.request;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import in.koreatech.koin.domain.club.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.ClubManager;
+import in.koreatech.koin.domain.user.model.User;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
-import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubManager;
-import in.koreatech.koin.domain.user.model.User;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminClubModifyRequest(
