@@ -1,22 +1,22 @@
 package in.koreatech.koin.domain.payment.model.redis;
 
-import static in.koreatech.koin.domain.order.model.OrderType.DELIVERY;
-import static in.koreatech.koin.domain.order.model.OrderType.TAKE_OUT;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.CONFIRMING;
+import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
+import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
 import static in.koreatech.koin.global.code.ApiResponseCode.MISMATCH_TEMPORARY_PAYMENT;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.model.OrderDelivery;
-import in.koreatech.koin.domain.order.model.OrderTakeout;
-import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.order.order.model.Order;
+import in.koreatech.koin.domain.order.order.model.OrderDelivery;
+import in.koreatech.koin.domain.order.order.model.OrderTakeout;
+import in.koreatech.koin.domain.order.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
-import in.koreatech.koin.domain.payment.model.domain.TemporaryMenuItems;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
@@ -40,6 +40,12 @@ public class TemporaryPayment {
 
     private String address;
 
+    private String addressDetail;
+
+    private BigDecimal longitude;
+
+    private BigDecimal latitude;
+
     private String toOwner;
 
     private String toRider;
@@ -51,8 +57,6 @@ public class TemporaryPayment {
     private Integer deliveryFee;
 
     private Integer totalPrice;
-
-    private List<TemporaryMenuItems> temporaryMenuItems;
 
     @TimeToLive
     private Long expiryTime;
@@ -66,13 +70,15 @@ public class TemporaryPayment {
         String phoneNumber,
         OrderType orderType,
         String address,
+        String addressDetail,
+        BigDecimal longitude,
+        BigDecimal latitude,
         String toOwner,
         String toRider,
         Boolean provideCutlery,
         Integer totalProductPrice,
         Integer deliveryFee,
-        Integer totalPrice,
-        List<TemporaryMenuItems> temporaryMenuItems
+        Integer totalPrice
     ) {
         this.pgOrderId = pgOrderId;
         this.userId = userId;
@@ -80,13 +86,15 @@ public class TemporaryPayment {
         this.phoneNumber = phoneNumber;
         this.orderType = orderType;
         this.address = address;
+        this.addressDetail = addressDetail;
+        this.longitude = longitude;
+        this.latitude = latitude;
         this.toOwner = toOwner;
         this.toRider = toRider;
         this.provideCutlery = provideCutlery;
         this.totalProductPrice = totalProductPrice;
         this.deliveryFee = deliveryFee;
         this.totalPrice = totalPrice;
-        this.temporaryMenuItems = temporaryMenuItems;
         this.expiryTime = CACHE_EXPIRE_SECOND;
         this.createdAt = LocalDateTime.now();
     }
@@ -97,13 +105,15 @@ public class TemporaryPayment {
         Integer orderableShopId,
         String phoneNumber,
         String address,
+        String addressDetail,
+        BigDecimal longitude,
+        BigDecimal latitude,
         String toOwner,
         String toRider,
         Boolean provideCutlery,
         Integer totalProductPrice,
         Integer deliveryFee,
-        Integer totalPrice,
-        List<TemporaryMenuItems> temporaryMenuItems
+        Integer totalPrice
     ) {
         return new TemporaryPayment(
             pgOrderId,
@@ -112,13 +122,15 @@ public class TemporaryPayment {
             phoneNumber,
             DELIVERY,
             address,
+            addressDetail,
+            longitude,
+            latitude,
             toOwner,
             toRider,
             provideCutlery,
             totalProductPrice,
             deliveryFee,
-            totalPrice,
-            temporaryMenuItems
+            totalPrice
         );
     }
 
@@ -130,8 +142,7 @@ public class TemporaryPayment {
         String toOwner,
         Boolean provideCutlery,
         Integer totalProductPrice,
-        Integer totalPrice,
-        List<TemporaryMenuItems> temporaryMenuItems
+        Integer totalPrice
     ) {
         return new TemporaryPayment(
             pgOrderId,
@@ -140,22 +151,29 @@ public class TemporaryPayment {
             phoneNumber,
             TAKE_OUT,
             null,
+            null,
+            null,
+            null,
             toOwner,
             null,
             provideCutlery,
             totalProductPrice,
             null,
-            totalPrice,
-            temporaryMenuItems
+            totalPrice
         );
     }
 
     public Order toOrder(User user, OrderableShop orderableShop) {
         Order order = Order.builder()
-            .id(pgOrderId)
+            .pgOrderId(pgOrderId)
             .orderType(orderType)
+            .status(CONFIRMING)
+            .orderableShopAddress(orderableShop.getShop().getAddress())
+            .orderableShopAddressDetail(orderableShop.getShop().getAddressDetail())
+            .orderableShopName(orderableShop.getShop().getName())
             .phoneNumber(phoneNumber)
             .totalProductPrice(totalProductPrice)
+            .discountAmount(0) // 현재 할인 정책이 없기 때문에 0원 처리
             .totalPrice(totalPrice)
             .orderableShop(orderableShop)
             .user(user)
@@ -166,6 +184,9 @@ public class TemporaryPayment {
             order.setOrderDelivery(OrderDelivery.builder()
                 .order(order)
                 .address(address)
+                .addressDetail(addressDetail)
+                .latitude(latitude)
+                .longitude(longitude)
                 .toOwner(toOwner)
                 .toRider(toRider)
                 .provideCutlery(provideCutlery)

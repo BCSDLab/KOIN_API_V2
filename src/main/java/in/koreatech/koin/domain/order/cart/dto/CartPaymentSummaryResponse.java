@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
 import in.koreatech.koin.domain.order.cart.model.Cart;
-import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.order.order.model.OrderType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)

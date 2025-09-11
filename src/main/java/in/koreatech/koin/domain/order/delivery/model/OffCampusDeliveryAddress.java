@@ -58,4 +58,8 @@ public class OffCampusDeliveryAddress {
             siGunGu.equals(this.siGunGu) &&
             eupMyeonDong.equals(this.eupMyeonDong);
     }
+
+    public Boolean isNotAllowedBuilding(String building) {
+        return building.equals(this.building);
+    }
 }

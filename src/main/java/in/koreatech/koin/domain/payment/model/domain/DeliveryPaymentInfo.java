@@ -2,11 +2,16 @@ package in.koreatech.koin.domain.payment.model.domain;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.ORDER_PRICE_MISMATCH;
 
+import java.math.BigDecimal;
+
 import in.koreatech.koin.global.exception.CustomException;
 
 public record DeliveryPaymentInfo(
     String phoneNumber,
     String address,
+    String addressDetail,
+    BigDecimal longitude,
+    BigDecimal latitude,
     String toOwner,
     String toRider,
     Boolean provideCutlery,
@@ -17,6 +22,9 @@ public record DeliveryPaymentInfo(
     public static DeliveryPaymentInfo of(
         String phoneNumber,
         String address,
+        String addressDetail,
+        BigDecimal longitude,
+        BigDecimal latitude,
         String toOwner,
         String toRider,
         Boolean provideCutlery,
@@ -27,6 +35,9 @@ public record DeliveryPaymentInfo(
         return new DeliveryPaymentInfo(
             phoneNumber,
             address,
+            addressDetail,
+            longitude,
+            latitude,
             toOwner,
             toRider,
             provideCutlery,

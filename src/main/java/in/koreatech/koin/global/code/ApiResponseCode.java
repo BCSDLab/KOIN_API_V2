@@ -26,6 +26,7 @@ public enum ApiResponseCode {
     INVALID_GENDER_INDEX(HttpStatus.BAD_REQUEST, "올바르지 않은 성별 인덱스입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "올바르지 않은 인증 토큰입니다."),
     INVALID_DELIVERY_AREA(HttpStatus.BAD_REQUEST, "배달이 불가능한 지역이에요."),
+    INVALID_DELIVERY_BUILDING(HttpStatus.BAD_REQUEST, "교외 주문 주소에 교내 주문 주소를 입력할 수 없습니다."),
     NOT_MATCHED_EMAIL(HttpStatus.BAD_REQUEST, "이메일이 일치하지 않습니다."),
     NOT_MATCHED_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "전화번호가 일치하지 않습니다."),
     NOT_MATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
@@ -82,6 +83,7 @@ public enum ApiResponseCode {
     FORBIDDEN_VERIFICATION(HttpStatus.FORBIDDEN, "이메일/휴대폰 인증 후 다시 시도해주십시오."),
     FORBIDDEN_BLOCKED_USER(HttpStatus.FORBIDDEN, "차단된 사용자입니다."),
     PAYMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "결제 정보 접근 권한이 없습니다."),
+    FORBIDDEN_ORDER(HttpStatus.FORBIDDEN, "주문 정보 접근 권한이 없습니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -104,6 +106,7 @@ public enum ApiResponseCode {
     NOT_FOUND_LOST_ITEM_CHATROOM(HttpStatus.NOT_FOUND, "분실물 게시글 채팅방이 존재하지 않습니다."),
     NOT_FOUND_TEMPORARY_PAYMENT(HttpStatus.NOT_FOUND, "임시 결제 정보가 존재하지 않습니다."),
     NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
+    NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
