@@ -28,8 +28,7 @@ public class OrderableShopEventService {
             return new OrderableShopEventsResponse(Collections.emptyList());
         }
 
-        Map<Integer, List<EventArticleImage>> eventImageMap =
-            getEventArticleImagesMap(orderableShopEvents);
+        Map<Integer, List<EventArticleImage>> eventImageMap = getEventArticleImagesMap(orderableShopEvents);
 
         return OrderableShopEventsResponse.of(orderableShopEvents, eventImageMap);
     }
@@ -37,8 +36,7 @@ public class OrderableShopEventService {
     public OrderableShopEventsResponse getAllOrderableShopEvents() {
         List<OrderableShopEvent> allOrderableShopEvents =  orderableShopEventQueryRepository.getAllOngoingEvents();
 
-        Map<Integer, List<EventArticleImage>> eventImageMap =
-            getEventArticleImagesMap(allOrderableShopEvents);
+        Map<Integer, List<EventArticleImage>> eventImageMap = getEventArticleImagesMap(allOrderableShopEvents);
 
         return OrderableShopEventsResponse.of(allOrderableShopEvents, eventImageMap);
     }
