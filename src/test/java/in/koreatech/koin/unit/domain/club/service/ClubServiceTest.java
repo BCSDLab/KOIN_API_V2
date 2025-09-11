@@ -703,7 +703,7 @@ public class ClubServiceTest {
             // when / then
             assertThatThrownBy(() -> clubService.likeClubCancel(clubId, userId))
                 .isInstanceOf(ClubLikeNotFoundException.class)
-                .hasMessage("좋아요를 누른적이 없는 동아리입니다!");
+                .hasMessage("좋아요를 누른 적 없는 동아리입니다!");
         }
     }
 
