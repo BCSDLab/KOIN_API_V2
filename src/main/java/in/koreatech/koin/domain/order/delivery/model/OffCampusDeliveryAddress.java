@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -54,12 +56,12 @@ public class OffCampusDeliveryAddress {
     }
 
     public Boolean isValidDeliveryArea(String siDo, String siGunGu, String eupMyeonDong) {
-        return siDo.equals(this.siDo) &&
-            siGunGu.equals(this.siGunGu) &&
-            eupMyeonDong.equals(this.eupMyeonDong);
+        return Objects.equals(siDo, this.siDo) &&
+            Objects.equals(siGunGu, this.siGunGu) &&
+            Objects.equals(eupMyeonDong, this.eupMyeonDong);
     }
 
     public Boolean isNotAllowedBuilding(String building) {
-        return building.equals(this.building);
+        return Objects.equals(building, this.building);
     }
 }
