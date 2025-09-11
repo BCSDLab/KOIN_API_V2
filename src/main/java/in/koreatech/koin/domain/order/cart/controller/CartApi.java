@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
@@ -911,6 +913,13 @@ public interface CartApi {
         @Auth(permit = {GENERAL, STUDENT}) Integer userId
     );
 
+    @ApiResponseCodes(value = {
+        ApiResponseCode.OK,
+        ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP,
+        ApiResponseCode.SHOP_CLOSED,
+        ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU,
+        ApiResponseCode.DIFFERENT_SHOP_ITEM_IN_CART,
+    })
     @PostMapping("/cart/reorder/{orderId}")
     ResponseEntity<Void> reorderCartItems(
         @PathVariable(name = "orderId") Integer orderId,

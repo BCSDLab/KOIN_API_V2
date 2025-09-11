@@ -23,6 +23,13 @@ public interface OrderRepository extends Repository<Order, Integer> {
             .orElseThrow(() -> CustomException.of(NOT_FOUND_ORDER));
     }
 
+    Optional<Order> findByIdAndUserId(Integer orderId, Integer userId);
+
+    default Order getByIdAndUserId(Integer orderId,  Integer userId) {
+        return findByIdAndUserId(orderId, userId)
+            .orElseThrow(() -> CustomException.of(NOT_FOUND_ORDER));
+    }
+
     @Query("""
         SELECT DISTINCT o
         FROM Order o

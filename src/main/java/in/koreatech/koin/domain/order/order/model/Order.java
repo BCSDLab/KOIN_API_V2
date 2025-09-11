@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.order.order.model;
 
 import static in.koreatech.koin.domain.order.order.model.OrderStatus.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_ORDER;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -12,11 +13,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -115,6 +118,7 @@ public class Order extends BaseEntity {
     private OrderTakeout orderTakeout;
 
     @OneToMany(mappedBy = "order", fetch = LAZY, cascade = ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
     private List<OrderMenu> orderMenus = new ArrayList<>();
 
     @Builder
@@ -171,6 +175,12 @@ public class Order extends BaseEntity {
             orderMenus = new ArrayList<>();
         }
         this.orderMenus.add(orderMenu);
+    }
+
+    public void validateUserMatches(User user) {
+        if (!this.user.getId().equals(user.getId())) {
+            throw CustomException.of(FORBIDDEN_ORDER);
+        }
     }
 
     public void cancel(String cancelReason) {

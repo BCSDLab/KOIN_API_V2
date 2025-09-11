@@ -13,18 +13,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.domain.order.cart.dto.CartAddItemRequest;
 import in.koreatech.koin.domain.order.cart.dto.CartAmountSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartItemsCountSummaryResponse;
+import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartPaymentSummaryResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartResponse;
-import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import in.koreatech.koin.domain.order.cart.service.CartQueryService;
+import in.koreatech.koin.domain.order.cart.service.CartReorderService;
 import in.koreatech.koin.domain.order.cart.service.CartService;
 import in.koreatech.koin.domain.order.order.model.OrderType;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +35,7 @@ public class CartController implements CartApi {
 
     private final CartService cartService;
     private final CartQueryService cartQueryService;
+    private final CartReorderService cartReorderService;
 
     @GetMapping("/cart")
     public ResponseEntity<CartResponse> getCartItems(
@@ -133,5 +135,14 @@ public class CartController implements CartApi {
     ) {
         CartItemsCountSummaryResponse cartItemsTotalCount = cartQueryService.getCartItemsCountSummary(userId);
         return ResponseEntity.ok(cartItemsTotalCount);
+    }
+
+    @PostMapping("/cart/reorder/{orderId}")
+    public ResponseEntity<Void> reorderCartItems(
+        @PathVariable(name = "orderId") Integer orderId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        cartReorderService.reorderCartItems(orderId, userId);
+        return ResponseEntity.ok().build();
     }
 }
