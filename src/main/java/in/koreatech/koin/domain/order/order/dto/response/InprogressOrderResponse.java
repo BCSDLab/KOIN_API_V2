@@ -19,16 +19,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record InprogressOrderResponse(
     @Schema(description = "주문 ID", example = "1", requiredMode = REQUIRED)
-    Integer orderId,
+    Integer id,
+
+    @Schema(description = "결제 ID", example = "1", requiredMode = REQUIRED)
+    Integer paymentId,
 
     @Schema(description = "주문 타입", example = "TAKEOUT", requiredMode = REQUIRED)
     String orderType,
 
     @Schema(description = "상점 이름", example = "코인 병천점", requiredMode = REQUIRED)
-    String shopName,
+    String orderableShopName,
 
     @Schema(description = "상점 썸네일 URL", example = "https://static.koreatech.in/test.png", requiredMode = REQUIRED)
-    String shopThumbnail,
+    String orderableShopThumbnail,
 
     @Schema(description = "예상 시각", example = "17:45", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "HH:mm")
@@ -38,7 +41,7 @@ public record InprogressOrderResponse(
     String orderStatus,
 
     @Schema(description = "주문 내용", example = "족발 외 1건", requiredMode = REQUIRED)
-    String paymentDescription,
+    String orderTitle,
 
     @Schema(description = "총 금액", example = "50000", requiredMode = REQUIRED)
     Integer totalAmount
@@ -56,6 +59,7 @@ public record InprogressOrderResponse(
 
         return new InprogressOrderResponse(
             order.getId(),
+            payment.getId(),
             order.getOrderType().name(),
             order.getOrderableShopName(),
             order.getOrderableShop().getThumbnailImage(),

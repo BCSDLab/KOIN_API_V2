@@ -10,7 +10,8 @@ public record OrderSearchCriteria(
     Integer limit,
     OrderSearchPeriodCriteria period,
     OrderStatusCriteria status,
-    OrderTypeCriteria type
+    OrderTypeCriteria type,
+    String query
 ) {
     public static OrderSearchCriteria from(OrderSearchCondition condition) {
         return new OrderSearchCriteria(
@@ -18,7 +19,8 @@ public record OrderSearchCriteria(
             condition.limit(),
             condition.period(),
             condition.status(),
-            condition.type()
+            condition.type(),
+            condition.query()
         );
     }
 }

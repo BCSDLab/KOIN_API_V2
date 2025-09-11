@@ -34,9 +34,10 @@ public class OrderController implements OrderApi {
         @RequestParam(name = "period", required = false, defaultValue = "NONE") OrderSearchPeriodCriteria period,
         @RequestParam(name = "status", required = false, defaultValue = "NONE") OrderStatusCriteria status,
         @RequestParam(name = "type", required = false, defaultValue = "NONE") OrderTypeCriteria type,
+        @RequestParam(name = "query", required = false, defaultValue = "") String query,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        OrderSearchCondition orderSearchCondition = OrderSearchCondition.of(page, limit, period, status, type);
+        OrderSearchCondition orderSearchCondition = OrderSearchCondition.of(page, limit, period, status, type, query);
         OrdersResponse response = orderService.getOrders(userId, orderSearchCondition);
         return ResponseEntity.ok(response);
     }

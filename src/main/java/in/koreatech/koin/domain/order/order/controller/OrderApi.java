@@ -33,7 +33,7 @@ public interface OrderApi {
                 - LAST_1_YEAR : 최근 1년
             - status
                 - NONE : 기본값
-                - COMPLETED : 주문 완료, 포장 완료
+                - COMPLETED : 주문 완료, 포장 수령
                 - CANCELED : 주문 취소
             - type
                 - NONE : 기본값
@@ -48,6 +48,7 @@ public interface OrderApi {
         @RequestParam(name = "period", required = false, defaultValue = "NONE") OrderSearchPeriodCriteria period,
         @RequestParam(name = "status", required = false, defaultValue = "NONE") OrderStatusCriteria status,
         @RequestParam(name = "type", required = false, defaultValue = "NONE") OrderTypeCriteria type,
+        @RequestParam(name = "query", required = false, defaultValue = "") String query,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -63,6 +64,7 @@ public interface OrderApi {
                 CONFIRMING
                 COOKING
                 PACKAGED
+                PICKED_UP
                 DELIVERING
                 DELIVERED
                 CANCELED

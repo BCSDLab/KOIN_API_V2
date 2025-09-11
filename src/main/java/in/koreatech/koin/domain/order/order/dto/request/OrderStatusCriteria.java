@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.order.order.dto.request;
 
-import static in.koreatech.koin.domain.order.order.model.OrderStatus.DELIVERED;
-import static in.koreatech.koin.domain.order.order.model.OrderStatus.PACKAGED;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.*;
 import static in.koreatech.koin.domain.order.order.model.QOrder.order;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -15,13 +14,13 @@ public enum OrderStatusCriteria {
     NONE("NONE") {
         @Override
         public BooleanExpression getPredicate() {
-            return order.status.in(DELIVERED, PACKAGED, OrderStatus.CANCELED);
+            return order.status.in(DELIVERED, PICKED_UP, OrderStatus.CANCELED);
         }
     },
     COMPLETED("COMPLETED") {
         @Override
         public BooleanExpression getPredicate() {
-            return order.status.in(DELIVERED, PACKAGED);
+            return order.status.in(DELIVERED, PICKED_UP);
         }
     },
     CANCELED("CANCELED") {
