@@ -919,6 +919,8 @@ public interface CartApi {
         ApiResponseCode.SHOP_CLOSED,
         ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU,
         ApiResponseCode.DIFFERENT_SHOP_ITEM_IN_CART,
+        ApiResponseCode.MENU_SOLD_OUT,
+        ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION,
     })
     @PostMapping("/cart/reorder/{orderId}")
     ResponseEntity<Void> reorderCartItems(

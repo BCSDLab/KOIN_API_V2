@@ -9,6 +9,8 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
+
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuPrice;
@@ -69,6 +71,7 @@ public class OrderMenu extends BaseEntity {
     private OrderableShopMenuPrice orderableShopMenuPrice;
 
     @OneToMany(mappedBy = "orderMenu", cascade = ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
     private List<OrderMenuOption> orderMenuOptions = new ArrayList<>();
 
     @Builder
