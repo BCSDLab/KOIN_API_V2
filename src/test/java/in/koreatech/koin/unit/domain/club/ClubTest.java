@@ -6,8 +6,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
-import in.koreatech.koin.domain.club.service.ClubService;
+import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
+import in.koreatech.koin.domain.club.club.service.ClubService;
 
 @ExtendWith(MockitoExtension.class)
 public class ClubTest {
