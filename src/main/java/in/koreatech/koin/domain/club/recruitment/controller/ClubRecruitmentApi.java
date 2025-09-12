@@ -108,4 +108,32 @@ public interface ClubRecruitmentApi {
         @Parameter(description = "동아리 고유 식별자(clubId)", example = "1") @PathVariable(name = "clubId") Integer clubId,
         @UserId Integer userId
     );
+
+    @Operation(summary = "특정 동아리의 모집알림 구독")
+    @ApiResponseCodes({
+        CREATED,
+        NOT_FOUND_USER,
+        NOT_FOUND_CLUB,
+        FORBIDDEN_USER_TYPE,
+        INVALID_REQUEST_BODY
+    })
+    @PostMapping("{clubId}/recruitment/notification")
+    ResponseEntity<Void> subscribeRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @Operation(summary = "특정 동아리의 모집알림 구독취소")
+    @ApiResponseCodes({
+        NO_CONTENT,
+        NOT_FOUND_USER,
+        NOT_FOUND_CLUB,
+        FORBIDDEN_USER_TYPE,
+        INVALID_REQUEST_BODY
+    })
+    @DeleteMapping("{clubId}/recruitment/notification")
+    ResponseEntity<Void> rejectRecruitmentNotification(
+        @PathVariable Integer clubId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
 }

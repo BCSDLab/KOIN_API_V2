@@ -11,7 +11,6 @@ import in.koreatech.koin.domain.club.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.club.enums.ClubSortType;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
-import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 @Tag(name = "(Normal) Club: 동아리", description = "동아리 정보를 관리한다")
@@ -182,34 +180,6 @@ public interface ClubApi {
     @PutMapping("/empowerment")
     ResponseEntity<Void> empowermentClubManager(
         @RequestBody @Valid ClubManagerEmpowermentRequest request,
-        @Auth(permit = {STUDENT}) Integer studentId
-    );
-
-    @Operation(summary = "특정 동아리의 모집알림 구독")
-    @ApiResponseCodes({
-        CREATED,
-        NOT_FOUND_USER,
-        NOT_FOUND_CLUB,
-        FORBIDDEN_USER_TYPE,
-        INVALID_REQUEST_BODY
-    })
-    @PostMapping("{clubId}/recruitment/notification")
-    ResponseEntity<Void> subscribeRecruitmentNotification(
-        @PathVariable Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    );
-
-    @Operation(summary = "특정 동아리의 모집알림 구독취소")
-    @ApiResponseCodes({
-        NO_CONTENT,
-        NOT_FOUND_USER,
-        NOT_FOUND_CLUB,
-        FORBIDDEN_USER_TYPE,
-        INVALID_REQUEST_BODY
-    })
-    @DeleteMapping("{clubId}/recruitment/notification")
-    ResponseEntity<Void> rejectRecruitmentNotification(
-        @PathVariable Integer clubId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 }
