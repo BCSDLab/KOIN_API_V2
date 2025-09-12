@@ -21,7 +21,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/clubs/{clubId}")
-public class ClubEventController {
+public class ClubEventController implements ClubEventApi{
 
     private final ClubEventService clubEventService;
 
