@@ -4,23 +4,42 @@ import in.koreatech.koin.common.event.ClubCreateEvent;
 import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
 import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
-import in.koreatech.koin.domain.club.dto.request.*;
-import in.koreatech.koin.domain.club.dto.response.*;
-import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
-import in.koreatech.koin.domain.club.enums.ClubSortType;
-import in.koreatech.koin.domain.club.enums.SNSType;
-import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
-import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
-import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
-import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
-import in.koreatech.koin.domain.club.model.*;
-import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
-import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.repository.*;
-import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
-import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
-import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
-import in.koreatech.koin.domain.club.service.ClubService;
+import in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.club.dto.response.ClubRelatedKeywordResponse;
+import in.koreatech.koin.domain.club.club.dto.response.ClubResponse;
+import in.koreatech.koin.domain.club.club.dto.response.ClubsByCategoryResponse;
+import in.koreatech.koin.domain.club.club.model.*;
+import in.koreatech.koin.domain.club.club.repository.*;
+import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
+import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
+import in.koreatech.koin.domain.club.club.enums.ClubSortType;
+import in.koreatech.koin.domain.club.club.enums.SNSType;
+import in.koreatech.koin.domain.club.club.exception.ClubHotNotFoundException;
+import in.koreatech.koin.domain.club.like.exception.ClubLikeDuplicateException;
+import in.koreatech.koin.domain.club.like.exception.ClubLikeNotFoundException;
+import in.koreatech.koin.domain.club.club.exception.ClubManagerAlreadyException;
+import in.koreatech.koin.domain.club.like.model.ClubLike;
+import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
+import in.koreatech.koin.domain.club.club.model.redis.ClubCreateRedis;
+import in.koreatech.koin.domain.club.club.model.redis.ClubHotRedis;
+import in.koreatech.koin.domain.club.qna.dto.request.ClubQnaCreateRequest;
+import in.koreatech.koin.domain.club.qna.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.qna.model.ClubQna;
+import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
+import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentCreateRequest;
+import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
+import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
+import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
+import in.koreatech.koin.domain.club.club.repository.redis.ClubCreateRedisRepository;
+import in.koreatech.koin.domain.club.club.repository.redis.ClubHitsRedisRepository;
+import in.koreatech.koin.domain.club.club.repository.redis.ClubHotRedisRepository;
+import in.koreatech.koin.domain.club.club.service.ClubService;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -573,103 +592,6 @@ public class ClubServiceTest {
 
         String getNormalizeString(String s) {
             return s.replaceAll("\\s+", "").toLowerCase();
-        }
-    }
-
-    @Nested
-    class LikeClub {
-
-        Integer clubId;
-        Integer userId;
-        Club club;
-        User user;
-
-        @BeforeEach
-        void init() {
-            clubId = 1;
-            userId = 1;
-
-            club = spy(ClubFixture.활성화_BCSD_동아리(clubId));
-            user = UserFixture.코인_유저();
-
-            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
-            when(userRepository.getById(userId)).thenReturn(user);
-        }
-
-        @Test
-        void 유저가_동아리에_좋아요를_누르면_좋아요_수가_증가한다() {
-            // given
-            when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(false);
-
-            // when
-            clubService.likeClub(clubId, userId);
-
-            // then
-            ArgumentCaptor<ClubLike> likeCaptor = ArgumentCaptor.forClass(ClubLike.class);
-
-            verify(clubLikeRepository).save(likeCaptor.capture());
-            verify(club).increaseLikes();
-
-            ClubLike clubLike = likeCaptor.getValue();
-
-            assertThat(clubLike.getClub()).isEqualTo(club);
-            assertThat(clubLike.getUser()).isEqualTo(user);
-        }
-
-        @Test
-        void 이미_동아리에_좋아요를_눌렀다면_예외를_발생한다() {
-            // given
-            when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(true);
-
-            // when / then
-            assertThatThrownBy(() -> clubService.likeClub(clubId, userId))
-                .isInstanceOf(ClubLikeDuplicateException.class)
-                .hasMessage("이미 좋아요를 누른 동아리입니다!");
-        }
-    }
-
-    @Nested
-    class LikeClubCancel {
-
-        Integer clubId;
-        Integer userId;
-        Club club;
-        User user;
-
-        @BeforeEach
-        void init() {
-            clubId = 1;
-            userId = 1;
-
-            club = spy(ClubFixture.활성화_BCSD_동아리(clubId));
-            user = UserFixture.코인_유저();
-
-            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
-            when(userRepository.getById(userId)).thenReturn(user);
-        }
-
-        @Test
-        void 좋아요를_누른_동아리에서_좋아요를_취소한다() {
-            // given
-            when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(true);
-
-            // when
-            clubService.likeClubCancel(clubId, userId);
-
-            // then
-            verify(clubLikeRepository).deleteByClubAndUser(club, user);
-            verify(club).cancelLikes();
-        }
-
-        @Test
-        void 좋아요를_누르지_않은_상태에서_취소를_하면_예외를_발생한다() {
-            // given
-            when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(false);
-
-            // when / then
-            assertThatThrownBy(() -> clubService.likeClubCancel(clubId, userId))
-                .isInstanceOf(ClubLikeNotFoundException.class)
-                .hasMessage("좋아요를 누른 적 없는 동아리입니다!");
         }
     }
 
