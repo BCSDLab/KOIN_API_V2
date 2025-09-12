@@ -39,9 +39,9 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
     Optional<OrderableShopInfoSummary> findOrderableShopInfoSummaryById(
         @Param("orderableShopId") Integer orderableShopId);
 
-    default OrderableShopInfoSummary getOrderableShopInfoSummaryById(Integer shopId) {
-        return findOrderableShopInfoSummaryById(shopId).orElseThrow(
-            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + shopId)
+    default OrderableShopInfoSummary getOrderableShopInfoSummaryById(Integer orderableShopId) {
+        return findOrderableShopInfoSummaryById(orderableShopId).orElseThrow(
+            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + orderableShopId)
         );
     }
 
@@ -76,9 +76,9 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
         );
     }
 
-    default OrderableShop getById(Integer shopId) {
-        return findById(shopId).orElseThrow(
-            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + shopId)
+    default OrderableShop getById(Integer orderableShopId) {
+        return findById(orderableShopId).orElseThrow(
+            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + orderableShopId)
         );
     }
 }

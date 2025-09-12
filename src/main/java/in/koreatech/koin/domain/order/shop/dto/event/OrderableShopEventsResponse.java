@@ -17,7 +17,6 @@ import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopEventsResponse(
     @Schema(description = "상점 이벤트 목록")
