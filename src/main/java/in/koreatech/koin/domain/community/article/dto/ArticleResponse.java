@@ -54,12 +54,12 @@ public record ArticleResponse(
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
 ) {
 
-    public static ArticleResponse of(Article article) {
+    public static ArticleResponse from(Article article, String content) {
         return new ArticleResponse(
             article.getId(),
             article.getBoard().getId(),
             article.getTitle(),
-            article.getContent(),
+            content,
             article.getAuthor(),
             article.getTotalHit(),
             article.getUrl(),

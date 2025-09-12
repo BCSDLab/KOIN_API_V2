@@ -2,15 +2,14 @@ package in.koreatech.koin.unit.domain.club.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import in.koreatech.koin.unit.fixture.ClubCategoryFixture;
-import in.koreatech.koin.unit.fixture.ClubHotFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,22 +19,40 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import in.koreatech.koin.common.event.ClubCreateEvent;
+import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
+import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
+import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
+import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
+import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
+import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.club.model.ClubBaseInfo;
 import in.koreatech.koin.domain.club.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubHot;
+import in.koreatech.koin.domain.club.model.ClubLike;
+import in.koreatech.koin.domain.club.model.ClubManager;
+import in.koreatech.koin.domain.club.model.ClubQna;
+import in.koreatech.koin.domain.club.model.ClubRecruitment;
 import in.koreatech.koin.domain.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
+import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
 import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.repository.ClubEventImageRepository;
 import in.koreatech.koin.domain.club.repository.ClubEventRepository;
@@ -53,13 +70,22 @@ import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
 import in.koreatech.koin.domain.club.service.ClubService;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.unit.fixture.ClubBaseInfoFixture;
+import in.koreatech.koin.unit.fixture.ClubCategoryFixture;
 import in.koreatech.koin.unit.fixture.ClubFixture;
+import in.koreatech.koin.unit.fixture.ClubHotFixture;
+import in.koreatech.koin.unit.fixture.ClubQnaFixture;
+import in.koreatech.koin.unit.fixture.StudentFixture;
+import in.koreatech.koin.unit.fixture.UserFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class ClubServiceTest {
@@ -124,7 +150,7 @@ public class ClubServiceTest {
     @InjectMocks private ClubService clubService;
 
     @Nested
-    class createClubRequest {
+    class CreateClubRequest {
 
         ClubCreateRequest request;
         Integer studentId;
@@ -182,7 +208,7 @@ public class ClubServiceTest {
     }
 
     @Nested
-    class updateClub {
+    class UpdateClub {
 
         ClubUpdateRequest request;
         ClubCategory newCategory;
@@ -210,12 +236,13 @@ public class ClubServiceTest {
             clubId = 1;
             studentId = 1;
             club = ClubFixture.활성화_BCSD_동아리(clubId);
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
         }
 
         @Test
         void 동아리_관리자가_정보_수정_요청을_보낸_경우_정상적으로_처리한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubCategoryRepository.getById(request.clubCategoryId())).thenReturn(newCategory);
             when(clubLikeRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
@@ -251,7 +278,6 @@ public class ClubServiceTest {
         @Test
         void 동아리_관리자가_아닌_유저가_정보_수정_요청을_보낸_경우_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
 
             // when / then
@@ -262,7 +288,7 @@ public class ClubServiceTest {
     }
 
     @Nested
-    class updateClubIntroduction {
+    class UpdateClubIntroduction {
 
         ClubIntroductionUpdateRequest request;
         Integer clubId;
@@ -275,12 +301,14 @@ public class ClubServiceTest {
             clubId = 1;
             studentId = 1;
             club = ClubFixture.활성화_BCSD_동아리(clubId);
+
+            // 공통 stub
+            when(clubRepository.getById(clubId)).thenReturn(club);
         }
 
         @Test
         void 동아리_관리자가_동아리_소개_수정_요청을_보낸_경우_정상적으로_처리한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubLikeRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
@@ -315,7 +343,6 @@ public class ClubServiceTest {
         @Test
         void 동아리_관리자가_아닌_유저가_동아리_소개_수정_요청을_보낸_경우_예외를_발생한다() {
             // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
 
             // when / then
@@ -326,7 +353,7 @@ public class ClubServiceTest {
     }
 
     @Nested
-    class getClub {
+    class GetClub {
 
         Integer clubId;
         Integer studentId;
@@ -392,7 +419,7 @@ public class ClubServiceTest {
     }
 
     @Nested
-    class getClubByCategory {
+    class GetClubByCategory {
 
         Integer categoryId;
         Boolean isRecruiting;
@@ -525,6 +552,604 @@ public class ClubServiceTest {
                     assertThat(ce.getErrorCode()).isEqualTo(ApiResponseCode.NOT_ALLOWED_RECRUITING_SORT_TYPE);
                     assertThat(ce.getMessage()).contains("해당 정렬 방식은 모집 중일 때만 사용할 수 있습니다.");
                 });
+        }
+    }
+
+    @Nested
+    class GetRelatedClubs {
+
+        String emptyQuery;
+        String query;
+        Club club;
+        PageRequest pageRequest;
+
+        @BeforeEach
+        void init() {
+            emptyQuery = "";
+            query = "Bc";
+            club = ClubFixture.활성화_BCSD_동아리(1);
+            pageRequest = PageRequest.of(0, getRelatedLimitSize());
+        }
+
+        @Test
+        void 키워드_내용의_접두사를_가진_동아리_리스트를_반환한다() {
+            // given
+            when(clubRepository.findByNamePrefix(getNormalizeString(query), pageRequest)).thenReturn(List.of(club));
+
+            // when
+            ClubRelatedKeywordResponse response = clubService.getRelatedClubs(query);
+
+            // then
+            assertThat(response.keywords()).hasSize(1);
+            assertThat(response.keywords().get(0).clubId()).isEqualTo(club.getId());
+            assertThat(response.keywords().get(0).clubName()).isEqualTo(club.getName());
+        }
+
+        @Test
+        void 검색_키워드가_비어있으면_빈_리스트를_반환한다() {
+            // when
+            ClubRelatedKeywordResponse response = clubService.getRelatedClubs(emptyQuery);
+
+            // then
+            assertThat(response.keywords()).hasSize(0);
+        }
+
+        int getRelatedLimitSize() {
+            try {
+                Field field = ClubService.class.getDeclaredField("RELATED_LIMIT_SIZE");
+                field.setAccessible(true);
+
+                return (int) field.get(null);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException("RELATED_LIMIT_SIZE 값을 가져올 수 없습니다.", e);
+            }
+        }
+
+        String getNormalizeString(String s) {
+            return s.replaceAll("\\s+", "").toLowerCase();
+        }
+    }
+
+    @Nested
+    class LikeClub {
+
+        Integer clubId;
+        Integer userId;
+        Club club;
+        User user;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            userId = 1;
+
+            club = spy(ClubFixture.활성화_BCSD_동아리(clubId));
+            user = UserFixture.코인_유저();
+
+            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
+            when(userRepository.getById(userId)).thenReturn(user);
+        }
+
+        @Test
+        void 유저가_동아리에_좋아요를_누르면_좋아요_수가_증가한다() {
+            // given
+            when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(false);
+
+            // when
+            clubService.likeClub(clubId, userId);
+
+            // then
+            ArgumentCaptor<ClubLike> likeCaptor = ArgumentCaptor.forClass(ClubLike.class);
+
+            verify(clubLikeRepository).save(likeCaptor.capture());
+            verify(club).increaseLikes();
+
+            ClubLike clubLike = likeCaptor.getValue();
+
+            assertThat(clubLike.getClub()).isEqualTo(club);
+            assertThat(clubLike.getUser()).isEqualTo(user);
+        }
+
+        @Test
+        void 이미_동아리에_좋아요를_눌렀다면_예외를_발생한다() {
+            // given
+            when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(true);
+
+            // when / then
+            assertThatThrownBy(() -> clubService.likeClub(clubId, userId))
+                .isInstanceOf(ClubLikeDuplicateException.class)
+                .hasMessage("이미 좋아요를 누른 동아리입니다!");
+        }
+    }
+
+    @Nested
+    class LikeClubCancel {
+
+        Integer clubId;
+        Integer userId;
+        Club club;
+        User user;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            userId = 1;
+
+            club = spy(ClubFixture.활성화_BCSD_동아리(clubId));
+            user = UserFixture.코인_유저();
+
+            when(clubRepository.getByIdWithPessimisticLock(clubId)).thenReturn(club);
+            when(userRepository.getById(userId)).thenReturn(user);
+        }
+
+        @Test
+        void 좋아요를_누른_동아리에서_좋아요를_취소한다() {
+            // given
+            when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(true);
+
+            // when
+            clubService.likeClubCancel(clubId, userId);
+
+            // then
+            verify(clubLikeRepository).deleteByClubAndUser(club, user);
+            verify(club).cancelLikes();
+        }
+
+        @Test
+        void 좋아요를_누르지_않은_상태에서_취소를_하면_예외를_발생한다() {
+            // given
+            when(clubLikeRepository.existsByClubAndUser(club, user)).thenReturn(false);
+
+            // when / then
+            assertThatThrownBy(() -> clubService.likeClubCancel(clubId, userId))
+                .isInstanceOf(ClubLikeNotFoundException.class)
+                .hasMessage("좋아요를 누른 적 없는 동아리입니다!");
+        }
+    }
+
+    @Nested
+    class GetQnas {
+
+        Integer clubId;
+        Integer qnaId1;
+        Integer qnaId2;
+
+        String content1;
+        String content2;
+
+        ClubQna qna1;
+        ClubQna qna2;
+
+        List<ClubQna> qnas;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            qnaId1 = 1;
+            qnaId2 = 2;
+
+            content1 = "질문 내용 1";
+            content2 = "질문 내용 2";
+
+            qna1 = ClubQnaFixture.QNA(clubId, qnaId1, content1);
+            qna2 = ClubQnaFixture.QNA(clubId, qnaId2, content2);
+
+            ReflectionTestUtils.setField(qna1, "createdAt", LocalDateTime.now().minusMinutes(1));
+
+            qnas = List.of(qna1, qna2);
+        }
+
+        @Test
+        void 동아리의_QnA들을_조회하면_최신순으로_QnA_리스트가_반환된다() {
+            // given
+            when(clubQnaRepository.findAllByClubId(clubId)).thenReturn(qnas);
+
+            // when
+            ClubQnasResponse response = clubService.getQnas(clubId);
+
+            // then
+            ClubQnasResponse.InnerQnaResponse earlierQna = response.qnas().get(0);
+            ClubQnasResponse.InnerQnaResponse laterQna = response.qnas().get(1);
+
+            verify(clubQnaRepository).findAllByClubId(clubId);
+            assertThat(response.qnas()).hasSize(2);
+
+            assertThat(earlierQna.id()).isEqualTo(qnaId2);
+            assertThat(earlierQna.content()).isEqualTo(content2);
+
+            assertThat(laterQna.id()).isEqualTo(qnaId1);
+            assertThat(laterQna.content()).isEqualTo(content1);
+
+            assertThat(earlierQna.createdAt()).isAfter(laterQna.createdAt());
+        }
+    }
+
+    @Nested
+    class GetHotClub {
+
+        Integer clubHotId;
+        Integer clubId;
+        ClubHotRedis clubHotRedis;
+
+        @BeforeEach
+        void init() {
+            clubHotId = 1;
+            clubId = 1;
+        }
+
+        @Test
+        void 캐시_히트_시_캐시에_저장된_값을_반환한다() {
+            // given
+            clubHotRedis = ClubHotFixture.인기_동아리_레디스(clubHotId, clubId);
+
+            when(hotClubRedisRepository.findById(ClubHotRedis.REDIS_KEY)).thenReturn(Optional.of(clubHotRedis));
+
+            // when
+            ClubHotResponse response = clubService.getHotClub();
+
+            // then
+            assertThat(response.clubId()).isEqualTo(clubId);
+            assertThat(response.name()).isEqualTo("BCSD Lab");
+            assertThat(response.imageUrl()).isEqualTo("https://bcsdlab.com/static/img/logo.d89d9cc.png");
+        }
+
+        @Test
+        void 캐시_미스_시_DB에_저장된_값을_조회_후_캐싱하여_반환한다() {
+            // given
+            Club club = ClubFixture.활성화_BCSD_동아리(clubId);
+            ClubHot clubHot = ClubHotFixture.인기_동아리(clubHotId, club);
+
+            when(hotClubRedisRepository.findById(ClubHotRedis.REDIS_KEY)).thenReturn(Optional.empty());
+
+            when(clubHotRepository.findTopByOrderByEndDateDesc()).thenReturn(Optional.of(clubHot));
+
+            // when
+            ClubHotResponse response = clubService.getHotClub();
+
+            // then
+            verify(hotClubRedisRepository).findById(ClubHotRedis.REDIS_KEY);
+            verify(clubHotRepository).findTopByOrderByEndDateDesc();
+            verify(hotClubRedisRepository).save(any(ClubHotRedis.class));
+
+            assertThat(response.clubId()).isEqualTo(clubId);
+            assertThat(response.name()).isEqualTo("BCSD Lab");
+            assertThat(response.imageUrl()).isEqualTo("https://bcsdlab.com/static/img/logo.d89d9cc.png");
+        }
+
+        @Test
+        void 캐시와_DB에_모두_없으면_예외를_발생한다() {
+            // given
+            when(hotClubRedisRepository.findById(ClubHotRedis.REDIS_KEY)).thenReturn(Optional.empty());
+
+            when(clubHotRepository.findTopByOrderByEndDateDesc()).thenReturn(Optional.empty());
+
+            // when / then
+            assertThatThrownBy(() -> clubService.getHotClub())
+                .isInstanceOf(ClubHotNotFoundException.class)
+                .hasMessage("인기 동아리가 존재하지 않습니다.");
+        }
+    }
+
+    @Nested
+    class CreateQna {
+
+        Integer clubId;
+        Integer studentId;
+        Club club;
+        Student student;
+        ClubQna parentQna;
+        ClubQnaCreateRequest question;
+        ClubQnaCreateRequest answer;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            student = mock(Student.class);
+            parentQna = ClubQnaFixture.QNA(clubId, 1, "질문");
+            question = new ClubQnaCreateRequest(null, "질문");
+            answer = new ClubQnaCreateRequest(1, "답변");
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(studentRepository.getById(studentId)).thenReturn(student);
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_질문을_작성한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
+
+            // when
+            clubService.createQna(question, clubId, studentId);
+
+            // then
+            ArgumentCaptor<ClubQna> qnaCaptor = ArgumentCaptor.forClass(ClubQna.class);
+
+            verify(clubQnaRepository).save(qnaCaptor.capture());
+
+            ClubQna clubQna = qnaCaptor.getValue();
+
+            assertThat(clubQna.getClub()).isEqualTo(club);
+            assertThat(clubQna.getAuthor()).isEqualTo(student);
+            assertThat(clubQna.getParent()).isNull();
+            assertThat(clubQna.getContent()).isEqualTo(question.content());
+            assertThat(clubQna.getIsManager()).isFalse();
+            assertThat(clubQna.getIsDeleted()).isFalse();
+        }
+
+        @Test
+        void 관리자인_학생이_답변을_작성한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+            when(clubQnaRepository.getById(answer.parentId())).thenReturn(parentQna);
+
+            // when
+            clubService.createQna(answer, clubId, studentId);
+
+            // then
+            ArgumentCaptor<ClubQna> qnaCaptor = ArgumentCaptor.forClass(ClubQna.class);
+
+            verify(clubQnaRepository).save(qnaCaptor.capture());
+
+            ClubQna clubQna = qnaCaptor.getValue();
+
+            assertThat(clubQna.getClub()).isEqualTo(club);
+            assertThat(clubQna.getAuthor()).isEqualTo(student);
+            assertThat(clubQna.getParent()).isEqualTo(parentQna);
+            assertThat(clubQna.getContent()).isEqualTo(answer.content());
+            assertThat(clubQna.getIsManager()).isTrue();
+            assertThat(clubQna.getIsDeleted()).isFalse();
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_답변을_작성하면_예외를_발생한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
+
+            // when / then
+            assertThatThrownBy(() -> clubService.createQna(answer, clubId, studentId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
+        }
+
+        @Test
+        void 관리자인_학생이_질문을_작성하면_예외를_발생한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+
+            // when / then
+            assertThatThrownBy(() -> clubService.createQna(question, clubId, studentId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
+        }
+    }
+
+    @Nested
+    class DeleteQna {
+
+        Integer clubId;
+        Integer qnaId;
+        Integer studentId;
+        Student student;
+        ClubQna clubQna;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            qnaId = 1;
+            studentId = 1;
+            student = mock(Student.class);
+            clubQna = spy(ClubQnaFixture.QNA(clubId, qnaId, "질문"));
+
+            when(clubQnaRepository.getById(qnaId)).thenReturn(clubQna);
+            when(clubQna.getAuthor()).thenReturn(student);
+            when(student.getId()).thenReturn(studentId);
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_자신이_작성한_질문을_삭제한다() {
+            // when
+            clubService.deleteQna(clubId, qnaId, studentId);
+
+            // then
+            verify(clubQna).detachFromParentIfChild();
+            verify(clubQnaRepository).delete(clubQna);
+        }
+
+        @Test
+        void 관리자인_학생이_자신이_작성하지_않은_QNA_글을_삭제한다() {
+            // given
+            Integer managerId = 2;
+
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, managerId)).thenReturn(true);
+
+            // when
+            clubService.deleteQna(clubId, qnaId, managerId);
+
+            // then
+            verify(clubQna).detachFromParentIfChild();
+            verify(clubQnaRepository).delete(clubQna);
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_자신이_작성하지_않은_QNA_글을_삭제하면_예외를_발생한다() {
+            // given
+            Integer requesterId = 2;
+
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, requesterId)).thenReturn(false);
+
+            // when / then
+            assertThatThrownBy(() -> clubService.deleteQna(clubId, qnaId, requesterId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
+
+            verify(clubQna, never()).detachFromParentIfChild();
+            verify(clubQnaRepository, never()).delete(clubQna);
+        }
+    }
+
+    @Nested
+    class EmpowermentClubManager {
+
+        Integer clubId;
+        Integer currentManagerId;
+        Integer changedManagerId;
+        Club club;
+        User currentManager;
+        User changedManager;
+        ClubManagerEmpowermentRequest request;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            currentManagerId = 1;
+            changedManagerId = 2;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            currentManager = UserFixture.코인_유저();
+            changedManager = UserFixture.코인_유저();
+            request = new ClubManagerEmpowermentRequest(clubId, changedManager.getLoginId());
+
+            ReflectionTestUtils.setField(currentManager, "id", currentManagerId);
+            ReflectionTestUtils.setField(changedManager, "id", changedManagerId);
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(userRepository.getById(currentManagerId)).thenReturn(currentManager);
+            when(userRepository.getByLoginIdAndUserTypeIn(changedManager.getLoginId(), UserType.KOIN_STUDENT_TYPES))
+                .thenReturn(changedManager);
+        }
+
+        @Test
+        void 관리자_권한_위임에_성공한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(true);
+            when(clubManagerRepository.existsByClubAndUser(club, changedManager)).thenReturn(false);
+
+            // when
+            clubService.empowermentClubManager(request, currentManagerId);
+
+            // then
+            ArgumentCaptor<ClubManager> clubManagerCaptor = ArgumentCaptor.forClass(ClubManager.class);
+
+            verify(clubManagerRepository).deleteByClubAndUser(club, currentManager);
+            verify(clubManagerRepository).save(clubManagerCaptor.capture());
+
+            ClubManager newClubManager = clubManagerCaptor.getValue();
+
+            assertThat(newClubManager.getClub()).isEqualTo(club);
+            assertThat(newClubManager.getUser()).isEqualTo(changedManager);
+        }
+
+        @Test
+        void 관리자가_아닌_유저가_권한_위임을_할_경우_예외를_발생한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(false);
+
+            // when / then
+            assertThatThrownBy(() -> clubService.empowermentClubManager(request, currentManagerId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
+        }
+
+        @Test
+        void 권한_위임_대상이_이미_관리자면_예외를_발생한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(true);
+            when(clubManagerRepository.existsByClubAndUser(club, changedManager)).thenReturn(true);
+
+            // when / then
+            assertThatThrownBy(() -> clubService.empowermentClubManager(request, currentManagerId))
+                .isInstanceOf(ClubManagerAlreadyException.class)
+                .hasMessage("이미 동아리의 관리자입니다.");
+        }
+    }
+
+    @Nested
+    class CreateRecruitment {
+
+        Integer clubId;
+        Integer studentId;
+        Club club;
+        Student student;
+        boolean isAlwaysRecruiting;
+        String imageUrl;
+        String content;
+        ClubRecruitmentCreateRequest request;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            student = StudentFixture.익명_학생(mock(Department.class));
+            isAlwaysRecruiting = false;
+            imageUrl = "https://bcsdlab.com/static/img/logo.d89d9cc.png";
+            content = "BCSD LAB 모집";
+
+            request = new ClubRecruitmentCreateRequest(
+                LocalDate.now(),
+                LocalDate.now().plusDays(1),
+                isAlwaysRecruiting,
+                imageUrl,
+                content
+            );
+
+            ReflectionTestUtils.setField(student, "id", studentId);
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(studentRepository.getById(studentId)).thenReturn(student);
+        }
+
+        @Test
+        void 동아리_모집을_생성한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+            when(clubRecruitmentRepository.findByClub(club)).thenReturn(Optional.empty());
+
+            // when
+            clubService.createRecruitment(request, clubId, studentId);
+
+            // then
+            ArgumentCaptor<ClubRecruitment> recruitmentCaptor = ArgumentCaptor.forClass(ClubRecruitment.class);
+            ArgumentCaptor<ClubRecruitmentChangeEvent> eventCaptor = ArgumentCaptor.forClass(ClubRecruitmentChangeEvent.class);
+
+            verify(clubRecruitmentRepository).save(recruitmentCaptor.capture());
+            verify(eventPublisher).publishEvent(eventCaptor.capture());
+
+            ClubRecruitment clubRecruitment = recruitmentCaptor.getValue();
+            ClubRecruitmentChangeEvent event = eventCaptor.getValue();
+
+            assertThat(clubRecruitment.getStartDate()).isEqualTo(LocalDate.now());
+            assertThat(clubRecruitment.getEndDate()).isEqualTo(LocalDate.now().plusDays(1));
+            assertThat(clubRecruitment.getIsAlwaysRecruiting()).isEqualTo(isAlwaysRecruiting);
+            assertThat(clubRecruitment.getImageUrl()).isEqualTo(imageUrl);
+            assertThat(clubRecruitment.getContent()).isEqualTo(content);
+
+            assertThat(event.clubName()).isEqualTo(club.getName());
+            assertThat(event.clubId()).isEqualTo(club.getId());
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_모집을_생성하면_예외를_발생한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
+
+            // when / then
+            assertThatThrownBy(() -> clubService.createRecruitment(request, clubId, studentId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
+        }
+
+        @Test
+        void 동아리_모집이_이미_등록되어_있으면_예외를_발생한다() {
+            // given
+            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+            when(clubRecruitmentRepository.findByClub(club)).thenReturn(Optional.of(ClubRecruitment.builder().build()));
+
+            // when / then
+            assertThatThrownBy(() -> clubService.createRecruitment(request, clubId, studentId))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("동아리 공고가 이미 존재합니다.");
         }
     }
 }
