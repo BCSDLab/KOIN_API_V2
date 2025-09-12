@@ -2,11 +2,11 @@ package in.koreatech.koin.domain.club.qna.service;
 
 import in.koreatech.koin.domain.club.qna.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.qna.dto.response.ClubQnasResponse;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.qna.model.ClubQna;
-import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
-import in.koreatech.koin.domain.club.repository.ClubRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;

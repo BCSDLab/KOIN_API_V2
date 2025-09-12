@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.club.event.service;
 
+import in.koreatech.koin.domain.club.club.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.event.dto.request.ClubEventCreateRequest;
 import in.koreatech.koin.domain.club.event.dto.request.ClubEventModifyRequest;
 import in.koreatech.koin.domain.club.event.dto.response.ClubEventResponse;
@@ -9,11 +11,10 @@ import in.koreatech.koin.domain.club.event.enums.ClubEventType;
 import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import in.koreatech.koin.domain.club.event.model.ClubEventImage;
 import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
-import in.koreatech.koin.domain.club.repository.*;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;

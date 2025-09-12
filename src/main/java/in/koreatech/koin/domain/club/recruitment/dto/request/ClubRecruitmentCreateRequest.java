@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
 import io.swagger.v3.oas.annotations.media.Schema;
 

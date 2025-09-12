@@ -1,6 +1,6 @@
 package in.koreatech.koin.unit.fixture;
 
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.qna.model.ClubQna;
 import org.springframework.test.util.ReflectionTestUtils;
 

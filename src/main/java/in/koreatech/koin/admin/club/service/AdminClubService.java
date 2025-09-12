@@ -1,7 +1,5 @@
 package in.koreatech.koin.admin.club.service;
 
-import static in.koreatech.koin.domain.club.enums.SNSType.*;
-
 import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.List;
@@ -33,16 +31,16 @@ import in.koreatech.koin.admin.club.repository.AdminClubManagerRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubSnsRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
-import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.exception.ClubNotFoundException;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.category.model.ClubCategory;
-import in.koreatech.koin.domain.club.model.ClubManager;
-import in.koreatech.koin.domain.club.model.ClubSNS;
-import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
+import in.koreatech.koin.domain.club.club.model.ClubManager;
+import in.koreatech.koin.domain.club.club.model.ClubSNS;
+import in.koreatech.koin.domain.club.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
-import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
-import in.koreatech.koin.domain.club.repository.ClubRepository;
-import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubRepository;
+import in.koreatech.koin.domain.club.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.validation.UniqueUrl;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

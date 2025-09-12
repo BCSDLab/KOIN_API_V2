@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.common.model.BaseEntity;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.student.model.Student;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

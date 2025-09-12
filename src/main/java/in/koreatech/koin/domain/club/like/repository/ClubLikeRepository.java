@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.exception.ClubNotFoundException;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.like.model.ClubLike;
 import in.koreatech.koin.domain.user.model.User;
 

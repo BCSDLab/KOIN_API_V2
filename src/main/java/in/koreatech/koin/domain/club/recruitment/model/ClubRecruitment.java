@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

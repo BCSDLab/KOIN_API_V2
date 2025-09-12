@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
+import in.koreatech.koin.domain.club.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 

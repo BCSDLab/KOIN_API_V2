@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import in.koreatech.koin.common.model.BaseEntity;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

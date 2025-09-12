@@ -2,10 +2,10 @@ package in.koreatech.koin.domain.club.like.service;
 
 import in.koreatech.koin.domain.club.like.exception.ClubLikeDuplicateException;
 import in.koreatech.koin.domain.club.like.exception.ClubLikeNotFoundException;
-import in.koreatech.koin.domain.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.like.model.ClubLike;
 import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
-import in.koreatech.koin.domain.club.repository.ClubRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
