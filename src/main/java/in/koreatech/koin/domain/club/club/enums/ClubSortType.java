@@ -1,17 +1,16 @@
 package in.koreatech.koin.domain.club.club.enums;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.NOT_ALLOWED_RECRUITING_SORT_TYPE;
-import static in.koreatech.koin.domain.club.model.QClub.club;
-import static in.koreatech.koin.domain.club.model.QClubRecruitment.clubRecruitment;
-
-import java.util.List;
-
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberTemplate;
-
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
+
+import java.util.List;
+
+import static in.koreatech.koin.domain.club.club.model.QClub.club;
+import static in.koreatech.koin.domain.club.recruitment.model.QClubRecruitment.clubRecruitment;
+import static in.koreatech.koin.global.code.ApiResponseCode.NOT_ALLOWED_RECRUITING_SORT_TYPE;
 
 @Getter
 public enum ClubSortType {
