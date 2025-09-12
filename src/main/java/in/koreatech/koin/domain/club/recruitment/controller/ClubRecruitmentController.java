@@ -17,7 +17,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/clubs/{clubId}/recruitment")
-public class ClubRecruitmentController {
+public class ClubRecruitmentController implements ClubRecruitmentApi{
 
     private final ClubRecruitmentService clubRecruitmentService;
 
