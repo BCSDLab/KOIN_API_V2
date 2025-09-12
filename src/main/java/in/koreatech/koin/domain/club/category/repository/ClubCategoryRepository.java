@@ -1,12 +1,11 @@
-package in.koreatech.koin.domain.club.repository;
+package in.koreatech.koin.domain.club.category.repository;
+
+import in.koreatech.koin.admin.club.exception.ClubCategoryNotFoundException;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
+import org.springframework.data.repository.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.data.repository.Repository;
-
-import in.koreatech.koin.admin.club.exception.ClubCategoryNotFoundException;
-import in.koreatech.koin.domain.club.model.ClubCategory;
 
 public interface ClubCategoryRepository extends Repository<ClubCategory, Integer> {
 

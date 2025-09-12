@@ -1,10 +1,10 @@
-package in.koreatech.koin.domain.club.controller;
+package in.koreatech.koin.domain.club.category.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import in.koreatech.koin.domain.club.dto.response.ClubCategoriesResponse;
+import in.koreatech.koin.domain.club.category.dto.response.ClubCategoriesResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

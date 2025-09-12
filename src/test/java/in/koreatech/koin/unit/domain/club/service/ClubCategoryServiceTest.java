@@ -12,10 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import in.koreatech.koin.domain.club.dto.response.ClubCategoriesResponse;
-import in.koreatech.koin.domain.club.model.ClubCategory;
-import in.koreatech.koin.domain.club.repository.ClubCategoryRepository;
-import in.koreatech.koin.domain.club.service.ClubCategoryService;
+import in.koreatech.koin.domain.club.category.dto.response.ClubCategoriesResponse;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
+import in.koreatech.koin.domain.club.category.service.ClubCategoryService;
 
 @ExtendWith(MockitoExtension.class)
 public class ClubCategoryServiceTest {

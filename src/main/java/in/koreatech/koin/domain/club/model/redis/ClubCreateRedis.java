@@ -11,7 +11,7 @@ import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Id;

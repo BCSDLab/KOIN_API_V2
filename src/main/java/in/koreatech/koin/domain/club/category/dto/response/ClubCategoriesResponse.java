@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.dto.response;
+package in.koreatech.koin.domain.club.category.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
