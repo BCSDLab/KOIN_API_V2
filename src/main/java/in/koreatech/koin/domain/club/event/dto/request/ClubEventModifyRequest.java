@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.dto.request;
+package in.koreatech.koin.domain.club.event.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_CLUB_EVENT_PERIOD;

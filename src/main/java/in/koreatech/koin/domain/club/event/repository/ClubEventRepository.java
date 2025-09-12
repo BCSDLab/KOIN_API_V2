@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.repository;
+package in.koreatech.koin.domain.club.event.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.domain.club.event.model.ClubEvent;
 
 public interface ClubEventRepository extends Repository<ClubEvent, Integer> {
 

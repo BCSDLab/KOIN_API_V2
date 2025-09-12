@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.club.controller;
 
 import in.koreatech.koin.domain.club.dto.request.*;
 import in.koreatech.koin.domain.club.dto.response.*;
-import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.service.ClubService;
 import in.koreatech.koin.global.auth.Auth;
@@ -10,11 +9,8 @@ import in.koreatech.koin.global.auth.UserId;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
@@ -97,77 +93,5 @@ public class ClubController implements ClubApi {
     ) {
         clubService.empowermentClubManager(request, studentId);
         return ResponseEntity.ok().build();
-    }
-
-
-
-    @PostMapping("/{clubId}/event")
-    public ResponseEntity<Void> createClubEvent(
-        @PathVariable Integer clubId,
-        @RequestBody @Valid ClubEventCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.createClubEvent(request, clubId, studentId);
-        return ResponseEntity.ok().build();
-    };
-
-    @PutMapping("/{clubId}/event/{eventId}")
-    public ResponseEntity<Void> modifyClubEvent(
-        @PathVariable Integer clubId,
-        @PathVariable Integer eventId,
-        @RequestBody @Valid ClubEventModifyRequest request,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.modifyClubEvent(request, eventId, clubId, studentId);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{clubId}/event/{eventId}")
-    public ResponseEntity<Void> deleteClubEvent(
-        @PathVariable Integer clubId,
-        @PathVariable Integer eventId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.deleteClubEvent(clubId, eventId, studentId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{clubId}/event/{eventId}")
-    public ResponseEntity<ClubEventResponse> getClubEvent(
-        @PathVariable Integer clubId,
-        @PathVariable Integer eventId
-    ) {
-        ClubEventResponse response = clubService.getClubEvent(clubId, eventId);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{clubId}/events")
-    public ResponseEntity<List<ClubEventsResponse>> getClubEvents(
-        @PathVariable Integer clubId,
-        @RequestParam(defaultValue = "RECENT") ClubEventType eventType,
-        @UserId Integer userId
-    ) {
-        List<ClubEventsResponse> responses = clubService.getClubEvents(clubId, eventType, userId);
-        return ResponseEntity.ok(responses);
-    }
-
-    @PostMapping("{clubId}/event/{eventId}/notification")
-    public ResponseEntity<Void> subscribeEventNotification(
-        @PathVariable Integer clubId,
-        @PathVariable Integer eventId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.subscribeEventNotification(clubId, eventId, studentId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @DeleteMapping("{clubId}/event/{eventId}/notification")
-    public ResponseEntity<Void> rejectEventNotification(
-        @PathVariable Integer clubId,
-        @PathVariable Integer eventId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.rejectEventNotification(clubId, eventId, studentId);
-        return ResponseEntity.noContent().build();
     }
 }

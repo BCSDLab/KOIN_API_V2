@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubEvent;
-import in.koreatech.koin.domain.club.model.ClubEventSubscription;
+import in.koreatech.koin.domain.club.event.model.ClubEvent;
+import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
 import in.koreatech.koin.domain.club.model.ClubHot;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.repository.ClubEventRepository;
-import in.koreatech.koin.domain.club.repository.ClubEventSubscriptionRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;

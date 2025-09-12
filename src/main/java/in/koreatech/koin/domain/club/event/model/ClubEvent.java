@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.model;
+package in.koreatech.koin.domain.club.event.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.domain.club.model.Club;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

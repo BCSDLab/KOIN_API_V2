@@ -3,12 +3,16 @@ package in.koreatech.koin.domain.club.service;
 import in.koreatech.koin.common.event.ClubCreateEvent;
 import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
-import in.koreatech.koin.domain.club.dto.request.*;
+import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.dto.response.*;
-import in.koreatech.koin.domain.club.enums.ClubEventStatus;
-import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
+import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
@@ -22,24 +26,18 @@ import in.koreatech.koin.domain.club.repository.*;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
-import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -214,129 +212,6 @@ public class ClubService {
         clubManagerRepository.save(newClubManager);
     }
 
-
-
-    @Transactional
-    public void createClubEvent(ClubEventCreateRequest request, Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
-
-        ClubEvent clubEvent = request.toEntity(club);
-        clubEventRepository.save(clubEvent);
-
-        if (request.imageUrls() != null && !request.imageUrls().isEmpty()) {
-            for (String url : request.imageUrls()) {
-                ClubEventImage image = ClubEventImage.builder()
-                    .clubEvent(clubEvent)
-                    .imageUrl(url)
-                    .build();
-                clubEventImageRepository.save(image);
-            }
-        }
-    }
-
-    @Transactional
-    public void modifyClubEvent(ClubEventModifyRequest request, Integer eventId, Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        ClubEvent clubEvent = clubEventRepository.getById(eventId);
-        Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
-
-        clubEvent.modifyClubEvent(
-            request.name(),
-            request.startDate(),
-            request.endDate(),
-            request.introduce(),
-            request.content()
-        );
-
-        clubEventImageRepository.deleteAllByClubEvent(clubEvent);
-
-        if (request.imageUrls() != null && !request.imageUrls().isEmpty()) {
-            for (String url : request.imageUrls()) {
-                ClubEventImage image = ClubEventImage.builder()
-                    .clubEvent(clubEvent)
-                    .imageUrl(url)
-                    .build();
-                clubEventImageRepository.save(image);
-            }
-        }
-    }
-
-    @Transactional
-    public void deleteClubEvent(Integer clubId, Integer eventId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        ClubEvent clubEvent = clubEventRepository.getById(eventId);
-        Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
-
-        clubEventRepository.delete(clubEvent); // 관련 이미지도 자동 삭제됨
-    }
-
-    public ClubEventResponse getClubEvent(Integer clubId, Integer eventId) {
-        ClubEvent clubEvent = clubEventRepository.getClubEventByIdAndClubId(eventId, clubId);
-        return ClubEventResponse.from(clubEvent, LocalDateTime.now());
-    }
-
-    public List<ClubEventsResponse> getClubEvents(Integer clubId, ClubEventType eventType, Integer userId) {
-        List<ClubEvent> events = clubEventRepository.getAllByClubId(clubId);
-        LocalDateTime now = LocalDateTime.now();
-
-        Set<Integer> subscribedEventIds = new HashSet<>();
-        if (userId != null) {
-            List<Integer> eventIds = events.stream().map(ClubEvent::getId).toList();
-            subscribedEventIds.addAll(clubEventSubscriptionRepository.findSubscribedEventIds(userId, eventIds));
-        }
-
-        return events.stream()
-            .filter(event -> filterEventType(event, eventType, now))
-            .sorted((e1, e2) -> compareEvents(e1, e2, eventType, now))
-            .map(event -> {
-                boolean isSubscribed = subscribedEventIds.contains(event.getId());
-                return ClubEventsResponse.from(event, now, isSubscribed);
-            })
-            .toList();
-    }
-
-    private boolean filterEventType(ClubEvent event, ClubEventType eventType, LocalDateTime now) {
-        ClubEventStatus status = ClubEventResponse.calculateStatus(event.getStartDate(), event.getEndDate(), now);
-
-        if (eventType == null || eventType == ClubEventType.RECENT)
-            return true;
-
-        if (eventType == ClubEventType.ONGOING) {
-            return status == ClubEventStatus.ONGOING || status == ClubEventStatus.SOON;
-        }
-
-        return status.name().equals(eventType.name());
-    }
-
-    private int compareEvents(ClubEvent e1, ClubEvent e2, ClubEventType eventType, LocalDateTime now) {
-        ClubEventStatus status1 = ClubEventResponse.calculateStatus(e1.getStartDate(), e1.getEndDate(), now);
-        ClubEventStatus status2 = ClubEventResponse.calculateStatus(e2.getStartDate(), e2.getEndDate(), now);
-
-        if (eventType == ClubEventType.RECENT) {
-            boolean isEnded1 = status1 == ClubEventStatus.ENDED;
-            boolean isEnded2 = status2 == ClubEventStatus.ENDED;
-
-            if (isEnded1 != isEnded2) {
-                return Boolean.compare(isEnded1, isEnded2);
-            }
-
-            return e2.getCreatedAt().compareTo(e1.getCreatedAt());
-        }
-
-        int priority1 = status1.getPriority();
-        int priority2 = status2.getPriority();
-
-        if (priority1 != priority2) {
-            return Integer.compare(priority1, priority2);
-        }
-
-        return e2.getCreatedAt().compareTo(e1.getCreatedAt());
-    }
-
     private ClubHotStatusResponse generateHotStatusResponse(ClubHot hot) {
         List<ClubHot> hotClubs = clubHotRepository.findAllByOrderByIdDesc();
         int count = 0;
@@ -346,45 +221,5 @@ public class ClubService {
             count++;
         }
         return ClubHotStatusResponse.from(hot, count);
-    }
-
-    @Transactional
-    public void subscribeEventNotification(Integer clubId, Integer eventId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        User user = userRepository.getById(studentId);
-        ClubEvent clubEvent = clubEventRepository.getById(eventId);
-
-        if (!clubEvent.getClub().getId().equals(clubId)) {
-            throw CustomException.of(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT);
-        }
-
-        if (verifyAlreadySubscribed(eventId, studentId))
-            return;
-
-        ClubEventSubscription clubEventSubscription = ClubEventSubscription.builder()
-            .clubEvent(clubEvent)
-            .user(user)
-            .build();
-        clubEventSubscriptionRepository.save(clubEventSubscription);
-    }
-
-    @Transactional
-    public void rejectEventNotification(Integer clubId, Integer eventId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        User user = userRepository.getById(studentId);
-        ClubEvent clubEvent = clubEventRepository.getById(eventId);
-
-        if (!clubEvent.getClub().getId().equals(clubId)) {
-            throw CustomException.of(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT);
-        }
-
-        if (!verifyAlreadySubscribed(eventId, studentId))
-            return;
-
-        clubEventSubscriptionRepository.deleteByClubEventIdAndUserId(eventId, studentId);
-    }
-
-    private boolean verifyAlreadySubscribed(Integer eventId, Integer studentId) {
-        return clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId);
     }
 }

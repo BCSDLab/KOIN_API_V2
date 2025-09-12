@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.dto.request;
+package in.koreatech.koin.domain.club.event.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubEvent;
+import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

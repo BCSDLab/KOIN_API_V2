@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.club.recruitment.controller;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.recruitment.dto.response.ClubRecruitmentResponse;
+import in.koreatech.koin.domain.club.recruitment.service.ClubRecruitmentService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import jakarta.validation.Valid;

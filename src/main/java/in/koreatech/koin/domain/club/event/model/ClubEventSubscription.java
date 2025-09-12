@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.model;
+package in.koreatech.koin.domain.club.event.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;

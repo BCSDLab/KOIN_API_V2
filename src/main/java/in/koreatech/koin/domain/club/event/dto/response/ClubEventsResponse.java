@@ -1,6 +1,6 @@
-package in.koreatech.koin.domain.club.dto.response;
+package in.koreatech.koin.domain.club.event.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,13 +8,13 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.club.enums.ClubEventStatus;
-import in.koreatech.koin.domain.club.model.ClubEvent;
-import in.koreatech.koin.domain.club.model.ClubEventImage;
+import in.koreatech.koin.domain.club.event.enums.ClubEventStatus;
+import in.koreatech.koin.domain.club.event.model.ClubEvent;
+import in.koreatech.koin.domain.club.event.model.ClubEventImage;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record ClubEventResponse(
+public record ClubEventsResponse(
     @Schema(description = "동아리 행사 ID", example = "12")
     Integer id,
 
@@ -39,15 +39,18 @@ public record ClubEventResponse(
     String content,
 
     @Schema(description = "현재 행사 상태", example = "UPCOMING")
-    String status
+    String status,
+
+    @Schema(description = "행사 구독 여부", example = "false")
+    boolean isSubscribed
 ) {
 
-    public static ClubEventResponse from(ClubEvent event, LocalDateTime now) {
+    public static ClubEventsResponse from(ClubEvent event, LocalDateTime now, boolean isSubscribed) {
         List<String> imageUrls = event.getImages().stream()
             .map(ClubEventImage::getImageUrl)
             .toList();
 
-        return new ClubEventResponse(
+        return new ClubEventsResponse(
             event.getId(),
             event.getName(),
             imageUrls,
@@ -55,7 +58,8 @@ public record ClubEventResponse(
             event.getEndDate(),
             event.getIntroduce(),
             event.getContent(),
-            calculateStatus(event.getStartDate(), event.getEndDate(), now).name()
+            calculateStatus(event.getStartDate(), event.getEndDate(), now).name(),
+            isSubscribed
         );
     }
 
