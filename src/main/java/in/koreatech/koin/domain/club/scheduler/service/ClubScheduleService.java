@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.club.service;
+package in.koreatech.koin.domain.club.scheduler.service;
 
 import static in.koreatech.koin.common.model.MobileAppPath.CLUB;
 
