@@ -1,27 +1,6 @@
 package in.koreatech.koin.admin.club.service;
 
-import java.util.AbstractMap;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import in.koreatech.koin.common.model.Criteria;
-import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminClubCreateRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
-import in.koreatech.koin.admin.club.dto.request.AdminClubManagerDecideRequest;
-import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
+import in.koreatech.koin.admin.club.dto.request.*;
 import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
@@ -31,19 +10,33 @@ import in.koreatech.koin.admin.club.repository.AdminClubManagerRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubRepository;
 import in.koreatech.koin.admin.club.repository.AdminClubSnsRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.common.model.Criteria;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.club.model.ClubManager;
 import in.koreatech.koin.domain.club.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.club.model.redis.ClubCreateRedis;
-import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.club.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static in.koreatech.koin.domain.club.club.enums.SNSType.*;
 
 @Service
 @RequiredArgsConstructor
