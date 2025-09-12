@@ -132,7 +132,7 @@ public interface ClubEventApi {
             - UPCOMING : 행사 예정
             - ENDED : 종료된 행사
         """)
-    @GetMapping("/{clubId}/event")
+    @GetMapping("/{clubId}/events")
     ResponseEntity<List<ClubEventsResponse>> getClubEvents(
         @PathVariable Integer clubId,
         @RequestParam(defaultValue = "RECENT") ClubEventType eventType,
