@@ -26,7 +26,7 @@ public class ClubLikeController implements ClubLikeApi {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping
+    @DeleteMapping("/cancel")
     public ResponseEntity<Void> likeClubCancel(
         @Auth(permit = {STUDENT}) Integer userId,
         @Parameter(in = PATH) @PathVariable Integer clubId
