@@ -99,61 +99,7 @@ public class ClubController implements ClubApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{clubId}/recruitment")
-    public ResponseEntity<Void> createRecruitment(
-        @RequestBody @Valid ClubRecruitmentCreateRequest request,
-        @PathVariable(name = "clubId") Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.createRecruitment(request, clubId, studentId);
-        return ResponseEntity.ok().build();
-    }
 
-    @PutMapping("/{clubId}/recruitment")
-    public ResponseEntity<Void> modifyRecruitment(
-        @RequestBody @Valid ClubRecruitmentModifyRequest request,
-        @PathVariable(name = "clubId") Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.modifyRecruitment(request, clubId, studentId);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{clubId}/recruitment")
-    public ResponseEntity<Void> deleteRecruitment(
-        @PathVariable Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.deleteRecruitment(clubId, studentId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{clubId}/recruitment")
-    public ResponseEntity<ClubRecruitmentResponse> getRecruitment(
-        @PathVariable(name = "clubId") Integer clubId,
-        @UserId Integer userId
-    ) {
-        ClubRecruitmentResponse response = clubService.getRecruitment(clubId, userId);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("{clubId}/recruitment/notification")
-    public ResponseEntity<Void> subscribeRecruitmentNotification(
-        @PathVariable Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.subscribeRecruitmentNotification(clubId, studentId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @DeleteMapping("{clubId}/recruitment/notification")
-    public ResponseEntity<Void> rejectRecruitmentNotification(
-        @PathVariable Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.rejectRecruitmentNotification(clubId, studentId);
-        return ResponseEntity.noContent().build();
-    }
 
     @PostMapping("/{clubId}/event")
     public ResponseEntity<Void> createClubEvent(

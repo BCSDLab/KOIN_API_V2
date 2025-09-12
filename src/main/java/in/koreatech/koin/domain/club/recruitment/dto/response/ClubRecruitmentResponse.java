@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.dto.response;
+package in.koreatech.koin.domain.club.recruitment.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.club.model.ClubRecruitment;
+import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)

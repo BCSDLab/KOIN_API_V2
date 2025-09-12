@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.model;
+package in.koreatech.koin.domain.club.recruitment.model;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -7,7 +7,8 @@ import static lombok.AccessLevel.PROTECTED;
 import java.time.LocalDate;
 
 import in.koreatech.koin.common.model.BaseEntity;
-import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
+import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
+import in.koreatech.koin.domain.club.model.Club;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

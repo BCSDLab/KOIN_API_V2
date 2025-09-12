@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.club.service;
 
 import in.koreatech.koin.common.event.ClubCreateEvent;
-import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
 import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.dto.request.*;
@@ -17,6 +16,8 @@ import in.koreatech.koin.domain.club.model.*;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
 import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
+import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
+import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
 import in.koreatech.koin.domain.club.repository.*;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
@@ -39,8 +40,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static in.koreatech.koin.global.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
 
 @Service
 @RequiredArgsConstructor
@@ -215,84 +214,7 @@ public class ClubService {
         clubManagerRepository.save(newClubManager);
     }
 
-    @Transactional
-    public void createRecruitment(ClubRecruitmentCreateRequest request, Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
 
-        if (clubRecruitmentRepository.findByClub(club).isPresent()) {
-            throw CustomException.of(DUPLICATE_CLUB_RECRUITMENT);
-        }
-
-        clubRecruitmentRepository.save(request.toEntity(club));
-        eventPublisher.publishEvent(new ClubRecruitmentChangeEvent(club.getName(), club.getId()));
-    }
-
-    @Transactional
-    public void modifyRecruitment(ClubRecruitmentModifyRequest request, Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
-        Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
-
-        clubRecruitment.modifyClubRecruitment(
-            request.startDate(),
-            request.endDate(),
-            request.isAlwaysRecruiting(),
-            request.imageUrl(),
-            request.content()
-        );
-        eventPublisher.publishEvent(new ClubRecruitmentChangeEvent(club.getName(), club.getId()));
-    }
-
-    @Transactional
-    public void deleteRecruitment(Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
-        Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
-
-        clubRecruitmentRepository.delete(clubRecruitment);
-    }
-
-    public ClubRecruitmentResponse getRecruitment(Integer clubId, Integer userId) {
-        Club club = clubRepository.getById(clubId);
-        club.updateIsManager(userId);
-        ClubRecruitment clubRecruitment = clubRecruitmentRepository.getByClub(club);
-
-        return ClubRecruitmentResponse.from(clubRecruitment);
-    }
-
-    @Transactional
-    public void subscribeRecruitmentNotification(Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        User user = userRepository.getById(studentId);
-
-        if (verifyAlreadySubscribedRecruitment(clubId, studentId))
-            return;
-
-        ClubRecruitmentSubscription clubRecruitmentSubscription = ClubRecruitmentSubscription.builder()
-            .club(club)
-            .user(user)
-            .build();
-        clubRecruitmentSubscriptionRepository.save(clubRecruitmentSubscription);
-    }
-
-    @Transactional
-    public void rejectRecruitmentNotification(Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        User user = userRepository.getById(studentId);
-
-        if (!verifyAlreadySubscribedRecruitment(clubId, studentId))
-            return;
-
-        clubRecruitmentSubscriptionRepository.deleteByClubIdAndUserId(clubId, studentId);
-    }
-
-    private boolean verifyAlreadySubscribedRecruitment(Integer clubId, Integer studentId) {
-        return clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId);
-    }
 
     @Transactional
     public void createClubEvent(ClubEventCreateRequest request, Integer clubId, Integer studentId) {

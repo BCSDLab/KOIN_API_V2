@@ -1,11 +1,11 @@
-package in.koreatech.koin.domain.club.repository;
+package in.koreatech.koin.domain.club.recruitment.repository;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.club.model.ClubRecruitmentSubscription;
+import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitmentSubscription;
 
 public interface ClubRecruitmentSubscriptionRepository extends Repository<ClubRecruitmentSubscription, Integer> {
 

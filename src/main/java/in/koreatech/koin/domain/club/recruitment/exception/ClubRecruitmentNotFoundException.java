@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.exception;
+package in.koreatech.koin.domain.club.recruitment.exception;
 
 import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 

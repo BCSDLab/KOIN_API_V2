@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.enums;
+package in.koreatech.koin.domain.club.recruitment.enums;
 
 import java.time.LocalDate;
 

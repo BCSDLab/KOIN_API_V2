@@ -1,11 +1,11 @@
-package in.koreatech.koin.domain.club.model;
+package in.koreatech.koin.domain.club.recruitment.model;
 
-import static in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus.RECRUITING;
+import static in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus.RECRUITING;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
+import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
 import lombok.Getter;
 
 @Getter

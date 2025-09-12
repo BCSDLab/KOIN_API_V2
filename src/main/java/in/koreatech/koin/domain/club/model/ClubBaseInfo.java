@@ -1,8 +1,9 @@
 package in.koreatech.koin.domain.club.model;
 
-import java.time.LocalDate;
+import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
+import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitmentDday;
 
-import in.koreatech.koin.domain.club.enums.ClubRecruitmentStatus;
+import java.time.LocalDate;
 
 public record ClubBaseInfo(
     Integer clubId,
