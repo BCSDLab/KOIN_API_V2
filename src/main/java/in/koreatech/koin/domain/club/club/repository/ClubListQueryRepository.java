@@ -1,25 +1,23 @@
 package in.koreatech.koin.domain.club.club.repository;
 
-import static in.koreatech.koin.domain.club.model.QClub.club;
-import static in.koreatech.koin.domain.club.model.QClubLike.clubLike;
-import static in.koreatech.koin.domain.club.model.QClubRecruitment.clubRecruitment;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Repository;
-
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
 import in.koreatech.koin.domain.club.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.club.model.ClubBaseInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static in.koreatech.koin.domain.club.club.model.QClub.club;
+import static in.koreatech.koin.domain.club.like.model.QClubLike.clubLike;
+import static in.koreatech.koin.domain.club.recruitment.model.QClubRecruitment.clubRecruitment;
 
 @Repository
 @RequiredArgsConstructor
