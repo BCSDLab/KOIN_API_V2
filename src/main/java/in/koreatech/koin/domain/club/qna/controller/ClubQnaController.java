@@ -21,7 +21,7 @@ public class ClubQnaController implements ClubQnaApi {
 
     private final ClubQnaService clubQnaService;
 
-    @GetMapping("/{clubId}/qna")
+    @GetMapping
     public ResponseEntity<ClubQnasResponse> getQnas(
         @Parameter(in = PATH) @PathVariable Integer clubId
     ) {
@@ -29,7 +29,7 @@ public class ClubQnaController implements ClubQnaApi {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{clubId}/qna")
+    @PostMapping
     public ResponseEntity<Void> createQna(
         @RequestBody @Valid ClubQnaCreateRequest request,
         @Parameter(in = PATH) @PathVariable Integer clubId,
@@ -39,7 +39,7 @@ public class ClubQnaController implements ClubQnaApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/{clubId}/qna/{qnaId}")
+    @DeleteMapping("/{qnaId}")
     public ResponseEntity<Void> deleteQna(
         @Parameter(in = PATH) @PathVariable Integer clubId,
         @Parameter(in = PATH) @PathVariable Integer qnaId,
