@@ -75,7 +75,7 @@ public interface ClubRecruitmentApi {
         INVALID_REQUEST_BODY
     })
     @Operation(summary = "동아리 모집 삭제", description = """
-        ### 동아리 모집 수정
+        ### 동아리 모집 삭제
         - 동아리 모집을 삭제 합니다.
         """)
     @DeleteMapping
