@@ -1,8 +1,8 @@
 package in.koreatech.koin.unit.fixture;
 
-import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubHot;
-import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
+import in.koreatech.koin.domain.club.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.ClubHot;
+import in.koreatech.koin.domain.club.club.model.redis.ClubHotRedis;
 
 import java.time.LocalDate;
 

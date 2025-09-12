@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.club.dto.response.AdminClubCategoriesResponse;
 import in.koreatech.koin.admin.club.repository.AdminClubCategoryRepository;
-import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import lombok.RequiredArgsConstructor;
 
 @Service

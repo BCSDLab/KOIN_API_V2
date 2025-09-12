@@ -1,6 +1,6 @@
 package in.koreatech.koin.unit.fixture;
 
-import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
 
 public class ClubCategoryFixture {
 

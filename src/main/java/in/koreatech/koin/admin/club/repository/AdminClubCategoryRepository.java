@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.club.exception.ClubCategoryNotFoundException;
-import in.koreatech.koin.domain.club.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
 
 public interface AdminClubCategoryRepository extends Repository<ClubCategory, Integer> {
 
