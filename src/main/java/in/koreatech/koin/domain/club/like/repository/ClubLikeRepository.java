@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.repository;
+package in.koreatech.koin.domain.club.like.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubLike;
+import in.koreatech.koin.domain.club.like.model.ClubLike;
 import in.koreatech.koin.domain.user.model.User;
 
 public interface ClubLikeRepository extends Repository<ClubLike, Integer> {

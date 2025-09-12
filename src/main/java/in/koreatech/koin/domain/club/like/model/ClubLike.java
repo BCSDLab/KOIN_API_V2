@@ -1,10 +1,11 @@
-package in.koreatech.koin.domain.club.model;
+package in.koreatech.koin.domain.club.like.model;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

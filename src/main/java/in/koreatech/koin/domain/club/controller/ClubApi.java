@@ -1,43 +1,12 @@
 package in.koreatech.koin.domain.club.controller;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.*;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
-
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import in.koreatech.koin.domain.club.dto.request.*;
+import in.koreatech.koin.domain.club.dto.response.*;
+import in.koreatech.koin.domain.club.enums.ClubEventType;
+import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.code.ApiResponseCodes;
-import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubEventsResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.enums.ClubEventType;
-import in.koreatech.koin.domain.club.enums.ClubSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,6 +15,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 @Tag(name = "(Normal) Club: 동아리", description = "동아리 정보를 관리한다")
 @RequestMapping("/clubs")
@@ -188,36 +165,6 @@ public interface ClubApi {
     @Operation(summary = "인기 동아리를 조회한다")
     @GetMapping("/hot")
     ResponseEntity<ClubHotResponse> getHotClub();
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "동아리 좋아요를 누른다")
-    @PutMapping("/{clubId}/like")
-    ResponseEntity<Void> likeClub(
-        @Auth(permit = {STUDENT}) Integer userId,
-        @Parameter(in = PATH) @PathVariable Integer clubId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "동아리 좋아요를 취소한다")
-    @DeleteMapping("/{clubId}/like/cancel")
-    ResponseEntity<Void> likeClubCancel(
-        @Auth(permit = {STUDENT}) Integer userId,
-        @Parameter(in = PATH) @PathVariable Integer clubId
-    );
 
     @Operation(
         summary = "특정 동아리의 모든 QNA를 조회한다",

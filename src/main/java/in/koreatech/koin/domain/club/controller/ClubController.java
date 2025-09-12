@@ -1,47 +1,23 @@
 package in.koreatech.koin.domain.club.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
-
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
-import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
-import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubEventsResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
+import in.koreatech.koin.domain.club.dto.request.*;
+import in.koreatech.koin.domain.club.dto.response.*;
 import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.service.ClubService;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 @RestController
 @RequiredArgsConstructor
@@ -106,24 +82,6 @@ public class ClubController implements ClubApi {
     ) {
         ClubResponse response = clubService.getClub(clubId, userId);
         return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{clubId}/like")
-    public ResponseEntity<Void> likeClub(
-        @Auth(permit = {STUDENT}) Integer userId,
-        @Parameter(in = PATH) @PathVariable Integer clubId
-    ) {
-        clubService.likeClub(clubId, userId);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{clubId}/like/cancel")
-    public ResponseEntity<Void> likeClubCancel(
-        @Auth(permit = {STUDENT}) Integer userId,
-        @Parameter(in = PATH) @PathVariable Integer clubId
-    ) {
-        clubService.likeClubCancel(clubId, userId);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/hot")

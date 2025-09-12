@@ -1,77 +1,22 @@
 package in.koreatech.koin.domain.club.service;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
-
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.common.event.ClubCreateEvent;
 import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
-import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.domain.club.dto.request.ClubCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubEventCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubEventModifyRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubIntroductionUpdateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubManagerEmpowermentRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubQnaCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentCreateRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubRecruitmentModifyRequest;
-import in.koreatech.koin.domain.club.dto.request.ClubUpdateRequest;
-import in.koreatech.koin.domain.club.dto.response.ClubEventResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubEventsResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubHotResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubHotStatusResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubQnasResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubRecruitmentResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubRelatedKeywordResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubResponse;
-import in.koreatech.koin.domain.club.dto.response.ClubsByCategoryResponse;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
+import in.koreatech.koin.domain.club.dto.request.*;
+import in.koreatech.koin.domain.club.dto.response.*;
 import in.koreatech.koin.domain.club.enums.ClubEventStatus;
 import in.koreatech.koin.domain.club.enums.ClubEventType;
 import in.koreatech.koin.domain.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.enums.SNSType;
 import in.koreatech.koin.domain.club.exception.ClubHotNotFoundException;
-import in.koreatech.koin.domain.club.exception.ClubLikeDuplicateException;
-import in.koreatech.koin.domain.club.exception.ClubLikeNotFoundException;
 import in.koreatech.koin.domain.club.exception.ClubManagerAlreadyException;
-import in.koreatech.koin.domain.club.model.Club;
-import in.koreatech.koin.domain.club.model.ClubBaseInfo;
-import in.koreatech.koin.domain.club.category.model.ClubCategory;
-import in.koreatech.koin.domain.club.model.ClubEvent;
-import in.koreatech.koin.domain.club.model.ClubEventImage;
-import in.koreatech.koin.domain.club.model.ClubEventSubscription;
-import in.koreatech.koin.domain.club.model.ClubHot;
-import in.koreatech.koin.domain.club.model.ClubLike;
-import in.koreatech.koin.domain.club.model.ClubManager;
-import in.koreatech.koin.domain.club.model.ClubQna;
-import in.koreatech.koin.domain.club.model.ClubRecruitment;
-import in.koreatech.koin.domain.club.model.ClubRecruitmentSubscription;
-import in.koreatech.koin.domain.club.model.ClubSNS;
+import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
+import in.koreatech.koin.domain.club.model.*;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
-import in.koreatech.koin.domain.club.repository.ClubEventImageRepository;
-import in.koreatech.koin.domain.club.repository.ClubEventRepository;
-import in.koreatech.koin.domain.club.repository.ClubEventSubscriptionRepository;
-import in.koreatech.koin.domain.club.repository.ClubHotRepository;
-import in.koreatech.koin.domain.club.repository.ClubLikeRepository;
-import in.koreatech.koin.domain.club.repository.ClubListQueryRepository;
-import in.koreatech.koin.domain.club.repository.ClubManagerRepository;
-import in.koreatech.koin.domain.club.repository.ClubQnaRepository;
-import in.koreatech.koin.domain.club.repository.ClubRecruitmentRepository;
-import in.koreatech.koin.domain.club.repository.ClubRecruitmentSubscriptionRepository;
-import in.koreatech.koin.domain.club.repository.ClubRepository;
-import in.koreatech.koin.domain.club.repository.ClubSNSRepository;
+import in.koreatech.koin.domain.club.repository.*;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHotRedisRepository;
@@ -80,7 +25,22 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+import static in.koreatech.koin.global.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
 
 @Service
 @RequiredArgsConstructor
@@ -217,39 +177,6 @@ public class ClubService {
 
     private String normalizeString(String s) {
         return s.replaceAll("\\s+", "").toLowerCase();
-    }
-
-    @Transactional
-    public void likeClub(Integer clubId, Integer userId) {
-        Club club = clubRepository.getByIdWithPessimisticLock(clubId);
-        User user = userRepository.getById(userId);
-
-        boolean alreadyLiked = clubLikeRepository.existsByClubAndUser(club, user);
-        if (alreadyLiked) {
-            throw ClubLikeDuplicateException.withDetail(clubId);
-        }
-
-        ClubLike clubLike = ClubLike.builder()
-            .club(club)
-            .user(user)
-            .build();
-
-        clubLikeRepository.save(clubLike);
-        club.increaseLikes();
-    }
-
-    @Transactional
-    public void likeClubCancel(Integer clubId, Integer userId) {
-        Club club = clubRepository.getByIdWithPessimisticLock(clubId);
-        User user = userRepository.getById(userId);
-
-        boolean alreadyLiked = clubLikeRepository.existsByClubAndUser(club, user);
-        if (!alreadyLiked) {
-            throw ClubLikeNotFoundException.withDetail(club.getId());
-        }
-
-        clubLikeRepository.deleteByClubAndUser(club, user);
-        club.cancelLikes();
     }
 
     @Transactional
