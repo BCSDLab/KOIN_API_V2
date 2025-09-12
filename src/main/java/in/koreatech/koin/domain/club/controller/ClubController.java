@@ -90,34 +90,6 @@ public class ClubController implements ClubApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{clubId}/qna")
-    public ResponseEntity<ClubQnasResponse> getQnas(
-        @Parameter(in = PATH) @PathVariable Integer clubId
-    ) {
-        ClubQnasResponse response = clubService.getQnas(clubId);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{clubId}/qna")
-    public ResponseEntity<Void> createQna(
-        @RequestBody @Valid ClubQnaCreateRequest request,
-        @Parameter(in = PATH) @PathVariable Integer clubId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.createQna(request, clubId, studentId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @DeleteMapping("/{clubId}/qna/{qnaId}")
-    public ResponseEntity<Void> deleteQna(
-        @Parameter(in = PATH) @PathVariable Integer clubId,
-        @Parameter(in = PATH) @PathVariable Integer qnaId,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.deleteQna(clubId, qnaId, studentId);
-        return ResponseEntity.noContent().build();
-    }
-
     @PutMapping("/empowerment")
     public ResponseEntity<Void> empowermentClubManager(
         @RequestBody @Valid ClubManagerEmpowermentRequest request,

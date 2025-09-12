@@ -1,12 +1,12 @@
-package in.koreatech.koin.domain.club.repository;
+package in.koreatech.koin.domain.club.qna.repository;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.club.exception.ClubQnaNotFoundException;
-import in.koreatech.koin.domain.club.model.ClubQna;
+import in.koreatech.koin.domain.club.qna.exception.ClubQnaNotFoundException;
+import in.koreatech.koin.domain.club.qna.model.ClubQna;
 
 public interface ClubQnaRepository extends Repository<ClubQna, Integer> {
 

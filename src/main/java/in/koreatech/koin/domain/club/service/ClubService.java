@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.model.*;
 import in.koreatech.koin.domain.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.model.redis.ClubHotRedis;
+import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.repository.*;
 import in.koreatech.koin.domain.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.repository.redis.ClubHitsRedisRepository;
@@ -37,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.DUPLICATE_CLUB_RECRUITMENT;
@@ -179,12 +179,6 @@ public class ClubService {
         return s.replaceAll("\\s+", "").toLowerCase();
     }
 
-    @Transactional
-    public ClubQnasResponse getQnas(Integer clubId) {
-        List<ClubQna> qnas = clubQnaRepository.findAllByClubId(clubId);
-        return ClubQnasResponse.from(qnas);
-    }
-
     public ClubHotResponse getHotClub() {
         return hotClubRedisRepository.findById(ClubHotRedis.REDIS_KEY)
             .map(ClubHotResponse::from)
@@ -198,40 +192,6 @@ public class ClubService {
                 return ClubHotResponse.from(clubHot.getClub());
             })
             .orElseThrow(() -> ClubHotNotFoundException.withDetail(""));
-    }
-
-    @Transactional
-    public void createQna(ClubQnaCreateRequest request, Integer clubId, Integer studentId) {
-        Club club = clubRepository.getById(clubId);
-        Student student = studentRepository.getById(studentId);
-        boolean isManager = clubManagerRepository.existsByClubIdAndUserId(clubId, studentId);
-        boolean isQuestion = request.parentId() == null;
-        validateQnaCreateAuthorization(studentId, isQuestion, isManager);
-        ClubQna parentQna = request.parentId() == null ? null : clubQnaRepository.getById(request.parentId());
-        ClubQna qna = request.toClubQna(club, student, parentQna, isManager);
-        clubQnaRepository.save(qna);
-    }
-
-    private void validateQnaCreateAuthorization(Integer studentId, boolean isQuestion, boolean isManager) {
-        if (isQuestion == isManager) {
-            throw AuthorizationException.withDetail("studentId: " + studentId);
-        }
-    }
-
-    @Transactional
-    public void deleteQna(Integer clubId, Integer qnaId, Integer studentId) {
-        ClubQna qna = clubQnaRepository.getById(qnaId);
-        validateQnaDeleteAuthorization(clubId, qna, studentId);
-        qna.detachFromParentIfChild();
-        clubQnaRepository.delete(qna);
-    }
-
-    private void validateQnaDeleteAuthorization(Integer clubId, ClubQna qna, Integer studentId) {
-        if (Objects.equals(qna.getAuthor().getId(), studentId))
-            return;
-        if (clubManagerRepository.existsByClubIdAndUserId(clubId, studentId))
-            return;
-        throw AuthorizationException.withDetail("studentId: " + studentId);
     }
 
     @Transactional

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.model;
+package in.koreatech.koin.domain.club.qna.model;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.domain.club.model.Club;
 import in.koreatech.koin.domain.student.model.Student;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
