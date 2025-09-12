@@ -8,8 +8,6 @@ import in.koreatech.koin.domain.club.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.club.dto.response.ClubRelatedKeywordResponse;
 import in.koreatech.koin.domain.club.club.dto.response.ClubResponse;
 import in.koreatech.koin.domain.club.club.dto.response.ClubsByCategoryResponse;
-import in.koreatech.koin.domain.club.dto.request.*;
-import in.koreatech.koin.domain.club.dto.response.*;
 import in.koreatech.koin.domain.club.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.club.service.ClubService;
 import in.koreatech.koin.global.auth.Auth;
