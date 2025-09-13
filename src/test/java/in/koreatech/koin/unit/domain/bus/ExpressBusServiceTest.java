@@ -258,11 +258,12 @@ public class ExpressBusServiceTest {
     class GetBusRemainTimeTest {
 
         private Clock fixedClock;
+        private ZoneId koreaZoneId;
 
         @BeforeEach
         void setUpClock() {
             // 한국 시간대 고정시간
-            ZoneId koreaZoneId = ZoneId.of("Asia/Seoul");
+            koreaZoneId = ZoneId.of("Asia/Seoul");
             fixedClock = Clock.fixed(
                 LocalDateTime.of(2024, 6, 10, 10, 0).atZone(koreaZoneId).toInstant(),
                 koreaZoneId
@@ -280,7 +281,7 @@ public class ExpressBusServiceTest {
             List<ExpressBusRemainTime> result = expressBusService.getBusRemainTime(departKoreatech, arrivalTerminal);
 
             // then
-            assertThat(fixedClock.instant().atZone(ZoneId.systemDefault()).toLocalTime()).isEqualTo(LocalTime.of(10, 0));
+            assertThat(fixedClock.instant().atZone(koreaZoneId).toLocalTime()).isEqualTo(LocalTime.of(10, 0));
             assertThat(result.get(0).getRemainSeconds(fixedClock)).isNull(); // 9시는 10시보다 이전이므로 null
             assertThat(result.get(1).getRemainSeconds(fixedClock)).isNull(); // 10시는 현재 시간과 동일
             assertThat(result.get(2).getRemainSeconds(fixedClock)).isEqualTo(5400L); // 11시 30분은 1시간 30분(5400초) 차이
