@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.club.recruitment.service;
 import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
-import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentModifyRequest;
@@ -34,7 +33,6 @@ public class ClubRecruitmentService {
     private final ClubRecruitmentRepository clubRecruitmentRepository;
     private final UserRepository userRepository;
     private final ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
-    private final ClubManagerRepository clubManagerRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ClubManagerService clubManagerService;
 

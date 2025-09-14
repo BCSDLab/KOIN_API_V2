@@ -14,7 +14,6 @@ import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
 import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
-import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
@@ -41,7 +40,6 @@ public class ClubEventService {
     private final ClubEventRepository clubEventRepository;
     private final ClubEventImageRepository clubEventImageRepository;
     private final ClubEventSubscriptionRepository clubEventSubscriptionRepository;
-    private final ClubManagerRepository clubManagerRepository;
     private final UserRepository userRepository;
     private final ClubManagerService clubManagerService;
 
