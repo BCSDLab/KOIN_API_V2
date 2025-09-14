@@ -7,7 +7,7 @@ import in.koreatech.koin.domain.club.recruitment.dto.response.ClubRecruitmentRes
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
 import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitmentSubscription;
-import in.koreatech.koin.domain.club.club.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;

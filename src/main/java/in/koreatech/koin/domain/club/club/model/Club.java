@@ -11,6 +11,7 @@ import java.util.List;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.club.category.model.ClubCategory;
+import in.koreatech.koin.domain.club.manager.model.ClubManager;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

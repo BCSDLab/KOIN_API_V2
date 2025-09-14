@@ -4,7 +4,7 @@ import in.koreatech.koin.domain.club.qna.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.qna.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.qna.model.ClubQna;
-import in.koreatech.koin.domain.club.club.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.student.model.Student;

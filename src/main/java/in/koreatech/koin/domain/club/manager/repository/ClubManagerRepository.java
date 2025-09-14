@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.club.repository;
+package in.koreatech.koin.domain.club.manager.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.domain.club.club.model.ClubManager;
+import in.koreatech.koin.domain.club.manager.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 
 public interface ClubManagerRepository extends Repository<ClubManager, Integer> {

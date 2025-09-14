@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.category.model.ClubCategory;
-import in.koreatech.koin.domain.club.club.model.ClubManager;
+import in.koreatech.koin.domain.club.manager.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

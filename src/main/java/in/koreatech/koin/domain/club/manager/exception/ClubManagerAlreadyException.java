@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.club.club.exception;
+package in.koreatech.koin.domain.club.manager.exception;
 
 import in.koreatech.koin.global.exception.custom.KoinException;
 

@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.club.club.controller;
 
 import in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubIntroductionUpdateRequest;
-import in.koreatech.koin.domain.club.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.club.dto.response.ClubRelatedKeywordResponse;
@@ -90,14 +89,5 @@ public class ClubController implements ClubApi {
     public ResponseEntity<ClubHotResponse> getHotClub() {
         ClubHotResponse response = clubService.getHotClub();
         return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/empowerment")
-    public ResponseEntity<Void> empowermentClubManager(
-        @RequestBody @Valid ClubManagerEmpowermentRequest request,
-        @Auth(permit = {STUDENT}) Integer studentId
-    ) {
-        clubService.empowermentClubManager(request, studentId);
-        return ResponseEntity.ok().build();
     }
 }

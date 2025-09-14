@@ -5,14 +5,15 @@ import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubIntroductionUpdateRequest;
-import in.koreatech.koin.domain.club.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.club.dto.response.*;
 import in.koreatech.koin.domain.club.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.club.enums.SNSType;
 import in.koreatech.koin.domain.club.club.exception.ClubHotNotFoundException;
-import in.koreatech.koin.domain.club.club.exception.ClubManagerAlreadyException;
-import in.koreatech.koin.domain.club.club.model.*;
+import in.koreatech.koin.domain.club.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.ClubBaseInfo;
+import in.koreatech.koin.domain.club.club.model.ClubHot;
+import in.koreatech.koin.domain.club.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.club.model.redis.ClubHotRedis;
 import in.koreatech.koin.domain.club.club.repository.*;
@@ -23,14 +24,12 @@ import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
+import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -124,12 +123,6 @@ public class ClubService {
         return ClubResponse.from(club, clubSNSs, manager, isLiked, isRecruitSubscribed);
     }
 
-    private void isClubManager(Integer clubId, Integer studentId) {
-        if (!clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)) {
-            throw AuthorizationException.withDetail("studentId: " + studentId);
-        }
-    }
-
     @Transactional
     public ClubResponse getClub(Integer clubId, Integer userId) {
         Club club = clubRepository.getById(clubId);
@@ -189,27 +182,6 @@ public class ClubService {
                 return ClubHotResponse.from(clubHot.getClub());
             })
             .orElseThrow(() -> ClubHotNotFoundException.withDetail(""));
-    }
-
-    @Transactional
-    public void empowermentClubManager(ClubManagerEmpowermentRequest request, Integer studentId) {
-        Club club = clubRepository.getById(request.clubId());
-        User currentManager = userRepository.getById(studentId);
-        User changedManager = userRepository.getByLoginIdAndUserTypeIn(request.changedManagerId(),
-            UserType.KOIN_STUDENT_TYPES);
-
-        isClubManager(request.clubId(), studentId);
-        if (clubManagerRepository.existsByClubAndUser(club, changedManager)) {
-            throw ClubManagerAlreadyException.withDetail("");
-        }
-        clubManagerRepository.deleteByClubAndUser(club, currentManager);
-
-        ClubManager newClubManager = ClubManager.builder()
-            .club(club)
-            .user(changedManager)
-            .build();
-
-        clubManagerRepository.save(newClubManager);
     }
 
     private ClubHotStatusResponse generateHotStatusResponse(ClubHot hot) {

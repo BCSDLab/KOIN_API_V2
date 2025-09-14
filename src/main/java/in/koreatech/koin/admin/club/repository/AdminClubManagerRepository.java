@@ -3,7 +3,7 @@ package in.koreatech.koin.admin.club.repository;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.domain.club.club.model.ClubManager;
+import in.koreatech.koin.domain.club.manager.model.ClubManager;
 
 public interface AdminClubManagerRepository extends Repository<ClubManager, Integer> {
 

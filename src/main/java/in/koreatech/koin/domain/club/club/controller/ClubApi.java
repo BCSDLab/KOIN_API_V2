@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.club.club.controller;
 
 import in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubIntroductionUpdateRequest;
-import in.koreatech.koin.domain.club.club.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.club.dto.response.ClubRelatedKeywordResponse;
@@ -166,20 +165,4 @@ public interface ClubApi {
     @Operation(summary = "인기 동아리를 조회한다")
     @GetMapping("/hot")
     ResponseEntity<ClubHotResponse> getHotClub();
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "204"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "동아리 관리자 권한을 위임한다")
-    @PutMapping("/empowerment")
-    ResponseEntity<Void> empowermentClubManager(
-        @RequestBody @Valid ClubManagerEmpowermentRequest request,
-        @Auth(permit = {STUDENT}) Integer studentId
-    );
 }
