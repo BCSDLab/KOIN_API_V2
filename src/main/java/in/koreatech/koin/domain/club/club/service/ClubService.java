@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
@@ -62,6 +63,7 @@ public class ClubService {
     private final ClubEventRepository clubEventRepository;
     private final ClubEventImageRepository clubEventImageRepository;
     private final ClubEventSubscriptionRepository clubEventSubscriptionRepository;
+    private final ClubManagerService clubManagerService;
 
     private static final int RELATED_LIMIT_SIZE = 5;
 
@@ -76,7 +78,7 @@ public class ClubService {
     @Transactional
     public ClubResponse updateClub(Integer clubId, ClubUpdateRequest request, Integer studentId) {
         Club club = clubRepository.getById(clubId);
-        isClubManager(clubId, studentId);
+        clubManagerService.isClubManager(clubId, studentId);
 
         ClubCategory clubCategory = clubCategoryRepository.getById(request.clubCategoryId());
         club.update(request.name(), request.imageUrl(), clubCategory, request.location(), request.description(),
@@ -112,7 +114,7 @@ public class ClubService {
         Integer clubId, ClubIntroductionUpdateRequest request, Integer studentId
     ) {
         Club club = clubRepository.getById(clubId);
-        isClubManager(clubId, studentId);
+        clubManagerService.isClubManager(clubId, studentId);
 
         club.updateIntroduction(request.introduction());
         List<ClubSNS> clubSNSs = club.getClubSNSs();

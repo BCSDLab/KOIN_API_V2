@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.club.event.service;
 
-import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.event.dto.request.ClubEventCreateRequest;
 import in.koreatech.koin.domain.club.event.dto.request.ClubEventModifyRequest;
@@ -8,19 +8,18 @@ import in.koreatech.koin.domain.club.event.dto.response.ClubEventResponse;
 import in.koreatech.koin.domain.club.event.dto.response.ClubEventsResponse;
 import in.koreatech.koin.domain.club.event.enums.ClubEventStatus;
 import in.koreatech.koin.domain.club.event.enums.ClubEventType;
-import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
-import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
-import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
-import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import in.koreatech.koin.domain.club.event.model.ClubEventImage;
 import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
+import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
+import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +49,7 @@ public class ClubEventService {
     public void createClubEvent(ClubEventCreateRequest request, Integer clubId, Integer studentId) {
         Club club = clubRepository.getById(clubId);
         Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
+        clubManagerService.isClubManager(club.getId(), student.getId());
 
         ClubEvent clubEvent = request.toEntity(club);
         clubEventRepository.save(clubEvent);
@@ -71,7 +70,7 @@ public class ClubEventService {
         Club club = clubRepository.getById(clubId);
         ClubEvent clubEvent = clubEventRepository.getById(eventId);
         Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
+        clubManagerService.isClubManager(club.getId(), student.getId());
 
         clubEvent.modifyClubEvent(
             request.name(),
@@ -99,7 +98,7 @@ public class ClubEventService {
         Club club = clubRepository.getById(clubId);
         ClubEvent clubEvent = clubEventRepository.getById(eventId);
         Student student = studentRepository.getById(studentId);
-        isClubManager(club.getId(), student.getId());
+        clubManagerService.isClubManager(club.getId(), student.getId());
 
         clubEventRepository.delete(clubEvent); // 관련 이미지도 자동 삭제됨
     }
@@ -165,12 +164,6 @@ public class ClubEventService {
         }
 
         return e2.getCreatedAt().compareTo(e1.getCreatedAt());
-    }
-
-    private void isClubManager(Integer clubId, Integer studentId) {
-        if (!clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)) {
-            throw AuthorizationException.withDetail("studentId: " + studentId);
-        }
     }
 
     @Transactional
