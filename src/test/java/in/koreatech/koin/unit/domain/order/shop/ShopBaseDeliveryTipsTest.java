@@ -1,22 +1,16 @@
 package in.koreatech.koin.unit.domain.order.shop;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.lenient;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTipRange;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTips;
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.ShopBaseDeliveryTip;
 
-@ExtendWith(MockitoExtension.class)
 public class ShopBaseDeliveryTipsTest {
     @Nested
     class calculateDeliveryTip {
@@ -25,7 +19,6 @@ public class ShopBaseDeliveryTipsTest {
         void 빈_배달비_목록이면_배달비는_0원이다() {
             // given
             ShopBaseDeliveryTips tips = new ShopBaseDeliveryTips();
-            ReflectionTestUtils.setField(tips, "baseDeliveryTips", List.of());
 
             // when
             Integer deliveryTip = tips.calculateDeliveryTip(10_000);
@@ -37,12 +30,11 @@ public class ShopBaseDeliveryTipsTest {
         @Test
         void 주문금액_최소값_미만이면_첫_구간_배달비를_적용한다() {
             // given
-            ShopBaseDeliveryTip tipA = mockTip(0, 4000);
-            ShopBaseDeliveryTip tipB = mockTip(15_000, 3000);
-            ShopBaseDeliveryTip tipC = mockTip(30_000, 0);
+            ShopBaseDeliveryTip tipA = tip(0, 4000);
+            ShopBaseDeliveryTip tipB = tip(15_000, 3000);
+            ShopBaseDeliveryTip tipC = tip(30_000, 0);
 
-            ShopBaseDeliveryTips tips = new ShopBaseDeliveryTips();
-            ReflectionTestUtils.setField(tips, "baseDeliveryTips", List.of(tipB, tipC, tipA));
+            ShopBaseDeliveryTips tips = ShopBaseDeliveryTips.of(tipB, tipC, tipA);
 
             // when
             Integer deliveryTip = tips.calculateDeliveryTip(1_000);
@@ -54,12 +46,11 @@ public class ShopBaseDeliveryTipsTest {
         @Test
         void 주문금액에_맞는_구간의_배달비를_적용한다() {
             // given
-            ShopBaseDeliveryTip tipA = mockTip(0, 4000);
-            ShopBaseDeliveryTip tipB = mockTip(15_000, 3000);
-            ShopBaseDeliveryTip tipC = mockTip(30_000, 0);
+            ShopBaseDeliveryTip tipA = tip(0, 4000);
+            ShopBaseDeliveryTip tipB = tip(15_000, 3000);
+            ShopBaseDeliveryTip tipC = tip(30_000, 0);
 
-            ShopBaseDeliveryTips tips = new ShopBaseDeliveryTips();
-            ReflectionTestUtils.setField(tips, "baseDeliveryTips", List.of(tipC, tipA, tipB));
+            ShopBaseDeliveryTips tips = ShopBaseDeliveryTips.of(tipC, tipA, tipB);
 
             // when
             Integer midAmountTip = tips.calculateDeliveryTip(16_000);
@@ -75,12 +66,11 @@ public class ShopBaseDeliveryTipsTest {
         @Test
         void 최솟값이_0이_아닐_때_미달하면_첫_구간_배달비를_적용한다() {
             // given
-            ShopBaseDeliveryTip tipA = mockTip(10_000, 4000);
-            ShopBaseDeliveryTip tipB = mockTip(15_000, 3000);
-            ShopBaseDeliveryTip tipC = mockTip(30_000, 0);
+            ShopBaseDeliveryTip tipA = tip(10_000, 4000);
+            ShopBaseDeliveryTip tipB = tip(15_000, 3000);
+            ShopBaseDeliveryTip tipC = tip(30_000, 0);
 
-            ShopBaseDeliveryTips tips = new ShopBaseDeliveryTips();
-            ReflectionTestUtils.setField(tips, "baseDeliveryTips", List.of(tipB, tipC, tipA));
+            ShopBaseDeliveryTips tips = ShopBaseDeliveryTips.of(tipB, tipC, tipA);
 
             // when
             Integer deliveryTip = tips.calculateDeliveryTip(5_000);
@@ -96,8 +86,7 @@ public class ShopBaseDeliveryTipsTest {
         @Test
         void 빈_목록이면_빈_범위를_반환한다() {
             // given
-            ShopBaseDeliveryTips tips = new ShopBaseDeliveryTips();
-            ReflectionTestUtils.setField(tips, "baseDeliveryTips", List.of());
+            ShopBaseDeliveryTips tips = ShopBaseDeliveryTips.of();
 
             // when
             List<ShopBaseDeliveryTipRange> ranges = tips.getDeliveryTipRanges();
@@ -109,12 +98,11 @@ public class ShopBaseDeliveryTipsTest {
         @Test
         void 정렬된_배달비_구간을_생성하고_마지막_toAmount는_null이다() {
             // given
-            ShopBaseDeliveryTip tipA = mockTip(0, 4000);
-            ShopBaseDeliveryTip tipB = mockTip(15_000, 3000);
-            ShopBaseDeliveryTip tipC = mockTip(30_000, 0);
+            ShopBaseDeliveryTip tipA = tip(0, 4000);
+            ShopBaseDeliveryTip tipB = tip(15_000, 3000);
+            ShopBaseDeliveryTip tipC = tip(30_000, 0);
 
-            ShopBaseDeliveryTips tips = new ShopBaseDeliveryTips();
-            ReflectionTestUtils.setField(tips, "baseDeliveryTips", List.of(tipB, tipC, tipA));
+            ShopBaseDeliveryTips tips = ShopBaseDeliveryTips.of(tipB, tipC, tipA);
 
             // when
             List<ShopBaseDeliveryTipRange> ranges = tips.getDeliveryTipRanges();
@@ -140,10 +128,23 @@ public class ShopBaseDeliveryTipsTest {
         }
     }
 
-    private ShopBaseDeliveryTip mockTip(Integer orderAmount, Integer fee) {
-        ShopBaseDeliveryTip tip = mock(ShopBaseDeliveryTip.class);
-        lenient().when(tip.getOrderAmount()).thenReturn(orderAmount);
-        lenient().when(tip.getFee()).thenReturn(fee);
-        return tip;
+    private ShopBaseDeliveryTip tip(Integer orderAmount, Integer fee) {
+        try {
+            var ctor = ShopBaseDeliveryTip.class.getDeclaredConstructor();
+            ctor.setAccessible(true);
+            var instance = ctor.newInstance();
+
+            var orderAmountField = ShopBaseDeliveryTip.class.getDeclaredField("orderAmount");
+            orderAmountField.setAccessible(true);
+            orderAmountField.set(instance, orderAmount);
+
+            var feeField = ShopBaseDeliveryTip.class.getDeclaredField("fee");
+            feeField.setAccessible(true);
+            feeField.set(instance, fee);
+
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError(e);
+        }
     }
 }
