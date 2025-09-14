@@ -1,7 +1,7 @@
 package in.koreatech.koin.unit.domain.club.service;
 
 import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.domain.club.club.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.qna.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.qna.dto.response.ClubQnasResponse;

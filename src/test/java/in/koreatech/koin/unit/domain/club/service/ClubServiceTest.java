@@ -5,7 +5,7 @@ import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubIntroductionUpdateRequest;
-import in.koreatech.koin.domain.club.club.dto.request.ClubManagerEmpowermentRequest;
+import in.koreatech.koin.domain.club.manager.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.club.dto.response.ClubRelatedKeywordResponse;
@@ -14,7 +14,7 @@ import in.koreatech.koin.domain.club.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.club.enums.SNSType;
 import in.koreatech.koin.domain.club.club.exception.ClubHotNotFoundException;
-import in.koreatech.koin.domain.club.club.exception.ClubManagerAlreadyException;
+import in.koreatech.koin.domain.club.manager.exception.ClubManagerAlreadyException;
 import in.koreatech.koin.domain.club.club.model.*;
 import in.koreatech.koin.domain.club.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.club.model.redis.ClubHotRedis;
@@ -27,6 +27,8 @@ import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
+import in.koreatech.koin.domain.club.manager.model.ClubManager;
+import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
@@ -70,13 +72,7 @@ public class ClubServiceTest {
     private ClubHotRepository clubHotRepository;
 
     @Mock
-    private ClubQnaRepository clubQnaRepository;
-
-    @Mock
     private ClubRepository clubRepository;
-
-    @Mock
-    private StudentRepository studentRepository;
 
     @Mock
     private ClubManagerRepository clubManagerRepository;
@@ -103,22 +99,10 @@ public class ClubServiceTest {
     private ClubHitsRedisRepository clubHitsRedisRepository;
 
     @Mock
-    private ClubRecruitmentRepository clubRecruitmentRepository;
-
-    @Mock
     private ClubListQueryRepository clubListQueryRepository;
 
     @Mock
     private ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
-
-    @Mock
-    private ClubEventRepository clubEventRepository;
-
-    @Mock
-    private ClubEventImageRepository clubEventImageRepository;
-
-    @Mock
-    private ClubEventSubscriptionRepository clubEventSubscriptionRepository;
 
     @InjectMocks private ClubService clubService;
 
