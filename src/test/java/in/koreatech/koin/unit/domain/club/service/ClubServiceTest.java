@@ -5,7 +5,6 @@ import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
 import in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubIntroductionUpdateRequest;
-import in.koreatech.koin.domain.club.manager.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.club.dto.request.ClubUpdateRequest;
 import in.koreatech.koin.domain.club.club.dto.response.ClubHotResponse;
 import in.koreatech.koin.domain.club.club.dto.response.ClubRelatedKeywordResponse;
@@ -14,33 +13,32 @@ import in.koreatech.koin.domain.club.club.dto.response.ClubsByCategoryResponse;
 import in.koreatech.koin.domain.club.club.enums.ClubSortType;
 import in.koreatech.koin.domain.club.club.enums.SNSType;
 import in.koreatech.koin.domain.club.club.exception.ClubHotNotFoundException;
-import in.koreatech.koin.domain.club.manager.exception.ClubManagerAlreadyException;
-import in.koreatech.koin.domain.club.club.model.*;
+import in.koreatech.koin.domain.club.club.model.Club;
+import in.koreatech.koin.domain.club.club.model.ClubBaseInfo;
+import in.koreatech.koin.domain.club.club.model.ClubHot;
+import in.koreatech.koin.domain.club.club.model.ClubSNS;
 import in.koreatech.koin.domain.club.club.model.redis.ClubCreateRedis;
 import in.koreatech.koin.domain.club.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.club.repository.*;
+import in.koreatech.koin.domain.club.club.repository.ClubHotRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubListQueryRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubRepository;
+import in.koreatech.koin.domain.club.club.repository.ClubSNSRepository;
 import in.koreatech.koin.domain.club.club.repository.redis.ClubCreateRedisRepository;
 import in.koreatech.koin.domain.club.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.club.repository.redis.ClubHotRedisRepository;
 import in.koreatech.koin.domain.club.club.service.ClubService;
-import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
-import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
-import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
-import in.koreatech.koin.domain.club.manager.model.ClubManager;
 import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
-import in.koreatech.koin.domain.club.qna.repository.ClubQnaRepository;
 import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
-import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.unit.fixture.*;
+import in.koreatech.koin.unit.fixture.ClubBaseInfoFixture;
+import in.koreatech.koin.unit.fixture.ClubCategoryFixture;
+import in.koreatech.koin.unit.fixture.ClubFixture;
+import in.koreatech.koin.unit.fixture.ClubHotFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,7 +49,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -630,81 +627,6 @@ public class ClubServiceTest {
             assertThatThrownBy(() -> clubService.getHotClub())
                 .isInstanceOf(ClubHotNotFoundException.class)
                 .hasMessage("인기 동아리가 존재하지 않습니다.");
-        }
-    }
-
-    @Nested
-    class EmpowermentClubManager {
-
-        Integer clubId;
-        Integer currentManagerId;
-        Integer changedManagerId;
-        Club club;
-        User currentManager;
-        User changedManager;
-        ClubManagerEmpowermentRequest request;
-
-        @BeforeEach
-        void init() {
-            clubId = 1;
-            currentManagerId = 1;
-            changedManagerId = 2;
-            club = ClubFixture.활성화_BCSD_동아리(clubId);
-            currentManager = UserFixture.코인_유저();
-            changedManager = UserFixture.코인_유저();
-            request = new ClubManagerEmpowermentRequest(clubId, changedManager.getLoginId());
-
-            ReflectionTestUtils.setField(currentManager, "id", currentManagerId);
-            ReflectionTestUtils.setField(changedManager, "id", changedManagerId);
-
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(userRepository.getById(currentManagerId)).thenReturn(currentManager);
-            when(userRepository.getByLoginIdAndUserTypeIn(changedManager.getLoginId(), UserType.KOIN_STUDENT_TYPES))
-                .thenReturn(changedManager);
-        }
-
-        @Test
-        void 관리자_권한_위임에_성공한다() {
-            // given
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(true);
-            when(clubManagerRepository.existsByClubAndUser(club, changedManager)).thenReturn(false);
-
-            // when
-            clubService.empowermentClubManager(request, currentManagerId);
-
-            // then
-            ArgumentCaptor<ClubManager> clubManagerCaptor = ArgumentCaptor.forClass(ClubManager.class);
-
-            verify(clubManagerRepository).deleteByClubAndUser(club, currentManager);
-            verify(clubManagerRepository).save(clubManagerCaptor.capture());
-
-            ClubManager newClubManager = clubManagerCaptor.getValue();
-
-            assertThat(newClubManager.getClub()).isEqualTo(club);
-            assertThat(newClubManager.getUser()).isEqualTo(changedManager);
-        }
-
-        @Test
-        void 관리자가_아닌_유저가_권한_위임을_할_경우_예외를_발생한다() {
-            // given
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(false);
-
-            // when / then
-            assertThatThrownBy(() -> clubService.empowermentClubManager(request, currentManagerId))
-                .isInstanceOf(AuthorizationException.class)
-                .hasMessage("권한이 없습니다.");
-        }
-
-        @Test
-        void 권한_위임_대상이_이미_관리자면_예외를_발생한다() {
-            // given
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, currentManagerId)).thenReturn(true);
-            when(clubManagerRepository.existsByClubAndUser(club, changedManager)).thenReturn(true);
-
-            // when / then
-            assertThatThrownBy(() -> clubService.empowermentClubManager(request, currentManagerId))
-                .isInstanceOf(ClubManagerAlreadyException.class)
-                .hasMessage("이미 동아리의 관리자입니다.");
         }
     }
 }
