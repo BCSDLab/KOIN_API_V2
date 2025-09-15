@@ -32,7 +32,6 @@ import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
@@ -83,9 +82,6 @@ public class ClubServiceTest {
 
     @Mock
     private ClubLikeRepository clubLikeRepository;
-
-    @Mock
-    private UserRepository userRepository;
 
     @Mock
     private ClubCreateRedisRepository clubCreateRedisRepository;
