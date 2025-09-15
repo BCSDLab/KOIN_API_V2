@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.club.club.repository.redis.ClubHotRedisRepositor
 import in.koreatech.koin.domain.club.club.service.ClubService;
 import in.koreatech.koin.domain.club.like.repository.ClubLikeRepository;
 import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -101,7 +102,11 @@ public class ClubServiceTest {
     @Mock
     private ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
 
-    @InjectMocks private ClubService clubService;
+    @Mock
+    private ClubManagerService clubManagerService;
+
+    @InjectMocks
+    private ClubService clubService;
 
     @Nested
     class CreateClubRequest {
@@ -232,7 +237,9 @@ public class ClubServiceTest {
         @Test
         void 동아리_관리자가_아닌_유저가_정보_수정_요청을_보낸_경우_예외를_발생한다() {
             // given
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
+            doThrow(AuthorizationException.withDetail("studentId: " + studentId))
+                .when(clubManagerService)
+                .isClubManager(clubId, studentId);
 
             // when / then
             assertThatThrownBy(() -> clubService.updateClub(clubId, request, studentId))
@@ -297,7 +304,9 @@ public class ClubServiceTest {
         @Test
         void 동아리_관리자가_아닌_유저가_동아리_소개_수정_요청을_보낸_경우_예외를_발생한다() {
             // given
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
+            doThrow(AuthorizationException.withDetail("studentId: " + studentId))
+                .when(clubManagerService)
+                .isClubManager(clubId, studentId);
 
             // when / then
             assertThatThrownBy(() -> clubService.updateClubIntroduction(clubId, request, studentId))

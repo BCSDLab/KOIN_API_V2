@@ -4,6 +4,7 @@ import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
+import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
@@ -52,6 +53,9 @@ public class ClubRecruitmentServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @Mock
+    private ClubManagerService clubManagerService;
+
     @InjectMocks
     private ClubRecruitmentService clubRecruitmentService;
 
@@ -94,7 +98,6 @@ public class ClubRecruitmentServiceTest {
         @Test
         void 동아리_모집을_생성한다() {
             // given
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubRecruitmentRepository.findByClub(club)).thenReturn(Optional.empty());
 
             // when
@@ -123,7 +126,9 @@ public class ClubRecruitmentServiceTest {
         @Test
         void 관리자가_아닌_학생이_모집을_생성하면_예외를_발생한다() {
             // given
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
+            doThrow(AuthorizationException.withDetail("studentId: " + studentId))
+                .when(clubManagerService)
+                .isClubManager(clubId, studentId);
 
             // when / then
             assertThatThrownBy(() -> clubRecruitmentService.createRecruitment(request, clubId, studentId))
@@ -134,7 +139,6 @@ public class ClubRecruitmentServiceTest {
         @Test
         void 동아리_모집이_이미_등록되어_있으면_예외를_발생한다() {
             // given
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
             when(clubRecruitmentRepository.findByClub(club)).thenReturn(Optional.of(ClubRecruitment.builder().build()));
 
             // when / then
@@ -155,7 +159,6 @@ public class ClubRecruitmentServiceTest {
         ClubRecruitmentModifyRequest request;
         ClubRecruitment clubRecruitment;
 
-
         @BeforeEach
         void init() {
             id = 1;
@@ -170,7 +173,7 @@ public class ClubRecruitmentServiceTest {
                 "https://bcsdlab.com/static/img/newImage.png",
                 "수정된 내용"
             );
-            ClubRecruitment clubRecruitment = createClubRecruitment(id, club);
+            clubRecruitment = createClubRecruitment(id, club);
         }
 
         @Test
@@ -179,7 +182,6 @@ public class ClubRecruitmentServiceTest {
             when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubRecruitmentRepository.getByClub(club)).thenReturn(clubRecruitment);
             when(studentRepository.getById(studentId)).thenReturn(student);
-            when(clubManagerRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
 
             // when
             clubRecruitmentService.modifyRecruitment(request, clubId, studentId);
