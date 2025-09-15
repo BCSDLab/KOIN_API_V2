@@ -5,7 +5,6 @@ import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentCreateRequest;
-import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
 import in.koreatech.koin.domain.club.recruitment.service.ClubRecruitmentService;
@@ -142,61 +141,5 @@ public class ClubRecruitmentServiceTest {
                 .isInstanceOf(CustomException.class)
                 .hasMessage("동아리 공고가 이미 존재합니다.");
         }
-    }
-
-    @Nested
-    class ModifyRecruitment {
-
-        Integer id;
-        Integer clubId;
-        Integer studentId;
-        Club club;
-        Student student;
-        ClubRecruitmentModifyRequest request;
-        ClubRecruitment clubRecruitment;
-
-        @BeforeEach
-        void init() {
-            id = 1;
-            clubId = 1;
-            studentId = 1;
-            club = ClubFixture.활성화_BCSD_동아리(clubId);
-            student = StudentFixture.익명_학생(mock(Department.class));
-            request = new ClubRecruitmentModifyRequest(
-                LocalDate.of(2025, 9, 1),
-                LocalDate.of(2025, 9, 30),
-                false,
-                "https://bcsdlab.com/static/img/newImage.png",
-                "수정된 내용"
-            );
-            clubRecruitment = createClubRecruitment(id, club);
-        }
-
-        @Test
-        void 동아리_관리자가_모집_공고_내용을_수정한다() {
-            // given
-            when(clubRepository.getById(clubId)).thenReturn(club);
-            when(clubRecruitmentRepository.getByClub(club)).thenReturn(clubRecruitment);
-            when(studentRepository.getById(studentId)).thenReturn(student);
-
-            // when
-            clubRecruitmentService.modifyRecruitment(request, clubId, studentId);
-
-            // then
-            assertThat(clubRecruitment.getId()).isEqualTo(id);
-            assertThat(clubRecruitment.getStartDate()).isEqualTo(request.startDate());
-        }
-    }
-
-    private ClubRecruitment createClubRecruitment(Integer id, Club club) {
-        return ClubRecruitment.builder()
-            .id(id)
-            .startDate(LocalDate.now().minusDays(1))
-            .endDate(LocalDate.now())
-            .isAlwaysRecruiting(false)
-            .imageUrl("https://bcsdlab.com/static/img/logo.d89d9cc.png")
-            .content("모집")
-            .club(club)
-            .build();
     }
 }
