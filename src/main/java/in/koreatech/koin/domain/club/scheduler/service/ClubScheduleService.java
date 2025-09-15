@@ -1,38 +1,31 @@
 package in.koreatech.koin.domain.club.scheduler.service;
 
-import static in.koreatech.koin.common.model.MobileAppPath.CLUB;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.domain.club.event.model.ClubEvent;
-import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
 import in.koreatech.koin.domain.club.club.model.ClubHot;
 import in.koreatech.koin.domain.club.club.model.redis.ClubHotRedis;
-import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
-import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.club.club.repository.ClubHotRepository;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.club.repository.redis.ClubHitsRedisRepository;
 import in.koreatech.koin.domain.club.club.repository.redis.ClubHotRedisRepository;
+import in.koreatech.koin.domain.club.event.model.ClubEvent;
+import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
+import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
+import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import in.koreatech.koin.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static in.koreatech.koin.common.model.MobileAppPath.CLUB;
 
 @Slf4j
 @Service

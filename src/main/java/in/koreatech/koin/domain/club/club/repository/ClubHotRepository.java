@@ -1,11 +1,10 @@
 package in.koreatech.koin.domain.club.club.repository;
 
-import java.util.List;
-import java.util.Optional;
-
+import in.koreatech.koin.domain.club.club.model.ClubHot;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.club.club.model.ClubHot;
+import java.util.List;
+import java.util.Optional;
 
 public interface ClubHotRepository extends Repository<ClubHot, Integer> {
 

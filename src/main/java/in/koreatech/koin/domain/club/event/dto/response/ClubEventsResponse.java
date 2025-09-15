@@ -1,17 +1,16 @@
 package in.koreatech.koin.domain.club.event.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
 import in.koreatech.koin.domain.club.event.enums.ClubEventStatus;
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import in.koreatech.koin.domain.club.event.model.ClubEventImage;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record ClubEventsResponse(

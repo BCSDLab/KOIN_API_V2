@@ -1,13 +1,12 @@
 package in.koreatech.koin.domain.club.category.controller;
 
+import in.koreatech.koin.domain.club.category.dto.response.ClubCategoriesResponse;
+import in.koreatech.koin.domain.club.category.service.ClubCategoryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import in.koreatech.koin.domain.club.category.dto.response.ClubCategoriesResponse;
-import in.koreatech.koin.domain.club.category.service.ClubCategoryService;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor

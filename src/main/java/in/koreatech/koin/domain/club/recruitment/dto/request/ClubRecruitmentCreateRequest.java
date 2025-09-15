@@ -1,20 +1,19 @@
 package in.koreatech.koin.domain.club.recruitment.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import in.koreatech.koin.domain.club.club.model.Club;
+import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
+import in.koreatech.koin.global.exception.CustomException;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.LocalDate;
+
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static java.lang.Boolean.TRUE;
-
-import java.time.LocalDate;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
-import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ClubRecruitmentCreateRequest(

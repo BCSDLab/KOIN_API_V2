@@ -1,29 +1,21 @@
 package in.koreatech.koin.domain.club.qna.model;
 
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static java.lang.Boolean.FALSE;
-import static lombok.AccessLevel.PROTECTED;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.student.model.Student;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.lang.Boolean.FALSE;
+import static lombok.AccessLevel.PROTECTED;
 
 @Getter
 @Entity

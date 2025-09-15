@@ -1,8 +1,8 @@
 package in.koreatech.koin.domain.club.category.service;
 
+import in.koreatech.koin.domain.club.category.dto.response.ClubCategoriesResponse;
 import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
-import in.koreatech.koin.domain.club.category.dto.response.ClubCategoriesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

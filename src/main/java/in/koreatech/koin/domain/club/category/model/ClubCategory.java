@@ -1,17 +1,13 @@
 package in.koreatech.koin.domain.club.category.model;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter

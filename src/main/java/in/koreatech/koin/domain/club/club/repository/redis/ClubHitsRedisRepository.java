@@ -1,11 +1,10 @@
 package in.koreatech.koin.domain.club.club.repository.redis;
 
-import java.util.Set;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor

@@ -1,8 +1,8 @@
 package in.koreatech.koin.domain.club.recruitment.enums;
 
-import java.time.LocalDate;
-
 import lombok.Getter;
+
+import java.time.LocalDate;
 
 @Getter
 public enum ClubRecruitmentStatus {

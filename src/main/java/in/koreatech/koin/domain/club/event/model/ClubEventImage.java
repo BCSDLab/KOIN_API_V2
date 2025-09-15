@@ -1,14 +1,14 @@
 package in.koreatech.koin.domain.club.event.model;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
-
 import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
 
 @Getter
 @Entity

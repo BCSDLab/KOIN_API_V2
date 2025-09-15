@@ -1,11 +1,10 @@
 package in.koreatech.koin.domain.club.club.model.redis;
 
-import org.springframework.data.redis.core.RedisHash;
-
 import in.koreatech.koin.domain.club.club.model.Club;
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.redis.core.RedisHash;
 
 @Getter
 @RedisHash("hotClub")

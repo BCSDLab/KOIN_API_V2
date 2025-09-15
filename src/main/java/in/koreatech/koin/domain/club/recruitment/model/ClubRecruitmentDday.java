@@ -1,12 +1,12 @@
 package in.koreatech.koin.domain.club.recruitment.model;
 
-import static in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus.RECRUITING;
+import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
-import lombok.Getter;
+import static in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus.RECRUITING;
 
 @Getter
 public class ClubRecruitmentDday {

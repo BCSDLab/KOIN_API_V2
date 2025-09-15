@@ -1,8 +1,8 @@
 package in.koreatech.koin.unit.domain.club.service;
 
 import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
+import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
 import in.koreatech.koin.domain.club.qna.dto.request.ClubQnaCreateRequest;
 import in.koreatech.koin.domain.club.qna.dto.response.ClubQnasResponse;
 import in.koreatech.koin.domain.club.qna.model.ClubQna;
@@ -29,7 +29,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 public class ClubQnaServiceTest {

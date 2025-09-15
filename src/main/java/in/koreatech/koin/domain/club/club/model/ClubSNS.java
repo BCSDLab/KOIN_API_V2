@@ -1,23 +1,17 @@
 package in.koreatech.koin.domain.club.club.model;
 
-import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
-
 import in.koreatech.koin.domain.club.club.enums.SNSType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter

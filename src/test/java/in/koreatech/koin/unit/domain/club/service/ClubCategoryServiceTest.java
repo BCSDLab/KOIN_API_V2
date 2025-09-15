@@ -1,10 +1,9 @@
 package in.koreatech.koin.unit.domain.club.service;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-
+import in.koreatech.koin.domain.club.category.dto.response.ClubCategoriesResponse;
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
+import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
+import in.koreatech.koin.domain.club.category.service.ClubCategoryService;
 import in.koreatech.koin.unit.fixture.ClubCategoryFixture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,10 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import in.koreatech.koin.domain.club.category.dto.response.ClubCategoriesResponse;
-import in.koreatech.koin.domain.club.category.model.ClubCategory;
-import in.koreatech.koin.domain.club.category.repository.ClubCategoryRepository;
-import in.koreatech.koin.domain.club.category.service.ClubCategoryService;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ClubCategoryServiceTest {

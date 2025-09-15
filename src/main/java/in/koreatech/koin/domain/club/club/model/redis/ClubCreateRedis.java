@@ -1,22 +1,21 @@
 package in.koreatech.koin.domain.club.club.model.redis;
 
-import static in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest.InnerClubManagerRequest;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.TimeToLive;
-
+import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest;
 import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.domain.club.category.model.ClubCategory;
 import in.koreatech.koin.domain.club.manager.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+
+import static in.koreatech.koin.domain.club.club.dto.request.ClubCreateRequest.InnerClubManagerRequest;
 
 @Getter
 @RedisHash("ClubCreateRequest")

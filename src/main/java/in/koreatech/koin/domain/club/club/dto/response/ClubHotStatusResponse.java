@@ -1,14 +1,13 @@
 package in.koreatech.koin.domain.club.club.dto.response;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import in.koreatech.koin.domain.club.club.model.ClubHot;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
-import in.koreatech.koin.domain.club.club.model.ClubHot;
-import io.swagger.v3.oas.annotations.media.Schema;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record ClubHotStatusResponse(

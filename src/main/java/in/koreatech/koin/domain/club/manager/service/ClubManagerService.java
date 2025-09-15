@@ -1,11 +1,11 @@
 package in.koreatech.koin.domain.club.manager.service;
 
+import in.koreatech.koin.domain.club.club.model.Club;
+import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.manager.dto.request.ClubManagerEmpowermentRequest;
 import in.koreatech.koin.domain.club.manager.exception.ClubManagerAlreadyException;
-import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.manager.model.ClubManager;
 import in.koreatech.koin.domain.club.manager.repository.ClubManagerRepository;
-import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
