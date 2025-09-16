@@ -7,15 +7,20 @@ import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentCreateRequest;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
+import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitmentSubscription;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
+import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
 import in.koreatech.koin.domain.club.recruitment.service.ClubRecruitmentService;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.unit.fixture.ClubFixture;
 import in.koreatech.koin.unit.fixture.StudentFixture;
+import in.koreatech.koin.unit.fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,6 +50,12 @@ public class ClubRecruitmentServiceTest {
 
     @Mock
     private ClubRecruitmentRepository clubRecruitmentRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ClubRecruitmentSubscriptionRepository clubRecruitmentSubscriptionRepository;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -257,6 +268,56 @@ public class ClubRecruitmentServiceTest {
                 .hasMessage("권한이 없습니다.");
         }
     }
+
+    @Nested
+    class SubscribeRecruitmentNotification {
+
+        Integer clubId;
+        Integer studentId;
+        Club club;
+        User user;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            user = UserFixture.코인_유저();
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(userRepository.getById(studentId)).thenReturn(user);
+        }
+
+        @Test
+        void 동아리_모집_알림을_구독한다() {
+            // given
+            when(clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
+
+            // when
+            clubRecruitmentService.subscribeRecruitmentNotification(clubId, studentId);
+
+            // then
+            ArgumentCaptor<ClubRecruitmentSubscription> subscriptionCaptor = ArgumentCaptor.forClass(ClubRecruitmentSubscription.class);
+            verify(clubRecruitmentSubscriptionRepository).save(subscriptionCaptor.capture());
+            ClubRecruitmentSubscription clubRecruitmentSubscription = subscriptionCaptor.getValue();
+
+            assertThat(clubRecruitmentSubscription.getClub()).isEqualTo(club);
+            assertThat(clubRecruitmentSubscription.getUser()).isEqualTo(user);
+        }
+
+        @Test
+        void 이미_동아리_모집_알림_구독이_되어있다면_요청을_무시한다() {
+            // given
+            when(clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+
+            // when
+            clubRecruitmentService.subscribeRecruitmentNotification(clubId, studentId);
+
+            // then
+            verify(clubRecruitmentSubscriptionRepository, never()).save(any(ClubRecruitmentSubscription.class));
+        }
+    }
+
 
     private ClubRecruitment 모집_공고(Integer id, Club club) {
         return ClubRecruitment
