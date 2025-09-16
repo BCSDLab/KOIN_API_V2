@@ -142,4 +142,17 @@ public class ClubRecruitmentServiceTest {
                 .hasMessage("동아리 공고가 이미 존재합니다.");
         }
     }
+
+    private ClubRecruitment 모집_공고(Integer id, Club club) {
+        return ClubRecruitment
+            .builder()
+            .id(id)
+            .startDate(LocalDate.of(2025, 9, 1))
+            .endDate(LocalDate.of(2025, 9, 15))
+            .isAlwaysRecruiting(false)
+            .imageUrl("https://bcsdlab.com/static/img/logo.d89d9cc.png")
+            .content("모집 내용")
+            .club(club)
+            .build();
+    }
 }
