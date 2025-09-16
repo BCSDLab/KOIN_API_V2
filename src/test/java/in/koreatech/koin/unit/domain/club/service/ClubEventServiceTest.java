@@ -4,6 +4,8 @@ import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.event.dto.request.ClubEventCreateRequest;
 import in.koreatech.koin.domain.club.event.dto.request.ClubEventModifyRequest;
+import in.koreatech.koin.domain.club.event.dto.response.ClubEventResponse;
+import in.koreatech.koin.domain.club.event.enums.ClubEventStatus;
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import in.koreatech.koin.domain.club.event.model.ClubEventImage;
 import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
@@ -328,6 +330,46 @@ public class ClubEventServiceTest {
                 .hasMessage("권한이 없습니다.");
         }
     }
+
+    @Nested
+    class GetClubEvent {
+
+        Integer clubId;
+        Integer eventId;
+        Club club;
+        ClubEvent clubEvent;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            eventId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            clubEvent = 동아리_행사(eventId, club);
+
+            when(clubEventRepository.getClubEventByIdAndClubId(eventId, clubId)).thenReturn(clubEvent);
+        }
+
+        @Test
+        void 특정_동아리_행사를_조회한다() {
+            // when
+            ClubEventResponse response = clubEventService.getClubEvent(clubId, eventId);
+
+            // then
+            assertThat(response.id()).isEqualTo(clubEvent.getId());
+            assertThat(response.name()).isEqualTo(clubEvent.getName());
+            assertThat(response.imageUrls())
+                .containsExactlyElementsOf(
+                    clubEvent.getImages().stream().map(ClubEventImage::getImageUrl).toList()
+                );
+            assertThat(response.startDate()).isEqualTo(clubEvent.getStartDate());
+            assertThat(response.endDate()).isEqualTo(clubEvent.getEndDate());
+            assertThat(response.introduce()).isEqualTo(clubEvent.getIntroduce());
+            assertThat(response.content()).isEqualTo(clubEvent.getContent());
+            assertThat(response.status()).isEqualTo(ClubEventStatus.ENDED.name());
+        }
+    }
+
+
 
     private ClubEvent 동아리_행사(Integer eventId, Club club) {
         ClubEvent clubEvent = ClubEvent.builder()
