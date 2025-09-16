@@ -5,6 +5,7 @@ import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentCreateRequest;
+import in.koreatech.koin.domain.club.recruitment.dto.request.ClubRecruitmentModifyRequest;
 import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitment;
 import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentRepository;
 import in.koreatech.koin.domain.club.recruitment.service.ClubRecruitmentService;
@@ -140,6 +141,74 @@ public class ClubRecruitmentServiceTest {
             assertThatThrownBy(() -> clubRecruitmentService.createRecruitment(request, clubId, studentId))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("동아리 공고가 이미 존재합니다.");
+        }
+    }
+
+    @Nested
+    class ModifyRecruitment {
+
+        ClubRecruitmentModifyRequest request;
+        Integer clubRecruitmentId;
+        Integer clubId;
+        Integer studentId;
+        Club club;
+        Student student;
+        ClubRecruitment clubRecruitment;
+
+        @BeforeEach
+        void init() {
+            request = new ClubRecruitmentModifyRequest(
+                LocalDate.now().minusDays(1),
+                LocalDate.now(),
+                false,
+                "https://bcsdlab.com/static/img/new-logo.png",
+                "수정된 내용"
+            );
+
+            clubRecruitmentId = 1;
+            clubId = 1;
+            studentId = 1;
+
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            student = StudentFixture.익명_학생(mock(Department.class));
+            clubRecruitment = 모집_공고(clubRecruitmentId, club);
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubRecruitmentRepository.getByClub(club)).thenReturn(clubRecruitment);
+            when(studentRepository.getById(studentId)).thenReturn(student);
+        }
+
+        @Test
+        void 동아리_모집을_수정한다() {
+            // when
+            clubRecruitmentService.modifyRecruitment(request, clubId, studentId);
+
+            // then
+            assertThat(clubRecruitment.getStartDate()).isEqualTo(request.startDate());
+            assertThat(clubRecruitment.getEndDate()).isEqualTo(request.endDate());
+            assertThat(clubRecruitment.getIsAlwaysRecruiting()).isEqualTo(request.isAlwaysRecruiting());
+            assertThat(clubRecruitment.getImageUrl()).isEqualTo(request.imageUrl());
+            assertThat(clubRecruitment.getContent()).isEqualTo(request.content());
+            assertThat(clubRecruitment.getClub()).isEqualTo(club);
+
+            ArgumentCaptor<ClubRecruitmentChangeEvent> eventCaptor = ArgumentCaptor.forClass(ClubRecruitmentChangeEvent.class);
+            verify(eventPublisher).publishEvent(eventCaptor.capture());
+            ClubRecruitmentChangeEvent event = eventCaptor.getValue();
+
+            assertThat(event.clubId()).isEqualTo(club.getId());
+            assertThat(event.clubName()).isEqualTo(club.getName());
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_동아리_모집을_수정하면_예외를_발생한다() {
+            doThrow(AuthorizationException.withDetail("studentId: " + studentId))
+                .when(clubManagerService)
+                .isClubManager(club.getId(), student.getId());
+
+            // when / then
+            assertThatThrownBy(() -> clubRecruitmentService.modifyRecruitment(request, clubId, studentId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
         }
     }
 
