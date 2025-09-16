@@ -1,14 +1,16 @@
 package in.koreatech.koin.domain.order.shop.service;
 
-import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.order.shop.dto.event.OrderableShopEventsResponse;
-import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
-import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopEvent;
+import in.koreatech.koin.domain.order.shop.repository.OrderableShopEventQueryRepository;
+import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -16,17 +18,36 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class OrderableShopEventService {
 
-    private final OrderableShopRepository orderableShopRepository;
-    private final Clock clock;
+    private final OrderableShopEventQueryRepository orderableShopEventQueryRepository;
 
     public OrderableShopEventsResponse getOrderableShopEvents(Integer orderableShopId) {
-        OrderableShop orderableShop = orderableShopRepository.getByIdWithShopEvent(orderableShopId);
+        List<OrderableShopEvent> orderableShopEvents =
+            orderableShopEventQueryRepository.getOngoingEventById(orderableShopId);
 
-        return OrderableShopEventsResponse.of(orderableShop, clock);
+        if (orderableShopEvents.isEmpty()) {
+            return new OrderableShopEventsResponse(Collections.emptyList());
+        }
+
+        Map<Integer, List<EventArticleImage>> eventImageMap = getEventArticleImagesMap(orderableShopEvents);
+
+        return OrderableShopEventsResponse.of(orderableShopEvents, eventImageMap);
     }
 
     public OrderableShopEventsResponse getAllOrderableShopEvents() {
-        List<OrderableShop> orderableShops = orderableShopRepository.findAllWithShopEvent();
-        return OrderableShopEventsResponse.of(orderableShops, clock);
+        List<OrderableShopEvent> allOrderableShopEvents =  orderableShopEventQueryRepository.getAllOngoingEvents();
+
+        Map<Integer, List<EventArticleImage>> eventImageMap = getEventArticleImagesMap(allOrderableShopEvents);
+
+        return OrderableShopEventsResponse.of(allOrderableShopEvents, eventImageMap);
+    }
+
+    private List<Integer> getEventIds(List<OrderableShopEvent> orderableShopEvents) {
+        return orderableShopEvents.stream()
+            .map(OrderableShopEvent::eventId)
+            .toList();
+    }
+
+    private Map<Integer, List<EventArticleImage>> getEventArticleImagesMap(List<OrderableShopEvent> orderableShopEvents) {
+        return orderableShopEventQueryRepository.getEventArticleImagesMap(getEventIds(orderableShopEvents));
     }
 }
