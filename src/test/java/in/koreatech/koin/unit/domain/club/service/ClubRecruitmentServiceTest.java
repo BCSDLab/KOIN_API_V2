@@ -212,6 +212,52 @@ public class ClubRecruitmentServiceTest {
         }
     }
 
+    @Nested
+    class DeleteRecruitment {
+
+        Integer clubRecruitmentId;
+        Integer clubId;
+        Integer studentId;
+        Club club;
+        Student student;
+        ClubRecruitment clubRecruitment;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            student = StudentFixture.익명_학생(mock(Department.class));
+            clubRecruitment = 모집_공고(clubRecruitmentId, club);
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubRecruitmentRepository.getByClub(club)).thenReturn(clubRecruitment);
+            when(studentRepository.getById(studentId)).thenReturn(student);
+        }
+
+        @Test
+        void 동아리_모집_공고를_삭제한다() {
+            // when
+            clubRecruitmentService.deleteRecruitment(clubId, studentId);
+
+            // then
+            verify(clubRecruitmentRepository).delete(clubRecruitment);
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_동아리_모집_공고를_삭제하면_예외를_발생한다() {
+            // given
+            doThrow(AuthorizationException.withDetail("studentId: " + studentId))
+                .when(clubManagerService)
+                .isClubManager(club.getId(), student.getId());
+
+            // when / then
+            assertThatThrownBy(() -> clubRecruitmentService.deleteRecruitment(clubId, studentId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
+        }
+    }
+
     private ClubRecruitment 모집_공고(Integer id, Club club) {
         return ClubRecruitment
             .builder()
