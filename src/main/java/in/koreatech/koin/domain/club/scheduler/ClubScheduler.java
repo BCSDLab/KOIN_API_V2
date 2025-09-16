@@ -1,11 +1,10 @@
 package in.koreatech.koin.domain.club.scheduler;
 
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import in.koreatech.koin.domain.club.service.ClubScheduleService;
+import in.koreatech.koin.domain.club.scheduler.service.ClubScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
