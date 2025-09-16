@@ -330,7 +330,7 @@ public class ClubEventServiceTest {
     }
 
     private ClubEvent 동아리_행사(Integer eventId, Club club) {
-        return ClubEvent.builder()
+        ClubEvent clubEvent = ClubEvent.builder()
             .id(eventId)
             .club(club)
             .name("B-CON")
@@ -339,6 +339,19 @@ public class ClubEventServiceTest {
             .introduce("BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.")
             .content("여러 동아리원들과 자신의 생각, 경험에 대해 나눠요.")
             .notifiedBeforeOneHour(false)
+            .build();
+
+        ClubEventImage clubEventImage = 동아리_행사_이미지(clubEvent);
+
+        ReflectionTestUtils.setField(clubEvent, "images", List.of(clubEventImage));
+
+        return clubEvent;
+    }
+
+    private ClubEventImage 동아리_행사_이미지(ClubEvent clubEvent) {
+        return ClubEventImage.builder()
+            .clubEvent(clubEvent)
+            .imageUrl("img")
             .build();
     }
 }
