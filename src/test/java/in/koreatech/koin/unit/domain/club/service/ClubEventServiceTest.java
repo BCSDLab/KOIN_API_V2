@@ -3,6 +3,7 @@ package in.koreatech.koin.unit.domain.club.service;
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.club.repository.ClubRepository;
 import in.koreatech.koin.domain.club.event.dto.request.ClubEventCreateRequest;
+import in.koreatech.koin.domain.club.event.dto.request.ClubEventModifyRequest;
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import in.koreatech.koin.domain.club.event.model.ClubEventImage;
 import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
@@ -170,5 +171,125 @@ public class ClubEventServiceTest {
                 .isInstanceOf(AuthorizationException.class)
                 .hasMessage("권한이 없습니다.");
         }
+    }
+
+    @Nested
+    class ModifyClubEvent {
+
+        ClubEventModifyRequest request;
+        Integer eventId;
+        Integer clubId;
+        Integer studentId;
+        ClubEvent clubEvent;
+        Club club;
+        Student student;
+
+        @BeforeEach
+        void init() {
+            eventId = 1;
+            clubId = 1;
+            studentId = 1;
+
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            clubEvent = 동아리_행사(eventId, club);
+            student = StudentFixture.익명_학생(mock(Department.class));
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
+            when(studentRepository.getById(studentId)).thenReturn(student);
+        }
+
+        @Test
+        void 이미지_없이_동아리_행사_정보를_수정한다() {
+            //given
+            request = new ClubEventModifyRequest(
+                "수정된 제목",
+                null,
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now(),
+                "수정된 행사 내용",
+                "수정된 행사 상세 내용"
+            );
+
+            // when
+            clubEventService.modifyClubEvent(request, eventId, clubId, studentId);
+
+            // then
+            assertThat(clubEvent.getName()).isEqualTo(request.name());
+            assertThat(clubEvent.getStartDate()).isEqualTo(request.startDate());
+            assertThat(clubEvent.getEndDate()).isEqualTo(request.endDate());
+            assertThat(clubEvent.getIntroduce()).isEqualTo(request.introduce());
+            assertThat(clubEvent.getContent()).isEqualTo(request.content());
+
+            verify(clubEventImageRepository).deleteAllByClubEvent(clubEvent);
+            verify(clubEventImageRepository, never()).save(any(ClubEventImage.class));
+        }
+
+        @Test
+        void 이미지를_포함해_동아리_행사_정보를_수정한다() {
+            // given
+            request = new ClubEventModifyRequest(
+                "수정된 제목",
+                List.of(
+                    "https://bcsdlab.com/static/img/event1.png",
+                    "https://bcsdlab.com/static/img/event2.png"
+                ),
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now(),
+                "수정된 행사 내용",
+                "수정된 행사 상세 내용"
+            );
+
+            // when
+            clubEventService.modifyClubEvent(request, eventId, clubId, studentId);
+
+            // then
+            assertThat(clubEvent.getName()).isEqualTo(request.name());
+            assertThat(clubEvent.getStartDate()).isEqualTo(request.startDate());
+            assertThat(clubEvent.getEndDate()).isEqualTo(request.endDate());
+            assertThat(clubEvent.getIntroduce()).isEqualTo(request.introduce());
+            assertThat(clubEvent.getContent()).isEqualTo(request.content());
+
+            verify(clubEventImageRepository).deleteAllByClubEvent(clubEvent);
+
+            ArgumentCaptor<ClubEventImage> imageCaptor = ArgumentCaptor.forClass(ClubEventImage.class);
+            verify(clubEventImageRepository, times(request.imageUrls().size())).save(imageCaptor.capture());
+            List<ClubEventImage> savedImages = imageCaptor.getAllValues();
+
+            assertThat(savedImages).hasSize(request.imageUrls().size());
+            assertThat(savedImages)
+                .extracting(ClubEventImage::getImageUrl)
+                .containsExactlyInAnyOrderElementsOf(request.imageUrls());
+            assertThat(savedImages)
+                .allMatch(img -> img.getClubEvent().equals(clubEvent));
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_동아리_행사_정보를_수정하면_예외를_발생한다() {
+            // given
+            ReflectionTestUtils.setField(student, "id", studentId);
+
+            doThrow(AuthorizationException.withDetail("studentId: " + studentId))
+                .when(clubManagerService)
+                .isClubManager(clubId, studentId);
+
+            // when / then
+            assertThatThrownBy(() -> clubEventService.modifyClubEvent(request, eventId, clubId, studentId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
+        }
+    }
+
+    private ClubEvent 동아리_행사(Integer eventId, Club club) {
+        return ClubEvent.builder()
+            .id(eventId)
+            .club(club)
+            .name("B-CON")
+            .startDate(LocalDateTime.of(2025, 9, 1, 0, 0, 0))
+            .endDate(LocalDateTime.of(2025, 9, 15, 0, 0, 0))
+            .introduce("BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.")
+            .content("여러 동아리원들과 자신의 생각, 경험에 대해 나눠요.")
+            .notifiedBeforeOneHour(false)
+            .build();
     }
 }
