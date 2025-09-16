@@ -362,7 +362,6 @@ public class ClubRecruitmentServiceTest {
         }
     }
 
-
     private ClubRecruitment 모집_공고(Integer id, Club club) {
         return ClubRecruitment
             .builder()
