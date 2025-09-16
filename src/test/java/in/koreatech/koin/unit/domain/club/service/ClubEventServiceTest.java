@@ -280,6 +280,55 @@ public class ClubEventServiceTest {
         }
     }
 
+    @Nested
+    class DeleteClubEvent {
+
+        Integer clubId;
+        Integer eventId;
+        Integer studentId;
+        Club club;
+        ClubEvent clubEvent;
+        Student student;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            eventId = 1;
+            studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            clubEvent = 동아리_행사(eventId, club);
+            student = StudentFixture.익명_학생(mock(Department.class));
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
+            when(studentRepository.getById(studentId)).thenReturn(student);
+        }
+
+        @Test
+        void 동아리_행사를_삭제한다() {
+            // when
+            clubEventService.deleteClubEvent(clubId, eventId, studentId);
+
+            // then
+            verify(clubEventRepository).delete(clubEvent);
+        }
+
+        @Test
+        void 관리자가_아닌_학생이_동아리_행사를_삭제하면_예외를_발생한다() {
+            // given
+            ReflectionTestUtils.setField(student, "id", studentId);
+
+            doThrow(AuthorizationException.withDetail("studentId: " + studentId))
+                .when(clubManagerService)
+                .isClubManager(clubId, studentId);
+
+            // when / then
+            assertThatThrownBy(() -> clubEventService.deleteClubEvent(clubId, eventId, studentId))
+                .isInstanceOf(AuthorizationException.class)
+                .hasMessage("권한이 없습니다.");
+        }
+    }
+
     private ClubEvent 동아리_행사(Integer eventId, Club club) {
         return ClubEvent.builder()
             .id(eventId)
