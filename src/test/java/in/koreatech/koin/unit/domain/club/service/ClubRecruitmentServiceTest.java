@@ -318,6 +318,50 @@ public class ClubRecruitmentServiceTest {
         }
     }
 
+    @Nested
+    class RejectRecruitmentNotification {
+
+        Integer clubId;
+        Integer studentId;
+        Club club;
+        User user;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            user = UserFixture.코인_유저();
+
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(userRepository.getById(studentId)).thenReturn(user);
+        }
+
+        @Test
+        void 동아리_모집_알림_구독을_취소한다() {
+            // given
+            when(clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(true);
+
+            // when
+            clubRecruitmentService.rejectRecruitmentNotification(clubId, studentId);
+
+            // then
+            verify(clubRecruitmentSubscriptionRepository).deleteByClubIdAndUserId(clubId, studentId);
+        }
+
+        @Test
+        void 동아리_모집_알림_구독이_되어있지_않으면_요청을_무시한다() {
+            // given
+            when(clubRecruitmentSubscriptionRepository.existsByClubIdAndUserId(clubId, studentId)).thenReturn(false);
+
+            // when
+            clubRecruitmentService.rejectRecruitmentNotification(clubId, studentId);
+
+            // then
+            verify(clubRecruitmentSubscriptionRepository, never()).deleteByClubIdAndUserId(clubId, studentId);
+        }
+    }
+
 
     private ClubRecruitment 모집_공고(Integer id, Club club) {
         return ClubRecruitment
