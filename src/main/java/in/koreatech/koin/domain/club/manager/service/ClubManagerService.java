@@ -23,7 +23,6 @@ public class ClubManagerService {
     private final ClubManagerRepository clubManagerRepository;
     private final UserRepository userRepository;
 
-
     @Transactional
     public void empowermentClubManager(ClubManagerEmpowermentRequest request, Integer studentId) {
         Club club = clubRepository.getById(request.clubId());
