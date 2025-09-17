@@ -27,6 +27,7 @@ public record CreateReviewRequest(
     Integer rating,
 
     @Schema(example = "정말 맛있어요~!", description = "리뷰 내용", requiredMode = REQUIRED)
+    @NotNull
     String content,
 
     @Schema(example = """
