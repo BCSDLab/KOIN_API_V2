@@ -34,6 +34,7 @@ public class ShopReview extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotNull
     @Column(name = "content")
     private String content;
 

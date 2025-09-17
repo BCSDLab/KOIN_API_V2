@@ -95,7 +95,7 @@ public class ShopReviewService {
         Shop shop = shopRepository.getById(shopId);
         ShopReview shopReview = ShopReview.builder()
             .reviewer(student)
-            .content(createReviewRequest.content())
+            .content(createReviewRequest.content() == null ? "" : createReviewRequest.content())
             .rating(createReviewRequest.rating())
             .shop(shop)
             .build();
