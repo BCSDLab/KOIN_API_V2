@@ -27,6 +27,7 @@ public class PaymentCancelMapper {
                 .cancelReason(cancelInfo.cancelReason())
                 .cancelAmount(cancelInfo.cancelAmount())
                 .canceledAt(canceled)
+                .isDeleted(false)
                 .payment(payment)
                 .build());
         }

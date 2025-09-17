@@ -76,7 +76,7 @@ class CartMenuItemTest {
             // given
             Integer nullQuantity = null;
             // when & then
-            assertEquals(ApiResponseCode.ILLEGAL_STATE,
+            assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
                     assertThrows(CustomException.class, () -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, nullQuantity)).getErrorCode());
         }
 
@@ -87,10 +87,10 @@ class CartMenuItemTest {
             int negativeQuantity = -1;
 
             // when & then
-            assertEquals(ApiResponseCode.ILLEGAL_STATE,
+            assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
                     assertThrows(CustomException.class, () -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, zeroQuantity)).getErrorCode());
 
-            assertEquals(ApiResponseCode.ILLEGAL_STATE,
+            assertEquals(ApiResponseCode.INVALID_CART_ITEM_QUANTITY,
                     assertThrows(CustomException.class, () -> CartMenuItem.create(cart, menu, menuPrice, menuOptions, negativeQuantity)).getErrorCode());
         }
 
