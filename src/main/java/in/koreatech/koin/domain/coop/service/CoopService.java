@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.coop.service;
 
+import static in.koreatech.koin.domain.dining.model.DiningType.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -27,9 +30,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,11 +41,9 @@ import org.springframework.transaction.annotation.Transactional;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.common.event.DiningImageUploadEvent;
 import in.koreatech.koin.common.event.DiningSoldOutEvent;
-import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.CoopResponse;
@@ -61,11 +62,14 @@ import in.koreatech.koin.domain.coop.repository.ExcelDownloadCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
+import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.model.enums.ExcelDiningPosition;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
@@ -202,22 +206,17 @@ public class CoopService {
         validateDates(startDate, endDate);
         List<Dining> dinings = fetchDiningData(startDate, endDate, isCafeteria);
 
-        Map<LocalDate, List<Dining>> dateDinings = dinings.stream()
-            .collect(Collectors.groupingBy(
-                Dining::getDate,
-                TreeMap::new,
-                Collectors.toList()
-            ));
+        Map<LocalDate, Map<DiningType, List<Dining>>> grouped = groupByDateAndType(dinings);
 
-        ByteArrayInputStream excelDesign = createDiningExcelWithDetailedFormat(dateDinings, isCafeteria);
+        ByteArrayInputStream excelDesign = createDiningExcelWithDetailedFormat(grouped, isCafeteria);
 
         return excelDesign;
     }
 
     private ByteArrayInputStream createDiningExcelWithDetailedFormat(
-        Map<LocalDate, List<Dining>> dateDinings, Boolean isCafeteria
+        Map<LocalDate, Map<DiningType, List<Dining>>> grouped, Boolean isCafeteria
     ) {
-        Workbook workbook = new XSSFWorkbook();
+        Workbook workbook = new SXSSFWorkbook();
         Map<String, CellStyle> cellStyles = initializeWorkbookAndStyles(workbook);
         Sheet sheet = workbook.createSheet("식단");
 
@@ -226,7 +225,7 @@ public class CoopService {
         List<String> corners = isCafeteria ? cafeteriaPlaceFilters : allPlaceFilters;
 
         addMealAndCornerData(sheet, rowCache, meals, corners, cellStyles.get("cornerStyle"));
-        addDateAndDiningData(sheet, rowCache, dateDinings, cellStyles, isCafeteria);
+        addDateAndDiningDataParallel(sheet, rowCache, grouped, cellStyles, isCafeteria);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
@@ -301,34 +300,45 @@ public class CoopService {
         cell.setCellStyle(style);
     }
 
-    private void addDateAndDiningData(
-        Sheet sheet, Map<Integer, Row> rowCache, Map<LocalDate, List<Dining>> dateDinings,
-        Map<String, CellStyle> styles, Boolean isCafeteria
+    private void addDateAndDiningDataParallel(
+        Sheet sheet,
+        Map<Integer, Row> rowCache,
+        Map<LocalDate, Map<DiningType, List<Dining>>> grouped,
+        Map<String, CellStyle> styles,
+        Boolean isCafeteria
     ) {
-        int colIndex = 2;
+        List<LocalDate> sortedDates = grouped.keySet().stream().sorted().toList();
 
-        for (Map.Entry<LocalDate, List<Dining>> entry : dateDinings.entrySet()) {
-            LocalDate date = entry.getKey();
-            List<Dining> dinings = entry.getValue();
+        IntStream.range(0, sortedDates.size()).parallel().forEach(i -> {
+            LocalDate date = sortedDates.get(i);
+            Map<DiningType, List<Dining>> typeMap = grouped.get(date);
+            int colIndex = 2 + i;
 
-            setCellValueWithStyle(rowCache.get(0), colIndex, date.toString(), styles.get("headerStyle"));
-
-            for (Dining dining : dinings) {
-                ExcelDiningPosition position = ExcelDiningPosition.from(dining.getType(), dining.getPlace());
-                int startPosition = isCafeteria
-                    ? position.getStartPositionOnlyCafeteria()
-                    : position.getStartPositionAllPlace();
-
-                if (cafeteriaPlaceFilters.contains(dining.getPlace())) {
-                    drawExcelCafeteria(dining, rowCache, startPosition, colIndex, styles.get("commonStyle"));
-                } else {
-                    drawExcelNoneCafeteria(dining, rowCache, startPosition, colIndex, styles.get("commonStyle"));
-                }
+            synchronized (sheet) {
+                setCellValueWithStyle(rowCache.get(0), colIndex, date.toString(), styles.get("headerStyle"));
+                sheet.setColumnWidth(colIndex, 6000);
             }
 
-            sheet.setColumnWidth(colIndex, 6000);
-            colIndex++;
-        }
+            for (DiningType type : List.of(BREAKFAST, LUNCH, DINNER)) {
+                List<Dining> dinings = typeMap.getOrDefault(type, List.of());
+
+                for (Dining dining : dinings) {
+                    ExcelDiningPosition position = ExcelDiningPosition.from(dining.getType(), dining.getPlace());
+                    int startPosition = isCafeteria
+                        ? position.getStartPositionOnlyCafeteria()
+                        : position.getStartPositionAllPlace();
+
+                    synchronized (rowCache) {
+                        if (cafeteriaPlaceFilters.contains(dining.getPlace())) {
+                            drawExcelCafeteria(dining, rowCache, startPosition, colIndex, styles.get("commonStyle"));
+                        } else {
+                            drawExcelNoneCafeteria(dining, rowCache, startPosition, colIndex,
+                                styles.get("commonStyle"));
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void drawExcelNoneCafeteria(Dining dining, Map<Integer, Row> rowCache, int startPosition, int colIndex,
@@ -403,6 +413,15 @@ public class CoopService {
         return String.join("\n", menu);
     }
 
+    private Map<LocalDate, Map<DiningType, List<Dining>>> groupByDateAndType(List<Dining> dinings) {
+        return dinings.stream()
+            .collect(Collectors.groupingBy(
+                Dining::getDate,
+                TreeMap::new,
+                Collectors.groupingBy(Dining::getType)
+            ));
+    }
+
     private CellStyle createCellStyle(Workbook workbook, byte[] backgroundColor) {
         CellStyle style = workbook.createCellStyle();
 
@@ -410,7 +429,7 @@ public class CoopService {
         font.setColor(IndexedColors.BLACK.getIndex());
         style.setFont(font);
 
-        if (backgroundColor != null && workbook instanceof XSSFWorkbook) {
+        if (backgroundColor != null && workbook instanceof SXSSFWorkbook) {
             XSSFColor customColor = new XSSFColor(backgroundColor, null);
             ((XSSFCellStyle)style).setFillForegroundColor(customColor);
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -463,11 +482,11 @@ public class CoopService {
      *
      * 개선 가능 부분
      * - (4)를 개선하기 위해 이미지 다운로드 시, 서버에 직접 다운받지 않고 S3에서 즉시 사용자에게 전송한다.
-     *   - 참고 자료) https://gksdudrb922.tistory.com/234
+     * - 참고 자료) https://gksdudrb922.tistory.com/234
      * - (2)를 개선하기 위해 파일 제거 실패 시, 재시도를 하거나 예외를 던지거나 스케줄링을 돌린다.
      *
-     * @param startDate 시작일
-     * @param endDate 종료일
+     * @param startDate   시작일
+     * @param endDate     종료일
      * @param isCafeteria 학식당 이미지만 다운로드할 것인가
      * @return 식단 이미지 압축파일
      */
@@ -510,7 +529,7 @@ public class CoopService {
         LocalDate date = dining.getDate();
         // ex) 2024-12-17-점심-B코너.png
         return date.getYear() + "-" + date.getMonthValue() + "-" + date.getDayOfMonth() + "-"
-               + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
+            + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
     }
 
     private String extractS3KeyFrom(String imageUrl) {
