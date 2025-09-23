@@ -9,6 +9,8 @@ import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.EntityManager;
 
 import java.util.List;
@@ -46,6 +48,9 @@ public class OwnerEventService {
     public void modifyEvent(Integer ownerId, Integer shopId, Integer eventId, ModifyEventRequest modifyEventRequest) {
         ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = eventArticleRepository.getById(eventId);
+        if(modifyEventRequest.startDate().isAfter(modifyEventRequest.endDate())) {
+            throw CustomException.of(ApiResponseCode.INVALID_START_DATE_AFTER_END_DATE);
+        }
         eventArticle.modifyArticle(
                 modifyEventRequest.title(),
                 modifyEventRequest.content(),
@@ -69,6 +74,9 @@ public class OwnerEventService {
     }
 
     private EventArticle createEventArticle(CreateEventRequest createEventRequest, Shop shop) {
+        if (createEventRequest.startDate().isAfter(createEventRequest.endDate())) {
+            throw CustomException.of(ApiResponseCode.INVALID_START_DATE_AFTER_END_DATE);
+        }
         EventArticle eventArticle = EventArticle.builder()
                 .shop(shop)
                 .startDate(createEventRequest.startDate())
