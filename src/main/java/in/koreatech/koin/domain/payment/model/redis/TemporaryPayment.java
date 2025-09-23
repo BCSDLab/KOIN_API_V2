@@ -1,20 +1,21 @@
 package in.koreatech.koin.domain.payment.model.redis;
 
-import static in.koreatech.koin.domain.order.model.OrderStatus.CONFIRMING;
-import static in.koreatech.koin.domain.order.model.OrderType.DELIVERY;
-import static in.koreatech.koin.domain.order.model.OrderType.TAKE_OUT;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.CONFIRMING;
+import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
+import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
 import static in.koreatech.koin.global.code.ApiResponseCode.MISMATCH_TEMPORARY_PAYMENT;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.model.OrderDelivery;
-import in.koreatech.koin.domain.order.model.OrderTakeout;
-import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.order.order.model.Order;
+import in.koreatech.koin.domain.order.order.model.OrderDelivery;
+import in.koreatech.koin.domain.order.order.model.OrderTakeout;
+import in.koreatech.koin.domain.order.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.exception.CustomException;
@@ -41,6 +42,10 @@ public class TemporaryPayment {
 
     private String addressDetail;
 
+    private BigDecimal longitude;
+
+    private BigDecimal latitude;
+
     private String toOwner;
 
     private String toRider;
@@ -66,6 +71,8 @@ public class TemporaryPayment {
         OrderType orderType,
         String address,
         String addressDetail,
+        BigDecimal longitude,
+        BigDecimal latitude,
         String toOwner,
         String toRider,
         Boolean provideCutlery,
@@ -80,6 +87,8 @@ public class TemporaryPayment {
         this.orderType = orderType;
         this.address = address;
         this.addressDetail = addressDetail;
+        this.longitude = longitude;
+        this.latitude = latitude;
         this.toOwner = toOwner;
         this.toRider = toRider;
         this.provideCutlery = provideCutlery;
@@ -97,6 +106,8 @@ public class TemporaryPayment {
         String phoneNumber,
         String address,
         String addressDetail,
+        BigDecimal longitude,
+        BigDecimal latitude,
         String toOwner,
         String toRider,
         Boolean provideCutlery,
@@ -112,6 +123,8 @@ public class TemporaryPayment {
             DELIVERY,
             address,
             addressDetail,
+            longitude,
+            latitude,
             toOwner,
             toRider,
             provideCutlery,
@@ -137,6 +150,8 @@ public class TemporaryPayment {
             orderableShopId,
             phoneNumber,
             TAKE_OUT,
+            null,
+            null,
             null,
             null,
             toOwner,
@@ -170,6 +185,8 @@ public class TemporaryPayment {
                 .order(order)
                 .address(address)
                 .addressDetail(addressDetail)
+                .latitude(latitude)
+                .longitude(longitude)
                 .toOwner(toOwner)
                 .toRider(toRider)
                 .provideCutlery(provideCutlery)

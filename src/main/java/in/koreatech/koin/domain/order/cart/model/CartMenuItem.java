@@ -93,22 +93,17 @@ public class CartMenuItem extends BaseEntity {
     }
 
     public void updateQuantity(Integer quantity) {
-        if (quantity == null) {
-            throw CustomException.of(ApiResponseCode.INVALID_CART_ITEM_QUANTITY, "수량은 null일 수 없습니다.");
-        }
-        if (quantity <= 0) {
-            throw CustomException.of(ApiResponseCode.INVALID_CART_ITEM_QUANTITY, "수량은 1 이상이어야 합니다.");
-        }
+        validateQuantity(quantity);
         this.quantity = quantity;
     }
 
 
     private static void validateQuantity(Integer quantity) {
         if (quantity == null) {
-            throw CustomException.of(ApiResponseCode.ILLEGAL_STATE, "수량은 null일 수 없습니다.");
+            throw CustomException.of(ApiResponseCode.INVALID_CART_ITEM_QUANTITY, "수량은 null일 수 없습니다.");
         }
         if (quantity <= 0) {
-            throw CustomException.of(ApiResponseCode.ILLEGAL_STATE, "수량은 1 이상이어야 합니다.");
+            throw CustomException.of(ApiResponseCode.INVALID_CART_ITEM_QUANTITY, "수량은 1 이상이어야 합니다.");
         }
     }
 

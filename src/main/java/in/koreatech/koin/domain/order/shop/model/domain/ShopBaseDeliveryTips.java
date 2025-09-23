@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.order.shop.model.domain;
 import static jakarta.persistence.CascadeType.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -22,6 +23,21 @@ public class ShopBaseDeliveryTips {
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopBaseDeliveryTip> baseDeliveryTips = new ArrayList<>();
+
+    public ShopBaseDeliveryTips(List<ShopBaseDeliveryTip> baseDeliveryTips) {
+        if (baseDeliveryTips != null) {
+            this.baseDeliveryTips.clear();
+            this.baseDeliveryTips.addAll(baseDeliveryTips);
+        }
+    }
+
+    public static ShopBaseDeliveryTips of(List<ShopBaseDeliveryTip> tips) {
+        return new ShopBaseDeliveryTips(tips);
+    }
+
+    public static ShopBaseDeliveryTips of(ShopBaseDeliveryTip... tips) {
+        return new ShopBaseDeliveryTips(tips == null ? List.of() : Arrays.asList(tips));
+    }
 
     public Integer getMinimumDeliveryTip() {
         return baseDeliveryTips.stream()
