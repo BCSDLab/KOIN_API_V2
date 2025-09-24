@@ -6,6 +6,7 @@ import in.koreatech.koin.domain.club.event.dto.request.ClubEventCreateRequest;
 import in.koreatech.koin.domain.club.event.dto.request.ClubEventModifyRequest;
 import in.koreatech.koin.domain.club.event.dto.response.ClubEventResponse;
 import in.koreatech.koin.domain.club.event.enums.ClubEventStatus;
+import in.koreatech.koin.domain.club.event.enums.ClubEventType;
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import in.koreatech.koin.domain.club.event.model.ClubEventImage;
 import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
@@ -369,6 +370,30 @@ public class ClubEventServiceTest {
         }
     }
 
+    @Nested
+    class GetClubEvents {
+
+        Integer clubId;
+        ClubEventType clubEventType;
+        Integer userId;
+        Club club;
+        List<ClubEvent> events;
+
+        @BeforeEach
+        void init() {
+            clubId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            events = List.of(
+                상태별_동아리_행사(1, club, ClubEventStatus.SOON, LocalDateTime.now().plusSeconds(1)),
+                상태별_동아리_행사(2, club, ClubEventStatus.UPCOMING, LocalDateTime.now().plusSeconds(2)),
+                상태별_동아리_행사(3, club, ClubEventStatus.ENDED, LocalDateTime.now().plusSeconds(3)),
+                상태별_동아리_행사(4, club, ClubEventStatus.ONGOING, LocalDateTime.now().plusSeconds(4))
+            );
+
+            when(clubEventRepository.getAllByClubId(clubId)).thenReturn(events);
+        }
+    }
+
     private ClubEvent 동아리_행사(Integer eventId, Club club) {
         ClubEvent clubEvent = ClubEvent.builder()
             .id(eventId)
@@ -388,7 +413,7 @@ public class ClubEventServiceTest {
         return clubEvent;
     }
 
-    private ClubEvent 상태별_동아리_행사(Integer eventId, Club club, ClubEventStatus clubEventStatus) {
+    private ClubEvent 상태별_동아리_행사(Integer eventId, Club club, ClubEventStatus clubEventStatus, LocalDateTime createdAt) {
         LocalDateTime now = LocalDateTime.now();
 
         LocalDateTime startDate;
@@ -431,7 +456,7 @@ public class ClubEventServiceTest {
         ClubEventImage clubEventImage = 동아리_행사_이미지(clubEvent);
 
         ReflectionTestUtils.setField(clubEvent, "images", List.of(clubEventImage));
-        ReflectionTestUtils.setField(clubEvent, "createdAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(clubEvent, "createdAt", createdAt);
 
         return clubEvent;
     }
