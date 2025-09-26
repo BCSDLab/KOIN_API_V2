@@ -389,6 +389,8 @@ public class ClubEventServiceTest {
                 상태별_동아리_행사(3, club, ClubEventStatus.ENDED, LocalDateTime.now().plusSeconds(3)),
                 상태별_동아리_행사(4, club, ClubEventStatus.ONGOING, LocalDateTime.now().plusSeconds(4))
             );
+
+            when(clubEventRepository.getAllByClubId(clubId)).thenReturn(events);
         }
 
         @Nested
@@ -397,8 +399,6 @@ public class ClubEventServiceTest {
             @BeforeEach
             void init() {
                 userId = null;
-
-                when(clubEventRepository.getAllByClubId(clubId)).thenReturn(events);
             }
 
             @Test
@@ -485,7 +485,6 @@ public class ClubEventServiceTest {
         @Nested
         class UserIdIsNotNull {
 
-            Integer userId;
             List<Integer> eventIds;
 
             @BeforeEach
@@ -493,7 +492,6 @@ public class ClubEventServiceTest {
                 userId = 1;
                 eventIds = List.of(1, 2, 3, 4);
 
-                when(clubEventRepository.getAllByClubId(clubId)).thenReturn(events);
                 when(clubEventSubscriptionRepository.findSubscribedEventIds(userId, eventIds))
                     .thenReturn(List.of(1, 3));
             }
