@@ -35,8 +35,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -411,19 +410,16 @@ public class ClubEventServiceTest {
                 List<ClubEventsResponse> response = clubEventService.getClubEvents(clubId, clubEventType, userId);
 
                 // then
-                assertThat(response).hasSize(events.size());
-
-                assertThat(response)
-                    .extracting(ClubEventsResponse::id)
-                    .containsExactly(4, 2, 1, 3);
-
-                assertThat(response)
-                    .extracting(ClubEventsResponse::status)
+                assertThat(response).hasSize(events.size())
+                    .extracting(
+                        ClubEventsResponse::id,
+                        ClubEventsResponse::status
+                    )
                     .containsExactly(
-                        ClubEventStatus.ONGOING.name(),
-                        ClubEventStatus.UPCOMING.name(),
-                        ClubEventStatus.SOON.name(),
-                        ClubEventStatus.ENDED.name()
+                        tuple(4, ClubEventStatus.ONGOING.name()),
+                        tuple(2, ClubEventStatus.UPCOMING.name()),
+                        tuple(1, ClubEventStatus.SOON.name()),
+                        tuple(3, ClubEventStatus.ENDED.name())
                     );
             }
 
@@ -437,8 +433,13 @@ public class ClubEventServiceTest {
 
                 // then
                 assertThat(response)
-                    .extracting(ClubEventsResponse::status)
-                    .containsExactly(ClubEventStatus.UPCOMING.name());
+                    .extracting(
+                        ClubEventsResponse::id,
+                        ClubEventsResponse::status
+                    )
+                    .containsExactly(
+                        tuple(2, ClubEventStatus.UPCOMING.name())
+                    );
             }
 
             @Test
@@ -451,10 +452,13 @@ public class ClubEventServiceTest {
 
                 // then
                 assertThat(response)
-                    .extracting(ClubEventsResponse::status)
+                    .extracting(
+                        ClubEventsResponse::id,
+                        ClubEventsResponse::status
+                    )
                     .containsExactly(
-                        ClubEventStatus.ONGOING.name(),
-                        ClubEventStatus.SOON.name()
+                        tuple(4, ClubEventStatus.ONGOING.name()),
+                        tuple(1, ClubEventStatus.SOON.name())
                     );
             }
 
@@ -468,8 +472,13 @@ public class ClubEventServiceTest {
 
                 // then
                 assertThat(response)
-                    .extracting(ClubEventsResponse::status)
-                    .containsExactly(ClubEventStatus.ENDED.name());
+                    .extracting(
+                        ClubEventsResponse::id,
+                        ClubEventsResponse::status
+                    )
+                    .containsExactly(
+                        tuple(3, ClubEventStatus.ENDED.name())
+                    );
             }
         }
 
@@ -498,24 +507,19 @@ public class ClubEventServiceTest {
                 List<ClubEventsResponse> response = clubEventService.getClubEvents(clubId, clubEventType, userId);
 
                 // then
-                assertThat(response).hasSize(events.size());
-
                 assertThat(response)
-                    .extracting(ClubEventsResponse::id)
-                    .containsExactly(4, 2, 1, 3);
-
-                assertThat(response)
-                    .extracting(ClubEventsResponse::status)
+                    .hasSize(events.size())
+                    .extracting(
+                        ClubEventsResponse::id,
+                        ClubEventsResponse::status,
+                        ClubEventsResponse::isSubscribed
+                    )
                     .containsExactly(
-                        ClubEventStatus.ONGOING.name(),
-                        ClubEventStatus.UPCOMING.name(),
-                        ClubEventStatus.SOON.name(),
-                        ClubEventStatus.ENDED.name()
+                        tuple(4, ClubEventStatus.ONGOING.name(), false),
+                        tuple(2, ClubEventStatus.UPCOMING.name(), false),
+                        tuple(1, ClubEventStatus.SOON.name(), true),
+                        tuple(3, ClubEventStatus.ENDED.name(), true)
                     );
-
-                assertThat(response)
-                    .extracting(ClubEventsResponse::isSubscribed)
-                    .containsExactly(false, false, true, true);
             }
 
             @Test
@@ -528,12 +532,10 @@ public class ClubEventServiceTest {
 
                 // then
                 assertThat(response)
-                    .extracting(ClubEventsResponse::status)
-                    .containsExactly(ClubEventStatus.UPCOMING.name());
-
-                assertThat(response)
-                    .extracting(ClubEventsResponse::isSubscribed)
-                    .containsExactly(false);
+                    .extracting(ClubEventsResponse::status, ClubEventsResponse::isSubscribed)
+                    .containsExactly(
+                        tuple(ClubEventStatus.UPCOMING.name(), false)
+                    );
             }
 
             @Test
@@ -546,15 +548,11 @@ public class ClubEventServiceTest {
 
                 // then
                 assertThat(response)
-                    .extracting(ClubEventsResponse::status)
+                    .extracting(ClubEventsResponse::status, ClubEventsResponse::isSubscribed)
                     .containsExactly(
-                        ClubEventStatus.ONGOING.name(),
-                        ClubEventStatus.SOON.name()
+                        tuple(ClubEventStatus.ONGOING.name(), false),
+                        tuple(ClubEventStatus.SOON.name(), true)
                     );
-
-                assertThat(response)
-                    .extracting(ClubEventsResponse::isSubscribed)
-                    .containsExactly(false, true);
             }
 
             @Test
@@ -567,12 +565,10 @@ public class ClubEventServiceTest {
 
                 // then
                 assertThat(response)
-                    .extracting(ClubEventsResponse::status)
-                    .containsExactly(ClubEventStatus.ENDED.name());
-
-                assertThat(response)
-                    .extracting(ClubEventsResponse::isSubscribed)
-                    .containsExactly(true);
+                    .extracting(ClubEventsResponse::status, ClubEventsResponse::isSubscribed)
+                    .containsExactly(
+                        tuple(ClubEventStatus.ENDED.name(), true)
+                    );
             }
         }
     }
