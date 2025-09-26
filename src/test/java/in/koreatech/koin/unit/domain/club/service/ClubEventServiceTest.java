@@ -472,6 +472,109 @@ public class ClubEventServiceTest {
                     .containsExactly(ClubEventStatus.ENDED.name());
             }
         }
+
+        @Nested
+        class UserIdIsNotNull {
+
+            Integer userId;
+            List<Integer> eventIds;
+
+            @BeforeEach
+            void init() {
+                userId = 1;
+                eventIds = List.of(1, 2, 3, 4);
+
+                when(clubEventRepository.getAllByClubId(clubId)).thenReturn(events);
+                when(clubEventSubscriptionRepository.findSubscribedEventIds(userId, eventIds))
+                    .thenReturn(List.of(1, 3));
+            }
+
+            @Test
+            void RECENT로_조회하면_종료된_행사는_아래에_정렬되고_그_외는_최신순으로_반환된다() {
+                // given
+                clubEventType = ClubEventType.RECENT;
+
+                // when
+                List<ClubEventsResponse> response = clubEventService.getClubEvents(clubId, clubEventType, userId);
+
+                // then
+                assertThat(response).hasSize(events.size());
+
+                assertThat(response)
+                    .extracting(ClubEventsResponse::id)
+                    .containsExactly(4, 2, 1, 3);
+
+                assertThat(response)
+                    .extracting(ClubEventsResponse::status)
+                    .containsExactly(
+                        ClubEventStatus.ONGOING.name(),
+                        ClubEventStatus.UPCOMING.name(),
+                        ClubEventStatus.SOON.name(),
+                        ClubEventStatus.ENDED.name()
+                    );
+
+                assertThat(response)
+                    .extracting(ClubEventsResponse::isSubscribed)
+                    .containsExactly(false, false, true, true);
+            }
+
+            @Test
+            void UPCOMING으로_조회하면_시작_1시간_이상_남은_행사만_반환된다() {
+                // given
+                clubEventType = ClubEventType.UPCOMING;
+
+                // when
+                List<ClubEventsResponse> response = clubEventService.getClubEvents(clubId, clubEventType, userId);
+
+                // then
+                assertThat(response)
+                    .extracting(ClubEventsResponse::status)
+                    .containsExactly(ClubEventStatus.UPCOMING.name());
+
+                assertThat(response)
+                    .extracting(ClubEventsResponse::isSubscribed)
+                    .containsExactly(false);
+            }
+
+            @Test
+            void ONGOING으로_조회하면_시작_1시간_전과_진행중인_행사만_반환된다() {
+                // given
+                clubEventType = ClubEventType.ONGOING;
+
+                // when
+                List<ClubEventsResponse> response = clubEventService.getClubEvents(clubId, clubEventType, userId);
+
+                // then
+                assertThat(response)
+                    .extracting(ClubEventsResponse::status)
+                    .containsExactly(
+                        ClubEventStatus.ONGOING.name(),
+                        ClubEventStatus.SOON.name()
+                    );
+
+                assertThat(response)
+                    .extracting(ClubEventsResponse::isSubscribed)
+                    .containsExactly(false, true);
+            }
+
+            @Test
+            void ENDED로_조회하면_종료된_행사만_반환된다() {
+                // given
+                clubEventType = ClubEventType.ENDED;
+
+                // when
+                List<ClubEventsResponse> response = clubEventService.getClubEvents(clubId, clubEventType, userId);
+
+                // then
+                assertThat(response)
+                    .extracting(ClubEventsResponse::status)
+                    .containsExactly(ClubEventStatus.ENDED.name());
+
+                assertThat(response)
+                    .extracting(ClubEventsResponse::isSubscribed)
+                    .containsExactly(true);
+            }
+        }
     }
 
     private ClubEvent 동아리_행사(Integer eventId, Club club) {
