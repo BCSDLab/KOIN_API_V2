@@ -56,6 +56,7 @@ public class ClubEvent extends BaseEntity {
 
     @Builder
     private ClubEvent(
+        Integer id,
         Club club,
         String name,
         LocalDateTime startDate,
@@ -64,6 +65,7 @@ public class ClubEvent extends BaseEntity {
         String content,
         Boolean notifiedBeforeOneHour
     ) {
+        this.id = id;
         this.club = club;
         this.name = name;
         this.startDate = startDate;
