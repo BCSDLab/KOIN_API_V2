@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.common.event.DiningSoldOutEvent;
+import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.domain.notification.model.Notification;
@@ -122,14 +122,14 @@ public class NotificationService {
         notificationSubscribeRepository.deleteByUserIdAndDetailType(userId, detailType);
     }
 
-    public void sendDiningSoldOutNotifications(DiningSoldOutEvent event) {
-        NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
+    public void sendDiningSoldOutNotifications(Integer dinningId, String place, DiningType diningType) {
+        NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(diningType);
         var notifications = notificationSubscribeRepository.findAllSoldOutSubscribers(DINING_SOLD_OUT, detailType)
             .stream()
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
-                event.id(),
-                event.place(),
+                dinningId,
+                place,
                 subscribe.getUser()
             ))
             .toList();
