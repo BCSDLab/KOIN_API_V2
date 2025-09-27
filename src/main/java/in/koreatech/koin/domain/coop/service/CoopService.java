@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
+import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.common.event.DiningImageUploadEvent;
 import in.koreatech.koin.common.event.DiningSoldOutEvent;
@@ -105,6 +106,7 @@ public class CoopService {
             dining.setSoldOut(now);
             boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), false);
             if (isOpened && diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty()) {
+                diningSoldOutCacheRepository.save(DiningSoldOutCache.from(dining.getPlace()));
                 eventPublisher.publishEvent(
                     new DiningSoldOutEvent(dining.getId(), dining.getPlace(), dining.getType()));
             }
