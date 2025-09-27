@@ -38,12 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
-import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.common.event.DiningImageUploadEvent;
 import in.koreatech.koin.common.event.DiningSoldOutEvent;
-import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.CoopResponse;
@@ -54,6 +51,7 @@ import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
 import in.koreatech.koin.domain.coop.exception.DuplicateExcelRequestException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
+import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
@@ -67,6 +65,8 @@ import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
@@ -512,7 +512,7 @@ public class CoopService {
         LocalDate date = dining.getDate();
         // ex) 2024-12-17-점심-B코너.png
         return date.getYear() + "-" + date.getMonthValue() + "-" + date.getDayOfMonth() + "-"
-               + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
+            + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
     }
 
     private String extractS3KeyFrom(String imageUrl) {
