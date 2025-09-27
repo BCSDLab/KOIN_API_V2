@@ -28,20 +28,15 @@ public class CoopEventListener { // TODO : 리팩터링 필요 (비즈니스로�
     @TransactionalEventListener
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
-        var notifications = notificationSubscribeRepository
-            .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_SOLD_OUT).stream()
-            .filter(subscribe -> notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailType(
-                subscribe.getUser().getId(),
-                DINING_SOLD_OUT,
-                detailType
-            ))
-            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
+        var notifications = notificationSubscribeRepository.findAllSoldOutSubscribers(DINING_SOLD_OUT, detailType)
+            .stream()
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
                 event.id(),
                 event.place(),
                 subscribe.getUser()
-            )).toList();
+            ))
+            .toList();
         notificationService.pushNotifications(notifications);
     }
 
