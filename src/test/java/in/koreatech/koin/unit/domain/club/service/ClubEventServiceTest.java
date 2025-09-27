@@ -642,6 +642,68 @@ public class ClubEventServiceTest {
         }
     }
 
+    @Nested
+    class RejectEventNotification {
+
+        Integer clubId;
+        Integer eventId;
+        Integer studentId;
+        Club club;
+        User user;
+        ClubEvent clubEvent;
+
+        @BeforeEach
+        void init() {
+            clubId = eventId = studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            user = UserFixture.코인_유저();
+            clubEvent = 동아리_행사(eventId, club);
+
+            when(userRepository.getById(studentId)).thenReturn(user);
+            when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
+        }
+
+        @Test
+        void 동아리_행사_구독을_취소한다() {
+            // given
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId)).thenReturn(true);
+
+            // when
+            clubEventService.rejectEventNotification(clubId, eventId, studentId);
+
+            // then
+            verify(clubEventSubscriptionRepository).deleteByClubEventIdAndUserId(eventId, studentId);
+        }
+
+        @Test
+        void 해당_동아리의_행사가_아닌_경우_예외를_발생한다() {
+            // given
+            Integer anotherClubId = 2;
+            Club anotherClub = ClubFixture.활성화_BCSD_동아리(anotherClubId);
+
+            when(clubRepository.getById(anotherClubId)).thenReturn(anotherClub);
+
+            // when / then
+            assertThatThrownBy(() -> clubEventService.rejectEventNotification(anotherClubId, eventId, studentId))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT.getMessage());
+        }
+
+        @Test
+        void 이미_동아리의_행사를_구독_취소한_경우_요청을_무시한다() {
+            // given
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId)).thenReturn(false);
+
+            // when
+            clubEventService.rejectEventNotification(clubId, eventId, studentId);
+
+            // then
+            verify(clubEventSubscriptionRepository, never()).deleteByClubEventIdAndUserId(eventId, studentId);
+        }
+    }
+
     private ClubEvent 동아리_행사(Integer eventId, Club club) {
         ClubEvent clubEvent = ClubEvent.builder()
             .id(eventId)
