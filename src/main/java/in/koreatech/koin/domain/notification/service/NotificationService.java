@@ -1,14 +1,20 @@
 package in.koreatech.koin.domain.notification.service;
 
+import static in.koreatech.koin.common.model.MobileAppPath.DINING;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.getParentType;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.common.event.DiningSoldOutEvent;
 import in.koreatech.koin.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
+import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.repository.NotificationRepository;
@@ -28,6 +34,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
+    private final NotificationFactory notificationFactory;
 
     public void pushNotifications(List<Notification> notifications) {
         for (Notification notification : notifications) {
@@ -82,7 +89,7 @@ public class NotificationService {
         User user = userRepository.getById(userId);
         ensureUserDeviceToken(user.getDeviceToken());
 
-        NotificationSubscribeType type = NotificationSubscribeType.getParentType(detailType);
+        NotificationSubscribeType type = getParentType(detailType);
         if (notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailType(userId, type, detailType)) {
             return;
         }
@@ -113,6 +120,20 @@ public class NotificationService {
         User user = userRepository.getById(userId);
         ensureUserDeviceToken(user.getDeviceToken());
         notificationSubscribeRepository.deleteByUserIdAndDetailType(userId, detailType);
+    }
+
+    public void sendDiningSoldOutNotifications(DiningSoldOutEvent event) {
+        NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
+        var notifications = notificationSubscribeRepository.findAllSoldOutSubscribers(DINING_SOLD_OUT, detailType)
+            .stream()
+            .map(subscribe -> notificationFactory.generateSoldOutNotification(
+                DINING,
+                event.id(),
+                event.place(),
+                subscribe.getUser()
+            ))
+            .toList();
+        pushNotifications(notifications);
     }
 
     private void ensureUserDeviceToken(String deviceToken) {
