@@ -1,29 +1,20 @@
 package in.koreatech.koin.domain.club.recruitment.model;
 
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
-
-import java.time.LocalDate;
-
 import in.koreatech.koin.common.model.BaseEntity;
-import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
 import in.koreatech.koin.domain.club.club.model.Club;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import jakarta.persistence.UniqueConstraint;
+import in.koreatech.koin.domain.club.recruitment.enums.ClubRecruitmentStatus;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
 
 @Getter
 @Entity
@@ -71,6 +62,7 @@ public class ClubRecruitment extends BaseEntity {
 
     @Builder
     private ClubRecruitment(
+        Integer id,
         LocalDate startDate,
         LocalDate endDate,
         Boolean isAlwaysRecruiting,
@@ -78,6 +70,7 @@ public class ClubRecruitment extends BaseEntity {
         String content,
         Club club
     ) {
+        this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
         this.isAlwaysRecruiting = isAlwaysRecruiting;
