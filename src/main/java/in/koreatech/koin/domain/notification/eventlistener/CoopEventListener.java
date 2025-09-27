@@ -10,8 +10,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.common.event.DiningImageUploadEvent;
 import in.koreatech.koin.common.event.DiningSoldOutEvent;
-import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
-import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
@@ -26,11 +24,9 @@ public class CoopEventListener { // TODO : 리팩터링 필요 (비즈니스로�
     private final NotificationService notificationService;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final NotificationFactory notificationFactory;
-    private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
 
     @TransactionalEventListener
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
-        diningSoldOutCacheRepository.save(DiningSoldOutCache.from(event.place()));
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
         var notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_SOLD_OUT).stream()
