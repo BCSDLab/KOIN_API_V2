@@ -124,7 +124,7 @@ public class NotificationService {
 
     public void sendDiningSoldOutNotifications(Integer dinningId, String place, DiningType diningType) {
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(diningType);
-        var notifications = notificationSubscribeRepository.findAllSoldOutSubscribers(DINING_SOLD_OUT, detailType)
+        var notifications = notificationSubscribeRepository.findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, detailType)
             .stream()
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
