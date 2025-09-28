@@ -169,7 +169,7 @@ public class ExpressBusServiceTest {
                 .thenReturn(cacheFromKoreatech);
 
             //when
-            List<ExpressBusTimetable> timetables = (List<ExpressBusTimetable>)expressBusService.getExpressBusTimetable(
+            List<ExpressBusTimetable> timetables = expressBusService.getExpressBusTimetable(
                 direction);
 
             //then
@@ -202,7 +202,7 @@ public class ExpressBusServiceTest {
                 .thenReturn(cacheFromTerminal);
 
             //when
-            List<ExpressBusTimetable> timetables = (List<ExpressBusTimetable>)expressBusService.getExpressBusTimetable(
+            List<ExpressBusTimetable> timetables = expressBusService.getExpressBusTimetable(
                 direction);
 
             //then
@@ -245,7 +245,7 @@ public class ExpressBusServiceTest {
                 .thenReturn(null);
 
             //when
-            List<ExpressBusTimetable> timetables = (List<ExpressBusTimetable>)expressBusService.getExpressBusTimetable(
+            List<ExpressBusTimetable> timetables = expressBusService.getExpressBusTimetable(
                 direction);
 
             //then
