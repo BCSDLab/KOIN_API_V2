@@ -9,13 +9,14 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -95,6 +96,7 @@ public class CoopService {
     private final List<String> cafeteriaPlaceFilters = Arrays.asList("A코너", "B코너", "C코너");
     private final List<String> allPlaceFilters = Arrays.asList("A코너", "B코너", "C코너", "능수관", "2캠퍼스");
 
+    private static final List<DiningType> ORDERED_TYPES = List.of(BREAKFAST, LUNCH, DINNER);
     public static final LocalDate LIMIT_DATE = LocalDate.of(2022, 11, 29);
     private static final int mealColumIndex = 0;
     private static final int cornerColumnIndex = 1;
@@ -225,7 +227,7 @@ public class CoopService {
         List<String> corners = isCafeteria ? cafeteriaPlaceFilters : allPlaceFilters;
 
         addMealAndCornerData(sheet, rowCache, meals, corners, cellStyles.get("cornerStyle"));
-        addDateAndDiningDataParallel(sheet, rowCache, grouped, cellStyles, isCafeteria);
+        addDateAndDiningData(sheet, rowCache, grouped, cellStyles, isCafeteria);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
@@ -300,45 +302,43 @@ public class CoopService {
         cell.setCellStyle(style);
     }
 
-    private void addDateAndDiningDataParallel(
+    private void addDateAndDiningData(
         Sheet sheet,
         Map<Integer, Row> rowCache,
         Map<LocalDate, Map<DiningType, List<Dining>>> grouped,
         Map<String, CellStyle> styles,
         Boolean isCafeteria
     ) {
-        List<LocalDate> sortedDates = grouped.keySet().stream().sorted().toList();
+        final CellStyle headerStyle = styles.get("headerStyle");
+        final CellStyle commonStyle = styles.get("commonStyle");
+        final boolean cafeteria = Boolean.TRUE.equals(isCafeteria);
 
-        IntStream.range(0, sortedDates.size()).parallel().forEach(i -> {
-            LocalDate date = sortedDates.get(i);
-            Map<DiningType, List<Dining>> typeMap = grouped.get(date);
-            int colIndex = 2 + i;
+        List<LocalDate> dates = new ArrayList<>(grouped.keySet());
+        Collections.sort(dates);
 
-            synchronized (sheet) {
-                setCellValueWithStyle(rowCache.get(0), colIndex, date.toString(), styles.get("headerStyle"));
-                sheet.setColumnWidth(colIndex, 6000);
-            }
+        int colIndex = 2;
+        for (LocalDate date : dates) {
+            setCellValueWithStyle(rowCache.get(0), colIndex, date.toString(), headerStyle);
+            sheet.setColumnWidth(colIndex, 6000);
 
-            for (DiningType type : List.of(BREAKFAST, LUNCH, DINNER)) {
-                List<Dining> dinings = typeMap.getOrDefault(type, List.of());
+            Map<DiningType, List<Dining>> byType = grouped.getOrDefault(date, Collections.emptyMap());
 
-                for (Dining dining : dinings) {
-                    ExcelDiningPosition position = ExcelDiningPosition.from(dining.getType(), dining.getPlace());
-                    int startPosition = isCafeteria
-                        ? position.getStartPositionOnlyCafeteria()
-                        : position.getStartPositionAllPlace();
+            for (DiningType type : ORDERED_TYPES) {
+                for (Dining dining : byType.getOrDefault(type, Collections.emptyList())) {
+                    ExcelDiningPosition pos = ExcelDiningPosition.from(dining.getType(), dining.getPlace());
+                    int start = cafeteria ? pos.getStartPositionOnlyCafeteria()
+                        : pos.getStartPositionAllPlace();
 
-                    synchronized (rowCache) {
-                        if (cafeteriaPlaceFilters.contains(dining.getPlace())) {
-                            drawExcelCafeteria(dining, rowCache, startPosition, colIndex, styles.get("commonStyle"));
-                        } else {
-                            drawExcelNoneCafeteria(dining, rowCache, startPosition, colIndex,
-                                styles.get("commonStyle"));
-                        }
+                    if (cafeteriaPlaceFilters.contains(dining.getPlace())) {
+                        drawExcelCafeteria(dining, rowCache, start, colIndex, commonStyle);
+                    } else {
+                        drawExcelNoneCafeteria(dining, rowCache, start, colIndex, commonStyle);
                     }
                 }
             }
-        });
+
+            colIndex++;
+        }
     }
 
     private void drawExcelNoneCafeteria(Dining dining, Map<Integer, Row> rowCache, int startPosition, int colIndex,
@@ -475,11 +475,11 @@ public class CoopService {
      * 5. dining_images 폴더를 dining_images.zip 파일로 압축한다.
      * 6. dining_images 폴더를 제거하고 dining_images.zip 파일을 반환한다.
      * 7. 압축파일 반환 전, 새로운 스레드를 생성하여 dining_images.zip 파일을 삭제한다.
-     *
+     * <p>
      * 문제 발생 가능한 부분
      * (1) 4번 과정에서 서버 자원을 과하게 많이 사용할 수 있다.(물론 요청 이후에는 삭제되지만 요청 간 자원이 많이 사용된다)
      * (2) 6, 7번 과정에서 파일 제거가 실패할 경우, 서버에 임시 파일이 남아있을 수 있다.
-     *
+     * <p>
      * 개선 가능 부분
      * - (4)를 개선하기 위해 이미지 다운로드 시, 서버에 직접 다운받지 않고 S3에서 즉시 사용자에게 전송한다.
      * - 참고 자료) https://gksdudrb922.tistory.com/234
