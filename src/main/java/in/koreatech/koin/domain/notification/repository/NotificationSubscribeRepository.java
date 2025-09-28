@@ -51,7 +51,7 @@ public interface NotificationSubscribeRepository extends Repository<Notification
         )
         AND u.deviceToken IS NOT NULL
         """)
-    List<NotificationSubscribe> findAllSoldOutSubscribers(
+    List<NotificationSubscribe> findAllBySubscribeTypeAndDetailType(
         @Param("subscribeType") NotificationSubscribeType subscribeType,
         @Param("detailType") NotificationDetailSubscribeType detailType
     );
