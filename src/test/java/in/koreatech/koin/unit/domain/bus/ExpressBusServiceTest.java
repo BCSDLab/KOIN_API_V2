@@ -50,10 +50,6 @@ public class ExpressBusServiceTest {
     private LocalDateTime targetTime;
     private LocalTime arrivalTime1, arrivalTime2, arrivalTime3;
     private LocalTime departTime1, departTime2, departTime3;
-    private ExpressBusRoute routeFromKoreatechToTerminal;
-    private ExpressBusRoute routeFromTerminalToKoreatech;
-    private List<ExpressBusCacheInfo> busInfos;
-    private List<ExpressBusCacheInfo> busInfosWithThreeItems;
     private ExpressBusCache cacheFromKoreatech;
     private ExpressBusCache cacheFromTerminal;
     private ExpressBusCache cacheWithThreeItems;
@@ -74,17 +70,17 @@ public class ExpressBusServiceTest {
         departTime2 = LocalTime.of(10, 0);
         departTime3 = LocalTime.of(11, 30);
 
-        routeFromKoreatechToTerminal = new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName());
-        routeFromTerminalToKoreatech = new ExpressBusRoute(departTerminal.getName(), arrivalKoreatech.getName());
+        ExpressBusRoute routeFromKoreatechToTerminal = new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName());
+        ExpressBusRoute routeFromTerminalToKoreatech = new ExpressBusRoute(departTerminal.getName(), arrivalKoreatech.getName());
 
         // 2개 항목이 있는 버스 정보
-        busInfos = Arrays.asList(
+        List<ExpressBusCacheInfo> busInfos = Arrays.asList(
             new ExpressBusCacheInfo(departTime1, arrivalTime1, 5000),
             new ExpressBusCacheInfo(departTime2, arrivalTime2, 5000)
         );
 
         // 3개 항목이 있는 버스 정보
-        busInfosWithThreeItems = Arrays.asList(
+        List<ExpressBusCacheInfo> busInfosWithThreeItems = Arrays.asList(
             new ExpressBusCacheInfo(departTime1, arrivalTime1, 5000),
             new ExpressBusCacheInfo(departTime2, arrivalTime2, 5000),
             new ExpressBusCacheInfo(departTime3, arrivalTime3, 5000)
