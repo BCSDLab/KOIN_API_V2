@@ -16,7 +16,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.KoinNoticeAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -85,10 +85,10 @@ public class AdminNoticeApiTest extends AcceptanceTest {
                     .param("is_deleted", "false")
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.totalCount").value(4))
-            .andExpect(jsonPath("$.currentCount").value(4))
-            .andExpect(jsonPath("$.totalPage").value(1))
-            .andExpect(jsonPath("$.currentPage").value(1))
+            .andExpect(jsonPath("$.total_count").value(4))
+            .andExpect(jsonPath("$.current_count").value(4))
+            .andExpect(jsonPath("$.total_page").value(1))
+            .andExpect(jsonPath("$.current_page").value(1))
             .andExpect(jsonPath("$.notices.length()").value(4));
     }
 

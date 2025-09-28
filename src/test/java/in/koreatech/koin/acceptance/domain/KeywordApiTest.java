@@ -23,7 +23,7 @@ import in.koreatech.koin.acceptance.fixture.BoardAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.KeywordAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
@@ -244,7 +244,6 @@ public class KeywordApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(articleKeywordEventListener).onKeywordRequest(any()));
-        clear();
         setup();
     }
 
@@ -275,7 +274,6 @@ public class KeywordApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(articleKeywordEventListener, never()).onKeywordRequest(any()));
-        clear();
         setup();
     }
 
@@ -357,7 +355,6 @@ public class KeywordApiTest extends AcceptanceTest {
             )
             .andExpect(status().isForbidden());
         forceVerify(() -> verify(articleKeywordEventListener, never()).onKeywordRequest(any()));
-        clear();
         setup();
     }
 }

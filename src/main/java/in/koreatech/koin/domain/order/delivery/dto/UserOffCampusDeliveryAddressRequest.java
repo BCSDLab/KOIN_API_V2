@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record UserOffCampusDeliveryAddressRequest(
-
     @Schema(description = "우편 번호", example = "31253", requiredMode = REQUIRED)
     @NotNull(message = "우편번호는 필수입니다.")
     String zipNumber,
@@ -32,13 +31,13 @@ public record UserOffCampusDeliveryAddressRequest(
     @Schema(description = "건물명", example = " ")
     String building,
 
+    @Schema(description = "기본 주소 (도로명)", example = "충청남도 천안시 동남구 병천면 충절로 1628-17")
+    @NotBlank(message = "기본 주소는 필수입니다.")
+    String address,
+
     @Schema(description = "상세 주소", example = "에듀윌 301호")
     @NotBlank(message = "상세 주소는 필수입니다.")
-    String detailAddress,
-
-    @Schema(description = "전체 주소 (도로명)", example = "충청남도 천안시 동남구 병천면 충절로 1628-17 에듀윌 301호")
-    @NotBlank(message = "전체 주소는 필수입니다.")
-    String fullAddress
+    String detailAddress
 ) {
 
     public OffCampusDeliveryAddress toOffCampusAddress() {
@@ -49,8 +48,9 @@ public record UserOffCampusDeliveryAddressRequest(
             .eupMyeonDong(eupMyeonDong)
             .road(road)
             .building(building)
+            .address(address)
             .detailAddress(detailAddress)
-            .fullAddress(fullAddress)
+            .fullAddress(String.join(" ", address, detailAddress))
             .build();
     }
 }

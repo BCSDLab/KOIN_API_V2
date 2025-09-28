@@ -3,25 +3,22 @@ package in.koreatech.koin.domain.order.shop.dto.event;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.time.Clock;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
-import in.koreatech.koin.domain.shop.model.event.EventArticle;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopEvent;
 import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.extern.slf4j.Slf4j;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopEventsResponse(
-
     @Schema(description = "상점 이벤트 목록")
     List<InnerOrderableShopEventResponse> shopEvents
 ) {
@@ -60,38 +57,38 @@ public record OrderableShopEventsResponse(
         LocalDate endDate
     ) {
 
-        public static InnerOrderableShopEventResponse from(EventArticle eventArticle, Integer orderableShopId) {
-            return new InnerOrderableShopEventResponse(
-                orderableShopId,
-                eventArticle.getShop().getId(),
-                eventArticle.getShop().getName(),
-                eventArticle.getId(),
-                eventArticle.getTitle(),
-                eventArticle.getContent(),
-                eventArticle.getThumbnailImages()
-                    .stream().map(EventArticleImage::getThumbnailImage)
-                    .toList(),
-                eventArticle.getStartDate(),
-                eventArticle.getEndDate()
-            );
-        }
     }
 
-    public static OrderableShopEventsResponse of(OrderableShop orderableShop, Clock clock) {
-        List<InnerOrderableShopEventResponse> eventResponses = toEventResponses(orderableShop, clock).toList();
-        return new OrderableShopEventsResponse(eventResponses);
-    }
+    public static OrderableShopEventsResponse of(
+        List<OrderableShopEvent> orderableShopEvents,
+        Map<Integer, List<EventArticleImage>> eventArticleImageMap) {
 
-    public static OrderableShopEventsResponse of(List<OrderableShop> orderableShops, Clock clock) {
-        List<InnerOrderableShopEventResponse> eventResponses = orderableShops.stream()
-            .flatMap(orderableShop -> toEventResponses(orderableShop, clock))
+        List<InnerOrderableShopEventResponse> eventResponses = orderableShopEvents.stream()
+            .map(event -> createEventResponse(event, eventArticleImageMap))
             .toList();
 
         return new OrderableShopEventsResponse(eventResponses);
     }
 
-    private static Stream<InnerOrderableShopEventResponse> toEventResponses(OrderableShop shop, Clock clock) {
-        return shop.getOngoingEvent(clock).stream()
-            .map(eventArticle -> InnerOrderableShopEventResponse.from(eventArticle, shop.getId()));
+    private static InnerOrderableShopEventResponse createEventResponse(
+        OrderableShopEvent event,
+        Map<Integer, List<EventArticleImage>> eventArticleImageMap) {
+
+        List<String> thumbnailImages = eventArticleImageMap.getOrDefault(event.eventId(), Collections.emptyList())
+            .stream()
+            .map(EventArticleImage::getThumbnailImage)
+            .toList();
+
+        return new InnerOrderableShopEventResponse(
+            event.orderableShopId(),
+            event.shopId(),
+            event.shopName(),
+            event.eventId(),
+            event.title(),
+            event.content(),
+            thumbnailImages,
+            event.startDate(),
+            event.endDate()
+        );
     }
 }

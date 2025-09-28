@@ -8,38 +8,30 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopOpenInfo;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerMenuNameSearchRelatedKeywordResult;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerShopNameSearchRelatedKeywordResult;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultResponse;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchResultSortCriteria;
-import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
-import in.koreatech.koin.domain.order.shop.repository.OrderableShopListQueryRepository;
+import in.koreatech.koin.domain.order.shop.model.readmodel.MenuNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.model.readmodel.ShopNameKeywordHit;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopSearchQueryRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class OrderableShopSearchService {
 
     private final OrderableShopSearchQueryRepository orderableShopSearchQueryRepository;
 
-    public List<InnerShopNameSearchRelatedKeywordResult> findShopNamesByKeyword(String processedKeyword) {
-        return orderableShopSearchQueryRepository.findAllOrderableShopByKeyword(processedKeyword);
+    public List<ShopNameKeywordHit> findShopNamesByKeyword(List<String> processedKeywords) {
+        return orderableShopSearchQueryRepository.findAllOrderableShopByKeyword(processedKeywords);
     }
 
-    public List<InnerMenuNameSearchRelatedKeywordResult> findMenuNamesByKeyword(String processedKeyword) {
-        return orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeyword);
+    public List<MenuNameKeywordHit> findMenuNamesByKeyword(List<String> processedKeywords) {
+        return orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeywords);
     }
 
-    public List<OrderableShopBaseInfo> findOrderableShopsByKeyword(String processedKeyword) {
-        var searchAtMenuName = orderableShopSearchQueryRepository.searchOrderableShopsByMenuKeyword(processedKeyword);
-        var searchAtShopName = orderableShopSearchQueryRepository.searchOrderableShopsByShopNameKeyword(processedKeyword);
+    public List<OrderableShopBaseInfo> findOrderableShopsByKeywords(List<String> processedKeywords) {
+        var searchAtMenuName = orderableShopSearchQueryRepository.searchOrderableShopsByMenuKeyword(processedKeywords);
+        var searchAtShopName = orderableShopSearchQueryRepository.searchOrderableShopsByShopNameKeyword(processedKeywords);
         return combineAndDeduplicateShopBaseInfo(searchAtMenuName, searchAtShopName);
     }
 
@@ -47,8 +39,8 @@ public class OrderableShopSearchService {
         return orderableShopSearchQueryRepository.findOrderableShopThumbnailImageByOrderableShopIds(orderableShopIds);
     }
 
-    public Map<Integer, List<String>> findMatchingMenuNamesByOrderableShopIds(List<Integer> orderableShopIds, String processedKeyword) {
-        return orderableShopSearchQueryRepository.findOrderableShopContainMenuNameByOrderableShopIds(orderableShopIds, processedKeyword);
+    public Map<Integer, List<String>> findMatchingMenuNamesByOrderableShopIds(List<Integer> orderableShopIds, List<String> processedKeywords) {
+        return orderableShopSearchQueryRepository.findOrderableShopContainMenuNameByOrderableShopIds(orderableShopIds, processedKeywords);
     }
 
     private List<OrderableShopBaseInfo> combineAndDeduplicateShopBaseInfo(

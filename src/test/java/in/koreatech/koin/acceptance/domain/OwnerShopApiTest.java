@@ -234,7 +234,6 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(result.getShopImages()).hasSize(3);
                 softly.assertThat(result.getShopOpens()).hasSize(7);
                 softly.assertThat(result.getShopCategories()).hasSize(1);
-                System.out.println("dsa");
             }
         );
     }
@@ -828,7 +827,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             }
         );
         forceVerify(() -> verify(shopEventListener, times(1)).onShopEventCreate(any()));
-        clear();
         setUp();
     }
 

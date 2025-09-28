@@ -107,3 +107,7 @@ address:
   api:
     url: https://business.juso.go.kr/addrlink/addrLinkApi.do
     key: testck
+
+toss-payment:
+  secret-key: test_sk
+  api-base-url: https://api.tosspayments.com/v1/payments

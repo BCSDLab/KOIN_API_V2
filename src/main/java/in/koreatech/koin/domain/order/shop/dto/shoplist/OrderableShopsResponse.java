@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopOpenStatus;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OrderableShopsResponse(

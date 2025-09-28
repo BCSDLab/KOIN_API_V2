@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.order.cart.dto.CartMenuItemEditResponse;
 import in.koreatech.koin.domain.order.cart.dto.CartUpdateItemRequest;
 import in.koreatech.koin.domain.order.cart.service.CartQueryService;
 import in.koreatech.koin.domain.order.cart.service.CartService;
-import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.order.order.model.OrderType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -120,9 +120,10 @@ public class CartController implements CartApi {
 
     @GetMapping("/cart/validate")
     public ResponseEntity<Void> getCartValidateResult(
-        @Auth(permit = {GENERAL, STUDENT}) Integer userId
+        @Auth(permit = {GENERAL, STUDENT}) Integer userId,
+        @RequestParam(name = "order_type") OrderType orderType
     ) {
-        cartQueryService.validateCart(userId);
+        cartQueryService.validateCart(userId, orderType);
         return ResponseEntity.ok().build();
     }
 

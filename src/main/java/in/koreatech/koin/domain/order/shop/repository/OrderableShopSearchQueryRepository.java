@@ -15,14 +15,15 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import in.koreatech.koin.domain.order.shop.dto.shoplist.OrderableShopBaseInfo;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerMenuNameSearchRelatedKeywordResult;
-import in.koreatech.koin.domain.order.shop.dto.shopsearch.OrderableShopSearchRelatedKeywordResponse.InnerShopNameSearchRelatedKeywordResult;
+import in.koreatech.koin.domain.order.shop.model.readmodel.MenuNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
+import in.koreatech.koin.domain.order.shop.model.readmodel.ShopNameKeywordHit;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -31,21 +32,21 @@ public class OrderableShopSearchQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<InnerShopNameSearchRelatedKeywordResult> findAllOrderableShopByKeyword(String keyword) {
+    public List<ShopNameKeywordHit> findAllOrderableShopByKeyword(List<String> keywords) {
         return queryFactory
-            .select(Projections.constructor(InnerShopNameSearchRelatedKeywordResult.class,
+            .select(Projections.constructor(ShopNameKeywordHit.class,
                 orderableShop.id,
                 shop.name
             ))
             .from(shop)
             .innerJoin(orderableShop).on(orderableShop.shop.id.eq(shop.id))
-            .where(shop.name.contains(keyword))
+            .where(shopNameContainsAnyOfKeywords(keywords))
             .fetch();
     }
 
-    public List<InnerMenuNameSearchRelatedKeywordResult> findAllMenuByKeyword(String keyword) {
+    public List<MenuNameKeywordHit> findAllMenuByKeyword(List<String> keywords) {
         return queryFactory
-            .select(Projections.constructor(InnerMenuNameSearchRelatedKeywordResult.class,
+            .select(Projections.constructor(MenuNameKeywordHit.class,
                 orderableShop.id,
                 shop.name,
                 orderableShopMenu.name
@@ -53,11 +54,11 @@ public class OrderableShopSearchQueryRepository {
             .from(orderableShopMenu)
             .innerJoin(orderableShop).on(orderableShopMenu.orderableShop.eq(orderableShop))
             .innerJoin(shop).on(orderableShop.shop.eq(shop))
-            .where(orderableShopMenu.name.contains(keyword))
+            .where(menuNameContainsAnyOfKeywords(keywords))
             .fetch();
     }
 
-    public List<OrderableShopBaseInfo> searchOrderableShopsByMenuKeyword(String keyword) {
+    public List<OrderableShopBaseInfo> searchOrderableShopsByMenuKeyword(List<String> keywords) {
         var avgRatingExpression = getReviewRatingAvgExpression();
 
         return queryFactory
@@ -85,7 +86,7 @@ public class OrderableShopSearchQueryRepository {
             .innerJoin(shopOperation).on(shopOperation.shop.id.eq(shop.id))
             .leftJoin(shopReview).on(shopReview.shop.id.eq(shop.id)
                 .and(shopReview.isDeleted.isFalse())
-            ).where(orderableShopMenu.name.contains(keyword))
+            ).where(menuNameContainsAnyOfKeywords(keywords))
             .groupBy(shop.id, orderableShop.id, shop.name,
                 orderableShop.delivery, orderableShop.takeout,
                 orderableShop.serviceEvent, orderableShop.minimumOrderAmount,
@@ -93,7 +94,7 @@ public class OrderableShopSearchQueryRepository {
             .fetch();
     }
 
-    public List<OrderableShopBaseInfo> searchOrderableShopsByShopNameKeyword(String keyword) {
+    public List<OrderableShopBaseInfo> searchOrderableShopsByShopNameKeyword(List<String> keywords) {
         var avgRatingExpression = getReviewRatingAvgExpression();
 
         return queryFactory
@@ -120,7 +121,7 @@ public class OrderableShopSearchQueryRepository {
             .innerJoin(shopOperation).on(shopOperation.shop.id.eq(shop.id))
             .leftJoin(shopReview).on(shopReview.shop.id.eq(shop.id)
                 .and(shopReview.isDeleted.isFalse())
-            ).where(shop.name.contains(keyword))
+            ).where(shopNameContainsAnyOfKeywords(keywords))
             .groupBy(shop.id, orderableShop.id, shop.name,
                 orderableShop.delivery, orderableShop.takeout,
                 orderableShop.serviceEvent, orderableShop.minimumOrderAmount,
@@ -143,12 +144,12 @@ public class OrderableShopSearchQueryRepository {
             ));
     }
 
-    public Map<Integer, List<String>> findOrderableShopContainMenuNameByOrderableShopIds(List<Integer> orderableShopIds, String keyword) {
+    public Map<Integer, List<String>> findOrderableShopContainMenuNameByOrderableShopIds(List<Integer> orderableShopIds, List<String> keywords) {
         return queryFactory
             .select(orderableShopMenu.orderableShop.id, orderableShopMenu.name)
             .from(orderableShopMenu)
             .where(orderableShopMenu.orderableShop.id.in(orderableShopIds)
-                .and(orderableShopMenu.name.contains(keyword))
+                .and(menuNameContainsAnyOfKeywords(keywords))
             ).fetch()
             .stream()
             .collect(Collectors.groupingBy(
@@ -157,6 +158,39 @@ public class OrderableShopSearchQueryRepository {
             ));
     }
 
+    /**
+     * 키워드 리스트 중 하나라도 메뉴 이름에 포함되는 BooleanExpression을 생성
+     * (menu.name LIKE '%keyword1%' OR menu.name LIKE '%keyword2%' OR ...)
+     */
+    private BooleanExpression menuNameContainsAnyOfKeywords(List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) {
+            return null;
+        }
+        return keywords.stream()
+            .map(orderableShopMenu.name::contains)
+            .reduce(BooleanExpression::or)
+            .orElse(null);
+    }
+
+    /**
+     * 키워드 리스트 중 하나라도 상점 이름에 포함되는 BooleanExpression을 생성
+     * ((shop.name LIKE '%keyword1%' OR shop.internal_name LIKE '%keyword1%') OR ...)
+     */
+    private BooleanExpression shopNameContainsAnyOfKeywords(List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) {
+            return null;
+        }
+
+        return keywords.stream()
+            .map(keyword -> shop.name.contains(keyword)
+                .or(shop.internalName.contains(keyword)))
+            .reduce(BooleanExpression::or)
+            .orElse(null);
+    }
+
+    /**
+     * 상점 리뷰 점수의 평균을 반올림 한 값을 구하는 서브쿼리 생성
+     */
     private NumberExpression<Double> getReviewRatingAvgExpression() {
         return Expressions.numberTemplate(
             Double.class,

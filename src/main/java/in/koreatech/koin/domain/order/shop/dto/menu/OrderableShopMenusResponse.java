@@ -15,8 +15,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record OrderableShopMenusResponse(
     @Schema(description = "메뉴 그룹 ID", example = "1")
     Integer menuGroupId,
+
     @Schema(description = "메뉴 그룹 이름", example = "대표 메뉴")
     String menuGroupName,
+
     List<InnerMenuResponse> menus
 ) {
     public static OrderableShopMenusResponse from(OrderableShopMenuGroup menuGroup) {
@@ -28,14 +30,19 @@ public record OrderableShopMenusResponse(
     public record InnerMenuResponse(
         @Schema(description = "메뉴 ID", example = "1")
         Integer id,
+
         @Schema(description = "메뉴 이름", example = "후라이드 치킨")
         String name,
+
         @Schema(description = "메뉴 설명", example = "바삭하고 고소한 오리지널 후라이드", nullable = true)
         String description,
+
         @Schema(description = "메뉴 썸네일 이미지 링크", example = "https://sample-image.com/chicken.jpg", nullable = true)
         String thumbnailImage,
+
         @Schema(description = "메뉴 품절 여부", example = "false")
         Boolean isSoldOut,
+
         List<OrderableShopMenuPricesResponse> prices
     ) {
         private static List<InnerMenuResponse> from(OrderableShopMenuGroup menuGroup) {

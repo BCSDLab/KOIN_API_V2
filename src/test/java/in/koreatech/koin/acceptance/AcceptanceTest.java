@@ -143,6 +143,7 @@ public abstract class AcceptanceTest {
 
     protected void clear() {
         dataInitializer.clear();
+        dataInitializer.initIncrement();
     }
 
     protected void forceVerify(Runnable runnable) {

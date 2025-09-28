@@ -17,8 +17,8 @@ import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import in.koreatech.koin.admin.history.repository.AdminActivityHistoryRepository;
-import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
+import in.koreatech.koin.admin.manager.model.Admin;
+import in.koreatech.koin.admin.manager.repository.AdminRepository;
 import in.koreatech.koin.global.auth.AuthContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -48,11 +48,11 @@ public class AdminActivityHistoryAspect {
     private void excludeGetMapping() {
     }
 
-    @Pointcut("!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.adminLogin(..)) && "
-        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.logout(..)) && "
-        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.refresh(..)) && "
-        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.createAdmin(..)) && "
-        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.adminPasswordChange(..)) && "
+    @Pointcut("!execution(* in.koreatech.koin.admin.manager.controller.AdminController.adminLogin(..)) && "
+        + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.logout(..)) && "
+        + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.refresh(..)) && "
+        + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.createAdmin(..)) && "
+        + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.adminPasswordChange(..)) && "
         + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.assignOrGetAbtestVariable(..)) &&"
         + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.issueAccessHistoryId(..))")
     private void excludeSpecificMethods() {
