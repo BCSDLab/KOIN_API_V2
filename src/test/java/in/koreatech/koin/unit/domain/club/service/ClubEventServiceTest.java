@@ -190,7 +190,7 @@ public class ClubEventServiceTest {
             studentId = 1;
 
             club = ClubFixture.활성화_BCSD_동아리(clubId);
-            clubEvent = 동아리_행사(eventId, club);
+            clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.UPCOMING, LocalDateTime.now());
             student = StudentFixture.익명_학생(mock(Department.class));
 
             when(clubRepository.getById(clubId)).thenReturn(club);
@@ -295,7 +295,7 @@ public class ClubEventServiceTest {
             eventId = 1;
             studentId = 1;
             club = ClubFixture.활성화_BCSD_동아리(clubId);
-            clubEvent = 동아리_행사(eventId, club);
+            clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.UPCOMING, LocalDateTime.now());
             student = StudentFixture.익명_학생(mock(Department.class));
 
             when(clubRepository.getById(clubId)).thenReturn(club);
@@ -341,7 +341,7 @@ public class ClubEventServiceTest {
             clubId = 1;
             eventId = 1;
             club = ClubFixture.활성화_BCSD_동아리(clubId);
-            clubEvent = 동아리_행사(eventId, club);
+            clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.ENDED, LocalDateTime.now());
 
             when(clubEventRepository.getClubEventByIdAndClubId(eventId, clubId)).thenReturn(clubEvent);
         }
@@ -565,25 +565,6 @@ public class ClubEventServiceTest {
                     );
             }
         }
-    }
-
-    private ClubEvent 동아리_행사(Integer eventId, Club club) {
-        ClubEvent clubEvent = ClubEvent.builder()
-            .id(eventId)
-            .club(club)
-            .name("B-CON")
-            .startDate(LocalDateTime.of(2025, 9, 1, 0, 0, 0))
-            .endDate(LocalDateTime.of(2025, 9, 15, 0, 0, 0))
-            .introduce("BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.")
-            .content("여러 동아리원들과 자신의 생각, 경험에 대해 나눠요.")
-            .notifiedBeforeOneHour(false)
-            .build();
-
-        ClubEventImage clubEventImage = 동아리_행사_이미지(clubEvent);
-
-        ReflectionTestUtils.setField(clubEvent, "images", List.of(clubEventImage));
-
-        return clubEvent;
     }
 
     private ClubEvent 상태별_동아리_행사(Integer eventId, Club club, ClubEventStatus clubEventStatus, LocalDateTime createdAt) {
