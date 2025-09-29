@@ -8,6 +8,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,7 +87,14 @@ public record PaymentResponse(
     LocalDateTime approvedAt,
 
     @Schema(description = "결제 수단", example = "카드", requiredMode = REQUIRED)
-    String paymentMethod
+    String paymentMethod,
+
+    @Schema(description = "예상 시각", example = "17:45", requiredMode = NOT_REQUIRED)
+    @JsonFormat(pattern = "HH:mm")
+    LocalTime estimatedAt,
+
+    @Schema(description = "주문 상태", example = "COOKING", requiredMode = REQUIRED)
+    String orderStatus
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -143,7 +151,8 @@ public record PaymentResponse(
 
     public static PaymentResponse of(
         Payment payment,
-        Order order
+        Order order,
+        LocalTime estimatedAt
     ) {
         OrderableShop orderableShop = order.getOrderableShop();
         Shop shop = orderableShop.getShop();
@@ -173,6 +182,8 @@ public record PaymentResponse(
             provideCutlery = takeout.getProvideCutlery();
         }
 
+        LocalTime estimatedTime = estimatedAt;
+
         return new PaymentResponse(
             payment.getId(),
             orderableShop.getId(),
@@ -195,7 +206,9 @@ public record PaymentResponse(
             payment.getEasyPayCompany(),
             payment.getRequestedAt(),
             payment.getApprovedAt(),
-            payment.getPaymentMethod().getDisplayName()
+            payment.getPaymentMethod().getDisplayName(),
+            estimatedTime,
+            order.getStatus().name()
         );
     }
 }
