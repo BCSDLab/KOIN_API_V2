@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.payment.dto.response;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
 import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
-import static in.koreatech.koin.domain.order.order.model.OrderStatus.CONFIRMING;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -12,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -151,29 +149,10 @@ public record PaymentResponse(
         }
     }
 
-    private static Optional<LocalTime> computeEstimatedTime(Order order) {
-        if (order.getStatus() == CONFIRMING) {
-            return Optional.empty();
-        }
-
-        if (order.getOrderType() == DELIVERY) {
-            OrderDelivery delivery = order.getOrderDelivery();
-            if (delivery != null && delivery.getEstimatedArrivalAt() != null) {
-                return Optional.of(LocalTime.from(delivery.getEstimatedArrivalAt()));
-            }
-        } else if (order.getOrderType() == TAKE_OUT) {
-            OrderTakeout takeout = order.getOrderTakeout();
-            if (takeout != null && takeout.getEstimatedPackagedAt() != null) {
-                return Optional.of(LocalTime.from(takeout.getEstimatedPackagedAt()));
-            }
-        }
-
-        return Optional.empty();
-    }
-
     public static PaymentResponse of(
         Payment payment,
-        Order order
+        Order order,
+        LocalTime estimatedAt
     ) {
         OrderableShop orderableShop = order.getOrderableShop();
         Shop shop = orderableShop.getShop();
@@ -203,7 +182,7 @@ public record PaymentResponse(
             provideCutlery = takeout.getProvideCutlery();
         }
 
-        LocalTime estimatedTime = computeEstimatedTime(order).orElse(null);
+        LocalTime estimatedTime = estimatedAt;
 
         return new PaymentResponse(
             payment.getId(),
