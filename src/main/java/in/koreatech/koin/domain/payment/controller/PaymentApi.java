@@ -114,7 +114,44 @@ public interface PaymentApi {
         @Auth(permit = {STUDENT}) Integer userId
     );
 
-    @Operation(summary = "결제 단건 조회를 한다.")
+    @Operation(
+        summary = "결제 단건 조회를 한다.",
+        description = """
+            ## Path Variable
+            - `paymentId`: 결제 고유 ID
+
+            ## 응답 Body 필드 설명
+            - `id`: 결제 고유 ID
+            - `orderable_shop_id`: 주문 상점 고유 ID
+            - `delivery_address`: 배달 주소
+            - `delivery_address_details`: 배달상세 주소
+            - `shop_address`: 가게 주소
+            - `longitude`: 배달 주소 위도
+            - `latitude`: 배달 주소 경도
+            - `to_owner`: 사장님에게
+            - `to_rider`: 라이더에게
+            - `provide_cutlery`: 수저, 포크 수령 여부
+            - `total_menu_price`: 메뉴 총 금액
+            - `delivery_tip`: 배달비
+            - `amount`: 결제 금액
+            - `shop_name`: 상점 이름
+            - `menus`: 주문 메뉴 목록
+              - `name`: 메뉴 이름
+              - `quantity`: 수량
+              - `price`: 메뉴 가격
+              - `options`: 선택한 옵션 목록
+                - `option_group_name`: 옵션 그룹 이름
+                - `option_name`: 옵션 이름
+                - `option_price`: 옵션 가격
+            - `order_type`: 주문 방법 (DELIVERY | TAKE_OUT)
+            - `easy_pay_company`: 간편결제사
+            - `requested_at`: 결제 요청 일시 (yyyy.MM.dd HH:mm)
+            - `approved_at`: 결제 승인 일시 (yyyy.MM.dd HH:mm)
+            - `payment_method`: 결제 수단
+            - `estimated_at`: 예상 시각 (HH:mm)
+            - `order_status`: 주문 상태
+            """
+    )
     @GetMapping("/{paymentId}")
     ResponseEntity<PaymentResponse> getPayment(
         @Parameter(description = "결제 고유 ID", example = "1")

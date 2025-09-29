@@ -3,13 +3,16 @@ package in.koreatech.koin.domain.payment.dto.response;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
 import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
+import static in.koreatech.koin.domain.order.order.model.OrderStatus.CONFIRMING;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -86,7 +89,14 @@ public record PaymentResponse(
     LocalDateTime approvedAt,
 
     @Schema(description = "결제 수단", example = "카드", requiredMode = REQUIRED)
-    String paymentMethod
+    String paymentMethod,
+
+    @Schema(description = "예상 시각", example = "17:45", requiredMode = NOT_REQUIRED)
+    @JsonFormat(pattern = "HH:mm")
+    LocalTime estimatedAt,
+
+    @Schema(description = "주문 상태", example = "COOKING", requiredMode = REQUIRED)
+    String orderStatus
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -141,6 +151,26 @@ public record PaymentResponse(
         }
     }
 
+    private static Optional<LocalTime> computeEstimatedTime(Order order) {
+        if (order.getStatus() == CONFIRMING) {
+            return Optional.empty();
+        }
+
+        if (order.getOrderType() == DELIVERY) {
+            OrderDelivery delivery = order.getOrderDelivery();
+            if (delivery != null && delivery.getEstimatedArrivalAt() != null) {
+                return Optional.of(LocalTime.from(delivery.getEstimatedArrivalAt()));
+            }
+        } else if (order.getOrderType() == TAKE_OUT) {
+            OrderTakeout takeout = order.getOrderTakeout();
+            if (takeout != null && takeout.getEstimatedPackagedAt() != null) {
+                return Optional.of(LocalTime.from(takeout.getEstimatedPackagedAt()));
+            }
+        }
+
+        return Optional.empty();
+    }
+
     public static PaymentResponse of(
         Payment payment,
         Order order
@@ -173,6 +203,8 @@ public record PaymentResponse(
             provideCutlery = takeout.getProvideCutlery();
         }
 
+        LocalTime estimatedTime = computeEstimatedTime(order).orElse(null);
+
         return new PaymentResponse(
             payment.getId(),
             orderableShop.getId(),
@@ -195,7 +227,9 @@ public record PaymentResponse(
             payment.getEasyPayCompany(),
             payment.getRequestedAt(),
             payment.getApprovedAt(),
-            payment.getPaymentMethod().getDisplayName()
+            payment.getPaymentMethod().getDisplayName(),
+            estimatedTime,
+            order.getStatus().name()
         );
     }
 }
