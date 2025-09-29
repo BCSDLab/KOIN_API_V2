@@ -15,6 +15,7 @@ import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.community.article.model.Article;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminNoticesResponse(
     @Schema(description = "공지사항 목록")
     List<InnerAdminNoticeResponse> notices,
