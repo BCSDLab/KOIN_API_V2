@@ -308,7 +308,7 @@ public class ClubEventServiceTest {
         }
 
         @Test
-        void 동아리_행사를_삭제한다() {
+        void 동아리_행사를_삭제하면_동아리_행사_이미지도_삭제된다() {
             // when
             clubEventService.deleteClubEvent(clubId, eventId, studentId);
 
