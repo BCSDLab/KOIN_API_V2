@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,6 +22,7 @@ public class SlackClient {
 
     private final RestTemplate restTemplate;
 
+    @Retryable
     public void sendMessage(SlackNotification slackNotification) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(APPLICATION_JSON);
