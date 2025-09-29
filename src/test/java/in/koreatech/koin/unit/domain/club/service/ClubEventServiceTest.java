@@ -140,7 +140,7 @@ public class ClubEventServiceTest {
             studentId = 1;
 
             club = ClubFixture.활성화_BCSD_동아리(clubId);
-            student = StudentFixture.익명_학생(mock(Department.class));
+            student = StudentFixture.익명_학생(studentId, mock(Department.class));
 
             when(clubRepository.getById(clubId)).thenReturn(club);
             when(studentRepository.getById(studentId)).thenReturn(student);
@@ -223,8 +223,6 @@ public class ClubEventServiceTest {
         @Test
         void 관리자가_아닌_학생이_동아리_행사를_생성하면_예외를_발생한다() {
             // given
-            ReflectionTestUtils.setField(student, "id", studentId);
-
             doThrow(AuthorizationException.withDetail("studentId: " + studentId))
                 .when(clubManagerService)
                 .isClubManager(clubId, studentId);
@@ -255,7 +253,7 @@ public class ClubEventServiceTest {
 
             club = ClubFixture.활성화_BCSD_동아리(clubId);
             clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.UPCOMING, LocalDateTime.now());
-            student = StudentFixture.익명_학생(mock(Department.class));
+            student = StudentFixture.익명_학생(studentId, mock(Department.class));
 
             when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
@@ -330,8 +328,6 @@ public class ClubEventServiceTest {
         @Test
         void 관리자가_아닌_학생이_동아리_행사_정보를_수정하면_예외를_발생한다() {
             // given
-            ReflectionTestUtils.setField(student, "id", studentId);
-
             doThrow(AuthorizationException.withDetail("studentId: " + studentId))
                 .when(clubManagerService)
                 .isClubManager(clubId, studentId);
@@ -360,7 +356,7 @@ public class ClubEventServiceTest {
             studentId = 1;
             club = ClubFixture.활성화_BCSD_동아리(clubId);
             clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.UPCOMING, LocalDateTime.now());
-            student = StudentFixture.익명_학생(mock(Department.class));
+            student = StudentFixture.익명_학생(studentId, mock(Department.class));
 
             when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
@@ -379,8 +375,6 @@ public class ClubEventServiceTest {
         @Test
         void 관리자가_아닌_학생이_동아리_행사를_삭제하면_예외를_발생한다() {
             // given
-            ReflectionTestUtils.setField(student, "id", studentId);
-
             doThrow(AuthorizationException.withDetail("studentId: " + studentId))
                 .when(clubManagerService)
                 .isClubManager(clubId, studentId);
