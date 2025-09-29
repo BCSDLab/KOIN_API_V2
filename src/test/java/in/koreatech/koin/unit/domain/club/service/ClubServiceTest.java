@@ -130,7 +130,7 @@ public class ClubServiceTest {
         }
 
         @Test
-        void 동아리_생성_요청을_처리한다() {
+        void 동아리_생성을_하고_이벤트를_발행한다() {
             // when
             clubService.createClubRequest(request, studentId);
 

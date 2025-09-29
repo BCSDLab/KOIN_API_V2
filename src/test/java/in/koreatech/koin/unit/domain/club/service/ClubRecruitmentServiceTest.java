@@ -116,7 +116,7 @@ public class ClubRecruitmentServiceTest {
         }
 
         @Test
-        void 동아리_모집을_생성한다() {
+        void 동아리_모집을_생성하고_이벤트를_발행한다() {
             // given
             when(clubRecruitmentRepository.findByClub(club)).thenReturn(Optional.empty());
 
@@ -203,7 +203,7 @@ public class ClubRecruitmentServiceTest {
         }
 
         @Test
-        void 동아리_모집을_수정한다() {
+        void 동아리_모집을_수정하고_이벤트를_발행한다() {
             // when
             clubRecruitmentService.modifyRecruitment(request, clubId, studentId);
 
