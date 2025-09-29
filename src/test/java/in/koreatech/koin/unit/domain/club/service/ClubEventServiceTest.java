@@ -18,7 +18,6 @@ import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.unit.fixture.ClubFixture;
 import in.koreatech.koin.unit.fixture.StudentFixture;
@@ -55,9 +54,6 @@ public class ClubEventServiceTest {
 
     @Mock
     private ClubEventSubscriptionRepository clubEventSubscriptionRepository;
-
-    @Mock
-    private UserRepository userRepository;
 
     @Mock
     private ClubManagerService clubManagerService;
