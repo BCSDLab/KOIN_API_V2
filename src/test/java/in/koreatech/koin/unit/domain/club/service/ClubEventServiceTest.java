@@ -61,6 +61,61 @@ public class ClubEventServiceTest {
     @InjectMocks
     private ClubEventService clubEventService;
 
+    private ClubEvent 상태별_동아리_행사(Integer eventId, Club club, ClubEventStatus clubEventStatus, LocalDateTime createdAt) {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+
+        switch (clubEventStatus) {
+            case SOON -> {
+                startDate = now.plusHours(1);
+                endDate = now.plusDays(1);
+            }
+            case ONGOING -> {
+                startDate = now.minusDays(1);
+                endDate = now.plusDays(1);
+            }
+            case UPCOMING -> {
+                startDate = now.plusDays(10);
+                endDate = now.plusDays(15);
+            }
+            case ENDED -> {
+                startDate = now.minusDays(10);
+                endDate = now.minusDays(5);
+            }
+            default -> {
+                startDate = now;
+                endDate = now;
+            }
+        }
+
+        ClubEvent clubEvent = ClubEvent.builder()
+            .id(eventId)
+            .club(club)
+            .name("B-CON " + eventId)
+            .startDate(startDate)
+            .endDate(endDate)
+            .introduce("BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.")
+            .content("여러 동아리원들과 자신의 생각, 경험에 대해 나눠요.")
+            .notifiedBeforeOneHour(false)
+            .build();
+
+        ClubEventImage clubEventImage = 동아리_행사_이미지(clubEvent);
+
+        ReflectionTestUtils.setField(clubEvent, "images", List.of(clubEventImage));
+        ReflectionTestUtils.setField(clubEvent, "createdAt", createdAt);
+
+        return clubEvent;
+    }
+
+    private ClubEventImage 동아리_행사_이미지(ClubEvent clubEvent) {
+        return ClubEventImage.builder()
+            .clubEvent(clubEvent)
+            .imageUrl("img")
+            .build();
+    }
+
     @Nested
     class CreateClubEvent {
 
@@ -565,60 +620,5 @@ public class ClubEventServiceTest {
                     );
             }
         }
-    }
-
-    private ClubEvent 상태별_동아리_행사(Integer eventId, Club club, ClubEventStatus clubEventStatus, LocalDateTime createdAt) {
-        LocalDateTime now = LocalDateTime.now();
-
-        LocalDateTime startDate;
-        LocalDateTime endDate;
-
-        switch (clubEventStatus) {
-            case SOON -> {
-                startDate = now.plusHours(1);
-                endDate = now.plusDays(1);
-            }
-            case ONGOING -> {
-                startDate = now.minusDays(1);
-                endDate = now.plusDays(1);
-            }
-            case UPCOMING -> {
-                startDate = now.plusDays(10);
-                endDate = now.plusDays(15);
-            }
-            case ENDED -> {
-                startDate = now.minusDays(10);
-                endDate = now.minusDays(5);
-            }
-            default -> {
-                startDate = now;
-                endDate = now;
-            }
-        }
-
-        ClubEvent clubEvent = ClubEvent.builder()
-            .id(eventId)
-            .club(club)
-            .name("B-CON " + eventId)
-            .startDate(startDate)
-            .endDate(endDate)
-            .introduce("BCSDLab의 멘토 혹은 레귤러들의 경험을 공유해요.")
-            .content("여러 동아리원들과 자신의 생각, 경험에 대해 나눠요.")
-            .notifiedBeforeOneHour(false)
-            .build();
-
-        ClubEventImage clubEventImage = 동아리_행사_이미지(clubEvent);
-
-        ReflectionTestUtils.setField(clubEvent, "images", List.of(clubEventImage));
-        ReflectionTestUtils.setField(clubEvent, "createdAt", createdAt);
-
-        return clubEvent;
-    }
-
-    private ClubEventImage 동아리_행사_이미지(ClubEvent clubEvent) {
-        return ClubEventImage.builder()
-            .clubEvent(clubEvent)
-            .imageUrl("img")
-            .build();
     }
 }
