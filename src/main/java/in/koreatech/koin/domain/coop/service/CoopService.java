@@ -55,6 +55,7 @@ import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
 import in.koreatech.koin.domain.coop.exception.DuplicateExcelRequestException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
+import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
@@ -111,6 +112,7 @@ public class CoopService {
             dining.setSoldOut(now);
             boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), false);
             if (isOpened && diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty()) {
+                diningSoldOutCacheRepository.save(DiningSoldOutCache.from(dining.getPlace()));
                 eventPublisher.publishEvent(
                     new DiningSoldOutEvent(dining.getId(), dining.getPlace(), dining.getType()));
             }
