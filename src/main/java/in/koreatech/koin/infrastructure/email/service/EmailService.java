@@ -6,8 +6,14 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.amazonaws.services.simpleemail.model.Body;
+import com.amazonaws.services.simpleemail.model.Content;
+import com.amazonaws.services.simpleemail.model.Destination;
+import com.amazonaws.services.simpleemail.model.Message;
+import com.amazonaws.services.simpleemail.model.SendEmailRequest;
+
 import in.koreatech.koin.infrastructure.email.form.EmailForm;
-import in.koreatech.koin.infrastructure.email.model.SesMailSender;
+import in.koreatech.koin.infrastructure.email.client.SesMailSender;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,14 +26,22 @@ public class EmailService {
     private final TemplateEngine templateEngine;
 
     public void sendVerificationEmail(String targetEmail, EmailForm emailForm) {
-        String mailForm = generateMailForm(emailForm.getContent(), emailForm.getFilePath());
-        String subject = emailForm.getSubject();
-        sesMailSender.sendMail(NO_REPLY_EMAIL_ADDRESS, targetEmail, subject, mailForm);
+        SendEmailRequest request = createEmailRequest(targetEmail, emailForm);
+        sesMailSender.sendMail(request);
     }
 
-    private String generateMailForm(Map<String, String> contents, String fileLocation) {
+    private SendEmailRequest createEmailRequest(String targetEmail, EmailForm emailForm) {
         Context context = new Context();
+        Map<String, String> contents = emailForm.getContent();
         contents.forEach(context::setVariable);
-        return templateEngine.process(fileLocation, context);
+
+        String htmlBody = templateEngine.process(emailForm.getFilePath(), context);
+
+        return new SendEmailRequest()
+            .withDestination(new Destination().withToAddresses(targetEmail))
+            .withSource(NO_REPLY_EMAIL_ADDRESS)
+            .withMessage(new Message()
+                .withBody(new Body().withHtml(new Content().withCharset("UTF-8").withData(htmlBody)))
+                .withSubject(new Content().withCharset("UTF-8").withData(emailForm.getSubject())));
     }
 }

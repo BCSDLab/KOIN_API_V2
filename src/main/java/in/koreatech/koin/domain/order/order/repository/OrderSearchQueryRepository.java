@@ -71,7 +71,7 @@ public class OrderSearchQueryRepository {
             .innerJoin(orderableShop).on(orderableShop.id.eq(order.orderableShop.id))
             .innerJoin(shopOperation).on(shopOperation.shop.id.eq(orderableShop.shop.id))
             .where(predicate)
-            .orderBy(order.id.asc())
+            .orderBy(order.createdAt.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
