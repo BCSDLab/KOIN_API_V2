@@ -4,6 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
@@ -38,5 +39,10 @@ public class SesMailSender {
 
         amazonSimpleEmailService.sendEmail(request);
         log.info("메일이 성공적으로 전송됐습니다.");
+    }
+
+    @Recover
+    public void mailRecovery(Exception e, String from, String to, String subject, String htmlBody) {
+        log.error("메일 전송에 실패했습니다. from: {}, to: {}, subject: {}", from, to, subject, e);
     }
 }
