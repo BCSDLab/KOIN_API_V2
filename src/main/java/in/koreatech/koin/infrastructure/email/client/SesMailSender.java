@@ -22,16 +22,8 @@ public class SesMailSender {
     private final AmazonSimpleEmailService amazonSimpleEmailService;
 
     @Retryable
-    public void sendMail(String from, String to, String subject, String htmlBody) {
-        SendEmailRequest request = new SendEmailRequest()
-            .withDestination(new Destination().withToAddresses(to))
-            .withSource(from)
-            .withMessage(new Message()
-                .withBody(new Body().withHtml(new Content().withCharset("UTF-8").withData(htmlBody)))
-                .withSubject(new Content().withCharset("UTF-8").withData(subject)));
-
+    public void sendMail(SendEmailRequest request) {
         amazonSimpleEmailService.sendEmail(request);
-        log.info("메일이 성공적으로 전송됐습니다.");
     }
 
     @Recover
