@@ -28,6 +28,12 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/app.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/app.%d{yyyy-MM}.log.gz</fileNamePattern>
+
+            <maxHistory>12</maxHistory>
+        </rollingPolicy>
     </appender>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
