@@ -70,8 +70,10 @@ public class ExpressBusServiceTest {
         departTime2 = LocalTime.of(10, 0);
         departTime3 = LocalTime.of(11, 30);
 
-        ExpressBusRoute routeFromKoreatechToTerminal = new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName());
-        ExpressBusRoute routeFromTerminalToKoreatech = new ExpressBusRoute(departTerminal.getName(), arrivalKoreatech.getName());
+        ExpressBusRoute routeFromKoreatechToTerminal = new ExpressBusRoute(departKoreatech.getName(),
+            arrivalTerminal.getName());
+        ExpressBusRoute routeFromTerminalToKoreatech = new ExpressBusRoute(departTerminal.getName(),
+            arrivalKoreatech.getName());
 
         // 2개 항목이 있는 버스 정보
         List<ExpressBusCacheInfo> busInfos = Arrays.asList(
@@ -105,11 +107,11 @@ public class ExpressBusServiceTest {
                     new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName()))))
                 .thenReturn(Optional.of(cacheWithThreeItems));
 
-            //when
+            // when
             SingleBusTimeResponse response = expressBusService.searchBusTime(busType, departKoreatech, arrivalTerminal,
                 targetTime);
 
-            //then
+            // then
             assertThat(response).isNotNull();
             assertThat(response.busName()).isEqualTo(BusType.EXPRESS.getName());
             assertThat(response.busTime()).isEqualTo(departTime3); // 11:30이 가장 가까운 출발 시간
@@ -117,34 +119,34 @@ public class ExpressBusServiceTest {
 
         @Test
         void 캐시가_존재하지_않으면_null을_반환한다() {
-            //given
+            // given
             when(expressBusCacheRepository
                 .findById(ExpressBusCache.generateId(
                     new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName()))))
                 .thenReturn(Optional.empty());
 
-            //when
+            // when
             SingleBusTimeResponse response = expressBusService.searchBusTime(busType, departKoreatech, arrivalTerminal,
                 targetTime);
 
-            //then
+            // then
             assertThat(response).isNull();
         }
 
         @Test
         void 버스_출발_시간이_모두_타겟_시간_이전이면_버스시간이_NULL인_객체를_반환한다() {
-            //given
+            // given
             LocalDateTime targetTime = LocalDateTime.of(2024, 6, 10, 13, 0);
             when(expressBusCacheRepository
                 .findById(ExpressBusCache.generateId(
                     new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName()))))
                 .thenReturn(Optional.of(cacheWithThreeItems));
 
-            //when
+            // when
             SingleBusTimeResponse response = expressBusService.searchBusTime(busType, departKoreatech, arrivalTerminal,
                 targetTime);
 
-            //then
+            // then
             assertThat(response).isNotNull();
             assertThat(response.busName()).isEqualTo(BusType.EXPRESS.getName());
             assertThat(response.busTime()).isNull();
@@ -157,18 +159,18 @@ public class ExpressBusServiceTest {
 
         @Test
         void from_방향의_시간표를_조회한다() {
-            //given
+            // given
             String direction = "from";
             when(expressBusCacheRepository
                 .getById(ExpressBusCache.generateId(
                     new ExpressBusRoute(BusStation.KOREATECH.getName(), BusStation.TERMINAL.getName()))))
                 .thenReturn(cacheFromKoreatech);
 
-            //when
+            // when
             List<ExpressBusTimetable> timetables = expressBusService.getExpressBusTimetable(
                 direction);
 
-            //then
+            // then
             assertThat(timetables).hasSize(2);
 
             // 첫 번째 버스 시간표
@@ -190,18 +192,18 @@ public class ExpressBusServiceTest {
 
         @Test
         void to_방향의_시간표를_조회한다() {
-            //given
+            // given
             String direction = "to";
             when(expressBusCacheRepository
                 .getById(ExpressBusCache.generateId(
                     new ExpressBusRoute(BusStation.TERMINAL.getName(), BusStation.KOREATECH.getName()))))
                 .thenReturn(cacheFromTerminal);
 
-            //when
+            // when
             List<ExpressBusTimetable> timetables = expressBusService.getExpressBusTimetable(
                 direction);
 
-            //then
+            // then
             assertThat(timetables).hasSize(2);
 
             // 첫 번째 버스 시간표
@@ -223,28 +225,28 @@ public class ExpressBusServiceTest {
 
         @Test
         void 지원하지_않는_방향이면_예외가_발생한다() {
-            //given
+            // given
             String direction = "invalid";
 
-            //when & then
+            // when & then
             assertThatThrownBy(() -> expressBusService.getExpressBusTimetable(direction))
                 .isInstanceOf(UnsupportedOperationException.class);
         }
 
         @Test
         void 캐시가_존재하지_않으면_빈_목록을_반환한다() {
-            //given
+            // given
             String direction = "from";
             when(expressBusCacheRepository
                 .getById(ExpressBusCache.generateId(
                     new ExpressBusRoute(BusStation.KOREATECH.getName(), BusStation.TERMINAL.getName()))))
                 .thenReturn(null);
 
-            //when
+            // when
             List<ExpressBusTimetable> timetables = expressBusService.getExpressBusTimetable(
                 direction);
 
-            //then
+            // then
             assertThat(timetables).isEmpty();
         }
     }
