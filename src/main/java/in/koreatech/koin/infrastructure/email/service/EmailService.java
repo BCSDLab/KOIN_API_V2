@@ -7,7 +7,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import in.koreatech.koin.infrastructure.email.form.EmailForm;
-import in.koreatech.koin.infrastructure.email.model.SesMailSender;
+import in.koreatech.koin.infrastructure.email.client.SesMailSender;
 import lombok.RequiredArgsConstructor;
 
 @Service

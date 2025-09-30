@@ -9,13 +9,16 @@ import java.util.Map;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.infrastructure.slack.model.SlackNotification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SlackClient {
@@ -37,5 +40,10 @@ public class SlackClient {
             request,
             String.class
         );
+    }
+
+    @Recover
+    public void slackRecovery(Exception e, SlackNotification slackNotification) {
+        log.error("슬랙 메시지 전송에 실패했습니다. content: {}", slackNotification.getContent(), e);
     }
 }
