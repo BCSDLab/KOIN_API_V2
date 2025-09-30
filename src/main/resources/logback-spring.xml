@@ -25,9 +25,9 @@
     <conversionRule conversionWord="clr"
       converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
 
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-      <file>logs/app.log</file>
-      <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/app.log</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
