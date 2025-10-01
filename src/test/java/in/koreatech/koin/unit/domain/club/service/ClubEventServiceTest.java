@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.club.event.enums.ClubEventStatus;
 import in.koreatech.koin.domain.club.event.enums.ClubEventType;
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import in.koreatech.koin.domain.club.event.model.ClubEventImage;
+import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
 import in.koreatech.koin.domain.club.event.repository.ClubEventImageRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventRepository;
 import in.koreatech.koin.domain.club.event.repository.ClubEventSubscriptionRepository;
@@ -18,9 +19,14 @@ import in.koreatech.koin.domain.club.manager.service.ClubManagerService;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.unit.fixture.ClubFixture;
 import in.koreatech.koin.unit.fixture.StudentFixture;
+import in.koreatech.koin.unit.fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,6 +60,9 @@ public class ClubEventServiceTest {
 
     @Mock
     private ClubEventSubscriptionRepository clubEventSubscriptionRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private ClubManagerService clubManagerService;
@@ -131,7 +140,7 @@ public class ClubEventServiceTest {
             studentId = 1;
 
             club = ClubFixture.활성화_BCSD_동아리(clubId);
-            student = StudentFixture.익명_학생(mock(Department.class));
+            student = StudentFixture.익명_학생(studentId, mock(Department.class));
 
             when(clubRepository.getById(clubId)).thenReturn(club);
             when(studentRepository.getById(studentId)).thenReturn(student);
@@ -214,8 +223,6 @@ public class ClubEventServiceTest {
         @Test
         void 관리자가_아닌_학생이_동아리_행사를_생성하면_예외를_발생한다() {
             // given
-            ReflectionTestUtils.setField(student, "id", studentId);
-
             doThrow(AuthorizationException.withDetail("studentId: " + studentId))
                 .when(clubManagerService)
                 .isClubManager(clubId, studentId);
@@ -246,7 +253,7 @@ public class ClubEventServiceTest {
 
             club = ClubFixture.활성화_BCSD_동아리(clubId);
             clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.UPCOMING, LocalDateTime.now());
-            student = StudentFixture.익명_학생(mock(Department.class));
+            student = StudentFixture.익명_학생(studentId, mock(Department.class));
 
             when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
@@ -321,8 +328,6 @@ public class ClubEventServiceTest {
         @Test
         void 관리자가_아닌_학생이_동아리_행사_정보를_수정하면_예외를_발생한다() {
             // given
-            ReflectionTestUtils.setField(student, "id", studentId);
-
             doThrow(AuthorizationException.withDetail("studentId: " + studentId))
                 .when(clubManagerService)
                 .isClubManager(clubId, studentId);
@@ -351,7 +356,7 @@ public class ClubEventServiceTest {
             studentId = 1;
             club = ClubFixture.활성화_BCSD_동아리(clubId);
             clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.UPCOMING, LocalDateTime.now());
-            student = StudentFixture.익명_학생(mock(Department.class));
+            student = StudentFixture.익명_학생(studentId, mock(Department.class));
 
             when(clubRepository.getById(clubId)).thenReturn(club);
             when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
@@ -370,8 +375,6 @@ public class ClubEventServiceTest {
         @Test
         void 관리자가_아닌_학생이_동아리_행사를_삭제하면_예외를_발생한다() {
             // given
-            ReflectionTestUtils.setField(student, "id", studentId);
-
             doThrow(AuthorizationException.withDetail("studentId: " + studentId))
                 .when(clubManagerService)
                 .isClubManager(clubId, studentId);
@@ -619,6 +622,134 @@ public class ClubEventServiceTest {
                         tuple(ClubEventStatus.ENDED.name(), true)
                     );
             }
+        }
+    }
+
+    @Nested
+    class SubscribeEventNotification {
+
+        Integer clubId;
+        Integer eventId;
+        Integer studentId;
+        Club club;
+        ClubEvent clubEvent;
+        User user;
+
+        @BeforeEach
+        void init() {
+            clubId = eventId = studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.UPCOMING, LocalDateTime.now());
+            user = UserFixture.코인_유저();
+
+            when(userRepository.getById(studentId)).thenReturn(user);
+            when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
+        }
+
+        @Test
+        void 동아리_행사를_구독한다() {
+            //given
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId)).thenReturn(false);
+            // when
+            clubEventService.subscribeEventNotification(clubId, eventId, studentId);
+
+            // then
+            ArgumentCaptor<ClubEventSubscription> captor = ArgumentCaptor.forClass(ClubEventSubscription.class);
+            verify(clubEventSubscriptionRepository).save(captor.capture());
+            ClubEventSubscription clubEventSubscription = captor.getValue();
+
+            assertThat(clubEventSubscription.getClubEvent()).isEqualTo(clubEvent);
+            assertThat(clubEventSubscription.getUser()).isEqualTo(user);
+        }
+
+        @Test
+        void 해당_동아리의_행사가_아닌_경우_예외를_발생한다() {
+            // given
+            Integer anotherClubId = 2;
+            Club anotherClub = ClubFixture.활성화_BCSD_동아리(anotherClubId);
+
+            when(clubRepository.getById(anotherClubId)).thenReturn(anotherClub);
+
+            // when / then
+            assertThatThrownBy(() -> clubEventService.subscribeEventNotification(anotherClubId, eventId, studentId))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT.getMessage());
+        }
+
+        @Test
+        void 이미_동아리의_행사를_구독한_경우_요청을_무시한다() {
+            // given
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId)).thenReturn(true);
+
+            // when
+            clubEventService.subscribeEventNotification(clubId, eventId, studentId);
+
+            // then
+            verify(clubEventSubscriptionRepository, never()).save(any(ClubEventSubscription.class));
+        }
+    }
+
+    @Nested
+    class RejectEventNotification {
+
+        Integer clubId;
+        Integer eventId;
+        Integer studentId;
+        Club club;
+        User user;
+        ClubEvent clubEvent;
+
+        @BeforeEach
+        void init() {
+            clubId = eventId = studentId = 1;
+            club = ClubFixture.활성화_BCSD_동아리(clubId);
+            user = UserFixture.코인_유저();
+            clubEvent = 상태별_동아리_행사(eventId, club, ClubEventStatus.UPCOMING, LocalDateTime.now());
+
+            when(userRepository.getById(studentId)).thenReturn(user);
+            when(clubEventRepository.getById(eventId)).thenReturn(clubEvent);
+        }
+
+        @Test
+        void 동아리_행사_구독을_취소한다() {
+            // given
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId)).thenReturn(true);
+
+            // when
+            clubEventService.rejectEventNotification(clubId, eventId, studentId);
+
+            // then
+            verify(clubEventSubscriptionRepository).deleteByClubEventIdAndUserId(eventId, studentId);
+        }
+
+        @Test
+        void 해당_동아리의_행사가_아닌_경우_예외를_발생한다() {
+            // given
+            Integer anotherClubId = 2;
+            Club anotherClub = ClubFixture.활성화_BCSD_동아리(anotherClubId);
+
+            when(clubRepository.getById(anotherClubId)).thenReturn(anotherClub);
+
+            // when / then
+            assertThatThrownBy(() -> clubEventService.rejectEventNotification(anotherClubId, eventId, studentId))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ApiResponseCode.NOT_MATCHED_CLUB_AND_EVENT.getMessage());
+        }
+
+        @Test
+        void 이미_동아리의_행사를_구독_취소한_경우_요청을_무시한다() {
+            // given
+            when(clubRepository.getById(clubId)).thenReturn(club);
+            when(clubEventSubscriptionRepository.existsByClubEventIdAndUserId(eventId, studentId)).thenReturn(false);
+
+            // when
+            clubEventService.rejectEventNotification(clubId, eventId, studentId);
+
+            // then
+            verify(clubEventSubscriptionRepository, never()).deleteByClubEventIdAndUserId(eventId, studentId);
         }
     }
 }

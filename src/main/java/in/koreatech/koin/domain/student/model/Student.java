@@ -1,26 +1,17 @@
 package in.koreatech.koin.domain.student.model;
 
-import static jakarta.persistence.FetchType.LAZY;
-import static lombok.AccessLevel.PROTECTED;
-
-import java.util.Objects;
-
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserIdentity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Objects;
+
+import static jakarta.persistence.FetchType.LAZY;
+import static lombok.AccessLevel.PROTECTED;
 
 @Getter
 @Entity
@@ -57,6 +48,7 @@ public class Student {
 
     @Builder
     private Student(
+        Integer id,
         String studentNumber,
         Department department,
         UserIdentity userIdentity,
@@ -64,6 +56,7 @@ public class Student {
         Major major,
         User user
     ) {
+        this.id = id;
         this.studentNumber = studentNumber;
         this.department = department;
         this.userIdentity = userIdentity;
