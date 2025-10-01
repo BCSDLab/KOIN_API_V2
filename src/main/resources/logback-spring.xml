@@ -100,7 +100,7 @@
       </filter>
     </appender>
 
-    <root level="error">
+    <root level="warn">
       <appender-ref ref="console"/>
       <appender-ref ref="FILE"/>
       <appender-ref ref="ASYNC_SLACK"/>
