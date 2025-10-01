@@ -21,13 +21,62 @@
     </root>
   </springProfile>
 
-  <springProfile name="default, dev, prod">
+  <springProfile name="default, dev">
+      <conversionRule conversionWord="clr"
+                      converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+      <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+          <file>logs/app.log</file>
+          <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+
+          <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+              <fileNamePattern>logs/app.%d{yyyy-MM}.log.gz</fileNamePattern>
+
+              <maxHistory>12</maxHistory>
+          </rollingPolicy>
+      </appender>
+
+      <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+          <encoder>
+              <pattern>${consoleLogPattern}</pattern>
+          </encoder>
+      </appender>
+
+      <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
+          <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
+          <layout class="ch.qos.logback.classic.PatternLayout">
+              <pattern>${slackLogPattern}</pattern>
+          </layout>
+          <colorCoding>true</colorCoding>
+      </appender>
+
+      <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
+          <appender-ref ref="SLACK"/>
+          <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+              <level>ERROR</level>
+          </filter>
+      </appender>
+
+      <root level="info">
+          <appender-ref ref="console"/>
+          <appender-ref ref="FILE"/>
+          <appender-ref ref="ASYNC_SLACK"/>
+      </root>
+  </springProfile>
+
+  <springProfile name="prod">
     <conversionRule conversionWord="clr"
       converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
 
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-      <file>logs/app.log</file>
-      <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/app.log</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/app.%d{yyyy-MM}.log.gz</fileNamePattern>
+
+            <maxHistory>12</maxHistory>
+        </rollingPolicy>
     </appender>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -51,7 +100,7 @@
       </filter>
     </appender>
 
-    <root level="info">
+    <root level="warn">
       <appender-ref ref="console"/>
       <appender-ref ref="FILE"/>
       <appender-ref ref="ASYNC_SLACK"/>
