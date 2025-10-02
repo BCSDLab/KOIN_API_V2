@@ -56,7 +56,7 @@ public interface OrderApi {
         summary = "주문 내역 중 현재 활성화된(배달완료, 취소 제외) 주문을 조회한다",
         description = """
             ## 다음과 같은 항목을 반환한다.
-            - 상점 ID ex) 14
+            - 주문 가능 상점 ID ex) 14
             - 가게 이름 ex) "코인 병천점"
             - 주문 타입 ex)
                 DELIVERY
