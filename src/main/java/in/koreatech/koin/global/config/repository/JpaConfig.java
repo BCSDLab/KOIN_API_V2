@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.config;
+package in.koreatech.koin.global.config.repository;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -6,8 +6,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
-import in.koreatech.koin.global.config.repository.JpaRepository;
 
 @Configuration
 @EnableJpaAuditing

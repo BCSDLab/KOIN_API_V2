@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.config;
+package in.koreatech.koin.global.config.repository;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -21,8 +21,6 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-
-import in.koreatech.koin.global.config.repository.RedisRepository;
 
 @Configuration
 @EnableRedisRepositories(
