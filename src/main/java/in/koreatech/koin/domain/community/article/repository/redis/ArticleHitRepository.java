@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
+import in.koreatech.koin.global.config.repository.RedisRepository;
 
+@RedisRepository
 public interface ArticleHitRepository extends CrudRepository<ArticleHit, Integer> {
 
     List<ArticleHit> findAll();

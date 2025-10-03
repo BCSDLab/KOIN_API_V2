@@ -5,7 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
+import in.koreatech.koin.global.config.repository.RedisRepository;
 
+@RedisRepository
 public interface DailyVerificationLimitRepository extends Repository<DailyVerificationLimit, String> {
 
     DailyVerificationLimit save(DailyVerificationLimit dailyVerificationLimit);

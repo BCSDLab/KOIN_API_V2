@@ -11,6 +11,7 @@ import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 
+@in.koreatech.koin.global.config.repository.JpaRepository
 public interface OrderableShopRepository extends JpaRepository<OrderableShop, Integer> {
 
     @Query("""

@@ -4,10 +4,12 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.global.config.repository.RedisRepository;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.domain.user.model.RefreshToken;
 
+@RedisRepository
 public interface RefreshTokenRedisRepository extends Repository<RefreshToken, String> {
 
     RefreshToken save(RefreshToken refreshToken);

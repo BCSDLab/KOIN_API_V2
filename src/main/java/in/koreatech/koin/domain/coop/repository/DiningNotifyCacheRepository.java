@@ -6,9 +6,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.coop.exception.DiningCacheNotFoundException;
 import in.koreatech.koin.domain.coop.model.DiningNotifyCache;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.global.config.repository.RedisRepository;
 
-@JpaRepository
+@RedisRepository
 public interface DiningNotifyCacheRepository extends Repository<DiningNotifyCache, String> {
 
     DiningNotifyCache save(DiningNotifyCache diningNotifyCache);

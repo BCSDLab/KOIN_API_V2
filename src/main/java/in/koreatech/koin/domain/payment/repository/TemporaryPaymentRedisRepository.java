@@ -7,8 +7,10 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.payment.model.redis.TemporaryPayment;
+import in.koreatech.koin.global.config.repository.RedisRepository;
 import in.koreatech.koin.global.exception.CustomException;
 
+@RedisRepository
 public interface TemporaryPaymentRedisRepository extends Repository<TemporaryPayment, String> {
 
     void save(TemporaryPayment temporaryPayment);
