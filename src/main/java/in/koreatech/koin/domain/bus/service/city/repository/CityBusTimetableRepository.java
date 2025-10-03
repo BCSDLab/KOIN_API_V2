@@ -6,7 +6,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.bus.exception.BusCacheNotFoundException;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusTimetable;
+import in.koreatech.koin.global.config.repository.MongoRepository;
 
+@MongoRepository
 public interface CityBusTimetableRepository extends Repository<CityBusTimetable, String> {
 
     CityBusTimetable save(CityBusTimetable cityBusTimetable);

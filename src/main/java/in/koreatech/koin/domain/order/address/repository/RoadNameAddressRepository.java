@@ -1,16 +1,13 @@
 package in.koreatech.koin.domain.order.address.repository;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import in.koreatech.koin.domain.order.address.model.RoadNameAddressDocument;
 
-@Repository
+@in.koreatech.koin.global.config.repository.MongoRepository
 public interface RoadNameAddressRepository extends MongoRepository<RoadNameAddressDocument, String> {
 
     @Query("{ $or: [ " +
