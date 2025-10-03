@@ -9,7 +9,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.coopshop.exception.CoopSemesterNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopSemester;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface AdminCoopSemesterRepository extends Repository<CoopSemester, Integer> {
 
     Page<CoopSemester> findAll(Pageable pageable);

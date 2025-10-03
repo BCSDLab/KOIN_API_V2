@@ -12,6 +12,7 @@ import in.koreatech.koin.global.config.repository.JpaRepository;
 @Configuration
 @EnableJpaAuditing
 @EnableJpaRepositories(
+    basePackages = "in.koreatech.koin",
     includeFilters = @ComponentScan.Filter(
         type = FilterType.ANNOTATION,
         value = JpaRepository.class

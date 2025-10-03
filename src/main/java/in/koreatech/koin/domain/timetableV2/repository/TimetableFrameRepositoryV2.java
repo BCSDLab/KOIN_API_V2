@@ -13,8 +13,10 @@ import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.exception.TimetableFrameNotFoundException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 import jakarta.persistence.LockModeType;
 
+@JpaRepository
 public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, Integer> {
 
     Optional<TimetableFrame> findById(Integer id);

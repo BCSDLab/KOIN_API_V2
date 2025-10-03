@@ -7,7 +7,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
 import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface DepartmentRepository extends Repository<Department, Integer> {
 
     Department save(Department department);

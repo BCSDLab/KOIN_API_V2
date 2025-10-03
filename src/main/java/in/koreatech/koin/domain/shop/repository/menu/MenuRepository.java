@@ -1,11 +1,15 @@
 package in.koreatech.koin.domain.shop.repository.menu;
 
-import in.koreatech.koin.domain.shop.exception.MenuNotFoundException;
-import in.koreatech.koin.domain.shop.model.menu.Menu;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.shop.exception.MenuNotFoundException;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.global.config.repository.JpaRepository;
+
+@JpaRepository
 public interface MenuRepository extends Repository<Menu, Integer> {
 
     Optional<Menu> findById(Integer menuId);

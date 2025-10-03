@@ -9,7 +9,9 @@ import org.springframework.data.repository.query.Param;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface NotificationSubscribeRepository extends Repository<NotificationSubscribe, Long> {
 
     NotificationSubscribe save(NotificationSubscribe notificationSubscribe);

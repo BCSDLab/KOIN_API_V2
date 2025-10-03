@@ -5,7 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.model.KoreatechArticle;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface KoreatechArticleRepository extends Repository<KoreatechArticle, Integer> {
 
     Optional<KoreatechArticle> findById(Integer id);

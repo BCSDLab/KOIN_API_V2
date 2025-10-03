@@ -7,7 +7,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.banner.exception.BannerCategoryNotFoundException;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface AdminBannerCategoryRepository extends Repository<BannerCategory, Integer> {
 
     Optional<BannerCategory> findByName(String name);

@@ -7,7 +7,9 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.activity.model.Activity;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface ActivityRepository extends Repository<Activity, Integer> {
 
     @Query(value = "SELECT * FROM activities WHERE is_deleted = 0 AND YEAR(date) = :year", nativeQuery = true)

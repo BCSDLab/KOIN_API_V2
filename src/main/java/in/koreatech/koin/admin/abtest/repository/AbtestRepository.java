@@ -8,7 +8,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.exception.AbtestNotFoundException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface AbtestRepository extends Repository<Abtest, Integer> {
 
     Optional<Abtest> findById(Integer id);

@@ -11,7 +11,9 @@ import org.springframework.data.repository.query.Param;
 import in.koreatech.koin.admin.manager.dto.request.AdminsCondition;
 import in.koreatech.koin.admin.manager.exception.AdminNotFoundException;
 import in.koreatech.koin.admin.manager.model.Admin;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface AdminRepository extends Repository<Admin, Integer> {
 
     Admin save(Admin admin);

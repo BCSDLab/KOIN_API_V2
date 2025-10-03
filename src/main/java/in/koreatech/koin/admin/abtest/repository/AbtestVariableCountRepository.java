@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface AbtestVariableCountRepository extends CrudRepository<AbtestVariableCount, Integer> {
 
     List<AbtestVariableCount> findAll();

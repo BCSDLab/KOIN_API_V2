@@ -7,7 +7,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.member.exception.TrackNotFoundException;
 import in.koreatech.koin.domain.member.model.Track;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface TrackRepository extends Repository<Track, Integer> {
 
     Track save(Track track);

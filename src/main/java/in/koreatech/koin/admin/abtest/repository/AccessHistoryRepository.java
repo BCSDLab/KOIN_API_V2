@@ -6,7 +6,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.exception.AccessHistoryNotFoundException;
 import in.koreatech.koin.admin.abtest.model.AccessHistory;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface AccessHistoryRepository extends Repository<AccessHistory, Integer> {
 
     AccessHistory save(AccessHistory accessHistory);

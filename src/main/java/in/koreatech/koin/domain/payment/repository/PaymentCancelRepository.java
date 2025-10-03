@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.payment.model.entity.PaymentCancel;
+import in.koreatech.koin.global.config.repository.JpaRepository;
 
+@JpaRepository
 public interface PaymentCancelRepository extends Repository<PaymentCancel, Integer> {
 
     void saveAll(Iterable<PaymentCancel> paymentCancels);
