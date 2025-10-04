@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @Configuration
 @EnableMongoRepositories(
-    basePackages = "in.koreatech.koin",
+    basePackages = "in.koreatech.koin.domain",
     includeFilters = @ComponentScan.Filter(
         type = FilterType.ANNOTATION,
         value = MongoRepository.class
