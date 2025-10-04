@@ -18,6 +18,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     bootstrapMode = LAZY
 )
 @Profile("!test")
-public class AdminJpaRepositoryConfig {
+public class AdminJpaConfig {
 
 }

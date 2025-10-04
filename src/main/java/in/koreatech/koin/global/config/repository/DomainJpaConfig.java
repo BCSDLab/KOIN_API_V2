@@ -15,6 +15,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     )
 )
 @Profile("!test")
-public class DomainJpaRepositoryConfig {
+public class DomainJpaConfig {
 
 }
