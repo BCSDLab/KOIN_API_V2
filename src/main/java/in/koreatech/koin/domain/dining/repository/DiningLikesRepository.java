@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.dining.repository;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.dining.model.DiningLikes;
-import in.koreatech.koin.config.repository.JpaRepositoryMarker;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 
 @JpaRepositoryMarker
 public interface DiningLikesRepository extends Repository<DiningLikes, Integer> {

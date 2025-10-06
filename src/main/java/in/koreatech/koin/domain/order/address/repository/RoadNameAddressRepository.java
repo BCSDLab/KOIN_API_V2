@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import in.koreatech.koin.config.repository.MongoRepositoryMarker;
+import in.koreatech.koin.global.marker.MongoRepositoryMarker;
 import in.koreatech.koin.domain.order.address.model.RoadNameAddressDocument;
 
 @MongoRepositoryMarker

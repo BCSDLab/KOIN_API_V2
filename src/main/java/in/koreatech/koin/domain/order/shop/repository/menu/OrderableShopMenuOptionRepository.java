@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.config.repository.JpaRepositoryMarker;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 import in.koreatech.koin.domain.order.cart.model.OrderableShopMenuOptions;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 

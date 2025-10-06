@@ -13,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
-import in.koreatech.koin.config.repository.JpaRepositoryMarker;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 
 @JpaRepositoryMarker
 public interface ShopReviewRepository extends Repository<ShopReview, Integer> {

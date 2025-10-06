@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.graduation.exception.GeneralEducationAreaNotFoundException;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
-import in.koreatech.koin.config.repository.JpaRepositoryMarker;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 
 @JpaRepositoryMarker
 public interface GeneralEducationAreaRepository extends Repository<GeneralEducationArea, Integer> {

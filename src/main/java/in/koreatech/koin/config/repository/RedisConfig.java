@@ -24,6 +24,8 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import in.koreatech.koin.global.marker.RedisRepositoryMarker;
+
 @Configuration
 @EnableRedisRepositories(
     basePackages = "in.koreatech.koin",

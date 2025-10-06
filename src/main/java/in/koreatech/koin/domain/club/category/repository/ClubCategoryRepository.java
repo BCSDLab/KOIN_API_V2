@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.club.exception.ClubCategoryNotFoundException;
 import in.koreatech.koin.domain.club.category.model.ClubCategory;
-import in.koreatech.koin.config.repository.JpaRepositoryMarker;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 
 @JpaRepositoryMarker
 public interface ClubCategoryRepository extends Repository<ClubCategory, Integer> {

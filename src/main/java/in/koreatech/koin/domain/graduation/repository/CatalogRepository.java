@@ -14,7 +14,7 @@ import in.koreatech.koin.domain.graduation.exception.CatalogNotFoundException;
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
-import in.koreatech.koin.config.repository.JpaRepositoryMarker;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 
 @JpaRepositoryMarker
 public interface CatalogRepository extends Repository<Catalog, Integer> {

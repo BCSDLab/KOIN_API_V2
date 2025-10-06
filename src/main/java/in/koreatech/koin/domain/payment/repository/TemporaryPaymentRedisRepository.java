@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.payment.model.redis.TemporaryPayment;
-import in.koreatech.koin.config.repository.RedisRepositoryMarker;
+import in.koreatech.koin.global.marker.RedisRepositoryMarker;
 import in.koreatech.koin.global.exception.CustomException;
 
 @RedisRepositoryMarker

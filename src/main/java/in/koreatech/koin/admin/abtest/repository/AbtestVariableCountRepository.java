@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
-import in.koreatech.koin.config.repository.RedisRepositoryMarker;
+import in.koreatech.koin.global.marker.RedisRepositoryMarker;
 
 @RedisRepositoryMarker
 public interface AbtestVariableCountRepository extends CrudRepository<AbtestVariableCount, Integer> {

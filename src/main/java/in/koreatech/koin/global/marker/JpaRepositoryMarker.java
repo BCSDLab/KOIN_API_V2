@@ -1,4 +1,4 @@
-package in.koreatech.koin.config.repository;
+package in.koreatech.koin.global.marker;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Target(TYPE)
 @Retention(RUNTIME)
-public @interface RedisRepositoryMarker {
+public @interface JpaRepositoryMarker {
 
 }

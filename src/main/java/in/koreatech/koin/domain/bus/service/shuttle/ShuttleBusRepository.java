@@ -12,7 +12,7 @@ import in.koreatech.koin.domain.bus.exception.BusNotFoundException;
 import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusSimpleRoute;
-import in.koreatech.koin.config.repository.MongoRepositoryMarker;
+import in.koreatech.koin.global.marker.MongoRepositoryMarker;
 
 @MongoRepositoryMarker
 public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, ObjectId> {
