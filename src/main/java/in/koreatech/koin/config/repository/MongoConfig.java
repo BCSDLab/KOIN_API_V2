@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
     basePackages = "in.koreatech.koin.domain",
     includeFilters = @ComponentScan.Filter(
         type = FilterType.ANNOTATION,
-        value = MongoRepository.class
+        value = MongoRepositoryMarker.class
     )
 )
 @Profile("!test")

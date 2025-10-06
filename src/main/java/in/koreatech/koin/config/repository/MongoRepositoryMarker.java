@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Target(TYPE)
 @Retention(RUNTIME)
-public @interface MongoRepository {
+public @interface MongoRepositoryMarker {
 
 }
