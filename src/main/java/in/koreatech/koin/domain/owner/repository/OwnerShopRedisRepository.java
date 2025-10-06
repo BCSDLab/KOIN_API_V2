@@ -3,9 +3,9 @@ package in.koreatech.koin.domain.owner.repository;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.model.OwnerShop;
-import in.koreatech.koin.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepositoryMarker;
 
-@RedisRepository
+@RedisRepositoryMarker
 public interface OwnerShopRedisRepository extends Repository<OwnerShop, Integer> {
 
     OwnerShop save(OwnerShop ownerShop);

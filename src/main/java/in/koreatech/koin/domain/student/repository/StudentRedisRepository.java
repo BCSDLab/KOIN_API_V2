@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.student.model.redis.UnAuthenticatedStudentInfo;
-import in.koreatech.koin.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepositoryMarker;
 
-@RedisRepository
+@RedisRepositoryMarker
 public interface StudentRedisRepository extends Repository<UnAuthenticatedStudentInfo, String> {
 
     UnAuthenticatedStudentInfo save(UnAuthenticatedStudentInfo unauthenticatedStudentInfo);

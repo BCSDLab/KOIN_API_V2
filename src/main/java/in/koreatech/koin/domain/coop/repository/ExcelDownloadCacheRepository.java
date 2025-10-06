@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
-import in.koreatech.koin.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepositoryMarker;
 
-@RedisRepository
+@RedisRepositoryMarker
 public interface ExcelDownloadCacheRepository extends Repository<ExcelDownloadCache, String> {
 
     ExcelDownloadCache save(ExcelDownloadCache excelDownloadCache);

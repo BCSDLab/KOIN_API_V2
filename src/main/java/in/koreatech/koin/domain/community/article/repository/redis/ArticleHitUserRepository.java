@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
-import in.koreatech.koin.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepositoryMarker;
 
-@RedisRepository
+@RedisRepositoryMarker
 public interface ArticleHitUserRepository extends Repository<ArticleHitUser, String> {
 
     ArticleHitUser save(ArticleHitUser articleHitUser);

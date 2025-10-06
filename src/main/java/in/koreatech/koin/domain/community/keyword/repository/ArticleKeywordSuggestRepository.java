@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
-import in.koreatech.koin.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepositoryMarker;
 
-@RedisRepository
+@RedisRepositoryMarker
 public interface ArticleKeywordSuggestRepository extends Repository<ArticleKeywordSuggestCache, String> {
 
     List<ArticleKeywordSuggestCache> findTop15ByOrderByCountDesc();

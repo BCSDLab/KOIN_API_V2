@@ -30,7 +30,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
     enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP,
     includeFilters = @ComponentScan.Filter(
         type = FilterType.ANNOTATION,
-        value = RedisRepository.class
+        value = RedisRepositoryMarker.class
     )
 )
 @Profile("!test")

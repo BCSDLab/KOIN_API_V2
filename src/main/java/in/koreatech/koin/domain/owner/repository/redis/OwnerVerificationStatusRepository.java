@@ -5,10 +5,10 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
-import in.koreatech.koin.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepositoryMarker;
 import in.koreatech.koin.infrastructure.email.exception.VerifyNotFoundException;
 
-@RedisRepository
+@RedisRepositoryMarker
 public interface OwnerVerificationStatusRepository extends Repository<OwnerVerificationStatus, String> {
 
     OwnerVerificationStatus save(OwnerVerificationStatus ownerInVerification);

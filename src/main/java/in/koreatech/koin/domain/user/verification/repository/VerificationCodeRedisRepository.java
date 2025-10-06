@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.user.verification.model.VerificationCode;
-import in.koreatech.koin.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepositoryMarker;
 
-@RedisRepository
+@RedisRepositoryMarker
 public interface VerificationCodeRedisRepository extends Repository<VerificationCode, String> {
 
     VerificationCode save(VerificationCode verificationCode);

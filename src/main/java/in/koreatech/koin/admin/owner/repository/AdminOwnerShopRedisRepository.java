@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.model.OwnerShop;
-import in.koreatech.koin.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepositoryMarker;
 
-@RedisRepository
+@RedisRepositoryMarker
 public interface AdminOwnerShopRedisRepository extends Repository<OwnerShop, Integer> {
 
     Optional<OwnerShop> findById(Integer ownerId);
