@@ -7,9 +7,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.exception.MenuCategoryNotFoundException;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface AdminMenuCategoryRepository extends Repository<MenuCategory, Integer> {
 
     MenuCategory save(MenuCategory menuCategory);

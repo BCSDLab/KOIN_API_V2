@@ -4,9 +4,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.event.model.ClubEvent;
 import in.koreatech.koin.domain.club.event.model.ClubEventImage;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface ClubEventImageRepository extends Repository<ClubEventImage, Integer> {
 
     void save(ClubEventImage clubEventImages);

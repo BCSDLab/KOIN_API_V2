@@ -7,9 +7,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.keyword.exception.ArticleKeywordNotFoundException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface AdminArticleKeywordRepository extends Repository<ArticleKeyword, Integer> {
 
     Optional<ArticleKeyword> findByKeyword(String keyword);

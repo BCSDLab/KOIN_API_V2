@@ -16,7 +16,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     },
     includeFilters = @ComponentScan.Filter(
         type = FilterType.ANNOTATION,
-        value = JpaRepository.class
+        value = JpaRepositoryMarker.class
     )
 )
 @Profile("!test")

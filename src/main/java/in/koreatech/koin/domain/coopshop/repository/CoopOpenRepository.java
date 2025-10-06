@@ -8,9 +8,9 @@ import in.koreatech.koin.domain.coopshop.exception.CoopOpenNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.DayType;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface CoopOpenRepository extends Repository<CoopOpen, Integer> {
 
     Optional<CoopOpen> findByCoopShopAndTypeAndDayOfWeek(CoopShop coopShop, String type, DayType dayOfWeek);

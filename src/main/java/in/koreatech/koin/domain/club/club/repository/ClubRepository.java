@@ -13,11 +13,11 @@ import org.springframework.data.repository.query.Param;
 import in.koreatech.koin.domain.club.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.LockModeType;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface ClubRepository extends Repository<Club, Integer> {
 
     List<Club> findAll();

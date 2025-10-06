@@ -10,9 +10,9 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface AdminKoinNoticeRepository extends Repository<Article, Integer> {
 
     Article save(Article article);

@@ -10,9 +10,9 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.admin.club.exception.ClubNotFoundException;
 import in.koreatech.koin.domain.club.club.model.Club;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface AdminClubRepository extends Repository<Club, Integer> {
 
     Integer countByClubCategoryId(Integer clubCategoryId);

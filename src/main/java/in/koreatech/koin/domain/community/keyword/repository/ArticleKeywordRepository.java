@@ -11,9 +11,9 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Integer> {
 
     Optional<ArticleKeyword> findByKeyword(String keyword);

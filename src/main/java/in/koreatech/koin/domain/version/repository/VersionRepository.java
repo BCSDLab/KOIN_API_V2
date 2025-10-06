@@ -7,9 +7,9 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.version.exception.VersionTypeNotFoundException;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface VersionRepository extends Repository<Version, Integer> {
 
     Version save(Version version);

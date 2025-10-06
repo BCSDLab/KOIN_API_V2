@@ -8,9 +8,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface ArticleSearchKeywordIpMapRepository extends Repository<ArticleSearchKeywordIpMap, Integer> {
 
     void save(ArticleSearchKeywordIpMap map);

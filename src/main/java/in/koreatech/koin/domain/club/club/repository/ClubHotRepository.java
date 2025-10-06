@@ -6,9 +6,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.club.model.ClubHot;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface ClubHotRepository extends Repository<ClubHot, Integer> {
 
     Optional<ClubHot> findTopByOrderByEndDateDesc();

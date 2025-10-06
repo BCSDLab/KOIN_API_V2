@@ -7,9 +7,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.qna.exception.ClubQnaNotFoundException;
 import in.koreatech.koin.domain.club.qna.model.ClubQna;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface ClubQnaRepository extends Repository<ClubQna, Integer> {
 
     List<ClubQna> findAllByClubId(Integer clubId);

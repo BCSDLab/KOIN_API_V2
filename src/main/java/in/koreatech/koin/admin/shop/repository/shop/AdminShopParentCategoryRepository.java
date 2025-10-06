@@ -7,9 +7,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.shop.exception.ShopParentCategoryNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface AdminShopParentCategoryRepository extends Repository<ShopParentCategory, Integer> {
 
     ShopParentCategory save(ShopParentCategory shopParentCategory);

@@ -3,9 +3,9 @@ package in.koreatech.koin.domain.shop.repository.review;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.model.review.ShopReviewMenu;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface ShopReviewMenuRepository extends Repository<ShopReviewMenu, Integer> {
 
   ShopReviewMenu save(ShopReviewMenu shopReviewMenu);

@@ -8,9 +8,9 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.coopshop.exception.CoopShopNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface CoopShopRepository extends Repository<CoopShop, Integer> {
 
     CoopShop save(CoopShop coopShop);

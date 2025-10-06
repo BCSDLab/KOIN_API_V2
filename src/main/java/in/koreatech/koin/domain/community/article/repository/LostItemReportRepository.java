@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.model.LostItemReport;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface LostItemReportRepository extends Repository<LostItemReport, Integer> {
 
     LostItemReport save(LostItemReport lostItemReport);

@@ -12,9 +12,9 @@ import org.springframework.data.repository.query.Param;
 import in.koreatech.koin.admin.banner.exception.BannerNotFoundException;
 import in.koreatech.koin.domain.banner.model.Banner;
 import in.koreatech.koin.domain.banner.model.BannerCategory;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface AdminBannerRepository extends Repository<Banner, Integer> {
 
     Optional<Banner> findById(Integer id);

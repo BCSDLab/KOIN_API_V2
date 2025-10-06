@@ -7,9 +7,9 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.shop.model.menu.MenuSearchKeyWord;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface MenuSearchKeywordRepository extends Repository<MenuSearchKeyWord, Integer> {
 
     @Query("SELECT DISTINCT m.keyword FROM MenuSearchKeyWord m WHERE m.keyword LIKE %:query%")

@@ -6,9 +6,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface SemesterRepositoryV2 extends Repository<Semester, Integer> {
 
     Semester save(Semester semester);

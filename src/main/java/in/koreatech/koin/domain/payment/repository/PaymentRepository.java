@@ -7,10 +7,10 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.payment.model.entity.Payment;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 import in.koreatech.koin.global.exception.CustomException;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface PaymentRepository extends Repository<Payment, Integer> {
 
     void save(Payment payment);

@@ -12,9 +12,9 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.member.exception.MemberNotFoundException;
 import in.koreatech.koin.domain.member.model.Member;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface AdminMemberRepository extends Repository<Member, Integer> {
 
     @EntityGraph(attributePaths = {"track"})

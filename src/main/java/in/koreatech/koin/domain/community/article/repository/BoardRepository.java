@@ -6,9 +6,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Board;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface BoardRepository extends Repository<Board, Integer> {
     Optional<Board> findById(Integer id);
 

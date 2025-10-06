@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.payment.model.entity.PaymentIdempotencyKey;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface PaymentIdempotencyKeyRepository extends Repository<PaymentIdempotencyKey, Integer> {
 
     PaymentIdempotencyKey save(PaymentIdempotencyKey paymentIdempotencyKey);

@@ -7,13 +7,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface UserRepository extends Repository<User, Integer> {
 
     // Create

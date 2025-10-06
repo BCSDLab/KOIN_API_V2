@@ -8,9 +8,9 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.manager.model.ClubManager;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface ClubManagerRepository extends Repository<ClubManager, Integer> {
 
     ClubManager save(ClubManager clubManager);

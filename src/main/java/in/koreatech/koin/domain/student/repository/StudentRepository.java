@@ -4,12 +4,12 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepositoryMarker;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.domain.student.model.Student;
 
-@JpaRepository
+@JpaRepositoryMarker
 public interface StudentRepository extends Repository<Student, Integer> {
 
     Student save(Student student);
