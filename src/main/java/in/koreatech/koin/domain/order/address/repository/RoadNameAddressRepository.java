@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.Query;
 
 import in.koreatech.koin.domain.order.address.model.RoadNameAddressDocument;
 
-@in.koreatech.koin.global.config.repository.MongoRepository
+@in.koreatech.koin.config.repository.MongoRepository
 public interface RoadNameAddressRepository extends MongoRepository<RoadNameAddressDocument, String> {
 
     @Query("{ $or: [ " +

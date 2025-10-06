@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.exception.DeviceNotFoundException;
 import in.koreatech.koin.admin.abtest.model.Device;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface DeviceRepository extends Repository<Device, Integer> {

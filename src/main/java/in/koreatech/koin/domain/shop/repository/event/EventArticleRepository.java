@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.ownershop.exception.EventArticleNotFoundException;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface EventArticleRepository extends Repository<EventArticle, Integer> {

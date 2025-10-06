@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.land.exception.LandNotFoundException;
 import in.koreatech.koin.domain.land.model.Land;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface LandRepository extends Repository<Land, Integer> {

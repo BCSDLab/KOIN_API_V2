@@ -17,7 +17,7 @@ import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundExcep
 import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @JpaRepository

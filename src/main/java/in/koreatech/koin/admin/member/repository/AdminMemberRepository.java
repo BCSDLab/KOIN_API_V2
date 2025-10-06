@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.member.exception.MemberNotFoundException;
 import in.koreatech.koin.domain.member.model.Member;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AdminMemberRepository extends Repository<Member, Integer> {

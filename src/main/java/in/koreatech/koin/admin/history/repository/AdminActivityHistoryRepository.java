@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import in.koreatech.koin.admin.history.dto.AdminHistoriesCondition;
 import in.koreatech.koin.admin.history.exception.AdminActivityHistoryNotFoundException;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AdminActivityHistoryRepository extends Repository<AdminActivityHistory, Integer> {

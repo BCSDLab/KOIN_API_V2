@@ -11,7 +11,7 @@ import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
 
-@in.koreatech.koin.global.config.repository.JpaRepository
+@in.koreatech.koin.config.repository.JpaRepository
 public interface CampusDeliveryAddressRepository extends JpaRepository<CampusDeliveryAddress, Integer> {
 
     @Query("""

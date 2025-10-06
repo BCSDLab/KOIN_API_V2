@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
 import in.koreatech.koin.domain.student.model.Major;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface MajorRepository extends Repository<Major, Integer> {

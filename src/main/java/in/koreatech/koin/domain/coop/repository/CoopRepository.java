@@ -6,7 +6,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.coop.exception.CoopNotFoundException;
 import in.koreatech.koin.domain.coop.model.Coop;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface CoopRepository extends Repository<Coop, Integer> {

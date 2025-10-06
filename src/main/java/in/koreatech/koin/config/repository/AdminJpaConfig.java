@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.config.repository;
+package in.koreatech.koin.config.repository;
 
 import static org.springframework.data.repository.config.BootstrapMode.LAZY;
 

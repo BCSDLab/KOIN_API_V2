@@ -10,7 +10,7 @@ import in.koreatech.koin.domain.order.cart.model.Cart;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 
-@in.koreatech.koin.global.config.repository.JpaRepository
+@in.koreatech.koin.config.repository.JpaRepository
 public interface CartRepository extends JpaRepository<Cart, Integer> {
 
     @Query("""

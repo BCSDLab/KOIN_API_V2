@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface ClubEventSubscriptionRepository extends Repository<ClubEventSubscription, Integer> {

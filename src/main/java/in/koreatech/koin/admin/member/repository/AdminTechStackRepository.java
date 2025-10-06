@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.member.exception.TechStackNotFoundException;
 import in.koreatech.koin.domain.member.model.TechStack;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AdminTechStackRepository extends Repository<TechStack, Integer> {

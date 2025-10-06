@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AdminBenefitCategoryMapRepository extends CrudRepository<BenefitCategoryMap, Integer> {

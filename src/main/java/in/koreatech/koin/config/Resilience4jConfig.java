@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.config;
+package in.koreatech.koin.config;
 
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowType.COUNT_BASED;
 

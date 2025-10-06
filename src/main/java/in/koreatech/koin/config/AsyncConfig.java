@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.config;
+package in.koreatech.koin.config;
 
 import java.util.concurrent.Executor;
 

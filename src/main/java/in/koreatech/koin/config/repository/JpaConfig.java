@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.config.repository;
+package in.koreatech.koin.config.repository;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

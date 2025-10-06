@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
-import in.koreatech.koin.global.config.repository.RedisRepository;
+import in.koreatech.koin.config.repository.RedisRepository;
 
 @RedisRepository
 public interface ArticleKeywordSuggestRepository extends Repository<ArticleKeywordSuggestCache, String> {

@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.exception.MenuNotFoundException;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface MenuRepository extends Repository<Menu, Integer> {

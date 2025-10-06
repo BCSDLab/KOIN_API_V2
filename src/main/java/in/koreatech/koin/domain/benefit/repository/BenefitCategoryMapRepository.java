@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface BenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {

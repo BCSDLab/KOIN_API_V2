@@ -6,7 +6,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.exception.AbtestVariableNotFoundException;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AbtestVariableRepository extends Repository<AbtestVariable, Integer> {

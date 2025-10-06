@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.shop.repository.shop;
 import in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;

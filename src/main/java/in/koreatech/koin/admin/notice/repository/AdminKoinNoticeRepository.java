@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AdminKoinNoticeRepository extends Repository<Article, Integer> {

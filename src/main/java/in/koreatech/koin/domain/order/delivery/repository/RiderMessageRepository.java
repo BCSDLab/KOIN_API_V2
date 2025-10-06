@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import in.koreatech.koin.domain.order.delivery.model.RiderMessage;
 
-@in.koreatech.koin.global.config.repository.JpaRepository
+@in.koreatech.koin.config.repository.JpaRepository
 public interface RiderMessageRepository extends JpaRepository<RiderMessage, Integer> {
 }

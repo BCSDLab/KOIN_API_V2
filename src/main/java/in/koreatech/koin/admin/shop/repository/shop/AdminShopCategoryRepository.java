@@ -9,7 +9,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.exception.ShopCategoryNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AdminShopCategoryRepository extends Repository<ShopCategory, Integer> {

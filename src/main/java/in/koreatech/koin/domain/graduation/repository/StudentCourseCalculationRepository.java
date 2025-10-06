@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.graduation.model.StandardGraduationRequirements;
 import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface StudentCourseCalculationRepository extends Repository<StudentCourseCalculation, Integer> {

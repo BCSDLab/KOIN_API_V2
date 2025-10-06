@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AdminShopRepository extends Repository<Shop, Integer> {

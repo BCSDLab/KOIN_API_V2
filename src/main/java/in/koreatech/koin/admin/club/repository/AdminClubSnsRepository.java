@@ -4,7 +4,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.club.model.Club;
 import in.koreatech.koin.domain.club.club.model.ClubSNS;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface AdminClubSnsRepository extends Repository<ClubSNS, Integer> {

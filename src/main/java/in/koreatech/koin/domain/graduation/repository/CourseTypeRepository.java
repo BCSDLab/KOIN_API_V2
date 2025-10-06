@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.graduation.exception.CourseTypeNotFoundException;
 import in.koreatech.koin.domain.graduation.model.CourseType;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface CourseTypeRepository extends Repository<CourseType, Integer> {

@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.club.club.model.ClubHot;
-import in.koreatech.koin.global.config.repository.JpaRepository;
+import in.koreatech.koin.config.repository.JpaRepository;
 
 @JpaRepository
 public interface ClubHotRepository extends Repository<ClubHot, Integer> {

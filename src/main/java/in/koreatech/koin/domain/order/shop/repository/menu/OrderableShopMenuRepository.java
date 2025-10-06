@@ -12,7 +12,7 @@ import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.cart.model.OrderableShopMenus;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 
-@in.koreatech.koin.global.config.repository.JpaRepository
+@in.koreatech.koin.config.repository.JpaRepository
 public interface OrderableShopMenuRepository extends JpaRepository<OrderableShopMenu, Integer> {
 
     @Query("""
