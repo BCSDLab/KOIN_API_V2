@@ -29,7 +29,7 @@ public interface OrderApi {
             - period
                 - NONE : 기본값
                 - LAST_3_MONTHS : 최근 3개월
-                - LAST_6_MONTHS : 최근 3개월
+                - LAST_6_MONTHS : 최근 6개월
                 - LAST_1_YEAR : 최근 1년
             - status
                 - NONE : 기본값
