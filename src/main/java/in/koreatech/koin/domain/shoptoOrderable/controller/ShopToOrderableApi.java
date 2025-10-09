@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
-import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +31,7 @@ public interface ShopToOrderableApi {
     @Operation(summary = "사장님 주문 서비스 가입 요청")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owner/shops/orderable-requests")
-    ResponseEntity<ShopToOrderableResponse> createOrderableRequest(
+    ResponseEntity<Void> createOrderableRequest(
         @Auth(permit = {OWNER}) Integer ownerId,
         @RequestBody @Valid ShopToOrderableRequest request
     );
