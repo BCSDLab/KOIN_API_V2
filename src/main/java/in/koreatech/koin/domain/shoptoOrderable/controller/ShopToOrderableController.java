@@ -8,6 +8,13 @@ import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
 import in.koreatech.koin.domain.shoptoOrderable.service.ShopToOrderableService;
 import lombok.RequiredArgsConstructor;
 
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+
+import org.springframework.web.bind.annotation.RequestBody;
+
+import in.koreatech.koin.global.auth.Auth;
+import jakarta.validation.Valid;
+
 //Todo: ShopToOrderable 이라는 명칭은 임시임 추후 변경
 @RestController
 @RequiredArgsConstructor

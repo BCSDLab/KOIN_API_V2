@@ -119,6 +119,7 @@ public enum ApiResponseCode {
     REQUEST_TOO_FAST(HttpStatus.CONFLICT, "요청이 너무 빠릅니다. 다시 요청해주세요."),
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.CONFLICT, "이미 처리된 요청입니다."),
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
+    ALREADY_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)
