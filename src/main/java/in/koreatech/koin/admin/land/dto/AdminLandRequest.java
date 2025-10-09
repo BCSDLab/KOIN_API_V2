@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.land.model.Land;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -17,12 +18,13 @@ import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminLandRequest(
-    @Schema(description = "이름 - not null - 최대 255자", example = "금실타운", requiredMode = REQUIRED)
-    @NotNull(message = "방이름은 필수입니다.")
+    @Schema(description = "이름", example = "금실타운", requiredMode = REQUIRED)
+    @NotBlank(message = "방이름은 필수입니다.")
     @Size(max = 255, message = "방이름의 최대 길이는 255자입니다.")
     String name,
 
-    @Schema(description = "이름 - not null - 최대 50자", example = "금실타운")
+    @Schema(description = "이름", example = "금실타운")
+    @NotBlank(message = "방이름은 필수입니다.")
     @Size(max = 50, message = "방이름의 최대 길이는 50자입니다.")
     String internalName,
 

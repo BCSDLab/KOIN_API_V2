@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.common.event.ClubRecruitmentChangeEvent;
-import in.koreatech.koin.domain.club.model.ClubRecruitmentSubscription;
-import in.koreatech.koin.domain.club.repository.ClubRecruitmentSubscriptionRepository;
+import in.koreatech.koin.domain.club.recruitment.model.ClubRecruitmentSubscription;
+import in.koreatech.koin.domain.club.recruitment.repository.ClubRecruitmentSubscriptionRepository;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.service.NotificationService;

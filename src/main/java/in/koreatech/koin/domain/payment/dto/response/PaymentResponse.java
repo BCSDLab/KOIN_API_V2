@@ -1,23 +1,25 @@
 package in.koreatech.koin.domain.payment.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static in.koreatech.koin.domain.order.model.OrderType.DELIVERY;
-import static in.koreatech.koin.domain.order.model.OrderType.TAKE_OUT;
+import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
+import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.order.model.Order;
-import in.koreatech.koin.domain.order.model.OrderDelivery;
-import in.koreatech.koin.domain.order.model.OrderMenu;
-import in.koreatech.koin.domain.order.model.OrderMenuOption;
-import in.koreatech.koin.domain.order.model.OrderTakeout;
+import in.koreatech.koin.domain.order.order.model.Order;
+import in.koreatech.koin.domain.order.order.model.OrderDelivery;
+import in.koreatech.koin.domain.order.order.model.OrderMenu;
+import in.koreatech.koin.domain.order.order.model.OrderMenuOption;
+import in.koreatech.koin.domain.order.order.model.OrderTakeout;
 import in.koreatech.koin.domain.payment.model.entity.Payment;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -28,6 +30,9 @@ public record PaymentResponse(
     @Schema(description = "결제 고유 id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
+    @Schema(description = "주문 상점 고유 id", example = "1", requiredMode = REQUIRED)
+    Integer orderableShopId,
+
     @Schema(description = "배달 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600", requiredMode = NOT_REQUIRED)
     String deliveryAddress,
 
@@ -37,6 +42,12 @@ public record PaymentResponse(
     @Schema(description = "가게 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600 은솔관 422호", requiredMode = NOT_REQUIRED)
     String shopAddress,
 
+    @Schema(description = "배달 주소 위도", example = "36.76125794", requiredMode = NOT_REQUIRED)
+    BigDecimal longitude,
+
+    @Schema(description = "배달 주소 경도", example = "127.28372942", requiredMode = NOT_REQUIRED)
+    BigDecimal latitude,
+
     @Schema(description = "사장님에게", example = "리뷰 이벤트 감사합니다.", requiredMode = NOT_REQUIRED)
     String toOwner,
 
@@ -45,6 +56,12 @@ public record PaymentResponse(
 
     @Schema(description = "수저, 포크 수령 여부", example = "true", requiredMode = REQUIRED)
     Boolean provideCutlery,
+
+    @Schema(description = "메뉴 총 금액", example = "500", requiredMode = REQUIRED)
+    Integer totalMenuPrice,
+
+    @Schema(description = "배달비", example = "500", requiredMode = NOT_REQUIRED)
+    Integer deliveryTip,
 
     @Schema(description = "결제 금액", example = "1000", requiredMode = REQUIRED)
     Integer amount,
@@ -70,7 +87,14 @@ public record PaymentResponse(
     LocalDateTime approvedAt,
 
     @Schema(description = "결제 수단", example = "카드", requiredMode = REQUIRED)
-    String paymentMethod
+    String paymentMethod,
+
+    @Schema(description = "예상 시각", example = "17:45", requiredMode = NOT_REQUIRED)
+    @JsonFormat(pattern = "HH:mm")
+    LocalTime estimatedAt,
+
+    @Schema(description = "주문 상태", example = "COOKING", requiredMode = REQUIRED)
+    String orderStatus
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -127,13 +151,17 @@ public record PaymentResponse(
 
     public static PaymentResponse of(
         Payment payment,
-        Order order
+        Order order,
+        LocalTime estimatedAt
     ) {
         OrderableShop orderableShop = order.getOrderableShop();
         Shop shop = orderableShop.getShop();
 
         String deliveryAddress = null;
         String deliveryAddressDetails = null;
+        BigDecimal longitude = null;
+        BigDecimal latitude = null;
+        Integer deliveryTip = null;
         String toOwner = null;
         String toRider = null;
         Boolean provideCutlery = null;
@@ -142,6 +170,9 @@ public record PaymentResponse(
             OrderDelivery delivery = order.getOrderDelivery();
             deliveryAddress = delivery.getAddress();
             deliveryAddressDetails = delivery.getAddressDetail();
+            longitude = delivery.getLongitude();
+            latitude = delivery.getLatitude();
+            deliveryTip = delivery.getDeliveryTip();
             toOwner = delivery.getToOwner();
             toRider = delivery.getToRider();
             provideCutlery = delivery.getProvideCutlery();
@@ -151,15 +182,22 @@ public record PaymentResponse(
             provideCutlery = takeout.getProvideCutlery();
         }
 
+        LocalTime estimatedTime = estimatedAt;
+
         return new PaymentResponse(
             payment.getId(),
+            orderableShop.getId(),
             deliveryAddress,
             deliveryAddressDetails,
             shop.getAddress(),
+            longitude,
+            latitude,
             toOwner,
             toRider,
             provideCutlery,
-            payment.getAmount(),
+            order.getTotalProductPrice(),
+            deliveryTip,
+            order.getTotalPrice(),
             shop.getName(),
             order.getOrderMenus().stream()
                 .map(InnerCartItemResponse::from)
@@ -168,7 +206,9 @@ public record PaymentResponse(
             payment.getEasyPayCompany(),
             payment.getRequestedAt(),
             payment.getApprovedAt(),
-            payment.getPaymentMethod().getDisplayName()
+            payment.getPaymentMethod().getDisplayName(),
+            estimatedTime,
+            order.getStatus().name()
         );
     }
 }
