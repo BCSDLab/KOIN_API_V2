@@ -16,10 +16,10 @@ public class ShopToOrderableController implements ShopToOrderableApi {
 
     @PostMapping("/owner/shops/orderable-requests")
     public ResponseEntity<Void> createOrderableRequest(
-        Integer ownerId,
-        ShopToOrderableRequest request
+        @Auth(permit = {OWNER}) Integer ownerId,
+        @RequestBody @Valid ShopToOrderableRequest request
     ) {
         shopToOrderableService.createOrderableRequest(ownerId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(201).build();
     }
 }
