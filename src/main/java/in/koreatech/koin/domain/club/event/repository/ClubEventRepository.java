@@ -1,15 +1,18 @@
 package in.koreatech.koin.domain.club.event.repository;
 
-import in.koreatech.koin.domain.club.event.model.ClubEvent;
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
+
+import in.koreatech.koin.domain.club.event.model.ClubEvent;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
+import in.koreatech.koin.global.exception.CustomException;
+
+@JpaRepositoryMarker
 public interface ClubEventRepository extends Repository<ClubEvent, Integer> {
 
     @Query("""

@@ -10,8 +10,10 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.order.order.model.Order;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 import in.koreatech.koin.global.exception.CustomException;
 
+@JpaRepositoryMarker
 public interface OrderRepository extends Repository<Order, Integer> {
 
     void save(Order order);

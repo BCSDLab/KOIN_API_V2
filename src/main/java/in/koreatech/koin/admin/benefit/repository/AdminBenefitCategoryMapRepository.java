@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
-import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
+
+@JpaRepositoryMarker
 public interface AdminBenefitCategoryMapRepository extends CrudRepository<BenefitCategoryMap, Integer> {
 
     List<BenefitCategoryMap> findAllByIdIn(List<Integer> ids);

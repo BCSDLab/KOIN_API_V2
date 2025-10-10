@@ -10,8 +10,11 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.owner.exception.OwnerNotFoundException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.global.marker.JpaRepositoryMarker;
+
 import org.springframework.data.repository.query.Param;
 
+@JpaRepositoryMarker
 public interface AdminOwnerRepository extends Repository<Owner, Integer> {
 
     Optional<Owner> findById(Integer ownerId);

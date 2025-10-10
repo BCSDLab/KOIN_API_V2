@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.config;
+package in.koreatech.koin.config;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
