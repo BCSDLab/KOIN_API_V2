@@ -120,7 +120,6 @@ public class AdminShopMenuService {
     public void modifyMenu(Integer shopId, Integer menuId, AdminModifyMenuRequest request) {
         Menu menu = adminMenuRepository.getById(menuId);
         adminShopRepository.getById(shopId);
-        imageDeleteService.publishImagesModifyEvent(menu.getMenuImages(), request.imageUrls(), MenuImage::getImageUrl);
         menu.modifyMenu(request.name(), request.description());
         menu.modifyMenuImages(request.imageUrls(), entityManager);
         menu.modifyMenuCategories(adminMenuCategoryRepository.findAllByIdIn(request.categoryIds()), entityManager);
@@ -143,7 +142,6 @@ public class AdminShopMenuService {
         if (!Objects.equals(menu.getShop().getId(), shopId)) {
             throw new KoinIllegalArgumentException("해당 상점의 메뉴가 아닙니다.");
         }
-        imageDeleteService.publishImagesDeletedEvent(menu.getMenuImages(), MenuImage::getImageUrl);
         adminMenuRepository.deleteById(menuId);
     }
 }
