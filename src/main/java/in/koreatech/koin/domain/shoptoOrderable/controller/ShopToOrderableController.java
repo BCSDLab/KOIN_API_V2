@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 public class ShopToOrderableController implements ShopToOrderableApi {
+
     private final ShopToOrderableService shopToOrderableService;
 
     @PostMapping("/owner/shops/orderable-requests")

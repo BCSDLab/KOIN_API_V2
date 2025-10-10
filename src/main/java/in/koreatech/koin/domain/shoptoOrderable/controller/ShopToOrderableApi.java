@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Shop To Orderable Request: 주문 서비스 가입 요청", description = "사장님이 주문 서비스 가입을 요청하기위한 API")
 public interface ShopToOrderableApi {
+
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "201"),
