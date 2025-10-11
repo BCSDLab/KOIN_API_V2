@@ -30,7 +30,7 @@ public class ShopToOrderableController implements ShopToOrderableApi {
         @PathVariable Integer shopId,
         @RequestBody @Valid ShopToOrderableRequest request
     ) {
-        shopToOrderableService.createOrderableRequest(ownerId, request);
+        shopToOrderableService.createOrderableRequest(ownerId, request, shopId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

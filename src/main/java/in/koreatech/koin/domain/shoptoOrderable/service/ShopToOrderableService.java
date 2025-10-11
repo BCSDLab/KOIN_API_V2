@@ -12,7 +12,6 @@ import in.koreatech.koin.global.code.ApiResponseCode;
 import lombok.RequiredArgsConstructor;
 import in.koreatech.koin.global.exception.CustomException;
 
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +30,10 @@ public class ShopToOrderableService {
         if (shopToOrderableRepository.existsByShopId(shopId)) {
             throw CustomException.of(ApiResponseCode.ALREADY_REQUESTED_ORDERABLE_SHOP, "shopId: " + shopId);
         }
+        
+        // 가게 사장님인지 확인
+        
+        // 이미 주문가능 상점인지 확인
 
         ShopToOrderable shopToOrderable = ShopToOrderable.builder()
             .shop(shop)
@@ -41,8 +44,10 @@ public class ShopToOrderableService {
             .outsideDeliveryTip(request.outsideDeliveryTip())
             .isOpen(request.isOpen())
             .businessLicenseUrl(request.businessLicenseUrl())
-            .requestStatus(ShopToOrderable.RequestStatus.PENDING)
-            .createdAt(LocalDateTime.now())
+            .businessCertificateUrl(request.businessCertificateUrl())
+            .bankCopyUrl(request.bankCopyUrl())
+            .bank(request.bank())
+            .accountNumber(request.accountNumber())
             .build();
 
         shopToOrderableRepository.save(shopToOrderable);

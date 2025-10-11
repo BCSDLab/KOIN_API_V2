@@ -44,9 +44,6 @@ public record ShopToOrderableRequest(
     @NotNull(message = "가게 운영 여부는 필수입니다.")
     Boolean isOpen,
 
-    @Schema(description = "가게 이미지 URL 목록", requiredMode = NOT_REQUIRED)
-    List<String> imageUrls,
-
     @Schema(description = "사업자 등록증 URL", example = "https://example.com/business_license.jpg", requiredMode = REQUIRED)
     @NotBlank(message = "사업자 등록증 URL은 필수입니다.")
     String businessLicenseUrl,
