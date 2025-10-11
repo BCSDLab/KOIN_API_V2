@@ -28,7 +28,7 @@ public interface ShopToOrderableApi {
     })
     @Operation(summary = "사장님 주문 서비스 가입 요청")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/owner/shops/orderable-requests")
+    @PostMapping("/owner/shops/{shopId}/orderable-requests")
     ResponseEntity<Void> createOrderableRequest(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable Integer shopId,
