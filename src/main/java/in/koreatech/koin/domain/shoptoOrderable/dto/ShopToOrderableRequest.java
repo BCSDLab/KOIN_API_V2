@@ -17,10 +17,6 @@ import java.util.List;
 @JsonNaming(SnakeCaseStrategy.class)
 public record ShopToOrderableRequest(
 
-    @Schema(description = "가게 ID", example = "1", requiredMode = REQUIRED)
-    @NotNull(message = "가게 ID는 필수입니다.")
-    Integer shopId,
-
     @Schema(description = "최소 주문 금액", example = "5000", requiredMode = REQUIRED)
     @NotNull(message = "최소 주문 금액은 필수입니다.")
     @Min(value = 0, message = "최소 주문 금액은 0원 이상이어야 합니다.")

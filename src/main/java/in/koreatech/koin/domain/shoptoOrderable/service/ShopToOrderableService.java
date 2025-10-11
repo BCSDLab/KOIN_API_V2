@@ -22,14 +22,14 @@ public class ShopToOrderableService {
     private final ShopRepository shopRepository;
 
     @Transactional
-    public void createOrderableRequest(Integer ownerId, ShopToOrderableRequest request) {
-        Shop shop = shopRepository.findById(request.shopId())
+    public void createOrderableRequest(Integer ownerId, ShopToOrderableRequest request, Integer shopId) {
+        Shop shop = shopRepository.findById(shopId)
             .orElseThrow(
-                () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "shopId: " + request.shopId()));
+                () -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP, "shopId: " + shopId));
 
         // 이미 신청한 내역이 있는지 확인
-        if (shopToOrderableRepository.existsByShopId(request.shopId())) {
-            throw CustomException.of(ApiResponseCode.ALREADY_REQUESTED_ORDERABLE_SHOP, "shopId: " + request.shopId());
+        if (shopToOrderableRepository.existsByShopId(shopId)) {
+            throw CustomException.of(ApiResponseCode.ALREADY_REQUESTED_ORDERABLE_SHOP, "shopId: " + shopId);
         }
 
         ShopToOrderable shopToOrderable = ShopToOrderable.builder()

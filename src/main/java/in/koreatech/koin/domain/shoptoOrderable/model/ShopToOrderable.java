@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "ShopToOrderable")
+@Table(name = "shop_to_orderable")
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
 @Builder

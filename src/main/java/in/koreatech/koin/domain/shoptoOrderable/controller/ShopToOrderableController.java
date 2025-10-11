@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.shoptoOrderable.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,12 +24,13 @@ public class ShopToOrderableController implements ShopToOrderableApi {
 
     private final ShopToOrderableService shopToOrderableService;
 
-    @PostMapping("/owner/shops/orderable-requests")
+    @PostMapping("/owner/shops/{shopId}/orderable-requests")
     public ResponseEntity<Void> createOrderableRequest(
         @Auth(permit = {OWNER}) Integer ownerId,
+        @PathVariable Integer shopId,
         @RequestBody @Valid ShopToOrderableRequest request
     ) {
         shopToOrderableService.createOrderableRequest(ownerId, request);
-        return ResponseEntity.status(201).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
