@@ -97,7 +97,7 @@ public enum ApiResponseCode {
     NOT_FOUND_CLUB_RECRUITMENT(HttpStatus.NOT_FOUND, "동아리 모집 공고가 존재하지 않습니다."),
     NOT_FOUND_CLUB_EVENT(HttpStatus.NOT_FOUND, "동아리 행사가 존재하지 않습니다."),
     NOT_FOUND_DELIVERY_ADDRESS(HttpStatus.NOT_FOUND, "주소가 존재하지 않습니다."),
-    NOT_FOUND_ORDERABLE_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
+    NOT_FOUND_ORDERABLE_SHOP(HttpStatus.NOT_FOUND, "주문 가능 상점이 존재하지 않습니다."),
     NOT_FOUND_ORDERABLE_SHOP_MENU(HttpStatus.NOT_FOUND, "메뉴가 존재하지 않습니다"),
     NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE(HttpStatus.NOT_FOUND, "유효하지 않은 가격 ID 입니다."),
     NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION(HttpStatus.NOT_FOUND, "유효하지 않은 옵션 ID 입니다."),
@@ -108,6 +108,7 @@ public enum ApiResponseCode {
     NOT_FOUND_TEMPORARY_PAYMENT(HttpStatus.NOT_FOUND, "임시 결제 정보가 존재하지 않습니다."),
     NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
     NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
+    NOT_FOUND_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
@@ -119,6 +120,7 @@ public enum ApiResponseCode {
     REQUEST_TOO_FAST(HttpStatus.CONFLICT, "요청이 너무 빠릅니다. 다시 요청해주세요."),
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.CONFLICT, "이미 처리된 요청입니다."),
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
+    ALREADY_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)
