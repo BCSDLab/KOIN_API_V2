@@ -26,10 +26,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 @EnableRedisRepositories(
-    basePackages = {
-        "in.koreatech.koin.admin",
-        "in.koreatech.koin.domain"
-    },
+    basePackages = "in.koreatech.koin",
     enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP,
     includeFilters = @ComponentScan.Filter(
         type = FilterType.REGEX,
