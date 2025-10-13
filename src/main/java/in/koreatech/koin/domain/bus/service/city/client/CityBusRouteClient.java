@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusRoute;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusRouteCache;
 import in.koreatech.koin.domain.bus.enums.BusStationNode;
-import in.koreatech.koin.domain.bus.service.city.repository.CityBusRouteCacheRepository;
+import in.koreatech.koin.domain.bus.service.city.repository.CityBusRouteCacheRedisRepository;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
@@ -43,23 +43,23 @@ public class CityBusRouteClient {
     private static final String CHEONAN_CITY_CODE = "34010";
 
     private final String openApiKey;
-    private final CityBusRouteCacheRepository cityBusRouteCacheRepository;
+    private final CityBusRouteCacheRedisRepository cityBusRouteCacheRedisRepository;
     private final RestTemplate restTemplate;
 
     public CityBusRouteClient(
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
-        CityBusRouteCacheRepository cityBusRouteCacheRepository,
+        CityBusRouteCacheRedisRepository cityBusRouteCacheRedisRepository,
         RestTemplate restTemplate
     ) {
         this.openApiKey = openApiKey;
-        this.cityBusRouteCacheRepository = cityBusRouteCacheRepository;
+        this.cityBusRouteCacheRedisRepository = cityBusRouteCacheRedisRepository;
         this.restTemplate = restTemplate;
     }
 
     public Set<Long> getAvailableCityBus(List<String> nodeIds) {
         Set<Long> busNumbers = new HashSet<>();
         nodeIds.forEach(nodeId -> {
-            Optional<CityBusRouteCache> routeCache = cityBusRouteCacheRepository.findById(nodeId);
+            Optional<CityBusRouteCache> routeCache = cityBusRouteCacheRedisRepository.findById(nodeId);
             routeCache.ifPresent(cityBusRouteCache -> busNumbers.addAll(cityBusRouteCache.getBusNumbers()));
         });
 
@@ -78,7 +78,7 @@ public class CityBusRouteClient {
         for (String node : nodeIds) {
             try {
                 Set<CityBusRoute> routes = Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)));
-                cityBusRouteCacheRepository.save(CityBusRouteCache.of(node, routes));
+                cityBusRouteCacheRedisRepository.save(CityBusRouteCache.of(node, routes));
             } catch (BusOpenApiException e) {
                 continue;
             }

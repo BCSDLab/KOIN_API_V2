@@ -7,10 +7,8 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableAssign;
-import in.koreatech.koin.global.marker.RedisRepositoryMarker;
 
-@RedisRepositoryMarker
-public interface AbtestVariableAssignRepository extends Repository<AbtestVariableAssign, String> {
+public interface AbtestVariableAssignRedisRepository extends Repository<AbtestVariableAssign, String> {
 
     AbtestVariableAssign save(AbtestVariableAssign abtestVariableAssign);
 

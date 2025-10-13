@@ -25,7 +25,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
-import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRedisRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
@@ -41,7 +41,7 @@ public class OwnerSmsService {
     private final UserRepository userRepository;
     private final OwnerRepository ownerRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
-    private final OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
+    private final OwnerVerificationStatusRedisRepository ownerInVerificationRedisRepository;
     private final OwnerValidator ownerValidator;
     private final OwnerUtilService ownerUtilService;
     private final OwnerVerificationService ownerVerificationService;
