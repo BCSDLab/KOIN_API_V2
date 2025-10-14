@@ -129,7 +129,7 @@ public class ClubEventService {
     private boolean filterEventType(ClubEvent event, ClubEventType eventType, LocalDateTime now) {
         ClubEventStatus status = ClubEventResponse.calculateStatus(event.getStartDate(), event.getEndDate(), now);
 
-        if (eventType == null || eventType == ClubEventType.RECENT)
+        if (eventType == ClubEventType.RECENT)
             return true;
 
         if (eventType == ClubEventType.ONGOING) {
