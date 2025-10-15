@@ -28,10 +28,7 @@ import in.koreatech.koin.global.marker.RedisRepositoryMarker;
 
 @Configuration
 @EnableRedisRepositories(
-    basePackages = {
-        "in.koreatech.koin.admin",
-        "in.koreatech.koin.domain"
-    },
+    basePackages = "in.koreatech.koin",
     enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP,
     includeFilters = @ComponentScan.Filter(
         type = FilterType.ANNOTATION,
