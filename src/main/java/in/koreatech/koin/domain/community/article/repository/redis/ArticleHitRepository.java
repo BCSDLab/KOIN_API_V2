@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
+import in.koreatech.koin.global.marker.RedisRepositoryMarker;
 
-public interface ArticleHitRedisRepository extends CrudRepository<ArticleHit, Integer> {
+@RedisRepositoryMarker
+public interface ArticleHitRepository extends CrudRepository<ArticleHit, Integer> {
 
     List<ArticleHit> findAll();
 }

@@ -31,8 +31,8 @@ import in.koreatech.koin.domain.bus.service.cache.BusCacheService;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusArrival;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusCache;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusCacheInfo;
-import in.koreatech.koin.domain.bus.service.city.repository.CityBusCahcheRedisRepository;
-import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRedisRepository;
+import in.koreatech.koin.domain.bus.service.city.repository.CityBusCacheRepository;
+import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
@@ -47,10 +47,10 @@ class BusApiTest extends AcceptanceTest {
     private VersionAcceptanceFixture versionFixture;
 
     @Autowired
-    private CityBusCahcheRedisRepository cityBusCahcheRedisRepository;
+    private CityBusCacheRepository cityBusCacheRepository;
 
     @Autowired
-    private ExpressBusCacheRedisRepository expressBusCacheRedisRepository;
+    private ExpressBusCacheRepository expressBusCacheRepository;
 
     @Autowired
     private BusCacheService busCacheService;
@@ -117,7 +117,7 @@ class BusApiTest extends AcceptanceTest {
                 )
             )
         );
-        expressBusCacheRedisRepository.save(expressBusCache);
+        expressBusCacheRepository.save(expressBusCache);
 
         MvcResult result = mockMvc.perform(
                 get("/bus/search")
@@ -156,7 +156,7 @@ class BusApiTest extends AcceptanceTest {
 
         BusDirection direction = BusStation.getDirection(depart, arrival);
 
-        cityBusCahcheRedisRepository.save(
+        cityBusCacheRepository.save(
             CityBusCache.of(
                 depart.getNodeId(direction).get(0),
                 List.of(CityBusCacheInfo.of(

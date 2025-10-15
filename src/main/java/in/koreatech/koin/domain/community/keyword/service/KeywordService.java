@@ -28,7 +28,7 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCac
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRedisRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
@@ -49,7 +49,7 @@ public class KeywordService {
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
     private final ArticleKeywordRepository articleKeywordRepository;
-    private final ArticleKeywordSuggestRedisRepository articleKeywordSuggestRedisRepository;
+    private final ArticleKeywordSuggestRepository articleKeywordSuggestRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final UserNotificationStatusRepository userNotificationStatusRepository;
@@ -139,7 +139,7 @@ public class KeywordService {
     }
 
     public ArticleKeywordsSuggestionResponse suggestKeywords() {
-        List<String> suggestions = articleKeywordSuggestRedisRepository.findTop15ByOrderByCountDesc()
+        List<String> suggestions = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc()
             .stream()
             .map(ArticleKeywordSuggestCache::getKeyword)
             .collect(Collectors.toList());
@@ -193,9 +193,9 @@ public class KeywordService {
                 .build())
             .toList();
 
-        articleKeywordSuggestRedisRepository.deleteAll();
+        articleKeywordSuggestRepository.deleteAll();
         for (ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
-            articleKeywordSuggestRedisRepository.save(hotKeyword);
+            articleKeywordSuggestRepository.save(hotKeyword);
         }
     }
 

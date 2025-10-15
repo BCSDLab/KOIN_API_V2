@@ -29,7 +29,7 @@ import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRedisRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
@@ -43,7 +43,7 @@ public class KeywordApiTest extends AcceptanceTest {
     private ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     @Autowired
-    private ArticleKeywordSuggestRedisRepository articleKeywordSuggestRedisRepository;
+    private ArticleKeywordSuggestRepository articleKeywordSuggestRepository;
 
     @Autowired
     private KeywordAcceptanceFixture keywordFixture;
@@ -200,7 +200,7 @@ public class KeywordApiTest extends AcceptanceTest {
                 .build());
         }
 
-        hotKeywords.forEach(keyword -> articleKeywordSuggestRedisRepository.save(keyword));
+        hotKeywords.forEach(keyword -> articleKeywordSuggestRepository.save(keyword));
 
         mockMvc.perform(
                 get("/articles/keyword/suggestions")

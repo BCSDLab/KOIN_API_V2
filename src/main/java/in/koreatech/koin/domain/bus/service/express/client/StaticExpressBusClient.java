@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.global.apiloadbalancer.ApiLoadBalance;
 import in.koreatech.koin.domain.bus.enums.BusStation;
-import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRedisRepository;
+import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
@@ -22,11 +22,11 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
 public class StaticExpressBusClient extends ExpressBusClient {
 
     public StaticExpressBusClient(
-        ExpressBusCacheRedisRepository expressBusCacheRedisRepository,
+        ExpressBusCacheRepository expressBusCacheRepository,
         VersionRepository versionRepository,
         Clock clock
     ) {
-        super(expressBusCacheRedisRepository, versionRepository, clock);
+        super(expressBusCacheRepository, versionRepository, clock);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -41,7 +41,7 @@ public class StaticExpressBusClient extends ExpressBusClient {
                     getStaticResponse(depart, arrival)
                 );
                 if (!expressBusCache.getBusInfos().isEmpty()) {
-                    expressBusCacheRedisRepository.save(expressBusCache);
+                    expressBusCacheRepository.save(expressBusCache);
                 }
             }
         }
