@@ -28,7 +28,7 @@ import in.koreatech.koin.global.apiloadbalancer.ApiLoadBalance;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRedisRepository;
+import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.bus.service.express.dto.TmoneyOpenApiResponse;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
@@ -57,9 +57,9 @@ public class TmoneyExpressBusClient extends ExpressBusClient {
         VersionRepository versionRepository,
         RestTemplate restTemplate,
         Clock clock,
-        ExpressBusCacheRedisRepository expressBusCacheRedisRepository
+        ExpressBusCacheRepository expressBusCacheRepository
     ) {
-        super(expressBusCacheRedisRepository, versionRepository, clock);
+        super(expressBusCacheRepository, versionRepository, clock);
         this.restTemplate = restTemplate;
         this.openApiKey = openApiKey;
     }
@@ -93,7 +93,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient {
                         .toList()
                 );
                 if (!expressBusCache.getBusInfos().isEmpty()) {
-                    expressBusCacheRedisRepository.save(expressBusCache);
+                    expressBusCacheRepository.save(expressBusCache);
                 }
             }
         }

@@ -11,8 +11,8 @@ import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.common.util.random.VerificationNumberGenerator;
 import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
-import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRedisRepository;
-import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRedisRepository;
+import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class OwnerVerificationService {
 
     private final ApplicationEventPublisher eventPublisher;
-    private final OwnerVerificationStatusRedisRepository ownerVerificationStatusRedisRepository;
-    private final DailyVerificationLimitRedisRepository dailyVerificationLimitRedisRepository;
+    private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
+    private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final VerificationNumberGenerator verificationNumberGenerator;
 
     private void setVerificationCount(String key) {
@@ -42,12 +42,12 @@ public class OwnerVerificationService {
             phoneNumber,
             certificationCode
         );
-        ownerVerificationStatusRedisRepository.save(ownerVerificationStatus);
+        ownerVerificationStatusRepository.save(ownerVerificationStatus);
         eventPublisher.publishEvent(new OwnerSmsVerificationSendEvent(certificationCode, phoneNumber));
     }
 
     public void verifyCode(String key, String code) {
-        OwnerVerificationStatus verify = ownerVerificationStatusRedisRepository.getByVerify(key);
+        OwnerVerificationStatus verify = ownerVerificationStatusRepository.getByVerify(key);
         if (!Objects.equals(verify.getCertificationCode(), code)) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }

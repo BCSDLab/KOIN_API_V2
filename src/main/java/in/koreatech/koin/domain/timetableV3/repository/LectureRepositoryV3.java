@@ -3,13 +3,13 @@ package in.koreatech.koin.domain.timetableV3.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.timetable.exception.LectureNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
+import io.lettuce.core.dynamic.annotation.Param;
 
-@JpaRepositoryMarker
 public interface LectureRepositoryV3 extends Repository<Lecture, Integer> {
 
     List<Lecture> findBySemester(String semesterDate);

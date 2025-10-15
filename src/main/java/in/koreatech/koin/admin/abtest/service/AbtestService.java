@@ -33,9 +33,9 @@ import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableAssign;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
-import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignRedisRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignTemplateRepository;
-import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRedisRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
@@ -52,13 +52,13 @@ import lombok.RequiredArgsConstructor;
 public class AbtestService {
 
     private final EntityManager entityManager;
-    private final AbtestVariableCountRedisRepository abtestVariableCountRedisRepository;
+    private final AbtestVariableCountRepository abtestVariableCountRepository;
     private final AbtestRepository abtestRepository;
     private final AbtestVariableRepository abtestVariableRepository;
     private final AccessHistoryRepository accessHistoryRepository;
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
-    private final AbtestVariableAssignRedisRepository abtestVariableAssignRedisRepository;
+    private final AbtestVariableAssignRepository abtestVariableAssignRepository;
     private final AbtestVariableAssignTemplateRepository abtestVariableAssignTemplateRepository;
 
     @Transactional
@@ -112,7 +112,7 @@ public class AbtestService {
 
     private void deleteCountCache(Abtest abtest) {
         abtest.getAbtestVariables()
-            .forEach(abtestVariable -> abtestVariableCountRedisRepository.deleteById(abtestVariable.getId()));
+            .forEach(abtestVariable -> abtestVariableCountRepository.deleteById(abtestVariable.getId()));
     }
 
     public AbtestsResponse getAbtests(Integer page, Integer limit) {
@@ -165,29 +165,29 @@ public class AbtestService {
     // 기기를 다른 사용자가 사용한 이력이 있는 경우 기존 사용자의 캐시를 삭제
     private void removeBeforeUserCache(AccessHistory accessHistory, Abtest abtest) {
         for (AbtestVariable removeVariable : accessHistory.getVariableBy(abtest)) {
-            abtestVariableAssignRedisRepository.deleteByVariableIdAndAccessHistoryId(removeVariable.getId(),
+            abtestVariableAssignRepository.deleteByVariableIdAndAccessHistoryId(removeVariable.getId(),
                 accessHistory.getId());
-            AbtestVariableCount countCache = abtestVariableCountRedisRepository.findOrCreateIfNotExists(
+            AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(
                 removeVariable.getId());
             countCache.minusCount();
-            abtestVariableCountRedisRepository.save(countCache);
+            abtestVariableCountRepository.save(countCache);
         }
     }
 
     private List<AbtestVariableCount> loadCacheCount(Abtest abtest) {
         return abtest.getAbtestVariables().stream()
-            .map(abtestVariable -> abtestVariableCountRedisRepository.findOrCreateIfNotExists(abtestVariable.getId()))
+            .map(abtestVariable -> abtestVariableCountRepository.findOrCreateIfNotExists(abtestVariable.getId()))
             .toList();
     }
 
     private void countCacheUpdate(AbtestVariable variable) {
-        AbtestVariableCount countCache = abtestVariableCountRedisRepository.findOrCreateIfNotExists(variable.getId());
+        AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(variable.getId());
         countCache.addCount();
-        abtestVariableCountRedisRepository.save(countCache);
+        abtestVariableCountRepository.save(countCache);
     }
 
     private void variableAssignCacheSave(AbtestVariable variable, Integer accessHistoryId) {
-        abtestVariableAssignRedisRepository.save(AbtestVariableAssign.of(variable.getId(), accessHistoryId));
+        abtestVariableAssignRepository.save(AbtestVariableAssign.of(variable.getId(), accessHistoryId));
     }
 
     private AbtestVariable getMyVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId,
@@ -204,14 +204,14 @@ public class AbtestService {
         }
         Optional<AbtestVariable> cacheVariable = abtest.getAbtestVariables().stream()
             .filter(abtestVariable ->
-                abtestVariableAssignRedisRepository.findByVariableIdAndAccessHistoryId(abtestVariable.getId(),
+                abtestVariableAssignRepository.findByVariableIdAndAccessHistoryId(abtestVariable.getId(),
                     accessHistory.getId()).isPresent())
             .findAny();
         if (cacheVariable.isEmpty()) {
             AbtestVariable dbVariable = accessHistory.findVariableByAbtestId(abtest.getId())
                 .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
                     + "accessHistoryId: " + accessHistory.getId()));
-            abtestVariableAssignRedisRepository.save(AbtestVariableAssign.of(dbVariable.getId(), accessHistory.getId()));
+            abtestVariableAssignRepository.save(AbtestVariableAssign.of(dbVariable.getId(), accessHistory.getId()));
             return dbVariable;
         }
         return cacheVariable.get();
@@ -229,24 +229,24 @@ public class AbtestService {
 
     @Transactional
     public void syncCacheCountToDB() {
-        List<AbtestVariableCount> cacheCount = abtestVariableCountRedisRepository.findAll();
+        List<AbtestVariableCount> cacheCount = abtestVariableCountRepository.findAll();
         cacheCount.removeIf(Objects::isNull);
         cacheCount.forEach(abtestVariableCount -> {
             Optional<AbtestVariable> variable = abtestVariableRepository.findById(abtestVariableCount.getVariableId());
             if (variable.isEmpty()) {
-                abtestVariableCountRedisRepository.deleteById(abtestVariableCount.getVariableId());
+                abtestVariableCountRepository.deleteById(abtestVariableCount.getVariableId());
                 return;
             }
             variable.get().addCount(abtestVariableCount.getCount());
             abtestVariableCount.resetCount();
         });
-        abtestVariableCountRedisRepository.saveAll(cacheCount);
+        abtestVariableCountRepository.saveAll(cacheCount);
     }
 
     public void syncCacheCountToDB(Abtest abtest) {
         List<AbtestVariableCount> cacheCount = abtest.getAbtestVariables().stream()
             .map(AbtestVariable::getId)
-            .map(abtestVariableCountRedisRepository::findById)
+            .map(abtestVariableCountRepository::findById)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .toList();
@@ -255,7 +255,7 @@ public class AbtestService {
             variable.addCount(abtestVariableCount.getCount());
             abtestVariableCount.resetCount();
         });
-        abtestVariableCountRedisRepository.saveAll(cacheCount);
+        abtestVariableCountRepository.saveAll(cacheCount);
     }
 
     public AbtestUsersResponse getUsersByName(String userName) {
@@ -277,7 +277,7 @@ public class AbtestService {
         validateDuplicatedVariables(beforeVariable, afterVariable);
         abtest.assignVariableByAdmin(accessHistory, request.variableName());
         beforeVariable.ifPresent(
-            abtestVariable -> abtestVariableAssignRedisRepository.deleteByVariableIdAndAccessHistoryId(
+            abtestVariable -> abtestVariableAssignRepository.deleteByVariableIdAndAccessHistoryId(
                 abtestVariable.getId(),
                 accessHistory.getId()));
         variableAssignCacheSave(afterVariable, accessHistory.getId());

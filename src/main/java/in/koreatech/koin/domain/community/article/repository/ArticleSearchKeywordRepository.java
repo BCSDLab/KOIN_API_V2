@@ -10,10 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 import jakarta.persistence.LockModeType;
 
-@JpaRepositoryMarker
 public interface ArticleSearchKeywordRepository extends Repository<ArticleSearchKeyword, Integer> {
 
     ArticleSearchKeyword save(ArticleSearchKeyword keyword);

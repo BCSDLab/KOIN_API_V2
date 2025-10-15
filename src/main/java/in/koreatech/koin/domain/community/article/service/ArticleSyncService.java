@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.community.article.model.redis.BusNoticeArticle;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
-import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRedisRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class ArticleSyncService {
     private static final String IP_SEARCH_COUNT_PREFIX = "search:count:ip:";
     private static final String KEYWORD_SET = "popular_keywords";
 
-    private final ArticleHitRedisRepository articleHitRedisRepository;
+    private final ArticleHitRepository articleHitRepository;
     private final HotArticleRepository hotArticleRepository;
     private final BusArticleRepository busArticleRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
@@ -50,11 +50,11 @@ public class ArticleSyncService {
 
     @Transactional
     public void updateHotArticles() {
-        List<ArticleHit> articleHits = articleHitRedisRepository.findAll();
-        articleHitRedisRepository.deleteAll();
+        List<ArticleHit> articleHits = articleHitRepository.findAll();
+        articleHitRepository.deleteAll();
         List<Article> allArticles =
             articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS));
-        articleHitRedisRepository.saveAll(allArticles.stream().map(ArticleHit::from).toList());
+        articleHitRepository.saveAll(allArticles.stream().map(ArticleHit::from).toList());
 
         Map<Integer, Integer> articlesIdWithHit = new HashMap<>();
         for (Article article : allArticles) {

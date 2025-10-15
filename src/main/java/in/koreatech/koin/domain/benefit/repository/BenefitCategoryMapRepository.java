@@ -6,9 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 
-@JpaRepositoryMarker
 public interface BenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {
 
     List<BenefitCategoryMap> findByBenefitCategoryId(Integer benefitCategoryId);

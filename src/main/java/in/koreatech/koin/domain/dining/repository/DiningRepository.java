@@ -12,9 +12,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.coop.exception.MenuNotFoundException;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.DiningType;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 
-@JpaRepositoryMarker
 public interface DiningRepository extends Repository<Dining, Integer> {
 
     Dining save(Dining dining);

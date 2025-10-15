@@ -8,13 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
-import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.member.exception.MemberNotFoundException;
 import in.koreatech.koin.domain.member.model.Member;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
+import org.springframework.data.repository.query.Param;
 
-@JpaRepositoryMarker
 public interface AdminMemberRepository extends Repository<Member, Integer> {
 
     @EntityGraph(attributePaths = {"track"})

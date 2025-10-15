@@ -58,9 +58,9 @@ import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
-import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRedisRepository;
-import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRedisRepository;
-import in.koreatech.koin.domain.coop.repository.ExcelDownloadCacheRedisRepository;
+import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
+import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.domain.coop.repository.ExcelDownloadCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
@@ -83,9 +83,9 @@ public class CoopService {
     private final Clock clock;
     private final ApplicationEventPublisher eventPublisher;
     private final DiningRepository diningRepository;
-    private final DiningSoldOutCacheRedisRepository diningSoldOutCacheRedisRepository;
-    private final ExcelDownloadCacheRedisRepository excelDownloadCacheRedisRepository;
-    private final DiningNotifyCacheRedisRepository diningNotifyCacheRedisRepository;
+    private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
+    private final ExcelDownloadCacheRepository excelDownloadCacheRepository;
+    private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
@@ -111,8 +111,8 @@ public class CoopService {
             LocalDateTime now = LocalDateTime.now(clock);
             dining.setSoldOut(now);
             boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), false);
-            if (isOpened && diningSoldOutCacheRedisRepository.findById(dining.getPlace()).isEmpty()) {
-                diningSoldOutCacheRedisRepository.save(DiningSoldOutCache.from(dining.getPlace()));
+            if (isOpened && diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty()) {
+                diningSoldOutCacheRepository.save(DiningSoldOutCache.from(dining.getPlace()));
                 eventPublisher.publishEvent(
                     new DiningSoldOutEvent(dining.getId(), dining.getPlace(), dining.getType()));
             }
@@ -395,12 +395,12 @@ public class CoopService {
     }
 
     private void checkDuplicateExcelRequest(LocalDate startDate, LocalDate endDate) {
-        boolean isCacheExist = excelDownloadCacheRedisRepository.existsById(startDate.toString() + endDate.toString());
+        boolean isCacheExist = excelDownloadCacheRepository.existsById(startDate.toString() + endDate.toString());
 
         if (isCacheExist) {
             throw DuplicateExcelRequestException.withDetail(startDate, endDate);
         }
-        excelDownloadCacheRedisRepository.save(ExcelDownloadCache.from(startDate, endDate));
+        excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate, endDate));
     }
 
     private List<Dining> fetchDiningData(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {

@@ -9,9 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.timetableV2.exception.TimetableLectureNotFoundException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 
-@JpaRepositoryMarker
 public interface TimetableLectureRepositoryV3 extends Repository<TimetableLecture, Integer> {
     TimetableLecture save(TimetableLecture timetableLecture);
 
