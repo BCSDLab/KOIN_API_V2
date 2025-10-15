@@ -110,7 +110,6 @@ public interface ClubEventApi {
 
     @ApiResponseCodes({
         OK,
-        INVALID_CLUB_EVENT_TYPE,
         NOT_FOUND_CLUB,
         NOT_FOUND_CLUB_EVENT,
         INVALID_REQUEST_BODY
