@@ -7,10 +7,8 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.bus.exception.BusCacheNotFoundException;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
-import in.koreatech.koin.global.marker.RedisRepositoryMarker;
 
-@RedisRepositoryMarker
-public interface ExpressBusCacheRepository extends Repository<ExpressBusCache, String> {
+public interface ExpressBusCacheRedisRepository extends Repository<ExpressBusCache, String> {
 
     ExpressBusCache save(ExpressBusCache expressBusCache);
 

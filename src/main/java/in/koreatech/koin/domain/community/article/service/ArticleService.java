@@ -30,7 +30,7 @@ import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTrac
 import in.koreatech.koin.domain.community.article.model.KeywordRankingManager;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
-import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRedisRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
@@ -63,7 +63,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
     private final HotArticleRepository hotArticleRepository;
-    private final ArticleHitUserRepository articleHitUserRepository;
+    private final ArticleHitUserRedisRepository articleHitUserRedisRepository;
     private final UserRepository userRepository;
     private final Clock clock;
     private final S3Client s3Client;
@@ -78,9 +78,9 @@ public class ArticleService {
         if (content.startsWith("https")) {
             content = s3Client.getContentFromUrl(article.getContent());
         }
-        if (articleHitUserRepository.findByArticleIdAndPublicIp(articleId, publicIp).isEmpty()) {
+        if (articleHitUserRedisRepository.findByArticleIdAndPublicIp(articleId, publicIp).isEmpty()) {
             article.increaseKoinHit();
-            articleHitUserRepository.save(ArticleHitUser.of(articleId, publicIp));
+            articleHitUserRedisRepository.save(ArticleHitUser.of(articleId, publicIp));
         }
         setPrevNextArticle(boardId, article);
         return ArticleResponse.from(article, content);

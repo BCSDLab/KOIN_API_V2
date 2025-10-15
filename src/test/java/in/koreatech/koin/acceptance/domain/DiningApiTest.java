@@ -21,8 +21,8 @@ import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.DiningAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
-import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
-import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRedisRepository;
+import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRedisRepository;
 import in.koreatech.koin.domain.coop.service.CoopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
@@ -34,7 +34,7 @@ class DiningApiTest extends AcceptanceTest {
     private DiningRepository diningRepository;
 
     @Autowired
-    private DiningSoldOutCacheRepository diningSoldOutCacheRepository;
+    private DiningSoldOutCacheRedisRepository diningSoldOutCacheRedisRepository;
 
     @Autowired
     private UserAcceptanceFixture userFixture;
@@ -49,7 +49,7 @@ class DiningApiTest extends AcceptanceTest {
     private CoopService coopService;
 
     @Autowired
-    private DiningNotifyCacheRepository diningNotifyCacheRepository;
+    private DiningNotifyCacheRedisRepository diningNotifyCacheRedisRepository;
 
     private Dining A코너_점심;
     private Dining B코너_점심;
@@ -306,7 +306,7 @@ class DiningApiTest extends AcceptanceTest {
 
     @Test
     void 동일한_식단_코너의_두_번째_품절_요청은_알림이_가지_않는다() throws Exception {
-        diningSoldOutCacheRepository.save(DiningSoldOutCache.from(A코너_점심.getPlace()));
+        diningSoldOutCacheRedisRepository.save(DiningSoldOutCache.from(A코너_점심.getPlace()));
         mockMvc.perform(
                 patch("/coop/dining/soldout")
                     .header("Authorization", "Bearer " + token_준기)

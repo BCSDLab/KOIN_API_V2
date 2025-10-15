@@ -24,18 +24,13 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import in.koreatech.koin.global.marker.RedisRepositoryMarker;
-
 @Configuration
 @EnableRedisRepositories(
-    basePackages = {
-        "in.koreatech.koin.admin",
-        "in.koreatech.koin.domain"
-    },
+    basePackages = "in.koreatech.koin",
     enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP,
     includeFilters = @ComponentScan.Filter(
-        type = FilterType.ANNOTATION,
-        value = RedisRepositoryMarker.class
+        type = FilterType.REGEX,
+        pattern = ".*RedisRepository"
     )
 )
 @Profile("!test")

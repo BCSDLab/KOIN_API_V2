@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.bus.service.express.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.service.model.BusTimetable;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
@@ -33,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ExpressBusService {
 
-    private final ExpressBusCacheRepository expressBusCacheRepository;
+    private final ExpressBusCacheRedisRepository expressBusCacheRedisRepository;
 
     public SingleBusTimeResponse searchBusTime(
         String busType,
@@ -61,7 +60,7 @@ public class ExpressBusService {
     }
 
     private List<ExpressBusRemainTime> getStoredRemainTime(String busCacheId) {
-        Optional<ExpressBusCache> expressBusCache = expressBusCacheRepository.findById(busCacheId);
+        Optional<ExpressBusCache> expressBusCache = expressBusCacheRedisRepository.findById(busCacheId);
         if (expressBusCache.isEmpty()) {
             return Collections.emptyList();
         }
@@ -97,7 +96,7 @@ public class ExpressBusService {
         String busCacheId = ExpressBusCache.generateId(
             new ExpressBusRoute(depart.getName(), arrival.getName()));
 
-        ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
+        ExpressBusCache expressBusCache = expressBusCacheRedisRepository.getById(busCacheId);
         if (Objects.isNull(expressBusCache)) {
             return Collections.emptyList();
         }

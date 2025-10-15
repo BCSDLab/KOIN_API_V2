@@ -25,7 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
-import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
+import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRedisRepository;
 import in.koreatech.koin.domain.bus.service.express.ExpressBusService;
 import in.koreatech.koin.domain.bus.service.express.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCache;
@@ -40,7 +40,7 @@ public class ExpressBusServiceTest {
     private ExpressBusService expressBusService;
 
     @Mock
-    private ExpressBusCacheRepository expressBusCacheRepository;
+    private ExpressBusCacheRedisRepository expressBusCacheRedisRepository;
 
     private String busType;
     private BusStation departKoreatech;
@@ -102,7 +102,7 @@ public class ExpressBusServiceTest {
         void 캐시가_존재하면_가장_가까운_출발_시간을_반환한다() {
             //given
             targetTime = LocalDateTime.of(2024, 6, 10, 10, 0);
-            when(expressBusCacheRepository
+            when(expressBusCacheRedisRepository
                 .findById(ExpressBusCache.generateId(
                     new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName()))))
                 .thenReturn(Optional.of(cacheWithThreeItems));
@@ -120,7 +120,7 @@ public class ExpressBusServiceTest {
         @Test
         void 캐시가_존재하지_않으면_null을_반환한다() {
             // given
-            when(expressBusCacheRepository
+            when(expressBusCacheRedisRepository
                 .findById(ExpressBusCache.generateId(
                     new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName()))))
                 .thenReturn(Optional.empty());
@@ -137,7 +137,7 @@ public class ExpressBusServiceTest {
         void 버스_출발_시간이_모두_타겟_시간_이전이면_버스시간이_NULL인_객체를_반환한다() {
             // given
             LocalDateTime targetTime = LocalDateTime.of(2024, 6, 10, 13, 0);
-            when(expressBusCacheRepository
+            when(expressBusCacheRedisRepository
                 .findById(ExpressBusCache.generateId(
                     new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName()))))
                 .thenReturn(Optional.of(cacheWithThreeItems));
@@ -161,7 +161,7 @@ public class ExpressBusServiceTest {
         void from_방향의_시간표를_조회한다() {
             // given
             String direction = "from";
-            when(expressBusCacheRepository
+            when(expressBusCacheRedisRepository
                 .getById(ExpressBusCache.generateId(
                     new ExpressBusRoute(BusStation.KOREATECH.getName(), BusStation.TERMINAL.getName()))))
                 .thenReturn(cacheFromKoreatech);
@@ -194,7 +194,7 @@ public class ExpressBusServiceTest {
         void to_방향의_시간표를_조회한다() {
             // given
             String direction = "to";
-            when(expressBusCacheRepository
+            when(expressBusCacheRedisRepository
                 .getById(ExpressBusCache.generateId(
                     new ExpressBusRoute(BusStation.TERMINAL.getName(), BusStation.KOREATECH.getName()))))
                 .thenReturn(cacheFromTerminal);
@@ -237,7 +237,7 @@ public class ExpressBusServiceTest {
         void 캐시가_존재하지_않으면_빈_목록을_반환한다() {
             // given
             String direction = "from";
-            when(expressBusCacheRepository
+            when(expressBusCacheRedisRepository
                 .getById(ExpressBusCache.generateId(
                     new ExpressBusRoute(BusStation.KOREATECH.getName(), BusStation.TERMINAL.getName()))))
                 .thenReturn(null);
@@ -271,7 +271,7 @@ public class ExpressBusServiceTest {
         @Test
         void 출발지와_도착지에_맞는_버스_잔여_시간을_반환한다() {
             // given
-            when(expressBusCacheRepository.findById(ExpressBusCache.generateId(
+            when(expressBusCacheRedisRepository.findById(ExpressBusCache.generateId(
                 new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName()))))
                 .thenReturn(Optional.of(cacheWithThreeItems));
 
@@ -288,7 +288,7 @@ public class ExpressBusServiceTest {
         @Test
         void 캐시가_존재하지_않으면_빈_목록을_반환한다() {
             // given
-            when(expressBusCacheRepository.findById(ExpressBusCache.generateId(
+            when(expressBusCacheRedisRepository.findById(ExpressBusCache.generateId(
                 new ExpressBusRoute(departKoreatech.getName(), arrivalTerminal.getName()))))
                 .thenReturn(Optional.empty());
 

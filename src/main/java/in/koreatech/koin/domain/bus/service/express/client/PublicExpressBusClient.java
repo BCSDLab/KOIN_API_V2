@@ -30,7 +30,7 @@ import in.koreatech.koin.domain.bus.service.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.service.express.model.ExpressBusStationNode;
 import in.koreatech.koin.domain.bus.service.express.model.PublicOpenApiExpressBusArrival;
-import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRepository;
+import in.koreatech.koin.domain.bus.service.express.ExpressBusCacheRedisRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.apiloadbalancer.ApiLoadBalance;
@@ -56,9 +56,9 @@ public class PublicExpressBusClient extends ExpressBusClient {
         VersionRepository versionRepository,
         RestTemplate restTemplate,
         Clock clock,
-        ExpressBusCacheRepository expressBusCacheRepository
+        ExpressBusCacheRedisRepository expressBusCacheRedisRepository
     ) {
-        super(expressBusCacheRepository, versionRepository, clock);
+        super(expressBusCacheRedisRepository, versionRepository, clock);
         this.restTemplate = restTemplate;
         this.openApiKey = openApiKey;
     }
@@ -98,7 +98,7 @@ public class PublicExpressBusClient extends ExpressBusClient {
                         .toList()
                 );
                 if (!expressBusCache.getBusInfos().isEmpty()) {
-                    expressBusCacheRepository.save(expressBusCache);
+                    expressBusCacheRedisRepository.save(expressBusCache);
                 }
             }
         }

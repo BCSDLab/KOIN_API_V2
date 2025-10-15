@@ -27,7 +27,7 @@ import in.koreatech.koin.domain.bus.service.city.model.CityBusCache;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.enums.BusStationNode;
-import in.koreatech.koin.domain.bus.service.city.repository.CityBusCacheRepository;
+import in.koreatech.koin.domain.bus.service.city.repository.CityBusCahcheRedisRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
@@ -48,27 +48,27 @@ public class CityBusClient {
     private final String openApiKey;
     private final Clock clock;
     private final VersionRepository versionRepository;
-    private final CityBusCacheRepository cityBusCacheRepository;
+    private final CityBusCahcheRedisRepository cityBusCahcheRedisRepository;
     private final RestTemplate restTemplate;
 
     public CityBusClient(
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         Clock clock,
         VersionRepository versionRepository,
-        CityBusCacheRepository cityBusCacheRepository,
+        CityBusCahcheRedisRepository cityBusCahcheRedisRepository,
         RestTemplate restTemplate
     ) {
         this.openApiKey = openApiKey;
         this.clock = clock;
         this.versionRepository = versionRepository;
-        this.cityBusCacheRepository = cityBusCacheRepository;
+        this.cityBusCahcheRedisRepository = cityBusCahcheRedisRepository;
         this.restTemplate = restTemplate;
     }
 
     public List<CityBusRemainTime> getBusRemainTime(List<String> nodeIds) {
         List<CityBusRemainTime> result = new ArrayList<>();
         nodeIds.forEach(nodeId -> {
-            Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
+            Optional<CityBusCache> cityBusCache = cityBusCahcheRedisRepository.findById(nodeId);
             if (cityBusCache.isPresent()) {
                 result.addAll(
                     cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
@@ -95,7 +95,7 @@ public class CityBusClient {
         LocalDateTime updatedAt = LocalDateTime.now(clock);
 
         for (List<CityBusArrival> arrivalInfos : arrivalInfosList) {
-            cityBusCacheRepository.save(
+            cityBusCahcheRedisRepository.save(
                 CityBusCache.of(
                     arrivalInfos.get(0).nodeid(),
                     arrivalInfos.stream()
