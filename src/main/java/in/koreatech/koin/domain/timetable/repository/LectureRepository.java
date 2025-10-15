@@ -8,9 +8,8 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.timetable.exception.LectureNotFoundException;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
+import in.koreatech.koin.domain.timetable.model.Semester;
 
-@JpaRepositoryMarker
 public interface LectureRepository extends Repository<Lecture, Integer> {
 
     List<Lecture> findBySemester(String semesterDate);

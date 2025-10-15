@@ -1,4 +1,4 @@
-package in.koreatech.koin.config;
+package in.koreatech.koin.global.config;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;

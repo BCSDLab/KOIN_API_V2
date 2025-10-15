@@ -3,8 +3,6 @@ package in.koreatech.koin.domain.shop.repository.shop;
 import in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +13,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-@JpaRepositoryMarker
 public interface ShopRepository extends Repository<Shop, Integer> {
 
     Shop save(Shop shop);
