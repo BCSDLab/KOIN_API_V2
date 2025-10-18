@@ -33,7 +33,7 @@ public class GraduationExcelService {
                 if (row.getRowNum() == 0 || gradeExcelData.isSkipRow()) {
                     continue;
                 }
-                if (gradeExcelData.isTotal()) {
+                if (gradeExcelData.isTotalRow()) {
                     break;
                 }
                 gradeExcelDatas.add(gradeExcelData);

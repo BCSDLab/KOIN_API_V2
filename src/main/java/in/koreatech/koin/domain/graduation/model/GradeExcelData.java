@@ -24,7 +24,7 @@ public record GradeExcelData(
             grade.equals(UNSATISFACTORY);
     }
 
-    public boolean isTotal() {
+    public boolean isTotalRow() {
         return classTitle.equals(TOTAL);
     }
 
