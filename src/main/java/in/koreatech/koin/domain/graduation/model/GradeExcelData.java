@@ -18,7 +18,7 @@ public record GradeExcelData(
     private static final String UNSATISFACTORY = "U";
     private static final String TOTAL = "합 계";
 
-    public boolean shouldBeSkipped() {
+    public boolean isSkipRow() {
         return classTitle.equals(MIDDLE_TOTAL) ||
             grade.equals(FAIL) ||
             grade.equals(UNSATISFACTORY);

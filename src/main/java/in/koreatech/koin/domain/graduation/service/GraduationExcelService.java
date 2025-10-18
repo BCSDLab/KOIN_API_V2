@@ -32,7 +32,7 @@ public class GraduationExcelService {
 
             for (Row row : sheet) {
                 GradeExcelData gradeExcelData = gradeExcelDataParser.fromRow(row);
-                if (row.getRowNum() == 0 || gradeExcelData.shouldBeSkipped()) {
+                if (row.getRowNum() == 0 || gradeExcelData.isSkipRow()) {
                     continue;
                 }
                 if (gradeExcelData.isTotal()) {
