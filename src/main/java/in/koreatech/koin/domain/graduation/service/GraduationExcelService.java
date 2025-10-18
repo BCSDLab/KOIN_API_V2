@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,14 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.model.GradeExcelData;
-import in.koreatech.koin.domain.graduation.parser.GradeExcelDataParser;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class GraduationExcelService {
-
-    private final GradeExcelDataParser gradeExcelDataParser;
 
     public List<GradeExcelData> parseStudentGradeFromExcel(MultipartFile file) throws IOException {
         List<GradeExcelData> gradeExcelDatas = new ArrayList<>();
@@ -31,7 +29,7 @@ public class GraduationExcelService {
             Sheet sheet = workbook.getSheetAt(0);
 
             for (Row row : sheet) {
-                GradeExcelData gradeExcelData = gradeExcelDataParser.fromRow(row);
+                GradeExcelData gradeExcelData = fromRow(row);
                 if (row.getRowNum() == 0 || gradeExcelData.isSkipRow()) {
                     continue;
                 }
@@ -42,5 +40,31 @@ public class GraduationExcelService {
             }
         }
         return gradeExcelDatas;
+    }
+
+    private GradeExcelData fromRow(Row row) {
+        return new GradeExcelData(
+            getCellValueAsString(row.getCell(1)),
+            getCellValueAsString(row.getCell(2)),
+            getCellValueAsString(row.getCell(4)),
+            getCellValueAsString(row.getCell(5)),
+            getCellValueAsString(row.getCell(6)),
+            getCellValueAsString(row.getCell(7)),
+            getCellValueAsString(row.getCell(8)),
+            getCellValueAsString(row.getCell(9)),
+            getCellValueAsString(row.getCell(10)),
+            getCellValueAsString(row.getCell(11))
+        );
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null)
+            return "";
+
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> String.valueOf((int)cell.getNumericCellValue());
+            default -> "";
+        };
     }
 }
