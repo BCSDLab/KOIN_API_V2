@@ -96,6 +96,7 @@ public class User extends BaseEntity {
 
     @Builder
     private User(
+        Integer id,
         String name,
         String nickname,
         String anonymousNickname,
@@ -111,6 +112,7 @@ public class User extends BaseEntity {
         Boolean isDeleted,
         String deviceToken
     ) {
+        this.id = id;
         this.name = name;
         this.nickname = nickname;
         this.anonymousNickname = Objects.requireNonNullElse(anonymousNickname, RandomStringUtils.randomAlphabetic(13));

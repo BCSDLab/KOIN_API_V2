@@ -167,7 +167,7 @@ class OwnerApiTest extends AcceptanceTest {
                             softly.assertThat(owner).isNotNull();
                             softly.assertThat(owner.getUser().getName()).isEqualTo("최준호");
                             softly.assertThat(owner.getUser().getEmail()).isEqualTo(null);
-                            softly.assertThat(owner.getUser().getPhoneNumber()).isEqualTo("01012341234");
+                            softly.assertThat(owner.getAccount()).isEqualTo("01012341234");
                             softly.assertThat(owner.getCompanyRegistrationNumber()).isEqualTo("012-34-56789");
                             softly.assertThat(owner.getAccount()).isEqualTo("01012341234");
                             softly.assertThat(owner.getAttachments().size()).isEqualTo(1);

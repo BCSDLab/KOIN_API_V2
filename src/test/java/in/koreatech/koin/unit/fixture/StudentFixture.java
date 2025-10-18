@@ -1,13 +1,13 @@
 package in.koreatech.koin.unit.fixture;
 
-import static in.koreatech.koin.domain.user.model.UserGender.MAN;
-import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
+
+import static in.koreatech.koin.domain.user.model.UserGender.MAN;
+import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 public class StudentFixture {
 
@@ -40,6 +40,31 @@ public class StudentFixture {
 
     public static Student 익명_학생(Department department) {
         return Student.builder()
+            .studentNumber("2020136111")
+            .department(department)
+            .userIdentity(UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .name("테스트용_익명")
+                    // nickname 생략
+                    .anonymousNickname("익명")
+                    .phoneNumber("01011111111")
+                    .email("lyw4888@koreatech.ac.kr")
+                    .loginId("test_id")
+                    .loginPw("test_pw")
+                    .userType(STUDENT)
+                    .gender(MAN)
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+    }
+
+    public static Student 익명_학생(Integer id, Department department) {
+        return Student.builder()
+            .id(id)
             .studentNumber("2020136111")
             .department(department)
             .userIdentity(UNDERGRADUATE)

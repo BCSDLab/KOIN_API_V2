@@ -63,11 +63,9 @@ public record OwnerRegisterByPhoneRequest(
 
     public Owner toOwner(PasswordEncoder passwordEncoder) {
         User user = User.builder()
-            .loginId(phoneNumber)
             .loginPw(passwordEncoder.encode(password))
             .name(name)
             .email(null)
-            .phoneNumber(phoneNumber)
             .userType(OWNER)
             .isAuthed(false)
             .isDeleted(false)
@@ -81,6 +79,7 @@ public record OwnerRegisterByPhoneRequest(
             .grantEvent(false)
             .account(phoneNumber)
             .build();
+
         List<OwnerAttachment> attachments = attachmentUrls.stream()
             .map(OwnerRegisterByPhoneInnerAttachmentUrl::fileUrl)
             .map(fileUrl -> OwnerAttachment.builder()
@@ -90,6 +89,7 @@ public record OwnerRegisterByPhoneRequest(
                 .name(name)
                 .build())
             .toList();
+
         owner.getAttachments().addAll(attachments);
         return owner;
     }

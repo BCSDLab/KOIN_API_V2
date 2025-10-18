@@ -4,10 +4,14 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Builder;
+
+@Builder
 public record RoadNameAddressApiResponse(
     Results results
 ) {
 
+    @Builder
     public record Results(
         Common common,
         @JsonProperty("juso")
@@ -16,6 +20,7 @@ public record RoadNameAddressApiResponse(
 
     }
 
+    @Builder
     public record Common(
         String totalCount,
         Integer currentPage,
@@ -26,6 +31,7 @@ public record RoadNameAddressApiResponse(
 
     }
 
+    @Builder
     public record Juso(
         String roadAddr,
         String roadAddrPart1,

@@ -18,7 +18,10 @@ public record UserOffCampusDeliveryAddressValidateRequest(
     String siGunGu,
 
     @Schema(description = "읍/면/동", example = "병천면", nullable = true)
-    String eupMyeonDong
+    String eupMyeonDong,
+
+    @Schema(description = "건물 이름", example = "한국기술교육대학교", nullable = true)
+    String building
 
 ) {
 
@@ -27,6 +30,7 @@ public record UserOffCampusDeliveryAddressValidateRequest(
             .siDo(siDo)
             .siGunGu(siGunGu)
             .eupMyeonDong(eupMyeonDong)
+            .building(building)
             .build();
     }
 }

@@ -85,10 +85,10 @@ public class AdminNoticeApiTest extends AcceptanceTest {
                     .param("is_deleted", "false")
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.totalCount").value(4))
-            .andExpect(jsonPath("$.currentCount").value(4))
-            .andExpect(jsonPath("$.totalPage").value(1))
-            .andExpect(jsonPath("$.currentPage").value(1))
+            .andExpect(jsonPath("$.total_count").value(4))
+            .andExpect(jsonPath("$.current_count").value(4))
+            .andExpect(jsonPath("$.total_page").value(1))
+            .andExpect(jsonPath("$.current_page").value(1))
             .andExpect(jsonPath("$.notices.length()").value(4));
     }
 
