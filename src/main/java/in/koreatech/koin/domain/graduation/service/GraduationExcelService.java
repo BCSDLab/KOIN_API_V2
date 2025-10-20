@@ -14,10 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.domain.graduation.model.GradeExcelData;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class GraduationExcelService {
 
     public List<GradeExcelData> parseStudentGradeFromExcel(MultipartFile file) throws IOException {
