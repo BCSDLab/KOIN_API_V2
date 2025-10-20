@@ -23,8 +23,8 @@ public record GradeExcelData(
     private static final String TOTAL = "합 계";
     private static final String FIRST_SEMESTER = "1";
     private static final String SECOND_SEMESTER = "2";
-    private static final String SUMMER_SEMESTER = "동계";
-    private static final String WINER_SEMESTER = "여름";
+    private static final String SUMMER_SEMESTER = "하계";
+    private static final String WINTER_SEMESTER = "동계";
 
     public boolean isSkipRow() {
         return classTitle.equals(MIDDLE_TOTAL) ||
@@ -39,7 +39,7 @@ public record GradeExcelData(
     public String getKoinSemester() {
         return switch (semester) {
             case FIRST_SEMESTER, SECOND_SEMESTER -> year + semester;
-            case WINER_SEMESTER -> year + "-" + "겨울";
+            case WINTER_SEMESTER -> year + "-" + "겨울";
             case SUMMER_SEMESTER -> year + "-" + "여름";
             default -> throw CustomException.of(INVALID_SEMESTER_REGEX);
         };
