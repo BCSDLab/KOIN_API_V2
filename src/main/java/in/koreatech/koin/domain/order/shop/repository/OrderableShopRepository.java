@@ -31,7 +31,7 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
             )
             FROM OrderableShop os
             JOIN os.shop s
-            LEFT JOIN s.reviews r
+            LEFT JOIN s.reviews r ON r.isDeleted = false
             LEFT JOIN ShopBaseDeliveryTip bdt ON bdt.shop.id = s.id
             WHERE os.id = :orderableShopId
             GROUP BY os.id, s.id
