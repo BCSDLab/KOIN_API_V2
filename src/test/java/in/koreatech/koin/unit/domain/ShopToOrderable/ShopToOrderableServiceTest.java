@@ -22,6 +22,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
 import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderable;
+import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableRequestStatus;
 import in.koreatech.koin.domain.shoptoOrderable.repository.ShopToOrderableRepository;
 import in.koreatech.koin.domain.shoptoOrderable.service.ShopToOrderableService;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -81,7 +82,7 @@ class ShopToOrderableServiceTest {
             // given
             when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
             when(shopToOrderableRepository.existsByShopId(100)).thenReturn(false);
-            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, "APPROVED")).thenReturn(false);
+            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, ShopToOrderableRequestStatus.APPROVED)).thenReturn(false);
             when(shopToOrderableRepository.save(any(ShopToOrderable.class))).thenAnswer(
                 invocation -> invocation.getArgument(0));
 
@@ -128,7 +129,7 @@ class ShopToOrderableServiceTest {
             CustomException exception = assertThrows(CustomException.class,
                 () -> shopToOrderableService.createOrderableRequest(1, request, 100));
 
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.ALREADY_REQUESTED_ORDERABLE_SHOP);
+            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.DUPLICATE_REQUESTED_ORDERABLE_SHOP);
         }
 
         @Test
@@ -140,7 +141,7 @@ class ShopToOrderableServiceTest {
             // when & then
             CustomException exception = assertThrows(CustomException.class,
                 () -> shopToOrderableService.createOrderableRequest(2, request, 100));
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.UNAUTHORIZED_SHOP_OWNER);
+            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.FORBIDDEN_SHOP_OWNER);
         }
 
         @Test
@@ -149,12 +150,12 @@ class ShopToOrderableServiceTest {
             // given
             when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
             when(shopToOrderableRepository.existsByShopId(100)).thenReturn(false);
-            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, "APPROVED")).thenReturn(true);
+            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, ShopToOrderableRequestStatus.APPROVED)).thenReturn(true);
 
             // when & then
             CustomException exception = assertThrows(CustomException.class,
                 () -> shopToOrderableService.createOrderableRequest(1, request, 100));
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.ALREADY_ORDERABLE_SHOP);
+            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.DUPLICATE_ORDERABLE_SHOP);
         }
     }
 }
