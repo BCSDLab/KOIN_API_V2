@@ -7,6 +7,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
 import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderable;
+import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableRequestStatus;
 import in.koreatech.koin.domain.shoptoOrderable.repository.ShopToOrderableRepository;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class ShopToOrderableService {
         }
 
         // 이미 주문가능 상점인지 확인
-        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, "APPROVED")) {
+        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, ShopToOrderableRequestStatus.APPROVED)) {
             throw CustomException.of(ApiResponseCode.ALREADY_ORDERABLE_SHOP, "shopId: " + shopId);
         }
 

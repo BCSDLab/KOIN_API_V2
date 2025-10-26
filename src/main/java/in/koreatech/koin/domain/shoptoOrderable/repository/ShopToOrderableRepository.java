@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shoptoOrderable.repository;
 
 import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderable;
+import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableRequestStatus;
 
 import org.springframework.data.repository.Repository;
 
@@ -14,5 +15,5 @@ public interface ShopToOrderableRepository extends Repository<ShopToOrderable, I
 
     boolean existsByShopId(Integer shopId);
 
-    boolean existsByShopIdAndRequestStatus(Integer shopId, String requestStatus);
+    boolean existsByShopIdAndRequestStatus(Integer shopId, ShopToOrderableRequestStatus requestStatus);
 }
