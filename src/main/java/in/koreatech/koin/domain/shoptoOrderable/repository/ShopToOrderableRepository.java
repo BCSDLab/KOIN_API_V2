@@ -13,4 +13,6 @@ public interface ShopToOrderableRepository extends Repository<ShopToOrderable, I
     Optional<ShopToOrderable> findByShopId(Integer shopId);
 
     boolean existsByShopId(Integer shopId);
+
+    boolean existsByShopIdAndRequestStatus(Integer shopId, String requestStatus);
 }

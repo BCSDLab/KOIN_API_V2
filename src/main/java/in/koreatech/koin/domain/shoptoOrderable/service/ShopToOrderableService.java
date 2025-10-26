@@ -31,8 +31,14 @@ public class ShopToOrderableService {
         }
 
         // 가게 사장님인지 확인
+        if (!shop.getOwner().getId().equals(ownerId)) {
+            throw CustomException.of(ApiResponseCode.UNAUTHORIZED_SHOP_OWNER, "ownerId: " + ownerId + ", shopId: " + shopId);
+        }
 
         // 이미 주문가능 상점인지 확인
+        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, "APPROVED")) {
+            throw CustomException.of(ApiResponseCode.ALREADY_ORDERABLE_SHOP, "shopId: " + shopId);
+        }
 
         ShopToOrderable shopToOrderable = ShopToOrderable.builder()
             .shop(shop)
