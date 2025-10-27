@@ -63,7 +63,6 @@ class ShopToOrderableServiceTest {
             "BOTH",
             1000,
             2000,
-            true,
             "https://example.com/business_license.jpg",
             "https://example.com/business_certificate.jpg",
             "https://example.com/bank_copy.jpg",
@@ -100,7 +99,6 @@ class ShopToOrderableServiceTest {
             assertThat(saved.getDeliveryOption()).isEqualTo("BOTH");
             assertThat(saved.getCampusDeliveryTip()).isEqualTo(1000);
             assertThat(saved.getOutsideDeliveryTip()).isEqualTo(2000);
-            assertThat(saved.getIsOpen()).isTrue();
             assertThat(saved.getBank()).isEqualTo("국민은행");
             assertThat(saved.getAccountNumber()).isEqualTo("123-456-789");
         }
