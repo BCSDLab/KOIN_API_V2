@@ -1,4 +1,5 @@
-CREATE TABLE IF NOT EXISTS `koin`.`shop_to_orderable` (
+CREATE TABLE IF NOT EXISTS `koin`.`shop_to_orderable`
+(
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '고유 ID',
   `shop_id` INT UNSIGNED NOT NULL COMMENT '식당 ID',
   `minimum_order_amount` INT UNSIGNED NOT NULL COMMENT '최소 주문 금액',
@@ -15,6 +16,5 @@ CREATE TABLE IF NOT EXISTS `koin`.`shop_to_orderable` (
   `approved_at` TIMESTAMP NULL DEFAULT NULL COMMENT '승인 일자',
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일자',
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '업데이트 일자',
-  PRIMARY KEY (`id`),
-)
-
+  PRIMARY KEY (`id`)
+);
