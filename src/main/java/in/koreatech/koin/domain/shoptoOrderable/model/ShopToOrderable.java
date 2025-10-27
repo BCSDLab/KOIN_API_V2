@@ -52,9 +52,6 @@ public class ShopToOrderable extends BaseEntity {
     @Column(name="outside_delivery_tip", nullable = false)
     private Integer outsideDeliveryTip;
 
-    @Column(name="is_open", nullable = false)
-    private Boolean isOpen;
-
     @Column(name = "business_license_url", nullable = false)
     private String businessLicenseUrl;
 
@@ -87,7 +84,6 @@ public class ShopToOrderable extends BaseEntity {
         String deliveryOption,
         Integer campusDeliveryTip,
         Integer outsideDeliveryTip,
-        Boolean isOpen,
         String businessLicenseUrl,
         String businessCertificateUrl,
         String bankCopyUrl,
@@ -100,7 +96,6 @@ public class ShopToOrderable extends BaseEntity {
         this.deliveryOption = deliveryOption;
         this.campusDeliveryTip = campusDeliveryTip;
         this.outsideDeliveryTip = outsideDeliveryTip;
-        this.isOpen = isOpen;
         this.requestStatus = ShopToOrderableRequestStatus.PENDING;
         this.businessLicenseUrl = businessLicenseUrl;
         this.businessCertificateUrl = businessCertificateUrl;

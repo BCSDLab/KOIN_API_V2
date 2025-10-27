@@ -38,10 +38,6 @@ public record ShopToOrderableRequest(
     @Min(value = 0, message = "교외 배달팁은 0원 이상이어야 합니다.")
     Integer outsideDeliveryTip,
 
-    @Schema(description = "가게 운영 여부", example = "true", requiredMode = REQUIRED)
-    @NotNull(message = "가게 운영 여부는 필수입니다.")
-    Boolean isOpen,
-
     @Schema(description = "사업자 등록증 URL", example = "https://example.com/business_license.jpg", requiredMode = REQUIRED)
     @NotBlank(message = "사업자 등록증 URL은 필수입니다.")
     String businessLicenseUrl,

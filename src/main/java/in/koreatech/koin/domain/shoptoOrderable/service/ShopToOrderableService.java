@@ -48,7 +48,6 @@ public class ShopToOrderableService {
             .deliveryOption(request.deliveryOption())
             .campusDeliveryTip(request.campusDeliveryTip())
             .outsideDeliveryTip(request.outsideDeliveryTip())
-            .isOpen(request.isOpen())
             .businessLicenseUrl(request.businessLicenseUrl())
             .businessCertificateUrl(request.businessCertificateUrl())
             .bankCopyUrl(request.bankCopyUrl())
