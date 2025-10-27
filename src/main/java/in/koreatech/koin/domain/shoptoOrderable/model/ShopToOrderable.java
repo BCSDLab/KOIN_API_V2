@@ -73,7 +73,7 @@ public class ShopToOrderable extends BaseEntity {
     @Column(name = "request_status", nullable = false)
     private ShopToOrderableRequestStatus requestStatus;
 
-    @Column(name = "approved_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "approved_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime approvedAt;
 
     @Builder
