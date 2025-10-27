@@ -7,6 +7,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
 import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderable;
+import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableRequestStatus;
 import in.koreatech.koin.domain.shoptoOrderable.repository.ShopToOrderableRepository;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +28,18 @@ public class ShopToOrderableService {
 
         // 이미 신청한 내역이 있는지 확인
         if (shopToOrderableRepository.existsByShopId(shopId)) {
-            throw CustomException.of(ApiResponseCode.ALREADY_REQUESTED_ORDERABLE_SHOP, "shopId: " + shopId);
+            throw CustomException.of(ApiResponseCode.DUPLICATE_REQUESTED_ORDERABLE_SHOP, "shopId: " + shopId);
         }
 
         // 가게 사장님인지 확인
+        if (!shop.getOwner().getId().equals(ownerId)) {
+            throw CustomException.of(ApiResponseCode.FORBIDDEN_SHOP_OWNER, "ownerId: " + ownerId + ", shopId: " + shopId);
+        }
 
         // 이미 주문가능 상점인지 확인
+        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, ShopToOrderableRequestStatus.APPROVED)) {
+            throw CustomException.of(ApiResponseCode.DUPLICATE_ORDERABLE_SHOP, "shopId: " + shopId);
+        }
 
         ShopToOrderable shopToOrderable = ShopToOrderable.builder()
             .shop(shop)

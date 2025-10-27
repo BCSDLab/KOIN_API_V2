@@ -85,6 +85,7 @@ public enum ApiResponseCode {
     FORBIDDEN_BLOCKED_USER(HttpStatus.FORBIDDEN, "차단된 사용자입니다."),
     PAYMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "결제 정보 접근 권한이 없습니다."),
     FORBIDDEN_ORDER(HttpStatus.FORBIDDEN, "주문 정보 접근 권한이 없습니다."),
+    FORBIDDEN_SHOP_OWNER(HttpStatus.FORBIDDEN, "상점의 사장님이 아닙니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -120,7 +121,8 @@ public enum ApiResponseCode {
     REQUEST_TOO_FAST(HttpStatus.CONFLICT, "요청이 너무 빠릅니다. 다시 요청해주세요."),
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.CONFLICT, "이미 처리된 요청입니다."),
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
-    ALREADY_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
+    DUPLICATE_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
+    DUPLICATE_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 주문 가능한 상점입니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)
