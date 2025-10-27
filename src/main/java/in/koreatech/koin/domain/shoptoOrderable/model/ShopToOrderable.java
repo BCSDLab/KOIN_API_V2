@@ -37,43 +37,43 @@ public class ShopToOrderable extends BaseEntity {
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    @Column(nullable = false)
+    @Column(name="minimum_order_amount", nullable = false)
     private Integer minimumOrderAmount;
 
-    @Column(nullable = false)
+    @Column(name="takeout" ,nullable = false)
     private Boolean takeout;
 
-    @Column(nullable = false)
+    @Column(name="delivery_option", nullable = false)
     private String deliveryOption;
 
-    @Column(nullable = false)
+    @Column(name="campus_delivery_tip", nullable = false)
     private Integer campusDeliveryTip;
 
-    @Column(nullable = false)
+    @Column(name="outside_delivery_tip", nullable = false)
     private Integer outsideDeliveryTip;
 
-    @Column(nullable = false)
+    @Column(name="is_open", nullable = false)
     private Boolean isOpen;
 
-    @Column(nullable = false)
+    @Column(name = "business_license_url", nullable = false)
     private String businessLicenseUrl;
 
-    @Column(nullable = false)
+    @Column(name = "business_certificate_url", nullable = false)
     private String businessCertificateUrl;
 
-    @Column(nullable = false)
+    @Column(name = "bank_copy_url", nullable = false)
     private String bankCopyUrl;
 
     @Size(max = 10)
-    @Column(name = "bank", length = 10)
+    @Column(name = "bank", length = 10, nullable = false)
     private String bank;
 
     @Size(max = 20)
-    @Column(name = "account_number", length = 20)
+    @Column(name = "account_number", length = 20, nullable = false)
     private String accountNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "request_status", nullable = false)
     private ShopToOrderableRequestStatus requestStatus;
 
     @Column(name = "approved_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
