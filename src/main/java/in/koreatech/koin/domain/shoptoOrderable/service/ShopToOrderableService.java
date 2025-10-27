@@ -27,7 +27,7 @@ public class ShopToOrderableService {
                 () -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP, "shopId: " + shopId));
 
         // 이미 신청한 내역이 있는지 확인
-        if (shopToOrderableRepository.existsByShopId(shopId)) {
+        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, ShopToOrderableRequestStatus.PENDING)) {
             throw CustomException.of(ApiResponseCode.DUPLICATE_REQUESTED_ORDERABLE_SHOP, "shopId: " + shopId);
         }
 

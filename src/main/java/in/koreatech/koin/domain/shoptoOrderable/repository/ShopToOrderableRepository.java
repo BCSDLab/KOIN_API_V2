@@ -5,13 +5,10 @@ import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableRequestStat
 
 import org.springframework.data.repository.Repository;
 
-import java.util.Optional;
 
 public interface ShopToOrderableRepository extends Repository<ShopToOrderable, Integer> {
 
     ShopToOrderable save(ShopToOrderable shopToOrderable);
-
-    Optional<ShopToOrderable> findByShopId(Integer shopId);
 
     boolean existsByShopId(Integer shopId);
 

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `koin`.`shop_to_orderable`
   `bank_copy_url` VARCHAR(255) NOT NULL COMMENT '통장 사본 URL',
   `bank` VARCHAR(10) NOT NULL COMMENT '은행명',
   `account_number` VARCHAR(20) NOT NULL COMMENT '계좌 번호',
-  `request_status` VARCHAR(50) NOT NULL COMMENT '요청 상태',
+  `request_status` VARCHAR(50) NOT NULL DEFAULT 'PENDING' COMMENT '요청 상태',
   `approved_at` TIMESTAMP NULL DEFAULT NULL COMMENT '승인 일자',
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일자',
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '업데이트 일자',
