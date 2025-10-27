@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableDeliveryOption;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -26,7 +27,7 @@ public record ShopToOrderableRequest(
 
     @Schema(description = "배달 옵션 (CAMPUS/OUTSIDE/BOTH)", example = "BOTH", requiredMode = REQUIRED)
     @NotNull(message = "배달 옵션은 필수입니다.")
-    String deliveryOption,
+    ShopToOrderableDeliveryOption deliveryOption,
 
     @Schema(description = "교내 배달팁", example = "1000", requiredMode = REQUIRED)
     @NotNull(message = "교내 배달팁은 필수입니다.")

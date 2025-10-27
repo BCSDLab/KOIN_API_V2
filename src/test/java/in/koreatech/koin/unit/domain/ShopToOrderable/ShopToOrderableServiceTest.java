@@ -22,6 +22,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
 import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderable;
+import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableDeliveryOption;
 import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableRequestStatus;
 import in.koreatech.koin.domain.shoptoOrderable.repository.ShopToOrderableRepository;
 import in.koreatech.koin.domain.shoptoOrderable.service.ShopToOrderableService;
@@ -60,7 +61,7 @@ class ShopToOrderableServiceTest {
         request = new ShopToOrderableRequest(
             5000,
             true,
-            "BOTH",
+            ShopToOrderableDeliveryOption.BOTH,
             1000,
             2000,
             "https://example.com/business_license.jpg",
@@ -96,7 +97,7 @@ class ShopToOrderableServiceTest {
             assertThat(saved.getShop()).isEqualTo(shop);
             assertThat(saved.getMinimumOrderAmount()).isEqualTo(5000);
             assertThat(saved.getTakeout()).isTrue();
-            assertThat(saved.getDeliveryOption()).isEqualTo("BOTH");
+            assertThat(saved.getDeliveryOption()).isEqualTo(ShopToOrderableDeliveryOption.BOTH);
             assertThat(saved.getCampusDeliveryTip()).isEqualTo(1000);
             assertThat(saved.getOutsideDeliveryTip()).isEqualTo(2000);
             assertThat(saved.getBank()).isEqualTo("국민은행");

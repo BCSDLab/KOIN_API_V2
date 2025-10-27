@@ -42,8 +42,9 @@ public class ShopToOrderable extends BaseEntity {
     @Column(name="takeout" ,nullable = false)
     private Boolean takeout;
 
+    @Enumerated(EnumType.STRING)
     @Column(name="delivery_option", nullable = false)
-    private String deliveryOption;
+    private ShopToOrderableDeliveryOption deliveryOption;
 
     @Column(name="campus_delivery_tip", nullable = false)
     private Integer campusDeliveryTip;
@@ -80,7 +81,7 @@ public class ShopToOrderable extends BaseEntity {
         Shop shop,
         Integer minimumOrderAmount,
         Boolean takeout,
-        String deliveryOption,
+        ShopToOrderableDeliveryOption deliveryOption,
         Integer campusDeliveryTip,
         Integer outsideDeliveryTip,
         String businessLicenseUrl,
