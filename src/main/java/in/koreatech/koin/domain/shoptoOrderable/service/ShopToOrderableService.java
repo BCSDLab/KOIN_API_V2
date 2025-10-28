@@ -26,20 +26,7 @@ public class ShopToOrderableService {
             .orElseThrow(
                 () -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP, "shopId: " + shopId));
 
-        // 이미 신청한 내역이 있는지 확인
-        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, ShopToOrderableRequestStatus.PENDING)) {
-            throw CustomException.of(ApiResponseCode.DUPLICATE_REQUESTED_ORDERABLE_SHOP, "shopId: " + shopId);
-        }
-
-        // 가게 사장님인지 확인
-        if (!shop.getOwner().getId().equals(ownerId)) {
-            throw CustomException.of(ApiResponseCode.FORBIDDEN_SHOP_OWNER, "ownerId: " + ownerId + ", shopId: " + shopId);
-        }
-
-        // 이미 주문가능 상점인지 확인
-        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, ShopToOrderableRequestStatus.APPROVED)) {
-            throw CustomException.of(ApiResponseCode.DUPLICATE_ORDERABLE_SHOP, "shopId: " + shopId);
-        }
+        validateCreateOrderableRequest(ownerId, shopId, shop);
 
         ShopToOrderable shopToOrderable = ShopToOrderable.builder()
             .shop(shop)
@@ -56,5 +43,27 @@ public class ShopToOrderableService {
             .build();
 
         shopToOrderableRepository.save(shopToOrderable);
+    }
+
+    private void validateCreateOrderableRequest(
+        Integer ownerId,
+        Integer shopId,
+        Shop shop
+    ) {
+        // 이미 신청한 내역이 있는지 확인
+        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, ShopToOrderableRequestStatus.PENDING)) {
+            throw CustomException.of(ApiResponseCode.DUPLICATE_REQUESTED_ORDERABLE_SHOP, "shopId: " + shopId);
+        }
+
+        // 가게 사장님인지 확인
+        if (!shop.getOwner().getId().equals(ownerId)) {
+            throw CustomException.of(ApiResponseCode.FORBIDDEN_SHOP_OWNER,
+                "ownerId: " + ownerId + ", shopId: " + shopId);
+        }
+
+        // 이미 주문가능 상점인지 확인
+        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shopId, ShopToOrderableRequestStatus.APPROVED)) {
+            throw CustomException.of(ApiResponseCode.DUPLICATE_ORDERABLE_SHOP, "shopId: " + shopId);
+        }
     }
 }
