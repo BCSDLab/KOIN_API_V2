@@ -17,5 +17,5 @@ CREATE TABLE IF NOT EXISTS `koin`.`shop_to_orderable`
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일자',
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '업데이트 일자',
   PRIMARY KEY (`id`),
-  CONSTRAINT fk_shop_to_orderable_shop FOREIGN KEY (shop_id) REFERENCES `koin`.`shop`(id) ON DELETE CASCADE
+  CONSTRAINT fk_shop_to_orderable_shop FOREIGN KEY (`shop_id`) REFERENCES `koin`.`shops`(`id`) ON DELETE CASCADE
 );
