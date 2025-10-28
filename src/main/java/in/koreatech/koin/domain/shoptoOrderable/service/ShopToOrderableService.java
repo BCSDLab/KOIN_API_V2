@@ -56,7 +56,7 @@ public class ShopToOrderableService {
         }
 
         // 가게 사장님인지 확인
-        if (!shop.getOwner().getId().equals(ownerId)) {
+        if (!shop.isOwner(ownerId)) {
             throw CustomException.of(ApiResponseCode.FORBIDDEN_SHOP_OWNER,
                 "ownerId: " + ownerId + ", shopId: " + shopId);
         }
