@@ -101,7 +101,7 @@ class ShopToOrderableServiceTest {
             assertThat(saved.getIsTakeout()).isTrue();
             assertThat(saved.getDeliveryOption()).isEqualTo(ShopToOrderableDeliveryOption.BOTH);
             assertThat(saved.getCampusDeliveryTip()).isEqualTo(1000);
-            assertThat(saved.getOutsideDeliveryTip()).isEqualTo(2000);
+            assertThat(saved.getOffCampusDeliveryTip()).isEqualTo(2000);
             assertThat(saved.getBank()).isEqualTo("국민은행");
             assertThat(saved.getAccountNumber()).isEqualTo("123-456-789");
         }

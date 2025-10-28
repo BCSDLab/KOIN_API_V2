@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `koin`.`shop_to_orderable`
   `is_takeout` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '포장 여부',
   `delivery_option` VARCHAR(50) NOT NULL COMMENT '배달 옵션',
   `campus_delivery_tip` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '캠퍼스 내 배달 팁',
-  `outside_delivery_tip` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '캠퍼스 외 배달 팁',
+  `off_campus_delivery_tip` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '캠퍼스 외 배달 팁',
   `business_license_url` VARCHAR(255) NOT NULL COMMENT '사업자 등록증 URL',
   `business_certificate_url` VARCHAR(255) NOT NULL COMMENT '영업 신고증 URL',
   `bank_copy_url` VARCHAR(255) NOT NULL COMMENT '통장 사본 URL',

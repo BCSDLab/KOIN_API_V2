@@ -34,7 +34,7 @@ public class ShopToOrderableService {
             .isTakeout(request.isTakeout())
             .deliveryOption(request.deliveryOption())
             .campusDeliveryTip(request.campusDeliveryTip())
-            .outsideDeliveryTip(request.outsideDeliveryTip())
+            .offCampusDeliveryTip(request.offCampusDeliveryTip())
             .businessLicenseUrl(request.businessLicenseUrl())
             .businessCertificateUrl(request.businessCertificateUrl())
             .bankCopyUrl(request.bankCopyUrl())
