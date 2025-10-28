@@ -11,6 +11,7 @@ import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.code.ApiResponseCodes;
+import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +30,7 @@ public interface ShopToOrderableApi {
     @Operation(summary = "사장님 주문 서비스 가입 요청")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owner/shops/{shopId}/orderable-requests")
+    @DuplicateGuard(key = "#ownerId + ':' + #shopId + ':' + #request.toString()", timeoutSeconds = 300)
     ResponseEntity<Void> createOrderableRequest(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable Integer shopId,

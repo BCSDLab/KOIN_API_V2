@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
 import in.koreatech.koin.domain.shoptoOrderable.service.ShopToOrderableService;
+import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import lombok.RequiredArgsConstructor;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
@@ -25,6 +26,7 @@ public class ShopToOrderableController implements ShopToOrderableApi {
     private final ShopToOrderableService shopToOrderableService;
 
     @PostMapping("/owner/shops/{shopId}/orderable-requests")
+    @DuplicateGuard(key = "#ownerId + ':' + #shopId + ':' + #request.toString()", timeoutSeconds = 300)
     public ResponseEntity<Void> createOrderableRequest(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable Integer shopId,
