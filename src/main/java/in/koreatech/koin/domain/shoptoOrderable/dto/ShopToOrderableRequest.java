@@ -22,7 +22,7 @@ public record ShopToOrderableRequest(
 
     @Schema(description = "포장 가능 여부", example = "true", requiredMode = REQUIRED)
     @NotNull(message = "포장 가능 여부는 필수입니다.")
-    Boolean takeout,
+    Boolean isTakeout,
 
     @Schema(description = "배달 옵션 (CAMPUS/OUTSIDE/BOTH)", example = "BOTH", requiredMode = REQUIRED)
     @NotNull(message = "배달 옵션은 필수입니다.")

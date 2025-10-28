@@ -31,7 +31,7 @@ public class ShopToOrderableService {
         ShopToOrderable shopToOrderable = ShopToOrderable.builder()
             .shop(shop)
             .minimumOrderAmount(request.minimumOrderAmount())
-            .takeout(request.takeout())
+            .isTakeout(request.isTakeout())
             .deliveryOption(request.deliveryOption())
             .campusDeliveryTip(request.campusDeliveryTip())
             .outsideDeliveryTip(request.outsideDeliveryTip())

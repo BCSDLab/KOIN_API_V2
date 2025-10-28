@@ -81,8 +81,10 @@ class ShopToOrderableServiceTest {
         void createOrderableRequestSuccessfully() {
             // given
             when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
-            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, ShopToOrderableRequestStatus.PENDING)).thenReturn(false);
-            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, ShopToOrderableRequestStatus.APPROVED)).thenReturn(false);
+            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
+                ShopToOrderableRequestStatus.PENDING)).thenReturn(false);
+            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
+                ShopToOrderableRequestStatus.APPROVED)).thenReturn(false);
             when(shopToOrderableRepository.save(any(ShopToOrderable.class))).thenAnswer(
                 invocation -> invocation.getArgument(0));
 
@@ -96,7 +98,7 @@ class ShopToOrderableServiceTest {
             ShopToOrderable saved = captor.getValue();
             assertThat(saved.getShop()).isEqualTo(shop);
             assertThat(saved.getMinimumOrderAmount()).isEqualTo(5000);
-            assertThat(saved.getTakeout()).isTrue();
+            assertThat(saved.getIsTakeout()).isTrue();
             assertThat(saved.getDeliveryOption()).isEqualTo(ShopToOrderableDeliveryOption.BOTH);
             assertThat(saved.getCampusDeliveryTip()).isEqualTo(1000);
             assertThat(saved.getOutsideDeliveryTip()).isEqualTo(2000);
@@ -122,7 +124,8 @@ class ShopToOrderableServiceTest {
         void throwExceptionWhenAlreadyRequested() {
             // given
             when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
-            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, ShopToOrderableRequestStatus.PENDING)).thenReturn(true);
+            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
+                ShopToOrderableRequestStatus.PENDING)).thenReturn(true);
 
             // when & then
             CustomException exception = assertThrows(CustomException.class,
@@ -148,8 +151,10 @@ class ShopToOrderableServiceTest {
         void throwExceptionWhenAlreadyApproved() {
             // given
             when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
-            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, ShopToOrderableRequestStatus.PENDING)).thenReturn(false);
-            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100, ShopToOrderableRequestStatus.APPROVED)).thenReturn(true);
+            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
+                ShopToOrderableRequestStatus.PENDING)).thenReturn(false);
+            when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
+                ShopToOrderableRequestStatus.APPROVED)).thenReturn(true);
 
             // when & then
             CustomException exception = assertThrows(CustomException.class,

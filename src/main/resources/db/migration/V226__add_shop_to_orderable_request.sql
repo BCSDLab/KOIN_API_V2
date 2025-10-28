@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `koin`.`shop_to_orderable`
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '고유 ID',
   `shop_id` INT UNSIGNED NOT NULL COMMENT '식당 ID',
   `minimum_order_amount` INT UNSIGNED NOT NULL COMMENT '최소 주문 금액',
-  `takeout` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '포장 여부',
+  `is_takeout` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '포장 여부',
   `delivery_option` VARCHAR(50) NOT NULL COMMENT '배달 옵션',
   `campus_delivery_tip` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '캠퍼스 내 배달 팁',
   `outside_delivery_tip` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '캠퍼스 외 배달 팁',
