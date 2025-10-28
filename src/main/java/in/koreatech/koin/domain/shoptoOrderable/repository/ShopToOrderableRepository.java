@@ -5,7 +5,6 @@ import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableRequestStat
 
 import org.springframework.data.repository.Repository;
 
-
 public interface ShopToOrderableRepository extends Repository<ShopToOrderable, Integer> {
 
     ShopToOrderable save(ShopToOrderable shopToOrderable);
