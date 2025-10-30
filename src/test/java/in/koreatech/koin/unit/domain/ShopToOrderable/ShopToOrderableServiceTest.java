@@ -6,8 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -80,7 +78,7 @@ class ShopToOrderableServiceTest {
         @DisplayName("정상적으로 주문 가능 상점 신청이 생성된다")
         void createOrderableRequestSuccessfully() {
             // given
-            when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
+            when(shopRepository.getById(100)).thenReturn(shop);
             when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
                 ShopToOrderableRequestStatus.PENDING)).thenReturn(false);
             when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
@@ -107,23 +105,10 @@ class ShopToOrderableServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 상점 ID로 신청하면 예외가 발생한다")
-        void throwExceptionWhenShopNotFound() {
-            // given
-            when(shopRepository.findById(999)).thenReturn(Optional.empty());
-
-            // when & then
-            CustomException exception = assertThrows(CustomException.class,
-                () -> shopToOrderableService.createOrderableRequest(1, request, 999));
-
-            assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_SHOP);
-        }
-
-        @Test
         @DisplayName("이미 신청한 내역이 있으면 예외가 발생한다")
         void throwExceptionWhenAlreadyRequested() {
             // given
-            when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
+            when(shopRepository.getById(100)).thenReturn(shop);
             when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
                 ShopToOrderableRequestStatus.PENDING)).thenReturn(true);
 
@@ -138,7 +123,7 @@ class ShopToOrderableServiceTest {
         @DisplayName("상점 사장님이 아닌 경우 예외가 발생한다")
         void throwExceptionWhenNotShopOwner() {
             // given
-            when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
+            when(shopRepository.getById(100)).thenReturn(shop);
 
             // when & then
             CustomException exception = assertThrows(CustomException.class,
@@ -150,7 +135,7 @@ class ShopToOrderableServiceTest {
         @DisplayName("이미 승인된 상점이 있으면 예외가 발생한다")
         void throwExceptionWhenAlreadyApproved() {
             // given
-            when(shopRepository.findById(100)).thenReturn(Optional.of(shop));
+            when(shopRepository.getById(100)).thenReturn(shop);
             when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
                 ShopToOrderableRequestStatus.PENDING)).thenReturn(false);
             when(shopToOrderableRepository.existsByShopIdAndRequestStatus(100,
