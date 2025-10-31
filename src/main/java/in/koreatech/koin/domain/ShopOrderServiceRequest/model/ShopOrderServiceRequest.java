@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shoptoOrderable.model;
+package in.koreatech.koin.domain.ShopOrderServiceRequest.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "shop_to_orderable")
 @NoArgsConstructor(access = PROTECTED)
-public class ShopToOrderable extends BaseEntity {
+public class ShopOrderServiceRequest extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +49,7 @@ public class ShopToOrderable extends BaseEntity {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "delivery_option", nullable = false)
-    private ShopToOrderableDeliveryOption deliveryOption;
+    private ShopOrderServiceRequestDeliveryOption deliveryOption;
 
     @Column(name = "campus_delivery_tip", nullable = false)
     private Integer campusDeliveryTip = 0;
@@ -81,17 +81,17 @@ public class ShopToOrderable extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "request_status", nullable = false)
-    private ShopToOrderableRequestStatus requestStatus = ShopToOrderableRequestStatus.PENDING;
+    private ShopOrderServiceRequestStatus requestStatus = ShopOrderServiceRequestStatus.PENDING;
 
     @Column(name = "approved_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime approvedAt = null;
 
     @Builder
-    public ShopToOrderable(
+    public ShopOrderServiceRequest(
         Shop shop,
         Integer minimumOrderAmount,
         Boolean isTakeout,
-        ShopToOrderableDeliveryOption deliveryOption,
+        ShopOrderServiceRequestDeliveryOption deliveryOption,
         Integer campusDeliveryTip,
         Integer offCampusDeliveryTip,
         String businessLicenseUrl,
@@ -115,11 +115,11 @@ public class ShopToOrderable extends BaseEntity {
     }
 
     public void approveRequest() {
-        this.requestStatus = ShopToOrderableRequestStatus.APPROVED;
+        this.requestStatus = ShopOrderServiceRequestStatus.APPROVED;
         this.approvedAt = LocalDateTime.now();
     }
 
     public void rejectRequest() {
-        this.requestStatus = ShopToOrderableRequestStatus.REJECTED;
+        this.requestStatus = ShopOrderServiceRequestStatus.REJECTED;
     }
 }

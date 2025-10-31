@@ -41,7 +41,7 @@ public class SwaggerGroupConfig {
                 "in.koreatech.koin.domain.ownershop",
                 "in.koreatech.koin.domain.shop",
                 "in.koreatech.koin.domain.land",
-                "in.koreatech.koin.domain.shoptoOrderable",
+                "in.koreatech.koin.domain.ShopOrderServiceRequest",
             });
     }
 

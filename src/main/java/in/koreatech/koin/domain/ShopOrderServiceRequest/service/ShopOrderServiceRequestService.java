@@ -1,34 +1,34 @@
-package in.koreatech.koin.domain.shoptoOrderable.service;
+package in.koreatech.koin.domain.ShopOrderServiceRequest.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
-import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderable;
-import in.koreatech.koin.domain.shoptoOrderable.repository.ShopToOrderableRepository;
+import in.koreatech.koin.domain.ShopOrderServiceRequest.dto.ShopOrderServiceRequestRequest;
+import in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequest;
+import in.koreatech.koin.domain.ShopOrderServiceRequest.repository.ShopOrderServiceRequestRepository;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
-import static in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableRequestStatus.*;
+import static in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequestStatus.*;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class ShopToOrderableService {
+public class ShopOrderServiceRequestService {
 
-    private final ShopToOrderableRepository shopToOrderableRepository;
+    private final ShopOrderServiceRequestRepository ShopOrderServiceRequestRepository;
     private final ShopRepository shopRepository;
 
     @Transactional
-    public void createOrderableRequest(Integer ownerId, ShopToOrderableRequest request, Integer shopId) {
+    public void createOrderableRequest(Integer ownerId, ShopOrderServiceRequestRequest request, Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
 
         validateShopOwner(shop, ownerId);
         validateDuplicateRequest(shop);
 
-        ShopToOrderable shopToOrderable = ShopToOrderable.builder()
+        ShopOrderServiceRequest shopOrderServiceRequest = ShopOrderServiceRequest.builder()
             .shop(shop)
             .minimumOrderAmount(request.minimumOrderAmount())
             .isTakeout(request.isTakeout())
@@ -42,7 +42,7 @@ public class ShopToOrderableService {
             .accountNumber(request.accountNumber())
             .build();
 
-        shopToOrderableRepository.save(shopToOrderable);
+        ShopOrderServiceRequestRepository.save(shopOrderServiceRequest);
     }
 
     private void validateShopOwner(Shop shop, Integer ownerId) {
@@ -54,12 +54,12 @@ public class ShopToOrderableService {
 
     private void validateDuplicateRequest(Shop shop) {
         // 이미 신청한 내역이 있는지 확인
-        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shop.getId(), PENDING)) {
+        if (ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(shop.getId(), PENDING)) {
             throw CustomException.of(DUPLICATE_REQUESTED_ORDERABLE_SHOP, "shopId: " + shop.getId());
         }
 
         // 이미 주문가능 상점인지 확인
-        if (shopToOrderableRepository.existsByShopIdAndRequestStatus(shop.getId(), APPROVED)) {
+        if (ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(shop.getId(), APPROVED)) {
             throw CustomException.of(DUPLICATE_ORDERABLE_SHOP, "shopId: " + shop.getId());
         }
     }

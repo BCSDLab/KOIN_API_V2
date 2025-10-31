@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shoptoOrderable.controller;
+package in.koreatech.koin.domain.ShopOrderServiceRequest.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import in.koreatech.koin.domain.shoptoOrderable.dto.ShopToOrderableRequest;
+import in.koreatech.koin.domain.ShopOrderServiceRequest.dto.ShopOrderServiceRequestRequest;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.code.ApiResponseCodes;
@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Shop To Orderable Request: 주문 서비스 가입 요청", description = "사장님이 주문 서비스 가입을 요청하기위한 API")
-public interface ShopToOrderableApi {
+public interface ShopOrderServiceRequestApi {
 
     @ApiResponseCodes({
         ApiResponseCode.OK,
@@ -34,6 +34,6 @@ public interface ShopToOrderableApi {
     ResponseEntity<Void> createOrderableRequest(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable Integer shopId,
-        @RequestBody @Valid ShopToOrderableRequest request
+        @RequestBody @Valid ShopOrderServiceRequestRequest request
     );
 }

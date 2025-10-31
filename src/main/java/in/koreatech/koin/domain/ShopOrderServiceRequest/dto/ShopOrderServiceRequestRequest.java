@@ -1,11 +1,11 @@
-package in.koreatech.koin.domain.shoptoOrderable.dto;
+package in.koreatech.koin.domain.ShopOrderServiceRequest.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shoptoOrderable.model.ShopToOrderableDeliveryOption;
+import in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequestDeliveryOption;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record ShopToOrderableRequest(
+public record ShopOrderServiceRequestRequest(
 
     @Schema(description = "최소 주문 금액", example = "5000", requiredMode = REQUIRED)
     @NotNull(message = "최소 주문 금액은 필수입니다.")
@@ -26,7 +26,7 @@ public record ShopToOrderableRequest(
 
     @Schema(description = "배달 옵션 (CAMPUS/OUTSIDE/BOTH)", example = "BOTH", requiredMode = REQUIRED)
     @NotNull(message = "배달 옵션은 필수입니다.")
-    ShopToOrderableDeliveryOption deliveryOption,
+    ShopOrderServiceRequestDeliveryOption deliveryOption,
 
     @Schema(description = "교내 배달팁", example = "1000", requiredMode = REQUIRED)
     @NotNull(message = "교내 배달팁은 필수입니다.")
