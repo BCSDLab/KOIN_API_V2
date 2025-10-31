@@ -1,7 +1,7 @@
-package in.koreatech.koin.domain.ShopOrderServiceRequest.repository;
+package in.koreatech.koin.domain.ownershop.repository;
 
-import in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequest;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequestStatus;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
 
 import org.springframework.data.repository.Repository;
 

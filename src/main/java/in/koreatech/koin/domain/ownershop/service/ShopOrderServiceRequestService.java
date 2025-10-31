@@ -1,17 +1,17 @@
-package in.koreatech.koin.domain.ShopOrderServiceRequest.service;
+package in.koreatech.koin.domain.ownershop.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.dto.ShopOrderServiceRequestRequest;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequest;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.repository.ShopOrderServiceRequestRepository;
+import in.koreatech.koin.domain.ownershop.dto.ShopOrderServiceRequestRequest;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
+import in.koreatech.koin.domain.ownershop.repository.ShopOrderServiceRequestRepository;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
-import static in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequestStatus.*;
+import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.*;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 @Service

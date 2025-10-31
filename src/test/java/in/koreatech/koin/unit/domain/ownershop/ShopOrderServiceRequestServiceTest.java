@@ -1,4 +1,4 @@
-package in.koreatech.koin.unit.domain.ShopOrderServiceRequest;
+package in.koreatech.koin.unit.domain.ownershop;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,12 +18,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.dto.ShopOrderServiceRequestRequest;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequest;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequestDeliveryOption;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.model.ShopOrderServiceRequestStatus;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.repository.ShopOrderServiceRequestRepository;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.service.ShopOrderServiceRequestService;
+import in.koreatech.koin.domain.ownershop.dto.ShopOrderServiceRequestRequest;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryOption;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
+import in.koreatech.koin.domain.ownershop.repository.ShopOrderServiceRequestRepository;
+import in.koreatech.koin.domain.ownershop.service.ShopOrderServiceRequestService;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.code.ApiResponseCode;

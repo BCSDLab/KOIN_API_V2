@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.ShopOrderServiceRequest.controller;
+package in.koreatech.koin.domain.ownershop.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.ShopOrderServiceRequest.dto.ShopOrderServiceRequestRequest;
-import in.koreatech.koin.domain.ShopOrderServiceRequest.service.ShopOrderServiceRequestService;
+import in.koreatech.koin.domain.ownershop.dto.ShopOrderServiceRequestRequest;
+import in.koreatech.koin.domain.ownershop.service.ShopOrderServiceRequestService;
 import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import lombok.RequiredArgsConstructor;
 

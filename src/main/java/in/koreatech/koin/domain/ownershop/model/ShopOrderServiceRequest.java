@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.ShopOrderServiceRequest.model;
+package in.koreatech.koin.domain.ownershop.model;
 
 import static lombok.AccessLevel.PROTECTED;
 

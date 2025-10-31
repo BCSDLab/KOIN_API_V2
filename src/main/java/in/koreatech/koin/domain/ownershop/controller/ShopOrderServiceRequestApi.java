@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.ShopOrderServiceRequest.controller;
+package in.koreatech.koin.domain.ownershop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import in.koreatech.koin.domain.ShopOrderServiceRequest.dto.ShopOrderServiceRequestRequest;
+import in.koreatech.koin.domain.ownershop.dto.ShopOrderServiceRequestRequest;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.code.ApiResponseCodes;
