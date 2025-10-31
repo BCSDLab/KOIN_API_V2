@@ -91,6 +91,8 @@ public class ShopController implements ShopApi {
         return ResponseEntity.ok(shops);
     }
 
+
+    // 삭제 예정
     @GetMapping("/shops/search/related/{query}")
     public ResponseEntity<RelatedKeywordResponse> getRelatedKeyword(
             @PathVariable(name = "query") String query
