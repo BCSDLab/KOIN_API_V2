@@ -40,7 +40,7 @@ class ShopOrderServiceRequestServiceTest {
     private ShopOrderServiceRequestService shopOrderServiceRequestService;
 
     @Mock
-    private ShopOrderServiceRequestRepository ShopOrderServiceRequestRepository;
+    private ShopOrderServiceRequestRepository shopOrderServiceRequestRepository;
 
     @Mock
     private ShopRepository shopRepository;
@@ -79,11 +79,11 @@ class ShopOrderServiceRequestServiceTest {
         void createOrderableRequestSuccessfully() {
             // given
             when(shopRepository.getById(100)).thenReturn(shop);
-            when(ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
+            when(shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
                 ShopOrderServiceRequestStatus.PENDING)).thenReturn(false);
-            when(ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
+            when(shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
                 ShopOrderServiceRequestStatus.APPROVED)).thenReturn(false);
-            when(ShopOrderServiceRequestRepository.save(any(ShopOrderServiceRequest.class))).thenAnswer(
+            when(shopOrderServiceRequestRepository.save(any(ShopOrderServiceRequest.class))).thenAnswer(
                 invocation -> invocation.getArgument(0));
 
             // when
@@ -91,7 +91,7 @@ class ShopOrderServiceRequestServiceTest {
 
             // then
             ArgumentCaptor<ShopOrderServiceRequest> captor = ArgumentCaptor.forClass(ShopOrderServiceRequest.class);
-            verify(ShopOrderServiceRequestRepository).save(captor.capture());
+            verify(shopOrderServiceRequestRepository).save(captor.capture());
 
             ShopOrderServiceRequest saved = captor.getValue();
             assertThat(saved.getShop()).isEqualTo(shop);
@@ -109,7 +109,7 @@ class ShopOrderServiceRequestServiceTest {
         void throwExceptionWhenAlreadyRequested() {
             // given
             when(shopRepository.getById(100)).thenReturn(shop);
-            when(ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
+            when(shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
                 ShopOrderServiceRequestStatus.PENDING)).thenReturn(true);
 
             // when & then
@@ -136,9 +136,9 @@ class ShopOrderServiceRequestServiceTest {
         void throwExceptionWhenAlreadyApproved() {
             // given
             when(shopRepository.getById(100)).thenReturn(shop);
-            when(ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
+            when(shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
                 ShopOrderServiceRequestStatus.PENDING)).thenReturn(false);
-            when(ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
+            when(shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(100,
                 ShopOrderServiceRequestStatus.APPROVED)).thenReturn(true);
 
             // when & then

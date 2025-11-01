@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 
 public interface ShopOrderServiceRequestRepository extends Repository<ShopOrderServiceRequest, Integer> {
 
-    ShopOrderServiceRequest save(ShopOrderServiceRequest ShopOrderServiceRequest);
+    ShopOrderServiceRequest save(ShopOrderServiceRequest shopOrderServiceRequest);
 
     boolean existsByShopIdAndRequestStatus(Integer shopId, ShopOrderServiceRequestStatus requestStatus);
 }
