@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "shop_to_orderable")
+@Table(name = "shop_order_service_requests")
 @NoArgsConstructor(access = PROTECTED)
 public class ShopOrderServiceRequest extends BaseEntity {
 
