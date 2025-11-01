@@ -37,7 +37,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 class ShopOrderServiceRequestServiceTest {
 
     @InjectMocks
-    private ShopOrderServiceRequestService ShopOrderServiceRequestService;
+    private ShopOrderServiceRequestService shopOrderServiceRequestService;
 
     @Mock
     private ShopOrderServiceRequestRepository ShopOrderServiceRequestRepository;
@@ -87,7 +87,7 @@ class ShopOrderServiceRequestServiceTest {
                 invocation -> invocation.getArgument(0));
 
             // when
-            ShopOrderServiceRequestService.createOrderableRequest(1, request, 100);
+            shopOrderServiceRequestService.createOrderableRequest(1, request, 100);
 
             // then
             ArgumentCaptor<ShopOrderServiceRequest> captor = ArgumentCaptor.forClass(ShopOrderServiceRequest.class);
@@ -114,7 +114,7 @@ class ShopOrderServiceRequestServiceTest {
 
             // when & then
             CustomException exception = assertThrows(CustomException.class,
-                () -> ShopOrderServiceRequestService.createOrderableRequest(1, request, 100));
+                () -> shopOrderServiceRequestService.createOrderableRequest(1, request, 100));
 
             assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.DUPLICATE_REQUESTED_ORDERABLE_SHOP);
         }
@@ -127,7 +127,7 @@ class ShopOrderServiceRequestServiceTest {
 
             // when & then
             CustomException exception = assertThrows(CustomException.class,
-                () -> ShopOrderServiceRequestService.createOrderableRequest(2, request, 100));
+                () -> shopOrderServiceRequestService.createOrderableRequest(2, request, 100));
             assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.FORBIDDEN_SHOP_OWNER);
         }
 
@@ -143,7 +143,7 @@ class ShopOrderServiceRequestServiceTest {
 
             // when & then
             CustomException exception = assertThrows(CustomException.class,
-                () -> ShopOrderServiceRequestService.createOrderableRequest(1, request, 100));
+                () -> shopOrderServiceRequestService.createOrderableRequest(1, request, 100));
             assertThat(exception.getErrorCode()).isEqualTo(ApiResponseCode.DUPLICATE_ORDERABLE_SHOP);
         }
     }

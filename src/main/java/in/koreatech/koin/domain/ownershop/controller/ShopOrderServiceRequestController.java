@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 @RequiredArgsConstructor
 public class ShopOrderServiceRequestController implements ShopOrderServiceRequestApi {
 
-    private final ShopOrderServiceRequestService ShopOrderServiceRequestService;
+    private final ShopOrderServiceRequestService shopOrderServiceRequestService;
 
     @PostMapping("/owner/shops/{shopId}/order-service-requests")
     @DuplicateGuard(key = "#ownerId + ':' + #shopId + ':' + #request.toString()", timeoutSeconds = 300)
@@ -31,7 +31,7 @@ public class ShopOrderServiceRequestController implements ShopOrderServiceReques
         @PathVariable Integer shopId,
         @RequestBody @Valid ShopOrderServiceRequestRequest request
     ) {
-        ShopOrderServiceRequestService.createOrderableRequest(ownerId, request, shopId);
+        shopOrderServiceRequestService.createOrderableRequest(ownerId, request, shopId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
