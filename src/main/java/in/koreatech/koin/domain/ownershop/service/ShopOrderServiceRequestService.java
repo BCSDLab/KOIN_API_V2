@@ -18,7 +18,7 @@ import static in.koreatech.koin.global.code.ApiResponseCode.*;
 @RequiredArgsConstructor
 public class ShopOrderServiceRequestService {
 
-    private final ShopOrderServiceRequestRepository ShopOrderServiceRequestRepository;
+    private final ShopOrderServiceRequestRepository shopOrderServiceRequestRepository;
     private final ShopRepository shopRepository;
 
     @Transactional
@@ -42,7 +42,7 @@ public class ShopOrderServiceRequestService {
             .accountNumber(request.accountNumber())
             .build();
 
-        ShopOrderServiceRequestRepository.save(shopOrderServiceRequest);
+        shopOrderServiceRequestRepository.save(shopOrderServiceRequest);
     }
 
     private void validateShopOwner(Shop shop, Integer ownerId) {
@@ -54,12 +54,12 @@ public class ShopOrderServiceRequestService {
 
     private void validateDuplicateRequest(Shop shop) {
         // 이미 신청한 내역이 있는지 확인
-        if (ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(shop.getId(), PENDING)) {
+        if (shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(shop.getId(), PENDING)) {
             throw CustomException.of(DUPLICATE_REQUESTED_ORDERABLE_SHOP, "shopId: " + shop.getId());
         }
 
         // 이미 주문가능 상점인지 확인
-        if (ShopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(shop.getId(), APPROVED)) {
+        if (shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(shop.getId(), APPROVED)) {
             throw CustomException.of(DUPLICATE_ORDERABLE_SHOP, "shopId: " + shop.getId());
         }
     }
