@@ -24,6 +24,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.*;
+
 @Entity
 @Getter
 @Table(name = "shop_order_service_requests")
@@ -114,12 +116,13 @@ public class ShopOrderServiceRequest extends BaseEntity {
         this.approvedAt = null;
     }
 
-    public void approveRequest() {
-        this.requestStatus = ShopOrderServiceRequestStatus.APPROVED;
+    public void approve() {
+        this.requestStatus = APPROVED;
         this.approvedAt = LocalDateTime.now();
     }
 
-    public void rejectRequest() {
-        this.requestStatus = ShopOrderServiceRequestStatus.REJECTED;
+    public void reject() {
+        this.requestStatus = REJECTED;
     }
+
 }
