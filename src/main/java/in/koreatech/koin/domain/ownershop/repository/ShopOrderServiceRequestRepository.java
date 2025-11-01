@@ -9,7 +9,5 @@ public interface ShopOrderServiceRequestRepository extends Repository<ShopOrderS
 
     ShopOrderServiceRequest save(ShopOrderServiceRequest ShopOrderServiceRequest);
 
-    boolean existsByShopId(Integer shopId);
-
     boolean existsByShopIdAndRequestStatus(Integer shopId, ShopOrderServiceRequestStatus requestStatus);
 }
