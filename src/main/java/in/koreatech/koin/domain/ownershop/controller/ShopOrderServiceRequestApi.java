@@ -42,7 +42,7 @@ public interface ShopOrderServiceRequestApi {
         - (bank이름은 아직 enum처리가 되어있지 않음에 유의해주세요.)
         """)
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/owner/shops/{shopId}/orderable-requests")
+    @PostMapping("/owner/shops/{shopId}/order-service-requests")
     @DuplicateGuard(key = "#ownerId + ':' + #shopId + ':' + #request.toString()", timeoutSeconds = 300)
     ResponseEntity<Void> createOrderableRequest(
         @Auth(permit = {OWNER}) Integer ownerId,

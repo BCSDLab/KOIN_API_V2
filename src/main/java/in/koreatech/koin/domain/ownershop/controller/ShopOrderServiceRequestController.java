@@ -24,7 +24,7 @@ public class ShopOrderServiceRequestController implements ShopOrderServiceReques
 
     private final ShopOrderServiceRequestService ShopOrderServiceRequestService;
 
-    @PostMapping("/owner/shops/{shopId}/orderable-requests")
+    @PostMapping("/owner/shops/{shopId}/order-service-requests")
     @DuplicateGuard(key = "#ownerId + ':' + #shopId + ':' + #request.toString()", timeoutSeconds = 300)
     public ResponseEntity<Void> createOrderableRequest(
         @Auth(permit = {OWNER}) Integer ownerId,
