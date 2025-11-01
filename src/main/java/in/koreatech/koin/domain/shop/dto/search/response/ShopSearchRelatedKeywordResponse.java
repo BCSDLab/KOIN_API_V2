@@ -21,7 +21,7 @@ public record ShopSearchRelatedKeywordResponse(
     Integer shopNameSearchResultCount,
 
     @Schema(description = "주변 상점 메뉴 이름 관련 연관 키워드 개수", example = "5")
-    Integer MenuNameSearchResultCount,
+    Integer menuNameSearchResultCount,
 
     List<InnerShopNameSearchRelatedKeywordResult> shopNameSearchResults,
 
@@ -30,15 +30,16 @@ public record ShopSearchRelatedKeywordResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopNameSearchRelatedKeywordResult(
-        @Schema(description = "주문 가능 상점 식별자", example = "5")
+        @Schema(description = "주변 상점 식별자", example = "5")
         Integer shopId,
 
-        @Schema(description = "주문 가능 상점 이름", example = "맛있는 치킨")
+        @Schema(description = "주변 상점 이름", example = "맛있는 치킨")
         String shopName
     ) {
 
         public static InnerShopNameSearchRelatedKeywordResult from(
-            ShopNameKeywordHit orderableShopNameKeywordHit) {
+            ShopNameKeywordHit orderableShopNameKeywordHit
+        ) {
             return new InnerShopNameSearchRelatedKeywordResult(
                 orderableShopNameKeywordHit.shopId(),
                 orderableShopNameKeywordHit.shopName()
@@ -48,18 +49,19 @@ public record ShopSearchRelatedKeywordResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerMenuNameSearchRelatedKeywordResult(
-        @Schema(description = "주문 가능 상점 식별자", example = "5")
+        @Schema(description = "주변 상점 식별자", example = "5")
         Integer shopId,
 
-        @Schema(description = "주문 가능 상점 이름", example = "맛있는 치킨")
+        @Schema(description = "주변 상점 이름", example = "맛있는 치킨")
         String shopName,
 
-        @Schema(description = "주문 가능 상점 메뉴 이름", example = "간장 치킨 세트")
+        @Schema(description = "주변 상점 메뉴 이름", example = "간장 치킨 세트")
         String menuName
     ) {
 
         public static InnerMenuNameSearchRelatedKeywordResult from(
-            ShopMenuNameKeywordHit orderableShopMenuNameKeywordHit) {
+            ShopMenuNameKeywordHit orderableShopMenuNameKeywordHit
+        ) {
             return new InnerMenuNameSearchRelatedKeywordResult(
                 orderableShopMenuNameKeywordHit.shopId(),
                 orderableShopMenuNameKeywordHit.shopName(),
@@ -79,10 +81,12 @@ public record ShopSearchRelatedKeywordResponse(
             String.join(" ", processedSearchKeywords),
             shopNameSearchResult.size(),
             menuNameSearchResult.size(),
-            shopNameSearchResult.stream().map(
-                InnerShopNameSearchRelatedKeywordResult::from).toList(),
-            menuNameSearchResult.stream().map(
-                InnerMenuNameSearchRelatedKeywordResult::from).toList()
+            shopNameSearchResult.stream()
+                .map(InnerShopNameSearchRelatedKeywordResult::from)
+                .toList(),
+            menuNameSearchResult.stream()
+                .map(InnerMenuNameSearchRelatedKeywordResult::from)
+                .toList()
         );
     }
 }

@@ -89,7 +89,7 @@ public record ShopResponseV2(
     public static ShopResponseV2 from(Shop shop, LocalDate now) {
         Collections.sort(shop.getMenuCategories());
         List<ShopOpen> shopOpens = shop.getShopOpens();
-        String today = LocalDate.now().getDayOfWeek().toString();
+        String today = now.getDayOfWeek().toString();
 
         Optional<ShopOpen> todayShopOpen = shopOpens.stream()
             .filter(shopOpen -> shopOpen.getDayOfWeek().equals(today))

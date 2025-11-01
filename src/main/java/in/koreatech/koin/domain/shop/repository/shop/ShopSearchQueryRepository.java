@@ -5,10 +5,12 @@ import static in.koreatech.koin.domain.shop.model.shop.QShop.shop;
 
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopMenuNameKeywordHit;
@@ -50,8 +52,8 @@ public class ShopSearchQueryRepository {
      * ((shop.name LIKE '%keyword1%' OR shop.internal_name LIKE '%keyword1%') OR ...)
      */
     private BooleanExpression shopNameContainsAnyOfKeywords(List<String> keywords) {
-        if (keywords == null || keywords.isEmpty()) {
-            return null;
+        if (CollectionUtils.isEmpty(keywords)) {
+            return Expressions.FALSE;
         }
 
         return keywords.stream()
@@ -66,8 +68,8 @@ public class ShopSearchQueryRepository {
      * (menu.name LIKE '%keyword1%' OR menu.name LIKE '%keyword2%' OR ...)
      */
     private BooleanExpression menuNameContainsAnyOfKeywords(List<String> keywords) {
-        if (keywords == null || keywords.isEmpty()) {
-            return null;
+        if (CollectionUtils.isEmpty(keywords)) {
+            return Expressions.FALSE;
         }
         return keywords.stream()
             .map(menu.name::contains)

@@ -27,19 +27,19 @@ public interface ShopSearchApi {
                               "menu_name_search_result_count": 2,
                               "shop_name_search_results": [
                                 {
-                                  "orderable_shop_id": 2,
-                                  "orderable_shop_name": "굿모닝살로만치킨"
+                                  "shop_id": 2,
+                                  "shop_name": "굿모닝살로만치킨"
                                 }
                               ],
                               "menu_name_search_results": [
                                 {
-                                  "orderable_shop_id": 2,
-                                  "orderable_shop_name": "굿모닝살로만치킨",
+                                  "shop_id": 2,
+                                  "shop_name": "굿모닝살로만치킨",
                                   "menu_name": "후라이드 치킨"
                                 },
                                 {
-                                  "orderable_shop_id": 5,
-                                  "orderable_shop_name": "마슬랜",
+                                  "shop_id": 5,
+                                  "shop_name": "마슬랜",
                                   "menu_name": "후라이드 치킨"
                                 }
                               ]
