@@ -38,7 +38,9 @@ public enum DomainType {
 
     CLUBS("Clubs", "동아리"),
 
-    KEYWORDS("Keyword", "키워드")
+    KEYWORDS("Keyword", "키워드"),
+
+    LOST_ITEMS("LostItem", "분실물")
     ;
 
     private final String value;
