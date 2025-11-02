@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.graduation.dto.GeneralEducationLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.validation.FileTypeValid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -54,7 +53,7 @@ public interface GraduationApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/graduation/excel/upload")
     ResponseEntity<String> uploadStudentGradeExcelFile(
-        @FileTypeValid(extensions = {"xls", "xlsx"}) @RequestParam(value = "file") MultipartFile file,
+        @RequestParam(value = "file") MultipartFile file,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
