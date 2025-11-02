@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.shop.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.SHOPS;
+import static in.koreatech.koin.admin.history.enums.DomainType.SHOPS_CATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopRequest;
 import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopCategoriesOrderRequest;
@@ -120,6 +123,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 생성")
     @PostMapping("/admin/shops")
+    @AdminActivityLogging(domain = SHOPS)
     ResponseEntity<Void> createShop(
         @RequestBody @Valid AdminCreateShopRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -135,6 +139,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 카테고리 생성")
     @PostMapping("/admin/shops/categories")
+    @AdminActivityLogging(domain = SHOPS_CATEGORIES)
     ResponseEntity<Void> createShopCategory(
         @RequestBody @Valid AdminCreateShopCategoryRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -150,6 +155,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 삭제 해제")
     @PostMapping("/admin/shops/{id}/undelete")
+    @AdminActivityLogging(domain = SHOPS, domainIdParam = "shopId")
     ResponseEntity<Void> cancelShopDelete(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -165,6 +171,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 수정")
     @PutMapping("/admin/shops/{id}")
+    @AdminActivityLogging(domain = SHOPS, domainIdParam = "id")
     ResponseEntity<Void> modifyShop(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminModifyShopRequest request,
@@ -181,6 +188,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 카테고리 수정")
     @PutMapping("/admin/shops/categories/{id}")
+    @AdminActivityLogging(domain = SHOPS_CATEGORIES, domainIdParam = "id")
     ResponseEntity<Void> modifyShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminModifyShopCategoryRequest request,
@@ -198,6 +206,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 카테고리 순서 수정")
     @PutMapping("/admin/shops/categories/order")
+    @AdminActivityLogging(domain = SHOPS_CATEGORIES)
     ResponseEntity<Void> modifyShopCategoriesOrder(
         @RequestBody @Valid AdminModifyShopCategoriesOrderRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -213,6 +222,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 삭제")
     @DeleteMapping("/admin/shops/{id}")
+    @AdminActivityLogging(domain = SHOPS, domainIdParam = "id")
     ResponseEntity<Void> deleteShop(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -229,6 +239,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 카테고리 삭제")
     @DeleteMapping("/admin/shops/categories/{id}")
+    @AdminActivityLogging(domain = SHOPS_CATEGORIES, domainIdParam = "id")
     ResponseEntity<Void> deleteShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
