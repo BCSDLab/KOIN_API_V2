@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.land.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.LANDS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.HttpStatus;
@@ -13,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.land.dto.AdminLandResponse;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.land.dto.AdminLandRequest;
+import in.koreatech.koin.admin.land.dto.AdminLandResponse;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 import in.koreatech.koin.admin.land.service.AdminLandService;
 import in.koreatech.koin.global.auth.Auth;
@@ -46,6 +48,7 @@ public class AdminLandController implements AdminLandApi {
     }
 
     @PostMapping("/admin/lands")
+    @AdminActivityLogging(domain = LANDS)
     public ResponseEntity<AdminLandsResponse> postLands(
         @RequestBody @Valid AdminLandRequest adminLandRequest,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -55,6 +58,7 @@ public class AdminLandController implements AdminLandApi {
     }
 
     @PutMapping("/admin/lands/{id}")
+    @AdminActivityLogging(domain = LANDS, domainIdParam = "id")
     public ResponseEntity<Void> updateLand(
         @PathVariable("id") Integer id,
         @RequestBody @Valid AdminLandRequest request,
@@ -65,6 +69,7 @@ public class AdminLandController implements AdminLandApi {
     }
 
     @DeleteMapping("/admin/lands/{id}")
+    @AdminActivityLogging(domain = LANDS, domainIdParam = "id")
     public ResponseEntity<Void> deleteLand(
         @PathVariable("id") Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -74,6 +79,7 @@ public class AdminLandController implements AdminLandApi {
     }
 
     @PostMapping("/admin/lands/{id}/undelete")
+    @AdminActivityLogging(domain = LANDS, domainIdParam = "id")
     public ResponseEntity<Void> undeleteLand(
         @PathVariable("id") Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
