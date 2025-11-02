@@ -18,11 +18,14 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,6 +48,18 @@ public interface ShopApi {
     @Operation(summary = "특정 상점 조회")
     @GetMapping("/shops/{id}")
     ResponseEntity<ShopResponse> getShopById(
+        @Parameter(in = PATH) @PathVariable Integer id
+    );
+
+    @Operation(summary = "특정 상점 조회 V2", description = """
+        ### 변경점
+            - openTime, closeTime 응답값 추가
+        """)
+    @ApiResponseCodes({
+        ApiResponseCode.OK
+    })
+    @GetMapping("/v2/shops/{id}")
+    ResponseEntity<ShopResponseV2> getShopByIdV2(
         @Parameter(in = PATH) @PathVariable Integer id
     );
 

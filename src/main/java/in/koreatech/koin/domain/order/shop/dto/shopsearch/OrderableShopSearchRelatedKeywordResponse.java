@@ -5,8 +5,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.order.shop.model.readmodel.MenuNameKeywordHit;
-import in.koreatech.koin.domain.order.shop.model.readmodel.ShopNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopMenuNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopNameKeywordHit;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -37,10 +37,11 @@ public record OrderableShopSearchRelatedKeywordResponse(
         String orderableShopName
     ) {
 
-        public static InnerShopNameSearchRelatedKeywordResult from(ShopNameKeywordHit shopNameKeywordHit) {
+        public static InnerShopNameSearchRelatedKeywordResult from(
+            OrderableShopNameKeywordHit orderableShopNameKeywordHit) {
             return new InnerShopNameSearchRelatedKeywordResult(
-                shopNameKeywordHit.orderableShopId(),
-                shopNameKeywordHit.orderableShopName()
+                orderableShopNameKeywordHit.orderableShopId(),
+                orderableShopNameKeywordHit.orderableShopName()
             );
         }
     }
@@ -57,11 +58,12 @@ public record OrderableShopSearchRelatedKeywordResponse(
         String menuName
     ) {
 
-        public static InnerMenuNameSearchRelatedKeywordResult from(MenuNameKeywordHit menuNameKeywordHit) {
+        public static InnerMenuNameSearchRelatedKeywordResult from(
+            OrderableShopMenuNameKeywordHit orderableShopMenuNameKeywordHit) {
             return new InnerMenuNameSearchRelatedKeywordResult(
-                menuNameKeywordHit.orderableShopId(),
-                menuNameKeywordHit.orderableShopName(),
-                menuNameKeywordHit.menuName()
+                orderableShopMenuNameKeywordHit.orderableShopId(),
+                orderableShopMenuNameKeywordHit.orderableShopName(),
+                orderableShopMenuNameKeywordHit.menuName()
             );
         }
     }
@@ -69,8 +71,8 @@ public record OrderableShopSearchRelatedKeywordResponse(
     public static OrderableShopSearchRelatedKeywordResponse from(
         String searchKeyword,
         List<String> processedSearchKeywords,
-        List<ShopNameKeywordHit> shopNameSearchResult,
-        List<MenuNameKeywordHit> menuNameSearchResult
+        List<OrderableShopNameKeywordHit> shopNameSearchResult,
+        List<OrderableShopMenuNameKeywordHit> menuNameSearchResult
     ) {
         return new OrderableShopSearchRelatedKeywordResponse(
             searchKeyword,
