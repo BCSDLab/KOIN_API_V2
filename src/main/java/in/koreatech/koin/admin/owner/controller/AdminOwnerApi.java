@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.owner.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.OWNERS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springdoc.core.annotations.ParameterObject;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.owner.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.owner.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.owner.dto.AdminOwnerUpdateRequest;
@@ -40,6 +42,7 @@ public interface AdminOwnerApi {
     @Operation(summary = "사장님 권한 요청 허용")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/owner/{id}/authed")
+    @AdminActivityLogging(domain = OWNERS, domainIdParam = "id")
     ResponseEntity<Void> allowOwnerPermission(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
