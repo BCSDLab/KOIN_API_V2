@@ -38,11 +38,11 @@ public record ShopSearchRelatedKeywordResponse(
     ) {
 
         public static InnerShopNameSearchRelatedKeywordResult from(
-            ShopNameKeywordHit orderableShopNameKeywordHit
+            ShopNameKeywordHit shopNameKeywordHit
         ) {
             return new InnerShopNameSearchRelatedKeywordResult(
-                orderableShopNameKeywordHit.shopId(),
-                orderableShopNameKeywordHit.shopName()
+                shopNameKeywordHit.shopId(),
+                shopNameKeywordHit.shopName()
             );
         }
     }
@@ -60,12 +60,12 @@ public record ShopSearchRelatedKeywordResponse(
     ) {
 
         public static InnerMenuNameSearchRelatedKeywordResult from(
-            ShopMenuNameKeywordHit orderableShopMenuNameKeywordHit
+            ShopMenuNameKeywordHit shopMenuNameKeywordHit
         ) {
             return new InnerMenuNameSearchRelatedKeywordResult(
-                orderableShopMenuNameKeywordHit.shopId(),
-                orderableShopMenuNameKeywordHit.shopName(),
-                orderableShopMenuNameKeywordHit.menuName()
+                shopMenuNameKeywordHit.shopId(),
+                shopMenuNameKeywordHit.shopName(),
+                shopMenuNameKeywordHit.menuName()
             );
         }
     }
