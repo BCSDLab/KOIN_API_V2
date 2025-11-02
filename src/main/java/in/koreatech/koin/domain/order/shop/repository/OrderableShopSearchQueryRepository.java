@@ -21,9 +21,9 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import in.koreatech.koin.domain.order.shop.model.readmodel.MenuNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopMenuNameKeywordHit;
 import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
-import in.koreatech.koin.domain.order.shop.model.readmodel.ShopNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopNameKeywordHit;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -32,9 +32,9 @@ public class OrderableShopSearchQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<ShopNameKeywordHit> findAllOrderableShopByKeyword(List<String> keywords) {
+    public List<OrderableShopNameKeywordHit> findAllOrderableShopByKeyword(List<String> keywords) {
         return queryFactory
-            .select(Projections.constructor(ShopNameKeywordHit.class,
+            .select(Projections.constructor(OrderableShopNameKeywordHit.class,
                 orderableShop.id,
                 shop.name
             ))
@@ -44,9 +44,9 @@ public class OrderableShopSearchQueryRepository {
             .fetch();
     }
 
-    public List<MenuNameKeywordHit> findAllMenuByKeyword(List<String> keywords) {
+    public List<OrderableShopMenuNameKeywordHit> findAllMenuByKeyword(List<String> keywords) {
         return queryFactory
-            .select(Projections.constructor(MenuNameKeywordHit.class,
+            .select(Projections.constructor(OrderableShopMenuNameKeywordHit.class,
                 orderableShop.id,
                 shop.name,
                 orderableShopMenu.name

@@ -1,7 +1,8 @@
 package in.koreatech.koin.domain.graduation.model;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SEMESTER_REGEX;
+
+import in.koreatech.koin.global.exception.CustomException;
 
 public record GradeExcelData(
     String year,
@@ -15,29 +16,32 @@ public record GradeExcelData(
     String grade,
     String retakeStatus
 ) {
-    public static GradeExcelData fromRow(Row row) {
-        return new GradeExcelData(
-            getCellValueAsString(row.getCell(1)),
-            getCellValueAsString(row.getCell(2)),
-            getCellValueAsString(row.getCell(4)),
-            getCellValueAsString(row.getCell(5)),
-            getCellValueAsString(row.getCell(6)),
-            getCellValueAsString(row.getCell(7)),
-            getCellValueAsString(row.getCell(8)),
-            getCellValueAsString(row.getCell(9)),
-            getCellValueAsString(row.getCell(10)),
-            getCellValueAsString(row.getCell(11))
-        );
+
+    private static final String MIDDLE_TOTAL = "소 계";
+    private static final String FAIL = "F";
+    private static final String UNSATISFACTORY = "U";
+    private static final String TOTAL = "합 계";
+    private static final String FIRST_SEMESTER = "1";
+    private static final String SECOND_SEMESTER = "2";
+    private static final String SUMMER_SEMESTER = "하계";
+    private static final String WINTER_SEMESTER = "동계";
+
+    public boolean isSkipRow() {
+        return classTitle.equals(MIDDLE_TOTAL) ||
+            grade.equals(FAIL) ||
+            grade.equals(UNSATISFACTORY);
     }
 
-    private static String getCellValueAsString(Cell cell) {
-        if (cell == null) {
-            return "";
-        }
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue();
-            case NUMERIC -> String.valueOf((int)cell.getNumericCellValue());
-            default -> "";
+    public boolean isTotalRow() {
+        return classTitle.equals(TOTAL);
+    }
+
+    public String getKoinSemester() {
+        return switch (semester) {
+            case FIRST_SEMESTER, SECOND_SEMESTER -> year + semester;
+            case WINTER_SEMESTER -> year + "-" + "겨울";
+            case SUMMER_SEMESTER -> year + "-" + "여름";
+            default -> throw CustomException.of(INVALID_SEMESTER_REGEX);
         };
     }
 }

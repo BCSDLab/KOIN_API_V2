@@ -39,6 +39,7 @@ import in.koreatech.koin.global.exception.custom.KoinException;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -162,6 +163,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ObjectOptimisticLockingFailureException e
     ) {
         return buildErrorResponse(request, ApiResponseCode.OPTIMISTIC_LOCKING_FAILURE, e.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Object> handleConstraintViolationException(
+        HttpServletRequest request,
+        ConstraintViolationException e
+    ) {
+        return buildErrorResponse(request, ApiResponseCode.INVALID_REQUEST_BODY, e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
