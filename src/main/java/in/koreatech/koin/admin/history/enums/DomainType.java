@@ -36,7 +36,9 @@ public enum DomainType {
     BANNERS("Banner", "배너"),
     BANNER_CATEGORIES("Banner Categories", "배너 카테고리"),
 
-    CLUBS("Clubs", "동아리")
+    CLUBS("Clubs", "동아리"),
+
+    KEYWORDS("Keyword", "키워드")
     ;
 
     private final String value;
