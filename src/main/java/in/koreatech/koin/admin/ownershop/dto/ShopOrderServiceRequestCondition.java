@@ -4,12 +4,15 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 
 import java.util.Objects;
 
+import org.springframework.data.domain.Sort.Direction;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import io.micrometer.common.util.StringUtils;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -20,10 +23,10 @@ public record ShopOrderServiceRequestCondition(
     @Schema(description = "페이지당 조회할 최대 개수", example = "10", defaultValue = "10", requiredMode = NOT_REQUIRED)
     Integer limit,
 
-    @Schema(description = "검색 대상") // 추가적으로 작성하기
-    ShopOrderServiceRequestCondition.SearchType searchType,
+    @Schema(description = "검색 대상[`SHOP_NAME` (상점명 검색), `STATUS` (상태 검색)]", example = "SHOP_NAME", requiredMode = NOT_REQUIRED)
+    SearchType searchType,
 
-    @Schema(description = "검색 문자열", requiredMode = NOT_REQUIRED)
+    @Schema(description = "검색 문자열 [상태일경우 `PENDING`, `APPROVED`, `REJECTED` 중 하나]", example = "티바", requiredMode = NOT_REQUIRED)
     String query,
 
     @Schema(description = "정렬 기준['CREATED_AT_ASC` (오래된순), 'CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC", requiredMode = NOT_REQUIRED)
@@ -43,10 +46,27 @@ public record ShopOrderServiceRequestCondition(
     }
 
     public enum SearchType {
-        //음... 작성하기
+        SHOP_NAME,
+        STATUS
     }
 
-    // 일단은 OwnersCondition과 동일하게 작성..
+    public void checkDataConstraintViolation() {
+        if (this.query != null) {
+            checkSearchTypeNotNull();
+            checkQueryIsEmpty();
+            checkQueryIsBlank();
+        }
+    }
+
+    @Hidden
+    public Direction getDirection() {
+        if (this.sort == Criteria.Sort.CREATED_AT_ASC) {
+            return Direction.ASC;
+        } else {
+            return Direction.DESC;
+        }
+    }
+
     private void checkSearchTypeNotNull() {
         if (this.searchType == null) {
             throw new KoinIllegalArgumentException("검색 내용이 존재할 경우 검색 대상은 필수입니다.");
@@ -65,6 +85,3 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 }
-
-
-

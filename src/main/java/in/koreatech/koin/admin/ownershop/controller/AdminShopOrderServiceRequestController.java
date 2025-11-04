@@ -10,19 +10,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServiceResponse;
 import in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition;
+import in.koreatech.koin.admin.ownershop.service.AdminShopOrderServiceRequestService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminShopOrderServiceRequestController {
+public class AdminShopOrderServiceRequestController implements AdminShopOrderServiceRequestApi {
+
+    private final AdminShopOrderServiceRequestService adminShopOrderServiceRequestService;
 
     @GetMapping("/admin/owner/shops/order-service-requests")
-    ResponseEntity<AdminShopOrderServiceResponse> getOrderServiceRequests(
-        @ParameterObject @ModelAttribute ShopOrderServiceRequestCondition shopOrderServiceRequestCondition,
-        @Auth(permit = {ADMIN}) Integer adminId
+    public ResponseEntity<AdminShopOrderServiceResponse> getOrderServiceRequests(
+        @ParameterObject @ModelAttribute ShopOrderServiceRequestCondition shopOrderServiceRequestCondition//,
+        //@Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().build();
+        AdminShopOrderServiceResponse response = adminShopOrderServiceRequestService.getOrderServiceRequests(
+            shopOrderServiceRequestCondition);
+        return ResponseEntity.ok().body(response);
     }
-
 }
