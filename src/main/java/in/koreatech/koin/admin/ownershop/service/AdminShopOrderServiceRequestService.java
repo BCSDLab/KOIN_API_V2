@@ -7,11 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServiceResponse;
+import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServicesResponse;
 import in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition;
 import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequestRepository;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,7 +24,7 @@ public class AdminShopOrderServiceRequestService {
 
     private final AdminShopOrderServiceRequestRepository adminShopOrderServiceRequestRepository;
 
-    public AdminShopOrderServiceResponse getOrderServiceRequests(ShopOrderServiceRequestCondition condition) {
+    public AdminShopOrderServicesResponse getOrderServiceRequests(ShopOrderServiceRequestCondition condition) {
         condition.checkDataConstraintViolation();
 
         Long totalRequests = getTotalRequestsCount(condition);
@@ -30,7 +33,15 @@ public class AdminShopOrderServiceRequestService {
 
         Page<ShopOrderServiceRequest> result = getOrderServiceRequestsResultPage(condition, criteria, direction);
 
-        return AdminShopOrderServiceResponse.of(result, criteria);
+        return AdminShopOrderServicesResponse.of(result, criteria);
+    }
+
+    public AdminShopOrderServiceResponse getOrderServiceRequestDetail(Integer orderServiceRequestId) {
+        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository
+            .findById(orderServiceRequestId)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST, ""));
+
+        return AdminShopOrderServiceResponse.from(shopOrderServiceRequest);
     }
 
     private Long getTotalRequestsCount(ShopOrderServiceRequestCondition condition) {
