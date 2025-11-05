@@ -22,6 +22,10 @@ public enum ApiResponseCode {
     ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
     ILLEGAL_STATE(HttpStatus.BAD_REQUEST, "잘못된 상태로 요청이 들어왔습니다."),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "잘못된 입력값이 포함되어 있습니다."),
+    INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 검색 타입입니다."),
+    REQUIRED_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "검색어가 존재할 때는 검색 대상이 반드시 필요합니다."),
+    SEARCH_QUERY_TOO_SHORT(HttpStatus.BAD_REQUEST, "검색 내용의 최소 길이는 1입니다."),
+    SEARCH_QUERY_ONLY_WHITESPACE(HttpStatus.BAD_REQUEST, "검색 내용은 공백 문자로만 이루어져 있으면 안됩니다."),
     INVALID_DATE_TIME(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다."),
     INVALID_GENDER_INDEX(HttpStatus.BAD_REQUEST, "올바르지 않은 성별 인덱스입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "올바르지 않은 인증 토큰입니다."),
@@ -66,7 +70,8 @@ public enum ApiResponseCode {
     MISMATCH_TEMPORARY_PAYMENT(HttpStatus.BAD_REQUEST, "요청한 정보가 임시 결제 정보와 일치하지 않습니다."),
     PAYMENT_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
     INVALID_START_DATE_AFTER_END_DATE(HttpStatus.BAD_REQUEST, "시작일은 종료일 이전이여야 합니다."),
-
+    
+    
     /**
      * 401 Unauthorized (인증 필요)
      */

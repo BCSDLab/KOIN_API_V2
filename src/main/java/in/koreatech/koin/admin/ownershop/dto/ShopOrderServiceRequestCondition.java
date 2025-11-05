@@ -10,10 +10,12 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.common.model.Criteria;
-import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.CustomException;
 import io.micrometer.common.util.StringUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ShopOrderServiceRequestCondition(
@@ -45,9 +47,9 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    public enum SearchType {
+    public enum SearchType { //이거 예외 처리도.?
         SHOP_NAME,
-        STATUS
+        STATUS;
     }
 
     public void checkDataConstraintViolation() {
@@ -69,19 +71,19 @@ public record ShopOrderServiceRequestCondition(
 
     private void checkSearchTypeNotNull() {
         if (this.searchType == null) {
-            throw new KoinIllegalArgumentException("검색 내용이 존재할 경우 검색 대상은 필수입니다.");
+            throw CustomException.of(REQUIRED_SEARCH_TYPE);
         }
     }
 
     private void checkQueryIsEmpty() {
         if (this.query.isEmpty()) {
-            throw new KoinIllegalArgumentException("검색 내용의 최소 길이는 1입니다.");
+            throw CustomException.of(SEARCH_QUERY_TOO_SHORT);
         }
     }
 
     private void checkQueryIsBlank() {
         if (StringUtils.isBlank(this.query)) {
-            throw new KoinIllegalArgumentException("검색 내용은 공백 문자로만 이루어져 있으면 안됩니다.");
+            throw CustomException.of(SEARCH_QUERY_ONLY_WHITESPACE);
         }
     }
 }
