@@ -79,4 +79,12 @@ public record ShopOrderServiceRequestCondition(
             throw CustomException.of(SEARCH_QUERY_ONLY_WHITESPACE);
         }
     }
+
+    public boolean isSeacrhTypeStatusAndQueryNotNull() {
+        return this.searchType == SearchType.STATUS && this.query != null;
+    }
+    
+    public boolean isSearchTypeShopNameAndQueryNotNull() {
+        return this.searchType == SearchType.SHOP_NAME && this.query != null;
+    }
 }

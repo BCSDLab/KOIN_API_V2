@@ -10,10 +10,17 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 public interface AdminShopOrderServiceRequestRepository extends Repository<ShopOrderServiceRequest, Integer> {
 
     Optional<ShopOrderServiceRequest> findById(Integer id);
+
+    default ShopOrderServiceRequest getById(Integer id) {
+        return findById(id)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST));
+    }
 
     ShopOrderServiceRequest save(ShopOrderServiceRequest shopOrderServiceRequest);
 

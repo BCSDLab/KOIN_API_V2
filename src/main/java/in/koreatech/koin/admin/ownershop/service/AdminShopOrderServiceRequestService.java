@@ -13,9 +13,9 @@ import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequest
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+
+import static in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition.SearchType;
 
 @Service
 @RequiredArgsConstructor
@@ -36,24 +36,22 @@ public class AdminShopOrderServiceRequestService {
         return AdminShopOrderServicesResponse.of(result, criteria);
     }
 
-    public AdminShopOrderServiceResponse getOrderServiceRequestDetail(Integer orderServiceRequestId) {
-        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository
-            .findById(orderServiceRequestId)
-            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST, ""));
-
+    public AdminShopOrderServiceResponse getOrderServiceRequestDetail(Integer id) {
+        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
         return AdminShopOrderServiceResponse.from(shopOrderServiceRequest);
     }
 
     private Long getTotalRequestsCount(ShopOrderServiceRequestCondition condition) {
-        if (condition.searchType() == ShopOrderServiceRequestCondition.SearchType.SHOP_NAME
-            && condition.query() != null) {
+        if (condition.isSearchTypeShopNameAndQueryNotNull()) {
             return adminShopOrderServiceRequestRepository.countByShopName(condition.query());
         }
-        if (condition.searchType() == ShopOrderServiceRequestCondition.SearchType.STATUS && condition.query() != null) {
+
+        if (condition.isSeacrhTypeStatusAndQueryNotNull()) {
             ShopOrderServiceRequestStatus status = ShopOrderServiceRequestStatus.valueOf(
                 condition.query().toUpperCase());
             return adminShopOrderServiceRequestRepository.countByStatus(status);
         }
+
         return adminShopOrderServiceRequestRepository.count();
     }
 
@@ -68,15 +66,14 @@ public class AdminShopOrderServiceRequestService {
             Sort.by(direction, "createdAt")
         );
 
-        if (condition.searchType() == ShopOrderServiceRequestCondition.SearchType.SHOP_NAME
-            && condition.query() != null) {
+        if (condition.isSearchTypeShopNameAndQueryNotNull()) {
             return adminShopOrderServiceRequestRepository.findPageOrderServiceRequestsByShopName(
                 condition.query(),
                 pageRequest
             );
         }
-        if (condition.searchType() == ShopOrderServiceRequestCondition.SearchType.STATUS
-            && condition.query() != null) {
+
+        if (condition.isSeacrhTypeStatusAndQueryNotNull()) {
             ShopOrderServiceRequestStatus status = ShopOrderServiceRequestStatus.valueOf(
                 condition.query().toUpperCase());
             return adminShopOrderServiceRequestRepository.findPageOrderServiceRequestsByStatus(
@@ -84,6 +81,8 @@ public class AdminShopOrderServiceRequestService {
                 pageRequest
             );
         }
+
         return adminShopOrderServiceRequestRepository.findPageOrderServiceRequests(pageRequest);
     }
+
 }
