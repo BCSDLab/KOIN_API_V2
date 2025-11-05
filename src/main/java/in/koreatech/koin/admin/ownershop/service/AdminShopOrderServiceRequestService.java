@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.ownershop.service;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SEARCH_TYPE;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -13,6 +15,7 @@ import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequest
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -45,8 +48,7 @@ public class AdminShopOrderServiceRequestService {
         }
 
         if (condition.isSearchTypeStatusAndQueryNotNull()) {
-            ShopOrderServiceRequestStatus status = ShopOrderServiceRequestStatus.valueOf(
-                condition.query().toUpperCase());
+            ShopOrderServiceRequestStatus status = parseStatusOrThrow(condition.query());
             return adminShopOrderServiceRequestRepository.countByStatus(status);
         }
 
@@ -72,8 +74,7 @@ public class AdminShopOrderServiceRequestService {
         }
 
         if (condition.isSearchTypeStatusAndQueryNotNull()) {
-            ShopOrderServiceRequestStatus status = ShopOrderServiceRequestStatus.valueOf(
-                condition.query().toUpperCase());
+            ShopOrderServiceRequestStatus status = parseStatusOrThrow(condition.query());
             return adminShopOrderServiceRequestRepository.findPageOrderServiceRequestsByStatus(
                 status,
                 pageRequest
@@ -81,5 +82,13 @@ public class AdminShopOrderServiceRequestService {
         }
 
         return adminShopOrderServiceRequestRepository.findPageOrderServiceRequests(pageRequest);
+    }
+
+    private ShopOrderServiceRequestStatus parseStatusOrThrow(String query) {
+        try {
+            return ShopOrderServiceRequestStatus.valueOf(query.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw CustomException.of(INVALID_SEARCH_TYPE);
+        }
     }
 }
