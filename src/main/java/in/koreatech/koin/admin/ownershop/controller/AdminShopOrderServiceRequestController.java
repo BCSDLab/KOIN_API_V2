@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.ownershop.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServiceResponse;
 import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServicesResponse;
 import in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition;
 import in.koreatech.koin.admin.ownershop.service.AdminShopOrderServiceRequestService;
+import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,8 +24,8 @@ public class AdminShopOrderServiceRequestController implements AdminShopOrderSer
 
     @GetMapping("/admin/owner/shops/order-service-requests")
     public ResponseEntity<AdminShopOrderServicesResponse> getOrderServiceRequests(
-        @ParameterObject @ModelAttribute ShopOrderServiceRequestCondition shopOrderServiceRequestCondition//,
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @ParameterObject @ModelAttribute ShopOrderServiceRequestCondition shopOrderServiceRequestCondition,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminShopOrderServicesResponse response = adminShopOrderServiceRequestService.getOrderServiceRequests(
             shopOrderServiceRequestCondition);
@@ -31,8 +34,8 @@ public class AdminShopOrderServiceRequestController implements AdminShopOrderSer
 
     @GetMapping("/admin/owner/shops/order-service-requests/{orderServiceRequestId}")
     public ResponseEntity<AdminShopOrderServiceResponse> getOrderServiceRequestDetail(
-        @ParameterObject @PathVariable("orderServiceRequestId") Integer orderServiceRequestId//,
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @ParameterObject @PathVariable("orderServiceRequestId") Integer orderServiceRequestId,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminShopOrderServiceResponse response = adminShopOrderServiceRequestService.getOrderServiceRequestDetail(
             orderServiceRequestId);

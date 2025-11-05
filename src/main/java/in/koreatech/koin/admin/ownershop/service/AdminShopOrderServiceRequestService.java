@@ -15,8 +15,6 @@ import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
 import lombok.RequiredArgsConstructor;
 
-import static in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition.SearchType;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -46,7 +44,7 @@ public class AdminShopOrderServiceRequestService {
             return adminShopOrderServiceRequestRepository.countByShopName(condition.query());
         }
 
-        if (condition.isSeacrhTypeStatusAndQueryNotNull()) {
+        if (condition.isSearchTypeStatusAndQueryNotNull()) {
             ShopOrderServiceRequestStatus status = ShopOrderServiceRequestStatus.valueOf(
                 condition.query().toUpperCase());
             return adminShopOrderServiceRequestRepository.countByStatus(status);
@@ -73,7 +71,7 @@ public class AdminShopOrderServiceRequestService {
             );
         }
 
-        if (condition.isSeacrhTypeStatusAndQueryNotNull()) {
+        if (condition.isSearchTypeStatusAndQueryNotNull()) {
             ShopOrderServiceRequestStatus status = ShopOrderServiceRequestStatus.valueOf(
                 condition.query().toUpperCase());
             return adminShopOrderServiceRequestRepository.findPageOrderServiceRequestsByStatus(

@@ -31,7 +31,7 @@ public record ShopOrderServiceRequestCondition(
     @Schema(description = "검색 문자열 [상태일경우 `PENDING`, `APPROVED`, `REJECTED` 중 하나]", example = "티바", requiredMode = NOT_REQUIRED)
     String query,
 
-    @Schema(description = "정렬 기준['CREATED_AT_ASC` (오래된순), 'CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC", requiredMode = NOT_REQUIRED)
+    @Schema(description = "정렬 기준[`CREATED_AT_ASC` (오래된순), `CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC", requiredMode = NOT_REQUIRED)
     Criteria.Sort sort
 ) {
 
@@ -47,7 +47,7 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    public enum SearchType { //이거 예외 처리도.?
+    public enum SearchType {
         SHOP_NAME,
         STATUS;
     }
@@ -80,10 +80,10 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    public boolean isSeacrhTypeStatusAndQueryNotNull() {
+    public boolean isSearchTypeStatusAndQueryNotNull() {
         return this.searchType == SearchType.STATUS && this.query != null;
     }
-    
+
     public boolean isSearchTypeShopNameAndQueryNotNull() {
         return this.searchType == SearchType.SHOP_NAME && this.query != null;
     }
