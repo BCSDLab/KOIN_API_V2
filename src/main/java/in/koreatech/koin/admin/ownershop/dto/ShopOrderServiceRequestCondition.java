@@ -55,7 +55,6 @@ public record ShopOrderServiceRequestCondition(
     public void checkDataConstraintViolation() {
         if (this.query != null) {
             checkSearchTypeNotNull();
-            checkQueryIsEmpty();
             checkQueryIsBlank();
         }
     }
@@ -72,12 +71,6 @@ public record ShopOrderServiceRequestCondition(
     private void checkSearchTypeNotNull() {
         if (this.searchType == null) {
             throw CustomException.of(REQUIRED_SEARCH_TYPE);
-        }
-    }
-
-    private void checkQueryIsEmpty() {
-        if (this.query.isEmpty()) {
-            throw CustomException.of(SEARCH_QUERY_TOO_SHORT);
         }
     }
 
