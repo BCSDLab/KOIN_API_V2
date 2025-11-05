@@ -22,8 +22,6 @@ public interface AdminShopOrderServiceRequestRepository extends Repository<ShopO
             .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST));
     }
 
-    ShopOrderServiceRequest save(ShopOrderServiceRequest shopOrderServiceRequest);
-
     Long count();
 
     @Query("""
