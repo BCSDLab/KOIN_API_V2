@@ -41,8 +41,8 @@ public interface AdminShopOrderServiceRequestApi {
     @Operation(summary = "주문 서비스 요청 상세 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/owner/shops/order-service-requests/{orderServiceRequestId}")
-    ResponseEntity<AdminShopOrderServiceResponse> getOrderServiceRequestDetail(
-        @ParameterObject @PathVariable("orderServiceRequestId") Integer orderServiceRequestId,
+    ResponseEntity<AdminShopOrderServiceResponse> getOrderServiceRequest(
+        @PathVariable("orderServiceRequestId") Integer orderServiceRequestId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }

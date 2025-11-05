@@ -34,7 +34,7 @@ public class AdminShopOrderServiceRequestService {
         return AdminShopOrderServicesResponse.of(result, criteria);
     }
 
-    public AdminShopOrderServiceResponse getOrderServiceRequestDetail(Integer id) {
+    public AdminShopOrderServiceResponse getOrderServiceRequest(Integer id) {
         ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
         return AdminShopOrderServiceResponse.from(shopOrderServiceRequest);
     }

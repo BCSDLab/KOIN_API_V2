@@ -33,11 +33,11 @@ public class AdminShopOrderServiceRequestController implements AdminShopOrderSer
     }
 
     @GetMapping("/admin/owner/shops/order-service-requests/{orderServiceRequestId}")
-    public ResponseEntity<AdminShopOrderServiceResponse> getOrderServiceRequestDetail(
-        @ParameterObject @PathVariable("orderServiceRequestId") Integer orderServiceRequestId,
+    public ResponseEntity<AdminShopOrderServiceResponse> getOrderServiceRequest(
+        @PathVariable("orderServiceRequestId") Integer orderServiceRequestId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminShopOrderServiceResponse response = adminShopOrderServiceRequestService.getOrderServiceRequestDetail(
+        AdminShopOrderServiceResponse response = adminShopOrderServiceRequestService.getOrderServiceRequest(
             orderServiceRequestId);
         return ResponseEntity.ok().body(response);
     }

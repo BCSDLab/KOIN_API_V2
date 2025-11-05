@@ -68,6 +68,16 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
+    @Hidden
+    public boolean isSearchTypeShopNameAndQueryNotNull() {
+        return searchType == SearchType.SHOP_NAME && query != null;
+    }
+
+    @Hidden
+    public boolean isSearchTypeStatusAndQueryNotNull() {
+        return searchType == SearchType.STATUS && query != null;
+    }
+
     private void checkSearchTypeNotNull() {
         if (this.searchType == null) {
             throw CustomException.of(REQUIRED_SEARCH_TYPE);
@@ -78,13 +88,5 @@ public record ShopOrderServiceRequestCondition(
         if (StringUtils.isBlank(this.query)) {
             throw CustomException.of(SEARCH_QUERY_ONLY_WHITESPACE);
         }
-    }
-
-    public boolean isSearchTypeStatusAndQueryNotNull() {
-        return this.searchType == SearchType.STATUS && this.query != null;
-    }
-
-    public boolean isSearchTypeShopNameAndQueryNotNull() {
-        return this.searchType == SearchType.SHOP_NAME && this.query != null;
     }
 }
