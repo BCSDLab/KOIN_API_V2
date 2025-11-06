@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.enums;
+package in.koreatech.koin.admin.bus.commuting.enums;
 
 public enum SemesterType {
     SEASONAL("계절학기"),
