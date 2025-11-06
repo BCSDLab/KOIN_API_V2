@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
-import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -18,7 +17,6 @@ public interface AdminCommutingBusApi {
     @PostMapping("/admin/bus/commuting/excel")
     ResponseEntity<AdminCommutingBusResponse> parseCommutingBusExcel(
         @RequestParam(name = "commuting_bus_excel_file") MultipartFile commutingBusExcelFile,
-        @RequestParam(name = "semester_type") SemesterType semesterType,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }
