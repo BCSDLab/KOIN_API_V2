@@ -1,7 +1,5 @@
 package in.koreatech.koin.admin.ownershop.service;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SEARCH_TYPE;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,8 +12,6 @@ import in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition;
 import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequestRepository;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
-import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -43,13 +39,19 @@ public class AdminShopOrderServiceRequestService {
     }
 
     private Long getTotalRequestsCount(ShopOrderServiceRequestCondition condition) {
-        if (condition.isSearchTypeShopNameAndQueryNotNull()) {
+        if (condition.isQueryNotNull() && condition.isStatusNotNull()) {
+            return adminShopOrderServiceRequestRepository.countByStatusAndShopName(
+                condition.status(),
+                condition.query()
+            );
+        }
+
+        if (condition.isQueryNotNull()) {
             return adminShopOrderServiceRequestRepository.countByShopName(condition.query());
         }
 
-        if (condition.isSearchTypeStatusAndQueryNotNull()) {
-            ShopOrderServiceRequestStatus status = parseStatusOrThrow(condition.query());
-            return adminShopOrderServiceRequestRepository.countByStatus(status);
+        if (condition.isStatusNotNull()) {
+            return adminShopOrderServiceRequestRepository.countByStatus(condition.status());
         }
 
         return adminShopOrderServiceRequestRepository.count();
@@ -66,29 +68,28 @@ public class AdminShopOrderServiceRequestService {
             Sort.by(direction, "createdAt")
         );
 
-        if (condition.isSearchTypeShopNameAndQueryNotNull()) {
+        if (condition.isQueryNotNull() && condition.isStatusNotNull()) {
+            return adminShopOrderServiceRequestRepository.findPageOrderServiceRequestsByStatusAndShopName(
+                condition.status(),
+                condition.query(),
+                pageRequest
+            );
+        }
+
+        if (condition.isQueryNotNull()) {
             return adminShopOrderServiceRequestRepository.findPageOrderServiceRequestsByShopName(
                 condition.query(),
                 pageRequest
             );
         }
 
-        if (condition.isSearchTypeStatusAndQueryNotNull()) {
-            ShopOrderServiceRequestStatus status = parseStatusOrThrow(condition.query());
+        if (condition.isStatusNotNull()) {
             return adminShopOrderServiceRequestRepository.findPageOrderServiceRequestsByStatus(
-                status,
+                condition.status(),
                 pageRequest
             );
         }
 
         return adminShopOrderServiceRequestRepository.findPageOrderServiceRequests(pageRequest);
-    }
-
-    private ShopOrderServiceRequestStatus parseStatusOrThrow(String query) {
-        try {
-            return ShopOrderServiceRequestStatus.valueOf(query.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw CustomException.of(INVALID_SEARCH_TYPE);
-        }
     }
 }

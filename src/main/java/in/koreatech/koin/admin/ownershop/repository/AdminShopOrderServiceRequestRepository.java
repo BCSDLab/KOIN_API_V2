@@ -38,6 +38,17 @@ public interface AdminShopOrderServiceRequestRepository extends Repository<ShopO
     Long countByStatus(@Param("status") ShopOrderServiceRequestStatus status);
 
     @Query("""
+        SELECT COUNT(r) FROM ShopOrderServiceRequest r
+        JOIN r.shop s
+        WHERE r.requestStatus = :status
+        AND s.name LIKE CONCAT('%', :query, '%')
+        """)
+    Long countByStatusAndShopName(
+        @Param("status") ShopOrderServiceRequestStatus status,
+        @Param("query") String query
+    );
+
+    @Query("""
         SELECT r FROM ShopOrderServiceRequest r
         JOIN FETCH r.shop s
         """)
@@ -58,4 +69,16 @@ public interface AdminShopOrderServiceRequestRepository extends Repository<ShopO
         """)
     Page<ShopOrderServiceRequest> findPageOrderServiceRequestsByStatus(
         @Param("status") ShopOrderServiceRequestStatus status, Pageable pageable);
+
+    @Query("""
+        SELECT r FROM ShopOrderServiceRequest r
+        JOIN FETCH r.shop s
+        WHERE r.requestStatus = :status
+        AND s.name LIKE CONCAT('%', :shopName, '%')
+        """)
+    Page<ShopOrderServiceRequest> findPageOrderServiceRequestsByStatusAndShopName(
+        @Param("status") ShopOrderServiceRequestStatus status,
+        @Param("shopName") String shopName,
+        Pageable pageable
+    );
 }

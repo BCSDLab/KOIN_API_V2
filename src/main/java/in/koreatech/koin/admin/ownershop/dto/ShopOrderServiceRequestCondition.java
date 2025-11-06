@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.common.model.Criteria;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
 import in.koreatech.koin.global.exception.CustomException;
 import io.micrometer.common.util.StringUtils;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -25,11 +26,11 @@ public record ShopOrderServiceRequestCondition(
     @Schema(description = "페이지당 조회할 최대 개수", example = "10", defaultValue = "10", requiredMode = NOT_REQUIRED)
     Integer limit,
 
-    @Schema(description = "검색 대상[`SHOP_NAME` (상점명 검색), `STATUS` (상태 검색)]", example = "SHOP_NAME", requiredMode = NOT_REQUIRED)
-    SearchType searchType,
-
-    @Schema(description = "검색 문자열 [상태일경우 `PENDING`, `APPROVED`, `REJECTED` 중 하나]", example = "티바", requiredMode = NOT_REQUIRED)
+    @Schema(description = "가게 이름 검색 문자열", example = "티바", requiredMode = NOT_REQUIRED)
     String query,
+
+    @Schema(description = "상점 서비스 요청 상태[`PENDING` (대기), `APPROVED` (승인), `REJECTED` (거절)]", example = "PENDING", requiredMode = NOT_REQUIRED)
+    ShopOrderServiceRequestStatus status,
 
     @Schema(description = "정렬 기준[`CREATED_AT_ASC` (오래된순), `CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC", requiredMode = NOT_REQUIRED)
     Criteria.Sort sort
@@ -47,14 +48,8 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    public enum SearchType {
-        SHOP_NAME,
-        STATUS;
-    }
-
     public void checkDataConstraintViolation() {
         if (this.query != null) {
-            checkSearchTypeNotNull();
             checkQueryIsBlank();
         }
     }
@@ -68,25 +63,17 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    @Hidden
-    public boolean isSearchTypeShopNameAndQueryNotNull() {
-        return searchType == SearchType.SHOP_NAME && query != null;
-    }
-
-    @Hidden
-    public boolean isSearchTypeStatusAndQueryNotNull() {
-        return searchType == SearchType.STATUS && query != null;
-    }
-
-    private void checkSearchTypeNotNull() {
-        if (this.searchType == null) {
-            throw CustomException.of(REQUIRED_SEARCH_TYPE);
-        }
-    }
-
     private void checkQueryIsBlank() {
         if (StringUtils.isBlank(this.query)) {
             throw CustomException.of(SEARCH_QUERY_ONLY_WHITESPACE);
         }
+    }
+
+    public boolean isQueryNotNull() {
+        return this.query != null;
+    }
+
+    public boolean isStatusNotNull() {
+        return this.status != null;
     }
 }
