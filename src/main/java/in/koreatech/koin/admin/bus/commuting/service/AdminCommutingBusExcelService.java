@@ -47,7 +47,7 @@ public class AdminCommutingBusExcelService {
 
     private static final Integer NODE_INFO_NAME_CELL_NUMBER = 0;
 
-    private static final String NODE_INFO_START_POINT = "node_info";
+    private static final String NODE_INFO_START_POINT = "정거장";
     private static final String NODE_INFO_END_POINT = "대학(본교)";
 
     public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws IOException {
