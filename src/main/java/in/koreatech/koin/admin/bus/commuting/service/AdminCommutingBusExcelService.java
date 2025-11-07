@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.bus.commuting.service;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import in.koreatech.koin.admin.bus.commuting.model.NodeInfos;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
+import in.koreatech.koin.global.exception.CustomException;
 
 @Service
 public class AdminCommutingBusExcelService {
@@ -62,7 +65,7 @@ public class AdminCommutingBusExcelService {
 
                 ShuttleRouteType shuttleRouteType = getShuttleRouteType(sheet);
                 if (shuttleRouteType.isNotCommuting()) {
-                    throw new IllegalStateException();
+                    throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE, "shuttleRouteType: " + shuttleRouteType.name());
                 }
 
                 String commutingBusRouteName = getCommutingBusRouteName(sheet);
@@ -71,13 +74,13 @@ public class AdminCommutingBusExcelService {
                 // node_info가 있는 행 찾기
                 int nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT);
                 if (nodeInfoStartRowIndex == -1) {
-                    throw new IllegalStateException();
+                    throw CustomException.of(INVALID_NODE_INFO_START_POINT);
                 }
 
                 // node_info가 끝나는 행 찾기
                 int nodeInfoEndRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_END_POINT);
                 if (nodeInfoEndRowIndex == -1) {
-                    throw new IllegalStateException();
+                    throw CustomException.of(INVALID_NODE_INFO_END_POINT);
                 }
 
                 // 등교, 하교 이름 찾기
