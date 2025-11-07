@@ -28,13 +28,13 @@ public enum ShuttleRouteType {
         throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
     }
 
-    public static ShuttleRouteType convertFrom(String label) {
+    public static ShuttleRouteType of(String name) {
         for (var region : ShuttleRouteType.values()) {
-            if (region.getLabel().contains(label)) {
+            if (region.name().equals(name)) {
                 return region;
             }
         }
-        throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
+        throw BusIllegalRouteTypeException.withDetail("name: " + name);
     }
 
     public boolean isNotCommuting() {
