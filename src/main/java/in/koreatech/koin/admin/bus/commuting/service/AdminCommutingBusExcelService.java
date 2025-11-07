@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -73,15 +74,11 @@ public class AdminCommutingBusExcelService {
                 String commutingBusRouteName = getCommutingBusRouteName(sheet);
                 String commutingBusSubName = getCommutingBusSubName(sheet);
 
-                int nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT);
-                if (nodeInfoStartRowIndex == -1) {
-                    throw CustomException.of(INVALID_NODE_INFO_START_POINT);
-                }
+                int nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT)
+                    .orElseThrow(() -> CustomException.of(INVALID_NODE_INFO_START_POINT));
 
-                int nodeInfoEndRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_END_POINT);
-                if (nodeInfoEndRowIndex == -1) {
-                    throw CustomException.of(INVALID_NODE_INFO_END_POINT);
-                }
+                int nodeInfoEndRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_END_POINT)
+                    .orElseThrow(() -> CustomException.of(INVALID_NODE_INFO_END_POINT));
 
                 Row commutingBusNameRow = sheet.getRow(nodeInfoStartRowIndex);
                 Cell commutingBusNorthNameCell = commutingBusNameRow.getCell(NORTH_CELL_NUMBER);
@@ -196,17 +193,18 @@ public class AdminCommutingBusExcelService {
         return ShuttleRouteType.of(routeType);
     }
 
-    private Integer findNodeInfoRowIndexByPoint(Sheet sheet, String point) {
+    private Optional<Integer> findNodeInfoRowIndexByPoint(Sheet sheet, String point) {
         for (int index = 0; index <= MAX_EXCEL_ROW_NUMBER; index++) {
             Row row = sheet.getRow(index);
-            if (row == null)
+            if (row == null) {
                 continue;
+            }
 
             Cell firstCell = row.getCell(0);
             if (StringUtils.equals(firstCell.getStringCellValue(), point)) {
-                return index;
+                return Optional.of(index);
             }
         }
-        return -1;
+        return Optional.of(-1);
     }
 }
