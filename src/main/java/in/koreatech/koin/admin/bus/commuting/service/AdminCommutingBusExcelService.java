@@ -26,22 +26,22 @@ public class AdminCommutingBusExcelService {
 
     private static final Integer MAX_EXCEL_ROW_NUMBER = 30;
 
-    private static final Integer REGION_ROW_NUMBER = 1;
+    private static final Integer REGION_ROW_NUMBER = 0;
     private static final Integer REGION_CELL_NUMBER = 1;
 
-    private static final Integer ROUTE_TYPE_ROW_NUMBER = 2;
+    private static final Integer ROUTE_TYPE_ROW_NUMBER = 1;
     private static final Integer ROUTE_TYPE_CELL_NUMBER = 1;
 
-    private static final Integer ROUTE_NAME_ROW_NUMBER = 3;
+    private static final Integer ROUTE_NAME_ROW_NUMBER = 2;
     private static final Integer ROUTE_NAME_CELL_NUMBER = 1;
 
-    private static final Integer SUB_NAME_ROW_NUMBER = 4;
+    private static final Integer SUB_NAME_ROW_NUMBER = 3;
     private static final Integer SUB_NAME_CELL_NUMBER = 1;
 
     private static final Integer NORTH_CELL_NUMBER = 1;
     private static final Integer SOUTH_CELL_NUMBER = 2;
 
-    private static final Integer NODE_INFO_NAME_CELL_NUMBER = 1;
+    private static final Integer NODE_INFO_NAME_CELL_NUMBER = 0;
 
     private static final String NODE_INFO_START_POINT = "node_info";
     private static final String NODE_INFO_END_POINT = "대학(본교)";
@@ -62,7 +62,7 @@ public class AdminCommutingBusExcelService {
 
                 shuttleRouteType = getShuttleRouteType(sheet);
                 if (shuttleRouteType.isNotCommuting()) {
-                    // 예외
+                    throw new IllegalStateException();
                 }
 
                 commutingBusRouteName = getCommutingBusRouteName(sheet);
@@ -71,13 +71,13 @@ public class AdminCommutingBusExcelService {
                 // node_info가 있는 행 찾기
                 int nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT);
                 if (nodeInfoStartRowIndex == -1) {
-                    // 예외 처리
+                    throw new IllegalStateException();
                 }
 
                 // node_info가 끝나는 행 찾기
                 int nodeInfoEndRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_END_POINT);
                 if (nodeInfoEndRowIndex == -1) {
-                    // 예외 처리
+                    throw new IllegalStateException();
                 }
 
                 // 등교, 하교 이름 찾기
@@ -132,7 +132,7 @@ public class AdminCommutingBusExcelService {
     private String getCommutingBusSubName(Sheet sheet) {
         Row subNameRow = sheet.getRow(SUB_NAME_ROW_NUMBER);
         Cell subNameCell = subNameRow.getCell(SUB_NAME_CELL_NUMBER);
-        return subNameCell.getStringCellValue();
+        return subNameCell != null ? subNameCell.getStringCellValue() : null;
     }
 
     private String getCommutingBusRouteName(Sheet sheet) {
@@ -153,7 +153,7 @@ public class AdminCommutingBusExcelService {
         Row routeTypeRow = sheet.getRow(ROUTE_TYPE_ROW_NUMBER);
         Cell routeTypeCell = routeTypeRow.getCell(ROUTE_TYPE_CELL_NUMBER);
         String routeType = routeTypeCell.getStringCellValue();
-        return ShuttleRouteType.convertFrom(routeType);
+        return ShuttleRouteType.of(routeType);
     }
 
     private Integer findNodeInfoRowIndexByPoint(Sheet sheet, String point) {
