@@ -26,7 +26,7 @@ public interface AdminCommutingBusApi {
         INVALID_NODE_INFO_START_POINT,
         INVALID_NODE_INFO_END_POINT,
     })
-    @Operation(summary = "등하교 버스 엑셀 파일을 업로드 한다.")
+    @Operation(summary = "등하교 버스 엑셀 파일 업로드")
     @PostMapping("/admin/bus/commuting/excel")
     ResponseEntity<List<AdminCommutingBusResponse>> parseCommutingBusExcel(
         @RequestParam(name = "commuting_bus_excel_file") MultipartFile commutingBusExcelFile,
