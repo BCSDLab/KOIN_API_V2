@@ -26,10 +26,6 @@ public class RouteInfo {
         return detail;
     }
 
-    public List<ArrivalTime> getArrivalTimes() {
-        return List.copyOf(arrivalTimes);
-    }
-
     public List<String> getArrivalTimesAsStringList() {
         return arrivalTimes.stream().map(ArrivalTime::time).toList();
     }
