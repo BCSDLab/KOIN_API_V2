@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
+import in.koreatech.koin.admin.bus.commuting.enums.BusDirection;
 import in.koreatech.koin.admin.bus.commuting.model.ArrivalTime;
 import in.koreatech.koin.admin.bus.commuting.model.NodeInfos;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
@@ -26,16 +27,19 @@ public class AdminCommutingBusExcelService {
 
     private static final Integer MAX_EXCEL_ROW_NUMBER = 30;
 
-    private static final Integer REGION_ROW_NUMBER = 0;
+    private static final Integer BUS_DIRECTION_ROW_NUMBER = 0;
+    private static final Integer BUS_DIRECTION_CELL_NUMBER = 1;
+
+    private static final Integer REGION_ROW_NUMBER = 1;
     private static final Integer REGION_CELL_NUMBER = 1;
 
-    private static final Integer ROUTE_TYPE_ROW_NUMBER = 1;
+    private static final Integer ROUTE_TYPE_ROW_NUMBER = 2;
     private static final Integer ROUTE_TYPE_CELL_NUMBER = 1;
 
-    private static final Integer ROUTE_NAME_ROW_NUMBER = 2;
+    private static final Integer ROUTE_NAME_ROW_NUMBER = 3;
     private static final Integer ROUTE_NAME_CELL_NUMBER = 1;
 
-    private static final Integer SUB_NAME_ROW_NUMBER = 3;
+    private static final Integer SUB_NAME_ROW_NUMBER = 4;
     private static final Integer SUB_NAME_CELL_NUMBER = 1;
 
     private static final Integer NORTH_CELL_NUMBER = 1;
@@ -53,6 +57,7 @@ public class AdminCommutingBusExcelService {
              Workbook workbook = WorkbookFactory.create(inputStream)
         ) {
             for (Sheet sheet : workbook) {
+                BusDirection commutingBusDirection = getCommutingBusDirection(sheet);
                 ShuttleBusRegion commutingBusRegion = getCommutingBusRegion(sheet);
 
                 ShuttleRouteType shuttleRouteType = getShuttleRouteType(sheet);
@@ -86,33 +91,55 @@ public class AdminCommutingBusExcelService {
                 RouteInfo commutingBusSouthRouteInfo = new RouteInfo(commutingBusSouthName);
                 NodeInfos nodeInfos = new NodeInfos();
 
-                for (int i = nodeInfoStartRowIndex + 1; i <= nodeInfoEndRowIndex; i++) {
-                    Row nodeInfoRow = sheet.getRow(i);
-                    if (nodeInfoRow == null) {
-                        continue;
+                if (commutingBusDirection.isSouth()) {
+                    for (int i = nodeInfoEndRowIndex; i > nodeInfoStartRowIndex; i--) {
+                        Row nodeInfoRow = sheet.getRow(i);
+                        if (nodeInfoRow == null) {
+                            continue;
+                        }
+
+                        Cell nodeInfoNameCell = nodeInfoRow.getCell(NODE_INFO_NAME_CELL_NUMBER);
+                        if (StringUtils.isBlank(nodeInfoNameCell.getStringCellValue())) {
+                            continue;
+                        }
+
+                        String nodeInfoName = nodeInfoNameCell.getStringCellValue();
+                        nodeInfos.addNodeInfo(nodeInfoName);
+
+                        String commutingBusNorthTime = nodeInfoRow.getCell(NORTH_CELL_NUMBER).getStringCellValue();
+                        String commutingBusSouthTime = nodeInfoRow.getCell(SOUTH_CELL_NUMBER).getStringCellValue();
+                        commutingBusNorthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusNorthTime));
+                        commutingBusSouthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusSouthTime));
                     }
+                } else {
+                    for (int i = nodeInfoStartRowIndex + 1; i <= nodeInfoEndRowIndex; i++) {
+                        Row nodeInfoRow = sheet.getRow(i);
+                        if (nodeInfoRow == null) {
+                            continue;
+                        }
 
-                    Cell nodeInfoNameCell = nodeInfoRow.getCell(NODE_INFO_NAME_CELL_NUMBER);
-                    if (StringUtils.isBlank(nodeInfoNameCell.getStringCellValue())) {
-                        continue;
-                    }
+                        Cell nodeInfoNameCell = nodeInfoRow.getCell(NODE_INFO_NAME_CELL_NUMBER);
+                        if (StringUtils.isBlank(nodeInfoNameCell.getStringCellValue())) {
+                            continue;
+                        }
 
-                    String nodeInfoName = nodeInfoNameCell.getStringCellValue();
-                    nodeInfos.addNodeInfo(nodeInfoName);
+                        String nodeInfoName = nodeInfoNameCell.getStringCellValue();
+                        nodeInfos.addNodeInfo(nodeInfoName);
 
-                    String commutingBusNorthTime = nodeInfoRow.getCell(NORTH_CELL_NUMBER).getStringCellValue();
-                    String commutingBusSouthTime = nodeInfoRow.getCell(SOUTH_CELL_NUMBER).getStringCellValue();
-                    commutingBusNorthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusNorthTime));
-                    commutingBusSouthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusSouthTime));
+                        String commutingBusNorthTime = nodeInfoRow.getCell(NORTH_CELL_NUMBER).getStringCellValue();
+                        String commutingBusSouthTime = nodeInfoRow.getCell(SOUTH_CELL_NUMBER).getStringCellValue();
+                        commutingBusNorthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusNorthTime));
+                        commutingBusSouthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusSouthTime));
 
-                    if (nodeInfoName.contains(NODE_INFO_END_POINT)) {
-                        break;
+                        if (nodeInfoName.contains(NODE_INFO_END_POINT)) {
+                            break;
+                        }
                     }
                 }
 
                 List<RouteInfo> routeInfos = new ArrayList<>();
-                routeInfos.add(commutingBusNorthRouteInfo);
-                routeInfos.add(commutingBusSouthRouteInfo);
+                if (commutingBusDirection.isNotSouth()) routeInfos.add(commutingBusNorthRouteInfo);
+                if (commutingBusDirection.isNotNorth()) routeInfos.add(commutingBusSouthRouteInfo);
 
                 AdminCommutingBusResponse response = AdminCommutingBusResponse.of(
                     commutingBusRegion.getLabel(),
@@ -128,6 +155,13 @@ public class AdminCommutingBusExcelService {
         }
 
         return responses;
+    }
+
+    private BusDirection getCommutingBusDirection(Sheet sheet) {
+        Row subNameRow = sheet.getRow(BUS_DIRECTION_ROW_NUMBER);
+        Cell subNameCell = subNameRow.getCell(BUS_DIRECTION_CELL_NUMBER);
+        String busDirection = subNameCell.getStringCellValue();
+        return BusDirection.of(busDirection);
     }
 
     private String getCommutingBusSubName(Sheet sheet) {
