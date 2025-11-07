@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Admin) Commuting Bus: 등하교 버스", description = "어드민 등하교 버스 정보를 관리한다.")
@@ -25,6 +26,7 @@ public interface AdminCommutingBusApi {
         INVALID_NODE_INFO_START_POINT,
         INVALID_NODE_INFO_END_POINT,
     })
+    @Operation(summary = "등하교 버스 엑셀 파일을 업로드 한다.")
     @PostMapping("/admin/bus/commuting/excel")
     ResponseEntity<List<AdminCommutingBusResponse>> parseCommutingBusExcel(
         @RequestParam(name = "commuting_bus_excel_file") MultipartFile commutingBusExcelFile,
