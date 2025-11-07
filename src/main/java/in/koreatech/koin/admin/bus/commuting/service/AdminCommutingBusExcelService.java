@@ -53,7 +53,8 @@ public class AdminCommutingBusExcelService {
     private static final String NODE_INFO_START_POINT = "정거장";
     private static final String NODE_INFO_END_POINT = "대학(본교)";
 
-    public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws IOException {
+    public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws
+        IOException {
         List<AdminCommutingBusResponse> responses = new ArrayList<>();
 
         try (InputStream inputStream = commutingBusExcelFile.getInputStream();
@@ -65,7 +66,8 @@ public class AdminCommutingBusExcelService {
 
                 ShuttleRouteType shuttleRouteType = getShuttleRouteType(sheet);
                 if (shuttleRouteType.isNotCommuting()) {
-                    throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE, "shuttleRouteType: " + shuttleRouteType.name());
+                    throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE,
+                        "shuttleRouteType: " + shuttleRouteType.name());
                 }
 
                 String commutingBusRouteName = getCommutingBusRouteName(sheet);
@@ -138,8 +140,12 @@ public class AdminCommutingBusExcelService {
                 }
 
                 List<RouteInfo> routeInfos = new ArrayList<>();
-                if (commutingBusDirection.isNotSouth()) routeInfos.add(commutingBusNorthRouteInfo);
-                if (commutingBusDirection.isNotNorth()) routeInfos.add(commutingBusSouthRouteInfo);
+                if (commutingBusDirection.isNotSouth()) {
+                    routeInfos.add(commutingBusNorthRouteInfo);
+                }
+                if (commutingBusDirection.isNotNorth()) {
+                    routeInfos.add(commutingBusSouthRouteInfo);
+                }
 
                 AdminCommutingBusResponse response = AdminCommutingBusResponse.of(
                     commutingBusRegion.getLabel(),
