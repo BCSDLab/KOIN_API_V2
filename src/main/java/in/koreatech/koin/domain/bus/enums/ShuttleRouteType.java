@@ -1,12 +1,12 @@
 package in.koreatech.koin.domain.bus.enums;
 
-import in.koreatech.koin.domain.bus.exception.BusIllegalRouteTypeException;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import in.koreatech.koin.domain.bus.exception.BusIllegalRouteTypeException;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
@@ -26,6 +26,19 @@ public enum ShuttleRouteType {
             }
         }
         throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
+    }
+
+    public static ShuttleRouteType convertFrom(String label) {
+        for (var region : ShuttleRouteType.values()) {
+            if (region.getLabel().contains(label)) {
+                return region;
+            }
+        }
+        throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
+    }
+
+    public boolean isNotCommuting() {
+        return this == SHUTTLE || this == WEEKEND;
     }
 
     // Deprecated: 강제 업데이트 이후 삭제할 레거시 Bus

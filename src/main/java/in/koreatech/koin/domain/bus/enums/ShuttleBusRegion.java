@@ -32,4 +32,13 @@ public enum ShuttleBusRegion {
         }
         throw BusIllegalRegionException.withDetail("displayName: " + label);
     }
+
+    public static boolean isValid(String label) {
+        for (var region : ShuttleBusRegion.values()) {
+            if (region.getLabel().contains(label)) {
+                return true;
+            }
+        }
+        throw BusIllegalRegionException.withDetail("displayName: " + label);
+    }
 }
