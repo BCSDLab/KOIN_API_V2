@@ -71,19 +71,16 @@ public class AdminCommutingBusExcelService {
                 String commutingBusRouteName = getCommutingBusRouteName(sheet);
                 String commutingBusSubName = getCommutingBusSubName(sheet);
 
-                // node_info가 있는 행 찾기
                 int nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT);
                 if (nodeInfoStartRowIndex == -1) {
                     throw CustomException.of(INVALID_NODE_INFO_START_POINT);
                 }
 
-                // node_info가 끝나는 행 찾기
                 int nodeInfoEndRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_END_POINT);
                 if (nodeInfoEndRowIndex == -1) {
                     throw CustomException.of(INVALID_NODE_INFO_END_POINT);
                 }
 
-                // 등교, 하교 이름 찾기
                 Row commutingBusNameRow = sheet.getRow(nodeInfoStartRowIndex);
                 Cell commutingBusNorthNameCell = commutingBusNameRow.getCell(NORTH_CELL_NUMBER);
                 Cell commutingBusSouthNameCell = commutingBusNameRow.getCell(SOUTH_CELL_NUMBER);
