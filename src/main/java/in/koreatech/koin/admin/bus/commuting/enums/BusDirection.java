@@ -17,7 +17,7 @@ public enum BusDirection {
     }
 
     public static BusDirection of(String name) {
-        for (var direction : BusDirection.values()) {
+        for (BusDirection direction : BusDirection.values()) {
             if (direction.name().equals(name)) {
                 return direction;
             }
