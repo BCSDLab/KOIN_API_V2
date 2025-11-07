@@ -20,8 +20,8 @@ public class NodeInfos {
         Matcher matcher = NODE_INFO_NAME_PATTERN.matcher(nodeInfoName);
 
         if (matcher.matches()) {
-            String name = matcher.group(NODE_INFO_NAME_INDEX);
-            String detail = matcher.group(NODE_INFO_DETAIL_INDEX);
+            String name = matcher.group(NODE_INFO_NAME_INDEX).trim();
+            String detail = matcher.group(NODE_INFO_DETAIL_INDEX).trim();
             nodeInfos.add(new NodeInfo(name, detail));
         } else {
             nodeInfos.add(new NodeInfo(nodeInfoName, null));
