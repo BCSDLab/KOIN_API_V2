@@ -46,27 +46,22 @@ public class AdminCommutingBusExcelService {
     private static final String NODE_INFO_START_POINT = "node_info";
     private static final String NODE_INFO_END_POINT = "대학(본교)";
 
-    public AdminCommutingBusResponse parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws IOException {
-        ShuttleBusRegion commutingBusRegion = null;
-        ShuttleRouteType shuttleRouteType = null;
-        String commutingBusRouteName = "";
-        String commutingBusSubName = "";
-        NodeInfos nodeInfos = new NodeInfos();
-        List<RouteInfo> routeInfos = new ArrayList<>();
+    public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws IOException {
+        List<AdminCommutingBusResponse> responses = new ArrayList<>();
 
         try (InputStream inputStream = commutingBusExcelFile.getInputStream();
              Workbook workbook = WorkbookFactory.create(inputStream)
         ) {
             for (Sheet sheet : workbook) {
-                commutingBusRegion = getCommutingBusRegion(sheet);
+                ShuttleBusRegion commutingBusRegion = getCommutingBusRegion(sheet);
 
-                shuttleRouteType = getShuttleRouteType(sheet);
+                ShuttleRouteType shuttleRouteType = getShuttleRouteType(sheet);
                 if (shuttleRouteType.isNotCommuting()) {
                     throw new IllegalStateException();
                 }
 
-                commutingBusRouteName = getCommutingBusRouteName(sheet);
-                commutingBusSubName = getCommutingBusSubName(sheet);
+                String commutingBusRouteName = getCommutingBusRouteName(sheet);
+                String commutingBusSubName = getCommutingBusSubName(sheet);
 
                 // node_info가 있는 행 찾기
                 int nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT);
@@ -89,6 +84,7 @@ public class AdminCommutingBusExcelService {
 
                 RouteInfo commutingBusNorthRouteInfo = new RouteInfo(commutingBusNorthName);
                 RouteInfo commutingBusSouthRouteInfo = new RouteInfo(commutingBusSouthName);
+                NodeInfos nodeInfos = new NodeInfos();
 
                 for (int i = nodeInfoStartRowIndex + 1; i <= nodeInfoEndRowIndex; i++) {
                     Row nodeInfoRow = sheet.getRow(i);
@@ -114,19 +110,24 @@ public class AdminCommutingBusExcelService {
                     }
                 }
 
+                List<RouteInfo> routeInfos = new ArrayList<>();
                 routeInfos.add(commutingBusNorthRouteInfo);
                 routeInfos.add(commutingBusSouthRouteInfo);
+
+                AdminCommutingBusResponse response = AdminCommutingBusResponse.of(
+                    commutingBusRegion.getLabel(),
+                    shuttleRouteType.getLabel(),
+                    commutingBusRouteName,
+                    commutingBusSubName,
+                    nodeInfos.getNodeInfos(),
+                    routeInfos
+                );
+
+                responses.add(response);
             }
         }
 
-        return AdminCommutingBusResponse.of(
-            commutingBusRegion.getLabel(),
-            shuttleRouteType.getLabel(),
-            commutingBusRouteName,
-            commutingBusSubName,
-            nodeInfos.getNodeInfos(),
-            routeInfos
-        );
+        return responses;
     }
 
     private String getCommutingBusSubName(Sheet sheet) {

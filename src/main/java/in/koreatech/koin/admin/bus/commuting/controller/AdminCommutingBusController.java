@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.bus.commuting.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,11 +23,11 @@ public class AdminCommutingBusController implements AdminCommutingBusApi {
     private final AdminCommutingBusExcelService adminCommutingBusExcelService;
 
     @PostMapping("/admin/bus/commuting/excel")
-    public ResponseEntity<AdminCommutingBusResponse> parseCommutingBusExcel(
+    public ResponseEntity<List<AdminCommutingBusResponse>> parseCommutingBusExcel(
         @RequestParam(name = "commuting_bus_excel_file") MultipartFile commutingBusExcelFile,
         @Auth(permit = {ADMIN}) Integer adminId
     ) throws IOException {
-        AdminCommutingBusResponse response = adminCommutingBusExcelService.parseCommutingBusExcel(
+        List<AdminCommutingBusResponse> response = adminCommutingBusExcelService.parseCommutingBusExcel(
             commutingBusExcelFile);
         return ResponseEntity.ok(response);
     }
