@@ -33,10 +33,10 @@ public enum ShuttleBusRegion {
         throw BusIllegalRegionException.withDetail("displayName: " + label);
     }
 
-    public static boolean isValid(String name) {
+    public static ShuttleBusRegion of(String name) {
         for (var region : ShuttleBusRegion.values()) {
             if (region.name().equals(name)) {
-                return true;
+                return region;
             }
         }
         throw BusIllegalRegionException.withDetail("name: " + name);

@@ -47,7 +47,7 @@ public class AdminCommutingBusExcelService {
     private static final String NODE_INFO_END_POINT = "대학(본교)";
 
     public AdminCommutingBusResponse parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws IOException {
-        String commutingBusRegion = "";
+        ShuttleBusRegion commutingBusRegion = null;
         ShuttleRouteType shuttleRouteType = null;
         String commutingBusRouteName = "";
         String commutingBusSubName = "";
@@ -120,8 +120,8 @@ public class AdminCommutingBusExcelService {
         }
 
         return AdminCommutingBusResponse.of(
-            commutingBusRegion,
-            shuttleRouteType.name(),
+            commutingBusRegion.getLabel(),
+            shuttleRouteType.getLabel(),
             commutingBusRouteName,
             commutingBusSubName,
             nodeInfos.getNodeInfos(),
@@ -141,12 +141,11 @@ public class AdminCommutingBusExcelService {
         return routeNameCell.getStringCellValue();
     }
 
-    private String getCommutingBusRegion(Sheet sheet) {
+    private ShuttleBusRegion getCommutingBusRegion(Sheet sheet) {
         Row regionRow = sheet.getRow(REGION_ROW_NUMBER);
         Cell regionCell = regionRow.getCell(REGION_CELL_NUMBER);
         String region = regionCell.getStringCellValue();
-        ShuttleBusRegion.isValid(region);
-        return region;
+        return ShuttleBusRegion.of(region);
     }
 
     private ShuttleRouteType getShuttleRouteType(Sheet sheet) {
