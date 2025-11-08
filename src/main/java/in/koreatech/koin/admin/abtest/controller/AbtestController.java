@@ -149,8 +149,7 @@ public class AbtestController implements AbtestApi {
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
     ) {
-        AbtestAssignResponse response = abtestService.assignOrGetVariable(accessHistoryId, userAgentInfo, userId,
-            abtestAssignRequest);
+        AbtestAssignResponse response = abtestService.assignOrGetVariable(accessHistoryId, userAgentInfo, userId, abtestAssignRequest);
         return ResponseEntity.ok(response);
     }
 }
