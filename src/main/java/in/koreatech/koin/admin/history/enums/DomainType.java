@@ -29,7 +29,7 @@ public enum DomainType {
     COOP_SHOPS("생협 매장"),
 
     USERS("회원"),
-    STUDENTS("학생"),
+    STUDENT("학생"),
     OWNERS("사장님"),
     ADMINS("어드민"),
 
