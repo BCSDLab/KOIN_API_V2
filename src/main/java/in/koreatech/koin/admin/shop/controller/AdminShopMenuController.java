@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.shop.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.MENUS;
+import static in.koreatech.koin.admin.history.enums.DomainType.MENUS_CATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.shop.dto.menu.AdminCreateMenuCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.menu.AdminCreateMenuRequest;
 import in.koreatech.koin.admin.shop.dto.menu.AdminMenuCategoriesResponse;
@@ -61,6 +64,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
     }
 
     @PutMapping("/admin/shops/{shopId}/menus/categories")
+    @AdminActivityLogging(domain = MENUS_CATEGORIES)
     public ResponseEntity<Void> modifyMenuCategory(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @RequestBody @Valid AdminModifyMenuCategoryRequest request,
@@ -71,6 +75,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
     }
 
     @PutMapping("/admin/shops/{shopId}/menus/{menuId}")
+    @AdminActivityLogging(domain = MENUS, domainIdParam = "menuId")
     public ResponseEntity<Void> modifyMenu(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @Parameter(in = PATH) @PathVariable("menuId") Integer menuId,
@@ -82,6 +87,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
     }
 
     @PostMapping("/admin/shops/{id}/menus")
+    @AdminActivityLogging(domain = MENUS)
     public ResponseEntity<Void> createMenu(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @RequestBody @Valid AdminCreateMenuRequest request,
@@ -92,6 +98,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
     }
 
     @PostMapping("/admin/shops/{id}/menus/categories")
+    @AdminActivityLogging(domain = MENUS_CATEGORIES)
     public ResponseEntity<Void> createMenuCategory(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @RequestBody @Valid AdminCreateMenuCategoryRequest request,
@@ -102,6 +109,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
     }
 
     @DeleteMapping("/admin/shops/{shopId}/menus/categories/{categoryId}")
+    @AdminActivityLogging(domain = MENUS_CATEGORIES, domainIdParam = "categoryId")
     public ResponseEntity<Void> deleteMenuCategory(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @Parameter(in = PATH) @PathVariable("categoryId") Integer categoryId,
@@ -112,6 +120,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
     }
 
     @DeleteMapping("/admin/shops/{shopId}/menus/{menuId}")
+    @AdminActivityLogging(domain = MENUS, domainIdParam = "menuId")
     public ResponseEntity<Void> deleteMenu(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @Parameter(in = PATH) @PathVariable("menuId") Integer menuId,

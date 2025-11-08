@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.banner.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.BANNER_CATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
@@ -9,10 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerCategoryDescriptionModifyRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerCategoriesResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerCategoryResponse;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -51,6 +53,7 @@ public interface AdminBannerCategoryApi {
     )
     @Operation(summary = "특정 배너 카테고리 설명을 수정한다")
     @PatchMapping("/{id}")
+    @AdminActivityLogging(domain = BANNER_CATEGORIES, domainIdParam = "bannerCategoryId")
     ResponseEntity<AdminBannerCategoryResponse> modifyBannerCategoryDescription(
         @RequestBody @Valid AdminBannerCategoryDescriptionModifyRequest request,
         @PathVariable(name = "id") Integer bannerCategoryId,

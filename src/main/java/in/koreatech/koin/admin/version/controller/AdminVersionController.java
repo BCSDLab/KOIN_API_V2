@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.version.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.VERSIONS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.HttpStatus;
@@ -12,9 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.version.dto.AdminVersionHistoryResponse;
-import in.koreatech.koin.admin.version.dto.AdminVersionUpdateRequest;
 import in.koreatech.koin.admin.version.dto.AdminVersionResponse;
+import in.koreatech.koin.admin.version.dto.AdminVersionUpdateRequest;
 import in.koreatech.koin.admin.version.dto.AdminVersionsResponse;
 import in.koreatech.koin.admin.version.service.AdminVersionService;
 import in.koreatech.koin.global.auth.Auth;
@@ -46,6 +48,7 @@ public class AdminVersionController implements AdminVersionApi {
     }
 
     @PostMapping("/{type}")
+    @AdminActivityLogging(domain = VERSIONS)
     public ResponseEntity<Void> updateVersion(
         @PathVariable("type") String type,
         @RequestBody @Valid AdminVersionUpdateRequest adminVersionUpdateRequest,

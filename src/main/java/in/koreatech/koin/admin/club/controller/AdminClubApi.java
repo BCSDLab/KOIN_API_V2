@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.club.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.CLUBS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -15,10 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubCreateRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.AdminClubManagerDecideRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminPendingClubRequest;
@@ -26,6 +26,8 @@ import in.koreatech.koin.admin.club.dto.response.AdminClubManagersResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminPendingClubResponse;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -88,6 +90,7 @@ public interface AdminClubApi {
     )
     @Operation(summary = "동아리를 생성한다.")
     @PostMapping
+    @AdminActivityLogging(domain = CLUBS)
     ResponseEntity<Void> createClub(
         @RequestBody @Valid AdminClubCreateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -104,6 +107,7 @@ public interface AdminClubApi {
     )
     @Operation(summary = "특정 동아리를 수정한다.")
     @PutMapping("/{clubId}")
+    @AdminActivityLogging(domain = CLUBS, domainIdParam = "clubId")
     ResponseEntity<Void> modifyClub(
         @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
         @RequestBody @Valid AdminClubModifyRequest request,
@@ -121,6 +125,7 @@ public interface AdminClubApi {
     )
     @Operation(summary = "특정 동아리의 활성화 상태를 설정한다.")
     @PatchMapping("/{clubId}/active")
+    @AdminActivityLogging(domain = CLUBS, domainIdParam = "clubId")
     ResponseEntity<Void> changeActive(
         @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
         @RequestBody @Valid AdminClubActiveChangeRequest request,
@@ -154,6 +159,7 @@ public interface AdminClubApi {
     @Operation(summary = "미승인 동아리의 정보를 조회한다.")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/pending")
+    @AdminActivityLogging(domain = CLUBS)
     ResponseEntity<AdminPendingClubResponse> getPendingClub(
         @RequestBody @Valid AdminPendingClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -189,6 +195,7 @@ public interface AdminClubApi {
         """)
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/decision")
+    @AdminActivityLogging(domain = CLUBS)
     ResponseEntity<Void> decideClubAdmin(
         @RequestBody @Valid AdminClubManagerDecideRequest request,
         @Auth(permit = {ADMIN}) Integer adminId

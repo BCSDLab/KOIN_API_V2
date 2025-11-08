@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.land.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.LANDS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
@@ -11,17 +12,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.admin.land.dto.AdminLandResponse;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.land.dto.AdminLandRequest;
+import in.koreatech.koin.admin.land.dto.AdminLandResponse;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
-
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -56,6 +56,7 @@ public interface AdminLandApi {
     @Operation(summary = "복덕방 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/lands")
+    @AdminActivityLogging(domain = LANDS)
     ResponseEntity<AdminLandsResponse> postLands(
         @RequestBody @Valid AdminLandRequest adminLandRequest,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -72,6 +73,7 @@ public interface AdminLandApi {
     @Operation(summary = "복덕방 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/admin/lands/{id}")
+    @AdminActivityLogging(domain = LANDS, domainIdParam = "id")
     ResponseEntity<Void> deleteLand(
         @PathVariable("id") Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -104,6 +106,7 @@ public interface AdminLandApi {
     @Operation(summary = "복덕방 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/lands/{id}")
+    @AdminActivityLogging(domain = LANDS, domainIdParam = "id")
     ResponseEntity<Void> updateLand(
         @PathVariable("id") Integer id,
         @RequestBody @Valid AdminLandRequest request,
@@ -121,6 +124,7 @@ public interface AdminLandApi {
     @Operation(summary = "복덕방 삭제 취소")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/lands/{id}/undelete")
+    @AdminActivityLogging(domain = LANDS, domainIdParam = "id")
     ResponseEntity<Void> undeleteLand(
         @PathVariable("id") Integer id,
         @Auth(permit = {ADMIN}) Integer adminId

@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.shop.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.REVIEWS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.shop.dto.review.AdminModifyShopReviewReportStatusRequest;
 import in.koreatech.koin.admin.shop.dto.review.AdminShopsReviewsResponse;
 import in.koreatech.koin.global.auth.Auth;
@@ -55,6 +57,7 @@ public interface AdminShopReviewApi {
     )
     @Operation(summary = "리뷰 신고 상태 변경")
     @PutMapping("/admin/shops/reviews/{id}")
+    @AdminActivityLogging(domain = REVIEWS, domainIdParam = "id")
     ResponseEntity<Void> modifyReviewReportStatus(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminModifyShopReviewReportStatusRequest request,
@@ -71,6 +74,7 @@ public interface AdminShopReviewApi {
     )
     @Operation(summary = "리뷰 삭제")
     @DeleteMapping("/admin/shops/reviews/{id}")
+    @AdminActivityLogging(domain = REVIEWS, domainIdParam = "id")
     ResponseEntity<Void> deleteReview(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId

@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.member.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.TECH_STACKS;
+import static in.koreatech.koin.admin.history.enums.DomainType.TRACKS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackRequest;
@@ -39,6 +42,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @PostMapping("/admin/tracks")
+    @AdminActivityLogging(domain = TRACKS)
     public ResponseEntity<AdminTrackResponse> createTrack(
         @RequestBody @Valid AdminTrackRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -57,6 +61,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @PutMapping("/admin/tracks/{id}")
+    @AdminActivityLogging(domain = TRACKS, domainIdParam = "trackId")
     public ResponseEntity<AdminTrackResponse> updateTrack(
         @PathVariable("id") Integer trackId,
         @RequestBody @Valid AdminTrackRequest request,
@@ -67,6 +72,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @DeleteMapping("/admin/tracks/{id}")
+    @AdminActivityLogging(domain = TRACKS, domainIdParam = "trackId")
     public ResponseEntity<Void> deleteTrack(
         @PathVariable("id") Integer trackId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -76,6 +82,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @PostMapping("/admin/techStacks")
+    @AdminActivityLogging(domain = TECH_STACKS)
     public ResponseEntity<AdminTechStackResponse> createTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam String trackName,
@@ -86,6 +93,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @PutMapping("/admin/techStacks/{id}")
+    @AdminActivityLogging(domain = TECH_STACKS, domainIdParam = "techStackId")
     public ResponseEntity<AdminTechStackResponse> updateTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam String trackName,
@@ -97,6 +105,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @DeleteMapping("/admin/techStacks/{id}")
+    @AdminActivityLogging(domain = TECH_STACKS, domainIdParam = "techStackId")
     public ResponseEntity<Void> deleteTechStack(
         @PathVariable("id") Integer techStackId,
         @Auth(permit = {ADMIN}) Integer adminId
