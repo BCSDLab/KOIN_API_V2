@@ -66,6 +66,9 @@ public class AdminCommutingBusExcelMetaDataExtractor {
     }
 
     private String getCellValueAsString(Row row, int cellNumber) {
+        if (row == null) {
+            return "";
+        }
         Cell cell = row.getCell(cellNumber);
         return cell != null ? cell.getStringCellValue() : "";
     }
