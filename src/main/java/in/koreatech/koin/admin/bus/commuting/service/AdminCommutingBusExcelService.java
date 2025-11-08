@@ -20,31 +20,17 @@ import org.springframework.web.multipart.MultipartFile;
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
 import in.koreatech.koin.admin.bus.commuting.enums.BusDirection;
 import in.koreatech.koin.admin.bus.commuting.model.ArrivalTime;
+import in.koreatech.koin.admin.bus.commuting.model.CommutingBusExcelMetaData;
 import in.koreatech.koin.admin.bus.commuting.model.NodeInfos;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
-import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
-import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.global.exception.CustomException;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class AdminCommutingBusExcelService {
 
     private static final Integer MAX_EXCEL_ROW_NUMBER = 30;
-
-    private static final Integer BUS_DIRECTION_ROW_NUMBER = 0;
-    private static final Integer BUS_DIRECTION_CELL_NUMBER = 1;
-
-    private static final Integer REGION_ROW_NUMBER = 1;
-    private static final Integer REGION_CELL_NUMBER = 1;
-
-    private static final Integer ROUTE_TYPE_ROW_NUMBER = 2;
-    private static final Integer ROUTE_TYPE_CELL_NUMBER = 1;
-
-    private static final Integer ROUTE_NAME_ROW_NUMBER = 3;
-    private static final Integer ROUTE_NAME_CELL_NUMBER = 1;
-
-    private static final Integer SUB_NAME_ROW_NUMBER = 4;
-    private static final Integer SUB_NAME_CELL_NUMBER = 1;
 
     private static final Integer NORTH_CELL_NUMBER = 1;
     private static final Integer SOUTH_CELL_NUMBER = 2;
@@ -53,6 +39,8 @@ public class AdminCommutingBusExcelService {
 
     private static final String NODE_INFO_START_POINT = "정거장";
     private static final String NODE_INFO_END_POINT = "대학(본교)";
+
+    private final AdminCommutingBusExcelMetaDataExtractor commutingBusExcelMetaDataExtractor;
 
     public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws
         IOException {
@@ -71,17 +59,11 @@ public class AdminCommutingBusExcelService {
     }
 
     private AdminCommutingBusResponse parseSheet(Sheet sheet) {
-        BusDirection commutingBusDirection = getCommutingBusDirection(sheet);
-        ShuttleBusRegion commutingBusRegion = getCommutingBusRegion(sheet);
-
-        ShuttleRouteType shuttleRouteType = getShuttleRouteType(sheet);
-        if (shuttleRouteType.isNotCommuting()) {
+        CommutingBusExcelMetaData commutingBusExcelMetaData = commutingBusExcelMetaDataExtractor.extract(sheet);
+        if (commutingBusExcelMetaData.routeType().isNotCommuting()) {
             throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE,
-                "shuttleRouteType: " + shuttleRouteType.name());
+                "shuttleRouteType: " + commutingBusExcelMetaData.routeType().name());
         }
-
-        String commutingBusRouteName = getCommutingBusRouteName(sheet);
-        String commutingBusSubName = getCommutingBusSubName(sheet);
 
         int nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT)
             .orElseThrow(() -> CustomException.of(INVALID_NODE_INFO_START_POINT));
@@ -97,22 +79,22 @@ public class AdminCommutingBusExcelService {
         RouteInfo commutingBusSouthRouteInfo = new RouteInfo(commutingBusSouthName);
         NodeInfos nodeInfos = new NodeInfos();
 
-        readNodeInfoRow(sheet, nodeInfoStartRowIndex, nodeInfoEndRowIndex, commutingBusDirection, nodeInfos,
+        readNodeInfoRow(sheet, nodeInfoStartRowIndex, nodeInfoEndRowIndex, commutingBusExcelMetaData.busDirection(), nodeInfos,
             commutingBusNorthRouteInfo, commutingBusSouthRouteInfo);
 
         List<RouteInfo> routeInfos = new ArrayList<>();
-        if (commutingBusDirection.isNotSouth()) {
+        if (commutingBusExcelMetaData.busDirection().isNotSouth()) {
             routeInfos.add(commutingBusNorthRouteInfo);
         }
-        if (commutingBusDirection.isNotNorth()) {
+        if (commutingBusExcelMetaData.busDirection().isNotNorth()) {
             routeInfos.add(commutingBusSouthRouteInfo);
         }
 
         return AdminCommutingBusResponse.of(
-            commutingBusRegion.getLabel(),
-            shuttleRouteType.getLabel(),
-            commutingBusRouteName,
-            commutingBusSubName,
+            commutingBusExcelMetaData.busRegion().getLabel(),
+            commutingBusExcelMetaData.routeType().getLabel(),
+            commutingBusExcelMetaData.routeName(),
+            commutingBusExcelMetaData.routeSubName(),
             nodeInfos.getNodeInfos(),
             routeInfos
         );
@@ -168,34 +150,6 @@ public class AdminCommutingBusExcelService {
             range.add(index);
         }
         return range;
-    }
-
-    private BusDirection getCommutingBusDirection(Sheet sheet) {
-        Row subNameRow = sheet.getRow(BUS_DIRECTION_ROW_NUMBER);
-        String busDirection = getCellValueAsString(subNameRow, BUS_DIRECTION_CELL_NUMBER);
-        return BusDirection.of(busDirection);
-    }
-
-    private String getCommutingBusSubName(Sheet sheet) {
-        Row subNameRow = sheet.getRow(SUB_NAME_ROW_NUMBER);
-        return getCellValueAsString(subNameRow, SUB_NAME_CELL_NUMBER);
-    }
-
-    private String getCommutingBusRouteName(Sheet sheet) {
-        Row routeNameRow = sheet.getRow(ROUTE_NAME_ROW_NUMBER);
-        return getCellValueAsString(routeNameRow, ROUTE_NAME_CELL_NUMBER);
-    }
-
-    private ShuttleBusRegion getCommutingBusRegion(Sheet sheet) {
-        Row regionRow = sheet.getRow(REGION_ROW_NUMBER);
-        String region = getCellValueAsString(regionRow, REGION_CELL_NUMBER);
-        return ShuttleBusRegion.of(region);
-    }
-
-    private ShuttleRouteType getShuttleRouteType(Sheet sheet) {
-        Row routeTypeRow = sheet.getRow(ROUTE_TYPE_ROW_NUMBER);
-        String routeType = getCellValueAsString(routeTypeRow, ROUTE_TYPE_CELL_NUMBER);
-        return ShuttleRouteType.of(routeType);
     }
 
     private Optional<Integer> findNodeInfoRowIndexByPoint(Sheet sheet, String point) {
