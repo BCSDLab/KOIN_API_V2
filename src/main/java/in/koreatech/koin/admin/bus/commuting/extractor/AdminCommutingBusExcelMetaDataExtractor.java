@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.commuting.service;
+package in.koreatech.koin.admin.bus.commuting.extractor;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;

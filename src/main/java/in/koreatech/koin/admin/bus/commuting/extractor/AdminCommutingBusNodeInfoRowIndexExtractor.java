@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.commuting.service;
+package in.koreatech.koin.admin.bus.commuting.extractor;
 
 import java.util.Optional;
 
