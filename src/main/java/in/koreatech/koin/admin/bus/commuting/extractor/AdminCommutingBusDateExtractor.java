@@ -1,18 +1,19 @@
 package in.koreatech.koin.admin.bus.commuting.extractor;
 
+import static in.koreatech.koin.admin.bus.commuting.util.ExcelCellValueExtractor.getCellValueAsString;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.admin.bus.commuting.enums.BusDirection;
 import in.koreatech.koin.admin.bus.commuting.model.ArrivalTime;
-import in.koreatech.koin.admin.bus.commuting.model.CommutingBusNodeInfoRowIndex;
 import in.koreatech.koin.admin.bus.commuting.model.CommutingBusData;
+import in.koreatech.koin.admin.bus.commuting.model.CommutingBusNodeInfoRowIndex;
 import in.koreatech.koin.admin.bus.commuting.model.NodeInfos;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfos;
@@ -119,14 +120,6 @@ public class AdminCommutingBusDateExtractor {
             range.add(i);
         }
         return range;
-    }
-
-    private String getCellValueAsString(Row row, int cellNumber) {
-        if (row == null) {
-            return "";
-        }
-        Cell cell = row.getCell(cellNumber);
-        return cell != null ? cell.getStringCellValue() : "";
     }
 }
 

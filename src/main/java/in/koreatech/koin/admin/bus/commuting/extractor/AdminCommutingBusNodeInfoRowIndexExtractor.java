@@ -1,9 +1,10 @@
 package in.koreatech.koin.admin.bus.commuting.extractor;
 
+import static in.koreatech.koin.admin.bus.commuting.util.ExcelCellValueExtractor.getCellValueAsString;
+
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Component;
@@ -36,13 +37,5 @@ public class AdminCommutingBusNodeInfoRowIndexExtractor {
             }
         }
         return Optional.empty();
-    }
-
-    private String getCellValueAsString(Row row, int cellNumber) {
-        if (row == null) {
-            return "";
-        }
-        Cell cell = row.getCell(cellNumber);
-        return cell != null ? cell.getStringCellValue() : "";
     }
 }

@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.bus.commuting.extractor;
 
-import org.apache.poi.ss.usermodel.Cell;
+import static in.koreatech.koin.admin.bus.commuting.util.ExcelCellValueExtractor.getCellValueAsString;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Component;
@@ -63,13 +64,5 @@ public class AdminCommutingBusExcelMetaDataExtractor {
     private String parseSubName(Sheet sheet) {
         Row subNameRow = sheet.getRow(SUB_NAME_ROW_NUMBER);
         return getCellValueAsString(subNameRow, SUB_NAME_CELL_NUMBER);
-    }
-
-    private String getCellValueAsString(Row row, int cellNumber) {
-        if (row == null) {
-            return "";
-        }
-        Cell cell = row.getCell(cellNumber);
-        return cell != null ? cell.getStringCellValue() : "";
     }
 }
