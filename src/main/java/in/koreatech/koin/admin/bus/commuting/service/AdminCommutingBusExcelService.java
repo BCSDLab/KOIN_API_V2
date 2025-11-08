@@ -5,9 +5,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -15,12 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
-import in.koreatech.koin.admin.bus.commuting.enums.BusDirection;
-import in.koreatech.koin.admin.bus.commuting.model.ArrivalTime;
+import in.koreatech.koin.admin.bus.commuting.model.CommutingBusData;
 import in.koreatech.koin.admin.bus.commuting.model.CommutingBusExcelMetaData;
 import in.koreatech.koin.admin.bus.commuting.model.CommutingBusNodeInfoRowIndex;
-import in.koreatech.koin.admin.bus.commuting.model.NodeInfos;
-import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfos;
 import lombok.RequiredArgsConstructor;
 
@@ -28,16 +22,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminCommutingBusExcelService {
 
-    private static final Integer NORTH_CELL_NUMBER = 1;
-    private static final Integer SOUTH_CELL_NUMBER = 2;
-
-    private static final Integer NODE_INFO_NAME_CELL_NUMBER = 0;
-
-    private static final String NODE_INFO_END_POINT = "대학(본교)";
-
-    private final AdminCommutingBusExcelMetaDataExtractor commutingBusExcelMetaDataExtractor;
+    private final AdminCommutingBusExcelMetaDataExtractor excelMetaDataExtractor;
     private final AdminCommutingBusNodeInfoRowIndexExtractor nodeInfoRowIndexExtractor;
-    private final AdminCommutingBusNodeInfoExtractor nodeInfoExtractor;
+    private final AdminCommutingBusRouteInfoExtractor routeInfoExtractor;
+    private final AdminCommutingBusDateExtractor commutingBusDateExtractor;
 
     public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws
         IOException {
@@ -56,93 +44,23 @@ public class AdminCommutingBusExcelService {
     }
 
     private AdminCommutingBusResponse parseSheet(Sheet sheet) {
-        CommutingBusExcelMetaData commutingBusExcelMetaData = commutingBusExcelMetaDataExtractor.extract(sheet);
-        CommutingBusNodeInfoRowIndex commutingBusNodeInfoRowIndex = nodeInfoRowIndexExtractor.extract(sheet);
-        RouteInfos routeInfos = nodeInfoExtractor.extract(sheet, commutingBusNodeInfoRowIndex.startRowIndex());
-        NodeInfos nodeInfos = new NodeInfos();
-
-        readNodeInfoRow(
+        CommutingBusExcelMetaData excelMetaData = excelMetaDataExtractor.extract(sheet);
+        CommutingBusNodeInfoRowIndex nodeInfoRowIndex = nodeInfoRowIndexExtractor.extract(sheet);
+        RouteInfos routeInfos = routeInfoExtractor.extract(sheet, nodeInfoRowIndex.startRowIndex());
+        CommutingBusData commutingBusData = commutingBusDateExtractor.extract(
             sheet,
-            commutingBusNodeInfoRowIndex.startRowIndex(),
-            commutingBusNodeInfoRowIndex.endRowIndex(),
-            commutingBusExcelMetaData.busDirection(),
-            nodeInfos,
-            routeInfos.northRouteInfo(),
-            routeInfos.southRouteInfo()
+            routeInfos,
+            nodeInfoRowIndex,
+            excelMetaData.busDirection()
         );
-
-        List<RouteInfo> selectedRouteInfos = new ArrayList<>();
-        if (commutingBusExcelMetaData.busDirection().isNotSouth()) {
-            selectedRouteInfos.add(routeInfos.northRouteInfo());
-        }
-        if (commutingBusExcelMetaData.busDirection().isNotNorth()) {
-            selectedRouteInfos.add(routeInfos.northRouteInfo());
-        }
 
         return AdminCommutingBusResponse.of(
-            commutingBusExcelMetaData.busRegion().getLabel(),
-            commutingBusExcelMetaData.routeType().getLabel(),
-            commutingBusExcelMetaData.routeName(),
-            commutingBusExcelMetaData.routeSubName(),
-            nodeInfos.getNodeInfos(),
-            selectedRouteInfos
+            excelMetaData.busRegion().getLabel(),
+            excelMetaData.routeType().getLabel(),
+            excelMetaData.routeName(),
+            excelMetaData.routeSubName(),
+            commutingBusData.nodeInfos().getNodeInfos(),
+            commutingBusData.routeInfos()
         );
-    }
-
-    private void readNodeInfoRow(
-        Sheet sheet,
-        int startRowIndex,
-        int endRowIndex,
-        BusDirection busDirection,
-        NodeInfos nodeInfos,
-        RouteInfo northRouteInfo,
-        RouteInfo southRouteInfo
-    ) {
-        List<Integer> range = busDirection.isSouth() ? getSouthBusNodeInfoRowRange(startRowIndex, endRowIndex) :
-            getNotSouthBusNodeInfoRowRange(startRowIndex, endRowIndex);
-
-        for (int index : range) {
-            Row nodeInfoRow = sheet.getRow(index);
-            if (nodeInfoRow == null) {
-                continue;
-            }
-
-            String nodeInfoName = getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER);
-            if (StringUtils.isBlank(nodeInfoName)) {
-                continue;
-            }
-
-            nodeInfos.addNodeInfo(nodeInfoName);
-
-            String northTime = getCellValueAsString(nodeInfoRow, NORTH_CELL_NUMBER);
-            String southTime = getCellValueAsString(nodeInfoRow, SOUTH_CELL_NUMBER);
-            northRouteInfo.addArrivalTime(new ArrivalTime(northTime));
-            southRouteInfo.addArrivalTime(new ArrivalTime(southTime));
-
-            if (busDirection.isNotSouth() && nodeInfoName.contains(NODE_INFO_END_POINT)) {
-                break;
-            }
-        }
-    }
-
-    private List<Integer> getSouthBusNodeInfoRowRange(int start, int end) {
-        List<Integer> range = new ArrayList<>();
-        for (int index = start; index > end; index--) {
-            range.add(index);
-        }
-        return range;
-    }
-
-    private List<Integer> getNotSouthBusNodeInfoRowRange(int start, int end) {
-        List<Integer> range = new ArrayList<>();
-        for (int index = start; index <= end; index++) {
-            range.add(index);
-        }
-        return range;
-    }
-
-    private String getCellValueAsString(Row row, int cellNumber) {
-        Cell cell = row.getCell(cellNumber);
-        return cell != null ? cell.getStringCellValue() : "";
     }
 }

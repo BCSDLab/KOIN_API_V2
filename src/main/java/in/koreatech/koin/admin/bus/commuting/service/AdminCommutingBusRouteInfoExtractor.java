@@ -9,7 +9,7 @@ import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfos;
 
 @Component
-public class AdminCommutingBusNodeInfoExtractor {
+public class AdminCommutingBusRouteInfoExtractor {
 
     private static final Integer NORTH_CELL_NUMBER = 1;
     private static final Integer SOUTH_CELL_NUMBER = 2;
