@@ -38,7 +38,7 @@ public enum DomainType {
 
     CLUBS("동아리"),
 
-    KEYWORDS("키워드"),
+    KEYWORDS_NOTIFICATION("키워드 알림"),
 
     LOST_ITEMS("분실물")
     ;

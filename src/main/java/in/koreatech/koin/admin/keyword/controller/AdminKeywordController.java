@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.keyword.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.KEYWORDS;
+import static in.koreatech.koin.admin.history.enums.DomainType.KEYWORDS_NOTIFICATION;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class AdminKeywordController implements AdminKeywordApi {
     private final AdminKeywordService adminKeywordService;
 
     @PostMapping("/filter")
-    @AdminActivityLogging(domain = KEYWORDS)
+    @AdminActivityLogging(domain = KEYWORDS_NOTIFICATION)
     public ResponseEntity<Void> toggleKeywordFilter(
         @Valid @RequestBody AdminKeywordFilterRequest request,
         @Auth(permit = {ADMIN}) Integer adminId

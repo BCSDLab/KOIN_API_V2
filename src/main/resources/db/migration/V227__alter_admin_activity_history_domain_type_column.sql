@@ -13,8 +13,9 @@ SET domain_name = CASE domain_name
                       WHEN 'OWNER' THEN 'OWNERS'
                       WHEN 'ADMIN' THEN 'ADMINS'
                       WHEN 'CLUB' THEN 'CLUBS'
+                      WHEN 'KEYWORDS' THEN 'KEYWORDS_NOTIFICATION'
                       ELSE domain_name
     END
 WHERE domain_name IN ('TECHSTACKS', 'NOTICE', 'VERSION', 'BENEFIT', 'BENEFITCATEGORIES',
                       'SHOPSCATEGORIES', 'MENUSCATEGORIES', 'ABTEST', 'COOPSHOP',
-                      'STUDENT', 'OWNER', 'ADMIN', 'CLUB');
+                      'STUDENT', 'OWNER', 'ADMIN', 'CLUB', 'KEYWORDS');
