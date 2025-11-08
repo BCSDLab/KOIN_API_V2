@@ -1,12 +1,11 @@
 package in.koreatech.koin.admin.bus.commuting.service;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SHUTTLE_ROUTE_TYPE;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -21,6 +20,7 @@ import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
 import in.koreatech.koin.admin.bus.commuting.enums.BusDirection;
 import in.koreatech.koin.admin.bus.commuting.model.ArrivalTime;
 import in.koreatech.koin.admin.bus.commuting.model.CommutingBusExcelMetaData;
+import in.koreatech.koin.admin.bus.commuting.model.CommutingBusNodeInfoRowIndex;
 import in.koreatech.koin.admin.bus.commuting.model.NodeInfos;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
 import in.koreatech.koin.global.exception.CustomException;
@@ -30,17 +30,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminCommutingBusExcelService {
 
-    private static final Integer MAX_EXCEL_ROW_NUMBER = 30;
-
     private static final Integer NORTH_CELL_NUMBER = 1;
     private static final Integer SOUTH_CELL_NUMBER = 2;
 
     private static final Integer NODE_INFO_NAME_CELL_NUMBER = 0;
 
-    private static final String NODE_INFO_START_POINT = "정거장";
     private static final String NODE_INFO_END_POINT = "대학(본교)";
 
     private final AdminCommutingBusExcelMetaDataExtractor commutingBusExcelMetaDataExtractor;
+    private final AdminCommutingBusNodeInfoRowIndexExtractor nodeInfoRowIndexExtractor;
 
     public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws
         IOException {
@@ -65,13 +63,9 @@ public class AdminCommutingBusExcelService {
                 "shuttleRouteType: " + commutingBusExcelMetaData.routeType().name());
         }
 
-        int nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT)
-            .orElseThrow(() -> CustomException.of(INVALID_NODE_INFO_START_POINT));
+        CommutingBusNodeInfoRowIndex commutingBusNodeInfoRowIndex = nodeInfoRowIndexExtractor.extract(sheet);
 
-        int nodeInfoEndRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_END_POINT)
-            .orElseThrow(() -> CustomException.of(INVALID_NODE_INFO_END_POINT));
-
-        Row commutingBusNameRow = sheet.getRow(nodeInfoStartRowIndex);
+        Row commutingBusNameRow = sheet.getRow(commutingBusNodeInfoRowIndex.startRowIndex());
         String commutingBusNorthName = getCellValueAsString(commutingBusNameRow, NORTH_CELL_NUMBER);
         String commutingBusSouthName = getCellValueAsString(commutingBusNameRow, SOUTH_CELL_NUMBER);
 
@@ -79,8 +73,14 @@ public class AdminCommutingBusExcelService {
         RouteInfo commutingBusSouthRouteInfo = new RouteInfo(commutingBusSouthName);
         NodeInfos nodeInfos = new NodeInfos();
 
-        readNodeInfoRow(sheet, nodeInfoStartRowIndex, nodeInfoEndRowIndex, commutingBusExcelMetaData.busDirection(), nodeInfos,
-            commutingBusNorthRouteInfo, commutingBusSouthRouteInfo);
+        readNodeInfoRow(
+            sheet,
+            commutingBusNodeInfoRowIndex.startRowIndex(),
+            commutingBusNodeInfoRowIndex.endRowIndex(),
+            commutingBusExcelMetaData.busDirection(),
+            nodeInfos,
+            commutingBusNorthRouteInfo, commutingBusSouthRouteInfo
+        );
 
         List<RouteInfo> routeInfos = new ArrayList<>();
         if (commutingBusExcelMetaData.busDirection().isNotSouth()) {
@@ -150,20 +150,6 @@ public class AdminCommutingBusExcelService {
             range.add(index);
         }
         return range;
-    }
-
-    private Optional<Integer> findNodeInfoRowIndexByPoint(Sheet sheet, String point) {
-        for (int index = 0; index <= MAX_EXCEL_ROW_NUMBER; index++) {
-            Row row = sheet.getRow(index);
-            if (row == null) {
-                continue;
-            }
-
-            if (StringUtils.equals(getCellValueAsString(row, 0), point)) {
-                return Optional.of(index);
-            }
-        }
-        return Optional.empty();
     }
 
     private String getCellValueAsString(Row row, int cellNumber) {
