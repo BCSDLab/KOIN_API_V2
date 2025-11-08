@@ -23,7 +23,7 @@ public enum DomainType {
 
     REVIEWS("리뷰"),
 
-    ABTESTS("AB 테스트"),
+    ABTEST("AB 테스트"),
 
     LANDS("복덕방"),
     COOP_SHOPS("생협 매장"),
