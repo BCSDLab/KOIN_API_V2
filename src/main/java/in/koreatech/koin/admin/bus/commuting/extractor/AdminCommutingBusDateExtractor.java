@@ -62,6 +62,7 @@ public class AdminCommutingBusDateExtractor {
         RouteInfo northRouteInfo,
         RouteInfo southRouteInfo
     ) {
+        // 하교의 경우 엑셀을 역순으로 읽어야하기 때문에, 조건문 추가
         List<Integer> rowRange = busDirection.isSouth()
             ? getDescendingRowRange(endRowIndex, startRowIndex)
             : getAscendingRowRange(startRowIndex + 1, endRowIndex);
@@ -90,6 +91,7 @@ public class AdminCommutingBusDateExtractor {
         }
     }
 
+    // 하교의 경우 하교 데이터만 들어가야하기 때문에 분기처리
     private List<RouteInfo> filterRouteInfosByDirection(
         BusDirection busDirection,
         RouteInfos routeInfos
