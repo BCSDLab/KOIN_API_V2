@@ -15,7 +15,7 @@ public class RouteInfo {
     }
 
     public static RouteInfo of(String name) {
-        RouteInfo routeInfo = new RouteInfo(name);
+        return new RouteInfo(name);
     }
 
     public void addArrivalTime(ArrivalTime arrivalTime) {
