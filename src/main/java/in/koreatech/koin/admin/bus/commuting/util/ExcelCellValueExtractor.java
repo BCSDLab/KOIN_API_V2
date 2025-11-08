@@ -11,10 +11,10 @@ public final class ExcelCellValueExtractor {
 
     public static String getCellValueAsString(Row row, int cellNumber) {
         if (row == null) {
-            return "";
+            return null;
         }
         Cell cell = row.getCell(cellNumber);
-        return cell != null ? cell.getStringCellValue() : "";
+        return cell != null ? cell.getStringCellValue() : null;
     }
 }
 
