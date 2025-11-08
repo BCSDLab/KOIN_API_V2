@@ -1,7 +1,7 @@
 package in.koreatech.koin.admin.benefit.controller;
 
 import static in.koreatech.koin.admin.history.enums.DomainType.BENEFIT;
-import static in.koreatech.koin.admin.history.enums.DomainType.BENEFIT_CATEGORIES;
+import static in.koreatech.koin.admin.history.enums.DomainType.BENEFITCATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.HttpStatus;
@@ -48,7 +48,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @PostMapping("/categories")
-    @AdminActivityLogging(domain = BENEFIT_CATEGORIES)
+    @AdminActivityLogging(domain = BENEFITCATEGORIES)
     public ResponseEntity<AdminCreateBenefitCategoryResponse> createBenefitCategory(
         @RequestBody AdminCreateBenefitCategoryRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -58,7 +58,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @PutMapping("/categories/{id}")
-    @AdminActivityLogging(domain = BENEFIT_CATEGORIES, domainIdParam = "categoryId")
+    @AdminActivityLogging(domain = BENEFITCATEGORIES, domainIdParam = "categoryId")
     public ResponseEntity<AdminModifyBenefitCategoryResponse> modifyBenefitCategory(
         @PathVariable("id") Integer categoryId,
         @RequestBody AdminModifyBenefitCategoryRequest request,
@@ -69,7 +69,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @DeleteMapping("/categories/{id}")
-    @AdminActivityLogging(domain = BENEFIT_CATEGORIES, domainIdParam = "categoryId")
+    @AdminActivityLogging(domain = BENEFITCATEGORIES, domainIdParam = "categoryId")
     public ResponseEntity<Void> deleteBenefitCategory(
         @PathVariable("id") Integer categoryId,
         @Auth(permit = {ADMIN}) Integer adminId
