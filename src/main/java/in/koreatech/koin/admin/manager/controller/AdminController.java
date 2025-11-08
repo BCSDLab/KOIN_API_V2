@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.manager.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;

@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.manager.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
-import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.manager.dto.request.AdminLoginRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPasswordChangeRequest;
