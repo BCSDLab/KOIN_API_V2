@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum DomainType {
     MEMBERS("BCSDLAB 회원"),
     TRACKS("트랙"),
-    TECH_STACKS("기술 스택"),
+    TECHSTACKS("기술 스택"),
     NOTICES("코인 공지"),
     VERSIONS("버전관리"),
 

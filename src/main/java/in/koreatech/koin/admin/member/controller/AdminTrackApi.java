@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.member.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.TECH_STACKS;
+import static in.koreatech.koin.admin.history.enums.DomainType.TECHSTACKS;
 import static in.koreatech.koin.admin.history.enums.DomainType.TRACKS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
@@ -130,7 +130,7 @@ public interface AdminTrackApi {
     @Operation(summary = "기술스택 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/techStacks")
-    @AdminActivityLogging(domain = TECH_STACKS)
+    @AdminActivityLogging(domain = TECHSTACKS)
     ResponseEntity<AdminTechStackResponse> createTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam(value = "trackName") String trackName,
@@ -148,7 +148,7 @@ public interface AdminTrackApi {
     @Operation(summary = "기술스택 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/techStacks/{id}")
-    @AdminActivityLogging(domain = TECH_STACKS, domainIdParam = "techStackId")
+    @AdminActivityLogging(domain = TECHSTACKS, domainIdParam = "techStackId")
     ResponseEntity<AdminTechStackResponse> updateTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam(value = "trackName") String trackName,
@@ -167,7 +167,7 @@ public interface AdminTrackApi {
     @Operation(summary = "기술스택 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/admin/techStacks/{id}")
-    @AdminActivityLogging(domain = TECH_STACKS, domainIdParam = "techStackId")
+    @AdminActivityLogging(domain = TECHSTACKS, domainIdParam = "techStackId")
     ResponseEntity<Void> deleteTechStack(
         @PathVariable("id") Integer techStackId,
         @Auth(permit = {ADMIN}) Integer adminId
