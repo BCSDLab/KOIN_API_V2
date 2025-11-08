@@ -7,7 +7,7 @@ public enum DomainType {
     MEMBERS("BCSDLAB 회원"),
     TRACKS("트랙"),
     TECHSTACKS("기술 스택"),
-    NOTICES("코인 공지"),
+    NOTICE("코인 공지"),
     VERSIONS("버전관리"),
 
     CATEGORIES("카테고리"),

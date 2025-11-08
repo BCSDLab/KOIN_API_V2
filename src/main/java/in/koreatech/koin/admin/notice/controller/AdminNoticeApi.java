@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.notice.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.NOTICES;
+import static in.koreatech.koin.admin.history.enums.DomainType.NOTICE;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -74,7 +74,7 @@ public interface AdminNoticeApi {
     )
     @Operation(summary = "공지사항 생성")
     @PostMapping
-    @AdminActivityLogging(domain = NOTICES)
+    @AdminActivityLogging(domain = NOTICE)
     ResponseEntity<Void> createNotice(
         @RequestBody @Valid AdminNoticeRequest adminNoticeRequest,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -89,7 +89,7 @@ public interface AdminNoticeApi {
     )
     @Operation(summary = "특정 공지사항 삭제")
     @DeleteMapping("/{id}")
-    @AdminActivityLogging(domain = NOTICES, domainIdParam = "id")
+    @AdminActivityLogging(domain = NOTICE, domainIdParam = "id")
     ResponseEntity<Void> deleteNotice(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -105,7 +105,7 @@ public interface AdminNoticeApi {
     )
     @Operation(summary = "특정 공지사항 수정")
     @PutMapping("/{id}")
-    @AdminActivityLogging(domain = NOTICES, domainIdParam = "noticeId")
+    @AdminActivityLogging(domain = NOTICE, domainIdParam = "noticeId")
     ResponseEntity<Void> updateNotice(
         @PathVariable("id") Integer noticeId,
         @RequestBody @Valid AdminNoticeRequest request,
