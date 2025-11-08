@@ -90,10 +90,8 @@ public class AdminCommutingBusExcelService {
             .orElseThrow(() -> CustomException.of(INVALID_NODE_INFO_END_POINT));
 
         Row commutingBusNameRow = sheet.getRow(nodeInfoStartRowIndex);
-        Cell commutingBusNorthNameCell = commutingBusNameRow.getCell(NORTH_CELL_NUMBER);
-        Cell commutingBusSouthNameCell = commutingBusNameRow.getCell(SOUTH_CELL_NUMBER);
-        String commutingBusNorthName = commutingBusNorthNameCell.getStringCellValue();
-        String commutingBusSouthName = commutingBusSouthNameCell.getStringCellValue();
+        String commutingBusNorthName = getCellValueAsString(commutingBusNameRow, NORTH_CELL_NUMBER);
+        String commutingBusSouthName = getCellValueAsString(commutingBusNameRow, SOUTH_CELL_NUMBER);
 
         RouteInfo commutingBusNorthRouteInfo = new RouteInfo(commutingBusNorthName);
         RouteInfo commutingBusSouthRouteInfo = new RouteInfo(commutingBusSouthName);
@@ -106,8 +104,7 @@ public class AdminCommutingBusExcelService {
                     continue;
                 }
 
-                Cell nodeInfoNameCell = nodeInfoRow.getCell(NODE_INFO_NAME_CELL_NUMBER);
-                if (StringUtils.isBlank(nodeInfoNameCell.getStringCellValue())) {
+                if (StringUtils.isBlank(getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER))) {
                     continue;
                 }
 
@@ -126,12 +123,11 @@ public class AdminCommutingBusExcelService {
                     continue;
                 }
 
-                Cell nodeInfoNameCell = nodeInfoRow.getCell(NODE_INFO_NAME_CELL_NUMBER);
-                if (StringUtils.isBlank(nodeInfoNameCell.getStringCellValue())) {
+                if (StringUtils.isBlank(getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER))) {
                     continue;
                 }
 
-                String nodeInfoName = nodeInfoNameCell.getStringCellValue();
+                String nodeInfoName = getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER);
                 nodeInfos.addNodeInfo(nodeInfoName);
 
                 String commutingBusNorthTime = getCellValueAsString(nodeInfoRow, NORTH_CELL_NUMBER);
