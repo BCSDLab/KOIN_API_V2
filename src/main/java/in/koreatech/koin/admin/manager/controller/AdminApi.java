@@ -1,8 +1,5 @@
 package in.koreatech.koin.admin.manager.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.ADMINS;
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.manager.dto.request.AdminLoginRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPermissionUpdateRequest;
@@ -176,7 +174,7 @@ public interface AdminApi {
     )
     @Operation(summary = "어드민 계정 인증 상태 변경")
     @PutMapping("/admin/{id}/authed")
-    @AdminActivityLogging(domain = ADMINS, domainIdParam = "id")
+    @AdminActivityLogging(domain = DomainType.ADMIN, domainIdParam = "id")
     ResponseEntity<Void> adminAuthenticate(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -193,7 +191,7 @@ public interface AdminApi {
     )
     @Operation(summary = "어드민 계정 정보 수정")
     @PutMapping("/admin/{id}")
-    @AdminActivityLogging(domain = ADMINS, domainIdParam = "id")
+    @AdminActivityLogging(domain = DomainType.ADMIN, domainIdParam = "id")
     ResponseEntity<Void> updateAdmin(
         @RequestBody @Valid AdminUpdateRequest request,
         @PathVariable Integer id,
@@ -211,7 +209,7 @@ public interface AdminApi {
     )
     @Operation(summary = "어드민 계정 권한 수정")
     @PutMapping("/admin/{id}/permission")
-    @AdminActivityLogging(domain = ADMINS, domainIdParam = "id")
+    @AdminActivityLogging(domain = DomainType.ADMIN, domainIdParam = "id")
     ResponseEntity<Void> updateAdminPermission(
         @RequestBody @Valid AdminPermissionUpdateRequest request,
         @PathVariable Integer id,
