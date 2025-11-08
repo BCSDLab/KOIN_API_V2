@@ -71,12 +71,12 @@ public class AdminCommutingBusExcelService {
             routeInfos.southRouteInfo()
         );
 
-        List<RouteInfo> tmp = new ArrayList<>();
+        List<RouteInfo> selectedRouteInfos = new ArrayList<>();
         if (commutingBusExcelMetaData.busDirection().isNotSouth()) {
-            tmp.add(routeInfos.northRouteInfo());
+            selectedRouteInfos.add(routeInfos.northRouteInfo());
         }
         if (commutingBusExcelMetaData.busDirection().isNotNorth()) {
-            tmp.add(routeInfos.northRouteInfo());
+            selectedRouteInfos.add(routeInfos.northRouteInfo());
         }
 
         return AdminCommutingBusResponse.of(
@@ -85,7 +85,7 @@ public class AdminCommutingBusExcelService {
             commutingBusExcelMetaData.routeName(),
             commutingBusExcelMetaData.routeSubName(),
             nodeInfos.getNodeInfos(),
-            tmp
+            selectedRouteInfos
         );
     }
 
