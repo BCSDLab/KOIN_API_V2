@@ -97,49 +97,8 @@ public class AdminCommutingBusExcelService {
         RouteInfo commutingBusSouthRouteInfo = new RouteInfo(commutingBusSouthName);
         NodeInfos nodeInfos = new NodeInfos();
 
-        if (commutingBusDirection.isSouth()) {
-            for (int i = nodeInfoEndRowIndex; i > nodeInfoStartRowIndex; i--) {
-                Row nodeInfoRow = sheet.getRow(i);
-                if (nodeInfoRow == null) {
-                    continue;
-                }
-
-                if (StringUtils.isBlank(getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER))) {
-                    continue;
-                }
-
-                String nodeInfoName = getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER);
-                nodeInfos.addNodeInfo(nodeInfoName);
-
-                String commutingBusNorthTime = getCellValueAsString(nodeInfoRow, NORTH_CELL_NUMBER);
-                String commutingBusSouthTime = getCellValueAsString(nodeInfoRow, SOUTH_CELL_NUMBER);
-                commutingBusNorthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusNorthTime));
-                commutingBusSouthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusSouthTime));
-            }
-        } else {
-            for (int i = nodeInfoStartRowIndex + 1; i <= nodeInfoEndRowIndex; i++) {
-                Row nodeInfoRow = sheet.getRow(i);
-                if (nodeInfoRow == null) {
-                    continue;
-                }
-
-                if (StringUtils.isBlank(getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER))) {
-                    continue;
-                }
-
-                String nodeInfoName = getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER);
-                nodeInfos.addNodeInfo(nodeInfoName);
-
-                String commutingBusNorthTime = getCellValueAsString(nodeInfoRow, NORTH_CELL_NUMBER);
-                String commutingBusSouthTime = getCellValueAsString(nodeInfoRow, SOUTH_CELL_NUMBER);
-                commutingBusNorthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusNorthTime));
-                commutingBusSouthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusSouthTime));
-
-                if (nodeInfoName.contains(NODE_INFO_END_POINT)) {
-                    break;
-                }
-            }
-        }
+        readNodeInfoRow(sheet, nodeInfoStartRowIndex, nodeInfoEndRowIndex, commutingBusDirection, nodeInfos,
+            commutingBusNorthRouteInfo, commutingBusSouthRouteInfo);
 
         List<RouteInfo> routeInfos = new ArrayList<>();
         if (commutingBusDirection.isNotSouth()) {
@@ -157,6 +116,58 @@ public class AdminCommutingBusExcelService {
             nodeInfos.getNodeInfos(),
             routeInfos
         );
+    }
+
+    private void readNodeInfoRow(
+        Sheet sheet,
+        int startRowIndex,
+        int endRowIndex,
+        BusDirection busDirection,
+        NodeInfos nodeInfos,
+        RouteInfo northRouteInfo,
+        RouteInfo southRouteInfo
+    ) {
+        List<Integer> range = busDirection.isSouth() ? getSouthBusNodeInfoRowRange(startRowIndex, endRowIndex) :
+            getNotSouthBusNodeInfoRowRange(startRowIndex, endRowIndex);
+
+        for (int index : range) {
+            Row nodeInfoRow = sheet.getRow(index);
+            if (nodeInfoRow == null) {
+                continue;
+            }
+
+            String nodeInfoName = getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER);
+            if (StringUtils.isBlank(nodeInfoName)) {
+                continue;
+            }
+
+            nodeInfos.addNodeInfo(nodeInfoName);
+
+            String northTime = getCellValueAsString(nodeInfoRow, NORTH_CELL_NUMBER);
+            String southTime = getCellValueAsString(nodeInfoRow, SOUTH_CELL_NUMBER);
+            northRouteInfo.addArrivalTime(new ArrivalTime(northTime));
+            southRouteInfo.addArrivalTime(new ArrivalTime(southTime));
+
+            if (busDirection.isNotSouth() && nodeInfoName.contains(NODE_INFO_END_POINT)) {
+                break;
+            }
+        }
+    }
+
+    private List<Integer> getSouthBusNodeInfoRowRange(int start, int end) {
+        List<Integer> range = new ArrayList<>();
+        for (int index = start; index > end; index--) {
+            range.add(index);
+        }
+        return range;
+    }
+
+    private List<Integer> getNotSouthBusNodeInfoRowRange(int start, int end) {
+        List<Integer> range = new ArrayList<>();
+        for (int index = start; index <= end; index++) {
+            range.add(index);
+        }
+        return range;
     }
 
     private BusDirection getCommutingBusDirection(Sheet sheet) {
