@@ -1,7 +1,7 @@
 package in.koreatech.koin.admin.shop.controller;
 
 import static in.koreatech.koin.admin.history.enums.DomainType.SHOPS;
-import static in.koreatech.koin.admin.history.enums.DomainType.SHOPS_CATEGORIES;
+import static in.koreatech.koin.admin.history.enums.DomainType.SHOPSCATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -139,7 +139,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 카테고리 생성")
     @PostMapping("/admin/shops/categories")
-    @AdminActivityLogging(domain = SHOPS_CATEGORIES)
+    @AdminActivityLogging(domain = SHOPSCATEGORIES)
     ResponseEntity<Void> createShopCategory(
         @RequestBody @Valid AdminCreateShopCategoryRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -188,7 +188,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 카테고리 수정")
     @PutMapping("/admin/shops/categories/{id}")
-    @AdminActivityLogging(domain = SHOPS_CATEGORIES, domainIdParam = "id")
+    @AdminActivityLogging(domain = SHOPSCATEGORIES, domainIdParam = "id")
     ResponseEntity<Void> modifyShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminModifyShopCategoryRequest request,
@@ -206,7 +206,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 카테고리 순서 수정")
     @PutMapping("/admin/shops/categories/order")
-    @AdminActivityLogging(domain = SHOPS_CATEGORIES)
+    @AdminActivityLogging(domain = SHOPSCATEGORIES)
     ResponseEntity<Void> modifyShopCategoriesOrder(
         @RequestBody @Valid AdminModifyShopCategoriesOrderRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -239,7 +239,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "상점 카테고리 삭제")
     @DeleteMapping("/admin/shops/categories/{id}")
-    @AdminActivityLogging(domain = SHOPS_CATEGORIES, domainIdParam = "id")
+    @AdminActivityLogging(domain = SHOPSCATEGORIES, domainIdParam = "id")
     ResponseEntity<Void> deleteShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
