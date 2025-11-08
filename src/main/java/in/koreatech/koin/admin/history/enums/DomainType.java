@@ -8,7 +8,7 @@ public enum DomainType {
     TRACKS("트랙"),
     TECHSTACKS("기술 스택"),
     NOTICE("코인 공지"),
-    VERSIONS("버전관리"),
+    VERSION("버전관리"),
 
     CATEGORIES("카테고리"),
 

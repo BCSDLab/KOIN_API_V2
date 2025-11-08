@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.version.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.VERSIONS;
+import static in.koreatech.koin.admin.history.enums.DomainType.VERSION;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
@@ -79,7 +79,7 @@ public interface AdminVersionApi {
     @Operation(summary = "특정 타입의 현재 버전 업데이트")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/{type}")
-    @AdminActivityLogging(domain = VERSIONS)
+    @AdminActivityLogging(domain = VERSION)
     ResponseEntity<Void> updateVersion(
         @Parameter(description = "android, ios, android_owner") @PathVariable("type") String type,
         @RequestBody @Valid AdminVersionUpdateRequest adminVersionUpdateRequest,
