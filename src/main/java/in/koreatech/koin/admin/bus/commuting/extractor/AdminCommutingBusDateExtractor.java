@@ -50,7 +50,7 @@ public class AdminCommutingBusDateExtractor {
             routeInfos
         );
 
-        return new CommutingBusData(nodeInfos, filteredRouteInfos);
+        return CommutingBusData.from(nodeInfos, filteredRouteInfos);
     }
 
     private void extractNodeInfosAndArrivalTimes(
