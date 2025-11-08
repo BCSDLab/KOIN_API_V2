@@ -8,10 +8,14 @@ public class RouteInfo {
     private String detail;
     private List<ArrivalTime> arrivalTimes;
 
-    public RouteInfo(String name) {
+    private RouteInfo(String name) {
         this.name = name;
         this.detail = null;
         this.arrivalTimes = new ArrayList<>();
+    }
+
+    public static RouteInfo of(String name) {
+        RouteInfo routeInfo = new RouteInfo(name);
     }
 
     public void addArrivalTime(ArrivalTime arrivalTime) {

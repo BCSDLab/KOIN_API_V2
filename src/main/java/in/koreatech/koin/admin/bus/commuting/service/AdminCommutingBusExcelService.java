@@ -21,6 +21,7 @@ import in.koreatech.koin.admin.bus.commuting.model.CommutingBusExcelMetaData;
 import in.koreatech.koin.admin.bus.commuting.model.CommutingBusNodeInfoRowIndex;
 import in.koreatech.koin.admin.bus.commuting.model.NodeInfos;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
+import in.koreatech.koin.admin.bus.commuting.model.RouteInfos;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,6 +37,7 @@ public class AdminCommutingBusExcelService {
 
     private final AdminCommutingBusExcelMetaDataExtractor commutingBusExcelMetaDataExtractor;
     private final AdminCommutingBusNodeInfoRowIndexExtractor nodeInfoRowIndexExtractor;
+    private final AdminCommutingBusNodeInfoExtractor nodeInfoExtractor;
 
     public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws
         IOException {
@@ -56,13 +58,7 @@ public class AdminCommutingBusExcelService {
     private AdminCommutingBusResponse parseSheet(Sheet sheet) {
         CommutingBusExcelMetaData commutingBusExcelMetaData = commutingBusExcelMetaDataExtractor.extract(sheet);
         CommutingBusNodeInfoRowIndex commutingBusNodeInfoRowIndex = nodeInfoRowIndexExtractor.extract(sheet);
-
-        Row commutingBusNameRow = sheet.getRow(commutingBusNodeInfoRowIndex.startRowIndex());
-        String commutingBusNorthName = getCellValueAsString(commutingBusNameRow, NORTH_CELL_NUMBER);
-        String commutingBusSouthName = getCellValueAsString(commutingBusNameRow, SOUTH_CELL_NUMBER);
-
-        RouteInfo commutingBusNorthRouteInfo = new RouteInfo(commutingBusNorthName);
-        RouteInfo commutingBusSouthRouteInfo = new RouteInfo(commutingBusSouthName);
+        RouteInfos routeInfos = nodeInfoExtractor.extract(sheet, commutingBusNodeInfoRowIndex.startRowIndex());
         NodeInfos nodeInfos = new NodeInfos();
 
         readNodeInfoRow(
@@ -71,15 +67,16 @@ public class AdminCommutingBusExcelService {
             commutingBusNodeInfoRowIndex.endRowIndex(),
             commutingBusExcelMetaData.busDirection(),
             nodeInfos,
-            commutingBusNorthRouteInfo, commutingBusSouthRouteInfo
+            routeInfos.northRouteInfo(),
+            routeInfos.northRouteInfo()
         );
 
-        List<RouteInfo> routeInfos = new ArrayList<>();
+        List<RouteInfo> tmp = new ArrayList<>();
         if (commutingBusExcelMetaData.busDirection().isNotSouth()) {
-            routeInfos.add(commutingBusNorthRouteInfo);
+            tmp.add(routeInfos.northRouteInfo());
         }
         if (commutingBusExcelMetaData.busDirection().isNotNorth()) {
-            routeInfos.add(commutingBusSouthRouteInfo);
+            tmp.add(routeInfos.northRouteInfo());
         }
 
         return AdminCommutingBusResponse.of(
@@ -88,7 +85,7 @@ public class AdminCommutingBusExcelService {
             commutingBusExcelMetaData.routeName(),
             commutingBusExcelMetaData.routeSubName(),
             nodeInfos.getNodeInfos(),
-            routeInfos
+            tmp
         );
     }
 
