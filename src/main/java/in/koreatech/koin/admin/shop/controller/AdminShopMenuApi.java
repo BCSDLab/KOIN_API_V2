@@ -1,7 +1,7 @@
 package in.koreatech.koin.admin.shop.controller;
 
 import static in.koreatech.koin.admin.history.enums.DomainType.MENUS;
-import static in.koreatech.koin.admin.history.enums.DomainType.MENUS_CATEGORIES;
+import static in.koreatech.koin.admin.history.enums.DomainType.MENUSCATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -107,7 +107,7 @@ public interface AdminShopMenuApi {
     )
     @Operation(summary = "특정 상점의 메뉴 카테고리 생성")
     @PostMapping("/admin/shops/{id}/menus/categories")
-    @AdminActivityLogging(domain = MENUS_CATEGORIES)
+    @AdminActivityLogging(domain = MENUSCATEGORIES)
     ResponseEntity<Void> createMenuCategory(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @RequestBody @Valid AdminCreateMenuCategoryRequest request,
@@ -124,7 +124,7 @@ public interface AdminShopMenuApi {
     )
     @Operation(summary = "특정 상점의 메뉴 카테고리 수정")
     @PutMapping("/admin/shops/{shopId}/menus/categories")
-    @AdminActivityLogging(domain = MENUS_CATEGORIES)
+    @AdminActivityLogging(domain = MENUSCATEGORIES)
     ResponseEntity<Void> modifyMenuCategory(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @RequestBody @Valid AdminModifyMenuCategoryRequest request,
@@ -159,7 +159,7 @@ public interface AdminShopMenuApi {
     )
     @Operation(summary = "특정 상점의 메뉴 카테고리 삭제")
     @DeleteMapping("/admin/shops/{shopId}/menus/categories/{categoryId}")
-    @AdminActivityLogging(domain = MENUS_CATEGORIES, domainIdParam = "categoryId")
+    @AdminActivityLogging(domain = MENUSCATEGORIES, domainIdParam = "categoryId")
     ResponseEntity<Void> deleteMenuCategory(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @Parameter(in = PATH) @PathVariable("categoryId") Integer categoryId,

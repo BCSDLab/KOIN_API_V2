@@ -19,7 +19,7 @@ public enum DomainType {
     SHOPSCATEGORIES("상점 카테고리"),
 
     MENUS("메뉴"),
-    MENUS_CATEGORIES("메뉴 카테고리"),
+    MENUSCATEGORIES("메뉴 카테고리"),
 
     REVIEWS("리뷰"),
 
