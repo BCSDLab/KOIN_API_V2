@@ -1,7 +1,5 @@
 package in.koreatech.koin.admin.bus.commuting.service;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SHUTTLE_ROUTE_TYPE;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -23,7 +21,6 @@ import in.koreatech.koin.admin.bus.commuting.model.CommutingBusExcelMetaData;
 import in.koreatech.koin.admin.bus.commuting.model.CommutingBusNodeInfoRowIndex;
 import in.koreatech.koin.admin.bus.commuting.model.NodeInfos;
 import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -58,11 +55,6 @@ public class AdminCommutingBusExcelService {
 
     private AdminCommutingBusResponse parseSheet(Sheet sheet) {
         CommutingBusExcelMetaData commutingBusExcelMetaData = commutingBusExcelMetaDataExtractor.extract(sheet);
-        if (commutingBusExcelMetaData.routeType().isNotCommuting()) {
-            throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE,
-                "shuttleRouteType: " + commutingBusExcelMetaData.routeType().name());
-        }
-
         CommutingBusNodeInfoRowIndex commutingBusNodeInfoRowIndex = nodeInfoRowIndexExtractor.extract(sheet);
 
         Row commutingBusNameRow = sheet.getRow(commutingBusNodeInfoRowIndex.startRowIndex());
