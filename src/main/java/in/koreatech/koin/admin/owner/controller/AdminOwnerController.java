@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.owner.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.OWNERS;
+import static in.koreatech.koin.admin.history.enums.DomainType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springdoc.core.annotations.ParameterObject;
@@ -31,7 +31,7 @@ public class AdminOwnerController implements AdminOwnerApi {
     private final AdminOwnerService adminOwnerService;
 
     @PutMapping("/admin/owner/{id}/authed")
-    @AdminActivityLogging(domain = OWNERS, domainIdParam = "id")
+    @AdminActivityLogging(domain = OWNER, domainIdParam = "id")
     public ResponseEntity<Void> allowOwnerPermission(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId

@@ -30,7 +30,7 @@ public enum DomainType {
 
     USERS("회원"),
     STUDENT("학생"),
-    OWNERS("사장님"),
+    OWNER("사장님"),
     ADMINS("어드민"),
 
     BANNERS("배너"),
