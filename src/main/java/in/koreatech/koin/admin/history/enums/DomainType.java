@@ -12,7 +12,7 @@ public enum DomainType {
 
     CATEGORIES("카테고리"),
 
-    BENEFITS("혜택"),
+    BENEFIT("혜택"),
     BENEFIT_CATEGORIES("혜택 카테고리"),
 
     SHOPS("상점"),

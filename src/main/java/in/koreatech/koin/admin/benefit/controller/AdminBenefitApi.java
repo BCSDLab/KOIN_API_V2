@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.benefit.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.BENEFITS;
+import static in.koreatech.koin.admin.history.enums.DomainType.BENEFIT;
 import static in.koreatech.koin.admin.history.enums.DomainType.BENEFIT_CATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
@@ -128,7 +128,7 @@ public interface AdminBenefitApi {
     )
     @Operation(summary = "특정 혜택을 제공하는 상점을 추가한다.")
     @PostMapping("/{id}/shops")
-    @AdminActivityLogging(domain = BENEFITS, domainIdParam = "benefitId")
+    @AdminActivityLogging(domain = BENEFIT, domainIdParam = "benefitId")
     ResponseEntity<AdminCreateBenefitShopsResponse> createBenefitShops(
         @PathVariable("id") Integer benefitId,
         @RequestBody AdminCreateBenefitShopsRequest request,
@@ -146,7 +146,7 @@ public interface AdminBenefitApi {
     )
     @Operation(summary = "특정 혜택을 제공하는 상점을 수정한다.")
     @PutMapping
-    @AdminActivityLogging(domain = BENEFITS)
+    @AdminActivityLogging(domain = BENEFIT)
     ResponseEntity<Void> modifyBenefitShops(
         @RequestBody AdminModifyBenefitShopsRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -163,7 +163,7 @@ public interface AdminBenefitApi {
     )
     @Operation(summary = "특정 혜택을 제공하는 상점을 삭제한다.")
     @DeleteMapping("/{id}/shops")
-    @AdminActivityLogging(domain = BENEFITS, domainIdParam = "benefitId")
+    @AdminActivityLogging(domain = BENEFIT, domainIdParam = "benefitId")
     ResponseEntity<Void> deleteBenefitShops(
         @PathVariable("id") Integer benefitId,
         @RequestBody AdminDeleteShopsRequest request,
