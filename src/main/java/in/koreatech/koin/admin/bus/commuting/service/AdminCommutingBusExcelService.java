@@ -68,7 +68,7 @@ public class AdminCommutingBusExcelService {
             commutingBusExcelMetaData.busDirection(),
             nodeInfos,
             routeInfos.northRouteInfo(),
-            routeInfos.northRouteInfo()
+            routeInfos.southRouteInfo()
         );
 
         List<RouteInfo> tmp = new ArrayList<>();
