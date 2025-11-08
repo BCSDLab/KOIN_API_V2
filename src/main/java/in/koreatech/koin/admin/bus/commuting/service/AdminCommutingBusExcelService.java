@@ -111,11 +111,11 @@ public class AdminCommutingBusExcelService {
                     continue;
                 }
 
-                String nodeInfoName = nodeInfoNameCell.getStringCellValue();
+                String nodeInfoName = getCellValueAsString(nodeInfoRow, NODE_INFO_NAME_CELL_NUMBER);
                 nodeInfos.addNodeInfo(nodeInfoName);
 
-                String commutingBusNorthTime = nodeInfoRow.getCell(NORTH_CELL_NUMBER).getStringCellValue();
-                String commutingBusSouthTime = nodeInfoRow.getCell(SOUTH_CELL_NUMBER).getStringCellValue();
+                String commutingBusNorthTime = getCellValueAsString(nodeInfoRow, NORTH_CELL_NUMBER);
+                String commutingBusSouthTime = getCellValueAsString(nodeInfoRow, SOUTH_CELL_NUMBER);
                 commutingBusNorthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusNorthTime));
                 commutingBusSouthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusSouthTime));
             }
@@ -134,8 +134,8 @@ public class AdminCommutingBusExcelService {
                 String nodeInfoName = nodeInfoNameCell.getStringCellValue();
                 nodeInfos.addNodeInfo(nodeInfoName);
 
-                String commutingBusNorthTime = nodeInfoRow.getCell(NORTH_CELL_NUMBER).getStringCellValue();
-                String commutingBusSouthTime = nodeInfoRow.getCell(SOUTH_CELL_NUMBER).getStringCellValue();
+                String commutingBusNorthTime = getCellValueAsString(nodeInfoRow, NORTH_CELL_NUMBER);
+                String commutingBusSouthTime = getCellValueAsString(nodeInfoRow, SOUTH_CELL_NUMBER);
                 commutingBusNorthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusNorthTime));
                 commutingBusSouthRouteInfo.addArrivalTime(new ArrivalTime(commutingBusSouthTime));
 
@@ -165,34 +165,29 @@ public class AdminCommutingBusExcelService {
 
     private BusDirection getCommutingBusDirection(Sheet sheet) {
         Row subNameRow = sheet.getRow(BUS_DIRECTION_ROW_NUMBER);
-        Cell subNameCell = subNameRow.getCell(BUS_DIRECTION_CELL_NUMBER);
-        String busDirection = subNameCell.getStringCellValue();
+        String busDirection = getCellValueAsString(subNameRow, BUS_DIRECTION_CELL_NUMBER);
         return BusDirection.of(busDirection);
     }
 
     private String getCommutingBusSubName(Sheet sheet) {
         Row subNameRow = sheet.getRow(SUB_NAME_ROW_NUMBER);
-        Cell subNameCell = subNameRow.getCell(SUB_NAME_CELL_NUMBER);
-        return subNameCell != null ? subNameCell.getStringCellValue() : null;
+        return getCellValueAsString(subNameRow, SUB_NAME_CELL_NUMBER);
     }
 
     private String getCommutingBusRouteName(Sheet sheet) {
         Row routeNameRow = sheet.getRow(ROUTE_NAME_ROW_NUMBER);
-        Cell routeNameCell = routeNameRow.getCell(ROUTE_NAME_CELL_NUMBER);
-        return routeNameCell.getStringCellValue();
+        return getCellValueAsString(routeNameRow, ROUTE_NAME_CELL_NUMBER);
     }
 
     private ShuttleBusRegion getCommutingBusRegion(Sheet sheet) {
         Row regionRow = sheet.getRow(REGION_ROW_NUMBER);
-        Cell regionCell = regionRow.getCell(REGION_CELL_NUMBER);
-        String region = regionCell.getStringCellValue();
+        String region = getCellValueAsString(regionRow, REGION_CELL_NUMBER);
         return ShuttleBusRegion.of(region);
     }
 
     private ShuttleRouteType getShuttleRouteType(Sheet sheet) {
         Row routeTypeRow = sheet.getRow(ROUTE_TYPE_ROW_NUMBER);
-        Cell routeTypeCell = routeTypeRow.getCell(ROUTE_TYPE_CELL_NUMBER);
-        String routeType = routeTypeCell.getStringCellValue();
+        String routeType = getCellValueAsString(routeTypeRow, ROUTE_TYPE_CELL_NUMBER);
         return ShuttleRouteType.of(routeType);
     }
 
@@ -203,11 +198,15 @@ public class AdminCommutingBusExcelService {
                 continue;
             }
 
-            Cell firstCell = row.getCell(0);
-            if (StringUtils.equals(firstCell.getStringCellValue(), point)) {
+            if (StringUtils.equals(getCellValueAsString(row, 0), point)) {
                 return Optional.of(index);
             }
         }
         return Optional.empty();
+    }
+
+    private String getCellValueAsString(Row row, int cellNumber) {
+        Cell cell = row.getCell(cellNumber);
+        return cell != null ? cell.getStringCellValue() : "";
     }
 }
