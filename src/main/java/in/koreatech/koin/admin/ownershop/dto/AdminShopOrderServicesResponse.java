@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.common.model.Criteria;
@@ -18,7 +17,9 @@ import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminShopOrderServicesResponse(
     @Schema(description = "조건에 해당하는 총 주문 서비스 요청의 수", example = "57", requiredMode = REQUIRED)
     Long totalCount,
@@ -35,7 +36,7 @@ public record AdminShopOrderServicesResponse(
     @Schema(description = "주문 서비스 요청 리스트", requiredMode = REQUIRED)
     List<InnerShopOrderServiceResponse> orderServiceRequests
 ) {
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopOrderServiceResponse(
         @Schema(description = "고유 id", requiredMode = REQUIRED)
         Integer id,

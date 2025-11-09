@@ -6,7 +6,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
@@ -14,7 +13,9 @@ import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryO
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminShopOrderServiceResponse(
     @Schema(description = "고유 id", requiredMode = REQUIRED)
     Integer id,
@@ -66,24 +67,24 @@ public record AdminShopOrderServiceResponse(
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime approvedAt
 ) {
-    public static AdminShopOrderServiceResponse from(ShopOrderServiceRequest request) {
+    public static AdminShopOrderServiceResponse from(ShopOrderServiceRequest shopOrderServiceRequest) {
         return new AdminShopOrderServiceResponse(
-            request.getId(),
-            request.getShop().getId(),
-            request.getShop().getName(),
-            request.getMinimumOrderAmount(),
-            request.getIsTakeout(),
-            request.getDeliveryOption(),
-            request.getCampusDeliveryTip(),
-            request.getOffCampusDeliveryTip(),
-            request.getRequestStatus(),
-            request.getBusinessLicenseUrl(),
-            request.getBusinessCertificateUrl(),
-            request.getBankCopyUrl(),
-            request.getBank(),
-            request.getAccountNumber(),
-            request.getCreatedAt(),
-            request.getApprovedAt()
+            shopOrderServiceRequest.getId(),
+            shopOrderServiceRequest.getShop().getId(),
+            shopOrderServiceRequest.getShop().getName(),
+            shopOrderServiceRequest.getMinimumOrderAmount(),
+            shopOrderServiceRequest.getIsTakeout(),
+            shopOrderServiceRequest.getDeliveryOption(),
+            shopOrderServiceRequest.getCampusDeliveryTip(),
+            shopOrderServiceRequest.getOffCampusDeliveryTip(),
+            shopOrderServiceRequest.getRequestStatus(),
+            shopOrderServiceRequest.getBusinessLicenseUrl(),
+            shopOrderServiceRequest.getBusinessCertificateUrl(),
+            shopOrderServiceRequest.getBankCopyUrl(),
+            shopOrderServiceRequest.getBank(),
+            shopOrderServiceRequest.getAccountNumber(),
+            shopOrderServiceRequest.getCreatedAt(),
+            shopOrderServiceRequest.getApprovedAt()
         );
     }
 }

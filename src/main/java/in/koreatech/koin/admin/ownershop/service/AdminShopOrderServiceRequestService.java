@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.ownershop.service;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.SEARCH_QUERY_ONLY_WHITESPACE;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -12,6 +14,7 @@ import in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition;
 import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequestRepository;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,7 +25,9 @@ public class AdminShopOrderServiceRequestService {
     private final AdminShopOrderServiceRequestRepository adminShopOrderServiceRequestRepository;
 
     public AdminShopOrderServicesResponse getOrderServiceRequests(ShopOrderServiceRequestCondition condition) {
-        condition.checkDataConstraintViolation();
+        if (condition.isDataConstraintViolation()) {
+            throw CustomException.of(SEARCH_QUERY_ONLY_WHITESPACE);
+        }
 
         Long totalRequests = getTotalRequestsCount(condition);
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalRequests.intValue());

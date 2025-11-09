@@ -6,19 +6,17 @@ import java.util.Objects;
 
 import org.springframework.data.domain.Sort.Direction;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
-import in.koreatech.koin.global.exception.CustomException;
-import io.micrometer.common.util.StringUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jodd.util.StringUtil;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record ShopOrderServiceRequestCondition(
     @Schema(description = "페이지", example = "1", defaultValue = "1", requiredMode = NOT_REQUIRED)
     Integer page,
@@ -48,10 +46,8 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    public void checkDataConstraintViolation() {
-        if (this.query != null) {
-            checkQueryIsBlank();
-        }
+    public boolean isDataConstraintViolation() {
+        return isQueryBlank();
     }
 
     @Hidden
@@ -63,10 +59,8 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    private void checkQueryIsBlank() {
-        if (StringUtils.isBlank(this.query)) {
-            throw CustomException.of(SEARCH_QUERY_ONLY_WHITESPACE);
-        }
+    private boolean isQueryBlank() {
+        return StringUtil.isBlank(this.query);
     }
 
     public boolean isQueryNotNull() {
