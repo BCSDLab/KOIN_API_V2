@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
@@ -16,7 +16,7 @@ import in.koreatech.koin.admin.bus.commuting.service.AdminCommutingBusExcelServi
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class AdminCommutingBusController implements AdminCommutingBusApi {
 
