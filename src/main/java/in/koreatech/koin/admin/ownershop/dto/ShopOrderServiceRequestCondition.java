@@ -46,13 +46,6 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    public boolean isDataConstraintViolation() {
-        if (this.query != null) {
-            return isQueryNotBlank();
-        }
-        return true;
-    }
-
     @Hidden
     public Direction getDirection() {
         if (this.sort == Criteria.Sort.CREATED_AT_ASC) {
@@ -62,8 +55,8 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    private boolean isQueryNotBlank() {
-        return StringUtils.isNotBlank(this.query);
+    public boolean isQueryBlank() {
+        return this.query != null && StringUtils.isBlank(this.query);
     }
 
     public boolean isQueryNotNull() {
