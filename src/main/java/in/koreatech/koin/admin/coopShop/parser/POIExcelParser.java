@@ -55,10 +55,10 @@ public class POIExcelParser implements ExcelParser {
     }
 
     private Workbook getWorkBook(MultipartFile inputStream) {
-        try (Workbook workbook = WorkbookFactory.create(inputStream.getInputStream())) {
-            return workbook;
+        try {
+            return WorkbookFactory.create(inputStream.getInputStream());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException();
         }
     }
 
