@@ -4,6 +4,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort.Direction;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -12,7 +13,6 @@ import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jodd.util.StringUtil;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
@@ -47,7 +47,10 @@ public record ShopOrderServiceRequestCondition(
     }
 
     public boolean isDataConstraintViolation() {
-        return isQueryBlank();
+        if (this.query != null) {
+            return isQueryNotBlank();
+        }
+        return true;
     }
 
     @Hidden
@@ -59,8 +62,8 @@ public record ShopOrderServiceRequestCondition(
         }
     }
 
-    private boolean isQueryBlank() {
-        return StringUtil.isBlank(this.query);
+    private boolean isQueryNotBlank() {
+        return !StringUtils.isBlank(this.query);
     }
 
     public boolean isQueryNotNull() {

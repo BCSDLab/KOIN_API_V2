@@ -25,7 +25,7 @@ public class AdminShopOrderServiceRequestService {
     private final AdminShopOrderServiceRequestRepository adminShopOrderServiceRequestRepository;
 
     public AdminShopOrderServicesResponse getOrderServiceRequests(ShopOrderServiceRequestCondition condition) {
-        if (condition.isDataConstraintViolation()) {
+        if (!condition.isDataConstraintViolation()) {
             throw CustomException.of(SEARCH_QUERY_ONLY_WHITESPACE);
         }
 
