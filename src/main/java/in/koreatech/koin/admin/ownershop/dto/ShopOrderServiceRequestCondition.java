@@ -63,7 +63,7 @@ public record ShopOrderServiceRequestCondition(
     }
 
     private boolean isQueryNotBlank() {
-        return !StringUtils.isBlank(this.query);
+        return StringUtils.isNotBlank(this.query);
     }
 
     public boolean isQueryNotNull() {
