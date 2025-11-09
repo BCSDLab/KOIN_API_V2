@@ -5,15 +5,19 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
+import in.koreatech.koin.admin.coopShop.service.AdminCoopShopExcelService;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/admin/coopshop")
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminCoopShopController implements AdminCoopShopApi {
 
     private final AdminCoopShopService adminCoopShopService;
+    private final AdminCoopShopExcelService adminCoopShopExcelService;
 
     @GetMapping
     public ResponseEntity<AdminCoopSemestersResponse> getCoopShopSemesters(
@@ -39,5 +44,11 @@ public class AdminCoopShopController implements AdminCoopShopApi {
     ) {
         AdminCoopSemesterResponse coopShop = adminCoopShopService.getCoopShopSemester(semesterId);
         return ResponseEntity.ok(coopShop);
+    }
+
+    @PostMapping("/excel")
+    public ResponseEntity<AdminCoopShopsResponse> parseExcel(MultipartFile file) {
+        AdminCoopShopsResponse data = adminCoopShopExcelService.parse(file);
+        return ResponseEntity.ok(data);
     }
 }
