@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.notice.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.NOTICES;
+import static in.koreatech.koin.admin.history.enums.DomainType.NOTICE;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -52,7 +52,7 @@ public class AdminNoticeController implements AdminNoticeApi {
     }
 
     @PostMapping
-    @AdminActivityLogging(domain = NOTICES)
+    @AdminActivityLogging(domain = NOTICE)
     public ResponseEntity<Void> createNotice(
         @RequestBody @Valid AdminNoticeRequest adminNoticeRequest,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -62,7 +62,7 @@ public class AdminNoticeController implements AdminNoticeApi {
     }
 
     @DeleteMapping("/{id}")
-    @AdminActivityLogging(domain = NOTICES, domainIdParam = "noticeId")
+    @AdminActivityLogging(domain = NOTICE, domainIdParam = "noticeId")
     public ResponseEntity<Void> deleteNotice(
         @PathVariable("id") Integer noticeId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -72,7 +72,7 @@ public class AdminNoticeController implements AdminNoticeApi {
     }
 
     @PutMapping("/{id}")
-    @AdminActivityLogging(domain = NOTICES, domainIdParam = "noticeId")
+    @AdminActivityLogging(domain = NOTICE, domainIdParam = "noticeId")
     public ResponseEntity<Void> updateNotice(
         @PathVariable("id") Integer noticeId,
         @RequestBody @Valid AdminNoticeRequest request,

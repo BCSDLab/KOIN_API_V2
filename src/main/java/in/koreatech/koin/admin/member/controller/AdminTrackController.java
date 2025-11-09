@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.member.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.TECH_STACKS;
+import static in.koreatech.koin.admin.history.enums.DomainType.TECHSTACKS;
 import static in.koreatech.koin.admin.history.enums.DomainType.TRACKS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
@@ -82,7 +82,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @PostMapping("/admin/techStacks")
-    @AdminActivityLogging(domain = TECH_STACKS)
+    @AdminActivityLogging(domain = TECHSTACKS)
     public ResponseEntity<AdminTechStackResponse> createTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam String trackName,
@@ -93,7 +93,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @PutMapping("/admin/techStacks/{id}")
-    @AdminActivityLogging(domain = TECH_STACKS, domainIdParam = "techStackId")
+    @AdminActivityLogging(domain = TECHSTACKS, domainIdParam = "techStackId")
     public ResponseEntity<AdminTechStackResponse> updateTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam String trackName,
@@ -105,7 +105,7 @@ public class AdminTrackController implements AdminTrackApi {
     }
 
     @DeleteMapping("/admin/techStacks/{id}")
-    @AdminActivityLogging(domain = TECH_STACKS, domainIdParam = "techStackId")
+    @AdminActivityLogging(domain = TECHSTACKS, domainIdParam = "techStackId")
     public ResponseEntity<Void> deleteTechStack(
         @PathVariable("id") Integer techStackId,
         @Auth(permit = {ADMIN}) Integer adminId

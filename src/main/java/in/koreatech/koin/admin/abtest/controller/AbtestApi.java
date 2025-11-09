@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.abtest.controller;
 
-import static in.koreatech.koin.admin.history.enums.DomainType.ABTESTS;
+import static in.koreatech.koin.admin.history.enums.DomainType.ABTEST;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -54,7 +54,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험 생성")
     @PostMapping
-    @AdminActivityLogging(domain = ABTESTS)
+    @AdminActivityLogging(domain = ABTEST)
     ResponseEntity<AbtestResponse> createAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestBody @Valid AbtestRequest request
@@ -72,7 +72,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험 수정")
     @PutMapping("/{id}")
-    @AdminActivityLogging(domain = ABTESTS, domainIdParam = "abtestId")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     ResponseEntity<AbtestResponse> putAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId,
@@ -88,7 +88,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험 삭제")
     @DeleteMapping("/{id}")
-    @AdminActivityLogging(domain = ABTESTS, domainIdParam = "abtestId")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     ResponseEntity<Void> deleteAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId
@@ -134,7 +134,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험 종료")
     @PostMapping("/close/{id}")
-    @AdminActivityLogging(domain = ABTESTS, domainIdParam = "abtestId")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     ResponseEntity<Void> closeAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId,
@@ -180,7 +180,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험군 수동 편입")
     @PostMapping("/{id}/move")
-    @AdminActivityLogging(domain = ABTESTS, domainIdParam = "abtestId")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     ResponseEntity<Void> assignAbtestVariableByAdmin(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable(value = "id") Integer abtestId,
