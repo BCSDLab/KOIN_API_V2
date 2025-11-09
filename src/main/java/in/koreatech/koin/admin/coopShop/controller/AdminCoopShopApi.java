@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotEmpty;
 
 @RequestMapping("/admin/coopshop")
 @Tag(name = "(ADMIN) AdminCoopShop : 생협 매장 정보", description = "생협 매장 정보 조회 페이지")
@@ -64,6 +66,8 @@ public interface AdminCoopShopApi {
         OK
     )
     @Operation(summary = "생협 엑셀 파일 업로드")
-    @PostMapping("/excel")
-    ResponseEntity<AdminCoopShopsResponse> parseExcel(MultipartFile file);
+    @PostMapping(value = "/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<AdminCoopShopsResponse> parseExcel(
+        @RequestParam("file") @NotEmpty MultipartFile file
+    );
 }
