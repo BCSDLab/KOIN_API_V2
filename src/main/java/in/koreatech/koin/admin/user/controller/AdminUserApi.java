@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.user.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.USERS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +50,7 @@ public interface AdminUserApi {
     @Operation(summary = "회원 삭제 (탈퇴 처리)")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/admin/users/{id}")
+    @AdminActivityLogging(domain = USERS, domainIdParam = "id")
     ResponseEntity<Void> deleteUser(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -64,6 +67,7 @@ public interface AdminUserApi {
     @Operation(summary = "회원 삭제 해제 (탈퇴 상태를 해제 처리)")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/users/{id}/undelete")
+    @AdminActivityLogging(domain = USERS, domainIdParam = "id")
     ResponseEntity<Void> undeleteUser(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId

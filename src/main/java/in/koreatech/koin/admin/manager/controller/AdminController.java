@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
+import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.manager.dto.request.AdminLoginRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPermissionUpdateRequest;
@@ -35,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminController implements AdminApi {
 
     private final AdminService adminService;
 
@@ -118,6 +120,7 @@ public class AdminController {
     }
 
     @PutMapping("/admin/{id}/authed")
+    @AdminActivityLogging(domain = DomainType.ADMIN, domainIdParam = "id")
     public ResponseEntity<Void> adminAuthenticate(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -127,6 +130,7 @@ public class AdminController {
     }
 
     @PutMapping("/admin/{id}")
+    @AdminActivityLogging(domain = DomainType.ADMIN, domainIdParam = "id")
     public ResponseEntity<Void> updateAdmin(
         @RequestBody @Valid AdminUpdateRequest request,
         @PathVariable Integer id,
@@ -137,6 +141,7 @@ public class AdminController {
     }
 
     @PutMapping("/admin/{id}/permission")
+    @AdminActivityLogging(domain = DomainType.ADMIN, domainIdParam = "id")
     public ResponseEntity<Void> updateAdminPermission(
         @RequestBody @Valid AdminPermissionUpdateRequest request,
         @PathVariable Integer id,

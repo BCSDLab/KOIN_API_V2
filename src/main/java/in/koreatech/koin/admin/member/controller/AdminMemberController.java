@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.member.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.MEMBERS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.member.dto.AdminMemberRequest;
 import in.koreatech.koin.admin.member.dto.AdminMemberResponse;
 import in.koreatech.koin.admin.member.dto.AdminMembersResponse;
@@ -40,6 +42,7 @@ public class AdminMemberController implements AdminMemberApi {
     }
 
     @PostMapping("/admin/members")
+    @AdminActivityLogging(domain = MEMBERS)
     public ResponseEntity<Void> createMember(
         @RequestBody @Valid AdminMemberRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -57,6 +60,7 @@ public class AdminMemberController implements AdminMemberApi {
     }
 
     @DeleteMapping("/admin/members/{id}")
+    @AdminActivityLogging(domain = MEMBERS, domainIdParam = "memberId")
     public ResponseEntity<Void> deleteMember(
         @PathVariable("id") Integer memberId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -66,6 +70,7 @@ public class AdminMemberController implements AdminMemberApi {
     }
 
     @PutMapping("/admin/members/{id}")
+    @AdminActivityLogging(domain = MEMBERS, domainIdParam = "memberId")
     public ResponseEntity<Void> updateMember(
         @PathVariable("id") Integer memberId,
         @RequestBody @Valid AdminMemberRequest request,
@@ -76,6 +81,7 @@ public class AdminMemberController implements AdminMemberApi {
     }
 
     @PostMapping("/admin/members/{id}/undelete")
+    @AdminActivityLogging(domain = MEMBERS, domainIdParam = "memberId")
     public ResponseEntity<Void> undeleteMember(
         @PathVariable("id") Integer memberId,
         @Auth(permit = {ADMIN}) Integer adminId
