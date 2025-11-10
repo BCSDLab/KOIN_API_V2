@@ -50,7 +50,7 @@ public class AdminCommutingBusDateExtractor {
             routeInfos
         );
 
-        return CommutingBusData.from(nodeInfos, filteredRouteInfos);
+        return CommutingBusData.of(nodeInfos, filteredRouteInfos);
     }
 
     private void extractNodeInfosAndArrivalTimes(
@@ -82,8 +82,8 @@ public class AdminCommutingBusDateExtractor {
 
             String northTime = getCellValueAsString(row, NORTH_CELL_NUMBER);
             String southTime = getCellValueAsString(row, SOUTH_CELL_NUMBER);
-            northRouteInfo.addArrivalTime(ArrivalTime.of(northTime));
-            southRouteInfo.addArrivalTime(ArrivalTime.of(southTime));
+            northRouteInfo.addArrivalTime(ArrivalTime.from(northTime));
+            southRouteInfo.addArrivalTime(ArrivalTime.from(southTime));
 
             if (busDirection.isNotSouth() && nodeInfoName.contains(NODE_INFO_END_POINT)) {
                 break;

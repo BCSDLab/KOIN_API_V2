@@ -14,7 +14,7 @@ public record CommutingBusExcelMetaData(
     String routeName,
     String routeSubName
 ) {
-    public static CommutingBusExcelMetaData from(
+    public static CommutingBusExcelMetaData of(
         BusDirection busDirection,
         ShuttleBusRegion busRegion,
         ShuttleRouteType routeType,

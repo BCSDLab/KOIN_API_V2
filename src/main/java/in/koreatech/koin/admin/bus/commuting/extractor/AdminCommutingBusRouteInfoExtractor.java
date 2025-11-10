@@ -19,6 +19,6 @@ public class AdminCommutingBusRouteInfoExtractor {
         Row commutingBusNameRow = sheet.getRow(startRowIndex);
         String northRouteInfoName = getCellValueAsString(commutingBusNameRow, NORTH_CELL_NUMBER);
         String southRouteInfoName = getCellValueAsString(commutingBusNameRow, SOUTH_CELL_NUMBER);
-        return RouteInfos.from(RouteInfo.of(northRouteInfoName), RouteInfo.of(southRouteInfoName));
+        return RouteInfos.of(RouteInfo.from(northRouteInfoName), RouteInfo.from(southRouteInfoName));
     }
 }

@@ -11,7 +11,7 @@ public record CommutingBusNodeInfoRowIndex(
     Integer startRowIndex,
     Integer endRowIndex
 ) {
-    public static CommutingBusNodeInfoRowIndex from(
+    public static CommutingBusNodeInfoRowIndex of(
         Optional<Integer> startRowIndex,
         Optional<Integer> endRowIndex
     ) {

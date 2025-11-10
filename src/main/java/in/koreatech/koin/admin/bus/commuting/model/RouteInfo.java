@@ -14,7 +14,7 @@ public class RouteInfo {
         this.arrivalTimes = new ArrayList<>();
     }
 
-    public static RouteInfo of(String name) {
+    public static RouteInfo from(String name) {
         return new RouteInfo(name);
     }
 

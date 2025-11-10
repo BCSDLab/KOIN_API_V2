@@ -22,7 +22,7 @@ public class AdminCommutingBusNodeInfoRowIndexExtractor {
     public CommutingBusNodeInfoRowIndex extract(Sheet sheet) {
         Optional<Integer> nodeInfoStartRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_START_POINT);
         Optional<Integer> nodeInfoEndRowIndex = findNodeInfoRowIndexByPoint(sheet, NODE_INFO_END_POINT);
-        return CommutingBusNodeInfoRowIndex.from(nodeInfoStartRowIndex, nodeInfoEndRowIndex);
+        return CommutingBusNodeInfoRowIndex.of(nodeInfoStartRowIndex, nodeInfoEndRowIndex);
     }
 
     private Optional<Integer> findNodeInfoRowIndexByPoint(Sheet sheet, String point) {

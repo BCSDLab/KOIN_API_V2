@@ -35,7 +35,7 @@ public class AdminCommutingBusExcelMetaDataExtractor {
         ShuttleRouteType routeType = parseRouteType(sheet);
         String routeName = parseRouteName(sheet);
         String subName = parseSubName(sheet);
-        return CommutingBusExcelMetaData.from(busDirection, busRegion, routeType, routeName, subName);
+        return CommutingBusExcelMetaData.of(busDirection, busRegion, routeType, routeName, subName);
     }
 
     private BusDirection parseBusDirection(Sheet sheet) {
