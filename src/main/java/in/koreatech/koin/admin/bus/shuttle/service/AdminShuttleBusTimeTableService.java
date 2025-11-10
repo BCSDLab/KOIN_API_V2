@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin.admin.bus.shuttle.dto.responose.AdminShuttleBusTimeTableResponse;
+import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
 import in.koreatech.koin.admin.bus.shuttle.model.NodeInfo;
 import in.koreatech.koin.admin.bus.shuttle.model.Region;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteInfo;

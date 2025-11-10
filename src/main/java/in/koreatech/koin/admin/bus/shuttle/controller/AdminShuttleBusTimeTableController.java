@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin.admin.bus.shuttle.dto.responose.AdminShuttleBusTimeTableResponse;
+import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusTimeTableService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;

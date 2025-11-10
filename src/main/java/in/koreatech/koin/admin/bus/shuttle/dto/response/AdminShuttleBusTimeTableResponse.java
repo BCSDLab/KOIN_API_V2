@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.shuttle.dto.responose;
+package in.koreatech.koin.admin.bus.shuttle.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
