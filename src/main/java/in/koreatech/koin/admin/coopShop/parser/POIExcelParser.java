@@ -1,7 +1,9 @@
 package in.koreatech.koin.admin.coopShop.parser;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -13,59 +15,55 @@ import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.coopShop.model.CoopShopRow;
 import in.koreatech.koin.admin.coopShop.service.ExcelParser;
+import io.micrometer.common.util.StringUtils;
 
 @Component
 public class POIExcelParser implements ExcelParser {
 
     @Override
     public List<CoopShopRow> parse(MultipartFile excelFile) {
-        Workbook workbook = getWorkBook(excelFile);
-        Sheet sheet = workbook.getSheetAt(0);
-        List<CoopShopRow> coopShops = new ArrayList<>();
-
-        String coopName = "";
-        String phone = "";
-        String location = "";
-        String remark = "";
-        String type = "";
-        String dayOfWeek = "";
-        String openTime = "";
-        String closeTime = "";
-
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row == null) {
-                continue;
-            }
-            coopName = getCellValue(row.getCell(0), coopName);
-            phone = getCellValue(row.getCell(1), phone);
-            location = getCellValue(row.getCell(2), location);
-            remark = getCellValue(row.getCell(3), remark);
-            type = getCellValue(row.getCell(4), type);
-            dayOfWeek = getCellValue(row.getCell(5), dayOfWeek);
-            openTime = getCellValue(row.getCell(6), openTime);
-            closeTime = getCellValue(row.getCell(7), closeTime);
-
-            coopShops.add(
-                new CoopShopRow(coopName, phone, location, remark, type, dayOfWeek, openTime, closeTime)
-            );
-        }
-
-        return coopShops;
-    }
-
-    private Workbook getWorkBook(MultipartFile inputStream) {
-        try {
-            return WorkbookFactory.create(inputStream.getInputStream());
+        try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
+            return parseCoopShopRow(workbook.getSheetAt(0));
         } catch (Exception e) {
             throw new RuntimeException();
         }
     }
 
-    private String getCellValue(Cell cell, String cellValue) {
-        if (cell.getStringCellValue().isBlank()) {
-            return cellValue;
+    private List<CoopShopRow> parseCoopShopRow(Sheet sheet) {
+        return IntStream.rangeClosed(1, sheet.getLastRowNum())
+            .mapToObj(sheet::getRow)
+            .filter(Predicate.not(this::isRowEmpty))
+            .map(this::createCoopShopRow)
+            .toList();
+    }
+
+    private boolean isRowEmpty(Row row) {
+        return Objects.isNull(row) || IntStream.rangeClosed(0, row.getLastCellNum())
+            .mapToObj(row::getCell)
+            .allMatch(this::isBlankCell);
+    }
+
+    private CoopShopRow createCoopShopRow(Row row) {
+        return new CoopShopRow(
+            getCellValue(row.getCell(0)), // coopName
+            getCellValue(row.getCell(1)), // phone
+            getCellValue(row.getCell(2)), // location
+            getCellValue(row.getCell(3)), // remark
+            getCellValue(row.getCell(4)), // type
+            getCellValue(row.getCell(5)), // dayOfWeek
+            getCellValue(row.getCell(6)), // openTime
+            getCellValue(row.getCell(7))  // closeTime
+        );
+    }
+
+    private String getCellValue(Cell cell) {
+        if (Objects.isNull(cell) || cell.getStringCellValue().isBlank()) {
+            return null;
         }
         return cell.getStringCellValue();
+    }
+
+    private boolean isBlankCell(Cell cell) {
+        return Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue());
     }
 }
