@@ -14,7 +14,7 @@ public class RunningDays {
         return days;
     }
 
-    public static RunningDays weekend() {
+    public static RunningDays weekDays() {
         return new RunningDays(List.of("MON", "TUE", "WED", "THU", "FRI"));
     }
 
