@@ -54,8 +54,7 @@ public class AdminActivityHistoryAspect {
         + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.createAdmin(..)) && "
         + "!execution(* in.koreatech.koin.admin.manager.controller.AdminController.adminPasswordChange(..)) && "
         + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.assignOrGetAbtestVariable(..)) && "
-        + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.issueAccessHistoryId(..)) && "
-        + "!execution(* in.koreatech.koin.admin.coopShop.controller.AdminCoopShopController.parseExcel(..))") // TODO: 기능 개발 후 삭제
+        + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.issueAccessHistoryId(..)) ")
     private void excludeSpecificMethods() {
     }
 

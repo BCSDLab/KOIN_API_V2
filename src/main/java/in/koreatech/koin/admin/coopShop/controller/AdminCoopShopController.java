@@ -49,6 +49,7 @@ public class AdminCoopShopController implements AdminCoopShopApi {
 
     @PostMapping(value = "/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdminCoopShopsResponse> parseExcel(
+        @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam("file") MultipartFile file
     ) {
         AdminCoopShopsResponse data = adminCoopShopExcelService.parse(file);
