@@ -39,6 +39,11 @@ public interface AdminCommutingBusApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) throws IOException;
 
+    @ApiResponseCodes({
+        OK,
+        INVALID_SHUTTLE_ROUTE_TYPE,
+        INVALID_REQUEST_BODY,
+    })
     @Operation(summary = "등하교 버스 시간 업데이트")
     @PutMapping("/admin/bus/commuting/timetable")
     ResponseEntity<Void> updateCommutingBusTimetable(
