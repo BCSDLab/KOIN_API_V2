@@ -75,8 +75,6 @@ public class ShuttleBusRouteInfoParser {
 
         if (name.contains("목") && name.contains("금")) {
             return RunningDays.thursdayAndFriday();
-        } else if (name.contains("토") && name.contains("일")) {
-            return RunningDays.weekDays();
         } else if (name.contains("토")) {
             return RunningDays.saturday();
         } else if (name.contains("일")) {
