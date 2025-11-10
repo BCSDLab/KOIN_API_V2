@@ -8,5 +8,5 @@ import in.koreatech.koin.admin.coopShop.model.CoopShopRow;
 
 public interface ExcelParser {
 
-    List<CoopShopRow> parse(MultipartFile multipartFile);
+    List<CoopShopRow> parse(MultipartFile excelFile);
 }

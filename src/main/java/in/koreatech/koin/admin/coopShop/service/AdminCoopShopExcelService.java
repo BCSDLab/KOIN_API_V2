@@ -19,8 +19,8 @@ public class AdminCoopShopExcelService {
 
     private final ExcelParser excelParser;
 
-    public AdminCoopShopsResponse parse(MultipartFile multipartFile) {
-        List<CoopShopRow> rawCoopShops = excelParser.parse(multipartFile);
+    public AdminCoopShopsResponse parse(MultipartFile excelFile) {
+        List<CoopShopRow> rawCoopShops = excelParser.parse(excelFile);
         List<InnerCoopShop> coopShopResponses = rawCoopShops.stream()
             .collect(Collectors.groupingBy(rawCoopShop -> new InnerCoopShopInfo(
                 rawCoopShop.coopShopName(),

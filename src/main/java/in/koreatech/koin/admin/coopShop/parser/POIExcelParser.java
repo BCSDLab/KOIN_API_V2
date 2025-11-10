@@ -18,8 +18,8 @@ import in.koreatech.koin.admin.coopShop.service.ExcelParser;
 public class POIExcelParser implements ExcelParser {
 
     @Override
-    public List<CoopShopRow> parse(MultipartFile inputStream) {
-        Workbook workbook = getWorkBook(inputStream);
+    public List<CoopShopRow> parse(MultipartFile excelFile) {
+        Workbook workbook = getWorkBook(excelFile);
         Sheet sheet = workbook.getSheetAt(0);
         List<CoopShopRow> coopShops = new ArrayList<>();
 
