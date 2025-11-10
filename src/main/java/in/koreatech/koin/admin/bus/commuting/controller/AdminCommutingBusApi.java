@@ -42,7 +42,7 @@ public interface AdminCommutingBusApi {
     @PutMapping("/admin/bus/commuting/timetable")
     ResponseEntity<Void> updateCommutingBusTimetable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
-        @Valid @RequestBody AdminCommutingBusUpdateRequest request,
+        @Valid @RequestBody List<AdminCommutingBusUpdateRequest> request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }
