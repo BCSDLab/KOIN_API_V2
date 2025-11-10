@@ -25,10 +25,22 @@ import io.micrometer.common.util.StringUtils;
 @Component
 public class POIExcelParser implements ExcelParser {
 
+    private static final int COOP_SHOP_SHEET_INDEX = 0;
+    private static final int COOP_SHOP_ROW_INDEX = 2;
+
+    private static final int COOP_NAME_COLUMN_INDEX = 0;
+    private static final int PHONE_COLUMN_INDEX = 1;
+    private static final int LOCATION_COLUMN_INDEX = 2;
+    private static final int REMARK_COLUMN_INDEX = 3;
+    private static final int TYPE_COLUMN_INDEX = 4;
+    private static final int DAY_OF_WEEK_COLUMN_INDEX = 5;
+    private static final int OPEN_TIME_COLUMN_INDEX = 6;
+    private static final int CLOSE_TIME_COLUMN_INDEX = 7;
+
     @Override
     public List<CoopShopRow> parse(MultipartFile excelFile) {
         try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
-            return parseCoopShopRow(workbook.getSheetAt(0));
+            return parseCoopShopRow(workbook.getSheetAt(COOP_SHOP_SHEET_INDEX));
         } catch (IOException e) {
             throw CustomException.of(ApiResponseCode.UNREADABLE_EXCEL_FILE);
         } catch (EncryptedDocumentException e) {
@@ -41,7 +53,7 @@ public class POIExcelParser implements ExcelParser {
     }
 
     private List<CoopShopRow> parseCoopShopRow(Sheet sheet) {
-        return IntStream.rangeClosed(1, sheet.getLastRowNum())
+        return IntStream.rangeClosed(COOP_SHOP_ROW_INDEX, sheet.getLastRowNum())
             .mapToObj(sheet::getRow)
             .filter(Predicate.not(this::isRowEmpty))
             .map(this::createCoopShopRow)
@@ -60,14 +72,14 @@ public class POIExcelParser implements ExcelParser {
 
     private CoopShopRow createCoopShopRow(Row row) {
         return new CoopShopRow(
-            getCellValue(row.getCell(0)), // coopName
-            getCellValue(row.getCell(1)), // phone
-            getCellValue(row.getCell(2)), // location
-            getCellValue(row.getCell(3)), // remark
-            getCellValue(row.getCell(4)), // type
-            getCellValue(row.getCell(5)), // dayOfWeek
-            getCellValue(row.getCell(6)), // openTime
-            getCellValue(row.getCell(7))  // closeTime
+            getCellValue(row.getCell(COOP_NAME_COLUMN_INDEX)),
+            getCellValue(row.getCell(PHONE_COLUMN_INDEX)),
+            getCellValue(row.getCell(LOCATION_COLUMN_INDEX)),
+            getCellValue(row.getCell(REMARK_COLUMN_INDEX)),
+            getCellValue(row.getCell(TYPE_COLUMN_INDEX)),
+            getCellValue(row.getCell(DAY_OF_WEEK_COLUMN_INDEX)),
+            getCellValue(row.getCell(OPEN_TIME_COLUMN_INDEX)),
+            getCellValue(row.getCell(CLOSE_TIME_COLUMN_INDEX))
         );
     }
 
