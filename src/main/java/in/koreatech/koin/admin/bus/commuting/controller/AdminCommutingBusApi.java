@@ -5,7 +5,6 @@ import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +33,7 @@ public interface AdminCommutingBusApi {
     })
     @Operation(summary = "등하교 버스 시간표 엑셀 파일 업로드")
     @PostMapping(value = "/admin/bus/commuting/timetable/excel", consumes = MULTIPART_FORM_DATA_VALUE)
-    ResponseEntity<List<AdminCommutingBusResponse>> parseCommutingBusExcel(
+    ResponseEntity<AdminCommutingBusResponse> parseCommutingBusExcel(
         @RequestParam(name = "commuting_bus_excel_file") MultipartFile commutingBusExcelFile,
         @Auth(permit = {ADMIN}) Integer adminId
     ) throws IOException;

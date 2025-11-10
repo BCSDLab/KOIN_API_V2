@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.bus.commuting.service;
 
+import static in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse.InnerAdminCommutingBusResponse;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,23 +33,23 @@ public class AdminCommutingBusExcelService {
     private final AdminCommutingBusRouteInfoExtractor routeInfoExtractor;
     private final AdminCommutingBusDateExtractor commutingBusDateExtractor;
 
-    public List<AdminCommutingBusResponse> parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws
+    public AdminCommutingBusResponse parseCommutingBusExcel(MultipartFile commutingBusExcelFile) throws
         IOException {
-        List<AdminCommutingBusResponse> responses = new ArrayList<>();
+        List<InnerAdminCommutingBusResponse> responses = new ArrayList<>();
 
         try (InputStream inputStream = commutingBusExcelFile.getInputStream();
              Workbook workbook = WorkbookFactory.create(inputStream)
         ) {
             for (Sheet sheet : workbook) {
-                AdminCommutingBusResponse response = parseSheet(sheet);
+                InnerAdminCommutingBusResponse response = parseSheet(sheet);
                 responses.add(response);
             }
         }
 
-        return responses;
+        return new AdminCommutingBusResponse(responses);
     }
 
-    private AdminCommutingBusResponse parseSheet(Sheet sheet) {
+    private InnerAdminCommutingBusResponse parseSheet(Sheet sheet) {
         CommutingBusExcelMetaData excelMetaData = excelMetaDataExtractor.extract(sheet);
         CommutingBusNodeInfoRowIndex nodeInfoRowIndex = nodeInfoRowIndexExtractor.extract(sheet);
         RouteInfos routeInfos = routeInfoExtractor.extract(sheet, nodeInfoRowIndex.startRowIndex());
@@ -58,7 +60,7 @@ public class AdminCommutingBusExcelService {
             excelMetaData.busDirection()
         );
 
-        return AdminCommutingBusResponse.of(
+        return InnerAdminCommutingBusResponse.of(
             excelMetaData.busRegion().getLabel(),
             excelMetaData.routeType().getLabel(),
             excelMetaData.routeName(),
