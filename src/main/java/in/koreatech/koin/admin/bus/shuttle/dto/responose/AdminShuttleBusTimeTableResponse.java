@@ -6,10 +6,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record AdminShuttleBueTimeTableResponse(
+@Builder
+public record AdminShuttleBusTimeTableResponse(
     @Schema(description = "문서 ID")
     String id,
 
@@ -28,12 +31,35 @@ public record AdminShuttleBueTimeTableResponse(
     @Schema(description = "노선 타입", example = "SHUTTLE")
     String routeType,
 
-    @Schema(description = "학기 구분", example = "정규학기")
-    String semesterType,
-
     @Schema(description = "노선 부제목", example = "수신반점")
     String subName
 ) {
+
+    public static AdminShuttleBusTimeTableResponse from(ShuttleBusTimeTable table) {
+        List<NodeInfo> nodeInfos = table.getNodeInfos().stream()
+            .map(n -> new AdminShuttleBusTimeTableResponse.NodeInfo(
+                n.getName(),
+                n.getDetail()
+            ))
+            .toList();
+
+        List<RouteInfo> routeInfos = table.getRouteInfos().stream()
+            .map(r -> new AdminShuttleBusTimeTableResponse.RouteInfo(
+                r.getName(),
+                r.getRunningDays(),
+                r.getArrivalTime()
+            ))
+            .toList();
+
+        return AdminShuttleBusTimeTableResponse.builder()
+            .nodeInfo(nodeInfos)
+            .region(table.getRegion().getValue())
+            .routeInfo(routeInfos)
+            .routeName(table.getRouteName().getName())
+            .routeType(table.getRouteType().getValue())
+            .subName(table.getRouteName().getSubName())
+            .build();
+    }
 
     public record NodeInfo(
 
@@ -55,4 +81,6 @@ public record AdminShuttleBueTimeTableResponse(
         @Schema(description = "각 정류소 별 도착 시간 (미정차인 경우 null)")
         List<String> arrivalTime
     ) {}
+
+
 }
