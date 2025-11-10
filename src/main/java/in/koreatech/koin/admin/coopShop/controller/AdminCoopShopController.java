@@ -18,7 +18,6 @@ import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopExcelService;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopService;
 import in.koreatech.koin.global.auth.Auth;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -50,7 +49,7 @@ public class AdminCoopShopController implements AdminCoopShopApi {
 
     @PostMapping(value = "/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdminCoopShopsResponse> parseExcel(
-        @RequestParam("file") @NotEmpty MultipartFile file
+        @RequestParam("file") MultipartFile file
     ) {
         AdminCoopShopsResponse data = adminCoopShopExcelService.parse(file);
         return ResponseEntity.ok(data);

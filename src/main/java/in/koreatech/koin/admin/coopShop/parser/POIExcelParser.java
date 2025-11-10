@@ -43,6 +43,10 @@ public class POIExcelParser implements ExcelParser {
             .allMatch(this::isBlankCell);
     }
 
+    private boolean isBlankCell(Cell cell) {
+        return Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue());
+    }
+
     private CoopShopRow createCoopShopRow(Row row) {
         return new CoopShopRow(
             getCellValue(row.getCell(0)), // coopName
@@ -57,13 +61,9 @@ public class POIExcelParser implements ExcelParser {
     }
 
     private String getCellValue(Cell cell) {
-        if (Objects.isNull(cell) || cell.getStringCellValue().isBlank()) {
+        if (Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue())) {
             return null;
         }
         return cell.getStringCellValue();
-    }
-
-    private boolean isBlankCell(Cell cell) {
-        return Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue());
     }
 }

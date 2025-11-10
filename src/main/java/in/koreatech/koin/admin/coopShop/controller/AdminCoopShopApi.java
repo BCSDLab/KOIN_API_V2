@@ -25,7 +25,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotEmpty;
 
 @RequestMapping("/admin/coopshop")
 @Tag(name = "(ADMIN) AdminCoopShop : 생협 매장 정보", description = "생협 매장 정보 조회 페이지")
@@ -68,6 +67,6 @@ public interface AdminCoopShopApi {
     @Operation(summary = "생협 엑셀 파일 업로드")
     @PostMapping(value = "/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<AdminCoopShopsResponse> parseExcel(
-        @RequestParam("file") @NotEmpty MultipartFile file
+        @RequestParam("file") MultipartFile file
     );
 }
