@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.bus.commuting.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,8 +32,8 @@ public interface AdminCommutingBusApi {
         INVALID_NODE_INFO_START_POINT,
         INVALID_NODE_INFO_END_POINT,
     })
-    @Operation(summary = "등하교 버스 엑셀 파일 업로드")
-    @PostMapping("/admin/bus/commuting/excel")
+    @Operation(summary = "등하교 버스 시간표 엑셀 파일 업로드")
+    @PostMapping(value = "/admin/bus/commuting/timetable/excel", consumes = MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<List<AdminCommutingBusResponse>> parseCommutingBusExcel(
         @RequestParam(name = "commuting_bus_excel_file") MultipartFile commutingBusExcelFile,
         @Auth(permit = {ADMIN}) Integer adminId
