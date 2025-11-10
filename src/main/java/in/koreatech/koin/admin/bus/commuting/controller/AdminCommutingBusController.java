@@ -43,10 +43,10 @@ public class AdminCommutingBusController implements AdminCommutingBusApi {
     @PutMapping("/admin/bus/commuting/timetable")
     public ResponseEntity<Void> updateCommutingBusTimetable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
-        @Valid @RequestBody List<AdminCommutingBusUpdateRequest> requests,
+        @Valid @RequestBody AdminCommutingBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminCommutingBusQueryService.updateCommutingBusTimetable(semesterType, requests);
+        adminCommutingBusQueryService.updateCommutingBusTimetable(semesterType, request);
         return ResponseEntity.ok().build();
     }
 }

@@ -1,8 +1,8 @@
 package in.koreatech.koin.admin.bus.commuting.service;
 
+import static in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusUpdateRequest.InnerAdminCommutingBusUpdateRequest;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SHUTTLE_ROUTE_TYPE;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -26,11 +26,11 @@ public class AdminCommutingBusQueryService {
     @Transactional
     public void updateCommutingBusTimetable(
         SemesterType semesterType,
-        List<AdminCommutingBusUpdateRequest> requests
+        AdminCommutingBusUpdateRequest request
     ) {
-        for (AdminCommutingBusUpdateRequest request : requests) {
-            ShuttleBusRegion region = ShuttleBusRegion.convertFrom(request.region());
-            ShuttleRouteType routeType = ShuttleRouteType.convertFrom(request.routeType());
+        for (InnerAdminCommutingBusUpdateRequest commutingBusUpdateRequest : request.commutingBusTimetables()) {
+            ShuttleBusRegion region = ShuttleBusRegion.convertFrom(commutingBusUpdateRequest.region());
+            ShuttleRouteType routeType = ShuttleRouteType.convertFrom(commutingBusUpdateRequest.routeType());
             if (routeType.isNotCommuting()) {
                 throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE, "shuttleRouteType: " + routeType.name());
             }
@@ -40,8 +40,8 @@ public class AdminCommutingBusQueryService {
                     semesterType.getDescription(),
                     region,
                     routeType,
-                    request.routeName(),
-                    request.subName()
+                    commutingBusUpdateRequest.routeName(),
+                    commutingBusUpdateRequest.subName()
                 );
 
             if (shuttleBusRote.isPresent()) {
@@ -53,8 +53,8 @@ public class AdminCommutingBusQueryService {
                     .routeType(route.getRouteType())
                     .routeName(route.getRouteName())
                     .subName(route.getSubName())
-                    .nodeInfo(request.toEntityNodeInfo())
-                    .routeInfo(request.toEntityRouteInfo())
+                    .nodeInfo(commutingBusUpdateRequest.toEntityNodeInfo())
+                    .routeInfo(commutingBusUpdateRequest.toEntityRouteInfo())
                     .build();
                 adminCommutingBusRepository.save(updatedRoute);
             } else {
@@ -62,10 +62,10 @@ public class AdminCommutingBusQueryService {
                     .semesterType(semesterType.getDescription())
                     .region(region)
                     .routeType(routeType)
-                    .routeName(request.routeName())
-                    .subName(request.subName())
-                    .nodeInfo(request.toEntityNodeInfo())
-                    .routeInfo(request.toEntityRouteInfo())
+                    .routeName(commutingBusUpdateRequest.routeName())
+                    .subName(commutingBusUpdateRequest.subName())
+                    .nodeInfo(commutingBusUpdateRequest.toEntityNodeInfo())
+                    .routeInfo(commutingBusUpdateRequest.toEntityRouteInfo())
                     .build());
             }
         }
