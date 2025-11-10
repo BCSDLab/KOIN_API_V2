@@ -1,7 +1,7 @@
 package in.koreatech.koin.admin.coopShop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.global.code.ApiResponseCode.OK;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.MediaType;
@@ -62,7 +62,14 @@ public interface AdminCoopShopApi {
     );
 
     @ApiResponseCodes(
-        OK
+        {
+            OK,
+            UNREADABLE_EXCEL_FILE,
+            ENCRYPTED_EXCEL_FILE,
+            EMPTY_EXCEL_FILE,
+            INVALID_EXCEL_FILE_FORMAT,
+            INVALID_EXCEL_CELL_FORMAT,
+        }
     )
     @Operation(summary = "생협 엑셀 파일 업로드")
     @PostMapping(value = "/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
