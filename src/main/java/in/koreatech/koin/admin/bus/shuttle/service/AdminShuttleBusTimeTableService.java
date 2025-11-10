@@ -20,6 +20,8 @@ import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusMetaDataParser;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusNodeInfoParser;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusRouteInfoParser;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,7 +31,7 @@ public class AdminShuttleBusTimeTableService {
         try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
             return extractShuttleBusTimeTableData(workbook);
         } catch (IOException e) {
-            throw new RuntimeException("엑셀 파일을 읽는 중 오류가 발생했습니다.", e);
+            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_FILE_TYPE);
         }
     }
 
