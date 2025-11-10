@@ -1,10 +1,13 @@
 package in.koreatech.koin.admin.coopShop.parser;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
+import org.apache.poi.EmptyFileException;
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -15,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.coopShop.model.CoopShopRow;
 import in.koreatech.koin.admin.coopShop.service.ExcelParser;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import io.micrometer.common.util.StringUtils;
 
 @Component
@@ -24,8 +29,14 @@ public class POIExcelParser implements ExcelParser {
     public List<CoopShopRow> parse(MultipartFile excelFile) {
         try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
             return parseCoopShopRow(workbook.getSheetAt(0));
-        } catch (Exception e) {
-            throw new RuntimeException();
+        } catch (IOException e) {
+            throw CustomException.of(ApiResponseCode.UNREADABLE_EXCEL_FILE);
+        } catch (EncryptedDocumentException e) {
+            throw CustomException.of(ApiResponseCode.ENCRYPTED_EXCEL_FILE);
+        } catch (EmptyFileException e) {
+            throw CustomException.of(ApiResponseCode.EMPTY_EXCEL_FILE);
+        } catch (IllegalStateException e) {
+            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_FILE_FORMAT);
         }
     }
 
@@ -61,9 +72,13 @@ public class POIExcelParser implements ExcelParser {
     }
 
     private String getCellValue(Cell cell) {
-        if (Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue())) {
-            return null;
+        try {
+            if (Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue())) {
+                return null;
+            }
+            return cell.getStringCellValue();
+        } catch (Exception e) {
+            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_CELL_FORMAT);
         }
-        return cell.getStringCellValue();
     }
 }
