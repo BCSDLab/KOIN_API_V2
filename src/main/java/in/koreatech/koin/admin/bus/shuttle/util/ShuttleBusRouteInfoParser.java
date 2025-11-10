@@ -1,0 +1,123 @@
+package in.koreatech.koin.admin.bus.shuttle.util;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.util.StringUtils;
+
+import in.koreatech.koin.admin.bus.shuttle.model.ArrivalTime;
+import in.koreatech.koin.admin.bus.shuttle.model.RouteInfo;
+import in.koreatech.koin.admin.bus.shuttle.model.RunningDays;
+
+public class ShuttleBusRouteInfoParser {
+
+    private static final int START_HEADER_ROW = 3;
+    private static final int START_DETAIL_ROW = 4;
+    private static final int START_TIME_DATA_ROW = 5;
+
+    private static final int START_COL = 1;
+
+    public static List<RouteInfo> getRouteInfos(Sheet sheet) {
+        List<RouteInfo.InnerNameDetail> innerNameDetails = extractRouteNameDetails(sheet);
+
+        List<RunningDays> runningDays = innerNameDetails.stream()
+            .map(ShuttleBusRouteInfoParser::determineRunningDays)
+            .toList();
+
+        List<ArrivalTime> arrivalTimes = extractArrivalTimes(sheet);
+
+        return IntStream.range(0, innerNameDetails.size())
+            .mapToObj(i -> RouteInfo.from(
+                innerNameDetails.get(i),
+                runningDays.get(i),
+                arrivalTimes.get(i)
+            ))
+            .toList();
+    }
+
+    private static List<RouteInfo.InnerNameDetail> extractRouteNameDetails(Sheet sheet) {
+        List<RouteInfo.InnerNameDetail> innerNameDetails = new ArrayList<>();
+
+        Row headerRow = sheet.getRow(START_HEADER_ROW);
+        Row detailRow = sheet.getRow(START_DETAIL_ROW);
+
+        if (headerRow == null || detailRow == null) {
+            return innerNameDetails;
+        }
+
+        for (int col = START_COL; col <= headerRow.getLastCellNum(); col++) {
+            Cell nameCell = headerRow.getCell(col);
+
+            if (nameCell == null || !StringUtils.hasText(nameCell.toString())) {
+                break;
+            }
+
+            String name = nameCell.getStringCellValue().trim();
+
+            Cell detailCell = detailRow.getCell(col);
+
+            String detail = (detailCell != null && StringUtils.hasText(detailCell.toString()))
+                ? detailCell.getStringCellValue().trim()
+                : null;
+
+            innerNameDetails.add(RouteInfo.InnerNameDetail.of(name, detail));
+        }
+
+        return innerNameDetails;
+    }
+
+    private static RunningDays determineRunningDays(RouteInfo.InnerNameDetail innerNameDetail) {
+        String name = innerNameDetail.getName();
+
+        if (name.contains("목") && name.contains("금")) {
+            return RunningDays.thursdayAndFriday();
+        } else if (name.contains("토") && name.contains("일")) {
+            return RunningDays.weekend();
+        } else if (name.contains("토")) {
+            return RunningDays.saturday();
+        } else if (name.contains("일")) {
+            return RunningDays.sunday();
+        } else {
+            return RunningDays.weekend();
+        }
+    }
+
+    private static List<ArrivalTime> extractArrivalTimes(Sheet sheet) {
+        List<ArrivalTime> arrivalTimes = new ArrayList<>();
+
+        for (int colNum = START_COL;
+             colNum < START_COL + ExcelRangeUtil.getNumberOfCols(sheet, START_HEADER_ROW, START_COL);
+             colNum++
+        ) {
+            List<String> times = new ArrayList<>();
+
+            for (int rowNum = START_TIME_DATA_ROW;
+                 rowNum < START_TIME_DATA_ROW + ExcelRangeUtil.getNumberOfRows(sheet, START_TIME_DATA_ROW, 0);
+                 rowNum++
+            ) {
+                Row row = sheet.getRow(rowNum);
+
+                if (row == null) {
+                    break;
+                }
+
+                Cell cell = row.getCell(colNum);
+
+                if (cell == null || !StringUtils.hasText(cell.getStringCellValue())) {
+                    times.add(null);
+                } else {
+                    times.add(cell.getStringCellValue().trim());
+                }
+            }
+
+
+            arrivalTimes.add(ArrivalTime.of(times));
+        }
+
+        return arrivalTimes;
+    }
+}
