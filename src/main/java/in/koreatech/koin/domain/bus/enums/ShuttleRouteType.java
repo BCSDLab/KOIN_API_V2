@@ -37,6 +37,15 @@ public enum ShuttleRouteType {
         throw BusIllegalRouteTypeException.withDetail("name: " + name);
     }
 
+    public static ShuttleRouteType convertFrom(String label) {
+        for (var region : ShuttleRouteType.values()) {
+            if (region.getLabel().equals(label)) {
+                return region;
+            }
+        }
+        throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
+    }
+
     public boolean isNotCommuting() {
         return this == SHUTTLE || this == WEEKEND;
     }

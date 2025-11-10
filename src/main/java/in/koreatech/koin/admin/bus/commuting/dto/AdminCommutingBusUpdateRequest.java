@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -46,7 +47,12 @@ public record AdminCommutingBusUpdateRequest(
         @Schema(description = "정류장 세부 정보", example = "정문 앞 정류장", requiredMode = NOT_REQUIRED)
         String detail
     ) {
-
+        public static ShuttleBusRoute.NodeInfo toEntity(String name, String detail) {
+            return ShuttleBusRoute.NodeInfo.builder()
+                .name(name)
+                .detail(detail)
+                .build();
+        }
     }
 
     public record InnerRouteInfoUpdateRequest(
@@ -61,6 +67,28 @@ public record AdminCommutingBusUpdateRequest(
         @NotEmpty(message = "도착 시간 목록은 필수 입력값입니다.")
         List<String> arrivalTime
     ) {
+        public static ShuttleBusRoute.RouteInfo toEntity(String name, String detail, List<String> arrivalTime) {
+            return ShuttleBusRoute.RouteInfo.builder()
+                .name(name)
+                .detail(detail)
+                .arrivalTime(arrivalTime)
+                .build();
+        }
+    }
 
+    public List<ShuttleBusRoute.NodeInfo> toEntityNodeInfo() {
+        return nodeInfo.stream()
+            .map(innerNodeInfoRequest ->
+                InnerNodeInfoRequest.toEntity(innerNodeInfoRequest.name, innerNodeInfoRequest.detail))
+            .toList();
+    }
+
+    public List<ShuttleBusRoute.RouteInfo> toEntityRouteInfo() {
+        return routeInfo.stream()
+            .map(innerRouteInfoRequest ->
+                InnerRouteInfoUpdateRequest.toEntity(innerRouteInfoRequest.name, innerRouteInfoRequest.detail,
+                    innerRouteInfoRequest.arrivalTime)
+            )
+            .toList();
     }
 }
