@@ -61,7 +61,7 @@ public class POIExcelParser implements ExcelParser {
     }
 
     private boolean isRowEmpty(Row row) {
-        return Objects.isNull(row) || IntStream.rangeClosed(0, row.getLastCellNum())
+        return Objects.isNull(row) || IntStream.range(0, row.getLastCellNum())
             .mapToObj(row::getCell)
             .allMatch(this::isBlankCell);
     }
