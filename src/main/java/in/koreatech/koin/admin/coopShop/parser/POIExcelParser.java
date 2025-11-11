@@ -25,8 +25,11 @@ import io.micrometer.common.util.StringUtils;
 @Component
 public class POIExcelParser implements ExcelParser {
 
-    private static final int COOP_SHOP_SHEET_INDEX = 0;
-    private static final int COOP_SHOP_ROW_INDEX = 2;
+    private static final int COOP_SHOPS_SHEET_INDEX = 0;
+    private static final int COOP_SHOPS_START_ROW_INDEX = 2;
+
+    private static final int MAX_ROW_COUNT = 100;
+    private static final int MAX_COLUMN_COUNT = 8;
 
     private static final int COOP_NAME_COLUMN_INDEX = 0;
     private static final int PHONE_COLUMN_INDEX = 1;
@@ -40,7 +43,7 @@ public class POIExcelParser implements ExcelParser {
     @Override
     public List<CoopShopRow> parse(MultipartFile excelFile) {
         try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
-            return parseCoopShopRow(workbook.getSheetAt(COOP_SHOP_SHEET_INDEX));
+            return parseCoopShopRow(workbook.getSheetAt(COOP_SHOPS_SHEET_INDEX));
         } catch (IOException e) {
             throw CustomException.of(ApiResponseCode.UNREADABLE_EXCEL_FILE);
         } catch (EncryptedDocumentException e) {
@@ -53,7 +56,7 @@ public class POIExcelParser implements ExcelParser {
     }
 
     private List<CoopShopRow> parseCoopShopRow(Sheet sheet) {
-        return IntStream.rangeClosed(COOP_SHOP_ROW_INDEX, sheet.getLastRowNum())
+        return IntStream.range(COOP_SHOPS_START_ROW_INDEX, MAX_ROW_COUNT)
             .mapToObj(sheet::getRow)
             .filter(Predicate.not(this::isRowEmpty))
             .map(this::createCoopShopRow)
@@ -61,13 +64,9 @@ public class POIExcelParser implements ExcelParser {
     }
 
     private boolean isRowEmpty(Row row) {
-        return Objects.isNull(row) || IntStream.range(0, row.getLastCellNum())
+        return Objects.isNull(row) || IntStream.range(0, MAX_COLUMN_COUNT)
             .mapToObj(row::getCell)
             .allMatch(this::isBlankCell);
-    }
-
-    private boolean isBlankCell(Cell cell) {
-        return Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue());
     }
 
     private CoopShopRow createCoopShopRow(Row row) {
@@ -83,6 +82,10 @@ public class POIExcelParser implements ExcelParser {
         );
     }
 
+    private boolean isBlankCell(Cell cell) {
+        return Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue());
+    }
+
     private String getCellValue(Cell cell) {
         try {
             if (Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue())) {
@@ -90,7 +93,10 @@ public class POIExcelParser implements ExcelParser {
             }
             return cell.getStringCellValue();
         } catch (Exception e) {
-            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_CELL_FORMAT);
+            throw CustomException.of(
+                ApiResponseCode.INVALID_EXCEL_CELL_FORMAT,
+                String.format("row index: %d, column index: %d", cell.getRowIndex(), cell.getColumnIndex())
+            );
         }
     }
 }

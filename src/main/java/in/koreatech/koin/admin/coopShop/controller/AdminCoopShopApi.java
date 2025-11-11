@@ -72,7 +72,7 @@ public interface AdminCoopShopApi {
         }
     )
     @Operation(summary = "생협 엑셀 파일 업로드")
-    @PostMapping(value = "/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/timetable/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<AdminCoopShopsResponse> parseExcel(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam("file") MultipartFile file
