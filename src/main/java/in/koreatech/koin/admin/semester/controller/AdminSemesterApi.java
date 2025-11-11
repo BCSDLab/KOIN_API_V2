@@ -24,7 +24,9 @@ public interface AdminSemesterApi {
         INVALID_START_DATE_AFTER_END_DATE,
         OVERLAPPING_SEMESTER_DATE_RANGE
     })
-    @Operation(summary = "(ADMIN) 생협 학기 생성")
+    @Operation(summary = "(ADMIN) 생협 학기 생성", description = """
+        - semester의 경우 {2자리 연도}-{학기명}으로 보내야합니다.
+        """)
     @PostMapping("/admin/coopshop/semesters")
     ResponseEntity<Void> createCoopshopSemester(
         @Valid @RequestBody AdminSemesterCreateRequest request,
