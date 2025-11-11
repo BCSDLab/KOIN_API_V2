@@ -18,8 +18,8 @@ public class AdminCoopShopExcelService {
 
     private final ExcelParser excelParser;
 
-    public AdminCoopShopsResponse parse(MultipartFile excelFile) {
-        List<InnerCoopShop> coopShopResponses = excelParser.parse(excelFile).stream()
+    public AdminCoopShopsResponse parse(MultipartFile excel) {
+        List<InnerCoopShop> coopShopResponses = excelParser.parse(excel).stream()
             .collect(Collectors.groupingBy(
                 InnerCoopShopInfo::from,
                 LinkedHashMap::new,

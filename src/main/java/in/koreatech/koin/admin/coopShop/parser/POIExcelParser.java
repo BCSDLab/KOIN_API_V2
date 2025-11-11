@@ -46,8 +46,8 @@ public class POIExcelParser implements ExcelParser {
     private Sheet sheet;
 
     @Override
-    public List<CoopShopRow> parse(MultipartFile excelFile) {
-        try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
+    public List<CoopShopRow> parse(MultipartFile excel) {
+        try (Workbook workbook = WorkbookFactory.create(excel.getInputStream())) {
             this.sheet = workbook.getSheetAt(COOP_SHOPS_SHEET_INDEX);
             return parseCoopShopRow();
         } catch (IOException e) {

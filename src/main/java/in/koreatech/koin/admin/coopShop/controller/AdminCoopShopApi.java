@@ -75,6 +75,6 @@ public interface AdminCoopShopApi {
     @PostMapping(value = "/timetable/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<AdminCoopShopsResponse> parseExcel(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @RequestParam("file") MultipartFile file
+        @RequestParam("coop-shop-excel") MultipartFile excel
     );
 }
