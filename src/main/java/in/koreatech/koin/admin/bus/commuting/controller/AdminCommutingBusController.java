@@ -31,7 +31,7 @@ public class AdminCommutingBusController implements AdminCommutingBusApi {
 
     @PostMapping(value = "/admin/bus/commuting/timetable/excel", consumes = MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdminCommutingBusResponse> parseCommutingBusExcel(
-        @RequestParam(name = "commuting_bus_excel_file") MultipartFile commutingBusExcelFile,
+        @RequestParam(name = "commuting-bus-timetable") MultipartFile commutingBusExcelFile,
         @Auth(permit = {ADMIN}) Integer adminId
     ) throws IOException {
         AdminCommutingBusResponse response = adminCommutingBusExcelService.parseCommutingBusExcel(

@@ -34,7 +34,7 @@ public interface AdminCommutingBusApi {
     @Operation(summary = "등하교 버스 시간표 엑셀 파일 업로드")
     @PostMapping(value = "/admin/bus/commuting/timetable/excel", consumes = MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<AdminCommutingBusResponse> parseCommutingBusExcel(
-        @RequestParam(name = "commuting_bus_excel_file") MultipartFile commutingBusExcelFile,
+        @RequestParam(name = "commuting-bus-timetable") MultipartFile commutingBusExcelFile,
         @Auth(permit = {ADMIN}) Integer adminId
     ) throws IOException;
 
