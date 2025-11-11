@@ -2,6 +2,7 @@ package in.koreatech.koin.common.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort.Direction;
 
 @Getter
 @RequiredArgsConstructor
@@ -25,9 +26,21 @@ public class Criteria {
         return new Criteria(validateAndCalculatePage(page, validatedLimit, total), validatedLimit);
     }
 
+    @Getter
     public enum Sort {
-        CREATED_AT_ASC,
-        CREATED_AT_DESC
+        CREATED_AT_ASC(Direction.ASC),
+        CREATED_AT_DESC(Direction.DESC);
+
+        private final Direction direction;
+
+        Sort(Direction direction) {
+            this.direction = direction;
+        }
+
+        public Direction getDirection() {
+            return direction;
+        }
+
     }
 
     private static int validateAndCalculatePage(Integer page) {
