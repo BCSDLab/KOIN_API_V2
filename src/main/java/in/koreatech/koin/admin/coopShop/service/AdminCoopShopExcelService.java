@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.coopShop.service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,10 @@ public class AdminCoopShopExcelService {
 
     public AdminCoopShopsResponse parse(MultipartFile excelFile) {
         List<InnerCoopShop> coopShopResponses = excelParser.parse(excelFile).stream()
-            .collect(Collectors.groupingBy(InnerCoopShopInfo::from))
+            .collect(Collectors.groupingBy(
+                InnerCoopShopInfo::from,
+                LinkedHashMap::new,
+                Collectors.toList()))
             .entrySet().stream()
             .map(InnerCoopShop::from)
             .toList();
