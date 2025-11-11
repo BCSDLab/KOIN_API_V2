@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,5 +26,11 @@ public record AdminSemesterCreateRequest(
     @NotNull(message = "마감일은 필수 입력값입니다.")
     LocalDate toDate
 ) {
-
+    public CoopSemester toEntity() {
+        return CoopSemester.builder()
+            .semester(semester)
+            .fromDate(fromDate)
+            .toDate(fromDate)
+            .build();
+    }
 }
