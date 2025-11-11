@@ -42,17 +42,11 @@ public class AdminCommutingBusService {
 
             if (shuttleBusRoute.isPresent()) {
                 ShuttleBusRoute route = shuttleBusRoute.get();
-                ShuttleBusRoute updatedRoute = ShuttleBusRoute.builder()
-                    .id(route.getId())
-                    .semesterType(route.getSemesterType())
-                    .region(route.getRegion())
-                    .routeType(route.getRouteType())
-                    .routeName(route.getRouteName())
-                    .subName(route.getSubName())
-                    .nodeInfo(commutingBusUpdateRequest.toNodeInfoEntity())
-                    .routeInfo(commutingBusUpdateRequest.toRouteInfoEntity())
-                    .build();
-                adminCommutingBusRepository.save(updatedRoute);
+                route.updateCommutingBusRoute(
+                    commutingBusUpdateRequest.toNodeInfoEntity(),
+                    commutingBusUpdateRequest.toRouteInfoEntity()
+                );
+                adminCommutingBusRepository.save(route);
             } else {
                 adminCommutingBusRepository.save(ShuttleBusRoute.builder()
                     .semesterType(semesterType.getDescription())
