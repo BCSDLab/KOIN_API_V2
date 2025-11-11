@@ -1,10 +1,14 @@
-    package in.koreatech.koin.admin.bus.shuttle.util;
+package in.koreatech.koin.admin.bus.shuttle.util;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import in.koreatech.koin.admin.bus.shuttle.model.Region;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteName;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteType;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 public class ShuttleBusMetaDataParser {
 
@@ -15,11 +19,11 @@ public class ShuttleBusMetaDataParser {
     private static final int ROUTE_TYPE_COL = 1;
 
     public static Region getRegionFromSheet(Sheet sheet) {
-        return Region.of(ExcelCellHelper.getCellValue(sheet, REGION_ROW, REGION_COL));
+        return Region.of(getCellValue(sheet, REGION_ROW, REGION_COL));
     }
 
     public static RouteType getRouteTypeFromSheet(Sheet sheet) {
-        return RouteType.of(ExcelCellHelper.getCellValue(sheet, ROUTE_TYPE_ROW, ROUTE_TYPE_COL));
+        return RouteType.of(getCellValue(sheet, ROUTE_TYPE_ROW, ROUTE_TYPE_COL));
     }
 
     public static RouteName getRouteNameFromSheet(Sheet sheet) {
@@ -29,6 +33,22 @@ public class ShuttleBusMetaDataParser {
         String subName = ExcelStringUtil.extractDetailFromBrackets(sheetName);
 
         return RouteName.of(routeName, subName);
+    }
+
+    private static String getCellValue(Sheet sheet, int rowIndex, int colIndex) {
+        Row row = sheet.getRow(rowIndex);
+
+        if (row == null) {
+            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_ROW);
+        }
+
+        Cell cell = row.getCell(colIndex);
+
+        if (cell == null) {
+            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_COL);
+        }
+
+        return cell.toString();
     }
 }
 
