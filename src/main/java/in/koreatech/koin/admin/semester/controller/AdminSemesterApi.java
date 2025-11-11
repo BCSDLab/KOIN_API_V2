@@ -37,7 +37,9 @@ public interface AdminSemesterApi {
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
-    @Operation(summary = "(ADMIN) 생협 학기 리스트 조회")
+    @Operation(summary = "(ADMIN) 생협 학기 리스트 조회", description = """
+        - 응답값은 최산 학기 -> 과거 학기 순으로 정렬되서 나갑니다.
+        """)
     @GetMapping("/admin/coopshop/semesters")
     ResponseEntity<List<AdminSemesterResponse>> getCoopshopSemesters(
         @Auth(permit = {ADMIN}) Integer adminId
