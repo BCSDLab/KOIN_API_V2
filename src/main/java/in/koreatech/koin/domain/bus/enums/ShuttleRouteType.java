@@ -41,9 +41,9 @@ public enum ShuttleRouteType {
     }
 
     public static ShuttleRouteType convertFrom(String label) {
-        for (var region : ShuttleRouteType.values()) {
-            if (region.getLabel().equals(label)) {
-                return region;
+        for (var routeType : ShuttleRouteType.values()) {
+            if (routeType.getLabel().equals(label)) {
+                return routeType;
             }
         }
         throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
