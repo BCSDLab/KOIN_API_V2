@@ -14,23 +14,23 @@ import lombok.Builder;
 @JsonNaming(SnakeCaseStrategy.class)
 @Builder
 public record AdminShuttleBusTimeTableResponse(
-    @Schema(description = "정류소 정보 리스트")
-    List<NodeInfo> nodeInfo,
-
     @Schema(description = "운행 지역", example = "CHEONAN_ASAN", requiredMode = REQUIRED)
     String region,
-
-    @Schema(description = "회차별 도착 시간 및 운행 요일 정보 리스트")
-    List<RouteInfo> routeInfo,
-
-    @Schema(description = "노선 이름", example = "천안 셔틀", requiredMode = REQUIRED)
-    String routeName,
 
     @Schema(description = "노선 타입", example = "SHUTTLE", requiredMode = REQUIRED)
     String routeType,
 
+    @Schema(description = "노선 이름", example = "천안 셔틀", requiredMode = REQUIRED)
+    String routeName,
+
     @Schema(description = "노선 부제목", example = "토요일, 일요일", requiredMode = NOT_REQUIRED)
-    String subName
+    String subName,
+
+    @Schema(description = "정류소 정보 리스트")
+    List<NodeInfo> nodeInfo,
+
+    @Schema(description = "회차별 도착 시간 및 운행 요일 정보 리스트")
+    List<RouteInfo> routeInfo
 ) {
 
     public static AdminShuttleBusTimeTableResponse from(ShuttleBusTimeTable table) {
