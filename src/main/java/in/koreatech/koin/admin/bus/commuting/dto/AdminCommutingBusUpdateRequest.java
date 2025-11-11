@@ -83,14 +83,14 @@ public record AdminCommutingBusUpdateRequest(
             }
         }
 
-        public List<ShuttleBusRoute.NodeInfo> toEntityNodeInfo() {
+        public List<ShuttleBusRoute.NodeInfo> toNodeInfoEntity() {
             return nodeInfo.stream()
                 .map(innerNodeInfoRequest ->
                     InnerNodeInfo.toEntity(innerNodeInfoRequest.name, innerNodeInfoRequest.detail))
                 .toList();
         }
 
-        public List<ShuttleBusRoute.RouteInfo> toEntityRouteInfo() {
+        public List<ShuttleBusRoute.RouteInfo> toRouteInfoEntity() {
             return routeInfo.stream()
                 .map(innerRouteInfoRequest ->
                     InnerRouteInfo.toEntity(innerRouteInfoRequest.name, innerRouteInfoRequest.detail,

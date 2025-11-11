@@ -49,8 +49,8 @@ public class AdminCommutingBusService {
                     .routeType(route.getRouteType())
                     .routeName(route.getRouteName())
                     .subName(route.getSubName())
-                    .nodeInfo(commutingBusUpdateRequest.toEntityNodeInfo())
-                    .routeInfo(commutingBusUpdateRequest.toEntityRouteInfo())
+                    .nodeInfo(commutingBusUpdateRequest.toNodeInfoEntity())
+                    .routeInfo(commutingBusUpdateRequest.toRouteInfoEntity())
                     .build();
                 adminCommutingBusRepository.save(updatedRoute);
             } else {
@@ -60,8 +60,8 @@ public class AdminCommutingBusService {
                     .routeType(routeType)
                     .routeName(commutingBusUpdateRequest.routeName())
                     .subName(commutingBusUpdateRequest.subName())
-                    .nodeInfo(commutingBusUpdateRequest.toEntityNodeInfo())
-                    .routeInfo(commutingBusUpdateRequest.toEntityRouteInfo())
+                    .nodeInfo(commutingBusUpdateRequest.toNodeInfoEntity())
+                    .routeInfo(commutingBusUpdateRequest.toRouteInfoEntity())
                     .build());
             }
         }
