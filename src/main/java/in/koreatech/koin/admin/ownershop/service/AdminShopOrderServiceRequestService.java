@@ -31,7 +31,7 @@ public class AdminShopOrderServiceRequestService {
 
         Long totalRequests = getTotalRequestsCount(condition);
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalRequests.intValue());
-        Sort.Direction direction = condition.getDirection();
+        Sort.Direction direction = condition.sort().getDirection();
 
         Page<ShopOrderServiceRequest> result = getOrderServiceRequestsResultPage(condition, criteria, direction);
 
