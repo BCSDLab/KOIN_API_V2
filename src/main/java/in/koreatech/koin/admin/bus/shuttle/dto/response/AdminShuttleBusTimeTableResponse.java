@@ -14,7 +14,6 @@ import lombok.Builder;
 @JsonNaming(SnakeCaseStrategy.class)
 @Builder
 public record AdminShuttleBusTimeTableResponse(
-
     @Schema(description = "정류소 정보 리스트")
     List<NodeInfo> nodeInfo,
 
@@ -62,7 +61,6 @@ public record AdminShuttleBusTimeTableResponse(
 
     @JsonNaming(SnakeCaseStrategy.class)
     public record NodeInfo(
-
         @Schema(description = "정류소 이름", example = "한기대", requiredMode = REQUIRED)
         String name,
 
@@ -72,7 +70,6 @@ public record AdminShuttleBusTimeTableResponse(
 
     @JsonNaming(SnakeCaseStrategy.class)
     public record RouteInfo(
-
         @Schema(description = "회차 이름", example = "1회", requiredMode = REQUIRED)
         String name,
 
