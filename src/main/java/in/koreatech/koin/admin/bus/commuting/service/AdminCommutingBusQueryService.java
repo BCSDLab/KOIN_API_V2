@@ -31,7 +31,7 @@ public class AdminCommutingBusQueryService {
             ShuttleRouteType routeType = ShuttleRouteType.convertFrom(commutingBusUpdateRequest.routeType());
             routeType.validateCommuting();
 
-            Optional<ShuttleBusRoute> shuttleBusRote = adminCommutingBusRepository
+            Optional<ShuttleBusRoute> shuttleBusRoute = adminCommutingBusRepository
                 .findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
                     semesterType.getDescription(),
                     region,
@@ -40,8 +40,8 @@ public class AdminCommutingBusQueryService {
                     commutingBusUpdateRequest.subName()
                 );
 
-            if (shuttleBusRote.isPresent()) {
-                ShuttleBusRoute route = shuttleBusRote.get();
+            if (shuttleBusRoute.isPresent()) {
+                ShuttleBusRoute route = shuttleBusRoute.get();
                 ShuttleBusRoute updatedRoute = ShuttleBusRoute.builder()
                     .id(route.getId())
                     .semesterType(route.getSemesterType())
