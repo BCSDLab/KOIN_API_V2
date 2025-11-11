@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Admin) ShuttleBusTimeTable: 셔틀 버스 시간표", description = "셔틀 버스의 시간표를 관리한다.")
-@RequestMapping("/admin/bus/shuttle")
+@RequestMapping("/admin/bus/shuttle/timetable")
 public interface AdminShuttleBusTimeTableApi {
 
     @ApiResponseCodes({
@@ -28,7 +28,7 @@ public interface AdminShuttleBusTimeTableApi {
         INVALID_EXCEL_COL
     })
     @Operation(summary = "엑셀 파일을 업로드하여 파싱된 데이터를 미리보기 한다.")
-    @PostMapping("/preview")
+    @PostMapping("/excel")
     ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(name = "Shuttle-Bus-Time-Table") MultipartFile file
