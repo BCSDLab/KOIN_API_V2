@@ -13,7 +13,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.coopShop.model.CoopShopRow;
@@ -23,6 +25,7 @@ import in.koreatech.koin.global.exception.CustomException;
 import io.micrometer.common.util.StringUtils;
 
 @Component
+@RequestScope
 public class POIExcelParser implements ExcelParser {
 
     private static final int COOP_SHOPS_SHEET_INDEX = 0;
@@ -40,10 +43,13 @@ public class POIExcelParser implements ExcelParser {
     private static final int OPEN_TIME_COLUMN_INDEX = 6;
     private static final int CLOSE_TIME_COLUMN_INDEX = 7;
 
+    private Sheet sheet;
+
     @Override
     public List<CoopShopRow> parse(MultipartFile excelFile) {
         try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
-            return parseCoopShopRow(workbook.getSheetAt(COOP_SHOPS_SHEET_INDEX));
+            this.sheet = workbook.getSheetAt(COOP_SHOPS_SHEET_INDEX);
+            return parseCoopShopRow();
         } catch (IOException e) {
             throw CustomException.of(ApiResponseCode.UNREADABLE_EXCEL_FILE);
         } catch (EncryptedDocumentException e) {
@@ -55,7 +61,7 @@ public class POIExcelParser implements ExcelParser {
         }
     }
 
-    private List<CoopShopRow> parseCoopShopRow(Sheet sheet) {
+    private List<CoopShopRow> parseCoopShopRow() {
         return IntStream.range(COOP_SHOPS_START_ROW_INDEX, MAX_ROW_COUNT)
             .mapToObj(sheet::getRow)
             .filter(Predicate.not(this::isRowEmpty))
@@ -71,10 +77,10 @@ public class POIExcelParser implements ExcelParser {
 
     private CoopShopRow createCoopShopRow(Row row) {
         return new CoopShopRow(
-            getCellValue(row.getCell(COOP_NAME_COLUMN_INDEX)),
-            getCellValue(row.getCell(PHONE_COLUMN_INDEX)),
-            getCellValue(row.getCell(LOCATION_COLUMN_INDEX)),
-            getCellValue(row.getCell(REMARK_COLUMN_INDEX)),
+            getCellValueWithMerge(row.getCell(COOP_NAME_COLUMN_INDEX)),
+            getCellValueWithMerge(row.getCell(PHONE_COLUMN_INDEX)),
+            getCellValueWithMerge(row.getCell(LOCATION_COLUMN_INDEX)),
+            getCellValueWithMerge(row.getCell(REMARK_COLUMN_INDEX)),
             getCellValue(row.getCell(TYPE_COLUMN_INDEX)),
             getCellValue(row.getCell(DAY_OF_WEEK_COLUMN_INDEX)),
             getCellValue(row.getCell(OPEN_TIME_COLUMN_INDEX)),
@@ -82,13 +88,22 @@ public class POIExcelParser implements ExcelParser {
         );
     }
 
-    private boolean isBlankCell(Cell cell) {
-        return Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue());
+    private String getCellValueWithMerge(Cell cell) {
+        String value = getCellValue(cell);
+        if (value != null) {
+            return value;
+        }
+        return sheet.getMergedRegions().stream()
+            .filter(mergedRegion -> mergedRegion.isInRange(cell))
+            .findFirst()
+            .map(this::getFirstCell)
+            .map(this::getCellValue)
+            .orElse(null);
     }
 
     private String getCellValue(Cell cell) {
         try {
-            if (Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue())) {
+            if (isBlankCell(cell)) {
                 return null;
             }
             return cell.getStringCellValue();
@@ -98,5 +113,14 @@ public class POIExcelParser implements ExcelParser {
                 String.format("row index: %d, column index: %d", cell.getRowIndex(), cell.getColumnIndex())
             );
         }
+    }
+
+    private boolean isBlankCell(Cell cell) {
+        return Objects.isNull(cell) || StringUtils.isBlank(cell.getStringCellValue());
+    }
+
+    private Cell getFirstCell(CellRangeAddress mergedRegion) {
+        Row firstRow = sheet.getRow(mergedRegion.getFirstRow());
+        return firstRow.getCell(mergedRegion.getFirstColumn());
     }
 }
