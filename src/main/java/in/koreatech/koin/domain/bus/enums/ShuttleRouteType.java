@@ -1,10 +1,13 @@
 package in.koreatech.koin.domain.bus.enums;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SHUTTLE_ROUTE_TYPE;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import in.koreatech.koin.domain.bus.exception.BusIllegalRouteTypeException;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -44,6 +47,12 @@ public enum ShuttleRouteType {
             }
         }
         throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
+    }
+
+    public void validateCommuting() {
+        if (this.isNotCommuting()) {
+            throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE, "shuttleRouteType: " + this.name());
+        }
     }
 
     public boolean isNotCommuting() {

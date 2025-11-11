@@ -1,7 +1,6 @@
 package in.koreatech.koin.admin.bus.commuting.service;
 
 import static in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusUpdateRequest.InnerAdminCommutingBusUpdateRequest;
-import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SHUTTLE_ROUTE_TYPE;
 
 import java.util.Optional;
 
@@ -14,7 +13,6 @@ import in.koreatech.koin.admin.bus.commuting.repository.AdminCommutingBusReposit
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,9 +29,7 @@ public class AdminCommutingBusQueryService {
         for (InnerAdminCommutingBusUpdateRequest commutingBusUpdateRequest : request.commutingBusTimetables()) {
             ShuttleBusRegion region = ShuttleBusRegion.convertFrom(commutingBusUpdateRequest.region());
             ShuttleRouteType routeType = ShuttleRouteType.convertFrom(commutingBusUpdateRequest.routeType());
-            if (routeType.isNotCommuting()) {
-                throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE, "shuttleRouteType: " + routeType.name());
-            }
+            routeType.validateCommuting();
 
             Optional<ShuttleBusRoute> shuttleBusRote = adminCommutingBusRepository
                 .findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
