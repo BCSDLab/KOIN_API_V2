@@ -26,7 +26,7 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
     @PostMapping("/preview")
     public ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @RequestParam(name = "Shuttle-Bus-Time-Table") MultipartFile file
+        @RequestParam(name = "shuttle-bus-time-table") MultipartFile file
     ) {
         List<AdminShuttleBusTimeTableResponse> response = adminShuttleBusTimeTableService.previewShuttleBusTimeTable(file);
 

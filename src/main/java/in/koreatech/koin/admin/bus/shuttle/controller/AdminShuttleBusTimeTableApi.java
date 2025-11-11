@@ -31,6 +31,6 @@ public interface AdminShuttleBusTimeTableApi {
     @PostMapping("/excel")
     ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @RequestParam(name = "Shuttle-Bus-Time-Table") MultipartFile file
+        @RequestParam(name = "shuttle-bus-time-table") MultipartFile file
     );
 }
