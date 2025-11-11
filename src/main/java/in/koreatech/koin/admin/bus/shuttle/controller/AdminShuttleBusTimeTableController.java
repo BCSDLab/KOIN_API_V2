@@ -28,7 +28,8 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(name = "shuttle-bus-time-table") MultipartFile file
     ) {
-        List<AdminShuttleBusTimeTableResponse> response = adminShuttleBusTimeTableService.previewShuttleBusTimeTable(file);
+        List<AdminShuttleBusTimeTableResponse> response = adminShuttleBusTimeTableService
+            .previewShuttleBusTimeTable(file);
 
         return ResponseEntity.ok(response);
     }

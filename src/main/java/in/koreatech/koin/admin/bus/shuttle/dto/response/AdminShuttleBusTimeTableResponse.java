@@ -1,7 +1,8 @@
 package in.koreatech.koin.admin.bus.shuttle.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.*;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
 
@@ -65,7 +66,8 @@ public record AdminShuttleBusTimeTableResponse(
 
         @Schema(description = "정류소 이름 추가 설명 (없으면 null)", example = "학화호두과자 앞", requiredMode = NOT_REQUIRED)
         String detail
-    ) {}
+    ) {
+    }
 
     @JsonNaming(SnakeCaseStrategy.class)
     public record RouteInfo(
@@ -74,5 +76,6 @@ public record AdminShuttleBusTimeTableResponse(
 
         @Schema(description = "각 정류소 별 도착 시간 (미정차인 경우 null)", requiredMode = REQUIRED)
         List<String> arrivalTime
-    ) {}
+    ) {
+    }
 }

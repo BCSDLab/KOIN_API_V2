@@ -9,9 +9,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.util.StringUtils;
 
+import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 import in.koreatech.koin.admin.bus.shuttle.model.ArrivalTime;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteInfo;
-import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 
 public class ShuttleBusRouteInfoParser {
 
@@ -97,7 +97,6 @@ public class ShuttleBusRouteInfoParser {
                     times.add(cell.getStringCellValue().trim());
                 }
             }
-
 
             arrivalTimes.add(ArrivalTime.of(times));
         }

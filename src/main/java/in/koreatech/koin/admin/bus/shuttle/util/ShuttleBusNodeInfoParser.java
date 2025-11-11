@@ -20,7 +20,10 @@ public class ShuttleBusNodeInfoParser {
 
         for (int i = START_BUS_STOP_ROW; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
-            if (row == null) break;
+
+            if (row == null) {
+                break;
+            }
 
             Cell cell = row.getCell(START_BUS_STOP_COL);
 
