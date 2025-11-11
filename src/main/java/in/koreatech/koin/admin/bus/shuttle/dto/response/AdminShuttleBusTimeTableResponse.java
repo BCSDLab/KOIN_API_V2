@@ -30,7 +30,7 @@ public record AdminShuttleBusTimeTableResponse(
     @Schema(description = "노선 타입", example = "SHUTTLE", requiredMode = REQUIRED)
     String routeType,
 
-    @Schema(description = "노선 부제목", example = "수신반점", requiredMode = NOT_REQUIRED)
+    @Schema(description = "노선 부제목", example = "토요일, 일요일", requiredMode = NOT_REQUIRED)
     String subName
 ) {
 
