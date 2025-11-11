@@ -74,13 +74,13 @@ public class ShuttleBusRouteInfoParser {
         List<ArrivalTime> arrivalTimes = new ArrayList<>();
 
         for (int colNum = START_COL;
-             colNum < START_COL + ExcelRangeUtil.getNumberOfCols(sheet, START_HEADER_ROW, START_COL);
+             colNum < START_COL + ExcelRangeUtil.countUsedColumnsInRow(sheet, START_HEADER_ROW, START_COL);
              colNum++
         ) {
             List<String> times = new ArrayList<>();
 
             for (int rowNum = START_TIME_DATA_ROW;
-                 rowNum < START_TIME_DATA_ROW + ExcelRangeUtil.getNumberOfRows(sheet, START_TIME_DATA_ROW, 0);
+                 rowNum < START_TIME_DATA_ROW + ExcelRangeUtil.countUsedRowsInColumn(sheet, START_TIME_DATA_ROW, 0);
                  rowNum++
             ) {
                 Row row = sheet.getRow(rowNum);

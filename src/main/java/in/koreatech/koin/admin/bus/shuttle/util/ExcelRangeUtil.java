@@ -7,7 +7,7 @@ import org.springframework.util.StringUtils;
 
 public class ExcelRangeUtil {
 
-    public static int getNumberOfRows(Sheet sheet, int startRow, int checkColumn) {
+    public static int countUsedRowsInColumn(Sheet sheet, int startRow, int checkColumn) {
         int cnt = 0;
 
         for (int i = startRow; i <= sheet.getLastRowNum(); i++) {
@@ -29,7 +29,7 @@ public class ExcelRangeUtil {
         return cnt;
     }
 
-    public static int getNumberOfCols(Sheet sheet, int checkRow, int startCol) {
+    public static int countUsedColumnsInRow(Sheet sheet, int checkRow, int startCol) {
         Row row = sheet.getRow(checkRow);
 
         if (row == null) {
