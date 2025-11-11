@@ -2,10 +2,8 @@ package in.koreatech.koin.admin.history.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.common.model.Criteria.*;
-import static in.koreatech.koin.common.model.Criteria.Sort.CREATED_AT_ASC;
 import static in.koreatech.koin.common.model.Criteria.Sort.CREATED_AT_DESC;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
-import static org.springframework.data.domain.Sort.Direction;
 
 import java.util.Objects;
 
@@ -45,12 +43,5 @@ public record AdminHistoriesCondition(
         if (Objects.isNull(sort)) {
             sort = CREATED_AT_DESC;
         }
-    }
-
-    public Direction getSortDir() {
-        if (sort == CREATED_AT_ASC) {
-            return Direction.ASC;
-        }
-        return Direction.DESC;
     }
 }
