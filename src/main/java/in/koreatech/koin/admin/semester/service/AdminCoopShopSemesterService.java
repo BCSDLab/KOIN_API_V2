@@ -3,13 +3,16 @@ package in.koreatech.koin.admin.semester.service;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.semester.dto.AdminSemesterCreateRequest;
+import in.koreatech.koin.admin.semester.dto.AdminSemesterResponse;
 import in.koreatech.koin.admin.semester.repository.AdminCoopShopSemesterRepository;
+import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +33,13 @@ public class AdminCoopShopSemesterService {
         validateOverlappingDateRange(request.fromDate(), request.toDate());
 
         adminCoopShopSemesterRepository.save(request.toEntity());
+    }
+
+    public List<AdminSemesterResponse> getCoopshopSemesters() {
+        List<CoopSemester> coopSemesters = adminCoopShopSemesterRepository.findAllByOrderByFromDateDesc();
+        return coopSemesters.stream()
+            .map(AdminSemesterResponse::from)
+            .toList();
     }
 
     private void validateSemesterFormat(String semester) {

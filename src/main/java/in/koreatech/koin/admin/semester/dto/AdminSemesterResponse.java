@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -29,5 +30,13 @@ public record AdminSemesterResponse(
     @Schema(description = "현재 적용 학기 여부", example = "true", requiredMode = REQUIRED)
     Boolean isApplied
 ) {
-
+    public static AdminSemesterResponse from(CoopSemester semester) {
+        return new AdminSemesterResponse(
+            semester.getId(),
+            semester.getSemester(),
+            semester.getFromDate(),
+            semester.getToDate(),
+            semester.isApplied()
+        );
+    }
 }
