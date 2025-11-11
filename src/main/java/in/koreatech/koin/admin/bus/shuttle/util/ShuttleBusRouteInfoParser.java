@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.admin.bus.shuttle.model.ArrivalTime;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteInfo;
-import in.koreatech.koin.admin.bus.shuttle.model.RunningDays;
+import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 
 public class ShuttleBusRouteInfoParser {
 
