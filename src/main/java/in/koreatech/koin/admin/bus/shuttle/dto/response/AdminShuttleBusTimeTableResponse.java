@@ -79,6 +79,4 @@ public record AdminShuttleBusTimeTableResponse(
         @Schema(description = "각 정류소 별 도착 시간 (미정차인 경우 null)", requiredMode = REQUIRED)
         List<String> arrivalTime
     ) {}
-
-
 }
