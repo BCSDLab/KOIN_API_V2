@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AdminCommutingBusQueryService {
+public class AdminCommutingBusService {
 
     private final AdminCommutingBusRepository adminCommutingBusRepository;
 

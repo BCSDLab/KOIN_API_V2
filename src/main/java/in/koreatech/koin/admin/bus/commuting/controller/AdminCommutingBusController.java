@@ -17,7 +17,7 @@ import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusUpdateRequest;
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.admin.bus.commuting.service.AdminCommutingBusExcelService;
-import in.koreatech.koin.admin.bus.commuting.service.AdminCommutingBusQueryService;
+import in.koreatech.koin.admin.bus.commuting.service.AdminCommutingBusService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminCommutingBusController implements AdminCommutingBusApi {
 
     private final AdminCommutingBusExcelService adminCommutingBusExcelService;
-    private final AdminCommutingBusQueryService adminCommutingBusQueryService;
+    private final AdminCommutingBusService adminCommutingBusService;
 
     @PostMapping(value = "/admin/bus/commuting/timetable/excel", consumes = MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdminCommutingBusResponse> parseCommutingBusExcel(
@@ -45,7 +45,7 @@ public class AdminCommutingBusController implements AdminCommutingBusApi {
         @Valid @RequestBody AdminCommutingBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminCommutingBusQueryService.updateCommutingBusTimetable(semesterType, request);
+        adminCommutingBusService.updateCommutingBusTimetable(semesterType, request);
         return ResponseEntity.ok().build();
     }
 }
