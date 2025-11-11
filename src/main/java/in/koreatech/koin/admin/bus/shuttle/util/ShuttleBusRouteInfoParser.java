@@ -25,7 +25,7 @@ public class ShuttleBusRouteInfoParser {
         List<RouteInfo.InnerNameDetail> innerNameDetails = extractRouteNameDetails(sheet);
 
         List<RunningDays> runningDays = innerNameDetails.stream()
-            .map(ShuttleBusRouteInfoParser::determineRunningDays)
+            .map(RunningDays::from)
             .toList();
 
         List<ArrivalTime> arrivalTimes = extractArrivalTimes(sheet);
@@ -68,20 +68,6 @@ public class ShuttleBusRouteInfoParser {
         }
 
         return innerNameDetails;
-    }
-
-    private static RunningDays determineRunningDays(RouteInfo.InnerNameDetail innerNameDetail) {
-        String name = innerNameDetail.getName();
-
-        if (name.contains("목") && name.contains("금")) {
-            return RunningDays.thursdayAndFriday();
-        } else if (name.contains("토")) {
-            return RunningDays.saturday();
-        } else if (name.contains("일")) {
-            return RunningDays.sunday();
-        } else {
-            return RunningDays.weekDays();
-        }
     }
 
     private static List<ArrivalTime> extractArrivalTimes(Sheet sheet) {
