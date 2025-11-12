@@ -70,12 +70,11 @@ public class CoopShop extends BaseEntity {
         this.remarks = remarks;
     }
 
-    public void addAllCoopOpens(List<CoopOpen> coopOpens) {
-        this.coopOpens.addAll(coopOpens);
-        coopOpens.forEach(coopOpen -> coopOpen.updateCoopShop(this));
-    }
-
     public void updateCoopSemester(CoopSemester coopSemester) {
         this.coopSemester = coopSemester;
+    }
+
+    public void add(CoopOpen coopOpen) {
+        this.coopOpens.add(coopOpen);
     }
 }

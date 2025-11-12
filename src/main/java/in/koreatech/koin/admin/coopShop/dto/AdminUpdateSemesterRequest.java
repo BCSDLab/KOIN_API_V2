@@ -7,6 +7,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.coopshop.model.CoopName;
+import in.koreatech.koin.domain.coopshop.model.CoopOpen;
+import in.koreatech.koin.domain.coopshop.model.CoopShop;
+import in.koreatech.koin.domain.coopshop.model.DayType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +25,6 @@ public record AdminUpdateSemesterRequest(
     @NotNull(message = "생협 매장 정보 리스트는 필수 입력값입니다.")
     List<InnerCoopShop> coopShops
 ) {
-
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerCoopShop(
         @Schema(description = "생협 매장 기본 정보", requiredMode = REQUIRED)
@@ -70,7 +73,23 @@ public record AdminUpdateSemesterRequest(
             @NotBlank(message = "생협 매장 마감 시간은 필수 입력값입니다.")
             String closeTime
         ) {
+            public CoopOpen toEntity() {
+                return CoopOpen.builder()
+                    .dayOfWeek(DayType.from(dayOfWeek()))
+                    .type(type())
+                    .openTime(openTime())
+                    .closeTime(closeTime())
+                    .build();
+            }
+        }
 
+        public CoopShop toEntity(CoopName coopName) {
+            return CoopShop.builder()
+                .coopName(coopName)
+                .phone(coopShopInfo.phone())
+                .remarks(coopShopInfo.phone())
+                .location(coopShopInfo.location())
+                .build();
         }
     }
 }
