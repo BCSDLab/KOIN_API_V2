@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.common.model.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,7 +37,7 @@ public class CoopShop extends BaseEntity {
     @JoinColumn(name = "semester_id", referencedColumnName = "id", nullable = false)
     private CoopSemester coopSemester;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "coop_name_id", referencedColumnName = "id", nullable = false)
     private CoopName coopName;
 
