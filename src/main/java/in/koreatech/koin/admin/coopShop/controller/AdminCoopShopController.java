@@ -67,6 +67,6 @@ public class AdminCoopShopController implements AdminCoopShopApi {
         @Valid @RequestBody AdminUpdateSemesterRequest request
     ) {
         adminCoopShopService.updateCoopShops(semesterId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

@@ -83,7 +83,7 @@ public interface AdminCoopShopApi {
 
     @ApiResponseCodes(
         {
-            NO_CONTENT,
+            OK,
             NOT_FOUND_COOP_SEMESTER,
             INVALID_COOP_SHOP_DAY_OF_WEEK
         }
