@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.shop.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.SHOPS;
+import static in.koreatech.koin.admin.history.enums.DomainType.SHOPSCATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopRequest;
 import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopCategoriesOrderRequest;
@@ -83,6 +86,7 @@ public class AdminShopController implements AdminShopApi {
     }
 
     @PostMapping("/admin/shops")
+    @AdminActivityLogging(domain = SHOPS)
     public ResponseEntity<Void> createShop(
         @RequestBody @Valid AdminCreateShopRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -92,6 +96,7 @@ public class AdminShopController implements AdminShopApi {
     }
 
     @PostMapping("/admin/shops/categories")
+    @AdminActivityLogging(domain = SHOPSCATEGORIES)
     public ResponseEntity<Void> createShopCategory(
         @RequestBody @Valid AdminCreateShopCategoryRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -101,6 +106,7 @@ public class AdminShopController implements AdminShopApi {
     }
 
     @PutMapping("/admin/shops/{id}")
+    @AdminActivityLogging(domain = SHOPS, domainIdParam = "id")
     public ResponseEntity<Void> modifyShop(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminModifyShopRequest request,
@@ -111,6 +117,7 @@ public class AdminShopController implements AdminShopApi {
     }
 
     @PutMapping("/admin/shops/categories/{id}")
+    @AdminActivityLogging(domain = SHOPSCATEGORIES, domainIdParam = "id")
     public ResponseEntity<Void> modifyShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminModifyShopCategoryRequest request,
@@ -121,6 +128,7 @@ public class AdminShopController implements AdminShopApi {
     }
 
     @PutMapping("/admin/shops/categories/order")
+    @AdminActivityLogging(domain = SHOPSCATEGORIES)
     public ResponseEntity<Void> modifyShopCategoriesOrder(
         @RequestBody @Valid AdminModifyShopCategoriesOrderRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -130,6 +138,7 @@ public class AdminShopController implements AdminShopApi {
     }
 
     @PostMapping("/admin/shops/{id}/undelete")
+    @AdminActivityLogging(domain = SHOPS, domainIdParam = "shopId")
     public ResponseEntity<Void> cancelShopDelete(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -139,6 +148,7 @@ public class AdminShopController implements AdminShopApi {
     }
 
     @DeleteMapping("/admin/shops/{id}")
+    @AdminActivityLogging(domain = SHOPS, domainIdParam = "id")
     public ResponseEntity<Void> deleteShop(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -148,6 +158,7 @@ public class AdminShopController implements AdminShopApi {
     }
 
     @DeleteMapping("/admin/shops/categories/{id}")
+    @AdminActivityLogging(domain = SHOPSCATEGORIES, domainIdParam = "id")
     public ResponseEntity<Void> deleteShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId

@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.benefit.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.BENEFIT;
+import static in.koreatech.koin.admin.history.enums.DomainType.BENEFITCATEGORIES;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,7 @@ import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.service.AdminBenefitService;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +48,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @PostMapping("/categories")
+    @AdminActivityLogging(domain = BENEFITCATEGORIES)
     public ResponseEntity<AdminCreateBenefitCategoryResponse> createBenefitCategory(
         @RequestBody AdminCreateBenefitCategoryRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -54,6 +58,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @PutMapping("/categories/{id}")
+    @AdminActivityLogging(domain = BENEFITCATEGORIES, domainIdParam = "categoryId")
     public ResponseEntity<AdminModifyBenefitCategoryResponse> modifyBenefitCategory(
         @PathVariable("id") Integer categoryId,
         @RequestBody AdminModifyBenefitCategoryRequest request,
@@ -64,6 +69,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @DeleteMapping("/categories/{id}")
+    @AdminActivityLogging(domain = BENEFITCATEGORIES, domainIdParam = "categoryId")
     public ResponseEntity<Void> deleteBenefitCategory(
         @PathVariable("id") Integer categoryId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -82,6 +88,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @PostMapping("/{id}/shops")
+    @AdminActivityLogging(domain = BENEFIT, domainIdParam = "benefitId")
     public ResponseEntity<AdminCreateBenefitShopsResponse> createBenefitShops(
         @PathVariable("id") Integer benefitId,
         @RequestBody AdminCreateBenefitShopsRequest request,
@@ -92,6 +99,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @PutMapping
+    @AdminActivityLogging(domain = BENEFIT)
     public ResponseEntity<Void> modifyBenefitShops(
         @RequestBody AdminModifyBenefitShopsRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -101,6 +109,7 @@ public class AdminBenefitController implements AdminBenefitApi {
     }
 
     @DeleteMapping("/{id}/shops")
+    @AdminActivityLogging(domain = BENEFIT, domainIdParam = "benefitId")
     public ResponseEntity<Void> deleteBenefitShops(
         @PathVariable("id") Integer benefitId,
         @RequestBody AdminDeleteShopsRequest request,

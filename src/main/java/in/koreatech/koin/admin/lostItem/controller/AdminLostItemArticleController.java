@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.lostItem.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.LOST_ITEMS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.lostItem.dto.AdminLostItemArticlesResponse;
 import in.koreatech.koin.admin.lostItem.dto.AdminModifyLostItemArticleReportStatusRequest;
 import in.koreatech.koin.admin.lostItem.service.AdminLostItemArticleService;
@@ -23,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminLostItemArticleController implements AdminLostItemArticleApi{
+public class AdminLostItemArticleController implements AdminLostItemArticleApi {
 
     private final AdminLostItemArticleService adminLostItemArticleService;
 
@@ -38,6 +40,7 @@ public class AdminLostItemArticleController implements AdminLostItemArticleApi{
     }
 
     @PutMapping("/admin/articles/lost-item/reports/{id}")
+    @AdminActivityLogging(domain = LOST_ITEMS, domainIdParam = "id")
     public ResponseEntity<Void> modifyLostItemReportStatus(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminModifyLostItemArticleReportStatusRequest request,
@@ -48,6 +51,7 @@ public class AdminLostItemArticleController implements AdminLostItemArticleApi{
     }
 
     @DeleteMapping("/admin/articles/lost-item/{id}")
+    @AdminActivityLogging(domain = LOST_ITEMS, domainIdParam = "id")
     public ResponseEntity<Void> deleteLostItemArticle(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
