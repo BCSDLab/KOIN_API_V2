@@ -14,7 +14,7 @@ public class Region {
     public static Region of(String value) {
         return new Region(
             ShuttleBusRegion.of(value)
-                .getLabel()
+                .name()
         );
     }
 }
