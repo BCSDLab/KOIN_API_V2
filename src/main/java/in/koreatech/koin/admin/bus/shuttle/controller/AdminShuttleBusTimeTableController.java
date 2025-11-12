@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
+import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
 import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
-import in.koreatech.koin.admin.bus.shuttle.model.SemesterType;
+import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusService;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusTimeTableService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTableApi {
 
     private final AdminShuttleBusTimeTableService adminShuttleBusTimeTableService;
+    private final AdminShuttleBusService adminShuttleBusService;
 
     @PostMapping("/excel")
     public ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
@@ -39,7 +42,7 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
     }
 
     @PutMapping
-    public ResponseEntity<List<AdminShuttleBusTimeTableResponse>> updateShuttleBusTimeTable(
+    public ResponseEntity<Void> updateShuttleBusTimeTable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
         @Valid @RequestBody AdminShuttleBusUpdateRequest requst,
         @Auth(permit = {ADMIN}) Integer adminId

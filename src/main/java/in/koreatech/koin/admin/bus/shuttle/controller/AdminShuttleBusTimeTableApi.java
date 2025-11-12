@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
+import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
 import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
-import in.koreatech.koin.admin.bus.shuttle.model.SemesterType;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,7 +44,7 @@ public interface AdminShuttleBusTimeTableApi {
     })
     @Operation(summary = "셔틀 버스 시간표를 업데이트한다.")
     @PutMapping
-    ResponseEntity<List<AdminShuttleBusTimeTableResponse>> updateShuttleBusTimeTable(
+    ResponseEntity<Void> updateShuttleBusTimeTable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
         @Valid @RequestBody AdminShuttleBusUpdateRequest requst,
         @Auth(permit = {ADMIN}) Integer adminId
