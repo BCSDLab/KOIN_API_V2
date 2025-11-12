@@ -23,7 +23,7 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
 
     private final AdminShuttleBusTimeTableService adminShuttleBusTimeTableService;
 
-    @PostMapping("/preview")
+    @PostMapping("/excel")
     public ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(name = "shuttle-bus-time-table") MultipartFile file
