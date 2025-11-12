@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.banner.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.BANNERS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -14,13 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerActiveChangeRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerModifyRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerPriorityChangeRequest;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -88,6 +90,7 @@ public interface AdminBannerApi {
             - 모바일 배포가 비활성화된 경우, 리다이렉션 링크와 최소버전을 설정할 수 없습니다.
         """)
     @PostMapping
+    @AdminActivityLogging(domain = BANNERS)
     ResponseEntity<Void> createBanner(
         @RequestBody @Valid AdminBannerCreateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -104,6 +107,7 @@ public interface AdminBannerApi {
     )
     @Operation(summary = "특정 배너를 삭제한다")
     @DeleteMapping("/{id}")
+    @AdminActivityLogging(domain = BANNERS, domainIdParam = "bannerId")
     ResponseEntity<Void> deleteBanner(
         @PathVariable(name = "id") Integer bannerId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -131,6 +135,7 @@ public interface AdminBannerApi {
             - 이후 우선순위를 가진 배너와 우선순위가 변경 됩니다. (명세서 기준 화살표 아랫방향)
         """)
     @PatchMapping("/{id}/priority")
+    @AdminActivityLogging(domain = BANNERS, domainIdParam = "id")
     ResponseEntity<Void> changePriority(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminBannerPriorityChangeRequest request,
@@ -148,6 +153,7 @@ public interface AdminBannerApi {
     )
     @Operation(summary = "특정 배너의 활성화 상태를 조정한다")
     @PatchMapping("/{id}/active")
+    @AdminActivityLogging(domain = BANNERS, domainIdParam = "id")
     ResponseEntity<Void> changeActive(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminBannerActiveChangeRequest request,
@@ -171,6 +177,7 @@ public interface AdminBannerApi {
             - 모바일 배포가 비활성화된 경우, 리다이렉션 링크와 최소버전을 설정할 수 없습니다.
         """)
     @PutMapping("/{id}")
+    @AdminActivityLogging(domain = BANNERS, domainIdParam = "id")
     ResponseEntity<Void> modifyBanner(
         @Parameter(in = PATH) @PathVariable Integer id,
         @RequestBody @Valid AdminBannerModifyRequest request,

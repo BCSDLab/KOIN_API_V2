@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.user.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.USERS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
@@ -29,6 +31,7 @@ public class AdminUserController implements AdminUserApi{
     }
 
     @DeleteMapping("/admin/users/{id}")
+    @AdminActivityLogging(domain = USERS, domainIdParam = "id")
     public ResponseEntity<Void> deleteUser(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -38,6 +41,7 @@ public class AdminUserController implements AdminUserApi{
     }
 
     @PostMapping("/admin/users/{id}/undelete")
+    @AdminActivityLogging(domain = USERS, domainIdParam = "id")
     public ResponseEntity<Void> undeleteUser(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId

@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.member.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.MEMBERS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.member.dto.AdminMemberRequest;
 import in.koreatech.koin.admin.member.dto.AdminMemberResponse;
 import in.koreatech.koin.admin.member.dto.AdminMembersResponse;
@@ -54,6 +56,7 @@ public interface AdminMemberApi {
     @Operation(summary = "BCSDLab 회원 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/members")
+    @AdminActivityLogging(domain = MEMBERS)
     ResponseEntity<Void> createMember(
         @RequestBody @Valid AdminMemberRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -86,6 +89,7 @@ public interface AdminMemberApi {
     @Operation(summary = "BCSDLab 회원 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/admin/members/{id}")
+    @AdminActivityLogging(domain = MEMBERS, domainIdParam = "memberId")
     ResponseEntity<Void> deleteMember(
         @PathVariable("id") Integer memberId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -102,6 +106,7 @@ public interface AdminMemberApi {
     @Operation(summary = "BCSDLab 회원 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/members/{id}")
+    @AdminActivityLogging(domain = MEMBERS, domainIdParam = "memberId")
     ResponseEntity<Void> updateMember(
         @PathVariable("id") Integer memberId,
         @RequestBody @Valid AdminMemberRequest request,
@@ -119,6 +124,7 @@ public interface AdminMemberApi {
     @Operation(summary = "BCSDLab 회원 삭제 취소")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/members/{id}/undelete")
+    @AdminActivityLogging(domain = MEMBERS, domainIdParam = "memberId")
     ResponseEntity<Void> undeleteMember(
         @PathVariable("id") Integer memberId,
         @Auth(permit = {ADMIN}) Integer adminId

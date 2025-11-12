@@ -22,6 +22,9 @@ public enum ApiResponseCode {
     ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
     ILLEGAL_STATE(HttpStatus.BAD_REQUEST, "잘못된 상태로 요청이 들어왔습니다."),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "잘못된 입력값이 포함되어 있습니다."),
+    INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 검색 타입입니다."),
+    REQUIRED_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "검색어가 존재할 때는 검색 대상이 반드시 필요합니다."),
+    SEARCH_QUERY_ONLY_WHITESPACE(HttpStatus.BAD_REQUEST, "검색 내용은 공백 문자로만 이루어져 있으면 안됩니다."),
     INVALID_DATE_TIME(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다."),
     INVALID_GENDER_INDEX(HttpStatus.BAD_REQUEST, "올바르지 않은 성별 인덱스입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "올바르지 않은 인증 토큰입니다."),
@@ -72,6 +75,13 @@ public enum ApiResponseCode {
     INVALID_EXCEL_FILE_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 엑셀 파일 형식입니다."),
     INVALID_EXCEL_CELL_FORMAT(HttpStatus.BAD_REQUEST, "셀 서식은 텍스트만 허용합니다."),
     INVALID_COOP_SHOP_DAY_OF_WEEK(HttpStatus.BAD_REQUEST, "올바르지 않은 요일입니다."),
+    INVALID_EXCEL_FILE_TYPE(HttpStatus.BAD_REQUEST, "엑셀 형식이 아닌 파일이 업로드 되었습니다."),
+    INVALID_EXCEL_ROW(HttpStatus.BAD_REQUEST, "존재하지 않는 엑셀 행이 있습니다."),
+    INVALID_EXCEL_COL(HttpStatus.BAD_REQUEST, "존재하지 않는 엑셀 열이 있습니다."),
+    INVALID_SHUTTLE_ROUTE_TYPE(HttpStatus.BAD_REQUEST, "등하교 버스 타입이 아닙니다."),
+    INVALID_NODE_INFO_START_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 시작 위치가 아닙니다."),
+    INVALID_NODE_INFO_END_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 끝 위치가 아닙니다."),
+    INVALID_SEMESTER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 학기 형식입니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -116,6 +126,7 @@ public enum ApiResponseCode {
     NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
     NOT_FOUND_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
     NOT_FOUND_COOP_SEMESTER(HttpStatus.NOT_FOUND, "해당 학기가 존재하지 않습니다."),
+    NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST(HttpStatus.NOT_FOUND, "상점 서비스 전환 요청이 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
@@ -129,6 +140,8 @@ public enum ApiResponseCode {
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
     DUPLICATE_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
     DUPLICATE_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 주문 가능한 상점입니다."),
+    DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "이미 존재하는 학기입니다."),
+    OVERLAPPING_SEMESTER_DATE_RANGE(HttpStatus.CONFLICT, "학기 기간이 기존 학기와 겹칩니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)

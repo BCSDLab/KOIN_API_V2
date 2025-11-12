@@ -1,12 +1,16 @@
 package in.koreatech.koin.domain.bus.enums;
 
-import in.koreatech.koin.domain.bus.exception.BusIllegalRouteTypeException;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SHUTTLE_ROUTE_TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import in.koreatech.koin.domain.bus.exception.BusIllegalRouteTypeException;
+
+import in.koreatech.koin.global.exception.CustomException;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
@@ -26,6 +30,34 @@ public enum ShuttleRouteType {
             }
         }
         throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
+    }
+
+    public static ShuttleRouteType of(String name) {
+        for (var region : ShuttleRouteType.values()) {
+            if (region.name().equals(name)) {
+                return region;
+            }
+        }
+        throw BusIllegalRouteTypeException.withDetail("name: " + name);
+    }
+
+    public static ShuttleRouteType convertFrom(String label) {
+        for (var routeType : ShuttleRouteType.values()) {
+            if (routeType.getLabel().equals(label)) {
+                return routeType;
+            }
+        }
+        throw BusIllegalRouteTypeException.withDetail("displayName: " + label);
+    }
+
+    public void validateCommuting() {
+        if (this.isNotCommuting()) {
+            throw CustomException.of(INVALID_SHUTTLE_ROUTE_TYPE, "shuttleRouteType: " + this.name());
+        }
+    }
+
+    public boolean isNotCommuting() {
+        return this == SHUTTLE || this == WEEKEND;
     }
 
     // Deprecated: 강제 업데이트 이후 삭제할 레거시 Bus

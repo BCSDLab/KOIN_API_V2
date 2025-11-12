@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.banner.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.BANNERS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerActiveChangeRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerCreateRequest;
 import in.koreatech.koin.admin.banner.dto.request.AdminBannerModifyRequest;
@@ -23,6 +23,8 @@ import in.koreatech.koin.admin.banner.dto.request.AdminBannerPriorityChangeReque
 import in.koreatech.koin.admin.banner.dto.response.AdminBannerResponse;
 import in.koreatech.koin.admin.banner.dto.response.AdminBannersResponse;
 import in.koreatech.koin.admin.banner.service.AdminBannerService;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -55,6 +57,7 @@ public class AdminBannerController implements AdminBannerApi {
     }
 
     @PostMapping
+    @AdminActivityLogging(domain = BANNERS)
     public ResponseEntity<Void> createBanner(
         @RequestBody @Valid AdminBannerCreateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -64,6 +67,7 @@ public class AdminBannerController implements AdminBannerApi {
     }
 
     @DeleteMapping("/{id}")
+    @AdminActivityLogging(domain = BANNERS, domainIdParam = "bannerId")
     public ResponseEntity<Void> deleteBanner(
         @PathVariable(name = "id") Integer bannerId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -73,6 +77,7 @@ public class AdminBannerController implements AdminBannerApi {
     }
 
     @PatchMapping("/{id}/priority")
+    @AdminActivityLogging(domain = BANNERS, domainIdParam = "id")
     public ResponseEntity<Void> changePriority(
         @PathVariable Integer id,
         @RequestBody @Valid AdminBannerPriorityChangeRequest request,
@@ -83,6 +88,7 @@ public class AdminBannerController implements AdminBannerApi {
     }
 
     @PatchMapping("/{id}/active")
+    @AdminActivityLogging(domain = BANNERS, domainIdParam = "id")
     public ResponseEntity<Void> changeActive(
         @PathVariable Integer id,
         @RequestBody @Valid AdminBannerActiveChangeRequest request,
@@ -93,6 +99,7 @@ public class AdminBannerController implements AdminBannerApi {
     }
 
     @PutMapping("/{id}")
+    @AdminActivityLogging(domain = BANNERS, domainIdParam = "id")
     public ResponseEntity<Void> modifyBanner(
         @PathVariable Integer id,
         @RequestBody @Valid AdminBannerModifyRequest request,
