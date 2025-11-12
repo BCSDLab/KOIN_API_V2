@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public class RouteName {
+public class SubName {
 
     private String name;
 
-    public static RouteName of(String name) {
-        return new RouteName(name);
+    public static SubName of(String name) {
+        return new SubName(name);
     }
 }

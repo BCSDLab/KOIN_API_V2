@@ -19,6 +19,7 @@ import in.koreatech.koin.admin.bus.shuttle.model.RouteInfo;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteName;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteType;
 import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable;
+import in.koreatech.koin.admin.bus.shuttle.model.SubName;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusMetaDataParser;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusNodeInfoParser;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusRouteInfoParser;
@@ -48,10 +49,13 @@ public class AdminShuttleBusTimeTableService {
             List<RouteInfo> routeInfos = ShuttleBusRouteInfoParser.getRouteInfos(sheet);
 
             RouteName routeName = ShuttleBusMetaDataParser.getRouteNameFromSheet(sheet);
+            SubName subName = ShuttleBusMetaDataParser.getSubNameFromSheet(sheet);
             Region region = ShuttleBusMetaDataParser.getRegionFromSheet(sheet);
             RouteType routeType = ShuttleBusMetaDataParser.getRouteTypeFromSheet(sheet);
 
-            shuttleBusTimeTables.add(ShuttleBusTimeTable.from(nodeInfos, routeInfos, region, routeName, routeType));
+            shuttleBusTimeTables.add(
+                ShuttleBusTimeTable.from(nodeInfos, routeInfos, region, routeName, subName, routeType)
+            );
         }
 
         return shuttleBusTimeTables.stream()

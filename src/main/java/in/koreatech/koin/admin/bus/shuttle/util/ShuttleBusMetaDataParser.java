@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import in.koreatech.koin.admin.bus.shuttle.model.Region;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteName;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteType;
+import in.koreatech.koin.admin.bus.shuttle.model.SubName;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 
@@ -30,9 +31,16 @@ public class ShuttleBusMetaDataParser {
         String sheetName = sheet.getSheetName();
 
         String routeName = ExcelStringUtil.extractNameWithoutBrackets(sheetName);
+
+        return RouteName.of(routeName);
+    }
+
+    public static SubName getSubNameFromSheet(Sheet sheet) {
+        String sheetName = sheet.getSheetName();
+
         String subName = ExcelStringUtil.extractDetailFromBrackets(sheetName);
 
-        return RouteName.of(routeName, subName);
+        return SubName.of(subName);
     }
 
     private static String getCellValue(Sheet sheet, int rowIndex, int colIndex) {
