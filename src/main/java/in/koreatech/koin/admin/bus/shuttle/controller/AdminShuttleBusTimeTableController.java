@@ -44,7 +44,7 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
     @PutMapping
     public ResponseEntity<Void> updateShuttleBusTimeTable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
-        @Valid @RequestBody AdminShuttleBusUpdateRequest requst,
+        @Valid @RequestBody AdminShuttleBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         // TODO 시간표 업데이트 로직 구현

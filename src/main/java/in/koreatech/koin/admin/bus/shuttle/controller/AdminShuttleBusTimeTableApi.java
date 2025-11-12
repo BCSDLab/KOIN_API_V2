@@ -46,7 +46,7 @@ public interface AdminShuttleBusTimeTableApi {
     @PutMapping
     ResponseEntity<Void> updateShuttleBusTimeTable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
-        @Valid @RequestBody AdminShuttleBusUpdateRequest requst,
+        @Valid @RequestBody AdminShuttleBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }
