@@ -82,7 +82,7 @@ public record AdminUpdateSemesterRequest(
             return CoopShop.builder()
                 .coopName(coopName)
                 .phone(coopShopInfo.phone())
-                .remarks(coopShopInfo.phone())
+                .remarks(coopShopInfo.remark)
                 .location(coopShopInfo.location())
                 .build();
         }
