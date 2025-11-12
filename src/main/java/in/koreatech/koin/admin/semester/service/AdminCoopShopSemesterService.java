@@ -21,20 +21,17 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AdminCoopShopSemesterService {
 
-    private static final Pattern SEMESTER_PATTERN = Pattern.compile("^\\d{2}-.+$");
-
     private final AdminCoopShopSemesterRepository adminCoopShopSemesterRepository;
 
     @Transactional
     public void createCoopshopSemester(AdminSemesterCreateRequest request) {
-        validateSemesterFormat(request.semester());
         validateDuplicateSemester(request.semester());
-        validateDateRange(request.fromDate(), request.toDate());
         validateOverlappingDateRange(request.fromDate(), request.toDate());
+        CoopSemester coopSemester = CoopSemester.of(request.semester(), request.fromDate(), request.toDate());
 
-        adminCoopShopSemesterRepository.save(request.toEntity());
+        adminCoopShopSemesterRepository.save(coopSemester);
     }
-
+  
     public List<AdminSemesterResponse> getCoopshopSemesters() {
         List<CoopSemester> coopSemesters = adminCoopShopSemesterRepository.findAllByOrderByFromDateDesc();
         return coopSemesters.stream()
@@ -42,21 +39,9 @@ public class AdminCoopShopSemesterService {
             .toList();
     }
 
-    private void validateSemesterFormat(String semester) {
-        if (!SEMESTER_PATTERN.matcher(semester).matches()) {
-            throw CustomException.of(INVALID_SEMESTER_FORMAT);
-        }
-    }
-
     private void validateDuplicateSemester(String semester) {
         if (adminCoopShopSemesterRepository.findBySemester(semester).isPresent()) {
             throw CustomException.of(DUPLICATE_SEMESTER);
-        }
-    }
-
-    private void validateDateRange(LocalDate fromDate, LocalDate toDate) {
-        if (fromDate.isAfter(toDate)) {
-            throw CustomException.of(INVALID_START_DATE_AFTER_END_DATE);
         }
     }
 
