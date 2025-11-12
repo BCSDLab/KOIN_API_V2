@@ -1,5 +1,8 @@
 package in.koreatech.koin.admin.bus.shuttle.service;
 
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.NodeInfo;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -13,9 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
-import in.koreatech.koin.admin.bus.shuttle.model.NodeInfo;
-import in.koreatech.koin.admin.bus.shuttle.model.Region;
-import in.koreatech.koin.admin.bus.shuttle.model.RouteInfo;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteName;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteType;
 import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable;
@@ -23,6 +23,7 @@ import in.koreatech.koin.admin.bus.shuttle.model.SubName;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusMetaDataParser;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusNodeInfoParser;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusRouteInfoParser;
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 
@@ -50,7 +51,7 @@ public class AdminShuttleBusTimeTableService {
 
             RouteName routeName = ShuttleBusMetaDataParser.getRouteNameFromSheet(sheet);
             SubName subName = ShuttleBusMetaDataParser.getSubNameFromSheet(sheet);
-            Region region = ShuttleBusMetaDataParser.getRegionFromSheet(sheet);
+            ShuttleBusRegion region = ShuttleBusMetaDataParser.getRegionFromSheet(sheet);
             RouteType routeType = ShuttleBusMetaDataParser.getRouteTypeFromSheet(sheet);
 
             shuttleBusTimeTables.add(
