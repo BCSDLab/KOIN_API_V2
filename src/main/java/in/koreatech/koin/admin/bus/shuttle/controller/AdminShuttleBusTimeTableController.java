@@ -6,14 +6,18 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
+import in.koreatech.koin.admin.bus.shuttle.model.SemesterType;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusTimeTableService;
 import in.koreatech.koin.global.auth.Auth;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,5 +36,14 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
             .previewShuttleBusTimeTable(file);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping
+    public ResponseEntity<List<AdminShuttleBusTimeTableResponse>> updateShuttleBusTimeTable(
+        @RequestParam(name = "semester_type") SemesterType semesterType,
+        @Valid @RequestBody AdminShuttleBusUpdateRequest requst,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        // TODO 시간표 업데이트 로직 구현
     }
 }
