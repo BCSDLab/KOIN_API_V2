@@ -62,6 +62,7 @@ public class AdminCoopShopService {
             .orElseGet(() -> CoopName.builder()
                 .name(innerCoopShop.coopShopInfo().name())
                 .build());
+        adminCoopNameRepository.save(coopName);
 
         CoopShop coopShop = innerCoopShop.toEntity(coopName);
 

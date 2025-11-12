@@ -9,4 +9,6 @@ import in.koreatech.koin.domain.coopshop.model.CoopName;
 public interface AdminCoopNameRepository extends Repository<CoopName, Integer> {
 
     Optional<CoopName> findByName(String name);
+
+    void save(CoopName coopName);
 }
