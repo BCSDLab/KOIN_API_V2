@@ -52,11 +52,11 @@ public record AdminShuttleBusTimeTableResponse(
 
         return AdminShuttleBusTimeTableResponse.builder()
             .nodeInfo(nodeInfos)
-            .region(table.getRegion().getValue())
+            .region(table.getRegion())
             .routeInfo(routeInfos)
-            .routeName(table.getRouteName().getName())
-            .routeType(table.getRouteType().getValue())
-            .subName(table.getRouteName().getSubName())
+            .routeName(table.getRouteName())
+            .routeType(table.getRouteType())
+            .subName(table.getSubName())
             .build();
     }
 
