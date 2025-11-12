@@ -23,7 +23,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/bus/shuttle")
+@RequestMapping("/admin/bus/shuttle/timetable")
 @RequiredArgsConstructor
 public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTableApi {
 
