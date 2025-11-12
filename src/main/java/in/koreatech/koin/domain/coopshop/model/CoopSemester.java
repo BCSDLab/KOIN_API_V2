@@ -65,4 +65,10 @@ public class CoopSemester extends BaseEntity {
     public void updateApply(boolean isApplied) {
         this.isApplied = isApplied;
     }
+
+    public void replaceCoopShops(List<CoopShop> coopShops) {
+        this.coopShops.clear();
+        this.coopShops.addAll(coopShops);
+        coopShops.forEach(coopShop -> coopShop.updateCoopSemester(this));
+    }
 }

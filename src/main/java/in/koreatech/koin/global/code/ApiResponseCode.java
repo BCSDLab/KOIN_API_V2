@@ -71,6 +71,7 @@ public enum ApiResponseCode {
     EMPTY_EXCEL_FILE(HttpStatus.BAD_REQUEST, "엑셀 파일이 비어 있습니다."),
     INVALID_EXCEL_FILE_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 엑셀 파일 형식입니다."),
     INVALID_EXCEL_CELL_FORMAT(HttpStatus.BAD_REQUEST, "셀 서식은 텍스트만 허용합니다."),
+    INVALID_COOP_SHOP_DAY_OF_WEEK(HttpStatus.BAD_REQUEST, "올바르지 않은 요일입니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -114,6 +115,7 @@ public enum ApiResponseCode {
     NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
     NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
     NOT_FOUND_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
+    NOT_FOUND_COOP_SEMESTER(HttpStatus.NOT_FOUND, "해당 학기가 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
