@@ -51,4 +51,3 @@ public class ShuttleBusMetaDataParser {
         return cell.toString();
     }
 }
-
