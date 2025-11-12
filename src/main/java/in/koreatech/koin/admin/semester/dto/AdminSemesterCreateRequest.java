@@ -30,7 +30,7 @@ public record AdminSemesterCreateRequest(
         return CoopSemester.builder()
             .semester(semester)
             .fromDate(fromDate)
-            .toDate(fromDate)
+            .toDate(toDate)
             .build();
     }
 }
