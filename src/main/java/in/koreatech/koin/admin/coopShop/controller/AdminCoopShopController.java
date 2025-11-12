@@ -60,12 +60,13 @@ public class AdminCoopShopController implements AdminCoopShopApi {
         return ResponseEntity.ok(data);
     }
 
-    @PutMapping("/timetable")
+    @PutMapping("/timetable/{semesterId}")
     public ResponseEntity<Void> updateCoopShops(
         @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable Integer semesterId,
         @Valid @RequestBody AdminUpdateSemesterRequest request
     ) {
-        adminCoopShopService.updateCoopShops(request);
+        adminCoopShopService.updateCoopShops(semesterId, request);
         return ResponseEntity.noContent().build();
     }
 }

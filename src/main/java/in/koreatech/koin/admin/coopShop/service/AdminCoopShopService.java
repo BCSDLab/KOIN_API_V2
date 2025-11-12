@@ -47,18 +47,22 @@ public class AdminCoopShopService {
     }
 
     @Transactional
-    public void updateCoopShops(AdminUpdateSemesterRequest request) {
-        CoopSemester coopSemester = adminCoopSemesterRepository.getById(request.semesterId());
-        List<CoopShop> coopShops = request.coopShops().stream()
+    public void updateCoopShops(Integer semesterId, AdminUpdateSemesterRequest request) {
+        CoopSemester coopSemester = adminCoopSemesterRepository.getById(semesterId);
+        List<CoopShop> coopShops = createCoopShops(request.coopShops());
+        coopSemester.replaceCoopShops(coopShops);
+    }
+
+    private List<CoopShop> createCoopShops(List<InnerCoopShop> coopShops) {
+        return coopShops.stream()
             .map(this::createCoopShop)
             .toList();
-        coopSemester.replaceCoopShops(coopShops);
     }
 
     private CoopShop createCoopShop(InnerCoopShop innerCoopShop) {
         CoopName coopName = findOrCreateCoopName(innerCoopShop.coopShopInfo().name());
         CoopShop coopShop = innerCoopShop.toEntity(coopName);
-        attachOperationHours(innerCoopShop, coopShop);
+        attachOperationHours(innerCoopShop.operationHours(), coopShop);
         return coopShop;
     }
 
@@ -69,8 +73,8 @@ public class AdminCoopShopService {
                 .build());
     }
 
-    private void attachOperationHours(InnerCoopShop innerCoopShop, CoopShop coopShop) {
-        innerCoopShop.operationHours().stream()
+    private void attachOperationHours(List<InnerOperationHour> operationHour, CoopShop coopShop) {
+        operationHour.stream()
             .map(InnerOperationHour::toEntity)
             .forEach(coopOpen -> coopOpen.confirmCoopShop(coopShop));
     }

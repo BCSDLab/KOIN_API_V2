@@ -88,9 +88,10 @@ public interface AdminCoopShopApi {
         }
     )
     @Operation(summary = "특정 학기 생협 업데이트")
-    @PostMapping("/timetable")
+    @PostMapping("/timetable/{semesterId}")
     ResponseEntity<Void> updateCoopShops(
         @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable Integer semesterId,
         @Valid @RequestBody AdminUpdateSemesterRequest request
     );
 }

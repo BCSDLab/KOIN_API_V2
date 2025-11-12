@@ -17,10 +17,6 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminUpdateSemesterRequest(
-    @Schema(description = "학기 ID", requiredMode = REQUIRED)
-    @NotNull(message = "학기 ID는 필수 입력값입니다.")
-    Integer semesterId,
-
     @Schema(description = "생협 매장 정보 리스트", requiredMode = REQUIRED)
     @NotNull(message = "생협 매장 정보 리스트는 필수 입력값입니다.")
     List<InnerCoopShop> coopShops
