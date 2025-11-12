@@ -1,0 +1,24 @@
+package in.koreatech.koin.admin.bus.commuting.extractor;
+
+import static in.koreatech.koin.admin.bus.commuting.util.ExcelCellValueExtractor.getCellValueAsString;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.stereotype.Component;
+
+import in.koreatech.koin.admin.bus.commuting.model.RouteInfo;
+import in.koreatech.koin.admin.bus.commuting.model.RouteInfos;
+
+@Component
+public class AdminCommutingBusRouteInfoExtractor {
+
+    private static final Integer NORTH_CELL_NUMBER = 1;
+    private static final Integer SOUTH_CELL_NUMBER = 2;
+
+    public RouteInfos extract(Sheet sheet, Integer startRowIndex) {
+        Row commutingBusNameRow = sheet.getRow(startRowIndex);
+        String northRouteInfoName = getCellValueAsString(commutingBusNameRow, NORTH_CELL_NUMBER);
+        String southRouteInfoName = getCellValueAsString(commutingBusNameRow, SOUTH_CELL_NUMBER);
+        return RouteInfos.of(RouteInfo.from(northRouteInfoName), RouteInfo.from(southRouteInfoName));
+    }
+}

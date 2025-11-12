@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
@@ -59,6 +60,12 @@ public class ShopService {
         Shop shop = shopRepository.getById(shopId);
         LocalDate now = LocalDate.now(clock);
         return ShopResponse.from(shop, now);
+    }
+
+    public ShopResponseV2 getShopV2(Integer shopId) {
+        Shop shop = shopRepository.getById(shopId);
+        LocalDate now = LocalDate.now(clock);
+        return ShopResponseV2.from(shop, now);
     }
 
     public ShopSummaryResponse getShopSummary(Integer shopId) {

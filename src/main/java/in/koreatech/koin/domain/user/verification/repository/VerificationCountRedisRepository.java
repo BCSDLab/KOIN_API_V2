@@ -5,9 +5,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.user.verification.model.VerificationCount;
-import in.koreatech.koin.global.marker.RedisRepositoryMarker;
 
-@RedisRepositoryMarker
 public interface VerificationCountRedisRepository extends Repository<VerificationCount, String> {
 
     VerificationCount save(VerificationCount verificationCount);
