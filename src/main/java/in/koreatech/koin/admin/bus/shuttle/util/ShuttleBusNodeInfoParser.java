@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.bus.shuttle.util;
 
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.NodeInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +9,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.util.StringUtils;
-
-import in.koreatech.koin.admin.bus.shuttle.model.NodeInfo;
 
 public class ShuttleBusNodeInfoParser {
 
