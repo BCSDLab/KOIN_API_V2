@@ -1,10 +1,10 @@
 package in.koreatech.koin.admin.semester.service;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.DUPLICATE_SEMESTER;
+import static in.koreatech.koin.global.code.ApiResponseCode.OVERLAPPING_SEMESTER_DATE_RANGE;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +31,7 @@ public class AdminCoopShopSemesterService {
 
         adminCoopShopSemesterRepository.save(coopSemester);
     }
-  
+
     public List<AdminSemesterResponse> getCoopshopSemesters() {
         List<CoopSemester> coopSemesters = adminCoopShopSemesterRepository.findAllByOrderByFromDateDesc();
         return coopSemesters.stream()
