@@ -45,6 +45,7 @@ public record AdminShuttleBusTimeTableResponse(
         List<RouteInfo> routeInfos = table.getRouteInfos().stream()
             .map(r -> new AdminShuttleBusTimeTableResponse.RouteInfo(
                 r.getName(),
+                r.getDetail(),
                 r.getArrivalTime()
             ))
             .toList();
@@ -73,6 +74,9 @@ public record AdminShuttleBusTimeTableResponse(
     public record RouteInfo(
         @Schema(description = "회차 이름", example = "1회", requiredMode = REQUIRED)
         String name,
+
+        @Schema(description = "회차 세부 이름", example = "(청주역→본교)", requiredMode = NOT_REQUIRED)
+        String detail,
 
         @Schema(description = "각 정류소 별 도착 시간 (미정차인 경우 null)", requiredMode = REQUIRED)
         List<String> arrivalTime
