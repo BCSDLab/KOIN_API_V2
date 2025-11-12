@@ -47,6 +47,8 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
         @Valid @RequestBody AdminShuttleBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        // TODO 시간표 업데이트 로직 구현
+        adminShuttleBusService.updateShuttleBusTimeTable(request, semesterType);
+
+        return ResponseEntity.ok().build();
     }
 }
