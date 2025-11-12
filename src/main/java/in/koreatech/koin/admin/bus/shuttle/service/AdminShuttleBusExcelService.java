@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminShuttleBusService {
+public class AdminShuttleBusExcelService {
 
     private final AdminShuttleBusTimeTableRepository adminShuttleBusTimeTableRepository;
 

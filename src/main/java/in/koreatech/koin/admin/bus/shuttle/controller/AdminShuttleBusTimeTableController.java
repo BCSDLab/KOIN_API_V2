@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
 import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
-import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusService;
+import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusExcelService;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusTimeTableService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTableApi {
 
     private final AdminShuttleBusTimeTableService adminShuttleBusTimeTableService;
-    private final AdminShuttleBusService adminShuttleBusService;
+    private final AdminShuttleBusExcelService adminShuttleBusExcelService;
 
     @PostMapping("/excel")
     public ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
@@ -47,7 +47,7 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
         @Valid @RequestBody AdminShuttleBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShuttleBusService.updateShuttleBusTimeTable(request, semesterType);
+        adminShuttleBusExcelService.updateShuttleBusTimeTable(request, semesterType);
 
         return ResponseEntity.ok().build();
     }
