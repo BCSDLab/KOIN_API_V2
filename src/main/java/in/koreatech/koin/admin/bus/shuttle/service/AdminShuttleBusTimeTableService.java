@@ -1,11 +1,13 @@
 package in.koreatech.koin.admin.bus.shuttle.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,14 +30,17 @@ import in.koreatech.koin.global.exception.CustomException;
 public class AdminShuttleBusTimeTableService {
 
     public List<AdminShuttleBusTimeTableResponse> previewShuttleBusTimeTable(MultipartFile file) {
-        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+        try (
+            InputStream inputStream = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(inputStream)
+        ) {
             return extractShuttleBusTimeTableData(workbook);
         } catch (IOException e) {
             throw CustomException.of(ApiResponseCode.INVALID_EXCEL_FILE_TYPE);
         }
     }
 
-    private List<AdminShuttleBusTimeTableResponse> extractShuttleBusTimeTableData(XSSFWorkbook workBook) {
+    private List<AdminShuttleBusTimeTableResponse> extractShuttleBusTimeTableData(Workbook workBook) {
         List<ShuttleBusTimeTable> shuttleBusTimeTables = new ArrayList<>();
 
         for (Sheet sheet : workBook) {
