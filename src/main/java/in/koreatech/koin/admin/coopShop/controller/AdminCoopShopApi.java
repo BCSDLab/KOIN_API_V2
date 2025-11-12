@@ -84,7 +84,8 @@ public interface AdminCoopShopApi {
     @ApiResponseCodes(
         {
             NO_CONTENT,
-            NOT_FOUND_COOP_SEMESTER
+            NOT_FOUND_COOP_SEMESTER,
+            INVALID_COOP_SHOP_DAY_OF_WEEK
         }
     )
     @Operation(summary = "특정 학기 생협 업데이트")

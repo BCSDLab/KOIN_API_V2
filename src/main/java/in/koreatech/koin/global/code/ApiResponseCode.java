@@ -71,6 +71,7 @@ public enum ApiResponseCode {
     EMPTY_EXCEL_FILE(HttpStatus.BAD_REQUEST, "엑셀 파일이 비어 있습니다."),
     INVALID_EXCEL_FILE_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 엑셀 파일 형식입니다."),
     INVALID_EXCEL_CELL_FORMAT(HttpStatus.BAD_REQUEST, "셀 서식은 텍스트만 허용합니다."),
+    INVALID_COOP_SHOP_DAY_OF_WEEK(HttpStatus.BAD_REQUEST, "올바르지 않은 요일입니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
