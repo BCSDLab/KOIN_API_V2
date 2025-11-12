@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.semester.repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,6 @@ public interface AdminCoopShopSemesterRepository extends Repository<CoopSemester
         @Param("fromDate") LocalDate fromDate,
         @Param("toDate") LocalDate toDate
     );
+
+    List<CoopSemester> findAllByOrderByFromDateDesc();
 }
