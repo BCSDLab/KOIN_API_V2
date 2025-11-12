@@ -34,14 +34,14 @@ public class POIExcelParser implements ExcelParser {
     private static final int MAX_ROW_COUNT = 100;
     private static final int MAX_COLUMN_COUNT = 8;
 
-    private static final int COOP_NAME_COLUMN_INDEX = 0;
-    private static final int PHONE_COLUMN_INDEX = 1;
-    private static final int LOCATION_COLUMN_INDEX = 2;
-    private static final int REMARK_COLUMN_INDEX = 3;
-    private static final int TYPE_COLUMN_INDEX = 4;
-    private static final int DAY_OF_WEEK_COLUMN_INDEX = 5;
-    private static final int OPEN_TIME_COLUMN_INDEX = 6;
-    private static final int CLOSE_TIME_COLUMN_INDEX = 7;
+    private static final int COOP_SHOP_NAME_COLUMN_INDEX = 0;
+    private static final int DAY_OF_WEEK_COLUMN_INDEX = 1;
+    private static final int TYPE_COLUMN_INDEX = 2;
+    private static final int OPEN_TIME_COLUMN_INDEX = 3;
+    private static final int CLOSE_TIME_COLUMN_INDEX = 4;
+    private static final int PHONE_COLUMN_INDEX = 5;
+    private static final int REMARK_COLUMN_INDEX = 6;
+    private static final int LOCATION_COLUMN_INDEX = 7;
 
     private Sheet sheet;
 
@@ -77,14 +77,14 @@ public class POIExcelParser implements ExcelParser {
 
     private CoopShopRow createCoopShopRow(Row row) {
         return new CoopShopRow(
-            getCellValueWithMerge(row.getCell(COOP_NAME_COLUMN_INDEX)),
+            getCellValueWithMerge(row.getCell(COOP_SHOP_NAME_COLUMN_INDEX)),
             getCellValueWithMerge(row.getCell(PHONE_COLUMN_INDEX)),
             getCellValueWithMerge(row.getCell(LOCATION_COLUMN_INDEX)),
             getCellValueWithMerge(row.getCell(REMARK_COLUMN_INDEX)),
-            getCellValue(row.getCell(TYPE_COLUMN_INDEX)),
-            getCellValue(row.getCell(DAY_OF_WEEK_COLUMN_INDEX)),
-            getCellValue(row.getCell(OPEN_TIME_COLUMN_INDEX)),
-            getCellValue(row.getCell(CLOSE_TIME_COLUMN_INDEX))
+            getCellValueWithMerge(row.getCell(TYPE_COLUMN_INDEX)),
+            getCellValueWithMerge(row.getCell(DAY_OF_WEEK_COLUMN_INDEX)),
+            getCellValueWithMerge(row.getCell(OPEN_TIME_COLUMN_INDEX)),
+            getCellValueWithMerge(row.getCell(CLOSE_TIME_COLUMN_INDEX))
         );
     }
 
