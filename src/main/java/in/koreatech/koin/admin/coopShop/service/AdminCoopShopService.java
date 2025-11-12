@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
@@ -21,6 +22,7 @@ import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminCoopShopService {
 
@@ -44,6 +46,7 @@ public class AdminCoopShopService {
         return AdminCoopSemesterResponse.from(coopSemester);
     }
 
+    @Transactional
     public void updateCoopShops(AdminUpdateSemesterRequest request) {
         CoopSemester coopSemester = adminCoopSemesterRepository.getById(request.semesterId());
         List<CoopShop> coopShops = request.coopShops().stream()
