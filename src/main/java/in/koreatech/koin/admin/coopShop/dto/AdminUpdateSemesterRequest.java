@@ -35,7 +35,6 @@ public record AdminUpdateSemesterRequest(
         @NotNull(message = "요일별 생협 매장 운영시간은 필수 입력값입니다.")
         List<InnerOperationHour> operationHours
     ) {
-
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record InnerCoopShopInfo(
             @Schema(example = "세탁소", description = "생협 매장 이름", requiredMode = REQUIRED)

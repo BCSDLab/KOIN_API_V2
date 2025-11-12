@@ -61,11 +61,9 @@ public class AdminCoopShopService {
 
     private CoopName findOrCreateCoopName(String name) {
         return adminCoopNameRepository.findByName(name)
-            .orElse(
-                CoopName.builder()
-                    .name(name)
-                    .build()
-            );
+            .orElse(CoopName.builder()
+                .name(name)
+                .build());
     }
 
     private void attachOperationHours(InnerCoopShop innerCoopShop, CoopShop coopShop) {

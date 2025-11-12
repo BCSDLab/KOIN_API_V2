@@ -114,6 +114,7 @@ public enum ApiResponseCode {
     NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
     NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
     NOT_FOUND_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
+    NOT_FOUND_COOP_SEMESTER(HttpStatus.NOT_FOUND, "해당 학기가 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)

@@ -16,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
-import in.koreatech.koin.admin.coopShop.dto.AdminUpdateSemesterRequest;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminUpdateSemesterRequest;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,12 +83,8 @@ public interface AdminCoopShopApi {
 
     @ApiResponseCodes(
         {
-            OK,
-            UNREADABLE_EXCEL_FILE,
-            ENCRYPTED_EXCEL_FILE,
-            EMPTY_EXCEL_FILE,
-            INVALID_EXCEL_FILE_FORMAT,
-            INVALID_EXCEL_CELL_FORMAT,
+            NO_CONTENT,
+            NOT_FOUND_COOP_SEMESTER
         }
     )
     @Operation(summary = "특정 학기 생협 업데이트")
