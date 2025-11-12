@@ -60,4 +60,8 @@ public class CoopOpen {
         this.openTime = openTime;
         this.closeTime = closeTime;
     }
+
+    public void updateCoopShop(CoopShop coopShop) {
+        this.coopShop = coopShop;
+    }
 }
