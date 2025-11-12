@@ -16,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
-import in.koreatech.koin.admin.coopShop.dto.AdminUpdateSemesterRequest;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminUpdateSemesterRequest;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopExcelService;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopService;
 import in.koreatech.koin.global.auth.Auth;
@@ -62,6 +62,7 @@ public class AdminCoopShopController implements AdminCoopShopApi {
 
     @PutMapping("/timetable")
     public ResponseEntity<Void> updateCoopShops(
+        @Auth(permit = {ADMIN}) Integer adminId,
         @Valid @RequestBody AdminUpdateSemesterRequest request
     ) {
         adminCoopShopService.updateCoopShops(request);
