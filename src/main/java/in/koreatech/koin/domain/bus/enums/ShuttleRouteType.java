@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import in.koreatech.koin.domain.bus.exception.BusIllegalRouteTypeException;
+
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
