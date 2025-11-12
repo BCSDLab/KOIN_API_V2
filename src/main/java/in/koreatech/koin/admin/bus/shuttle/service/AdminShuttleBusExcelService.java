@@ -34,7 +34,7 @@ public class AdminShuttleBusExcelService {
     public List<AdminShuttleBusTimeTableResponse> previewShuttleBusTimeTable(MultipartFile file) {
         try (
             InputStream inputStream = file.getInputStream();
-             Workbook workbook = WorkbookFactory.create(inputStream)
+            Workbook workbook = WorkbookFactory.create(inputStream)
         ) {
             return extractShuttleBusTimeTableData(workbook);
         } catch (IOException e) {

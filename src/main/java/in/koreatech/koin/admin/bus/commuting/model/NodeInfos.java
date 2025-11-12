@@ -10,7 +10,7 @@ public class NodeInfos {
     private static final Integer NODE_INFO_NAME_INDEX = 1;
     private static final Integer NODE_INFO_DETAIL_INDEX = 2;
 
-    private List<NodeInfo> nodeInfos;
+    private final List<NodeInfo> nodeInfos;
 
     public NodeInfos() {
         this.nodeInfos = new ArrayList<>();

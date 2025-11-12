@@ -73,6 +73,4 @@ public record AdminShuttleBusUpdateRequest(
 
         }
     }
-
-
 }

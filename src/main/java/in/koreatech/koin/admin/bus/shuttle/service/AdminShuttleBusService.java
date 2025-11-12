@@ -53,7 +53,9 @@ public class AdminShuttleBusService {
                     );
                     return existing;
                 })
-                .orElseGet(() -> ShuttleBusTimeTable.fromRequest(shuttleBusUpdateRequest, semesterType.getDescription()));
+                .orElseGet(
+                    () -> ShuttleBusTimeTable.fromRequest(shuttleBusUpdateRequest, semesterType.getDescription())
+                );
 
             adminShuttleBusTimeTableRepository.save(timeTable);
         }

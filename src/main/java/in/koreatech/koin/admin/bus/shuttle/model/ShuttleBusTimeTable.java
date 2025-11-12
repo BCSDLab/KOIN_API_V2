@@ -106,7 +106,6 @@ public class ShuttleBusTimeTable {
         }
     }
 
-
     public static ShuttleBusTimeTable from(
         List<NodeInfo> nodeInfos,
         List<RouteInfo> routeInfos,
