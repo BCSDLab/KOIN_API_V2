@@ -335,4 +335,8 @@ public class Shop extends BaseEntity {
     public String getFullAddress() {
         return String.join(" ", this.address, this.addressDetail);
     }
+
+    public boolean isOwner(Integer ownerId) {
+        return this.owner != null && this.owner.getId().equals(ownerId);
+    }
 }

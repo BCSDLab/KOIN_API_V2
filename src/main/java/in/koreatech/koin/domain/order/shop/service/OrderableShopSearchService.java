@@ -9,9 +9,10 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.order.shop.model.readmodel.MenuNameKeywordHit;
 import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopBaseInfo;
-import in.koreatech.koin.domain.order.shop.model.readmodel.ShopNameKeywordHit;
+
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopMenuNameKeywordHit;
+import in.koreatech.koin.domain.order.shop.model.readmodel.OrderableShopNameKeywordHit;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopSearchQueryRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -21,17 +22,18 @@ public class OrderableShopSearchService {
 
     private final OrderableShopSearchQueryRepository orderableShopSearchQueryRepository;
 
-    public List<ShopNameKeywordHit> findShopNamesByKeyword(List<String> processedKeywords) {
+    public List<OrderableShopNameKeywordHit> findShopNamesByKeyword(List<String> processedKeywords) {
         return orderableShopSearchQueryRepository.findAllOrderableShopByKeyword(processedKeywords);
     }
 
-    public List<MenuNameKeywordHit> findMenuNamesByKeyword(List<String> processedKeywords) {
+    public List<OrderableShopMenuNameKeywordHit> findMenuNamesByKeyword(List<String> processedKeywords) {
         return orderableShopSearchQueryRepository.findAllMenuByKeyword(processedKeywords);
     }
 
     public List<OrderableShopBaseInfo> findOrderableShopsByKeywords(List<String> processedKeywords) {
         var searchAtMenuName = orderableShopSearchQueryRepository.searchOrderableShopsByMenuKeyword(processedKeywords);
-        var searchAtShopName = orderableShopSearchQueryRepository.searchOrderableShopsByShopNameKeyword(processedKeywords);
+        var searchAtShopName = orderableShopSearchQueryRepository.searchOrderableShopsByShopNameKeyword(
+            processedKeywords);
         return combineAndDeduplicateShopBaseInfo(searchAtMenuName, searchAtShopName);
     }
 
@@ -39,8 +41,10 @@ public class OrderableShopSearchService {
         return orderableShopSearchQueryRepository.findOrderableShopThumbnailImageByOrderableShopIds(orderableShopIds);
     }
 
-    public Map<Integer, List<String>> findMatchingMenuNamesByOrderableShopIds(List<Integer> orderableShopIds, List<String> processedKeywords) {
-        return orderableShopSearchQueryRepository.findOrderableShopContainMenuNameByOrderableShopIds(orderableShopIds, processedKeywords);
+    public Map<Integer, List<String>> findMatchingMenuNamesByOrderableShopIds(List<Integer> orderableShopIds,
+        List<String> processedKeywords) {
+        return orderableShopSearchQueryRepository.findOrderableShopContainMenuNameByOrderableShopIds(orderableShopIds,
+            processedKeywords);
     }
 
     private List<OrderableShopBaseInfo> combineAndDeduplicateShopBaseInfo(

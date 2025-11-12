@@ -40,7 +40,6 @@ public enum ApiResponseCode {
     NOT_MATCHED_CLUB_AND_EVENT(HttpStatus.BAD_REQUEST, "해당 동아리의 이벤트가 아닙니다."),
     NOT_ALLOWED_RECRUITING_SORT_TYPE(HttpStatus.BAD_REQUEST, "해당 정렬 방식은 모집 중일 때만 사용할 수 있습니다."),
     INVALID_CLUB_EVENT_PERIOD(HttpStatus.BAD_REQUEST,"행사 마감일은 행사 시작일 이후여야 합니다."),
-    INVALID_CLUB_EVENT_TYPE(HttpStatus.BAD_REQUEST, "올바르지 않은 동아리 행사 타입입니다."),
     INVALID_ADDRESS_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 주소 형식입니다."),
     SHOP_NOT_DELIVERABLE(HttpStatus.BAD_REQUEST, "배달 가능한 상점이 아닙니다."),
     SHOP_NOT_TAKEOUT_AVAILABLE(HttpStatus.BAD_REQUEST, "포장 가능한 상점이 아닙니다."),
@@ -70,6 +69,9 @@ public enum ApiResponseCode {
     INVALID_EXCEL_FILE_TYPE(HttpStatus.BAD_REQUEST, "엑셀 형식이 아닌 파일이 업로드 되었습니다."),
     INVALID_EXCEL_ROW(HttpStatus.BAD_REQUEST, "존재하지 않는 엑셀 행이 있습니다."),
     INVALID_EXCEL_COL(HttpStatus.BAD_REQUEST, "존재하지 않는 엑셀 열이 있습니다."),
+    INVALID_SHUTTLE_ROUTE_TYPE(HttpStatus.BAD_REQUEST, "등하교 버스 타입이 아닙니다."),
+    INVALID_NODE_INFO_START_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 시작 위치가 아닙니다."),
+    INVALID_NODE_INFO_END_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 끝 위치가 아닙니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -88,6 +90,7 @@ public enum ApiResponseCode {
     FORBIDDEN_BLOCKED_USER(HttpStatus.FORBIDDEN, "차단된 사용자입니다."),
     PAYMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "결제 정보 접근 권한이 없습니다."),
     FORBIDDEN_ORDER(HttpStatus.FORBIDDEN, "주문 정보 접근 권한이 없습니다."),
+    FORBIDDEN_SHOP_OWNER(HttpStatus.FORBIDDEN, "상점의 사장님이 아닙니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -100,7 +103,7 @@ public enum ApiResponseCode {
     NOT_FOUND_CLUB_RECRUITMENT(HttpStatus.NOT_FOUND, "동아리 모집 공고가 존재하지 않습니다."),
     NOT_FOUND_CLUB_EVENT(HttpStatus.NOT_FOUND, "동아리 행사가 존재하지 않습니다."),
     NOT_FOUND_DELIVERY_ADDRESS(HttpStatus.NOT_FOUND, "주소가 존재하지 않습니다."),
-    NOT_FOUND_ORDERABLE_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
+    NOT_FOUND_ORDERABLE_SHOP(HttpStatus.NOT_FOUND, "주문 가능 상점이 존재하지 않습니다."),
     NOT_FOUND_ORDERABLE_SHOP_MENU(HttpStatus.NOT_FOUND, "메뉴가 존재하지 않습니다"),
     NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE(HttpStatus.NOT_FOUND, "유효하지 않은 가격 ID 입니다."),
     NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION(HttpStatus.NOT_FOUND, "유효하지 않은 옵션 ID 입니다."),
@@ -111,6 +114,7 @@ public enum ApiResponseCode {
     NOT_FOUND_TEMPORARY_PAYMENT(HttpStatus.NOT_FOUND, "임시 결제 정보가 존재하지 않습니다."),
     NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
     NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
+    NOT_FOUND_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
@@ -122,6 +126,8 @@ public enum ApiResponseCode {
     REQUEST_TOO_FAST(HttpStatus.CONFLICT, "요청이 너무 빠릅니다. 다시 요청해주세요."),
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.CONFLICT, "이미 처리된 요청입니다."),
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
+    DUPLICATE_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
+    DUPLICATE_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 주문 가능한 상점입니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)

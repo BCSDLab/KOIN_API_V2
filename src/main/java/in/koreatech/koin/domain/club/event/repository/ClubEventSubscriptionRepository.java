@@ -1,14 +1,11 @@
 package in.koreatech.koin.domain.club.event.repository;
 
-import java.util.List;
-
+import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.club.event.model.ClubEventSubscription;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
+import java.util.List;
 
-@JpaRepositoryMarker
 public interface ClubEventSubscriptionRepository extends Repository<ClubEventSubscription, Integer> {
 
     @Query("SELECT s from ClubEventSubscription s JOIN FETCH s.user WHERE s.clubEvent.id IN :eventIds")

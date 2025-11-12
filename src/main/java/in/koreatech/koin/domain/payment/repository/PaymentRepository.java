@@ -4,13 +4,13 @@ import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_PAYMENT;
 
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.payment.model.entity.Payment;
-import in.koreatech.koin.global.marker.JpaRepositoryMarker;
 import in.koreatech.koin.global.exception.CustomException;
 
-@JpaRepositoryMarker
 public interface PaymentRepository extends Repository<Payment, Integer> {
 
     void save(Payment payment);

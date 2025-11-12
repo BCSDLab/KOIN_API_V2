@@ -105,4 +105,19 @@ public class ShuttleBusRoute {
         this.nodeInfo = nodeInfo;
         this.routeInfo = routeInfo;
     }
+
+    public void updateCommutingBusRoute(
+        List<NodeInfo> nodeInfos,
+        List<RouteInfo> routeInfos
+    ) {
+        this.nodeInfo = nodeInfos;
+        for (RouteInfo routeInfo : this.routeInfo) {
+            for (RouteInfo updatedRouteInfo : routeInfos) {
+                if (updatedRouteInfo.getName().equals(routeInfo.getName())) {
+                    routeInfo.arrivalTime = updatedRouteInfo.getArrivalTime();
+                    break;
+                }
+            }
+        }
+    }
 }
