@@ -2,17 +2,26 @@ package in.koreatech.koin.admin.coopShop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminUpdateSemesterRequest;
+import in.koreatech.koin.admin.coopShop.service.AdminCoopShopExcelService;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopService;
 import in.koreatech.koin.global.auth.Auth;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminCoopShopController implements AdminCoopShopApi {
 
     private final AdminCoopShopService adminCoopShopService;
+    private final AdminCoopShopExcelService adminCoopShopExcelService;
 
     @GetMapping
     public ResponseEntity<AdminCoopSemestersResponse> getCoopShopSemesters(
@@ -39,5 +49,24 @@ public class AdminCoopShopController implements AdminCoopShopApi {
     ) {
         AdminCoopSemesterResponse coopShop = adminCoopShopService.getCoopShopSemester(semesterId);
         return ResponseEntity.ok(coopShop);
+    }
+
+    @PostMapping(value = "/timetable/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AdminCoopShopsResponse> parseExcel(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @RequestParam("coop-shop-excel") MultipartFile excel
+    ) {
+        AdminCoopShopsResponse data = adminCoopShopExcelService.parse(excel);
+        return ResponseEntity.ok(data);
+    }
+
+    @PutMapping("/timetable/{semesterId}")
+    public ResponseEntity<Void> updateCoopShops(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable Integer semesterId,
+        @Valid @RequestBody AdminUpdateSemesterRequest request
+    ) {
+        adminCoopShopService.updateCoopShops(semesterId, request);
+        return ResponseEntity.ok().build();
     }
 }

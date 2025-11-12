@@ -23,7 +23,6 @@ public class CustomException extends RuntimeException {
         this.detail = detail;
     }
 
-
     public static CustomException of(ApiResponseCode errorCode) {
         return new CustomException(errorCode, "");
     }
