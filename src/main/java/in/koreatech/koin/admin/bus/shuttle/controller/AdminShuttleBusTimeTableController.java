@@ -16,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
 import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
+import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusService;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusExcelService;
-import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusTimeTableService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +27,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTableApi {
 
-    private final AdminShuttleBusTimeTableService adminShuttleBusTimeTableService;
     private final AdminShuttleBusExcelService adminShuttleBusExcelService;
+    private final AdminShuttleBusService adminShuttleBusService;
 
     @PostMapping("/excel")
     public ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(name = "shuttle-bus-time-table") MultipartFile file
     ) {
-        List<AdminShuttleBusTimeTableResponse> response = adminShuttleBusTimeTableService
+        List<AdminShuttleBusTimeTableResponse> response = adminShuttleBusExcelService
             .previewShuttleBusTimeTable(file);
 
         return ResponseEntity.ok(response);
@@ -47,7 +47,7 @@ public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTa
         @Valid @RequestBody AdminShuttleBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShuttleBusExcelService.updateShuttleBusTimeTable(request, semesterType);
+        adminShuttleBusService.updateShuttleBusTimeTable(request, semesterType);
 
         return ResponseEntity.ok().build();
     }

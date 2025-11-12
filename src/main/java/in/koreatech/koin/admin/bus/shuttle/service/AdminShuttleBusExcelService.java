@@ -1,61 +1,66 @@
 package in.koreatech.koin.admin.bus.shuttle.service;
 
-import static in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest.InnerAdminShuttleBusUpdateRequest;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.NodeInfo;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo;
 
-import java.util.Optional;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
-import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
+import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
+import in.koreatech.koin.admin.bus.shuttle.model.RouteName;
+import in.koreatech.koin.admin.bus.shuttle.model.RouteType;
 import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable;
-import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.NodeInfo;
-import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo;
-import in.koreatech.koin.admin.bus.shuttle.repository.AdminShuttleBusTimeTableRepository;
+import in.koreatech.koin.admin.bus.shuttle.model.SubName;
+import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusMetaDataParser;
+import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusNodeInfoParser;
+import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusRouteInfoParser;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
-import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
-import lombok.RequiredArgsConstructor;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AdminShuttleBusExcelService {
 
-    private final AdminShuttleBusTimeTableRepository adminShuttleBusTimeTableRepository;
-
-    @Transactional
-    public void updateShuttleBusTimeTable(AdminShuttleBusUpdateRequest request, SemesterType semesterType) {
-        for (InnerAdminShuttleBusUpdateRequest shuttleBusUpdateRequest : request.shuttleBusTimeTables()) {
-            String region = ShuttleBusRegion.convertFrom(shuttleBusUpdateRequest.region()).name();
-            String routeType = ShuttleRouteType.convertFrom(shuttleBusUpdateRequest.routeType()).name();
-            String routeName = shuttleBusUpdateRequest.routeName();
-            String subName = shuttleBusUpdateRequest.subName();
-
-            Optional<ShuttleBusTimeTable> optionalTimeTable =
-                adminShuttleBusTimeTableRepository.findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
-                    semesterType.getDescription(), region, routeType, routeName, subName
-                );
-
-            ShuttleBusTimeTable timeTable = optionalTimeTable
-                .map(existing -> {
-                    existing.updateNodeInfo(
-                        shuttleBusUpdateRequest.nodeInfo().stream()
-                            .map(node -> NodeInfo.of(node.name(), node.detail()))
-                            .toList()
-                    );
-                    existing.updateRouteInfo(
-                        shuttleBusUpdateRequest.routeInfo().stream()
-                            .map(route -> RouteInfo.of(
-                                    route.name(), route.detail(), route.arrivalTime()
-                                )
-                            ).toList()
-                    );
-                    return existing;
-                })
-                .orElseGet(() -> ShuttleBusTimeTable.fromRequest(shuttleBusUpdateRequest, semesterType.getDescription()));
-
-            adminShuttleBusTimeTableRepository.save(timeTable);
+    public List<AdminShuttleBusTimeTableResponse> previewShuttleBusTimeTable(MultipartFile file) {
+        try (
+            InputStream inputStream = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(inputStream)
+        ) {
+            return extractShuttleBusTimeTableData(workbook);
+        } catch (IOException e) {
+            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_FILE_TYPE);
         }
+    }
+
+    private List<AdminShuttleBusTimeTableResponse> extractShuttleBusTimeTableData(Workbook workBook) {
+        List<ShuttleBusTimeTable> shuttleBusTimeTables = new ArrayList<>();
+
+        for (Sheet sheet : workBook) {
+            List<NodeInfo> nodeInfos = ShuttleBusNodeInfoParser.getNodeInfos(sheet);
+            List<RouteInfo> routeInfos = ShuttleBusRouteInfoParser.getRouteInfos(sheet);
+
+            RouteName routeName = ShuttleBusMetaDataParser.getRouteNameFromSheet(sheet);
+            SubName subName = ShuttleBusMetaDataParser.getSubNameFromSheet(sheet);
+            ShuttleBusRegion region = ShuttleBusMetaDataParser.getRegionFromSheet(sheet);
+            RouteType routeType = ShuttleBusMetaDataParser.getRouteTypeFromSheet(sheet);
+
+            shuttleBusTimeTables.add(
+                ShuttleBusTimeTable.from(nodeInfos, routeInfos, region, routeName, subName, routeType)
+            );
+        }
+
+        return shuttleBusTimeTables.stream()
+            .map(AdminShuttleBusTimeTableResponse::from)
+            .toList();
     }
 }
