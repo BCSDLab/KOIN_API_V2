@@ -2,6 +2,7 @@ package in.koreatech.koin.common.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Sort.Direction;
 
 @Getter
@@ -36,11 +37,6 @@ public class Criteria {
         Sort(Direction direction) {
             this.direction = direction;
         }
-
-        public Direction getDirection() {
-            return direction;
-        }
-
     }
 
     private static int validateAndCalculatePage(Integer page) {
