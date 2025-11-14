@@ -93,11 +93,12 @@ public class ShuttleBusRouteInfoParser {
                 }
 
                 Cell cell = row.getCell(colNum);
+                String strTime = ExcelStringUtil.getCellValueToString(cell);
 
-                if (cell == null || !StringUtils.hasText(cell.getStringCellValue())) {
+                if (cell == null || !StringUtils.hasText(strTime)) {
                     times.add(null);
                 } else {
-                    times.add(cell.getStringCellValue().trim());
+                    times.add(strTime.trim());
                 }
             }
 

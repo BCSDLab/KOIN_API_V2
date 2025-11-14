@@ -26,15 +26,16 @@ public class ShuttleBusNodeInfoParser {
             }
 
             Cell cell = row.getCell(START_BUS_STOP_COL);
+            String nameWithDetail = ExcelStringUtil.getCellValueToString(cell);
 
-            if (cell == null || !StringUtils.hasText(cell.toString())) {
+            if (cell == null || !StringUtils.hasText(nameWithDetail)) {
                 break;
             }
 
-            String cellValue = cell.getStringCellValue().trim();
+            nameWithDetail = nameWithDetail.trim();
 
-            String name = ExcelStringUtil.extractNameWithoutBrackets(cellValue);
-            String detail = ExcelStringUtil.extractDetailFromBrackets(cellValue);
+            String name = ExcelStringUtil.extractNameWithoutBrackets(nameWithDetail);
+            String detail = ExcelStringUtil.extractDetailFromBrackets(nameWithDetail);
 
             nodeInfos.add(NodeInfo.of(name, detail));
         }
