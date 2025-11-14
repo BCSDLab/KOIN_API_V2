@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.coopShop.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.COOP_SHOPS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminUpdateSemesterRequest;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopExcelService;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopService;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +53,7 @@ public class AdminCoopShopController implements AdminCoopShopApi {
         return ResponseEntity.ok(coopShop);
     }
 
+    @AdminActivityLogging(domain = COOP_SHOPS)
     @PostMapping(value = "/timetable/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdminCoopShopsResponse> parseExcel(
         @Auth(permit = {ADMIN}) Integer adminId,
@@ -60,6 +63,7 @@ public class AdminCoopShopController implements AdminCoopShopApi {
         return ResponseEntity.ok(data);
     }
 
+    @AdminActivityLogging(domain = COOP_SHOPS, domainIdParam = "semesterId")
     @PutMapping("/timetable/{semesterId}")
     public ResponseEntity<Void> updateCoopShops(
         @Auth(permit = {ADMIN}) Integer adminId,

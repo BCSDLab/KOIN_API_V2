@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.coopShop.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.COOP_SHOPS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
@@ -18,6 +19,7 @@ import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminUpdateSemesterRequest;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,6 +76,7 @@ public interface AdminCoopShopApi {
             INVALID_EXCEL_CELL_FORMAT,
         }
     )
+    @AdminActivityLogging(domain = COOP_SHOPS)
     @Operation(summary = "생협 엑셀 파일 업로드")
     @PostMapping(value = "/timetable/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<AdminCoopShopsResponse> parseExcel(
@@ -89,6 +92,7 @@ public interface AdminCoopShopApi {
         }
     )
     @Operation(summary = "특정 학기 생협 업데이트")
+    @AdminActivityLogging(domain = COOP_SHOPS, domainIdParam = "semesterId")
     @PostMapping("/timetable/{semesterId}")
     ResponseEntity<Void> updateCoopShops(
         @Auth(permit = {ADMIN}) Integer adminId,
