@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -45,6 +46,22 @@ public record AdminShuttleBusUpdateRequest(
         List<InnerRouteInfoRequest> routeInfo
     ) {
 
+        public List<ShuttleBusRoute.NodeInfo> toNodeInfoEntity() {
+            return nodeInfo.stream()
+                .map(innerNodeInfoRequest ->
+                    InnerNodeInfoRequest.toEntity(innerNodeInfoRequest.name, innerNodeInfoRequest.detail)
+                ).toList();
+        }
+
+        public List<ShuttleBusRoute.RouteInfo> toRouteInfoEntity() {
+            return routeInfo.stream()
+                .map(innerRouteInfoRequest ->
+                    InnerRouteInfoRequest.toEntity(
+                        innerRouteInfoRequest.name, innerRouteInfoRequest.detail, innerRouteInfoRequest.arrivalTime
+                    )
+                ).toList();
+        }
+
         @JsonNaming(SnakeCaseStrategy.class)
         public record InnerNodeInfoRequest(
             @Schema(description = "정류소 이름", example = "천안역", requiredMode = REQUIRED)
@@ -55,6 +72,13 @@ public record AdminShuttleBusUpdateRequest(
             String detail
         ) {
 
+            public static ShuttleBusRoute.NodeInfo toEntity(String name, String detail) {
+                return ShuttleBusRoute.NodeInfo
+                    .builder()
+                    .name(name)
+                    .detail(detail)
+                    .build();
+            }
         }
 
         @JsonNaming(SnakeCaseStrategy.class)
@@ -71,6 +95,14 @@ public record AdminShuttleBusUpdateRequest(
             List<String> arrivalTime
         ) {
 
+            public static ShuttleBusRoute.RouteInfo toEntity(String name, String detail, List<String> arrivalTime) {
+                return ShuttleBusRoute.RouteInfo
+                    .builder()
+                    .name(name)
+                    .detail(detail)
+                    .arrivalTime(arrivalTime)
+                    .build();
+            }
         }
     }
 }

@@ -1,17 +1,13 @@
 package in.koreatech.koin.admin.bus.shuttle.model;
 
-import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo.of;
-
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest.InnerAdminShuttleBusUpdateRequest;
 import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest.InnerAdminShuttleBusUpdateRequest.InnerNodeInfoRequest;
 import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
-import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -121,37 +117,6 @@ public class ShuttleBusTimeTable {
             .routeName(routeName.getName())
             .subName(subName.getName())
             .routeType(routeType.getValue())
-            .build();
-    }
-
-    public void updateNodeInfo(List<NodeInfo> nodeInfos) {
-        this.nodeInfos = nodeInfos;
-    }
-
-    public void updateRouteInfo(List<RouteInfo> routeInfos) {
-        this.routeInfos = routeInfos;
-    }
-
-    public static ShuttleBusTimeTable fromRequest(
-        InnerAdminShuttleBusUpdateRequest request,
-        String semesterType
-    ) {
-        List<NodeInfo> nodeInfos = request.nodeInfo().stream()
-            .map(node -> NodeInfo.of(node.name(), node.detail()))
-            .toList();
-
-        List<RouteInfo> routeInfos = request.routeInfo().stream()
-            .map(route -> of(route.name(), route.detail(), route.arrivalTime()))
-            .toList();
-
-        return ShuttleBusTimeTable.builder()
-            .semesterType(semesterType)
-            .region(ShuttleBusRegion.convertFrom(request.region()).name())
-            .routeType(ShuttleRouteType.convertFrom(request.routeType()).name())
-            .routeName(request.routeName())
-            .subName(request.subName())
-            .nodeInfos(nodeInfos)
-            .routeInfos(routeInfos)
             .build();
     }
 }
