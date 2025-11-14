@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.bus.commuting.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.COMMUTING_BUS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
@@ -18,6 +19,7 @@ import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusUpdateRequest;
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.admin.bus.commuting.service.AdminCommutingBusExcelService;
 import in.koreatech.koin.admin.bus.commuting.service.AdminCommutingBusService;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class AdminCommutingBusController implements AdminCommutingBusApi {
     private final AdminCommutingBusExcelService adminCommutingBusExcelService;
     private final AdminCommutingBusService adminCommutingBusService;
 
+    @AdminActivityLogging(domain = COMMUTING_BUS)
     @PostMapping(value = "/admin/bus/commuting/timetable/excel", consumes = MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdminCommutingBusResponse> parseCommutingBusExcel(
         @RequestParam(name = "commuting-bus-timetable") MultipartFile commutingBusExcelFile,
@@ -39,6 +42,7 @@ public class AdminCommutingBusController implements AdminCommutingBusApi {
         return ResponseEntity.ok(response);
     }
 
+    @AdminActivityLogging(domain = COMMUTING_BUS)
     @PutMapping("/admin/bus/commuting/timetable")
     public ResponseEntity<Void> updateCommutingBusTimetable(
         @RequestParam(name = "semester_type") SemesterType semesterType,

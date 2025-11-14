@@ -44,6 +44,7 @@ public enum DomainType {
     COOP_SEMESTER("생협 학기"),
 
     SHUTTLE_BUS("셔틀 버스"),
+    COMMUTING_BUS("등하교 버스")
     ;
 
     private final String description;

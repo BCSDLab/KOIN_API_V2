@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.bus.commuting.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.COMMUTING_BUS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusResponse;
 import in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusUpdateRequest;
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +34,7 @@ public interface AdminCommutingBusApi {
         INVALID_NODE_INFO_END_POINT,
     })
     @Operation(summary = "등하교 버스 시간표 엑셀 파일 업로드")
+    @AdminActivityLogging(domain = COMMUTING_BUS)
     @PostMapping(value = "/admin/bus/commuting/timetable/excel", consumes = MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<AdminCommutingBusResponse> parseCommutingBusExcel(
         @RequestParam(name = "commuting-bus-timetable") MultipartFile commutingBusExcelFile,
@@ -44,6 +47,7 @@ public interface AdminCommutingBusApi {
         INVALID_REQUEST_BODY,
     })
     @Operation(summary = "등하교 버스 시간 업데이트")
+    @AdminActivityLogging(domain = COMMUTING_BUS)
     @PutMapping("/admin/bus/commuting/timetable")
     ResponseEntity<Void> updateCommutingBusTimetable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
