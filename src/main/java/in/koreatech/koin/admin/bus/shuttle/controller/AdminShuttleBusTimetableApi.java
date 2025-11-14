@@ -41,7 +41,7 @@ public interface AdminShuttleBusTimetableApi {
 
     @ApiResponseCodes({
         OK,
-        INVALID_REQUEST_BODY
+        INVALID_REQUEST_BODY,
     })
     @Operation(summary = "셔틀 버스 시간표를 업데이트한다.")
     @PutMapping
