@@ -69,4 +69,12 @@ public class CoopShop extends BaseEntity {
         this.location = location;
         this.remarks = remarks;
     }
+
+    public void updateCoopSemester(CoopSemester coopSemester) {
+        this.coopSemester = coopSemester;
+    }
+
+    public void add(CoopOpen coopOpen) {
+        this.coopOpens.add(coopOpen);
+    }
 }

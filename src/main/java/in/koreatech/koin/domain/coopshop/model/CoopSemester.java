@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.coopshop.model;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SEMESTER_FORMAT;
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_START_DATE_AFTER_END_DATE;
 import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
@@ -7,8 +9,10 @@ import static lombok.AccessLevel.PROTECTED;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,6 +30,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "coop_semester")
 @NoArgsConstructor(access = PROTECTED)
 public class CoopSemester extends BaseEntity {
+
+    private static final Pattern SEMESTER_PATTERN = Pattern.compile("^\\d{2}-.+$");
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -62,7 +68,35 @@ public class CoopSemester extends BaseEntity {
         this.toDate = toDate;
     }
 
+    public static CoopSemester of(String semester, LocalDate fromDate, LocalDate toDate) {
+        validateDateRange(fromDate, toDate);
+        validateSemesterFormat(semester);
+        return CoopSemester.builder()
+            .semester(semester)
+            .fromDate(fromDate)
+            .toDate(toDate)
+            .build();
+    }
+
+    private static void validateSemesterFormat(String semester) {
+        if (!SEMESTER_PATTERN.matcher(semester).matches()) {
+            throw CustomException.of(INVALID_SEMESTER_FORMAT);
+        }
+    }
+
+    private static void validateDateRange(LocalDate fromDate, LocalDate toDate) {
+        if (fromDate.isAfter(toDate)) {
+            throw CustomException.of(INVALID_START_DATE_AFTER_END_DATE);
+        }
+    }
+
     public void updateApply(boolean isApplied) {
         this.isApplied = isApplied;
+    }
+
+    public void replaceCoopShops(List<CoopShop> coopShops) {
+        this.coopShops.clear();
+        this.coopShops.addAll(coopShops);
+        coopShops.forEach(coopShop -> coopShop.updateCoopSemester(this));
     }
 }
