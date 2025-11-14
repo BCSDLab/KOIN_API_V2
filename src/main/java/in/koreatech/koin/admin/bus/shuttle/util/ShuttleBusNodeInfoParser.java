@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.bus.shuttle.util;
 
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.NodeInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +9,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.util.StringUtils;
-
-import in.koreatech.koin.admin.bus.shuttle.model.NodeInfo;
 
 public class ShuttleBusNodeInfoParser {
 
@@ -26,15 +26,16 @@ public class ShuttleBusNodeInfoParser {
             }
 
             Cell cell = row.getCell(START_BUS_STOP_COL);
+            String nameWithDetail = ExcelStringUtil.getCellValueToString(cell);
 
-            if (cell == null || !StringUtils.hasText(cell.toString())) {
+            if (cell == null || !StringUtils.hasText(nameWithDetail)) {
                 break;
             }
 
-            String cellValue = cell.getStringCellValue().trim();
+            nameWithDetail = nameWithDetail.trim();
 
-            String name = ExcelStringUtil.extractNameWithoutBrackets(cellValue);
-            String detail = ExcelStringUtil.extractDetailFromBrackets(cellValue);
+            String name = ExcelStringUtil.extractNameWithoutBrackets(nameWithDetail);
+            String detail = ExcelStringUtil.extractDetailFromBrackets(nameWithDetail);
 
             nodeInfos.add(NodeInfo.of(name, detail));
         }

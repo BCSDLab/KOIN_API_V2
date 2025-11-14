@@ -9,9 +9,8 @@ import lombok.Getter;
 public class RouteName {
 
     private String name;
-    private String subName;
 
-    public static RouteName of(String name, String subName) {
-        return new RouteName(name, subName);
+    public static RouteName of(String name) {
+        return new RouteName(name);
     }
 }

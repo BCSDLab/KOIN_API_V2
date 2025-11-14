@@ -2,7 +2,7 @@ package in.koreatech.koin.admin.bus.shuttle.enums;
 
 import java.util.List;
 
-import in.koreatech.koin.admin.bus.shuttle.model.RouteInfo;
+import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo.InnerNameDetail;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +17,7 @@ public enum RunningDays {
     private final String description;
     private final List<String> days;
 
-    public static RunningDays from(RouteInfo.InnerNameDetail innerNameDetail) {
+    public static RunningDays from(InnerNameDetail innerNameDetail) {
         String name = innerNameDetail.getName();
 
         if (name.contains("목") && name.contains("금")) {

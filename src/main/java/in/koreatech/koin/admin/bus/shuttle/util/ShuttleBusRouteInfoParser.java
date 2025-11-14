@@ -1,5 +1,9 @@
 package in.koreatech.koin.admin.bus.shuttle.util;
 
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo.InnerNameDetail;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo.from;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -11,7 +15,6 @@ import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 import in.koreatech.koin.admin.bus.shuttle.model.ArrivalTime;
-import in.koreatech.koin.admin.bus.shuttle.model.RouteInfo;
 
 public class ShuttleBusRouteInfoParser {
 
@@ -22,7 +25,7 @@ public class ShuttleBusRouteInfoParser {
     private static final int START_COL = 1;
 
     public static List<RouteInfo> getRouteInfos(Sheet sheet) {
-        List<RouteInfo.InnerNameDetail> innerNameDetails = extractRouteNameDetails(sheet);
+        List<InnerNameDetail> innerNameDetails = extractRouteNameDetails(sheet);
 
         List<RunningDays> runningDays = innerNameDetails.stream()
             .map(RunningDays::from)
@@ -31,7 +34,7 @@ public class ShuttleBusRouteInfoParser {
         List<ArrivalTime> arrivalTimes = extractArrivalTimes(sheet);
 
         return IntStream.range(0, innerNameDetails.size())
-            .mapToObj(i -> RouteInfo.from(
+            .mapToObj(i -> from(
                 innerNameDetails.get(i),
                 runningDays.get(i),
                 arrivalTimes.get(i)
@@ -39,8 +42,8 @@ public class ShuttleBusRouteInfoParser {
             .toList();
     }
 
-    private static List<RouteInfo.InnerNameDetail> extractRouteNameDetails(Sheet sheet) {
-        List<RouteInfo.InnerNameDetail> innerNameDetails = new ArrayList<>();
+    private static List<InnerNameDetail> extractRouteNameDetails(Sheet sheet) {
+        List<InnerNameDetail> innerNameDetails = new ArrayList<>();
 
         Row headerRow = sheet.getRow(START_HEADER_ROW);
         Row detailRow = sheet.getRow(START_DETAIL_ROW);
@@ -64,7 +67,7 @@ public class ShuttleBusRouteInfoParser {
                 ? detailCell.getStringCellValue().trim()
                 : null;
 
-            innerNameDetails.add(RouteInfo.InnerNameDetail.of(name, detail));
+            innerNameDetails.add(InnerNameDetail.of(name, detail));
         }
 
         return innerNameDetails;
@@ -90,11 +93,12 @@ public class ShuttleBusRouteInfoParser {
                 }
 
                 Cell cell = row.getCell(colNum);
+                String strTime = ExcelStringUtil.getCellValueToString(cell);
 
-                if (cell == null || !StringUtils.hasText(cell.getStringCellValue())) {
+                if (cell == null || !StringUtils.hasText(strTime)) {
                     times.add(null);
                 } else {
-                    times.add(cell.getStringCellValue().trim());
+                    times.add(strTime.trim());
                 }
             }
 

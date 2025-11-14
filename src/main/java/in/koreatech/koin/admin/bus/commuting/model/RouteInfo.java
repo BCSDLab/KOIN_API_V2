@@ -3,10 +3,16 @@ package in.koreatech.koin.admin.bus.commuting.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 public class RouteInfo {
-    private String name;
-    private String detail;
-    private List<ArrivalTime> arrivalTimes;
+    @Getter
+    private final String name;
+
+    @Getter
+    private final String detail;
+
+    private final List<ArrivalTime> arrivalTimes;
 
     private RouteInfo(String name) {
         this.name = name;
@@ -20,14 +26,6 @@ public class RouteInfo {
 
     public void addArrivalTime(ArrivalTime arrivalTime) {
         arrivalTimes.add(arrivalTime);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDetail() {
-        return detail;
     }
 
     public List<String> getArrivalTimesAsStringList() {

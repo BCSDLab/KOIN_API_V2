@@ -6,12 +6,11 @@ import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public class NodeInfo {
+public class SubName {
 
     private String name;
-    private String detail;
 
-    public static NodeInfo of(String name, String detail) {
-        return new NodeInfo(name, detail);
+    public static SubName of(String name) {
+        return new SubName(name);
     }
 }
