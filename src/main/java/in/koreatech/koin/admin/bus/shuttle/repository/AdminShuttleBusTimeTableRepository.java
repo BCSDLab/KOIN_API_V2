@@ -4,13 +4,13 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable;
+import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 
-public interface AdminShuttleBusTimeTableRepository extends Repository<ShuttleBusTimeTable, String> {
+public interface AdminShuttleBusTimeTableRepository extends Repository<ShuttleBusRoute, String> {
 
-    Optional<ShuttleBusTimeTable> findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
+    Optional<ShuttleBusRoute> findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
         String semesterType, String region, String routeType, String routeName, String subName
     );
 
-    ShuttleBusTimeTable save(ShuttleBusTimeTable shuttleBusTimeTable);
+    ShuttleBusRoute save(ShuttleBusRoute shuttleBusRoute);
 }
