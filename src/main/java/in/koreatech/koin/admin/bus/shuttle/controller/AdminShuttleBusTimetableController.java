@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.bus.shuttle.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.SHUTTLE_BUS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequ
 import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimetableResponse;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusExcelService;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusService;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class AdminShuttleBusTimetableController implements AdminShuttleBusTimeta
     private final AdminShuttleBusExcelService adminShuttleBusExcelService;
     private final AdminShuttleBusService adminShuttleBusService;
 
+    @AdminActivityLogging(domain = SHUTTLE_BUS)
     @PostMapping("/excel")
     public ResponseEntity<List<AdminShuttleBusTimetableResponse>> previewShuttleBusTimetable(
         @Auth(permit = {ADMIN}) Integer adminId,
@@ -41,6 +44,7 @@ public class AdminShuttleBusTimetableController implements AdminShuttleBusTimeta
         return ResponseEntity.ok(response);
     }
 
+    @AdminActivityLogging(domain = SHUTTLE_BUS)
     @PutMapping
     public ResponseEntity<Void> updateShuttleBusTimetable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
