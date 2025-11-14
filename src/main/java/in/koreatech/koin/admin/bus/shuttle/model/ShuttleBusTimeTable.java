@@ -2,13 +2,8 @@ package in.koreatech.koin.admin.bus.shuttle.model;
 
 import java.util.List;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-
-import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest.InnerAdminShuttleBusUpdateRequest.InnerNodeInfoRequest;
 import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
-import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,31 +12,15 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-@Document(collection = "shuttlebus_timetables")
 public class ShuttleBusTimeTable {
 
-    @Id
     private String id;
-
-    @Field(name = "semester_type")
     private String semesterType;
-
-    @Field(name = "region")
     private String region;
-
-    @Field(name = "route_type")
     private String routeType;
-
-    @Field(name = "route_name")
     private String routeName;
-
-    @Field(name = "sub_name")
     private String subName;
-
-    @Field(name = "node_info")
     private List<NodeInfo> nodeInfos;
-
-    @Field(name = "route_info")
     private List<RouteInfo> routeInfos;
 
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -55,10 +34,6 @@ public class ShuttleBusTimeTable {
             return new NodeInfo(name, detail);
         }
 
-        public static NodeInfo fromRequest(
-            InnerNodeInfoRequest innerNodeInfo) {
-            return new NodeInfo(innerNodeInfo.name(), innerNodeInfo.detail());
-        }
     }
 
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
