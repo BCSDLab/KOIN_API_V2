@@ -2,7 +2,7 @@ package in.koreatech.koin.admin.bus.shuttle.enums;
 
 import java.util.List;
 
-import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo.InnerNameDetail;
+import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo.InnerNameDetail;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

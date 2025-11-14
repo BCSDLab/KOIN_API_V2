@@ -8,13 +8,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable;
+import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @JsonNaming(SnakeCaseStrategy.class)
 @Builder
-public record AdminShuttleBusTimeTableResponse(
+public record AdminShuttleBusTimetableResponse(
     @Schema(description = "운행 지역", example = "CHEONAN_ASAN", requiredMode = REQUIRED)
     String region,
 
@@ -34,23 +34,23 @@ public record AdminShuttleBusTimeTableResponse(
     List<RouteInfo> routeInfo
 ) {
 
-    public static AdminShuttleBusTimeTableResponse from(ShuttleBusTimeTable table) {
+    public static AdminShuttleBusTimetableResponse from(ShuttleBusTimetable table) {
         List<NodeInfo> nodeInfos = table.getNodeInfos().stream()
-            .map(n -> new AdminShuttleBusTimeTableResponse.NodeInfo(
+            .map(n -> new AdminShuttleBusTimetableResponse.NodeInfo(
                 n.getName(),
                 n.getDetail()
             ))
             .toList();
 
         List<RouteInfo> routeInfos = table.getRouteInfos().stream()
-            .map(r -> new AdminShuttleBusTimeTableResponse.RouteInfo(
+            .map(r -> new AdminShuttleBusTimetableResponse.RouteInfo(
                 r.getName(),
                 r.getDetail(),
                 r.getArrivalTime()
             ))
             .toList();
 
-        return AdminShuttleBusTimeTableResponse.builder()
+        return AdminShuttleBusTimetableResponse.builder()
             .nodeInfo(nodeInfos)
             .region(table.getRegion())
             .routeInfo(routeInfos)

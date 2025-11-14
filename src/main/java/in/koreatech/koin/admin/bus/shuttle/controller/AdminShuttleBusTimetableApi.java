@@ -15,16 +15,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
-import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
+import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimetableResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "(Admin) ShuttleBusTimeTable: 셔틀 버스 시간표", description = "셔틀 버스의 시간표를 관리한다.")
+@Tag(name = "(Admin) ShuttleBusTimetable: 셔틀 버스 시간표", description = "셔틀 버스의 시간표를 관리한다.")
 @RequestMapping("/admin/bus/shuttle/timetable")
-public interface AdminShuttleBusTimeTableApi {
+public interface AdminShuttleBusTimetableApi {
 
     @ApiResponseCodes({
         OK,
@@ -34,9 +34,9 @@ public interface AdminShuttleBusTimeTableApi {
     })
     @Operation(summary = "엑셀 파일을 업로드하여 파싱된 데이터를 미리보기 한다.")
     @PostMapping("/excel")
-    ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
+    ResponseEntity<List<AdminShuttleBusTimetableResponse>> previewShuttleBusTimetable(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @RequestParam(name = "shuttle-bus-time-table") MultipartFile file
+        @RequestParam(name = "shuttle-bus-timetable") MultipartFile file
     );
 
     @ApiResponseCodes({
@@ -44,7 +44,7 @@ public interface AdminShuttleBusTimeTableApi {
     })
     @Operation(summary = "셔틀 버스 시간표를 업데이트한다.")
     @PutMapping
-    ResponseEntity<Void> updateShuttleBusTimeTable(
+    ResponseEntity<Void> updateShuttleBusTimetable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
         @Valid @RequestBody AdminShuttleBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId

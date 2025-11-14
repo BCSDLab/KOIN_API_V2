@@ -6,7 +6,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 
-public interface AdminShuttleBusTimeTableRepository extends Repository<ShuttleBusRoute, String> {
+public interface AdminShuttleBusTimetableRepository extends Repository<ShuttleBusRoute, String> {
 
     Optional<ShuttleBusRoute> findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
         String semesterType, String region, String routeType, String routeName, String subName

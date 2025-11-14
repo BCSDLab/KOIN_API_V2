@@ -1,8 +1,8 @@
 package in.koreatech.koin.admin.bus.shuttle.util;
 
-import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo;
-import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo.InnerNameDetail;
-import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo.from;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo.InnerNameDetail;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo.from;
 
 import java.util.ArrayList;
 import java.util.List;

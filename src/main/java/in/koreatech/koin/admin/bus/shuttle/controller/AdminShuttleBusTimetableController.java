@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
-import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
+import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimetableResponse;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusExcelService;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusService;
 import in.koreatech.koin.global.auth.Auth;
@@ -25,29 +25,29 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/admin/bus/shuttle/timetable")
 @RequiredArgsConstructor
-public class AdminShuttleBusTimeTableController implements AdminShuttleBusTimeTableApi {
+public class AdminShuttleBusTimetableController implements AdminShuttleBusTimetableApi {
 
     private final AdminShuttleBusExcelService adminShuttleBusExcelService;
     private final AdminShuttleBusService adminShuttleBusService;
 
     @PostMapping("/excel")
-    public ResponseEntity<List<AdminShuttleBusTimeTableResponse>> previewShuttleBusTimeTable(
+    public ResponseEntity<List<AdminShuttleBusTimetableResponse>> previewShuttleBusTimetable(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @RequestParam(name = "shuttle-bus-time-table") MultipartFile file
+        @RequestParam(name = "shuttle-bus-timetable") MultipartFile file
     ) {
-        List<AdminShuttleBusTimeTableResponse> response = adminShuttleBusExcelService
-            .previewShuttleBusTimeTable(file);
+        List<AdminShuttleBusTimetableResponse> response = adminShuttleBusExcelService
+            .previewShuttleBusTimetable(file);
 
         return ResponseEntity.ok(response);
     }
 
     @PutMapping
-    public ResponseEntity<Void> updateShuttleBusTimeTable(
+    public ResponseEntity<Void> updateShuttleBusTimetable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
         @Valid @RequestBody AdminShuttleBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShuttleBusService.updateShuttleBusTimeTable(request, semesterType);
+        adminShuttleBusService.updateShuttleBusTimetable(request, semesterType);
 
         return ResponseEntity.ok().build();
     }

@@ -12,7 +12,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-public class ShuttleBusTimeTable {
+public class ShuttleBusTimetable {
 
     private String id;
     private String semesterType;
@@ -77,7 +77,7 @@ public class ShuttleBusTimeTable {
         }
     }
 
-    public static ShuttleBusTimeTable from(
+    public static ShuttleBusTimetable from(
         List<NodeInfo> nodeInfos,
         List<RouteInfo> routeInfos,
         ShuttleBusRegion region,
@@ -85,7 +85,7 @@ public class ShuttleBusTimeTable {
         SubName subName,
         RouteType routeType
     ) {
-        return ShuttleBusTimeTable.builder()
+        return ShuttleBusTimetable.builder()
             .nodeInfos(nodeInfos)
             .routeInfos(routeInfos)
             .region(region.getLabel())

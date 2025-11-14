@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.bus.shuttle.util;
 
-import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.NodeInfo;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.NodeInfo;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
 package in.koreatech.koin.admin.bus.shuttle.service;
 
-import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.NodeInfo;
-import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable.RouteInfo;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.NodeInfo;
+import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimeTableResponse;
+import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimetableResponse;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteName;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteType;
-import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimeTable;
+import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable;
 import in.koreatech.koin.admin.bus.shuttle.model.SubName;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusMetaDataParser;
 import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusNodeInfoParser;
@@ -31,19 +31,19 @@ import in.koreatech.koin.global.exception.CustomException;
 @Transactional(readOnly = true)
 public class AdminShuttleBusExcelService {
 
-    public List<AdminShuttleBusTimeTableResponse> previewShuttleBusTimeTable(MultipartFile file) {
+    public List<AdminShuttleBusTimetableResponse> previewShuttleBusTimetable(MultipartFile file) {
         try (
             InputStream inputStream = file.getInputStream();
             Workbook workbook = WorkbookFactory.create(inputStream)
         ) {
-            return extractShuttleBusTimeTableData(workbook);
+            return extractShuttleBusTimetableData(workbook);
         } catch (IOException e) {
             throw CustomException.of(ApiResponseCode.INVALID_EXCEL_FILE_TYPE);
         }
     }
 
-    private List<AdminShuttleBusTimeTableResponse> extractShuttleBusTimeTableData(Workbook workBook) {
-        List<ShuttleBusTimeTable> shuttleBusTimeTables = new ArrayList<>();
+    private List<AdminShuttleBusTimetableResponse> extractShuttleBusTimetableData(Workbook workBook) {
+        List<ShuttleBusTimetable> shuttleBusTimetables = new ArrayList<>();
 
         for (Sheet sheet : workBook) {
             List<NodeInfo> nodeInfos = ShuttleBusNodeInfoParser.getNodeInfos(sheet);
@@ -54,13 +54,13 @@ public class AdminShuttleBusExcelService {
             ShuttleBusRegion region = ShuttleBusMetaDataParser.getRegionFromSheet(sheet);
             RouteType routeType = ShuttleBusMetaDataParser.getRouteTypeFromSheet(sheet);
 
-            shuttleBusTimeTables.add(
-                ShuttleBusTimeTable.from(nodeInfos, routeInfos, region, routeName, subName, routeType)
+            shuttleBusTimetables.add(
+                ShuttleBusTimetable.from(nodeInfos, routeInfos, region, routeName, subName, routeType)
             );
         }
 
-        return shuttleBusTimeTables.stream()
-            .map(AdminShuttleBusTimeTableResponse::from)
+        return shuttleBusTimetables.stream()
+            .map(AdminShuttleBusTimetableResponse::from)
             .toList();
     }
 }

@@ -17,7 +17,7 @@ import jakarta.validation.constraints.NotEmpty;
 public record AdminShuttleBusUpdateRequest(
     @Schema(description = "버스 시간표 정보 리스트", requiredMode = REQUIRED)
     @NotEmpty(message = "버스 시간표 정보 리스트가 비어있습니다.")
-    List<InnerAdminShuttleBusUpdateRequest> shuttleBusTimeTables
+    List<InnerAdminShuttleBusUpdateRequest> shuttleBusTimetables
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
