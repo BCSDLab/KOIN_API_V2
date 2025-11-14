@@ -40,7 +40,8 @@ public enum DomainType {
 
     KEYWORDS("키워드 알림"),
 
-    LOST_ITEMS("분실물")
+    LOST_ITEMS("분실물"),
+    COOP_SEMESTER("생협 학기"),
     ;
 
     private final String description;
