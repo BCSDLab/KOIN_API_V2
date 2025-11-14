@@ -175,7 +175,7 @@ public class AdminClubService {
     public AdminClubManagersResponse getClubAdmins(AdminClubManagerCondition condition) {
         int totalCount = clubManagerRepository.countAll();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), totalCount);
-        Sort.Direction direction = condition.getDirection();
+        Sort.Direction direction = condition.sort().getDirection();
 
         Page<ClubManager> result = getClubManagersResultPage(criteria, direction);
 
@@ -193,7 +193,7 @@ public class AdminClubService {
 
         Comparator<ClubCreateRedis> comparator =
             Comparator.comparing(ClubCreateRedis::getCreatedAt);
-        if (condition.getDirection() == Sort.Direction.DESC) {
+        if (condition.sort().getDirection() == Sort.Direction.DESC) {
             comparator = comparator.reversed();
         }
 

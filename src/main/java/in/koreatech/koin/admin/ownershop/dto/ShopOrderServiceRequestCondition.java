@@ -5,13 +5,11 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Sort.Direction;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -43,15 +41,6 @@ public record ShopOrderServiceRequestCondition(
         }
         if (Objects.isNull(sort)) {
             sort = Criteria.Sort.CREATED_AT_ASC;
-        }
-    }
-
-    @Hidden
-    public Direction getDirection() {
-        if (this.sort == Criteria.Sort.CREATED_AT_ASC) {
-            return Direction.ASC;
-        } else {
-            return Direction.DESC;
         }
     }
 

@@ -25,7 +25,7 @@ public class HistoryService {
 
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(), criteria.getLimit(),
-            Sort.by(condition.getSortDir(), "createdAt")
+            Sort.by(condition.sort().getDirection(), "createdAt")
         );
         Page<AdminActivityHistory> adminActivityHistoryPage = adminActivityHistoryRepository.findByConditions(
             condition, pageRequest);
