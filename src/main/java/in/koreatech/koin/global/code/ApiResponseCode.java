@@ -36,6 +36,7 @@ public enum ApiResponseCode {
     NOT_MATCHED_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "인증 번호가 일치하지 않습니다."),
     NOT_MATCHED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰이 일치하지 않습니다."),
     NOT_READABLE_HTTP_MESSAGE(HttpStatus.BAD_REQUEST, "잘못된 입력 형식이거나, 값이 허용된 범위를 초과했습니다."),
+    NOT_PENDING_REQUEST(HttpStatus.BAD_REQUEST, "대기 중인 요청이 아닙니다."),
     UNSUPPORTED_OPERATION(HttpStatus.BAD_REQUEST, "지원하지 않는 API 입니다."),
     INVALID_RECRUITMENT_PERIOD(HttpStatus.BAD_REQUEST, "모집 마감일은 모집 시작일 이후여야 합니다."),
     MUST_BE_NULL_RECRUITMENT_PERIOD(HttpStatus.BAD_REQUEST, "상시 모집일 경우, 모집 시작일과 종료일은 입력하면 안 됩니다."),

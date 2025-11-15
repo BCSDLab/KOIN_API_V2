@@ -17,6 +17,9 @@ import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
+import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.PENDING;
+import static in.koreatech.koin.global.code.ApiResponseCode.NOT_PENDING_REQUEST;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,6 +44,26 @@ public class AdminShopOrderServiceRequestService {
     public AdminShopOrderServiceResponse getOrderServiceRequest(Integer id) {
         ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
         return AdminShopOrderServiceResponse.from(shopOrderServiceRequest);
+    }
+
+    public void approveOrderServiceRequest(Integer id) {
+        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
+        if (shopOrderServiceRequest.getRequestStatus() != PENDING) {
+            throw CustomException.of(NOT_PENDING_REQUEST);
+        }
+        shopOrderServiceRequest.approve();
+        adminShopOrderServiceRequestRepository.save(shopOrderServiceRequest);
+        
+        //여기부터 이제 Shop 관련 엔티티 생성해야징
+    }
+
+    public void rejectOrderServiceRequest(Integer id) {
+        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
+        if (shopOrderServiceRequest.getRequestStatus() != PENDING) {
+            throw CustomException.of(NOT_PENDING_REQUEST);
+        }
+        shopOrderServiceRequest.reject();
+        adminShopOrderServiceRequestRepository.save(shopOrderServiceRequest);
     }
 
     private Long getTotalRequestsCount(ShopOrderServiceRequestCondition condition) {

@@ -81,4 +81,6 @@ public interface AdminShopOrderServiceRequestRepository extends Repository<ShopO
         @Param("shopName") String shopName,
         Pageable pageable
     );
+
+    ShopOrderServiceRequest save(ShopOrderServiceRequest shopOrderServiceRequest);
 }

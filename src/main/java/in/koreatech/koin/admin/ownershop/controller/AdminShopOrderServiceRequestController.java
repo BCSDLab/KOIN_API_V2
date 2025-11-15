@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServiceResponse;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminShopOrderServiceRequestController implements AdminShopOrderServiceRequestApi {
+public class AdminShopOrderServiceRequestController {//implements AdminShopOrderServiceRequestApi {
 
     private final AdminShopOrderServiceRequestService adminShopOrderServiceRequestService;
 
@@ -39,5 +40,23 @@ public class AdminShopOrderServiceRequestController implements AdminShopOrderSer
     ) {
         AdminShopOrderServiceResponse response = adminShopOrderServiceRequestService.getOrderServiceRequest(id);
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/admin/owner/shops/order-service-requests/{id}/approve")
+    public ResponseEntity<Void> approveOrderServiceRequest(
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminShopOrderServiceRequestService.approveOrderServiceRequest(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/admin/owner/shops/order-service-requests/{id}/reject")
+    public ResponseEntity<Void> rejectOrderServiceRequest(
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminShopOrderServiceRequestService.rejectOrderServiceRequest(id);
+        return ResponseEntity.ok().build();
     }
 }
