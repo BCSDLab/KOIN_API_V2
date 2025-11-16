@@ -16,11 +16,15 @@ import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequest
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
+import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
+import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryOption;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import lombok.RequiredArgsConstructor;
 
 import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryOption.*;
@@ -34,6 +38,7 @@ public class AdminShopOrderServiceRequestService {
 
     private final AdminShopOrderServiceRequestRepository adminShopOrderServiceRequestRepository;
     private final ShopRepository shopRepository;
+    private final OrderableShopRepository orderableShopRepository;
 
     public AdminShopOrderServicesResponse getOrderServiceRequests(ShopOrderServiceRequestCondition condition) {
         if (condition.isQueryBlank()) {
@@ -56,13 +61,13 @@ public class AdminShopOrderServiceRequestService {
 
     @Transactional
     public void approveOrderServiceRequest(Integer id) {
-        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
+        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getByIdWithShopAndOwner(id);
         if (shopOrderServiceRequest.getRequestStatus() != PENDING) {
             throw CustomException.of(NOT_PENDING_REQUEST);
         }
         shopOrderServiceRequest.approve();
 
-        //createOrderableShopFromRequest(shopOrderServiceRequest);
+        createOrderableShopFromRequest(shopOrderServiceRequest);
     }
 
     // TODO: 미완성 메서드
@@ -71,14 +76,15 @@ public class AdminShopOrderServiceRequestService {
         Shop shop = shopOrderServiceRequest.getShop();
         shop.updateBankAndAccount(shopOrderServiceRequest.getBank(), shopOrderServiceRequest.getAccountNumber());
 
-        // 새롭게 OrderableShop 생성
+        // TODO OrderableShop이 이미 존재하는 경우 처리 필요할듯
+        //OrderableShop 생성 
         OrderableShop orderableShop = OrderableShop.builder()
             .shop(shop)
             .minimumOrderAmount(shopOrderServiceRequest.getMinimumOrderAmount())
             .takeout(shopOrderServiceRequest.getIsTakeout())
             .build();
 
-        // 새롭게 OrderableShopDeliveryOption 생성
+        //OrderableShopDeliveryOption 생성
         ShopOrderServiceRequestDeliveryOption deliveryOption = shopOrderServiceRequest.getDeliveryOption();
         boolean isCampusDelivery = deliveryOption == CAMPUS || deliveryOption == BOTH;
         boolean isOffCampusDelivery = deliveryOption == OFF_CAMPUS || deliveryOption == BOTH;
@@ -87,12 +93,37 @@ public class AdminShopOrderServiceRequestService {
             .campusDelivery(isCampusDelivery)
             .offCampusDelivery(isOffCampusDelivery)
             .build();
+        orderableShop.updateDeliveryOption(orderableShopDeliveryOption);
+        orderableShopRepository.save(orderableShop);
 
-        //TODO: campusDeliveryTip, offCampusDeliveryTip 처리 필요
+        //TODO: campusDeliveryTip, offCampusDeliveryTip 처리 필요 deliveryPrice 1개네
         // ShopBaseDeliveryTip 테이블은 거리 기반으로 팁을 설정하고 있어보임
 
-        //TODO: businessLicenseUrl, businessCertificateUrl, bankCopyUrl 처리 필요
-        // OwnerAttachment로 저장 가능?
+        // businessLicenseUrl, businessCertificateUrl, bankCopyUrl를 OwnerAttachment로 저장
+        Owner owner = shop.getOwner();
+        // 사업자 등록증 URL
+        OwnerAttachment businessLicenseAttachment = OwnerAttachment.builder()
+            .url(shopOrderServiceRequest.getBusinessLicenseUrl())
+            .owner(owner)
+            .isDeleted(false)
+            .build();
+        owner.getAttachments().add(businessLicenseAttachment);
+
+        // 영업 신고증 URL
+        OwnerAttachment businessCertificateAttachment = OwnerAttachment.builder()
+            .url(shopOrderServiceRequest.getBusinessCertificateUrl())
+            .owner(owner)
+            .isDeleted(false)
+            .build();
+        owner.getAttachments().add(businessCertificateAttachment);
+
+        // 통장 사본 URL
+        OwnerAttachment bankCopyAttachment = OwnerAttachment.builder()
+            .url(shopOrderServiceRequest.getBankCopyUrl())
+            .owner(owner)
+            .isDeleted(false)
+            .build();
+        owner.getAttachments().add(bankCopyAttachment);
     }
 
 

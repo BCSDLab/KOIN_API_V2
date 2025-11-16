@@ -17,8 +17,21 @@ public interface AdminShopOrderServiceRequestRepository extends Repository<ShopO
 
     Optional<ShopOrderServiceRequest> findById(Integer id);
 
+    @Query("""
+        SELECT r FROM ShopOrderServiceRequest r
+        JOIN FETCH r.shop s
+        LEFT JOIN FETCH s.owner o
+        WHERE r.id = :id
+        """)
+    Optional<ShopOrderServiceRequest> findByIdWithShopAndOwner(@Param("id") Integer id);
+
     default ShopOrderServiceRequest getById(Integer id) {
         return findById(id)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST));
+    }
+
+    default ShopOrderServiceRequest getByIdWithShopAndOwner(Integer id) {
+        return findByIdWithShopAndOwner(id)
             .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST));
     }
 

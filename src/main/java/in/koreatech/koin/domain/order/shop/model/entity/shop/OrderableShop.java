@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.order.shop.model.entity.shop;
 
+import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -71,7 +72,7 @@ public class OrderableShop extends BaseEntity {
     @OneToMany(mappedBy = "orderableShop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopImage> shopImages = new ArrayList<>();
 
-    @OneToOne(mappedBy = "orderableShop", fetch = FetchType.LAZY)
+    @OneToOne(cascade = {PERSIST, MERGE, REMOVE}, mappedBy = "orderableShop", fetch = FetchType.LAZY)
     private OrderableShopDeliveryOption deliveryOption;
 
     @Builder
@@ -115,5 +116,9 @@ public class OrderableShop extends BaseEntity {
         return this.shop.getEventArticles().stream()
             .filter(eventArticle -> eventArticle.isOngoing(clock))
             .collect(Collectors.toList());
+    }
+
+    public void updateDeliveryOption(OrderableShopDeliveryOption deliveryOption) {
+        this.deliveryOption = deliveryOption;
     }
 }
