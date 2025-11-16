@@ -286,9 +286,9 @@ public class Shop extends BaseEntity {
         List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
         for (String categoryName : categoryNames) {
             MenuCategory menuCategory = MenuCategory.builder()
-                    .shop(this)
-                    .name(categoryName)
-                    .build();
+                .shop(this)
+                .name(categoryName)
+                .build();
             this.menuCategories.add(menuCategory);
         }
         this.getMenuCategories().addAll(menuCategories);
@@ -297,9 +297,9 @@ public class Shop extends BaseEntity {
     public void addShopImages(List<String> imageUrls) {
         for (String imageUrl : imageUrls) {
             ShopImage shopImage = ShopImage.builder()
-                    .shop(this)
-                    .imageUrl(imageUrl)
-                    .build();
+                .shop(this)
+                .imageUrl(imageUrl)
+                .build();
             this.shopImages.add(shopImage);
         }
     }
@@ -311,9 +311,9 @@ public class Shop extends BaseEntity {
     public void addShopCategories(List<ShopCategory> shopCategories) {
         for (ShopCategory shopCategory : shopCategories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
-                    .shopCategory(shopCategory)
-                    .shop(this)
-                    .build();
+                .shopCategory(shopCategory)
+                .shop(this)
+                .build();
             this.shopCategories.add(shopCategoryMap);
         }
     }
@@ -338,5 +338,10 @@ public class Shop extends BaseEntity {
 
     public boolean isOwner(Integer ownerId) {
         return this.owner != null && this.owner.getId().equals(ownerId);
+    }
+
+    public void updateBankAndAccount(String bank, String accountNumber) {
+        this.bank = bank;
+        this.accountNumber = accountNumber;
     }
 }

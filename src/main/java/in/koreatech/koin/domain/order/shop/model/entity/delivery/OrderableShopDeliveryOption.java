@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,4 +38,10 @@ public class OrderableShopDeliveryOption extends BaseEntity {
     @JoinColumn(name = "orderable_shop_id", nullable = false)
     private OrderableShop orderableShop;
 
+    @Builder
+    public OrderableShopDeliveryOption(Boolean campusDelivery, Boolean offCampusDelivery, OrderableShop orderableShop) {
+        this.campusDelivery = campusDelivery;
+        this.offCampusDelivery = offCampusDelivery;
+        this.orderableShop = orderableShop;
+    }
 }

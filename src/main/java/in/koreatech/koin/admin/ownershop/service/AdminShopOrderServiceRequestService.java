@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.ownershop.service;
 
+import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.APPROVED;
 import static in.koreatech.koin.global.code.ApiResponseCode.SEARCH_QUERY_ONLY_WHITESPACE;
 
 import org.springframework.data.domain.Page;
@@ -13,10 +14,16 @@ import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServicesResponse;
 import in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition;
 import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequestRepository;
 import in.koreatech.koin.common.model.Criteria;
+import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryOption;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
+import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryOption.*;
 import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.PENDING;
 import static in.koreatech.koin.global.code.ApiResponseCode.NOT_PENDING_REQUEST;
 
@@ -26,6 +33,7 @@ import static in.koreatech.koin.global.code.ApiResponseCode.NOT_PENDING_REQUEST;
 public class AdminShopOrderServiceRequestService {
 
     private final AdminShopOrderServiceRequestRepository adminShopOrderServiceRequestRepository;
+    private final ShopRepository shopRepository;
 
     public AdminShopOrderServicesResponse getOrderServiceRequests(ShopOrderServiceRequestCondition condition) {
         if (condition.isQueryBlank()) {
@@ -46,24 +54,55 @@ public class AdminShopOrderServiceRequestService {
         return AdminShopOrderServiceResponse.from(shopOrderServiceRequest);
     }
 
+    @Transactional
     public void approveOrderServiceRequest(Integer id) {
         ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
         if (shopOrderServiceRequest.getRequestStatus() != PENDING) {
             throw CustomException.of(NOT_PENDING_REQUEST);
         }
         shopOrderServiceRequest.approve();
-        adminShopOrderServiceRequestRepository.save(shopOrderServiceRequest);
-        
-        //여기부터 이제 Shop 관련 엔티티 생성해야징
+
+        //createOrderableShopFromRequest(shopOrderServiceRequest);
     }
 
+    // TODO: 미완성 메서드
+    private void createOrderableShopFromRequest(ShopOrderServiceRequest shopOrderServiceRequest) {
+        // Shop의 계좌 정보 업데이트
+        Shop shop = shopOrderServiceRequest.getShop();
+        shop.updateBankAndAccount(shopOrderServiceRequest.getBank(), shopOrderServiceRequest.getAccountNumber());
+
+        // 새롭게 OrderableShop 생성
+        OrderableShop orderableShop = OrderableShop.builder()
+            .shop(shop)
+            .minimumOrderAmount(shopOrderServiceRequest.getMinimumOrderAmount())
+            .takeout(shopOrderServiceRequest.getIsTakeout())
+            .build();
+
+        // 새롭게 OrderableShopDeliveryOption 생성
+        ShopOrderServiceRequestDeliveryOption deliveryOption = shopOrderServiceRequest.getDeliveryOption();
+        boolean isCampusDelivery = deliveryOption == CAMPUS || deliveryOption == BOTH;
+        boolean isOffCampusDelivery = deliveryOption == OFF_CAMPUS || deliveryOption == BOTH;
+        OrderableShopDeliveryOption orderableShopDeliveryOption = OrderableShopDeliveryOption.builder()
+            .orderableShop(orderableShop)
+            .campusDelivery(isCampusDelivery)
+            .offCampusDelivery(isOffCampusDelivery)
+            .build();
+
+        //TODO: campusDeliveryTip, offCampusDeliveryTip 처리 필요
+        // ShopBaseDeliveryTip 테이블은 거리 기반으로 팁을 설정하고 있어보임
+
+        //TODO: businessLicenseUrl, businessCertificateUrl, bankCopyUrl 처리 필요
+        // OwnerAttachment로 저장 가능?
+    }
+
+
+    @Transactional
     public void rejectOrderServiceRequest(Integer id) {
         ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
         if (shopOrderServiceRequest.getRequestStatus() != PENDING) {
             throw CustomException.of(NOT_PENDING_REQUEST);
         }
         shopOrderServiceRequest.reject();
-        adminShopOrderServiceRequestRepository.save(shopOrderServiceRequest);
     }
 
     private Long getTotalRequestsCount(ShopOrderServiceRequestCondition condition) {

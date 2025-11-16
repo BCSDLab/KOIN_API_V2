@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminShopOrderServiceRequestController {//implements AdminShopOrderServiceRequestApi {
+public class AdminShopOrderServiceRequestController implements AdminShopOrderServiceRequestApi {
 
     private final AdminShopOrderServiceRequestService adminShopOrderServiceRequestService;
 
