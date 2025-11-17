@@ -52,7 +52,6 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         }
 
         ApiResponses responses = operation.getResponses();
-        responses.clear();
 
         Type returnType = getActualResponseType(handler);
         ApiResponseCode[] codes = ann.value();
