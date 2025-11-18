@@ -32,7 +32,7 @@ import in.koreatech.koin.global.exception.CustomException;
 @Transactional(readOnly = true)
 public class AdminShuttleBusExcelService {
 
-    public AdminShuttleBusTimetableResponse previewShuttleBusTimetable(MultipartFile file) {
+    public AdminShuttleBusTimetableResponse getShuttleBusTimetablePreview(MultipartFile file) {
         try (
             InputStream inputStream = file.getInputStream();
             Workbook workbook = WorkbookFactory.create(inputStream)

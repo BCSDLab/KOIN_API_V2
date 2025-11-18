@@ -37,7 +37,7 @@ public class AdminShuttleBusTimetableController implements AdminShuttleBusTimeta
         @RequestParam(name = "shuttle-bus-timetable") MultipartFile file
     ) {
         AdminShuttleBusTimetableResponse response = adminShuttleBusExcelService
-            .previewShuttleBusTimetable(file);
+            .getShuttleBusTimetablePreview(file);
 
         return ResponseEntity.ok(response);
     }
