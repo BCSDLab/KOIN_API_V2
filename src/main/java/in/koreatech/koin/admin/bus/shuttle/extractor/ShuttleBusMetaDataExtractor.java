@@ -8,8 +8,6 @@ import in.koreatech.koin.admin.bus.shuttle.model.RouteName;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteType;
 import in.koreatech.koin.admin.bus.shuttle.model.SubName;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 
 public class ShuttleBusMetaDataExtractor {
 
@@ -20,11 +18,17 @@ public class ShuttleBusMetaDataExtractor {
     private static final int ROUTE_TYPE_COL = 1;
 
     public static ShuttleBusRegion getRegionFromSheet(Sheet sheet) {
-        return ShuttleBusRegion.of(getCellValue(sheet, REGION_ROW, REGION_COL));
+        Row row = sheet.getRow(REGION_ROW);
+        Cell cell = row.getCell(REGION_COL);
+
+        return ShuttleBusRegion.of(PoiCellExtractor.extractStringValue(cell));
     }
 
     public static RouteType getRouteTypeFromSheet(Sheet sheet) {
-        return RouteType.of(getCellValue(sheet, ROUTE_TYPE_ROW, ROUTE_TYPE_COL));
+        Row row = sheet.getRow(ROUTE_TYPE_ROW);
+        Cell cell = row.getCell(ROUTE_TYPE_COL);
+
+        return RouteType.of(PoiCellExtractor.extractStringValue(cell));
     }
 
     public static RouteName getRouteNameFromSheet(Sheet sheet) {
@@ -37,21 +41,5 @@ public class ShuttleBusMetaDataExtractor {
         String sheetName = sheet.getSheetName();
 
         return SubName.of(sheetName);
-    }
-
-    private static String getCellValue(Sheet sheet, int rowIndex, int colIndex) {
-        Row row = sheet.getRow(rowIndex);
-
-        if (row == null) {
-            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_ROW);
-        }
-
-        Cell cell = row.getCell(colIndex);
-
-        if (cell == null) {
-            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_COL);
-        }
-
-        return cell.toString();
     }
 }
