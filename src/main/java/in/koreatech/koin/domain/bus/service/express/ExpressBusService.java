@@ -77,7 +77,7 @@ public class ExpressBusService {
             .toList();
     }
 
-    public List<? extends BusTimetable> getExpressBusTimetable(String direction) {
+    public List<ExpressBusTimetable> getExpressBusTimetable(String direction) {
         BusStation depart = null;
         BusStation arrival = null;
 

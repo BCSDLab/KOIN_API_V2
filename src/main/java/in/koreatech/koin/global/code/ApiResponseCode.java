@@ -22,6 +22,9 @@ public enum ApiResponseCode {
     ILLEGAL_ARGUMENT(HttpStatus.BAD_REQUEST, "잘못된 인자가 전달되었습니다."),
     ILLEGAL_STATE(HttpStatus.BAD_REQUEST, "잘못된 상태로 요청이 들어왔습니다."),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "잘못된 입력값이 포함되어 있습니다."),
+    INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 검색 타입입니다."),
+    REQUIRED_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "검색어가 존재할 때는 검색 대상이 반드시 필요합니다."),
+    SEARCH_QUERY_ONLY_WHITESPACE(HttpStatus.BAD_REQUEST, "검색 내용은 공백 문자로만 이루어져 있으면 안됩니다."),
     INVALID_DATE_TIME(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다."),
     INVALID_GENDER_INDEX(HttpStatus.BAD_REQUEST, "올바르지 않은 성별 인덱스입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "올바르지 않은 인증 토큰입니다."),
@@ -39,8 +42,7 @@ public enum ApiResponseCode {
     REQUIRED_RECRUITMENT_PERIOD(HttpStatus.BAD_REQUEST, "상시 모집이 아닌 경우, 모집 시작일과 종료일은 필수입니다."),
     NOT_MATCHED_CLUB_AND_EVENT(HttpStatus.BAD_REQUEST, "해당 동아리의 이벤트가 아닙니다."),
     NOT_ALLOWED_RECRUITING_SORT_TYPE(HttpStatus.BAD_REQUEST, "해당 정렬 방식은 모집 중일 때만 사용할 수 있습니다."),
-    INVALID_CLUB_EVENT_PERIOD(HttpStatus.BAD_REQUEST,"행사 마감일은 행사 시작일 이후여야 합니다."),
-    INVALID_CLUB_EVENT_TYPE(HttpStatus.BAD_REQUEST, "올바르지 않은 동아리 행사 타입입니다."),
+    INVALID_CLUB_EVENT_PERIOD(HttpStatus.BAD_REQUEST, "행사 마감일은 행사 시작일 이후여야 합니다."),
     INVALID_ADDRESS_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 주소 형식입니다."),
     SHOP_NOT_DELIVERABLE(HttpStatus.BAD_REQUEST, "배달 가능한 상점이 아닙니다."),
     SHOP_NOT_TAKEOUT_AVAILABLE(HttpStatus.BAD_REQUEST, "포장 가능한 상점이 아닙니다."),
@@ -66,6 +68,20 @@ public enum ApiResponseCode {
     ORDER_PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "클라이언트 요청 금액이 서버 계산 결과와 다릅니다."),
     MISMATCH_TEMPORARY_PAYMENT(HttpStatus.BAD_REQUEST, "요청한 정보가 임시 결제 정보와 일치하지 않습니다."),
     PAYMENT_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
+    INVALID_START_DATE_AFTER_END_DATE(HttpStatus.BAD_REQUEST, "시작일은 종료일 이전이여야 합니다."),
+    UNREADABLE_EXCEL_FILE(HttpStatus.BAD_REQUEST, "엑셀 파일을 읽을 수 없습니다."),
+    ENCRYPTED_EXCEL_FILE(HttpStatus.BAD_REQUEST, "암호화된 엑셀 파일을 읽을 수 없습니다."),
+    EMPTY_EXCEL_FILE(HttpStatus.BAD_REQUEST, "엑셀 파일이 비어 있습니다."),
+    INVALID_EXCEL_FILE_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 엑셀 파일 형식입니다."),
+    INVALID_EXCEL_CELL_FORMAT(HttpStatus.BAD_REQUEST, "셀 서식은 텍스트만 허용합니다."),
+    INVALID_COOP_SHOP_DAY_OF_WEEK(HttpStatus.BAD_REQUEST, "올바르지 않은 요일입니다."),
+    INVALID_EXCEL_FILE_TYPE(HttpStatus.BAD_REQUEST, "엑셀 형식이 아닌 파일이 업로드 되었습니다."),
+    INVALID_EXCEL_ROW(HttpStatus.BAD_REQUEST, "존재하지 않는 엑셀 행이 있습니다."),
+    INVALID_EXCEL_COL(HttpStatus.BAD_REQUEST, "존재하지 않는 엑셀 열이 있습니다."),
+    INVALID_SHUTTLE_ROUTE_TYPE(HttpStatus.BAD_REQUEST, "등하교 버스 타입이 아닙니다."),
+    INVALID_NODE_INFO_START_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 시작 위치가 아닙니다."),
+    INVALID_NODE_INFO_END_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 끝 위치가 아닙니다."),
+    INVALID_SEMESTER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 학기 형식입니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -84,6 +100,7 @@ public enum ApiResponseCode {
     FORBIDDEN_BLOCKED_USER(HttpStatus.FORBIDDEN, "차단된 사용자입니다."),
     PAYMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "결제 정보 접근 권한이 없습니다."),
     FORBIDDEN_ORDER(HttpStatus.FORBIDDEN, "주문 정보 접근 권한이 없습니다."),
+    FORBIDDEN_SHOP_OWNER(HttpStatus.FORBIDDEN, "상점의 사장님이 아닙니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -96,7 +113,7 @@ public enum ApiResponseCode {
     NOT_FOUND_CLUB_RECRUITMENT(HttpStatus.NOT_FOUND, "동아리 모집 공고가 존재하지 않습니다."),
     NOT_FOUND_CLUB_EVENT(HttpStatus.NOT_FOUND, "동아리 행사가 존재하지 않습니다."),
     NOT_FOUND_DELIVERY_ADDRESS(HttpStatus.NOT_FOUND, "주소가 존재하지 않습니다."),
-    NOT_FOUND_ORDERABLE_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
+    NOT_FOUND_ORDERABLE_SHOP(HttpStatus.NOT_FOUND, "주문 가능 상점이 존재하지 않습니다."),
     NOT_FOUND_ORDERABLE_SHOP_MENU(HttpStatus.NOT_FOUND, "메뉴가 존재하지 않습니다"),
     NOT_FOUND_ORDERABLE_SHOP_MENU_PRICE(HttpStatus.NOT_FOUND, "유효하지 않은 가격 ID 입니다."),
     NOT_FOUND_ORDERABLE_SHOP_MENU_OPTION(HttpStatus.NOT_FOUND, "유효하지 않은 옵션 ID 입니다."),
@@ -107,6 +124,9 @@ public enum ApiResponseCode {
     NOT_FOUND_TEMPORARY_PAYMENT(HttpStatus.NOT_FOUND, "임시 결제 정보가 존재하지 않습니다."),
     NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
     NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
+    NOT_FOUND_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
+    NOT_FOUND_COOP_SEMESTER(HttpStatus.NOT_FOUND, "해당 학기가 존재하지 않습니다."),
+    NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST(HttpStatus.NOT_FOUND, "상점 서비스 전환 요청이 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
@@ -118,6 +138,10 @@ public enum ApiResponseCode {
     REQUEST_TOO_FAST(HttpStatus.CONFLICT, "요청이 너무 빠릅니다. 다시 요청해주세요."),
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.CONFLICT, "이미 처리된 요청입니다."),
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
+    DUPLICATE_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
+    DUPLICATE_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 주문 가능한 상점입니다."),
+    DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "이미 존재하는 학기입니다."),
+    OVERLAPPING_SEMESTER_DATE_RANGE(HttpStatus.CONFLICT, "학기 기간이 기존 학기와 겹칩니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)

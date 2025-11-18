@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.order.model.OrderInfo;
+import in.koreatech.koin.domain.order.order.model.OrderInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -45,6 +45,12 @@ public record OrdersResponse(
         @Schema(description = "주문 가게 이름", example = "김밥 천국", requiredMode = REQUIRED)
         String orderableShopName,
 
+        @Schema(description = "상점 오픈 여부", example = "false", requiredMode = REQUIRED)
+        Boolean openStatus,
+
+        @Schema(description = "주문 가게 썸네일 주소", example = "https://static.koreatech.in/test.png", requiredMode = REQUIRED)
+        String orderableShopThumbnail,
+
         @Schema(description = "주문 일시", example = "2025.09.07", requiredMode = REQUIRED)
         @JsonFormat(pattern = "yyyy.MM.dd")
         LocalDate orderDate,
@@ -53,7 +59,10 @@ public record OrdersResponse(
         String orderStatus,
 
         @Schema(description = "주문 내용", example = "김밥 외 1건", requiredMode = REQUIRED)
-        String orderTitle
+        String orderTitle,
+
+        @Schema(description = "주문 금액", example = "12300", requiredMode = REQUIRED)
+        Integer totalAmount
     ) {
         public static InnerOrderResponse from(OrderInfo orderInfo) {
             return new InnerOrderResponse(
@@ -61,9 +70,12 @@ public record OrdersResponse(
                 orderInfo.paymentId(),
                 orderInfo.orderShopId(),
                 orderInfo.orderableShopName(),
+                orderInfo.openStatus(),
+                orderInfo.orderableShopThumbnail(),
                 orderInfo.orderDate().toLocalDate(),
                 orderInfo.orderStatus().name(),
-                orderInfo.orderTitle()
+                orderInfo.orderTitle(),
+                orderInfo.totalAmount()
             );
         }
     }

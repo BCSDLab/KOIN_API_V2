@@ -4,14 +4,11 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 
 import java.util.Objects;
 
-import org.springframework.data.domain.Sort.Direction;
-
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.common.model.Criteria.Sort;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -32,10 +29,5 @@ public record AdminClubManagerCondition(
             limit = Criteria.DEFAULT_LIMIT;
         if (Objects.isNull(sort))
             sort = Sort.CREATED_AT_DESC;
-    }
-
-    @Hidden
-    public Direction getDirection() {
-        return this.sort == Sort.CREATED_AT_ASC ? Direction.ASC : Direction.DESC;
     }
 }

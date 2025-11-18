@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.abtest.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.ABTEST;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -26,10 +27,11 @@ import in.koreatech.koin.admin.abtest.dto.response.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.service.AbtestService;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class AbtestController implements AbtestApi {
     private final AbtestService abtestService;
 
     @PostMapping
+    @AdminActivityLogging(domain = ABTEST)
     public ResponseEntity<AbtestResponse> createAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestBody @Valid AbtestRequest request
@@ -51,6 +54,7 @@ public class AbtestController implements AbtestApi {
     }
 
     @PutMapping("/{id}")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     public ResponseEntity<AbtestResponse> putAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId,
@@ -61,6 +65,7 @@ public class AbtestController implements AbtestApi {
     }
 
     @DeleteMapping("/{id}")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     public ResponseEntity<Void> deleteAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId
@@ -89,6 +94,7 @@ public class AbtestController implements AbtestApi {
     }
 
     @PostMapping("/close/{id}")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     public ResponseEntity<Void> closeAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId,
@@ -117,6 +123,7 @@ public class AbtestController implements AbtestApi {
     }
 
     @PostMapping("/{id}/move")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     public ResponseEntity<Void> assignAbtestVariableByAdmin(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable(value = "id") Integer abtestId,

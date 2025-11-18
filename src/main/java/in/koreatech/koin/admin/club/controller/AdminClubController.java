@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.club.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.CLUBS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -16,10 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.AdminClubActiveChangeRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubCreateRequest;
+import in.koreatech.koin.admin.club.dto.request.AdminClubManagerCondition;
 import in.koreatech.koin.admin.club.dto.request.AdminClubManagerDecideRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminClubModifyRequest;
 import in.koreatech.koin.admin.club.dto.request.AdminPendingClubRequest;
@@ -28,6 +28,8 @@ import in.koreatech.koin.admin.club.dto.response.AdminClubResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminClubsResponse;
 import in.koreatech.koin.admin.club.dto.response.AdminPendingClubResponse;
 import in.koreatech.koin.admin.club.service.AdminClubService;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +62,7 @@ public class AdminClubController implements AdminClubApi {
     }
 
     @PostMapping
+    @AdminActivityLogging(domain = CLUBS)
     public ResponseEntity<Void> createClub(
         @RequestBody @Valid AdminClubCreateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -69,6 +72,7 @@ public class AdminClubController implements AdminClubApi {
     }
 
     @PutMapping("/{clubId}")
+    @AdminActivityLogging(domain = CLUBS, domainIdParam = "clubId")
     public ResponseEntity<Void> modifyClub(
         @Parameter(in = PATH) @PathVariable(name = "clubId") Integer clubId,
         @RequestBody @Valid AdminClubModifyRequest request,
@@ -79,6 +83,7 @@ public class AdminClubController implements AdminClubApi {
     }
 
     @PatchMapping("/{clubId}/active")
+    @AdminActivityLogging(domain = CLUBS, domainIdParam = "clubId")
     public ResponseEntity<Void> changeActive(
         @PathVariable Integer clubId,
         @RequestBody @Valid AdminClubActiveChangeRequest request,
@@ -97,6 +102,7 @@ public class AdminClubController implements AdminClubApi {
     }
 
     @PostMapping("/pending")
+    @AdminActivityLogging(domain = CLUBS)
     public ResponseEntity<AdminPendingClubResponse> getPendingClub(
         @RequestBody @Valid AdminPendingClubRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -114,6 +120,7 @@ public class AdminClubController implements AdminClubApi {
     }
 
     @PostMapping("/decision")
+    @AdminActivityLogging(domain = CLUBS)
     public ResponseEntity<Void> decideClubAdmin(
         @RequestBody @Valid AdminClubManagerDecideRequest request,
         @Auth(permit = {ADMIN}) Integer adminId

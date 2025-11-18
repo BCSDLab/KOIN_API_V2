@@ -1,16 +1,15 @@
 package in.koreatech.koin.domain.order.shop.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopInfoSummary;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 public interface OrderableShopRepository extends JpaRepository<OrderableShop, Integer> {
 
@@ -32,7 +31,7 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
             )
             FROM OrderableShop os
             JOIN os.shop s
-            LEFT JOIN s.reviews r
+            LEFT JOIN s.reviews r ON r.isDeleted = false
             LEFT JOIN ShopBaseDeliveryTip bdt ON bdt.shop.id = s.id
             WHERE os.id = :orderableShopId
             GROUP BY os.id, s.id
@@ -40,9 +39,9 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
     Optional<OrderableShopInfoSummary> findOrderableShopInfoSummaryById(
         @Param("orderableShopId") Integer orderableShopId);
 
-    default OrderableShopInfoSummary getOrderableShopInfoSummaryById(Integer shopId) {
-        return findOrderableShopInfoSummaryById(shopId).orElseThrow(
-            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + shopId)
+    default OrderableShopInfoSummary getOrderableShopInfoSummaryById(Integer orderableShopId) {
+        return findOrderableShopInfoSummaryById(orderableShopId).orElseThrow(
+            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + orderableShopId)
         );
     }
 
@@ -64,29 +63,6 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
     }
 
     @Query("""
-            SELECT os
-            FROM OrderableShop os
-            JOIN FETCH os.shop
-            LEFT JOIN FETCH os.shop.eventArticles
-            WHERE os.id = :orderableShopId
-        """)
-    Optional<OrderableShop> findByIdWithShopEvent(@Param("orderableShopId") Integer orderableShopId);
-
-    default OrderableShop getByIdWithShopEvent(Integer orderableShopId) {
-        return findByIdWithShopEvent(orderableShopId).orElseThrow(
-            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + orderableShopId)
-        );
-    }
-
-    @Query("""
-            SELECT os
-            FROM OrderableShop os
-            JOIN FETCH os.shop
-            LEFT JOIN FETCH os.shop.eventArticles
-        """)
-    List<OrderableShop> findAllWithShopEvent();
-
-    @Query("""
             SELECT DISTINCT os
             FROM OrderableShop os
             LEFT JOIN FETCH os.menuGroups mg
@@ -100,9 +76,9 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
         );
     }
 
-    default OrderableShop getById(Integer shopId) {
-        return findById(shopId).orElseThrow(
-            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + shopId)
+    default OrderableShop getById(Integer orderableShopId) {
+        return findById(orderableShopId).orElseThrow(
+            () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + orderableShopId)
         );
     }
 }

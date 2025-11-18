@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.member.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.TECHSTACKS;
+import static in.koreatech.koin.admin.history.enums.DomainType.TRACKS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackRequest;
@@ -58,6 +61,7 @@ public interface AdminTrackApi {
     @Operation(summary = "트랙 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/tracks")
+    @AdminActivityLogging(domain = TRACKS)
     ResponseEntity<AdminTrackResponse> createTrack(
         @RequestBody @Valid AdminTrackRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -91,6 +95,7 @@ public interface AdminTrackApi {
     @Operation(summary = "트랙 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/tracks/{id}")
+    @AdminActivityLogging(domain = TRACKS, domainIdParam = "trackId")
     ResponseEntity<AdminTrackResponse> updateTrack(
         @PathVariable("id") Integer trackId,
         @RequestBody @Valid AdminTrackRequest request,
@@ -108,6 +113,7 @@ public interface AdminTrackApi {
     @Operation(summary = "트랙 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/admin/tracks/{id}")
+    @AdminActivityLogging(domain = TRACKS, domainIdParam = "trackId")
     ResponseEntity<Void> deleteTrack(
         @PathVariable("id") Integer trackId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -124,6 +130,7 @@ public interface AdminTrackApi {
     @Operation(summary = "기술스택 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/techStacks")
+    @AdminActivityLogging(domain = TECHSTACKS)
     ResponseEntity<AdminTechStackResponse> createTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam(value = "trackName") String trackName,
@@ -141,6 +148,7 @@ public interface AdminTrackApi {
     @Operation(summary = "기술스택 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/techStacks/{id}")
+    @AdminActivityLogging(domain = TECHSTACKS, domainIdParam = "techStackId")
     ResponseEntity<AdminTechStackResponse> updateTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam(value = "trackName") String trackName,
@@ -159,6 +167,7 @@ public interface AdminTrackApi {
     @Operation(summary = "기술스택 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/admin/techStacks/{id}")
+    @AdminActivityLogging(domain = TECHSTACKS, domainIdParam = "techStackId")
     ResponseEntity<Void> deleteTechStack(
         @PathVariable("id") Integer techStackId,
         @Auth(permit = {ADMIN}) Integer adminId

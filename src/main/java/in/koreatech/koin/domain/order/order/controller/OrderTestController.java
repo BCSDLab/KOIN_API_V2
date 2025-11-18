@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.order.model.OrderStatus;
+import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import in.koreatech.koin.domain.order.order.service.OrderTestService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;

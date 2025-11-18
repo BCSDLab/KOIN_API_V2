@@ -4,46 +4,52 @@ import lombok.Getter;
 
 @Getter
 public enum DomainType {
-    MEMBERS("Member", "BCSDLAB 회원"),
-    TRACKS("Track", "트랙"),
-    TECHSTACKS("TechStack", "기술 스택"),
-    NOTICE("Notice", "코인 공지"),
-    VERSION("Version", "버전관리"),
+    MEMBERS("BCSDLAB 회원"),
+    TRACKS("트랙"),
+    TECHSTACKS("기술 스택"),
+    NOTICE("코인 공지"),
+    VERSION("버전관리"),
 
-    CATEGORIES("Categories", "카테고리"),
+    CATEGORIES("카테고리"),
 
-    BENEFIT("Benefit", "혜택"),
-    BENEFITCATEGORIES("Benefit Categories", "혜택 카테고리"),
+    BENEFIT("혜택"),
+    BENEFITCATEGORIES("혜택 카테고리"),
 
-    SHOPS("Shop", "상점"),
-    SHOPSCATEGORIES("Shop Categories", "상점 카테고리"),
+    SHOPS("상점"),
+    SHOPSCATEGORIES("상점 카테고리"),
 
-    MENUS("Menu", "메뉴"),
-    MENUSCATEGORIES("Menu Categroies", "메뉴 카테고리"),
+    MENUS("메뉴"),
+    MENUSCATEGORIES("메뉴 카테고리"),
 
-    REVIEWS("Review", "리뷰"),
+    REVIEWS("리뷰"),
 
-    ABTEST("Abtest", "AB 테스트"),
+    ABTEST("AB 테스트"),
 
-    LANDS("Land", "복덕방"),
-    COOPSHOP("CoopShop", "생협 매장"),
+    LANDS("복덕방"),
+    COOP_SHOPS("생협 매장"),
 
-    USERS("User", "회원"),
-    STUDENT("Student", "학생"),
-    OWNER("Owner", "사장님"),
-    ADMIN("Admin", "어드민"),
+    USERS("회원"),
+    STUDENT("학생"),
+    OWNER("사장님"),
+    ADMIN("어드민"),
 
-    BANNERS("Banner", "배너"),
-    BANNER_CATEGORIES("Banner Categories", "배너 카테고리"),
+    BANNERS("배너"),
+    BANNER_CATEGORIES("배너 카테고리"),
 
-    CLUB("Clubs", "동아리")
+    CLUBS("동아리"),
+
+    KEYWORDS("키워드 알림"),
+
+    LOST_ITEMS("분실물"),
+    COOP_SEMESTER("생협 학기"),
+
+    SHUTTLE_BUS("셔틀 버스"),
+    COMMUTING_BUS("등하교 버스")
     ;
 
-    private final String value;
     private final String description;
 
-    DomainType(String value, String description) {
-        this.value = value;
+    DomainType(String description) {
         this.description = description;
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,7 +23,9 @@ import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.infrastructure.naver.dto.NaverSmsResponse;
 import in.koreatech.koin.infrastructure.naver.dto.NaverSmsSendRequest;
 import in.koreatech.koin.infrastructure.naver.exception.NaverSmsException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class NaverSmsClient {
 
@@ -48,6 +52,7 @@ public class NaverSmsClient {
         this.secretKey = secretKey;
     }
 
+    @Retryable
     public void sendMessage(String content, String targetPhoneNumber) {
         String path = String.format("/sms/v2/services/%s/messages", serviceKey);
 
@@ -79,6 +84,11 @@ public class NaverSmsClient {
         if (body == null || !"202".equals(body.statusCode())) {
             throw new NaverSmsException("문자 호출과정에서 문제가 발생했습니다.");
         }
+    }
+
+    @Recover
+    public void naverSmsRecovery(Exception e, String content, String targetPhoneNumber) {
+        log.error("문자 전송에 실패했습니다. content: {}, to: {}", content, targetPhoneNumber, e);
     }
 
     /**

@@ -1,10 +1,10 @@
 package in.koreatech.koin.domain.order.order.dto.request;
 
-import static in.koreatech.koin.domain.order.model.QOrder.order;
+import static in.koreatech.koin.domain.order.order.model.QOrder.order;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 
-import in.koreatech.koin.domain.order.model.OrderType;
+import in.koreatech.koin.domain.order.order.model.OrderType;
 import lombok.Getter;
 
 @Getter

@@ -73,7 +73,7 @@ public class AdminOwnerService {
 
         Integer totalOwners = adminUserRepository.findUsersCountByUserTypeAndIsAuthed(UserType.OWNER, false);
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
-        Sort.Direction direction = ownersCondition.getDirection();
+        Sort.Direction direction = ownersCondition.sort().getDirection();
 
         Page<Owner> result = getNewOwnersResultPage(ownersCondition, criteria, direction);
 
@@ -98,7 +98,7 @@ public class AdminOwnerService {
 
         Integer totalOwners = adminUserRepository.findUsersCountByUserTypeAndIsAuthed(UserType.OWNER, true);
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
-        Sort.Direction direction = ownersCondition.getDirection();
+        Sort.Direction direction = ownersCondition.sort().getDirection();
 
         Page<Owner> result = getOwnersResultPage(ownersCondition, criteria, direction);
 

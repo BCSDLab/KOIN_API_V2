@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.abtest.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.ABTEST;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -24,10 +25,11 @@ import in.koreatech.koin.admin.abtest.dto.response.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestsResponse;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -52,6 +54,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험 생성")
     @PostMapping
+    @AdminActivityLogging(domain = ABTEST)
     ResponseEntity<AbtestResponse> createAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestBody @Valid AbtestRequest request
@@ -69,6 +72,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험 수정")
     @PutMapping("/{id}")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     ResponseEntity<AbtestResponse> putAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId,
@@ -84,6 +88,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험 삭제")
     @DeleteMapping("/{id}")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     ResponseEntity<Void> deleteAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId
@@ -113,10 +118,10 @@ public interface AbtestApi {
         }
     )
     @Operation(summary = "(ADMIN) 실험 단건 조회")
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     ResponseEntity<AbtestResponse> getAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @Parameter(in = PATH) @PathVariable("id") Integer articleId
+        @Parameter(in = PATH) @PathVariable("id") Integer abtestId
     );
 
     @ApiResponses(
@@ -129,6 +134,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험 종료")
     @PostMapping("/close/{id}")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     ResponseEntity<Void> closeAbtest(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId,
@@ -174,6 +180,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(ADMIN) 실험군 수동 편입")
     @PostMapping("/{id}/move")
+    @AdminActivityLogging(domain = ABTEST, domainIdParam = "abtestId")
     ResponseEntity<Void> assignAbtestVariableByAdmin(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable(value = "id") Integer abtestId,

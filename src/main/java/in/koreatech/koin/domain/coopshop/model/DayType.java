@@ -1,8 +1,10 @@
 package in.koreatech.koin.domain.coopshop.model;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_COOP_SHOP_DAY_OF_WEEK;
+
 import java.util.Arrays;
 
-import in.koreatech.koin.domain.coopshop.exception.DayTypeNotFoundException;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
 
 @Getter
@@ -27,6 +29,6 @@ public enum DayType {
         return Arrays.stream(DayType.values())
             .filter(dayType -> dayType.getDay().equals(day))
             .findAny()
-            .orElseThrow(() -> new DayTypeNotFoundException(day));
+            .orElseThrow(() -> CustomException.of(INVALID_COOP_SHOP_DAY_OF_WEEK));
     }
 }
