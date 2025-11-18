@@ -29,7 +29,7 @@ public class ShuttleBusRouteInfoExtractor {
 
     private static final int START_COL = 1;
 
-    public List<RouteInfo> getRouteInfos() {
+    public List<RouteInfo> extractRouteInfos() {
         List<InnerNameDetail> innerNameDetails = extractRouteNameDetails();
 
         List<RunningDays> runningDays = innerNameDetails.stream()

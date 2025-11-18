@@ -22,27 +22,27 @@ public class ShuttleBusMetaDataExtractor {
     private static final int ROUTE_TYPE_COL = 1;
 
 
-    public ShuttleBusRegion getRegionFromSheet() {
+    public ShuttleBusRegion extractRegion() {
         Row row = sheet.getRow(REGION_ROW);
         Cell cell = row.getCell(REGION_COL);
 
         return ShuttleBusRegion.of(PoiCellExtractor.extractStringValue(cell));
     }
 
-    public RouteType getRouteTypeFromSheet() {
+    public RouteType extractRouteType() {
         Row row = sheet.getRow(ROUTE_TYPE_ROW);
         Cell cell = row.getCell(ROUTE_TYPE_COL);
 
         return RouteType.of(PoiCellExtractor.extractStringValue(cell));
     }
 
-    public RouteName getRouteNameFromSheet() {
+    public RouteName extractRouteName() {
         String sheetName = sheet.getSheetName();
 
         return RouteName.of(sheetName);
     }
 
-    public SubName getSubNameFromSheet() {
+    public SubName extractSubName() {
         String sheetName = sheet.getSheetName();
 
         return SubName.of(sheetName);

@@ -51,13 +51,13 @@ public class AdminShuttleBusExcelService {
             ShuttleBusRouteInfoExtractor routeInfoExtractor = new ShuttleBusRouteInfoExtractor(sheet);
             ShuttleBusMetaDataExtractor metaDataExtractor = new ShuttleBusMetaDataExtractor(sheet);
 
-            List<NodeInfo> nodeInfos = nodeInfoExtractor.getNodeInfos();
-            List<RouteInfo> routeInfos = routeInfoExtractor.getRouteInfos();
+            List<NodeInfo> nodeInfos = nodeInfoExtractor.extractNodeInfos();
+            List<RouteInfo> routeInfos = routeInfoExtractor.extractRouteInfos();
 
-            RouteName routeName = metaDataExtractor.getRouteNameFromSheet();
-            SubName subName = metaDataExtractor.getSubNameFromSheet();
-            ShuttleBusRegion region = metaDataExtractor.getRegionFromSheet();
-            RouteType routeType = metaDataExtractor.getRouteTypeFromSheet();
+            RouteName routeName = metaDataExtractor.extractRouteName();
+            SubName subName = metaDataExtractor.extractSubName();
+            ShuttleBusRegion region = metaDataExtractor.extractRegion();
+            RouteType routeType = metaDataExtractor.extractRouteType();
 
             shuttleBusTimetables.add(
                 ShuttleBusTimetable.from(nodeInfos, routeInfos, region, routeName, subName, routeType)

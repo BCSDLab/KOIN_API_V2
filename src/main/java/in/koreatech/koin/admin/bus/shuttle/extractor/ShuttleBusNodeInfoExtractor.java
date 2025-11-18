@@ -20,7 +20,7 @@ public class ShuttleBusNodeInfoExtractor {
     private static final int START_BUS_STOP_ROW = 5;
     private static final int START_BUS_STOP_COL = 0;
 
-    public List<NodeInfo> getNodeInfos() {
+    public List<NodeInfo> extractNodeInfos() {
         List<NodeInfo> nodeInfos = new ArrayList<>();
 
         for (int i = START_BUS_STOP_ROW; i <= sheet.getLastRowNum(); i++) {
