@@ -3,8 +3,6 @@ package in.koreatech.koin.admin.bus.shuttle.controller;
 import static in.koreatech.koin.admin.history.enums.DomainType.SHUTTLE_BUS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,11 +32,11 @@ public class AdminShuttleBusTimetableController implements AdminShuttleBusTimeta
 
     @AdminActivityLogging(domain = SHUTTLE_BUS)
     @PostMapping("/excel")
-    public ResponseEntity<List<AdminShuttleBusTimetableResponse>> uploadTimetableExcelForPreview(
+    public ResponseEntity<AdminShuttleBusTimetableResponse> uploadTimetableExcelForPreview(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(name = "shuttle-bus-timetable") MultipartFile file
     ) {
-        List<AdminShuttleBusTimetableResponse> response = adminShuttleBusExcelService
+        AdminShuttleBusTimetableResponse response = adminShuttleBusExcelService
             .previewShuttleBusTimetable(file);
 
         return ResponseEntity.ok(response);
