@@ -28,22 +28,24 @@ public record AdminShuttleBusTimetableResponse(
     String subName,
 
     @Schema(description = "정류소 정보 리스트")
-    List<NodeInfo> nodeInfo,
+    List<InnerNodeInfoResponse> nodeInfo,
 
     @Schema(description = "회차별 도착 시간 및 운행 요일 정보 리스트")
-    List<RouteInfo> routeInfo
+    List<InnerRouteInfoResponse> routeInfo
 ) {
 
     public static AdminShuttleBusTimetableResponse from(ShuttleBusTimetable table) {
-        List<NodeInfo> nodeInfos = table.getNodeInfos().stream()
-            .map(n -> new AdminShuttleBusTimetableResponse.NodeInfo(
+        List<InnerNodeInfoResponse> nodeInfo = table.getNodeInfos()
+            .stream()
+            .map(n -> new InnerNodeInfoResponse(
                 n.getName(),
                 n.getDetail()
             ))
             .toList();
 
-        List<RouteInfo> routeInfos = table.getRouteInfos().stream()
-            .map(r -> new AdminShuttleBusTimetableResponse.RouteInfo(
+        List<InnerRouteInfoResponse> routeInfo = table.getRouteInfos()
+            .stream()
+            .map(r -> new InnerRouteInfoResponse(
                 r.getName(),
                 r.getDetail(),
                 r.getArrivalTime()
@@ -51,9 +53,9 @@ public record AdminShuttleBusTimetableResponse(
             .toList();
 
         return AdminShuttleBusTimetableResponse.builder()
-            .nodeInfo(nodeInfos)
+            .nodeInfo(nodeInfo)
             .region(table.getRegion())
-            .routeInfo(routeInfos)
+            .routeInfo(routeInfo)
             .routeName(table.getRouteName())
             .routeType(table.getRouteType())
             .subName(table.getSubName())
@@ -61,7 +63,7 @@ public record AdminShuttleBusTimetableResponse(
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    public record NodeInfo(
+    public record InnerNodeInfoResponse(
         @Schema(description = "정류소 이름", example = "한기대", requiredMode = REQUIRED)
         String name,
 
@@ -71,7 +73,7 @@ public record AdminShuttleBusTimetableResponse(
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    public record RouteInfo(
+    public record InnerRouteInfoResponse(
         @Schema(description = "회차 이름", example = "1회", requiredMode = REQUIRED)
         String name,
 
