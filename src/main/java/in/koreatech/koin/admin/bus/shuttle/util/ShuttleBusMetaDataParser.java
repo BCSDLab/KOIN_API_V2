@@ -30,17 +30,13 @@ public class ShuttleBusMetaDataParser {
     public static RouteName getRouteNameFromSheet(Sheet sheet) {
         String sheetName = sheet.getSheetName();
 
-        String routeName = ExcelStringUtil.extractNameWithoutBrackets(sheetName);
-
-        return RouteName.of(routeName);
+        return RouteName.of(sheetName);
     }
 
     public static SubName getSubNameFromSheet(Sheet sheet) {
         String sheetName = sheet.getSheetName();
 
-        String subName = ExcelStringUtil.extractDetailFromBrackets(sheetName);
-
-        return SubName.of(subName);
+        return SubName.of(sheetName);
     }
 
     private static String getCellValue(Sheet sheet, int rowIndex, int colIndex) {

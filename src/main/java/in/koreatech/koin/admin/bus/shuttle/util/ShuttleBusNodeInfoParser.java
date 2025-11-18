@@ -34,10 +34,7 @@ public class ShuttleBusNodeInfoParser {
 
             nameWithDetail = nameWithDetail.trim();
 
-            String name = ExcelStringUtil.extractNameWithoutBrackets(nameWithDetail);
-            String detail = ExcelStringUtil.extractDetailFromBrackets(nameWithDetail);
-
-            nodeInfos.add(NodeInfo.of(name, detail));
+            nodeInfos.add(NodeInfo.of(nameWithDetail));
         }
 
         return nodeInfos;
