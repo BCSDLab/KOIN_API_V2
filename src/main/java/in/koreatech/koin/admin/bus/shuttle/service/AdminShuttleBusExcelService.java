@@ -20,9 +20,9 @@ import in.koreatech.koin.admin.bus.shuttle.model.RouteName;
 import in.koreatech.koin.admin.bus.shuttle.model.RouteType;
 import in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable;
 import in.koreatech.koin.admin.bus.shuttle.model.SubName;
-import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusMetaDataParser;
-import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusNodeInfoParser;
-import in.koreatech.koin.admin.bus.shuttle.util.ShuttleBusRouteInfoParser;
+import in.koreatech.koin.admin.bus.shuttle.extractor.ShuttleBusMetaDataExtractor;
+import in.koreatech.koin.admin.bus.shuttle.extractor.ShuttleBusNodeInfoExtractor;
+import in.koreatech.koin.admin.bus.shuttle.extractor.ShuttleBusRouteInfoExtractor;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
@@ -46,13 +46,13 @@ public class AdminShuttleBusExcelService {
         List<ShuttleBusTimetable> shuttleBusTimetables = new ArrayList<>();
 
         for (Sheet sheet : workBook) {
-            List<NodeInfo> nodeInfos = ShuttleBusNodeInfoParser.getNodeInfos(sheet);
-            List<RouteInfo> routeInfos = ShuttleBusRouteInfoParser.getRouteInfos(sheet);
+            List<NodeInfo> nodeInfos = ShuttleBusNodeInfoExtractor.getNodeInfos(sheet);
+            List<RouteInfo> routeInfos = ShuttleBusRouteInfoExtractor.getRouteInfos(sheet);
 
-            RouteName routeName = ShuttleBusMetaDataParser.getRouteNameFromSheet(sheet);
-            SubName subName = ShuttleBusMetaDataParser.getSubNameFromSheet(sheet);
-            ShuttleBusRegion region = ShuttleBusMetaDataParser.getRegionFromSheet(sheet);
-            RouteType routeType = ShuttleBusMetaDataParser.getRouteTypeFromSheet(sheet);
+            RouteName routeName = ShuttleBusMetaDataExtractor.getRouteNameFromSheet(sheet);
+            SubName subName = ShuttleBusMetaDataExtractor.getSubNameFromSheet(sheet);
+            ShuttleBusRegion region = ShuttleBusMetaDataExtractor.getRegionFromSheet(sheet);
+            RouteType routeType = ShuttleBusMetaDataExtractor.getRouteTypeFromSheet(sheet);
 
             shuttleBusTimetables.add(
                 ShuttleBusTimetable.from(nodeInfos, routeInfos, region, routeName, subName, routeType)

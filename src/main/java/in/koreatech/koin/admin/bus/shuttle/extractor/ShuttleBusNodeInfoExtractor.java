@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.shuttle.util;
+package in.koreatech.koin.admin.bus.shuttle.extractor;
 
 import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.NodeInfo;
 
@@ -10,7 +10,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.util.StringUtils;
 
-public class ShuttleBusNodeInfoParser {
+import in.koreatech.koin.admin.bus.shuttle.util.ExcelStringUtil;
+
+public class ShuttleBusNodeInfoExtractor {
 
     private static final int START_BUS_STOP_ROW = 5;
     private static final int START_BUS_STOP_COL = 0;

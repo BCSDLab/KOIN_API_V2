@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.shuttle.util;
+package in.koreatech.koin.admin.bus.shuttle.extractor;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -11,7 +11,7 @@ import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 
-public class ShuttleBusMetaDataParser {
+public class ShuttleBusMetaDataExtractor {
 
     private static final int REGION_ROW = 0;
     private static final int REGION_COL = 1;

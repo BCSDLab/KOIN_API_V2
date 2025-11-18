@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.shuttle.util;
+package in.koreatech.koin.admin.bus.shuttle.extractor;
 
 import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo;
 import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.RouteInfo.InnerNameDetail;
@@ -15,8 +15,10 @@ import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 import in.koreatech.koin.admin.bus.shuttle.model.ArrivalTime;
+import in.koreatech.koin.admin.bus.shuttle.util.ExcelRangeUtil;
+import in.koreatech.koin.admin.bus.shuttle.util.ExcelStringUtil;
 
-public class ShuttleBusRouteInfoParser {
+public class ShuttleBusRouteInfoExtractor {
 
     private static final int START_HEADER_ROW = 3;
     private static final int START_DETAIL_ROW = 4;
