@@ -30,13 +30,13 @@ public class ShuttleBusRouteInfoExtractor {
     private static final int START_COL = 1;
 
     public List<RouteInfo> getRouteInfos() {
-        List<InnerNameDetail> innerNameDetails = extractRouteNameDetails(sheet);
+        List<InnerNameDetail> innerNameDetails = extractRouteNameDetails();
 
         List<RunningDays> runningDays = innerNameDetails.stream()
             .map(RunningDays::from)
             .toList();
 
-        List<ArrivalTime> arrivalTimes = extractArrivalTimes(sheet);
+        List<ArrivalTime> arrivalTimes = extractArrivalTimes();
 
         return IntStream.range(0, innerNameDetails.size())
             .mapToObj(i -> from(
@@ -64,12 +64,12 @@ public class ShuttleBusRouteInfoExtractor {
                 break;
             }
 
-            String name = nameCell.getStringCellValue().trim();
+            String name = PoiCellExtractor.extractStringValue(nameCell);
 
             Cell detailCell = detailRow.getCell(col);
 
             String detail = (detailCell != null && StringUtils.hasText(detailCell.toString()))
-                ? detailCell.getStringCellValue().trim()
+                ? PoiCellExtractor.extractStringValue(detailCell)
                 : null;
 
             innerNameDetails.add(InnerNameDetail.of(name, detail));
