@@ -16,8 +16,12 @@ import org.springframework.util.StringUtils;
 import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 import in.koreatech.koin.admin.bus.shuttle.model.ArrivalTime;
 import in.koreatech.koin.admin.bus.shuttle.util.ExcelRangeUtil;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ShuttleBusRouteInfoExtractor {
+
+    private final Sheet sheet;
 
     private static final int START_HEADER_ROW = 3;
     private static final int START_DETAIL_ROW = 4;
@@ -25,7 +29,7 @@ public class ShuttleBusRouteInfoExtractor {
 
     private static final int START_COL = 1;
 
-    public static List<RouteInfo> getRouteInfos(Sheet sheet) {
+    public List<RouteInfo> getRouteInfos() {
         List<InnerNameDetail> innerNameDetails = extractRouteNameDetails(sheet);
 
         List<RunningDays> runningDays = innerNameDetails.stream()
@@ -43,7 +47,7 @@ public class ShuttleBusRouteInfoExtractor {
             .toList();
     }
 
-    private static List<InnerNameDetail> extractRouteNameDetails(Sheet sheet) {
+    private List<InnerNameDetail> extractRouteNameDetails() {
         List<InnerNameDetail> innerNameDetails = new ArrayList<>();
 
         Row headerRow = sheet.getRow(START_HEADER_ROW);
@@ -74,7 +78,7 @@ public class ShuttleBusRouteInfoExtractor {
         return innerNameDetails;
     }
 
-    private static List<ArrivalTime> extractArrivalTimes(Sheet sheet) {
+    private List<ArrivalTime> extractArrivalTimes() {
         List<ArrivalTime> arrivalTimes = new ArrayList<>();
 
         for (int colNum = START_COL;

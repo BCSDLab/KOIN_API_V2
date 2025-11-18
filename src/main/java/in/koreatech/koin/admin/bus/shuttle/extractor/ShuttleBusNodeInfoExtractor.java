@@ -10,12 +10,17 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.util.StringUtils;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ShuttleBusNodeInfoExtractor {
+
+    private final Sheet sheet;
 
     private static final int START_BUS_STOP_ROW = 5;
     private static final int START_BUS_STOP_COL = 0;
 
-    public static List<NodeInfo> getNodeInfos(Sheet sheet) {
+    public List<NodeInfo> getNodeInfos() {
         List<NodeInfo> nodeInfos = new ArrayList<>();
 
         for (int i = START_BUS_STOP_ROW; i <= sheet.getLastRowNum(); i++) {
