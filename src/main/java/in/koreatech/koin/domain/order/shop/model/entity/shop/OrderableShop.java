@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryTip;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
@@ -75,6 +76,9 @@ public class OrderableShop extends BaseEntity {
     @OneToOne(cascade = {PERSIST, MERGE, REMOVE}, mappedBy = "orderableShop", fetch = FetchType.LAZY)
     private OrderableShopDeliveryOption deliveryOption;
 
+    @OneToOne(cascade = {PERSIST, MERGE, REMOVE}, mappedBy = "orderableShop", fetch = FetchType.LAZY)
+    private OrderableShopDeliveryTip deliveryTip;
+
     @Builder
     public OrderableShop(Integer id, Shop shop, boolean delivery, boolean takeout, boolean serviceEvent,
         Integer minimumOrderAmount, boolean isDeleted, List<OrderableShopMenuGroup> menuGroups) {
@@ -120,6 +124,10 @@ public class OrderableShop extends BaseEntity {
 
     public void updateDeliveryOption(OrderableShopDeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
+    }
+
+    public void updateDeliveryTip(OrderableShopDeliveryTip deliveryTip) {
+        this.deliveryTip = deliveryTip;
     }
 
     public void updateOrderableShop(Integer minimumOrderAmount, boolean takeout) {

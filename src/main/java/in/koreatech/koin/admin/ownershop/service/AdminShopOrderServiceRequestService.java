@@ -14,6 +14,7 @@ import in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition;
 import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequestRepository;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
+import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryTip;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
@@ -69,7 +70,6 @@ public class AdminShopOrderServiceRequestService {
         createOrderableShopFromRequest(shopOrderServiceRequest);
     }
 
-    // TODO: 미완성 메서드
     private void createOrderableShopFromRequest(ShopOrderServiceRequest shopOrderServiceRequest) {
         // Shop의 계좌 정보 업데이트
         Shop shop = shopOrderServiceRequest.getShop();
@@ -77,12 +77,9 @@ public class AdminShopOrderServiceRequestService {
 
         // OrderableShop 생성 또는 업데이트
         OrderableShop orderableShop = createOrderableShop(shop, shopOrderServiceRequest);
-        // OrderableShopDeliveryOption 생성 또는 업데이트
         createOrderableShopDeliveryOption(shopOrderServiceRequest, orderableShop);
-
-        createDeliveryTips(shop, shopOrderServiceRequest);
+        createDeliveryTips(orderableShop, shopOrderServiceRequest);
         orderableShopRepository.save(orderableShop);
-
         createOwnerAttachments(shop, shopOrderServiceRequest);
     }
 
@@ -124,10 +121,20 @@ public class AdminShopOrderServiceRequestService {
         }
     }
 
-    //TODO: 미완성 메서드
-    //TODO: 아직 CampusDeliveryTip을 전체 DeliveryPrice로 설정함 -> 추후 offCampusDeliveryTip는 요구사항맞게 처리
-    private void createDeliveryTips(Shop shop, ShopOrderServiceRequest shopOrderServiceRequest) {
-        shop.updateDeliveryPrice(shopOrderServiceRequest.getCampusDeliveryTip());
+    private void createDeliveryTips(OrderableShop orderableShop, ShopOrderServiceRequest shopOrderServiceRequest) {
+        if (orderableShop.getDeliveryTip() != null) {
+            orderableShop.getDeliveryTip().updateDeliveryTip(
+                shopOrderServiceRequest.getCampusDeliveryTip(),
+                shopOrderServiceRequest.getOffCampusDeliveryTip()
+            );
+        } else {
+            OrderableShopDeliveryTip deliveryTip = OrderableShopDeliveryTip.builder()
+                .campusDeliveryTip(shopOrderServiceRequest.getCampusDeliveryTip())
+                .offCampusDeliveryTip(shopOrderServiceRequest.getOffCampusDeliveryTip())
+                .orderableShop(orderableShop)
+                .build();
+            orderableShop.updateDeliveryTip(deliveryTip);
+        }
     }
 
     private void createOwnerAttachments(Shop shop, ShopOrderServiceRequest shopOrderServiceRequest) {
