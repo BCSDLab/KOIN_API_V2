@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServiceResponse;
 import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServicesResponse;
@@ -42,6 +43,32 @@ public interface AdminShopOrderServiceRequestApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/owner/shops/order-service-requests/{orderServiceRequestId}")
     ResponseEntity<AdminShopOrderServiceResponse> getOrderServiceRequest(
+        @PathVariable("orderServiceRequestId") Integer orderServiceRequestId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponseCodes({
+        OK,
+        NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST,
+        NOT_PENDING_REQUEST
+    })
+    @Operation(summary = "주문 서비스 요청 승인")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/admin/owner/shops/order-service-requests/{orderServiceRequestId}/approve")
+    ResponseEntity<Void> approveOrderServiceRequest(
+        @PathVariable("orderServiceRequestId") Integer orderServiceRequestId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponseCodes({
+        OK,
+        NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST,
+        NOT_PENDING_REQUEST
+    })
+    @Operation(summary = "주문 서비스 요청 거절")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/admin/owner/shops/order-service-requests/{orderServiceRequestId}/reject")
+    ResponseEntity<Void> rejectOrderServiceRequest(
         @PathVariable("orderServiceRequestId") Integer orderServiceRequestId,
         @Auth(permit = {ADMIN}) Integer adminId
     );

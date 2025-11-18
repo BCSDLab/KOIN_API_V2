@@ -125,11 +125,9 @@ public class AdminShopOrderServiceRequestService {
     }
 
     //TODO: 미완성 메서드
-    //아직 CampusDeliveryTip을 전체 DeliveryPrice로 설정함 -> 추후 offCampusDeliveryTip도 생성
+    //TODO: 아직 CampusDeliveryTip을 전체 DeliveryPrice로 설정함 -> 추후 offCampusDeliveryTip는 요구사항맞게 처리
     private void createDeliveryTips(Shop shop, ShopOrderServiceRequest shopOrderServiceRequest) {
         shop.updateDeliveryPrice(shopOrderServiceRequest.getCampusDeliveryTip());
-        //TODO:  offCampusDeliveryTip 는 아직 별도로 처리안했음
-        
     }
 
     private void createOwnerAttachments(Shop shop, ShopOrderServiceRequest shopOrderServiceRequest) {
