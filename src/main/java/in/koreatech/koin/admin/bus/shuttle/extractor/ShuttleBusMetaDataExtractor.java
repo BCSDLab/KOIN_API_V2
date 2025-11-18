@@ -21,7 +21,6 @@ public class ShuttleBusMetaDataExtractor {
     private static final int ROUTE_TYPE_ROW = 1;
     private static final int ROUTE_TYPE_COL = 1;
 
-
     public ShuttleBusRegion extractRegion() {
         Row row = sheet.getRow(REGION_ROW);
         Cell cell = row.getCell(REGION_COL);

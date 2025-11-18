@@ -23,5 +23,6 @@ public class NameParser {
         return new ParsedName(raw.trim(), null);
     }
 
-    public record ParsedName(String name, String detail) {}
+    public record ParsedName(String name, String detail) {
+    }
 }
