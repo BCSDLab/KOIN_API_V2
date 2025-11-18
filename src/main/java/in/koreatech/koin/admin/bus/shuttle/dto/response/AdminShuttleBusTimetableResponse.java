@@ -80,7 +80,11 @@ public record AdminShuttleBusTimetableResponse(
         @Schema(description = "회차 세부 이름", example = "(청주역→본교)", requiredMode = NOT_REQUIRED)
         String detail,
 
-        @Schema(description = "각 정류소 별 도착 시간 (미정차인 경우 null)", requiredMode = REQUIRED)
+        @Schema(
+            description = "각 정류소 별 도착 시간 (미정차인 경우 null)",
+            example = "[\"08:00\", \"09:00\"]",
+            requiredMode = REQUIRED
+        )
         List<String> arrivalTime
     ) {
     }
