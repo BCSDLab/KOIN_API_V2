@@ -121,4 +121,12 @@ public class OrderableShop extends BaseEntity {
     public void updateDeliveryOption(OrderableShopDeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
     }
+
+    public void updateOrderableShop(Integer minimumOrderAmount, boolean takeout) {
+        if (minimumOrderAmount == null || minimumOrderAmount < 0) {
+            throw CustomException.of(ApiResponseCode.INVAILID_MINIMUM_ORDER_AMOUNT);
+        }
+        this.minimumOrderAmount = minimumOrderAmount;
+        this.takeout = takeout;
+    }
 }

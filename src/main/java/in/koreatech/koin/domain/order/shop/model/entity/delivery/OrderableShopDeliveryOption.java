@@ -44,4 +44,9 @@ public class OrderableShopDeliveryOption extends BaseEntity {
         this.offCampusDelivery = offCampusDelivery;
         this.orderableShop = orderableShop;
     }
+
+    public void updateDeliveryOption(Boolean campusDelivery, Boolean offCampusDelivery) {
+        this.campusDelivery = campusDelivery;
+        this.offCampusDelivery = offCampusDelivery;
+    }
 }

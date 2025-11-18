@@ -344,4 +344,8 @@ public class Shop extends BaseEntity {
         this.bank = bank;
         this.accountNumber = accountNumber;
     }
+
+    public void updateDeliveryPrice(Integer deliveryPrice) {
+        this.deliveryPrice = deliveryPrice;
+    }
 }

@@ -1,6 +1,5 @@
 package in.koreatech.koin.admin.ownershop.service;
 
-import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.APPROVED;
 import static in.koreatech.koin.global.code.ApiResponseCode.SEARCH_QUERY_ONLY_WHITESPACE;
 
 import org.springframework.data.domain.Page;
@@ -17,7 +16,6 @@ import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.order.shop.model.entity.delivery.OrderableShopDeliveryOption;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
-import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryOption;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -61,7 +59,8 @@ public class AdminShopOrderServiceRequestService {
 
     @Transactional
     public void approveOrderServiceRequest(Integer id) {
-        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getByIdWithShopAndOwner(id);
+        ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository
+            .getByIdWithShopAndOwner(id);
         if (shopOrderServiceRequest.getRequestStatus() != PENDING) {
             throw CustomException.of(NOT_PENDING_REQUEST);
         }
@@ -76,30 +75,64 @@ public class AdminShopOrderServiceRequestService {
         Shop shop = shopOrderServiceRequest.getShop();
         shop.updateBankAndAccount(shopOrderServiceRequest.getBank(), shopOrderServiceRequest.getAccountNumber());
 
-        // TODO OrderableShop이 이미 존재하는 경우 처리 필요할듯
-        //OrderableShop 생성 
-        OrderableShop orderableShop = OrderableShop.builder()
-            .shop(shop)
-            .minimumOrderAmount(shopOrderServiceRequest.getMinimumOrderAmount())
-            .takeout(shopOrderServiceRequest.getIsTakeout())
-            .build();
+        // OrderableShop 생성 또는 업데이트
+        OrderableShop orderableShop = createOrderableShop(shop, shopOrderServiceRequest);
+        // OrderableShopDeliveryOption 생성 또는 업데이트
+        createOrderableShopDeliveryOption(shopOrderServiceRequest, orderableShop);
 
-        //OrderableShopDeliveryOption 생성
+        createDeliveryTips(shop, shopOrderServiceRequest);
+        orderableShopRepository.save(orderableShop);
+
+        createOwnerAttachments(shop, shopOrderServiceRequest);
+    }
+
+    private OrderableShop createOrderableShop(Shop shop, ShopOrderServiceRequest shopOrderServiceRequest) {
+        OrderableShop orderableShop;
+        if (orderableShopRepository.existsByShopId(shop.getId())) {
+            orderableShop = orderableShopRepository.getByShopId(shop.getId());
+            orderableShop.updateOrderableShop(
+                shopOrderServiceRequest.getMinimumOrderAmount(),
+                shopOrderServiceRequest.getIsTakeout()
+            );
+        } else {
+            orderableShop = OrderableShop.builder()
+                .shop(shop)
+                .minimumOrderAmount(shopOrderServiceRequest.getMinimumOrderAmount())
+                .takeout(shopOrderServiceRequest.getIsTakeout())
+                .build();
+        }
+        return orderableShop;
+    }
+
+    private void createOrderableShopDeliveryOption(
+        ShopOrderServiceRequest shopOrderServiceRequest,
+        OrderableShop orderableShop
+    ) {
         ShopOrderServiceRequestDeliveryOption deliveryOption = shopOrderServiceRequest.getDeliveryOption();
         boolean isCampusDelivery = deliveryOption == CAMPUS || deliveryOption == BOTH;
         boolean isOffCampusDelivery = deliveryOption == OFF_CAMPUS || deliveryOption == BOTH;
-        OrderableShopDeliveryOption orderableShopDeliveryOption = OrderableShopDeliveryOption.builder()
-            .orderableShop(orderableShop)
-            .campusDelivery(isCampusDelivery)
-            .offCampusDelivery(isOffCampusDelivery)
-            .build();
-        orderableShop.updateDeliveryOption(orderableShopDeliveryOption);
-        orderableShopRepository.save(orderableShop);
 
-        //TODO: campusDeliveryTip, offCampusDeliveryTip 처리 필요 deliveryPrice 1개네
-        // ShopBaseDeliveryTip 테이블은 거리 기반으로 팁을 설정하고 있어보임
+        if (orderableShop.getDeliveryOption() != null) {
+            orderableShop.getDeliveryOption().updateDeliveryOption(isCampusDelivery, isOffCampusDelivery);
+        } else {
+            OrderableShopDeliveryOption orderableShopDeliveryOption = OrderableShopDeliveryOption.builder()
+                .orderableShop(orderableShop)
+                .campusDelivery(isCampusDelivery)
+                .offCampusDelivery(isOffCampusDelivery)
+                .build();
+            orderableShop.updateDeliveryOption(orderableShopDeliveryOption);
+        }
+    }
 
-        // businessLicenseUrl, businessCertificateUrl, bankCopyUrl를 OwnerAttachment로 저장
+    //TODO: 미완성 메서드
+    //아직 CampusDeliveryTip을 전체 DeliveryPrice로 설정함 -> 추후 offCampusDeliveryTip도 생성
+    private void createDeliveryTips(Shop shop, ShopOrderServiceRequest shopOrderServiceRequest) {
+        shop.updateDeliveryPrice(shopOrderServiceRequest.getCampusDeliveryTip());
+        //TODO:  offCampusDeliveryTip 는 아직 별도로 처리안했음
+        
+    }
+
+    private void createOwnerAttachments(Shop shop, ShopOrderServiceRequest shopOrderServiceRequest) {
         Owner owner = shop.getOwner();
         // 사업자 등록증 URL
         OwnerAttachment businessLicenseAttachment = OwnerAttachment.builder()
@@ -125,7 +158,6 @@ public class AdminShopOrderServiceRequestService {
             .build();
         owner.getAttachments().add(bankCopyAttachment);
     }
-
 
     @Transactional
     public void rejectOrderServiceRequest(Integer id) {
