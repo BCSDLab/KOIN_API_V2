@@ -3,7 +3,7 @@ package in.koreatech.koin.admin.bus.shuttle.model;
 import java.util.List;
 
 import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
-import in.koreatech.koin.admin.bus.shuttle.util.NameParser;
+import in.koreatech.koin.admin.bus.shuttle.parser.NameParser;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

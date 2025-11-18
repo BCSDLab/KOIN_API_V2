@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.bus.shuttle.model;
 
-import in.koreatech.koin.admin.bus.shuttle.util.NameParser;
+import in.koreatech.koin.admin.bus.shuttle.parser.NameParser;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

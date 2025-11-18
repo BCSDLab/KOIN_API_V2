@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.shuttle.util;
+package in.koreatech.koin.admin.bus.shuttle.parser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
