@@ -16,7 +16,6 @@ import org.springframework.util.StringUtils;
 import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
 import in.koreatech.koin.admin.bus.shuttle.model.ArrivalTime;
 import in.koreatech.koin.admin.bus.shuttle.util.ExcelRangeUtil;
-import in.koreatech.koin.admin.bus.shuttle.util.ExcelStringUtil;
 
 public class ShuttleBusRouteInfoExtractor {
 
@@ -95,7 +94,7 @@ public class ShuttleBusRouteInfoExtractor {
                 }
 
                 Cell cell = row.getCell(colNum);
-                String strTime = ExcelStringUtil.getCellValueToString(cell);
+                String strTime = PoiCellExtractor.extractStringValue(cell);
 
                 if (cell == null || !StringUtils.hasText(strTime)) {
                     times.add(null);
