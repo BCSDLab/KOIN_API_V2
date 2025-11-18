@@ -34,7 +34,7 @@ public class AdminShuttleBusTimetableController implements AdminShuttleBusTimeta
 
     @AdminActivityLogging(domain = SHUTTLE_BUS)
     @PostMapping("/excel")
-    public ResponseEntity<List<AdminShuttleBusTimetableResponse>> previewShuttleBusTimetable(
+    public ResponseEntity<List<AdminShuttleBusTimetableResponse>> uploadTimetableExcelForPreview(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(name = "shuttle-bus-timetable") MultipartFile file
     ) {

@@ -37,7 +37,7 @@ public interface AdminShuttleBusTimetableApi {
     @Operation(summary = "엑셀 파일을 업로드하여 파싱된 데이터를 미리보기 한다.")
     @AdminActivityLogging(domain = SHUTTLE_BUS)
     @PostMapping("/excel")
-    ResponseEntity<List<AdminShuttleBusTimetableResponse>> previewShuttleBusTimetable(
+    ResponseEntity<List<AdminShuttleBusTimetableResponse>> uploadTimetableExcelForPreview(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(name = "shuttle-bus-timetable") MultipartFile file
     );
