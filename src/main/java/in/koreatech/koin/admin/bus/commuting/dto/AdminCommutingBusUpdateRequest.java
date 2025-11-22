@@ -62,6 +62,7 @@ public record AdminCommutingBusUpdateRequest(
             }
         }
 
+        @JsonNaming(value = SnakeCaseStrategy.class)
         public record InnerRouteInfo(
             @Schema(description = "노선 이름", example = "등교", requiredMode = REQUIRED)
             @NotBlank(message = "노선 이름은 필수 입력값입니다.")
