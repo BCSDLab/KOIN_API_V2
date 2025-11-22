@@ -49,6 +49,7 @@ public record AdminCommutingBusResponse(
             }
         }
 
+        @JsonNaming(value = SnakeCaseStrategy.class)
         public record InnerRouteInfoResponse(
             @Schema(description = "노선 이름", example = "등교", requiredMode = REQUIRED)
             String name,
