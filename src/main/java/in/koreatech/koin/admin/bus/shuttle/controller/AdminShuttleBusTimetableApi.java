@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.bus.shuttle.controller;
 import static in.koreatech.koin.admin.history.enums.DomainType.SHUTTLE_BUS;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +35,7 @@ public interface AdminShuttleBusTimetableApi {
     })
     @Operation(summary = "엑셀 파일을 업로드하여 파싱된 데이터를 미리보기 한다.")
     @AdminActivityLogging(domain = SHUTTLE_BUS)
-    @PostMapping("/excel")
+    @PostMapping(value = "/excel", consumes = MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<AdminShuttleBusTimetableResponse> uploadTimetableExcelForPreview(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(name = "shuttle-bus-timetable") MultipartFile file
