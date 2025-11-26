@@ -31,9 +31,9 @@ public class ShuttleBusNodeInfoExtractor {
             }
 
             Cell cell = row.getCell(START_BUS_STOP_COL);
-            String nameWithDetail = PoiCellExtractor.extractStringValue(cell);
+            String nameWithDetail = (cell == null) ? "" : PoiCellExtractor.extractStringValue(cell);
 
-            if (cell == null || !StringUtils.hasText(nameWithDetail)) {
+            if (!StringUtils.hasText(nameWithDetail)) {
                 break;
             }
 
