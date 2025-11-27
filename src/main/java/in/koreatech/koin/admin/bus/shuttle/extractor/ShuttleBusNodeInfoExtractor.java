@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.bus.shuttle.util;
+package in.koreatech.koin.admin.bus.shuttle.extractor;
 
 import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.NodeInfo;
 
@@ -10,12 +10,17 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.util.StringUtils;
 
-public class ShuttleBusNodeInfoParser {
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class ShuttleBusNodeInfoExtractor {
+
+    private final Sheet sheet;
 
     private static final int START_BUS_STOP_ROW = 5;
     private static final int START_BUS_STOP_COL = 0;
 
-    public static List<NodeInfo> getNodeInfos(Sheet sheet) {
+    public List<NodeInfo> extractNodeInfos() {
         List<NodeInfo> nodeInfos = new ArrayList<>();
 
         for (int i = START_BUS_STOP_ROW; i <= sheet.getLastRowNum(); i++) {
@@ -26,18 +31,15 @@ public class ShuttleBusNodeInfoParser {
             }
 
             Cell cell = row.getCell(START_BUS_STOP_COL);
-            String nameWithDetail = ExcelStringUtil.getCellValueToString(cell);
+            String nameWithDetail = (cell == null) ? "" : PoiCellExtractor.extractStringValue(cell);
 
-            if (cell == null || !StringUtils.hasText(nameWithDetail)) {
+            if (!StringUtils.hasText(nameWithDetail)) {
                 break;
             }
 
             nameWithDetail = nameWithDetail.trim();
 
-            String name = ExcelStringUtil.extractNameWithoutBrackets(nameWithDetail);
-            String detail = ExcelStringUtil.extractDetailFromBrackets(nameWithDetail);
-
-            nodeInfos.add(NodeInfo.of(name, detail));
+            nodeInfos.add(NodeInfo.of(nameWithDetail));
         }
 
         return nodeInfos;

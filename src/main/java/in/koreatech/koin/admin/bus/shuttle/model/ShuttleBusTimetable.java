@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.bus.shuttle.model;
 import java.util.List;
 
 import in.koreatech.koin.admin.bus.shuttle.enums.RunningDays;
+import in.koreatech.koin.admin.bus.shuttle.parser.NameParser;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,10 +31,11 @@ public class ShuttleBusTimetable {
         private String name;
         private String detail;
 
-        public static NodeInfo of(String name, String detail) {
-            return new NodeInfo(name, detail);
-        }
+        public static NodeInfo of(String nameWithDetail) {
+            NameParser.ParsedName parsedName = NameParser.parse(nameWithDetail);
 
+            return new NodeInfo(parsedName.name(), parsedName.detail());
+        }
     }
 
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
