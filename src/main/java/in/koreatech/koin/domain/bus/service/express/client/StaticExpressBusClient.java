@@ -78,12 +78,15 @@ public class StaticExpressBusClient extends ExpressBusClient {
     private List<ExpressBusCacheInfo> getTerminalToKoreatech() {
         return List.of(
             new ExpressBusCacheInfo(LocalTime.of(7, 0), LocalTime.of(7, 33), 1900),
-            new ExpressBusCacheInfo(LocalTime.of(9, 0), LocalTime.of(8, 33), 1900),
+            new ExpressBusCacheInfo(LocalTime.of(8, 30), LocalTime.of(9, 3), 1900),
+            new ExpressBusCacheInfo(LocalTime.of(9, 0), LocalTime.of(9, 33), 1900),
             new ExpressBusCacheInfo(LocalTime.of(10, 0), LocalTime.of(10, 33), 1900),
             new ExpressBusCacheInfo(LocalTime.of(12, 0), LocalTime.of(12, 33), 1900),
+            new ExpressBusCacheInfo(LocalTime.of(12, 30), LocalTime.of(13, 3), 1900),
             new ExpressBusCacheInfo(LocalTime.of(13, 0), LocalTime.of(13, 33), 1900),
             new ExpressBusCacheInfo(LocalTime.of(15, 0), LocalTime.of(15, 33), 1900),
             new ExpressBusCacheInfo(LocalTime.of(16, 0), LocalTime.of(16, 33), 1900),
+            new ExpressBusCacheInfo(LocalTime.of(16, 40), LocalTime.of(17, 13), 1900),
             new ExpressBusCacheInfo(LocalTime.of(18, 0), LocalTime.of(18, 33), 1900),
             new ExpressBusCacheInfo(LocalTime.of(19, 30), LocalTime.of(20, 3), 1900),
             new ExpressBusCacheInfo(LocalTime.of(20, 30), LocalTime.of(21, 3), 1900)
