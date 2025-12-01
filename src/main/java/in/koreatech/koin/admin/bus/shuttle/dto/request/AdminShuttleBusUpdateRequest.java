@@ -57,7 +57,9 @@ public record AdminShuttleBusUpdateRequest(
             return routeInfo.stream()
                 .map(innerRouteInfoRequest ->
                     InnerRouteInfoRequest.toEntity(
-                        innerRouteInfoRequest.name, innerRouteInfoRequest.detail, innerRouteInfoRequest.arrivalTime
+                        innerRouteInfoRequest.name,
+                        innerRouteInfoRequest.detail,
+                        innerRouteInfoRequest.arrivalTime
                     )
                 ).toList();
         }
