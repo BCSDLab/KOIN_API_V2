@@ -1,11 +1,22 @@
 package in.koreatech.koin.admin.bus.shuttle.util;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.util.StringUtils;
 
 public class ExcelRangeUtil {
+
+    private static final DataFormatter FORMATTER = new DataFormatter();
+
+    private static String getCellStringValue(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+
+        return FORMATTER.formatCellValue(cell).trim();
+    }
 
     public static int countUsedRowsInColumn(Sheet sheet, int startRow, int checkColumn) {
         int cnt = 0;
@@ -19,7 +30,7 @@ public class ExcelRangeUtil {
 
             Cell cell = row.getCell(checkColumn);
 
-            if (cell == null || !StringUtils.hasText(cell.getStringCellValue())) {
+            if (!StringUtils.hasText(getCellStringValue(cell))) {
                 break;
             }
 
@@ -41,7 +52,7 @@ public class ExcelRangeUtil {
         for (int col = startCol; col < row.getLastCellNum(); col++) {
             Cell cell = row.getCell(col);
 
-            if (cell != null && StringUtils.hasText(cell.getStringCellValue())) {
+            if (StringUtils.hasText(getCellStringValue(cell))) {
                 lastCol = col;
             }
         }
