@@ -170,6 +170,9 @@ public class LostItemArticle extends BaseEntity {
     }
 
     public void markAsFound() {
+        if (this.isFound) {
+            throw CustomException.of(ApiResponseCode.DUPLICATE_FOUND_STATUS);
+        }
         this.isFound = true;
         this.foundAt = LocalDateTime.now();
     }

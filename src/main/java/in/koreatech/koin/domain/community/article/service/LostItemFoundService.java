@@ -7,8 +7,6 @@ import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountR
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,11 +20,6 @@ public class LostItemFoundService {
     public void markAsFound(Integer userId, Integer articleId) {
         LostItemArticle lostItemArticle = articleRepository.getById(articleId).getLostItemArticle();
         lostItemArticle.checkOwnership(userId);
-
-        if (lostItemArticle.getIsFound()) {
-            throw CustomException.of(ApiResponseCode.DUPLICATE_FOUND_STATUS);
-        }
-
         lostItemArticle.markAsFound();
     }
 
