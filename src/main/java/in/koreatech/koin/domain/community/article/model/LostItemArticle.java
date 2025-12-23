@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,8 @@ import org.hibernate.annotations.BatchSize;
 import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,6 +70,13 @@ public class LostItemArticle extends BaseEntity {
 
     @OneToMany(mappedBy = "lostItemArticle", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LostItemImage> images = new ArrayList<>();
+
+    @NotNull
+    @Column(name = "is_found", nullable = false)
+    private Boolean isFound = false;
+
+    @Column(name = "found_at")
+    private LocalDateTime foundAt; // "찾음" 처리된 날짜
 
     @NotNull
     @Column(name = "is_council", nullable = false)
@@ -151,5 +161,16 @@ public class LostItemArticle extends BaseEntity {
             .stream()
             .filter(report -> Objects.equals(report.getStudent().getId(), userId))
             .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
+    }
+
+    public void checkOwnership(Integer userId) {
+        if(!Objects.equals(author.getId(), userId)) {
+            throw CustomException.of(ApiResponseCode.FORBIDDEN_AUTHOR);
+        }
+    }
+
+    public void markAsFound() {
+        this.isFound = true;
+        this.foundAt = LocalDateTime.now();
     }
 }

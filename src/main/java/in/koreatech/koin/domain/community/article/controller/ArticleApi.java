@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
@@ -17,12 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
+import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -178,4 +181,23 @@ public interface ArticleApi {
         @PathVariable("id") Integer articleId,
         @Auth(permit = {STUDENT, COUNCIL}) Integer councilId
     );
+
+    @ApiResponseCodes({
+        NO_CONTENT,
+        FORBIDDEN_AUTHOR,
+        DUPLICATE_FOUND_STATUS
+    })
+    @Operation(summary = "분실물 게시글 찾음 처리")
+    @PostMapping("/lost-item/{id}/found")
+    ResponseEntity<Void> markLostItemArticleAsFound(
+        @PathVariable("id") Integer articleId,
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK
+    })
+    @Operation(summary = "주인 찾음 상태인 분실물 게시글 총 개수")
+    @GetMapping("/lost-item/found/count")
+    ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticles();
 }
