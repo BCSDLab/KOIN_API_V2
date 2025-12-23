@@ -197,7 +197,7 @@ public interface ArticleApi {
     @ApiResponseCodes({
         OK
     })
-    @Operation(summary = "주인 찾음 상태인 분실물 게시글 총 개수")
+    @Operation(summary = "주인 찾음 상태인 분실물 게시글 총 개수 조회")
     @GetMapping("/lost-item/found/count")
     ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticles();
 }
