@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -205,14 +206,17 @@ public class ArticleService {
             .map(LostItemFoundStatus::getQueryStatus)
             .orElse(null);
 
-        Long total = lostItemArticleRepository.countLostItemArticlesWithFilters(type, foundStatusFilter, LOST_ITEM_BOARD_ID);
+        Long total = lostItemArticleRepository.countLostItemArticlesWithFilters(type, foundStatusFilter,
+            LOST_ITEM_BOARD_ID);
+
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
 
-        Page<Article> articles = lostItemArticleRepository.findLostItemArticlesWithFilters(
-            LOST_ITEM_BOARD_ID, type, foundStatusFilter, pageRequest
-        );
-        return LostItemArticlesResponse.of(articles, criteria, userId);
+        List<Article> articles = lostItemArticleRepository.findLostItemArticlesWithFilters(LOST_ITEM_BOARD_ID, type,
+            foundStatusFilter, pageRequest);
+        Page<Article> articlePage = new PageImpl<>(articles, pageRequest, total);
+
+        return LostItemArticlesResponse.of(articlePage, criteria, userId);
     }
 
     public LostItemArticleResponse getLostItemArticle(Integer articleId, Integer userId) {

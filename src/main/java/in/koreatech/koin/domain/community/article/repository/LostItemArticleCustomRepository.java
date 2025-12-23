@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.repository;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
+
 import org.springframework.data.domain.PageRequest;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleSummary;
@@ -12,5 +13,5 @@ public interface LostItemArticleCustomRepository {
 
     Long countLostItemArticlesWithFilters(String type, Boolean isFound, Integer lostItemArticleBoardId);
 
-    Page<Article> findLostItemArticlesWithFilters(Integer boardId, String type, Boolean isFound, PageRequest pageRequest);
+    List<Article> findLostItemArticlesWithFilters(Integer boardId, String type, Boolean isFound, PageRequest pageRequest);
 }

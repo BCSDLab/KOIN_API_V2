@@ -160,7 +160,7 @@ public class ArticleController implements ArticleApi {
     }
 
     @GetMapping("/lost-item/found/count")
-    public ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticles() {
+    public ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticlesCount() {
         FoundLostItemArticleCountResponse response = lostItemFoundService.countFoundArticles();
         return ResponseEntity.ok().body(response);
     }

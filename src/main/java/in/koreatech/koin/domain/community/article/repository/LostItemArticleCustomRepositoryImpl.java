@@ -49,29 +49,20 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             .fetchOne();
     }
 
-    public Page<Article> findLostItemArticlesWithFilters(
+    public List<Article> findLostItemArticlesWithFilters(
         Integer boardId, String type, Boolean isFound, PageRequest pageRequest) {
 
-        BooleanExpression filter = getFilter(boardId, type, isFound);
+        BooleanExpression predicate = getFilter(boardId, type, isFound);
 
-        List<Article> content = queryFactory
+        return queryFactory
             .selectFrom(article)
             .leftJoin(article.lostItemArticle, lostItemArticle).fetchJoin()
             .leftJoin(lostItemArticle.author).fetchJoin()
-            .where(filter)
+            .where(predicate)
             .orderBy(article.createdAt.desc(), article.id.desc())
             .offset(pageRequest.getOffset())
             .limit(pageRequest.getPageSize())
             .fetch();
-
-        Long total = queryFactory
-            .select(article.count())
-            .from(article)
-            .leftJoin(article.lostItemArticle, lostItemArticle)
-            .where(filter)
-            .fetchOne();
-
-        return new PageImpl<>(content, pageRequest, total != null ? total : 0L);
     }
 
     private BooleanExpression getFilter(Integer boardId, String type, Boolean isFound) {
