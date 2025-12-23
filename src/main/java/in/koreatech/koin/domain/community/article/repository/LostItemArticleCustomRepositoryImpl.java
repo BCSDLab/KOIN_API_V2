@@ -4,12 +4,19 @@ import static in.koreatech.koin.domain.community.article.model.QArticle.article;
 import static in.koreatech.koin.domain.community.article.model.QLostItemArticle.lostItemArticle;
 import static in.koreatech.koin.domain.community.article.model.QLostItemImage.lostItemImage;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleSummary;
+import in.koreatech.koin.domain.community.article.model.Article;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -29,5 +36,57 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             .leftJoin(lostItemArticle.images, lostItemImage)
             .where(article.id.eq(articleId))
             .fetchFirst();
+    }
+
+    public Long countLostItemArticlesWithFilters(String type, Boolean isFound, Integer lostItemArticleBoardId) {
+        BooleanExpression filter = getFilter(lostItemArticleBoardId, type, isFound);
+
+        return queryFactory
+            .select(article.count())
+            .from(article)
+            .leftJoin(article.lostItemArticle, lostItemArticle)
+            .where(filter)
+            .fetchOne();
+    }
+
+    public Page<Article> findLostItemArticlesWithFilters(
+        Integer boardId, String type, Boolean isFound, PageRequest pageRequest) {
+
+        BooleanExpression filter = getFilter(boardId, type, isFound);
+
+        List<Article> content = queryFactory
+            .selectFrom(article)
+            .leftJoin(article.lostItemArticle, lostItemArticle).fetchJoin()
+            .leftJoin(lostItemArticle.author).fetchJoin()
+            .where(filter)
+            .orderBy(article.createdAt.desc(), article.id.desc())
+            .offset(pageRequest.getOffset())
+            .limit(pageRequest.getPageSize())
+            .fetch();
+
+        Long total = queryFactory
+            .select(article.count())
+            .from(article)
+            .leftJoin(article.lostItemArticle, lostItemArticle)
+            .where(filter)
+            .fetchOne();
+
+        return new PageImpl<>(content, pageRequest, total != null ? total : 0L);
+    }
+
+    private BooleanExpression getFilter(Integer boardId, String type, Boolean isFound) {
+        BooleanExpression filter = article.board.id.eq(boardId)
+            .and(article.isDeleted.isFalse())
+            .and(article.lostItemArticle.isNotNull());
+
+        if (type != null && !type.isBlank()) {
+            filter = filter.and(lostItemArticle.type.eq(type));
+        }
+
+        if (isFound != null) {
+            filter = filter.and(lostItemArticle.isFound.eq(isFound));
+        }
+
+        return filter;
     }
 }

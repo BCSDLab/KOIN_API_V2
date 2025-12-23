@@ -23,6 +23,7 @@ import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
+import in.koreatech.koin.domain.community.article.model.LostItemFoundStatus;
 import in.koreatech.koin.domain.community.article.service.ArticleService;
 import in.koreatech.koin.domain.community.article.service.LostItemFoundService;
 import in.koreatech.koin.global.auth.Auth;
@@ -108,6 +109,18 @@ public class ArticleController implements ArticleApi {
         @UserId Integer userId
     ) {
         LostItemArticlesResponse response = articleService.getLostItemArticles(type, page, limit, userId);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/lost-item/v2")
+    public ResponseEntity<LostItemArticlesResponse> getLostItemArticlesV2(
+        @RequestParam(required = false) String type,
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false, defaultValue = "ALL") LostItemFoundStatus foundStatus,
+        @UserId Integer userId
+    ) {
+        LostItemArticlesResponse response = articleService.getLostItemArticlesV2(type, page, limit, userId, foundStatus);
         return ResponseEntity.ok().body(response);
     }
 

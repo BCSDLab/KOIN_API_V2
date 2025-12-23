@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class LostItemFoundService {
 
     private final ArticleRepository articleRepository;
-    public final LostItemArticleRepository lostItemArticleRepository;
+    private final LostItemArticleRepository lostItemArticleRepository;
 
     @Transactional
     public void markAsFound(Integer userId, Integer articleId) {

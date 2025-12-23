@@ -23,6 +23,7 @@ import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
+import in.koreatech.koin.domain.community.article.model.LostItemFoundStatus;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.code.ApiResponseCodes;
@@ -134,6 +135,28 @@ public interface ArticleApi {
         @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
+        @UserId Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "분실물 게시글 목록 조회 V2", description = """
+        ### 분실물 게시글 목록 조회 V2 변경점
+        - Request Param 추가: foundStatus (ALL, FOUND, NOT_FOUND)
+          - ALL : 모든 분실물 게시글 조회 (Default)
+          - FOUND : '주인 찾음' 상태인 게시글 조회
+          - NOT_FOUND : '찾는 중' 상태인 게시글 조회
+        """)
+    @GetMapping("/lost-item/v2")
+    ResponseEntity<LostItemArticlesResponse> getLostItemArticlesV2(
+        @RequestParam(required = false) String type,
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false, defaultValue = "ALL") LostItemFoundStatus foundStatus,
         @UserId Integer userId
     );
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,11 +26,13 @@ import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.model.LostItemFoundStatus;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
 import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTracker;
 import in.koreatech.koin.domain.community.article.model.KeywordRankingManager;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
+import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
@@ -61,6 +64,7 @@ public class ArticleService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
+    private final LostItemArticleRepository lostItemArticleRepository;
     private final BoardRepository boardRepository;
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
@@ -192,6 +196,22 @@ public class ArticleService {
             articles = articleRepository.findAllByLostItemArticleType(type, pageRequest);
         }
 
+        return LostItemArticlesResponse.of(articles, criteria, userId);
+    }
+
+    public LostItemArticlesResponse getLostItemArticlesV2(String type, Integer page, Integer limit, Integer userId,
+        LostItemFoundStatus foundStatus) {
+        Boolean foundStatusFilter = Optional.ofNullable(foundStatus)
+            .map(LostItemFoundStatus::getQueryStatus)
+            .orElse(null);
+
+        Long total = lostItemArticleRepository.countLostItemArticlesWithFilters(type, foundStatusFilter, LOST_ITEM_BOARD_ID);
+        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+
+        Page<Article> articles = lostItemArticleRepository.findLostItemArticlesWithFilters(
+            LOST_ITEM_BOARD_ID, type, foundStatusFilter, pageRequest
+        );
         return LostItemArticlesResponse.of(articles, criteria, userId);
     }
 
