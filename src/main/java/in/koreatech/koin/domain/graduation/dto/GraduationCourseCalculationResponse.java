@@ -11,7 +11,7 @@ public record GraduationCourseCalculationResponse(
 
     List<InnerCalculationResponse> courseTypes
 ) {
-
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerCalculationResponse(String courseType, int requiredGrades, int grades) {
 
         public static InnerCalculationResponse of(String courseType, int requiredGrades, int grades) {

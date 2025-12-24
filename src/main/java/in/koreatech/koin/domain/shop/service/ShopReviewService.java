@@ -204,7 +204,7 @@ public class ShopReviewService {
     private void checkUserLatestReviewWithin24Hours(Integer studentId, Integer shopId) {
         shopReviewRepository.findLatestReviewByStudentIdAndShopIdWithin24Hours(studentId, shopId, LocalDateTime.now(clock))
             .ifPresent(review -> {
-                throw OneReviewPerDayException.withDetail("한 상점에 하루에 한번만 리뷰를 남길 수 있습니다.");
+                throw OneReviewPerDayException.withDetail("studentId : " + studentId + "shopId : " + shopId);
             });
     }
 }
