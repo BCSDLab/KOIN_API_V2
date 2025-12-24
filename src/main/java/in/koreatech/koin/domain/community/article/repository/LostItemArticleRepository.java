@@ -21,4 +21,10 @@ public interface LostItemArticleRepository extends Repository<LostItemArticle, I
         return findByArticleId(articleId).orElseThrow(
             () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
     }
+
+    @Query(
+        value = "SELECT count(*) FROM lost_item_articles WHERE is_found = 1 AND is_deleted = 0",
+        nativeQuery = true
+    )
+    Integer getFoundLostItemArticleCount();
 }
