@@ -75,7 +75,7 @@ public class LostItemArticle extends BaseEntity {
     @Column(name = "is_found", nullable = false)
     private Boolean isFound = false;
 
-    @Column(name = "found_at")
+    @Column(name = "found_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime foundAt; // "찾음" 처리된 날짜
 
     @NotNull
