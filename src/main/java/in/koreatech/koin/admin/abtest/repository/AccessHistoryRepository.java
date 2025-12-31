@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.abtest.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.Repository;
 
@@ -17,6 +18,7 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, Integ
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
+    @Query("SELECT a FROM AccessHistory a JOIN FETCH a.device WHERE a.id = :id")
     Optional<AccessHistory> findById(Integer id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
