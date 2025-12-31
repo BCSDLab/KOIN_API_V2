@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.admin.abtest.exception.AccessHistoryNotFoundException;
 import in.koreatech.koin.admin.abtest.model.AccessHistory;
@@ -23,7 +24,8 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, Integ
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
-    Optional<AccessHistory> findByDeviceId(Integer deviceId);
+    @Query("SELECT a FROM AccessHistory a JOIN FETCH a.device WHERE a.device.id = :deviceId")
+    Optional<AccessHistory> findByDeviceId(@Param("deviceId") Integer deviceId);
 
     default AccessHistory getById(Integer accessHistoryId) {
         return findById(accessHistoryId).orElseThrow(() ->
