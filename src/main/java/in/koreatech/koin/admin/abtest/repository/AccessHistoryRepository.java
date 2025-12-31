@@ -19,6 +19,8 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, Integ
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
     Optional<AccessHistory> findById(Integer id);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
     Optional<AccessHistory> findByDeviceId(Integer deviceId);
 
     default AccessHistory getById(Integer accessHistoryId) {
