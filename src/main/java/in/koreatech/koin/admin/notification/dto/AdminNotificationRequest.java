@@ -7,12 +7,17 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.common.model.MobileAppPath;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminNotificationRequest(
+    @Schema(description = "알림 구독 타입", example = "ARTICLE_KEYWORD", requiredMode = REQUIRED)
+    @NotNull(message = "알림 구독 타입은 필수 입력사항입니다.")
+    NotificationSubscribeType subscribeType,
+
     @Schema(description = "알림 제목", example = "공지사항이 등록됐어요!", requiredMode = REQUIRED)
     @NotEmpty(message = "알림 제목은 필수 입력사항입니다.")
     String title,
