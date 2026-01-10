@@ -11,6 +11,7 @@ public enum MobileAppPath {
     KEYWORD("keyword"),
     CHAT("chat"),
     CLUB("club"),
+    TIMETABLE("timetable"),
     ;
 
     private final String path;
