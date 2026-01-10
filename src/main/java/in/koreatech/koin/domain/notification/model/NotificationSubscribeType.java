@@ -41,4 +41,8 @@ public enum NotificationSubscribeType {
             .findAny()
             .orElseThrow(() -> SubscribeNotFoundException.withDetail("childType: " + childType));
     }
+
+    public boolean isNotContainsDetailType(NotificationDetailSubscribeType detailType) {
+        return !detailTypes.contains(detailType);
+    }
 }
