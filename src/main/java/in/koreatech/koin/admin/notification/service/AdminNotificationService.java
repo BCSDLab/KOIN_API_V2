@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.notification.service;
 
+import static in.koreatech.koin.domain.notification.model.NotificationType.MESSAGE;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_DETAIL_SUBSCRIBE_TYPE;
 
 import java.util.List;
@@ -12,10 +13,13 @@ import in.koreatech.koin.admin.manager.repository.AdminRepository;
 import in.koreatech.koin.admin.notification.dto.AdminNotificationRequest;
 import in.koreatech.koin.admin.notification.repository.AdminNotificationRepository;
 import in.koreatech.koin.admin.notification.repository.AdminNotificationSubscribeRepository;
+import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.exception.CustomException;
+import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,6 +30,7 @@ public class AdminNotificationService {
     private final AdminNotificationSubscribeRepository adminNotificationSubscribeRepository;
     private final AdminNotificationRepository adminNotificationRepository;
     private final AdminRepository adminRepository;
+    private final FcmClient fcmClient;
 
     @Transactional
     public void sendNotification(AdminNotificationRequest request, Integer adminId) {
@@ -34,6 +39,29 @@ public class AdminNotificationService {
         List<NotificationSubscribe> notificationSubscribes = getNotificationSubscribes(
             request.subscribeType(), request.detailSubscribeType()
         );
+
+        for (NotificationSubscribe notificationSubscribe : notificationSubscribes) {
+            User user = notificationSubscribe.getUser();
+            Notification notification = Notification.of(
+                request.mobileAppPath(),
+                request.schemaUrl(),
+                request.title(),
+                request.message(),
+                request.imageUrl(),
+                user
+            );
+            adminNotificationRepository.save(notification);
+
+            fcmClient.sendMessage(
+                user.getDeviceToken(),
+                request.title(),
+                request.message(),
+                request.imageUrl(),
+                request.mobileAppPath(),
+                request.schemaUrl(),
+                MESSAGE.name().toLowerCase()
+            );
+        }
     }
 
     private void validateDetailTypeMatchesSubscribeType(
