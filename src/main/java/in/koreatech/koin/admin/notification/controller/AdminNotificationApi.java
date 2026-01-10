@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.notification.controller;
 
+import static in.koreatech.koin.admin.history.enums.DomainType.NOTIFICATION;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_DETAIL_SUBSCRIBE_TYPE;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.notification.dto.AdminNotificationRequest;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
@@ -33,16 +35,17 @@ public interface AdminNotificationApi {
         - ARTICLE_KEYWORD: 게시글 키워드
         - LOST_ITEM_CHAT: 분실물 채팅
         - MARKETING: 마케팅
-
+        
         ## 세부 구독 타입
         - BREAKFAST: 아침 (DINING_SOLD_OUT에 해당)
         - LUNCH: 점심 (DINING_SOLD_OUT에 해당)
         - DINNER: 저녁 (DINING_SOLD_OUT에 해당)
-
+        
         ## 에러
         - INVALID_DETAIL_SUBSCRIBE_TYPE (400): 세부 구독 타입이 구독 타입에 속하지 않습니다.
         """)
     @PostMapping("/send")
+    @AdminActivityLogging(domain = NOTIFICATION)
     ResponseEntity<Void> sendNotification(
         @Valid @RequestBody AdminNotificationRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
