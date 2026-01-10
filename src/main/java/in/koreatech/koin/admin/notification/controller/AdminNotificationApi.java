@@ -24,7 +24,24 @@ public interface AdminNotificationApi {
         OK,
         INVALID_DETAIL_SUBSCRIBE_TYPE
     })
-    @Operation(description = "푸시 알림 전송")
+    @Operation(summary = "푸시 알림 전송", description = """
+        ## 구독 타입
+        - SHOP_EVENT: 상점 이벤트
+        - REVIEW_PROMPT: 리뷰 작성 유도
+        - DINING_SOLD_OUT: 식당 품절 (세부 타입: BREAKFAST, LUNCH, DINNER)
+        - DINING_IMAGE_UPLOAD: 식단 이미지 업로드
+        - ARTICLE_KEYWORD: 게시글 키워드
+        - LOST_ITEM_CHAT: 분실물 채팅
+        - MARKETING: 마케팅
+
+        ## 세부 구독 타입
+        - BREAKFAST: 아침 (DINING_SOLD_OUT에 해당)
+        - LUNCH: 점심 (DINING_SOLD_OUT에 해당)
+        - DINNER: 저녁 (DINING_SOLD_OUT에 해당)
+
+        ## 에러
+        - INVALID_DETAIL_SUBSCRIBE_TYPE (400): 세부 구독 타입이 구독 타입에 속하지 않습니다.
+        """)
     @PostMapping("/send")
     ResponseEntity<Void> sendNotification(
         @Valid @RequestBody AdminNotificationRequest request,
