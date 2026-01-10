@@ -20,7 +20,9 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -39,16 +41,20 @@ public class AdminNotificationService {
         );
 
         for (NotificationSubscribe notificationSubscribe : notificationSubscribes) {
-            User user = notificationSubscribe.getUser();
-            Notification notification = Notification.of(
-                request.mobileAppPath(),
-                request.schemaUrl(),
-                request.title(),
-                request.message(),
-                request.imageUrl(),
-                user
-            );
-            saveAndSendNotification(notification);
+            try {
+                User user = notificationSubscribe.getUser();
+                Notification notification = Notification.of(
+                    request.mobileAppPath(),
+                    request.schemaUrl(),
+                    request.title(),
+                    request.message(),
+                    request.imageUrl(),
+                    user
+                );
+                saveAndSendNotification(notification);
+            } catch (Exception e) {
+                log.warn("FCM 알림 전송 과정에서 에러 발생", e);
+            }
         }
     }
 
