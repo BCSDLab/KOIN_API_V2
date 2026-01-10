@@ -82,6 +82,7 @@ public enum ApiResponseCode {
     INVALID_NODE_INFO_START_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 시작 위치가 아닙니다."),
     INVALID_NODE_INFO_END_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 끝 위치가 아닙니다."),
     INVALID_SEMESTER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 학기 형식입니다."),
+    INVALID_DETAIL_SUBSCRIBE_TYPE(HttpStatus.BAD_REQUEST, "세부 구독 타입이 구독 타입에 속하지 않습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
