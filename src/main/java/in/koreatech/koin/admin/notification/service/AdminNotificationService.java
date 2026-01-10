@@ -2,6 +2,8 @@ package in.koreatech.koin.admin.notification.service;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_DETAIL_SUBSCRIBE_TYPE;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,7 +11,9 @@ import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.admin.manager.repository.AdminRepository;
 import in.koreatech.koin.admin.notification.dto.AdminNotificationRequest;
 import in.koreatech.koin.admin.notification.repository.AdminNotificationRepository;
+import in.koreatech.koin.admin.notification.repository.AdminNotificationSubscribeRepository;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +23,17 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AdminNotificationService {
 
+    private final AdminNotificationSubscribeRepository adminNotificationSubscribeRepository;
     private final AdminNotificationRepository adminNotificationRepository;
     private final AdminRepository adminRepository;
 
     @Transactional
     public void sendNotification(AdminNotificationRequest request, Integer adminId) {
-
+        Admin admin = adminRepository.getById(adminId);
+        validateDetailTypeMatchesSubscribeType(request.subscribeType(), request.detailSubscribeType());
+        List<NotificationSubscribe> notificationSubscribes = getNotificationSubscribes(
+            request.subscribeType(), request.detailSubscribeType()
+        );
     }
 
     private void validateDetailTypeMatchesSubscribeType(
@@ -40,5 +49,16 @@ public class AdminNotificationService {
                 String.format("subscribeType: %s, detailSubscribeType: %s", subscribeType, detailSubscribeType)
             );
         }
+    }
+
+    private List<NotificationSubscribe> getNotificationSubscribes(
+        NotificationSubscribeType subscribeType, NotificationDetailSubscribeType detailSubscribeType
+    ) {
+        if (detailSubscribeType == null) {
+            return adminNotificationSubscribeRepository.findAllBySubscribeType(subscribeType);
+        }
+        return adminNotificationSubscribeRepository.findAllBySubscribeTypeAndDetailType(
+            subscribeType, detailSubscribeType
+        );
     }
 }
