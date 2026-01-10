@@ -1,6 +1,5 @@
 package in.koreatech.koin.admin.notification.service;
 
-import static in.koreatech.koin.domain.notification.model.NotificationType.MESSAGE;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_DETAIL_SUBSCRIBE_TYPE;
 
 import java.util.List;
@@ -32,7 +31,6 @@ public class AdminNotificationService {
     private final AdminRepository adminRepository;
     private final FcmClient fcmClient;
 
-    @Transactional
     public void sendNotification(AdminNotificationRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
         validateDetailTypeMatchesSubscribeType(request.subscribeType(), request.detailSubscribeType());
@@ -50,18 +48,22 @@ public class AdminNotificationService {
                 request.imageUrl(),
                 user
             );
-            adminNotificationRepository.save(notification);
-
-            fcmClient.sendMessage(
-                user.getDeviceToken(),
-                request.title(),
-                request.message(),
-                request.imageUrl(),
-                request.mobileAppPath(),
-                request.schemaUrl(),
-                MESSAGE.name().toLowerCase()
-            );
+            saveAndSendNotification(notification);
         }
+    }
+
+    @Transactional
+    public void saveAndSendNotification(Notification notification) {
+        adminNotificationRepository.save(notification);
+        fcmClient.sendMessage(
+            notification.getUser().getDeviceToken(),
+            notification.getTitle(),
+            notification.getMessage(),
+            notification.getImageUrl(),
+            notification.getMobileAppPath(),
+            notification.getSchemeUri(),
+            notification.getType()
+        );
     }
 
     private void validateDetailTypeMatchesSubscribeType(
