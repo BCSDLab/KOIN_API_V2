@@ -68,7 +68,7 @@ public class AdminNotificationService {
             notification.getImageUrl(),
             notification.getMobileAppPath(),
             notification.getSchemeUri(),
-            notification.getType()
+            notification.getType().toLowerCase()
         );
     }
 
