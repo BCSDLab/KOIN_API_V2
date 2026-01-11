@@ -33,6 +33,7 @@ public class AdminNotificationService {
     private final AdminRepository adminRepository;
     private final FcmClient fcmClient;
 
+    @Transactional
     public void sendNotification(AdminNotificationRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
         validateDetailTypeMatchesSubscribeType(request.subscribeType(), request.detailSubscribeType());
@@ -51,25 +52,20 @@ public class AdminNotificationService {
                     request.imageUrl(),
                     user
                 );
-                saveAndSendNotification(notification);
+                adminNotificationRepository.save(notification);
+                fcmClient.sendMessage(
+                    user.getDeviceToken(),
+                    notification.getTitle(),
+                    notification.getMessage(),
+                    notification.getImageUrl(),
+                    notification.getMobileAppPath(),
+                    notification.getSchemeUri(),
+                    notification.getType().toLowerCase()
+                );
             } catch (Exception e) {
                 log.warn("FCM 알림 전송 과정에서 에러 발생", e);
             }
         }
-    }
-
-    @Transactional
-    public void saveAndSendNotification(Notification notification) {
-        adminNotificationRepository.save(notification);
-        fcmClient.sendMessage(
-            notification.getUser().getDeviceToken(),
-            notification.getTitle(),
-            notification.getMessage(),
-            notification.getImageUrl(),
-            notification.getMobileAppPath(),
-            notification.getSchemeUri(),
-            notification.getType().toLowerCase()
-        );
     }
 
     private void validateDetailTypeMatchesSubscribeType(
