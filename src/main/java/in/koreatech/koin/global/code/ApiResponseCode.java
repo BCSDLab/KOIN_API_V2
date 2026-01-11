@@ -82,6 +82,7 @@ public enum ApiResponseCode {
     INVALID_NODE_INFO_START_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 시작 위치가 아닙니다."),
     INVALID_NODE_INFO_END_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 끝 위치가 아닙니다."),
     INVALID_SEMESTER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 학기 형식입니다."),
+    INVALID_DETAIL_SUBSCRIBE_TYPE(HttpStatus.BAD_REQUEST, "세부 구독 타입이 구독 타입에 속하지 않습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -101,6 +102,7 @@ public enum ApiResponseCode {
     PAYMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "결제 정보 접근 권한이 없습니다."),
     FORBIDDEN_ORDER(HttpStatus.FORBIDDEN, "주문 정보 접근 권한이 없습니다."),
     FORBIDDEN_SHOP_OWNER(HttpStatus.FORBIDDEN, "상점의 사장님이 아닙니다."),
+    FORBIDDEN_AUTHOR(HttpStatus.FORBIDDEN, "게시글 접근 권한이 없습니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -142,6 +144,7 @@ public enum ApiResponseCode {
     DUPLICATE_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 주문 가능한 상점입니다."),
     DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "이미 존재하는 학기입니다."),
     OVERLAPPING_SEMESTER_DATE_RANGE(HttpStatus.CONFLICT, "학기 기간이 기존 학기와 겹칩니다."),
+    DUPLICATE_FOUND_STATUS(HttpStatus.CONFLICT, "이미 찾음 처리된 분실물 게시글입니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)

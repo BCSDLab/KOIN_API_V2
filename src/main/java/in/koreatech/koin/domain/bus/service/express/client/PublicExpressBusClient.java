@@ -42,7 +42,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
-@ApiLoadBalance(ratio = 2)
+@ApiLoadBalance(ratio = 0)
 public class PublicExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
