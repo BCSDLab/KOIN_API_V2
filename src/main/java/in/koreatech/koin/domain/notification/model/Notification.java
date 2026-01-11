@@ -1,13 +1,14 @@
 package in.koreatech.koin.domain.notification.model;
 
+import static in.koreatech.koin.domain.notification.model.NotificationType.MESSAGE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.common.model.MobileAppPath;
+import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -72,6 +73,25 @@ public class Notification extends BaseEntity {
         this.imageUrl = imageUrl;
         this.type = type;
         this.user = user;
+    }
+
+    public static Notification of(
+        MobileAppPath appPath,
+        String schemeUri,
+        String title,
+        String message,
+        String imageUrl,
+        User user
+    ) {
+        return new Notification(
+            appPath,
+            schemeUri,
+            title,
+            message,
+            imageUrl,
+            MESSAGE,
+            user
+        );
     }
 
     public void read() {
