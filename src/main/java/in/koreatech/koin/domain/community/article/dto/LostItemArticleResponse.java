@@ -47,6 +47,9 @@ public record LostItemArticleResponse(
     @Schema(description = "내 게시글 여부", example = "1", requiredMode = NOT_REQUIRED)
     Boolean isMine,
 
+    @Schema(description = "분실물 게시글 찾음 상태 여부", example = "false", requiredMode = REQUIRED)
+    Boolean isFound,
+
     @Schema(description = "분실물 사진")
     List<InnerLostItemImageResponse> images,
 
@@ -77,6 +80,7 @@ public record LostItemArticleResponse(
             article.getAuthor(),
             lostItemArticle.getIsCouncil(),
             isMine,
+            lostItemArticle.getIsFound(),
             lostItemArticle.getImages().stream()
                 .map(InnerLostItemImageResponse::from)
                 .toList(),

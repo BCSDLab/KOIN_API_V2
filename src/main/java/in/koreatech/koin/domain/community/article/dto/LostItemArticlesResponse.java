@@ -76,7 +76,10 @@ public record LostItemArticlesResponse(
         LocalDate registeredAt,
 
         @Schema(description = "처리되지 않은 자신의 신고 존재 여부", example = "true", requiredMode = REQUIRED)
-        Boolean isReported
+        Boolean isReported,
+
+        @Schema(description = "분실물 게시글 찾음 상태 여부", example = "false", requiredMode = REQUIRED)
+        Boolean isFound
     ) {
 
         public static InnerLostItemArticleResponse of(Article article, Integer userId) {
@@ -91,7 +94,8 @@ public record LostItemArticlesResponse(
                 article.getContent(),
                 article.getAuthor(),
                 article.getRegisteredAt(),
-                lostItemArticle.isReportedByUserId(userId)
+                lostItemArticle.isReportedByUserId(userId),
+                lostItemArticle.getIsFound()
             );
         }
     }

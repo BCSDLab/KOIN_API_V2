@@ -18,7 +18,7 @@ import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 
 @Component
-@ApiLoadBalance(ratio = 0)
+@ApiLoadBalance(ratio = 1)
 public class StaticExpressBusClient extends ExpressBusClient {
 
     public StaticExpressBusClient(

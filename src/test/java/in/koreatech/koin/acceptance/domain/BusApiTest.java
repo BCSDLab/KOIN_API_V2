@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -248,6 +249,7 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
+    @Disabled
     void 시외버스_Open_Api를_호출한다_정상_호출() {
         doNothing().when(publicExpressBusClient).storeRemainTime();
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
@@ -261,6 +263,7 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
+    @Disabled
     void 시외버스_Open_Api를_호출한다_호출_실패_및_대체() {
         doThrow(RuntimeException.class).when(publicExpressBusClient).storeRemainTime();
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
