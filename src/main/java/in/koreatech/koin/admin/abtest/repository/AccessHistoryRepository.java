@@ -19,12 +19,12 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, Integ
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
-    @Query("SELECT a FROM AccessHistory a JOIN FETCH a.device WHERE a.id = :id")
+    @Query("SELECT a FROM AccessHistory a LEFT JOIN FETCH a.device WHERE a.id = :id")
     Optional<AccessHistory> findById(Integer id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
-    @Query("SELECT a FROM AccessHistory a JOIN FETCH a.device WHERE a.device.id = :deviceId")
+    @Query("SELECT a FROM AccessHistory a LEFT JOIN FETCH a.device WHERE a.device.id = :deviceId")
     Optional<AccessHistory> findByDeviceId(@Param("deviceId") Integer deviceId);
 
     default AccessHistory getById(Integer accessHistoryId) {

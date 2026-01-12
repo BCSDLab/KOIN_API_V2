@@ -3,13 +3,17 @@ package in.koreatech.koin.acceptance.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,14 +27,18 @@ import in.koreatech.koin.acceptance.fixture.DeviceAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
+import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
 import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
+import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 class AbtestApiTest extends AcceptanceTest {
 
@@ -54,6 +62,12 @@ class AbtestApiTest extends AcceptanceTest {
 
     @Autowired
     private DepartmentAcceptanceFixture departmentFixture;
+
+    @Autowired
+    private AccessHistoryRepository accessHistoryRepository;
+
+    @PersistenceContext
+    EntityManager em;
 
     private Admin admin;
     private String adminToken;
@@ -548,5 +562,27 @@ class AbtestApiTest extends AcceptanceTest {
             .andReturn();
         String responseBody2 = mvcResult2.getResponse().getContentAsString();
         assertNotEquals(responseBody, responseBody2);
+    }
+
+    @Test
+    @DisplayName("디바이스가 없는 접속 이력을 조회할 때 INNER JOIN으로 인한 누락을 검증한다")
+    void 디바이스_없는_이력_조회_테스트() {
+        // given
+        // 1. 디바이스가 없는 AccessHistory를 생성해서 저장합니다.
+        AccessHistory history = AccessHistory.create();
+        accessHistoryRepository.save(history);
+
+        // 2. 영속성 컨텍스트를 비워 실제 DB 쿼리가 나가도록 유도합니다.
+        em.flush();
+        em.clear();
+
+        // when
+        Optional<AccessHistory> result = accessHistoryRepository.findById(history.getId());
+
+        // then
+        // INNER JOIN -> 결과가 비어있음(실패)
+        // LEFT JOIN -> 결과에 포함됨(성공)
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(history.getId());
     }
 }
