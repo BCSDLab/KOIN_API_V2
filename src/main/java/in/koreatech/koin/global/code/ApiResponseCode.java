@@ -88,6 +88,7 @@ public enum ApiResponseCode {
      * 401 Unauthorized (인증 필요)
      */
     WITHDRAWN_USER(HttpStatus.UNAUTHORIZED, "탈퇴한 계정입니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 
     /**
      * 403 Forbidden (인가 필요)

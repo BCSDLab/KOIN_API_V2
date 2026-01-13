@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.article.model;
+package in.koreatech.koin.domain.community.article.model.filter;
 
 public enum LostItemFoundStatus {
 

@@ -6,12 +6,15 @@ import org.springframework.data.domain.PageRequest;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleSummary;
 import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemSortType;
 
 public interface LostItemArticleCustomRepository {
 
     LostItemArticleSummary getArticleSummary(Integer articleId);
 
-    Long countLostItemArticlesWithFilters(String type, Boolean isFound, Integer lostItemArticleBoardId);
+    Long countLostItemArticlesWithFilters(String type, Boolean isFound, String itemCategory,
+        Integer lostItemArticleBoardId, Integer authorId);
 
-    List<Article> findLostItemArticlesWithFilters(Integer boardId, String type, Boolean isFound, PageRequest pageRequest);
+    List<Article> findLostItemArticlesWithFilters(Integer boardId, String type, Boolean isFound,
+        String itemCategoryFilter, LostItemSortType sort, PageRequest pageRequest, Integer authorId);
 }

@@ -17,12 +17,16 @@ import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountR
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
-import in.koreatech.koin.domain.community.article.model.LostItemFoundStatus;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemSortType;
 import in.koreatech.koin.domain.community.article.service.LostItemArticleService;
 import in.koreatech.koin.domain.community.article.service.LostItemFoundService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -60,13 +64,17 @@ public class LostItemArticleController implements LostItemArticleApi {
 
     @GetMapping("/lost-item/v2")
     public ResponseEntity<LostItemArticlesResponse> getLostItemArticlesV2(
-        @RequestParam(required = false) String type,
+        @Parameter(description = "분실물 타입 (LOST: 분실물, FOUND: 습득물)") @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false, name = "category", defaultValue = "ALL") LostItemCategoryFilter itemCategory,
         @RequestParam(required = false, defaultValue = "ALL") LostItemFoundStatus foundStatus,
+        @RequestParam(required = false, name = "sort", defaultValue = "LATEST") LostItemSortType sort,
+        @RequestParam(required = false, name = "author", defaultValue = "ALL") LostItemAuthorFilter authorType,
         @UserId Integer userId
     ) {
-        LostItemArticlesResponse response = lostItemArticleService.getLostItemArticlesV2(type, page, limit, userId, foundStatus);
+        LostItemArticlesResponse response = lostItemArticleService.getLostItemArticlesV2(type, page, limit, userId,
+            foundStatus, itemCategory, sort, authorType);
         return ResponseEntity.ok().body(response);
     }
 
@@ -83,7 +91,8 @@ public class LostItemArticleController implements LostItemArticleApi {
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     ) {
-        LostItemArticleResponse response = lostItemArticleService.createLostItemArticle(studentId, lostItemArticlesRequest);
+        LostItemArticleResponse response = lostItemArticleService.createLostItemArticle(studentId,
+            lostItemArticlesRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

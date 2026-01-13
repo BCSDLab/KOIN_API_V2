@@ -18,7 +18,10 @@ import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountR
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
-import in.koreatech.koin.domain.community.article.model.LostItemFoundStatus;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemSortType;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.code.ApiResponseCodes;
@@ -66,28 +69,30 @@ public interface LostItemArticleApi {
         @UserId Integer userId
     );
 
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
+    @ApiResponseCodes({
+        OK,
+        UNAUTHORIZED_USER,
+    })
     @Operation(summary = "분실물 게시글 목록 조회 V2", description = """
         ### 분실물 게시글 목록 조회 V2 변경점
-        - Request Param 추가: foundStatus (ALL, FOUND, NOT_FOUND)
-          - ALL : 모든 분실물 게시글 조회 (Default)
-          - FOUND : '주인 찾음' 상태인 게시글 조회
-          - NOT_FOUND : '찾는 중' 상태인 게시글 조회
+        - Request Param 추가: foundStatus, category, sort, authorType
+        - 내 게시물 필터를 설정할 경우, 토큰을 포함하여 요청하지 않으면 401 응답이 반환됩니다
         """)
     @GetMapping("/lost-item/v2")
     ResponseEntity<LostItemArticlesResponse> getLostItemArticlesV2(
+        @Parameter(description = "분실물 타입 (LOST: 분실물, FOUND: 습득물)")
         @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false, name = "category", defaultValue = "ALL") LostItemCategoryFilter itemCategory,
+        @Parameter(description = "물품 상태 (ALL: 전체, FOUND: 찾음, NOT_FOUND: 찾는 중)")
         @RequestParam(required = false, defaultValue = "ALL") LostItemFoundStatus foundStatus,
+        @Parameter(description = "정렬 순서 (LATEST: 최신순(default), OLDEST: 오래된순)")
+        @RequestParam(required = false, defaultValue = "LATEST") LostItemSortType sort,
+        @Parameter(description = "내 게시물 (ALL: 전체, MY: 내 게시물)")
+        @RequestParam(required = false, name = "author", defaultValue = "ALL") LostItemAuthorFilter authorType,
         @UserId Integer userId
     );
-
 
     @ApiResponses(
         value = {

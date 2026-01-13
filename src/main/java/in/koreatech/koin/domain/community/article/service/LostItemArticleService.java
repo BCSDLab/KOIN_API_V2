@@ -21,7 +21,10 @@ import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
-import in.koreatech.koin.domain.community.article.model.LostItemFoundStatus;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemSortType;
 import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTracker;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
@@ -91,19 +94,27 @@ public class LostItemArticleService {
     }
 
     public LostItemArticlesResponse getLostItemArticlesV2(String type, Integer page, Integer limit, Integer userId,
-        LostItemFoundStatus foundStatus) {
+        LostItemFoundStatus foundStatus, LostItemCategoryFilter itemCategory, LostItemSortType sort,
+        LostItemAuthorFilter authorType) {
+        Integer authorIdFilter = authorType.getRequiredAuthorId(userId);
+
         Boolean foundStatusFilter = Optional.ofNullable(foundStatus)
             .map(LostItemFoundStatus::getQueryStatus)
             .orElse(null);
 
+        String itemCategoryFilter = Optional.ofNullable(itemCategory)
+            .filter(category -> category != LostItemCategoryFilter.ALL)
+            .map(LostItemCategoryFilter::getStatus)
+            .orElse(null);
+
         Long total = lostItemArticleRepository.countLostItemArticlesWithFilters(type, foundStatusFilter,
-            LOST_ITEM_BOARD_ID);
+            itemCategoryFilter, LOST_ITEM_BOARD_ID, authorIdFilter);
 
         Criteria criteria = Criteria.of(page, limit, total.intValue());
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
 
         List<Article> articles = lostItemArticleRepository.findLostItemArticlesWithFilters(LOST_ITEM_BOARD_ID, type,
-            foundStatusFilter, pageRequest);
+            foundStatusFilter, itemCategoryFilter, sort, pageRequest, authorIdFilter);
         Page<Article> articlePage = new PageImpl<>(articles, pageRequest, total);
 
         return LostItemArticlesResponse.of(articlePage, criteria, userId);
