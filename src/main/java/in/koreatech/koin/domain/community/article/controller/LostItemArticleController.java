@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountR
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
+import in.koreatech.koin.domain.community.article.dto.NotFoundLostItemArticleCountResponse;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
@@ -117,6 +118,12 @@ public class LostItemArticleController implements LostItemArticleApi {
     @GetMapping("/lost-item/found/count")
     public ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticlesCount() {
         FoundLostItemArticleCountResponse response = lostItemFoundService.countFoundArticles();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/lost-item/notfound/count")
+    public ResponseEntity<NotFoundLostItemArticleCountResponse> getNotFoundLostItemArticlesCount() {
+        NotFoundLostItemArticleCountResponse response = lostItemFoundService.countNotFoundArticles();
         return ResponseEntity.ok().body(response);
     }
 }

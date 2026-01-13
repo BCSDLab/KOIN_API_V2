@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountR
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
+import in.koreatech.koin.domain.community.article.dto.NotFoundLostItemArticleCountResponse;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
@@ -157,4 +158,11 @@ public interface LostItemArticleApi {
     @Operation(summary = "주인 찾음 상태인 분실물 게시글 총 개수 조회")
     @GetMapping("/lost-item/found/count")
     ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticlesCount();
+
+    @ApiResponseCodes({
+        OK
+    })
+    @Operation(summary = "주인 찾고 있음 상태인 분실물 게시글 총 개수 조회")
+    @GetMapping("/lost-item/notfound/count")
+    ResponseEntity<NotFoundLostItemArticleCountResponse> getNotFoundLostItemArticlesCount();
 }

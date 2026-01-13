@@ -23,8 +23,14 @@ public interface LostItemArticleRepository extends Repository<LostItemArticle, I
     }
 
     @Query(
-        value = "SELECT count(*) FROM lost_item_articles WHERE is_found = 1 AND is_deleted = 0",
+        value = "SELECT count(*) FROM lost_item_articles WHERE is_found = 1 AND is_deleted = 0 AND author_id is not null",
         nativeQuery = true
     )
     Integer getFoundLostItemArticleCount();
+
+    @Query(
+        value = "SELECT count(*) FROM lost_item_articles WHERE is_found = 0 AND is_deleted = 0 AND author_id is not null",
+        nativeQuery = true
+    )
+    Integer getNotFoundLostItemArticleCount();
 }
