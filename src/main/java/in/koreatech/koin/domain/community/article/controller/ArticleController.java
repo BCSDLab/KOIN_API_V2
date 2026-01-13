@@ -38,7 +38,6 @@ import lombok.RequiredArgsConstructor;
 public class ArticleController implements ArticleApi {
 
     private final ArticleService articleService;
-    private final LostItemFoundService lostItemFoundService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
@@ -80,88 +79,11 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok().body(foundArticles);
     }
 
-    @GetMapping("/lost-item/search")
-    public ResponseEntity<LostItemArticlesResponse> searchArticles(
-        @RequestParam String query,
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit,
-        @IpAddress String ipAddress,
-        @UserId Integer userId
-    ) {
-        LostItemArticlesResponse foundArticles = articleService.searchLostItemArticles(query, page, limit, ipAddress,
-            userId);
-        return ResponseEntity.ok().body(foundArticles);
-    }
-
     @GetMapping("/hot/keyword")
     public ResponseEntity<ArticleHotKeywordResponse> getArticlesHotKeyword(
         @RequestParam Integer count
     ) {
         ArticleHotKeywordResponse response = articleService.getArticlesHotKeyword(count);
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("/lost-item")
-    public ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
-        @RequestParam(required = false) String type,
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit,
-        @UserId Integer userId
-    ) {
-        LostItemArticlesResponse response = articleService.getLostItemArticles(type, page, limit, userId);
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("/lost-item/v2")
-    public ResponseEntity<LostItemArticlesResponse> getLostItemArticlesV2(
-        @RequestParam(required = false) String type,
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false, defaultValue = "ALL") LostItemFoundStatus foundStatus,
-        @UserId Integer userId
-    ) {
-        LostItemArticlesResponse response = articleService.getLostItemArticlesV2(type, page, limit, userId, foundStatus);
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("/lost-item/{id}")
-    public ResponseEntity<LostItemArticleResponse> getLostItemArticle(
-        @PathVariable("id") Integer articleId,
-        @UserId Integer userId
-    ) {
-        return ResponseEntity.ok().body(articleService.getLostItemArticle(articleId, userId));
-    }
-
-    @PostMapping("/lost-item")
-    public ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer studentId,
-        @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
-    ) {
-        LostItemArticleResponse response = articleService.createLostItemArticle(studentId, lostItemArticlesRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @DeleteMapping("/lost-item/{id}")
-    public ResponseEntity<Void> deleteLostItemArticle(
-        @PathVariable("id") Integer articleId,
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
-    ) {
-        articleService.deleteLostItemArticle(articleId, userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/lost-item/{id}/found")
-    public ResponseEntity<Void> markLostItemArticleAsFound(
-        @PathVariable("id") Integer articleId,
-        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
-    ) {
-        lostItemFoundService.markAsFound(userId, articleId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/lost-item/found/count")
-    public ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticlesCount() {
-        FoundLostItemArticleCountResponse response = lostItemFoundService.countFoundArticles();
         return ResponseEntity.ok().body(response);
     }
 }
