@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.community.article.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
-import static in.koreatech.koin.global.code.ApiResponseCode.OK;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
@@ -14,12 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
-import in.koreatech.koin.domain.community.article.dto.NotFoundLostItemArticleCountResponse;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
