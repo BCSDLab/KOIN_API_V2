@@ -97,8 +97,12 @@ public class LostItemArticleService {
 
     public LostItemArticlesResponse getLostItemArticlesV2(String type, Integer page, Integer limit, Integer userId,
         LostItemFoundStatus foundStatus, LostItemCategoryFilter itemCategory, LostItemSortType sort,
-        LostItemAuthorFilter authorType) {
+        LostItemAuthorFilter authorType,  String titleQuery) {
         Integer authorIdFilter = authorType.getRequiredAuthorId(userId);
+
+        String refinedTitleQuery = Optional.ofNullable(titleQuery)
+            .map(String::trim)
+            .orElse(null);
 
         Boolean foundStatusFilter = Optional.ofNullable(foundStatus)
             .map(LostItemFoundStatus::getQueryStatus)
@@ -110,13 +114,13 @@ public class LostItemArticleService {
             .orElse(null);
 
         Long total = lostItemArticleRepository.countLostItemArticlesWithFilters(type, foundStatusFilter,
-            itemCategoryFilter, LOST_ITEM_BOARD_ID, authorIdFilter);
+            itemCategoryFilter, LOST_ITEM_BOARD_ID, authorIdFilter, refinedTitleQuery);
 
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
 
         List<Article> articles = lostItemArticleRepository.findLostItemArticlesWithFilters(LOST_ITEM_BOARD_ID, type,
-            foundStatusFilter, itemCategoryFilter, sort, pageRequest, authorIdFilter);
+            foundStatusFilter, itemCategoryFilter, sort, pageRequest, authorIdFilter, refinedTitleQuery);
         Page<Article> articlePage = new PageImpl<>(articles, pageRequest, total);
 
         return LostItemArticlesResponse.of(articlePage, criteria, userId);

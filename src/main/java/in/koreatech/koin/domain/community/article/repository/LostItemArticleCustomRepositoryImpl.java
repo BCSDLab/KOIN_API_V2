@@ -39,8 +39,8 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
     }
 
     public Long countLostItemArticlesWithFilters(String type, Boolean isFound, String itemCategory,
-        Integer lostItemArticleBoardId, Integer authorId) {
-        BooleanExpression filter = getFilter(lostItemArticleBoardId, type, itemCategory, isFound, authorId);
+        Integer lostItemArticleBoardId, Integer authorId, String titleQuery) {
+        BooleanExpression filter = getFilter(lostItemArticleBoardId, type, itemCategory, isFound, authorId, titleQuery);
 
         return queryFactory
             .select(article.count())
@@ -51,9 +51,9 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
     }
 
     public List<Article> findLostItemArticlesWithFilters(Integer boardId, String type, Boolean isFound,
-        String itemCategory, LostItemSortType sort, PageRequest pageRequest, Integer authorId) {
+        String itemCategory, LostItemSortType sort, PageRequest pageRequest, Integer authorId, String titleQuery) {
 
-        BooleanExpression predicate = getFilter(boardId, type, itemCategory, isFound, authorId);
+        BooleanExpression predicate = getFilter(boardId, type, itemCategory, isFound, authorId, titleQuery);
         OrderSpecifier<?>[] orderSpecifiers = getOrderSpecifiers(sort);
 
         return queryFactory
@@ -67,7 +67,8 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             .fetch();
     }
 
-    private BooleanExpression getFilter(Integer boardId, String type, String itemCategory, Boolean isFound, Integer authorId) {
+    private BooleanExpression getFilter(Integer boardId, String type, String itemCategory, Boolean isFound,
+        Integer authorId, String titleQuery) {
         BooleanExpression filter = article.board.id.eq(boardId)
             .and(article.isDeleted.isFalse())
             .and(article.lostItemArticle.isNotNull());
@@ -86,6 +87,10 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
 
         if (authorId != null) {
             filter = filter.and(lostItemArticle.author.id.eq(authorId));
+        }
+
+        if (titleQuery != null && !titleQuery.isBlank()) {
+            filter = filter.and(article.title.containsIgnoreCase(titleQuery));
         }
 
         return filter;

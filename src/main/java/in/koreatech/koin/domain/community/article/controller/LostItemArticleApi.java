@@ -90,6 +90,8 @@ public interface LostItemArticleApi {
         @RequestParam(required = false, defaultValue = "LATEST") LostItemSortType sort,
         @Parameter(description = "내 게시물 (ALL: 전체, MY: 내 게시물)")
         @RequestParam(required = false, name = "author", defaultValue = "ALL") LostItemAuthorFilter authorType,
+        @Parameter(description = "게시글 제목")
+        @RequestParam(required = false) String query,
         @UserId Integer userId
     );
 
