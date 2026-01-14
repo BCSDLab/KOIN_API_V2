@@ -16,11 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
@@ -157,6 +159,20 @@ public class LostItemArticleService {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
         foundArticle.delete();
+    }
+
+    @Transactional(readOnly = true)
+    public LostItemArticleStatisticsResponse getLostItemArticlesStats() {
+        Integer foundCount = lostItemArticleRepository.getFoundLostItemArticleCount();
+        Integer notFoundCount = lostItemArticleRepository.getNotFoundLostItemArticleCount();
+        return new LostItemArticleStatisticsResponse(foundCount, notFoundCount);
+    }
+
+    @Transactional
+    public void markLostItemArticleAsFound(Integer userId, Integer articleId) {
+        LostItemArticle lostItemArticle = articleRepository.getById(articleId).getLostItemArticle();
+        lostItemArticle.checkOwnership(userId);
+        lostItemArticle.markAsFound();
     }
 
     private void setPrevNextArticle(Integer boardId, Article article) {

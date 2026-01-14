@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record NotFoundLostItemArticleCountResponse(
 
-    @Schema(description = "찾음 상태의 분실물 게시글 개수", example = "13", requiredMode = REQUIRED)
+    @Schema(description = "찾는 중 상태의 분실물 게시글 개수", example = "13", requiredMode = REQUIRED)
     Integer notFoundCount
 ) {
 }

@@ -13,17 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
-import in.koreatech.koin.domain.community.article.dto.NotFoundLostItemArticleCountResponse;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
-import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemSortType;
 import in.koreatech.koin.domain.community.article.service.LostItemArticleService;
-import in.koreatech.koin.domain.community.article.service.LostItemFoundService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
@@ -37,7 +35,6 @@ import lombok.RequiredArgsConstructor;
 public class LostItemArticleController implements LostItemArticleApi {
 
     private final LostItemArticleService lostItemArticleService;
-    private final LostItemFoundService lostItemFoundService;
 
     @GetMapping("/lost-item/search")
     public ResponseEntity<LostItemArticlesResponse> searchArticles(
@@ -111,19 +108,13 @@ public class LostItemArticleController implements LostItemArticleApi {
         @PathVariable("id") Integer articleId,
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     ) {
-        lostItemFoundService.markAsFound(userId, articleId);
+        lostItemArticleService.markLostItemArticleAsFound(userId, articleId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/lost-item/found/count")
-    public ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticlesCount() {
-        FoundLostItemArticleCountResponse response = lostItemFoundService.countFoundArticles();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("/lost-item/notfound/count")
-    public ResponseEntity<NotFoundLostItemArticleCountResponse> getNotFoundLostItemArticlesCount() {
-        NotFoundLostItemArticleCountResponse response = lostItemFoundService.countNotFoundArticles();
+    @GetMapping("/lost-item/stats")
+    public ResponseEntity<LostItemArticleStatisticsResponse> getLostItemArticlesStats() {
+        LostItemArticleStatisticsResponse response = lostItemArticleService.getLostItemArticlesStats();
         return ResponseEntity.ok().body(response);
     }
 }

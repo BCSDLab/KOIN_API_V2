@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.community.article.dto.FoundLostItemArticleCountResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.NotFoundLostItemArticleCountResponse;
@@ -155,14 +156,11 @@ public interface LostItemArticleApi {
     @ApiResponseCodes({
         OK
     })
-    @Operation(summary = "주인 찾음 상태인 분실물 게시글 총 개수 조회")
-    @GetMapping("/lost-item/found/count")
-    ResponseEntity<FoundLostItemArticleCountResponse> getFoundLostItemArticlesCount();
-
-    @ApiResponseCodes({
-        OK
-    })
-    @Operation(summary = "주인 찾고 있음 상태인 분실물 게시글 총 개수 조회")
-    @GetMapping("/lost-item/notfound/count")
-    ResponseEntity<NotFoundLostItemArticleCountResponse> getNotFoundLostItemArticlesCount();
+    @Operation(summary = "분실물 게시글 통계 조회", description = """
+        ### 분실물 게시글 통계 조회
+        - found_count : 주인 찾음 상태의 게시글 개수
+        - not_found_count : 주인 찾는 중 상태의 게시글 개수
+        """)
+    @GetMapping("/lost-item/stats")
+    ResponseEntity<LostItemArticleStatisticsResponse> getLostItemArticlesStats();
 }
