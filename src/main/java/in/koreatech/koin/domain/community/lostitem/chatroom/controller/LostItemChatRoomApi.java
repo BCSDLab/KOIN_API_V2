@@ -65,7 +65,7 @@ public interface LostItemChatRoomApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "채팅 상대방 탈퇴", summary = "채팅 상대방이 존재하지 않습니다.", value = """
                     {
-                      "message": "분실물 게시글 채팅방이 존재하지 않습니다.",
+                      "message": "채팅 상대방이 존재하지 않습니다.",
                       "errorTraceId": "123e4567-e89b-12d3-a456-426614174000",
                       "code": "NOT_FOUND_CHAT_PARTNER"
                     }
@@ -124,7 +124,7 @@ public interface LostItemChatRoomApi {
                     """),
                 @ExampleObject(name = "채팅 상대방 탈퇴", summary = "채팅 상대방이 존재하지 않습니다.", value = """
                     {
-                      "message": "분실물 게시글 채팅방이 존재하지 않습니다.",
+                      "message": "채팅 상대방이 존재하지 않습니다.",
                       "errorTraceId": "123e4567-e89b-12d3-a456-426614174000",
                       "code": "NOT_FOUND_CHAT_PARTNER"
                     }
