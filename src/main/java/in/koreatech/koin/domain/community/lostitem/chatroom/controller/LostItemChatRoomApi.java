@@ -61,6 +61,17 @@ public interface LostItemChatRoomApi {
                     """)
             })
         ),
+        @ApiResponse(responseCode = "404", description = "리소스 없음",
+            content = @Content(mediaType = "application/json", examples = {
+                @ExampleObject(name = "채팅 상대방 탈퇴", summary = "채팅 상대방이 존재하지 않습니다.", value = """
+                    {
+                      "message": "분실물 게시글 채팅방이 존재하지 않습니다.",
+                      "errorTraceId": "123e4567-e89b-12d3-a456-426614174000",
+                      "code": "NOT_FOUND_CHAT_PARTNER"
+                    }
+                    """)
+            })
+        )
     })
     @Operation(
         summary = "분실물 게시글에서 직접 채팅방 진입시 채팅방 데이터 생성, 필요한 데이터 반환",
@@ -109,6 +120,13 @@ public interface LostItemChatRoomApi {
                       "message": "분실물 게시글 채팅방이 존재하지 않습니다.",
                       "errorTraceId": "123e4567-e89b-12d3-a456-426614174000",
                       "code": "NOT_FOUND_LOST_ITEM_CHATROOM"
+                    }
+                    """),
+                @ExampleObject(name = "채팅 상대방 탈퇴", summary = "채팅 상대방이 존재하지 않습니다.", value = """
+                    {
+                      "message": "분실물 게시글 채팅방이 존재하지 않습니다.",
+                      "errorTraceId": "123e4567-e89b-12d3-a456-426614174000",
+                      "code": "NOT_FOUND_CHAT_PARTNER"
                     }
                     """)
             })

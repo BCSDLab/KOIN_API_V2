@@ -129,6 +129,7 @@ public enum ApiResponseCode {
     NOT_FOUND_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
     NOT_FOUND_COOP_SEMESTER(HttpStatus.NOT_FOUND, "해당 학기가 존재하지 않습니다."),
     NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST(HttpStatus.NOT_FOUND, "상점 서비스 전환 요청이 존재하지 않습니다."),
+    NOT_FOUND_CHAT_PARTNER(HttpStatus.NOT_FOUND, "채팅 상대방이 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)

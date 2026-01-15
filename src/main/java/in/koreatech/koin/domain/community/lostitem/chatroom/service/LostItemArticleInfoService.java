@@ -1,7 +1,10 @@
 package in.koreatech.koin.domain.community.lostitem.chatroom.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -31,6 +34,8 @@ public class LostItemArticleInfoService {
             () -> CustomException.of(ApiResponseCode.NOT_FOUND_ARTICLE)
         );
 
-        return lostItemArticle.getAuthor().getProfileImageUrl();
+        return Optional.ofNullable(lostItemArticle.getAuthor())
+            .map(User::getProfileImageUrl)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CHAT_PARTNER));
     }
 }
