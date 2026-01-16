@@ -6,17 +6,17 @@ import static in.koreatech.koin.domain.community.article.model.QLostItemImage.lo
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleSummary;
 import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemSortType;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -38,8 +38,9 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             .fetchFirst();
     }
 
-    public Long countLostItemArticlesWithFilters(String type, Boolean isFound, Integer lostItemArticleBoardId) {
-        BooleanExpression filter = getFilter(lostItemArticleBoardId, type, isFound);
+    public Long countLostItemArticlesWithFilters(String type, Boolean isFound, String itemCategory,
+        Integer lostItemArticleBoardId, Integer authorId, String titleQuery) {
+        BooleanExpression filter = getFilter(lostItemArticleBoardId, type, itemCategory, isFound, authorId, titleQuery);
 
         return queryFactory
             .select(article.count())
@@ -49,23 +50,25 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             .fetchOne();
     }
 
-    public List<Article> findLostItemArticlesWithFilters(
-        Integer boardId, String type, Boolean isFound, PageRequest pageRequest) {
+    public List<Article> findLostItemArticlesWithFilters(Integer boardId, String type, Boolean isFound,
+        String itemCategory, LostItemSortType sort, PageRequest pageRequest, Integer authorId, String titleQuery) {
 
-        BooleanExpression predicate = getFilter(boardId, type, isFound);
+        BooleanExpression predicate = getFilter(boardId, type, itemCategory, isFound, authorId, titleQuery);
+        OrderSpecifier<?>[] orderSpecifiers = getOrderSpecifiers(sort);
 
         return queryFactory
             .selectFrom(article)
             .leftJoin(article.lostItemArticle, lostItemArticle).fetchJoin()
             .leftJoin(lostItemArticle.author).fetchJoin()
             .where(predicate)
-            .orderBy(article.createdAt.desc(), article.id.desc())
+            .orderBy(orderSpecifiers)
             .offset(pageRequest.getOffset())
             .limit(pageRequest.getPageSize())
             .fetch();
     }
 
-    private BooleanExpression getFilter(Integer boardId, String type, Boolean isFound) {
+    private BooleanExpression getFilter(Integer boardId, String type, String itemCategory, Boolean isFound,
+        Integer authorId, String titleQuery) {
         BooleanExpression filter = article.board.id.eq(boardId)
             .and(article.isDeleted.isFalse())
             .and(article.lostItemArticle.isNotNull());
@@ -78,6 +81,32 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             filter = filter.and(lostItemArticle.isFound.eq(isFound));
         }
 
+        if (itemCategory != null && !itemCategory.isBlank()) {
+            filter = filter.and(lostItemArticle.category.eq(itemCategory));
+        }
+
+        if (authorId != null) {
+            filter = filter.and(lostItemArticle.author.id.eq(authorId));
+        }
+
+        if (titleQuery != null && !titleQuery.isBlank()) {
+            filter = filter.and(article.title.containsIgnoreCase(titleQuery));
+        }
+
         return filter;
+    }
+
+    private OrderSpecifier<?>[] getOrderSpecifiers(LostItemSortType sort) {
+        if (sort == LostItemSortType.OLDEST) {
+            return new OrderSpecifier[] {
+                article.createdAt.asc(),
+                article.id.asc()
+            };
+        }
+
+        return new OrderSpecifier[] {
+            article.createdAt.desc(),
+            article.id.desc()
+        };
     }
 }

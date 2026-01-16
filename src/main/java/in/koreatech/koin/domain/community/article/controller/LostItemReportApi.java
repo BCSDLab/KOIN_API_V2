@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "(Normal) Articles: 게시글", description = "게시글 정보를 관리한다")
+@Tag(name = "(Normal) LostItem Articles: 분실물 게시글", description = "분실물 게시글 정보를 관리한다")
 public interface LostItemReportApi {
 
     @Operation(summary = "분실물 게시글 신고하기")
