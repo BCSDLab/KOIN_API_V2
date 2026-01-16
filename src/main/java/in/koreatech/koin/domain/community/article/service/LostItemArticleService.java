@@ -40,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class LostItemArticleService {
 
     public static final int LOST_ITEM_BOARD_ID = 14;
@@ -165,7 +166,6 @@ public class LostItemArticleService {
         foundArticle.delete();
     }
 
-    @Transactional(readOnly = true)
     public LostItemArticleStatisticsResponse getLostItemArticlesStats() {
         Integer foundCount = lostItemArticleRepository.getFoundLostItemArticleCount();
         Integer notFoundCount = lostItemArticleRepository.getNotFoundLostItemArticleCount();

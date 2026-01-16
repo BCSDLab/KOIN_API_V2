@@ -69,11 +69,11 @@ public class LostItemArticleController implements LostItemArticleApi {
         @RequestParam(required = false, defaultValue = "ALL") LostItemFoundStatus foundStatus,
         @RequestParam(required = false, name = "sort", defaultValue = "LATEST") LostItemSortType sort,
         @RequestParam(required = false, name = "author", defaultValue = "ALL") LostItemAuthorFilter authorType,
-        @RequestParam(required = false, name = "title") String query,
+        @RequestParam(required = false, name = "title") String title,
         @UserId Integer userId
     ) {
         LostItemArticlesResponse response = lostItemArticleService.getLostItemArticlesV2(type, page, limit, userId,
-            foundStatus, itemCategory, sort, authorType, query);
+            foundStatus, itemCategory, sort, authorType, title);
         return ResponseEntity.ok().body(response);
     }
 

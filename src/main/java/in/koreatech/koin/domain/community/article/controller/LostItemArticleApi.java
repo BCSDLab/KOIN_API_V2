@@ -91,7 +91,7 @@ public interface LostItemArticleApi {
         @Parameter(description = "내 게시물 (ALL: 전체, MY: 내 게시물)")
         @RequestParam(required = false, name = "author", defaultValue = "ALL") LostItemAuthorFilter authorType,
         @Parameter(description = "게시글 제목")
-        @RequestParam(required = false) String query,
+        @RequestParam(required = false) String title,
         @UserId Integer userId
     );
 
@@ -120,7 +120,7 @@ public interface LostItemArticleApi {
     @Operation(summary = "분실물 게시글 등록")
     @PostMapping("/lost-item")
     ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     );
 
@@ -137,7 +137,7 @@ public interface LostItemArticleApi {
     @DeleteMapping("/lost-item/{id}")
     ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
-        @Auth(permit = {STUDENT, COUNCIL}) Integer councilId
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer councilId
     );
 
     @ApiResponseCodes({
