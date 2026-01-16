@@ -34,8 +34,8 @@ public class LostItemArticleInfoService {
             () -> CustomException.of(ApiResponseCode.NOT_FOUND_ARTICLE)
         );
 
-        return Optional.ofNullable(lostItemArticle.getAuthor())
-            .map(User::getProfileImageUrl)
+        User author = Optional.ofNullable(lostItemArticle.getAuthor())
             .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_CHAT_PARTNER));
+        return author.getProfileImageUrl();
     }
 }
