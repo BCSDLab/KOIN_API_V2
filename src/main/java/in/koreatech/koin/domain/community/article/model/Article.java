@@ -288,4 +288,14 @@ public class Article extends BaseEntity {
     private static String getValidatedFoundPlace(String foundPlace) {
         return (foundPlace == null || foundPlace.isBlank()) ? "장소 미상" : foundPlace;
     }
+
+    public void updateTitle(String title) {
+        if (title != null && !title.isBlank()) {
+            this.title = title;
+        }
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }

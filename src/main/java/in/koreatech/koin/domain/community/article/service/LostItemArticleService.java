@@ -17,6 +17,7 @@ import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleUpdateRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
@@ -177,6 +178,24 @@ public class LostItemArticleService {
         LostItemArticle lostItemArticle = articleRepository.getById(articleId).getLostItemArticle();
         lostItemArticle.checkOwnership(userId);
         lostItemArticle.markAsFound();
+    }
+
+    @Transactional
+    public LostItemArticleResponse updateLostItemArticle(Integer userId, Integer articleId, LostItemArticleUpdateRequest request) {
+        LostItemArticle lostItemArticle = lostItemArticleRepository.getByArticleId(articleId);
+        lostItemArticle.checkOwnership(userId);
+
+        lostItemArticle.update(
+            request.category(),
+            request.foundPlace(),
+            request.foundDate(),
+            request.content()
+        );
+
+        lostItemArticle.deleteImages(request.deleteImageIds());
+        lostItemArticle.addNewImages(request.newImages());
+
+        return LostItemArticleResponse.of(lostItemArticle.getArticle(), true);
     }
 
     private void setPrevNextArticle(Integer boardId, Article article) {
