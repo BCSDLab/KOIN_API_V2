@@ -3,9 +3,11 @@ package in.koreatech.koin.domain.community.article.service;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
@@ -21,15 +24,14 @@ import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.model.KeywordRankingManager;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
 import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTracker;
-import in.koreatech.koin.domain.community.article.model.KeywordRankingManager;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
 
@@ -49,7 +51,6 @@ public class ArticleService {
     private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
         Sort.Order.desc("id")
     );
-
 
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
@@ -95,31 +96,58 @@ public class ArticleService {
 
     public List<HotArticleItemResponse> getHotArticles() {
         List<Integer> hotArticlesIds = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT);
-        List<Article> articles = articleRepository.findAllForHotArticlesByIdInExcludingBoardId(
+        List<Article> cachedArticles = articleRepository.findAllForHotArticlesByIdInExcludingBoardId(
             hotArticlesIds,
             LOST_ITEM_BOARD_ID
         );
 
-        Map<Integer, Article> articleMap = articles.stream()
+        Map<Integer, Article> articleMap = cachedArticles.stream()
             .collect(Collectors.toMap(Article::getId, article -> article));
 
-        List<Article> cacheList = new ArrayList<>(hotArticlesIds.stream()
-            .map(articleMap::get)
-            .filter(Objects::nonNull)
-            .toList());
+        List<Article> result = new ArrayList<>(HOT_ARTICLE_LIMIT);
+        Set<Integer> seen = new HashSet<>(HOT_ARTICLE_LIMIT * 2);
 
-        if (cacheList.size() < HOT_ARTICLE_LIMIT) {
+        for (Integer id : hotArticlesIds) {
+            Article article = articleMap.get(id);
+
+            if (article == null) {
+                continue;
+            }
+
+            if (seen.add(article.getId())) {
+                result.add(article);
+
+                if (result.size() == HOT_ARTICLE_LIMIT) {
+                    break;
+                }
+            }
+        }
+
+        if (result.size() < HOT_ARTICLE_LIMIT) {
             List<Article> highestHitArticles = articleRepository.findMostHitArticlesExcludingBoardId(
                 LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS),
                 PageRequest.of(0, HOT_ARTICLE_LIMIT),
                 LOST_ITEM_BOARD_ID
             );
-            cacheList.addAll(highestHitArticles);
-            return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
-                .map(HotArticleItemResponse::from)
-                .toList();
+
+            for (Article article : highestHitArticles) {
+                if (article == null) {
+                    continue;
+                }
+
+                if (seen.add(article.getId())) {
+                    result.add(article);
+
+                    if (result.size() == HOT_ARTICLE_LIMIT) {
+                        break;
+                    }
+                }
+            }
         }
-        return cacheList.stream().map(HotArticleItemResponse::from).toList();
+
+        return result.stream()
+            .map(HotArticleItemResponse::from)
+            .toList();
     }
 
     @Transactional
