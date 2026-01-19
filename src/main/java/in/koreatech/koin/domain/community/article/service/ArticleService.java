@@ -39,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 public class ArticleService {
 
     public static final int NOTICE_BOARD_ID = 4;
+    public static final int LOST_ITEM_BOARD_ID = 14;
     private static final int HOT_ARTICLE_BEFORE_DAYS = 30;
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
@@ -75,11 +76,13 @@ public class ArticleService {
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
-        Long total = articleRepository.countBy();
+        Long total = boardId == null
+            ? articleRepository.countByBoardIdNot(LOST_ITEM_BOARD_ID)
+            : articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         if (boardId == null) {
-            Page<Article> articles = articleRepository.findAll(pageRequest);
+            Page<Article> articles = articleRepository.findAllByBoardIdNot(LOST_ITEM_BOARD_ID, pageRequest);
             return ArticlesResponse.of(articles, criteria, userId);
         }
         if (boardId == NOTICE_BOARD_ID) {
@@ -92,7 +95,10 @@ public class ArticleService {
 
     public List<HotArticleItemResponse> getHotArticles() {
         List<Integer> hotArticlesIds = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT);
-        List<Article> articles = articleRepository.findAllForHotArticlesByIdIn(hotArticlesIds);
+        List<Article> articles = articleRepository.findAllForHotArticlesByIdInExcludingBoardId(
+            hotArticlesIds,
+            LOST_ITEM_BOARD_ID
+        );
 
         Map<Integer, Article> articleMap = articles.stream()
             .collect(Collectors.toMap(Article::getId, article -> article));
@@ -103,9 +109,10 @@ public class ArticleService {
             .toList());
 
         if (cacheList.size() < HOT_ARTICLE_LIMIT) {
-            List<Article> highestHitArticles = articleRepository.findMostHitArticles(
+            List<Article> highestHitArticles = articleRepository.findMostHitArticlesExcludingBoardId(
                 LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS),
-                PageRequest.of(0, HOT_ARTICLE_LIMIT)
+                PageRequest.of(0, HOT_ARTICLE_LIMIT),
+                LOST_ITEM_BOARD_ID
             );
             cacheList.addAll(highestHitArticles);
             return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
@@ -123,7 +130,7 @@ public class ArticleService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
         Page<Article> articles;
         if (boardId == null) {
-            articles = articleRepository.findAllByTitleContaining(query, pageRequest);
+            articles = articleRepository.findAllByTitleContainingExcludingBoardId(query, LOST_ITEM_BOARD_ID, pageRequest);
         } else if (boardId == NOTICE_BOARD_ID) {
             articles = articleRepository.findAllByIsNoticeIsTrueAndTitleContaining(query, pageRequest);
         } else {
