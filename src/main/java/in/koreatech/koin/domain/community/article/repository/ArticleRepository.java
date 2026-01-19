@@ -77,8 +77,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByBoardIdAndTitleContaining(@Param("boardId") Integer boardId, @Param("query") String query, Pageable pageable);
 
     @Query(
-        value = "SELECT * FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND board_id != :excludedBoardId AND is_deleted = false",
-        countQuery = "SELECT count(*) FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND board_id != :excludedBoardId AND is_deleted = false",
+        value = "SELECT * FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND board_id <> :excludedBoardId AND is_deleted = false",
+        countQuery = "SELECT count(*) FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND board_id <> :excludedBoardId AND is_deleted = false",
         nativeQuery = true
     )
     Page<Article> findAllByTitleContainingExcludingBoardId(@Param("query") String query,
