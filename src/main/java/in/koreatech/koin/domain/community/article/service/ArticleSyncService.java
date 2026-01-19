@@ -53,7 +53,10 @@ public class ArticleSyncService {
         List<ArticleHit> articleHits = articleHitRepository.findAll();
         articleHitRepository.deleteAll();
         List<Article> allArticles =
-            articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS));
+            articleRepository.findAllByRegisteredAtIsAfterExcludingBoardId(
+                LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS),
+                ArticleService.LOST_ITEM_BOARD_ID
+            );
         articleHitRepository.saveAll(allArticles.stream().map(ArticleHit::from).toList());
 
         Map<Integer, Integer> articlesIdWithHit = new HashMap<>();
