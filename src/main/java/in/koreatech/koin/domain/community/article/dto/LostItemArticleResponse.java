@@ -82,6 +82,7 @@ public record LostItemArticleResponse(
             isMine,
             lostItemArticle.getIsFound(),
             lostItemArticle.getImages().stream()
+                .filter(image -> !image.getIsDeleted())
                 .map(InnerLostItemImageResponse::from)
                 .toList(),
             article.getPrevId(),

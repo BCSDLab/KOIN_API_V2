@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleUpdateRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
@@ -44,8 +46,8 @@ public class LostItemArticleController implements LostItemArticleApi {
         @IpAddress String ipAddress,
         @UserId Integer userId
     ) {
-        LostItemArticlesResponse foundArticles = lostItemArticleService.searchLostItemArticles(query, page, limit, ipAddress,
-            userId);
+        LostItemArticlesResponse foundArticles = lostItemArticleService.searchLostItemArticles(query, page, limit,
+            ipAddress, userId);
         return ResponseEntity.ok().body(foundArticles);
     }
 
@@ -93,6 +95,16 @@ public class LostItemArticleController implements LostItemArticleApi {
         LostItemArticleResponse response = lostItemArticleService.createLostItemArticle(studentId,
             lostItemArticlesRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping("/lost-item/{id}")
+    public ResponseEntity<LostItemArticleResponse> updateLostItemArticle(
+        @PathVariable("id") Integer articleId,
+        @RequestBody @Valid LostItemArticleUpdateRequest lostItemArticleUpdateRequest,
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
+    ) {
+        return ResponseEntity.ok()
+            .body(lostItemArticleService.updateLostItemArticle(userId, articleId, lostItemArticleUpdateRequest));
     }
 
     @DeleteMapping("/lost-item/{id}")
