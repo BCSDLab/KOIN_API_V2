@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleUpdateRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
@@ -122,6 +124,33 @@ public interface LostItemArticleApi {
     ResponseEntity<LostItemArticleResponse> createLostItemArticle(
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
+    );
+
+    @ApiResponseCodes({
+        OK,
+        UNAUTHORIZED_USER,
+        CANNOT_UPDATE_FOUND_ITEM,
+        NOT_FOUND_IMAGE,
+        FORBIDDEN_AUTHOR,
+    })
+    @Operation(summary = "분실물 게시글 수정", description = """
+        ### 분실물 게시글 수정 API
+        - category: 신분증, 카드, 지갑, 전자제품, 그 외
+        - new_images: 새로 추가할 이미지 링크
+        - delete_image_ids: 삭제할 이미지 id
+        
+        ### 예외
+        - UNAUTHORIZED_USER : 인증 토큰 누락
+        - CANNOT_UPDATE_FOUND_ITEM : 찾음 상태인 게시글은 수정할 수 없음
+        - NOT_FOUND_IMAGE : 게시글에 이미지가 없는 경우
+        - FORBIDDEN_AUTHOR : 게시글 작성자가 아닌 경우
+        """)
+    @PutMapping("/lost-item/{id}")
+    ResponseEntity<LostItemArticleResponse> updateLostItemArticle(
+        @Parameter(description = "게시글 Id")
+        @PathVariable("id") Integer articleId,
+        @RequestBody @Valid LostItemArticleUpdateRequest lostItemArticleUpdateRequest,
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
