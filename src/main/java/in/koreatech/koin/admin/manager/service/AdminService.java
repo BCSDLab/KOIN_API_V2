@@ -46,7 +46,7 @@ public class AdminService {
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
-        if (!admin.isCanCreateAdmin() || !admin.isSuperAdmin()) {
+        if (!admin.isSuperAdmin()) {
             throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
 
@@ -109,7 +109,7 @@ public class AdminService {
     @Transactional
     public void adminAuthenticate(AdminAuthenticationStatusUpdateRequest request, Integer id, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
-        if (!admin.isCanCreateAdmin() || !admin.isSuperAdmin()) {
+        if (!admin.isSuperAdmin()) {
             throw new AuthorizationException("어드민 승인 권한이 없습니다.");
         }
 
@@ -133,6 +133,6 @@ public class AdminService {
             throw new AuthorizationException("슈퍼 어드민 권한이 없습니다.");
         }
 
-        adminRepository.getById(id).updatePermission(request.canCreateAdmin(), request.superAdmin());
+        adminRepository.getById(id).updatePermission(request.superAdmin());
     }
 }
