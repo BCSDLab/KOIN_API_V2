@@ -49,7 +49,13 @@ public interface AdminApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "어드민 회원가입")
+    @Operation(summary = "어드민 회원가입", description = """
+        ### track_name
+        - ANDROID, BACKEND, FRONTEND, GAME, PM, PL, DESIGN, IOS, DA, SECURITY
+
+        ### team_name
+        - KOIN, BUSINESS, CAMPUS, USER
+        """)
     @PostMapping("/admin")
     ResponseEntity<Void> createAdmin(
         @RequestBody @Valid CreateAdminRequest request,
