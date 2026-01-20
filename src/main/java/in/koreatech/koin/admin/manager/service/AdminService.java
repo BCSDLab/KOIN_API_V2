@@ -123,7 +123,7 @@ public class AdminService {
         User user = admin.getUser();
 
         user.updateName(request.name());
-        admin.updateTeamTrack(request.teamType(), request.trackType());
+        admin.updateTrack(request.trackType());
     }
 
     @Transactional

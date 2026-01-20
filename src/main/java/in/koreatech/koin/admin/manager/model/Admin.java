@@ -82,8 +82,7 @@ public class Admin {
         this.user = user;
     }
 
-    public void updateTeamTrack(TeamType teamName, TrackType trackName) {
-        this.teamType = teamName;
+    public void updateTrack(TrackType trackName) {
         this.trackType = trackName;
     }
 

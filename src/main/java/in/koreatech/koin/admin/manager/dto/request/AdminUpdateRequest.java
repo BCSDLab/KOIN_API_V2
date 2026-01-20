@@ -6,7 +6,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.manager.enums.TeamType;
 import in.koreatech.koin.admin.manager.enums.TrackType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -21,11 +20,6 @@ public record AdminUpdateRequest(
     @Schema(description = "트랙 타입", example = "BACKEND", requiredMode = REQUIRED)
     @NotNull(message = "트랙 타입은 필수 입력 사항입니다.")
     @JsonProperty(value = "track_name")
-    TrackType trackType,
-
-    @Schema(description = "팀 타입", example = "USER", requiredMode = REQUIRED)
-    @NotNull(message = "팀 타입은 필수 입력 사항입니다.")
-    @JsonProperty(value = "team_name")
-    TeamType teamType
+    TrackType trackType
 ) {
 }
