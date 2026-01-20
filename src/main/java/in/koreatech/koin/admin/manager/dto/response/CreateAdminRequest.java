@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.admin.manager.enums.TeamType;
@@ -34,10 +35,12 @@ public record CreateAdminRequest(
 
     @Schema(description = "트랙 타입", example = "BACKEND", requiredMode = REQUIRED)
     @NotNull(message = "트랙 타입을 입력해주세요.")
+    @JsonProperty(value = "track_name")
     TrackType trackType,
 
     @Schema(description = "팀 타입", example = "USER", requiredMode = REQUIRED)
     @NotNull(message = "팀 타입을 입력해주세요.")
+    @JsonProperty(value = "team_name")
     TeamType teamType
 ) {
 
