@@ -45,7 +45,7 @@ public record CreateAdminRequest(
             .loginPw(passwordEncoder.encode(password))
             .name(name)
             .userType(ADMIN)
-            .isAuthed(false)
+            .isAuthed(true)
             .isDeleted(false)
             .build();
 
