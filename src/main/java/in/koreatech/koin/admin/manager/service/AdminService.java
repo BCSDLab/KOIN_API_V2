@@ -108,7 +108,7 @@ public class AdminService {
     @Transactional
     public void adminAuthenticate(Integer id, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
-        if (!admin.isSuperAdmin()) {
+        if (!admin.isCanCreateAdmin() || !admin.isSuperAdmin()) {
             throw new AuthorizationException("어드민 승인 권한이 없습니다.");
         }
 
