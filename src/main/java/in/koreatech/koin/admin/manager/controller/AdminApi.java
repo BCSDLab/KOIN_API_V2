@@ -14,6 +14,7 @@ import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.manager.dto.request.AdminAuthenticationStatusUpdateRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminLoginRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPermissionUpdateRequest;
@@ -184,6 +185,7 @@ public interface AdminApi {
     @PutMapping("/admin/{id}/authed")
     @AdminActivityLogging(domain = DomainType.ADMIN, domainIdParam = "id")
     ResponseEntity<Void> adminAuthenticate(
+        @RequestBody @Valid AdminAuthenticationStatusUpdateRequest request,
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     );

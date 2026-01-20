@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.admin.manager.dto.request.AdminAuthenticationStatusUpdateRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminLoginRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPermissionUpdateRequest;
@@ -106,14 +107,14 @@ public class AdminService {
     }
 
     @Transactional
-    public void adminAuthenticate(Integer id, Integer adminId) {
+    public void adminAuthenticate(AdminAuthenticationStatusUpdateRequest request, Integer id, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
         if (!admin.isCanCreateAdmin() || !admin.isSuperAdmin()) {
             throw new AuthorizationException("어드민 승인 권한이 없습니다.");
         }
 
         User user = adminRepository.getById(id).getUser();
-        user.permitAuth();
+        user.updateAuthenticationStatus(request.isAuthed());
     }
 
     @Transactional
