@@ -266,4 +266,23 @@ public class SlackNotificationFactory {
                 """, creatorName, creatorId, newAdminName, newAdminId))
             .build();
     }
+
+    /**
+     * 코인 어드민 인증 상태 변경 알림
+     */
+    public SlackNotification generateAdminAuthenticationStatusChangeSendNotification(
+        String changedByAdminId,
+        String changedByAdminName,
+        String targetAdminId,
+        String targetAdminName,
+        Boolean isAuthed
+    ) {
+        String action = isAuthed ? "활성화" : "비활성화";
+        return SlackNotification.builder()
+            .slackUrl(eventNotificationUrl)
+            .text(String.format("""
+                `%s(%s)님이 %s(%s) 어드민 계정을 %s했습니다.`
+                """, changedByAdminName, changedByAdminId, targetAdminName, targetAdminId, action))
+            .build();
+    }
 }

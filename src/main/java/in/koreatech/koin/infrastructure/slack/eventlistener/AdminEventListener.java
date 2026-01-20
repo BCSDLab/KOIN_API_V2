@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import in.koreatech.koin.common.event.AdminAuthenticationStatusChangeEvent;
 import in.koreatech.koin.common.event.AdminRegisterEvent;
 import in.koreatech.koin.infrastructure.slack.client.SlackClient;
 import in.koreatech.koin.infrastructure.slack.model.SlackNotificationFactory;
@@ -26,6 +27,19 @@ public class AdminEventListener {
             event.creatorName(),
             event.newAdminId(),
             event.newAdminName()
+        );
+        slackClient.sendMessage(notification);
+    }
+
+    @Async
+    @TransactionalEventListener
+    public void onAdminAuthenticationStatusChangeEvent(AdminAuthenticationStatusChangeEvent event) {
+        var notification = slackNotificationFactory.generateAdminAuthenticationStatusChangeSendNotification(
+            event.changedByAdminId(),
+            event.changedByAdminName(),
+            event.targetAdminId(),
+            event.targetAdminName(),
+            event.isAuthed()
         );
         slackClient.sendMessage(notification);
     }

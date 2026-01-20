@@ -25,6 +25,7 @@ import in.koreatech.koin.admin.manager.dto.response.CreateAdminRequest;
 import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.admin.manager.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.common.event.AdminAuthenticationStatusChangeEvent;
 import in.koreatech.koin.common.event.AdminRegisterEvent;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.user.model.User;
@@ -122,8 +123,17 @@ public class AdminService {
             throw new AuthorizationException("어드민 승인 권한이 없습니다.");
         }
 
-        User user = adminRepository.getById(id).getUser();
+        Admin targetAdmin = adminRepository.getById(id);
+        User user = targetAdmin.getUser();
         user.updateAuthenticationStatus(request.isAuthed());
+
+        applicationEventPublisher.publishEvent(new AdminAuthenticationStatusChangeEvent(
+            admin.getLoginId(),
+            admin.getUser().getName(),
+            targetAdmin.getLoginId(),
+            targetAdmin.getUser().getName(),
+            request.isAuthed()
+        ));
     }
 
     @Transactional
