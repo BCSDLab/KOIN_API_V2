@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.manager.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ import in.koreatech.koin.admin.manager.dto.response.CreateAdminRequest;
 import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.admin.manager.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.common.event.AdminRegisterEvent;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
@@ -42,6 +44,7 @@ public class AdminService {
     private final AdminValidation adminValidation;
     private final RefreshTokenService refreshTokenService;
     private final AdminUserRepository adminUserRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
@@ -53,6 +56,12 @@ public class AdminService {
         adminValidation.validateEmailForAdminCreated(request.email());
         Admin savedAdmin = adminRepository.save(request.toAdmin(passwordEncoder));
 
+        applicationEventPublisher.publishEvent(new AdminRegisterEvent(
+            admin.getLoginId(),
+            admin.getUser().getName(),
+            savedAdmin.getLoginId(),
+            savedAdmin.getUser().getName()
+        ));
         return AdminResponse.from(savedAdmin);
     }
 
