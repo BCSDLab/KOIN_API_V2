@@ -42,16 +42,8 @@ public class Admin {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "team_type", nullable = false)
-    private TeamType teamType;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "track_type", nullable = false)
     private TrackType trackType;
-
-    @Column(name = "can_create_admin", columnDefinition = "TINYINT")
-    private boolean canCreateAdmin = false;
 
     @Column(name = "super_admin", columnDefinition = "TINYINT")
     private boolean superAdmin = false;
@@ -60,6 +52,16 @@ public class Admin {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    // 레거시 필드
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "team_type", nullable = false)
+    private TeamType teamType;
+
+    @Column(name = "can_create_admin", columnDefinition = "TINYINT")
+    private boolean canCreateAdmin = false;
 
     @Builder
     private Admin(
