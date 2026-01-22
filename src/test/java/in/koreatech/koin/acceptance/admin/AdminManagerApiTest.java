@@ -163,8 +163,7 @@ public class AdminManagerApiTest extends AcceptanceTest {
                           "email": "koin01234@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
-                          "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "track_name": "BACKEND"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -185,8 +184,7 @@ public class AdminManagerApiTest extends AcceptanceTest {
                           "email": "koin12345@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
-                          "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "track_name": "BACKEND"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -207,8 +205,7 @@ public class AdminManagerApiTest extends AcceptanceTest {
                           "account": "admin123456@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
-                          "track_type": "BACKEND",
-                          "team_type": "USER"
+                          "track_name": "BACKEND"
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -234,8 +231,6 @@ public class AdminManagerApiTest extends AcceptanceTest {
                     "email": "koinadmin1@koreatech.ac.kr",
                     "name": "테스트용_코인운영자",
                     "track_name": "Backend",
-                    "team_name": "Business",
-                    "can_create_admin": false,
                     "super_admin": false
                 }
                 """, admin1.getId())));
@@ -265,27 +260,21 @@ public class AdminManagerApiTest extends AcceptanceTest {
                       "id": %d,
                       "email": "juno@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
-                      "team_name": "User",
                       "track_name": "Backend",
-                      "can_create_admin": true,
                       "super_admin": true
                     },
                     {
                       "id": %d,
                       "email": "koinadmin1@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
-                      "team_name": "Business",
                       "track_name": "Backend",
-                      "can_create_admin": false,
                       "super_admin": false
                     },
                     {
                       "id": %d,
                       "email": "koinadmin2@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
-                      "team_name": "Campus",
                       "track_name": "Backend",
-                      "can_create_admin": true,
                       "super_admin": false
                     }
                   ]
@@ -302,6 +291,12 @@ public class AdminManagerApiTest extends AcceptanceTest {
         mockMvc.perform(
                 put("/admin/{id}/authed", admin1.getId())
                     .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "is_authed": true
+                        }
+                        """)
             )
             .andExpect(status().isOk());
 
@@ -310,15 +305,24 @@ public class AdminManagerApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 관리자가_관리자_계정_권한을_승인한다() throws Exception {
-        Admin admin = userFixture.영희_운영자();
+    void 슈퍼_관리자가_관리자_계정_권한을_비활성화한다() throws Exception {
+        Admin admin = userFixture.코인_운영자();
         String token = userFixture.getToken(admin.getUser());
         Admin admin1 = userFixture.진구_운영자();
 
         mockMvc.perform(
                 put("/admin/{id}/authed", admin1.getId())
                     .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "is_authed": false
+                        }
+                        """)
             )
-            .andExpect(status().isForbidden());
+            .andExpect(status().isOk());
+
+        Admin updateAdmin = adminRepository.getById(admin1.getId());
+        assertThat(updateAdmin.getUser().isAuthed()).isFalse();
     }
 }
