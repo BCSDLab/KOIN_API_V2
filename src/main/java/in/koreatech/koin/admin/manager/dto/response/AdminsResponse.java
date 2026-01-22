@@ -46,7 +46,10 @@ public record AdminsResponse(
         String trackName,
 
         @Schema(description = "슈퍼 어드민 권한", example = "false", requiredMode = REQUIRED)
-        Boolean superAdmin
+        Boolean superAdmin,
+
+        @Schema(description = "활성화 여부", example = "true", requiredMode = REQUIRED)
+        Boolean isAuthed
     ) {
         public static InnerAdminsResponse from(Admin admin) {
             User user = admin.getUser();
@@ -56,7 +59,8 @@ public record AdminsResponse(
                 admin.getEmail(),
                 user.getName(),
                 admin.getTrackType().getValue(),
-                admin.isSuperAdmin()
+                admin.isSuperAdmin(),
+                user.isAuthed()
             );
         }
     }
