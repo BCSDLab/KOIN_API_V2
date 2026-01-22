@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponseV2;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleUpdateRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
@@ -85,6 +86,14 @@ public class LostItemArticleController implements LostItemArticleApi {
         @UserId Integer userId
     ) {
         return ResponseEntity.ok().body(lostItemArticleService.getLostItemArticle(articleId, userId));
+    }
+
+    @GetMapping("/lost-item/v2/{id}")
+    public ResponseEntity<LostItemArticleResponseV2> getLostItemArticleV2(
+        @PathVariable("id") Integer articleId,
+        @UserId Integer userId
+    ) {
+        return ResponseEntity.ok().body(lostItemArticleService.getLostItemArticleV2(articleId, userId));
     }
 
     @PostMapping("/lost-item")

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponseV2;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleUpdateRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
@@ -106,6 +107,24 @@ public interface LostItemArticleApi {
     @Operation(summary = "분실물 게시글 단건 조회")
     @GetMapping("/lost-item/{id}")
     ResponseEntity<LostItemArticleResponse> getLostItemArticle(
+        @Parameter(in = PATH) @PathVariable("id") Integer articleId,
+        @UserId Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "분실물 게시글 단건 조회 V2", description = """
+        ### V2 변경점
+        - `is_council` 필드 제거
+        - `organization` 객체 추가 (단체 정보)
+          - 일반 유저 게시글인 경우 `organization: null`
+        """)
+    @GetMapping("/lost-item/v2/{id}")
+    ResponseEntity<LostItemArticleResponseV2> getLostItemArticleV2(
         @Parameter(in = PATH) @PathVariable("id") Integer articleId,
         @UserId Integer userId
     );

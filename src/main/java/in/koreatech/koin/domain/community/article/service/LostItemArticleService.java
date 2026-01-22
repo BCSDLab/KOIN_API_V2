@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponseV2;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleStatisticsResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleUpdateRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
@@ -33,6 +34,8 @@ import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
+import in.koreatech.koin.domain.organization.model.Organization;
+import in.koreatech.koin.domain.organization.repository.OrganizationRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
@@ -58,6 +61,7 @@ public class LostItemArticleService {
     private final LostItemArticleRepository lostItemArticleRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
     private final PopularKeywordTracker popularKeywordTracker;
     private final ApplicationEventPublisher eventPublisher;
     private final KeywordExtractor keywordExtractor;
@@ -139,6 +143,25 @@ public class LostItemArticleService {
         }
 
         return LostItemArticleResponse.of(article, isMine);
+    }
+
+    public LostItemArticleResponseV2 getLostItemArticleV2(Integer articleId, Integer userId) {
+        Article article = articleRepository.getById(articleId);
+        setPrevNextArticle(LOST_ITEM_BOARD_ID, article);
+
+        LostItemArticle lostItemArticle = article.getLostItemArticle();
+        User author = lostItemArticle.getAuthor();
+
+        boolean isMine = author != null && Objects.equals(author.getId(), userId);
+
+        Organization organization = null;
+        if (author != null) {
+            organization = organizationRepository
+                .findByUserIdAndIsDeletedFalse(author.getId())
+                .orElse(null);
+        }
+
+        return LostItemArticleResponseV2.of(article, isMine, organization);
     }
 
     @Transactional
