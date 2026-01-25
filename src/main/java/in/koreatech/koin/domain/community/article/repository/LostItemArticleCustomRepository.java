@@ -12,9 +12,9 @@ public interface LostItemArticleCustomRepository {
 
     LostItemArticleSummary getArticleSummary(Integer articleId);
 
-    Long countLostItemArticlesWithFilters(String type, Boolean isFound, String itemCategory,
+    Long countLostItemArticlesWithFilters(String type, Boolean isFound, List<String> itemCategories,
         Integer lostItemArticleBoardId, Integer authorId, String titleQuery);
 
     List<Article> findLostItemArticlesWithFilters(Integer boardId, String type, Boolean isFound,
-        String itemCategoryFilter, LostItemSortType sort, PageRequest pageRequest, Integer authorId, String titleQuery);
+        List<String> itemCategories, LostItemSortType sort, PageRequest pageRequest, Integer authorId, String titleQuery);
 }
