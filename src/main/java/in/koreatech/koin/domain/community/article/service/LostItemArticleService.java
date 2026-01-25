@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -102,7 +103,7 @@ public class LostItemArticleService {
     }
 
     public LostItemArticlesResponse getLostItemArticlesV2(String type, Integer page, Integer limit, Integer userId,
-        LostItemFoundStatus foundStatus, LostItemCategoryFilter itemCategory, LostItemSortType sort,
+        LostItemFoundStatus foundStatus, List<LostItemCategoryFilter> itemCategories, LostItemSortType sort,
         LostItemAuthorFilter authorType,  String titleQuery) {
         Integer authorIdFilter = authorType.getRequiredAuthorId(userId);
 
@@ -114,19 +115,23 @@ public class LostItemArticleService {
             .map(LostItemFoundStatus::getQueryStatus)
             .orElse(null);
 
-        String itemCategoryFilter = Optional.ofNullable(itemCategory)
-            .filter(category -> category != LostItemCategoryFilter.ALL)
-            .map(LostItemCategoryFilter::getStatus)
+        List<String> itemCategoryFilters = Optional.ofNullable(itemCategories)
+            .filter(categories -> !categories.isEmpty())
+            .filter(categories -> !categories.contains(LostItemCategoryFilter.ALL))
+            .map(categories -> categories.stream()
+                .map(LostItemCategoryFilter::getStatus)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()))
             .orElse(null);
 
         Long total = lostItemArticleRepository.countLostItemArticlesWithFilters(type, foundStatusFilter,
-            itemCategoryFilter, LOST_ITEM_BOARD_ID, authorIdFilter, refinedTitleQuery);
+            itemCategoryFilters, LOST_ITEM_BOARD_ID, authorIdFilter, refinedTitleQuery);
 
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
 
         List<Article> articles = lostItemArticleRepository.findLostItemArticlesWithFilters(LOST_ITEM_BOARD_ID, type,
-            foundStatusFilter, itemCategoryFilter, sort, pageRequest, authorIdFilter, refinedTitleQuery);
+            foundStatusFilter, itemCategoryFilters, sort, pageRequest, authorIdFilter, refinedTitleQuery);
         Page<Article> articlePage = new PageImpl<>(articles, pageRequest, total);
 
         return LostItemArticlesResponse.of(articlePage, criteria, userId);

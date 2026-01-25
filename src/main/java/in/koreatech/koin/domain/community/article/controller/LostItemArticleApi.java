@@ -4,6 +4,8 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -86,7 +88,8 @@ public interface LostItemArticleApi {
         @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false, name = "category", defaultValue = "ALL") LostItemCategoryFilter itemCategory,
+        @Parameter(description = "카테고리 (복수 선택 가능, 미선택 시 전체)")
+        @RequestParam(required = false, name = "category") List<LostItemCategoryFilter> itemCategories,
         @Parameter(description = "물품 상태 (ALL: 전체, FOUND: 찾음, NOT_FOUND: 찾는 중)")
         @RequestParam(required = false, defaultValue = "ALL") LostItemFoundStatus foundStatus,
         @Parameter(description = "정렬 순서 (LATEST: 최신순(default), OLDEST: 오래된순)")

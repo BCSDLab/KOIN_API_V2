@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.community.article.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -68,7 +70,7 @@ public class LostItemArticleController implements LostItemArticleApi {
         @Parameter(description = "분실물 타입 (LOST: 분실물, FOUND: 습득물)") @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false, name = "category", defaultValue = "ALL") LostItemCategoryFilter itemCategory,
+        @RequestParam(required = false, name = "category") List<LostItemCategoryFilter> itemCategories,
         @RequestParam(required = false, defaultValue = "ALL") LostItemFoundStatus foundStatus,
         @RequestParam(required = false, name = "sort", defaultValue = "LATEST") LostItemSortType sort,
         @RequestParam(required = false, name = "author", defaultValue = "ALL") LostItemAuthorFilter authorType,
@@ -76,7 +78,7 @@ public class LostItemArticleController implements LostItemArticleApi {
         @UserId Integer userId
     ) {
         LostItemArticlesResponse response = lostItemArticleService.getLostItemArticlesV2(type, page, limit, userId,
-            foundStatus, itemCategory, sort, authorType, title);
+            foundStatus, itemCategories, sort, authorType, title);
         return ResponseEntity.ok().body(response);
     }
 

@@ -38,9 +38,9 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             .fetchFirst();
     }
 
-    public Long countLostItemArticlesWithFilters(String type, Boolean isFound, String itemCategory,
+    public Long countLostItemArticlesWithFilters(String type, Boolean isFound, List<String> itemCategories,
         Integer lostItemArticleBoardId, Integer authorId, String titleQuery) {
-        BooleanExpression filter = getFilter(lostItemArticleBoardId, type, itemCategory, isFound, authorId, titleQuery);
+        BooleanExpression filter = getFilter(lostItemArticleBoardId, type, itemCategories, isFound, authorId, titleQuery);
 
         return queryFactory
             .select(article.count())
@@ -51,9 +51,9 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
     }
 
     public List<Article> findLostItemArticlesWithFilters(Integer boardId, String type, Boolean isFound,
-        String itemCategory, LostItemSortType sort, PageRequest pageRequest, Integer authorId, String titleQuery) {
+        List<String> itemCategories, LostItemSortType sort, PageRequest pageRequest, Integer authorId, String titleQuery) {
 
-        BooleanExpression predicate = getFilter(boardId, type, itemCategory, isFound, authorId, titleQuery);
+        BooleanExpression predicate = getFilter(boardId, type, itemCategories, isFound, authorId, titleQuery);
         OrderSpecifier<?>[] orderSpecifiers = getOrderSpecifiers(sort);
 
         return queryFactory
@@ -67,7 +67,7 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             .fetch();
     }
 
-    private BooleanExpression getFilter(Integer boardId, String type, String itemCategory, Boolean isFound,
+    private BooleanExpression getFilter(Integer boardId, String type, List<String> itemCategories, Boolean isFound,
         Integer authorId, String titleQuery) {
         BooleanExpression filter = article.board.id.eq(boardId)
             .and(article.isDeleted.isFalse())
@@ -81,8 +81,8 @@ public class LostItemArticleCustomRepositoryImpl implements LostItemArticleCusto
             filter = filter.and(lostItemArticle.isFound.eq(isFound));
         }
 
-        if (itemCategory != null && !itemCategory.isBlank()) {
-            filter = filter.and(lostItemArticle.category.eq(itemCategory));
+        if (itemCategories != null && !itemCategories.isEmpty()) {
+            filter = filter.and(lostItemArticle.category.in(itemCategories));
         }
 
         if (authorId != null) {
