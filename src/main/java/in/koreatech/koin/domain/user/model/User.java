@@ -195,6 +195,10 @@ public class User extends BaseEntity {
         this.isAuthed = true;
     }
 
+    public void updateAuthenticationStatus(boolean isAuthed) {
+        this.isAuthed = isAuthed;
+    }
+
     public void permitNotification(String deviceToken) {
         this.deviceToken = deviceToken;
     }

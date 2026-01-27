@@ -176,4 +176,69 @@ public class LostItemArticle extends BaseEntity {
         this.isFound = true;
         this.foundAt = LocalDateTime.now();
     }
+
+    public void update(String category, String foundPlace, LocalDate foundDate, String content) {
+        validateNotFound();
+        this.category = category;
+        this.foundPlace = foundPlace;
+        this.foundDate = foundDate;
+        updateArticleTitle();
+        updateArticleContent(content);
+    }
+
+    private void validateNotFound() {
+        if (this.isFound) {
+            throw CustomException.of(ApiResponseCode.CANNOT_UPDATE_FOUND_ITEM);
+        }
+    }
+
+    private void updateArticleTitle() {
+        if (this.article != null) {
+            String newTitle = generateTitle();
+            this.article.updateTitle(newTitle);
+        }
+    }
+
+    private void updateArticleContent(String content) {
+        if (this.article != null && content != null) {
+            this.article.updateContent(content);
+        }
+    }
+
+    public void addNewImages(List<String> imageUrls) {
+        if (imageUrls == null || imageUrls.isEmpty()) {
+            return;
+        }
+
+        List<LostItemImage> newImages = imageUrls.stream()
+            .map(url -> {
+                LostItemImage image = LostItemImage.builder()
+                    .imageUrl(url)
+                    .isDeleted(false)
+                    .build();
+                image.setArticle(this);
+                return image;
+            })
+            .toList();
+
+        this.images.addAll(newImages);
+    }
+
+    public void deleteImages(List<Integer> imageIds) {
+        if (imageIds == null || imageIds.isEmpty()) {
+            return;
+        }
+
+        imageIds.forEach(imageId -> {
+            LostItemImage image = findImageById(imageId);
+            image.delete();
+        });
+    }
+
+    private LostItemImage findImageById(Integer imageId) {
+        return this.images.stream()
+            .filter(image -> Objects.equals(image.getId(), imageId))
+            .findFirst()
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_IMAGE));
+    }
 }

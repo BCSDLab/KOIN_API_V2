@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.manager.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
+import in.koreatech.koin.admin.manager.dto.request.AdminAuthenticationStatusUpdateRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminLoginRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.manager.dto.request.AdminPermissionUpdateRequest;
@@ -23,6 +25,8 @@ import in.koreatech.koin.admin.manager.dto.response.CreateAdminRequest;
 import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.admin.manager.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.common.event.AdminAuthenticationStatusChangeEvent;
+import in.koreatech.koin.common.event.AdminRegisterEvent;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
@@ -41,17 +45,24 @@ public class AdminService {
     private final AdminValidation adminValidation;
     private final RefreshTokenService refreshTokenService;
     private final AdminUserRepository adminUserRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
-        if (!admin.isCanCreateAdmin() || !admin.isSuperAdmin()) {
+        if (!admin.isSuperAdmin()) {
             throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
 
         adminValidation.validateEmailForAdminCreated(request.email());
         Admin savedAdmin = adminRepository.save(request.toAdmin(passwordEncoder));
 
+        applicationEventPublisher.publishEvent(new AdminRegisterEvent(
+            admin.getLoginId(),
+            admin.getUser().getName(),
+            savedAdmin.getLoginId(),
+            savedAdmin.getUser().getName()
+        ));
         return AdminResponse.from(savedAdmin);
     }
 
@@ -106,14 +117,23 @@ public class AdminService {
     }
 
     @Transactional
-    public void adminAuthenticate(Integer id, Integer adminId) {
+    public void adminAuthenticate(AdminAuthenticationStatusUpdateRequest request, Integer id, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
         if (!admin.isSuperAdmin()) {
             throw new AuthorizationException("어드민 승인 권한이 없습니다.");
         }
 
-        User user = adminRepository.getById(id).getUser();
-        user.permitAuth();
+        Admin targetAdmin = adminRepository.getById(id);
+        User user = targetAdmin.getUser();
+        user.updateAuthenticationStatus(request.isAuthed());
+
+        applicationEventPublisher.publishEvent(new AdminAuthenticationStatusChangeEvent(
+            admin.getLoginId(),
+            admin.getUser().getName(),
+            targetAdmin.getLoginId(),
+            targetAdmin.getUser().getName(),
+            request.isAuthed()
+        ));
     }
 
     @Transactional
@@ -122,7 +142,7 @@ public class AdminService {
         User user = admin.getUser();
 
         user.updateName(request.name());
-        admin.updateTeamTrack(request.teamType(), request.trackType());
+        admin.updateTrack(request.trackType());
     }
 
     @Transactional
@@ -132,6 +152,6 @@ public class AdminService {
             throw new AuthorizationException("슈퍼 어드민 권한이 없습니다.");
         }
 
-        adminRepository.getById(id).updatePermission(request.canCreateAdmin(), request.superAdmin());
+        adminRepository.getById(id).updatePermission(request.superAdmin());
     }
 }

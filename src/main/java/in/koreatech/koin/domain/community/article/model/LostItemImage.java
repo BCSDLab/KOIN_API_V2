@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.article.model;
 
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +21,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "lost_item_images", schema = "koin")
+@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LostItemImage extends BaseEntity {
 

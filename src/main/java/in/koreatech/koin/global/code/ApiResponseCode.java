@@ -83,11 +83,13 @@ public enum ApiResponseCode {
     INVALID_NODE_INFO_END_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 끝 위치가 아닙니다."),
     INVALID_SEMESTER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 학기 형식입니다."),
     INVALID_DETAIL_SUBSCRIBE_TYPE(HttpStatus.BAD_REQUEST, "세부 구독 타입이 구독 타입에 속하지 않습니다."),
+    CANNOT_UPDATE_FOUND_ITEM(HttpStatus.BAD_REQUEST, "이미 찾은 물건의 정보를 수정할 수 없습니다"),
 
     /**
      * 401 Unauthorized (인증 필요)
      */
     WITHDRAWN_USER(HttpStatus.UNAUTHORIZED, "탈퇴한 계정입니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 
     /**
      * 403 Forbidden (인가 필요)
@@ -129,6 +131,8 @@ public enum ApiResponseCode {
     NOT_FOUND_SHOP(HttpStatus.NOT_FOUND, "상점이 존재하지 않습니다."),
     NOT_FOUND_COOP_SEMESTER(HttpStatus.NOT_FOUND, "해당 학기가 존재하지 않습니다."),
     NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST(HttpStatus.NOT_FOUND, "상점 서비스 전환 요청이 존재하지 않습니다."),
+    NOT_FOUND_CHAT_PARTNER(HttpStatus.NOT_FOUND, "채팅 상대방이 존재하지 않습니다."),
+    NOT_FOUND_IMAGE(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다"),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)

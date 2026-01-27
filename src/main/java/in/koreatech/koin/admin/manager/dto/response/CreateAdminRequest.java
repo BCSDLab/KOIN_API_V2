@@ -1,14 +1,15 @@
 package in.koreatech.koin.admin.manager.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin.admin.manager.enums.TeamType.KOIN;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.manager.enums.TeamType;
 import in.koreatech.koin.admin.manager.enums.TrackType;
 import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.user.model.User;
@@ -34,11 +35,8 @@ public record CreateAdminRequest(
 
     @Schema(description = "트랙 타입", example = "BACKEND", requiredMode = REQUIRED)
     @NotNull(message = "트랙 타입을 입력해주세요.")
-    TrackType trackType,
-
-    @Schema(description = "팀 타입", example = "USER", requiredMode = REQUIRED)
-    @NotNull(message = "팀 타입을 입력해주세요.")
-    TeamType teamType
+    @JsonProperty(value = "track_name")
+    TrackType trackType
 ) {
 
     public Admin toAdmin(PasswordEncoder passwordEncoder) {
@@ -47,7 +45,7 @@ public record CreateAdminRequest(
             .loginPw(passwordEncoder.encode(password))
             .name(name)
             .userType(ADMIN)
-            .isAuthed(false)
+            .isAuthed(true)
             .isDeleted(false)
             .build();
 
@@ -55,7 +53,7 @@ public record CreateAdminRequest(
             .email(email)
             .loginId(loginId)
             .trackType(trackType)
-            .teamType(teamType)
+            .teamType(KOIN)
             .user(user)
             .build();
     }

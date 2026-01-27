@@ -13,10 +13,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.model.LostItemImage;
+import in.koreatech.koin.domain.organization.model.Organization;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record LostItemArticleResponse(
+public record LostItemArticleResponseV2(
     @Schema(description = "게시글 id", example = "17368", requiredMode = REQUIRED)
     Integer id,
 
@@ -41,10 +42,10 @@ public record LostItemArticleResponse(
     @Schema(description = "작성자", example = "총학생회", requiredMode = REQUIRED)
     String author,
 
-    @Schema(description = "총학생회 여부", example = "1", requiredMode = NOT_REQUIRED)
-    Boolean isCouncil,
+    @Schema(description = "단체 정보 (일반 유저인 경우 null)", requiredMode = NOT_REQUIRED)
+    InnerOrganizationResponse organization,
 
-    @Schema(description = "내 게시글 여부", example = "1", requiredMode = NOT_REQUIRED)
+    @Schema(description = "내 게시글 여부", example = "true", requiredMode = NOT_REQUIRED)
     Boolean isMine,
 
     @Schema(description = "분실물 게시글 찾음 상태 여부", example = "false", requiredMode = REQUIRED)
@@ -66,10 +67,10 @@ public record LostItemArticleResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static LostItemArticleResponse of(Article article, Boolean isMine) {
+    public static LostItemArticleResponseV2 of(Article article, Boolean isMine, Organization organization) {
         LostItemArticle lostItemArticle = article.getLostItemArticle();
 
-        return new LostItemArticleResponse(
+        return new LostItemArticleResponseV2(
             article.getId(),
             article.getBoard().getId(),
             lostItemArticle.getType(),
@@ -78,7 +79,7 @@ public record LostItemArticleResponse(
             lostItemArticle.getFoundDate(),
             article.getContent(),
             article.getAuthor(),
-            lostItemArticle.getIsCouncil(),
+            organization != null ? InnerOrganizationResponse.from(organization) : null,
             isMine,
             lostItemArticle.getIsFound(),
             lostItemArticle.getImages().stream()
@@ -93,11 +94,27 @@ public record LostItemArticleResponse(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
+    public record InnerOrganizationResponse(
+        @Schema(description = "단체명", example = "총학생회", requiredMode = REQUIRED)
+        String name,
+
+        @Schema(description = "방문 장소", example = "학생회관 320호 총학생회 사무실로 방문", requiredMode = REQUIRED)
+        String location
+    ) {
+        public static InnerOrganizationResponse from(Organization organization) {
+            return new InnerOrganizationResponse(
+                organization.getName(),
+                organization.getLocation()
+            );
+        }
+    }
+
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerLostItemImageResponse(
         @Schema(description = "분실물 이미지 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(description = "이미지 Url", example = "https://api.koreatech.in/image.jpg\"", requiredMode = REQUIRED)
+        @Schema(description = "이미지 Url", example = "https://api.koreatech.in/image.jpg", requiredMode = REQUIRED)
         String imageUrl
     ) {
         public static InnerLostItemImageResponse from(LostItemImage lostItemImage) {

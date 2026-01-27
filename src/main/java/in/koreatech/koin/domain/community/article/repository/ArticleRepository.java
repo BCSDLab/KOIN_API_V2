@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.repository;
 
+import static in.koreatech.koin.domain.community.article.service.ArticleService.LOST_ITEM_BOARD_ID;
 import static in.koreatech.koin.domain.community.article.service.ArticleService.NOTICE_BOARD_ID;
 
 import java.time.LocalDate;
@@ -29,6 +30,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Page<Article> findAll(Pageable pageable);
 
+    Page<Article> findAllByBoardIdNot(Integer boardId, PageRequest pageRequest);
+
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
     Page<Article> findAllByIdIn(List<Integer> articleIds, PageRequest pageRequest);
@@ -43,8 +46,10 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         LEFT JOIN FETCH l.author
         LEFT JOIN FETCH a.koinNotice
         WHERE a.id IN :ids
+        AND a.board.id <> :excludedBoardId
         """)
-    List<Article> findAllForHotArticlesByIdIn(List<Integer> ids);
+    List<Article> findAllForHotArticlesByIdInExcludingBoardId(@Param("ids") List<Integer> ids,
+        @Param("excludedBoardId") Integer excludedBoardId);
 
     default Article getById(Integer articleId) {
         Article found = findById(articleId)
@@ -72,11 +77,12 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByBoardIdAndTitleContaining(@Param("boardId") Integer boardId, @Param("query") String query, Pageable pageable);
 
     @Query(
-        value = "SELECT * FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
-        countQuery = "SELECT count(*) FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
+        value = "SELECT * FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND board_id <> :excludedBoardId AND is_deleted = false",
+        countQuery = "SELECT count(*) FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND board_id <> :excludedBoardId AND is_deleted = false",
         nativeQuery = true
     )
-    Page<Article> findAllByTitleContaining(@Param("query") String query, Pageable pageable);
+    Page<Article> findAllByTitleContainingExcludingBoardId(@Param("query") String query,
+        @Param("excludedBoardId") Integer excludedBoardId, Pageable pageable);
 
     @Query(
         value = "SELECT * FROM new_articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
@@ -86,6 +92,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByIsNoticeIsTrueAndTitleContaining(@Param("query") String query, Pageable pageable);
 
     Long countBy();
+
+    Long countByBoardIdNot(Integer boardId);
 
     @Query(value = "SELECT * FROM new_articles a "
         + "WHERE a.id < :articleId AND a.is_notice = true AND a.is_deleted = false "
@@ -98,9 +106,10 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Optional<Article> findPreviousArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
     @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.is_deleted = false "
+        + "WHERE a.id < :articleId AND a.board_id <> :excludedBoardId AND a.is_deleted = false "
         + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
-    Optional<Article> findPreviousAllArticle(@Param("articleId") Integer articleId);
+    Optional<Article> findPreviousAllArticle(@Param("articleId") Integer articleId,
+        @Param("excludedBoardId") Integer excludedBoardId);
 
     @Query(value = "SELECT * FROM new_articles a "
         + "WHERE a.id > :articleId AND a.is_notice = true AND a.is_deleted = false "
@@ -113,9 +122,10 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Optional<Article> findNextArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
     @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.is_deleted = false "
+        + "WHERE a.id > :articleId AND a.board_id <> :excludedBoardId AND a.is_deleted = false "
         + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
-    Optional<Article> findNextAllArticle(@Param("articleId") Integer articleId);
+    Optional<Article> findNextAllArticle(@Param("articleId") Integer articleId,
+        @Param("excludedBoardId") Integer excludedBoardId);
 
     default Article getPreviousArticle(Board board, Article article) {
         if (board.isNotice() && board.getId().equals(NOTICE_BOARD_ID)) {
@@ -125,7 +135,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     }
 
     default Article getPreviousAllArticle(Article article) {
-        return findPreviousAllArticle(article.getId()).orElse(null);
+        return findPreviousAllArticle(article.getId(), LOST_ITEM_BOARD_ID).orElse(null);
     }
 
     default Article getNextArticle(Board board, Article article) {
@@ -136,7 +146,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     }
 
     default Article getNextAllArticle(Article article) {
-        return findNextAllArticle(article.getId()).orElse(null);
+        return findNextAllArticle(article.getId(), LOST_ITEM_BOARD_ID).orElse(null);
     }
 
     @Query("""
@@ -152,9 +162,11 @@ public interface ArticleRepository extends Repository<Article, Integer> {
                 OR (ka IS NULL AND a.createdAt > :registeredAt)
             )
             AND a.isDeleted = false
+            AND a.board.id <> :excludedBoardId
             ORDER BY (a.hit + COALESCE(ka.portalHit, 0)) DESC, a.id DESC
         """)
-    List<Article> findMostHitArticles(LocalDate registeredAt, Pageable pageable);
+    List<Article> findMostHitArticlesExcludingBoardId(@Param("registeredAt") LocalDate registeredAt,
+        Pageable pageable, @Param("excludedBoardId") Integer excludedBoardId);
 
     @Query(value = "SELECT a.* FROM new_articles a "
         + "LEFT JOIN new_koreatech_articles ka ON ka.article_id = a.id "
@@ -162,8 +174,10 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         + "    (ka.article_id IS NOT NULL AND ka.registered_at > :registeredAt) "
         + "    OR (ka.article_id IS NULL AND a.created_at > :registeredAt) "
         + ") "
+        + "AND a.board_id <> :excludedBoardId "
         + "AND a.is_deleted = false ", nativeQuery = true)
-    List<Article> findAllByRegisteredAtIsAfter(LocalDate registeredAt);
+    List<Article> findAllByRegisteredAtIsAfterExcludingBoardId(@Param("registeredAt") LocalDate registeredAt,
+        @Param("excludedBoardId") Integer excludedBoardId);
 
     @Query("SELECT a.title FROM Article a WHERE a.id = :id")
     String getTitleById(@Param("id") Integer id);
