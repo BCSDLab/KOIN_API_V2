@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) LostItemChat: 분실물 쪽지 Polling", description = "분실물 쪽지 Polling 채팅 관리")
-@RequestMapping("/chatroom/v2")
+@RequestMapping("/v2/chatroom/")
 public interface ChatMessagePollingApi {
 
     @ApiResponseCodes({

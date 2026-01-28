@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/chatroom/v2")
+@RequestMapping("/v2/chatroom/")
 public class ChatMessagePollingController implements ChatMessagePollingApi {
 
     private final ChatMessagePollingService chatMessagePollingService;
