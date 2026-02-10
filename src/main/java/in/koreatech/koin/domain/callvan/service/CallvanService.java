@@ -8,6 +8,7 @@ import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanChatRoom;
 import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanRole;
 import in.koreatech.koin.domain.callvan.repository.CallvanChatRoomRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
@@ -33,13 +34,16 @@ public class CallvanService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_USER));
 
+        validateLocation(request.departureType(), request.departureCustomName());
+        validateLocation(request.arrivalType(), request.arrivalCustomName());
+
         CallvanPost callvanPost = CallvanPost.builder()
                 .author(user)
                 .title(generateTitle(request))
                 .departureType(request.departureType())
-                .departureCustomName(request.departureCustomName())
+                .departureCustomName(getLocationName(request.departureType(), request.departureCustomName()))
                 .arrivalType(request.arrivalType())
-                .arrivalCustomName(request.arrivalCustomName())
+                .arrivalCustomName(getLocationName(request.arrivalType(), request.arrivalCustomName()))
                 .departureDate(request.departureDate())
                 .departureTime(request.departureTime())
                 .maxParticipants(request.maxParticipants())
@@ -62,15 +66,25 @@ public class CallvanService {
         return CallvanPostCreateResponse.from(callvanPost);
     }
 
+    private void validateLocation(CallvanLocation type, String customName) {
+        if (type != CallvanLocation.CUSTOM && customName != null && !customName.isBlank()) {
+            throw CustomException.of(ApiResponseCode.INVALID_CUSTOM_LOCATION_NAME);
+        }
+        if (type == CallvanLocation.CUSTOM && (customName == null || customName.isBlank())) {
+            throw CustomException.of(ApiResponseCode.INVALID_CUSTOM_LOCATION_NAME);
+        }
+    }
+
+    private String getLocationName(CallvanLocation type, String customName) {
+        if (type == CallvanLocation.CUSTOM) {
+            return customName;
+        }
+        return type.getName();
+    }
+
     private String generateTitle(CallvanPostCreateRequest request) {
-        String departure = request.departureType().getName();
-        if (request.departureCustomName() != null && !request.departureCustomName().isBlank()) {
-            departure = request.departureCustomName();
-        }
-        String arrival = request.arrivalType().getName();
-        if (request.arrivalCustomName() != null && !request.arrivalCustomName().isBlank()) {
-            arrival = request.arrivalCustomName();
-        }
+        String departure = getLocationName(request.departureType(), request.departureCustomName());
+        String arrival = getLocationName(request.arrivalType(), request.arrivalCustomName());
         return String.format("%s -> %s", departure, arrival);
     }
 
