@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.callvan.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -26,9 +27,11 @@ public record CallvanPostSearchResponse(
     Integer totalPage
 ) {
     public static CallvanPostSearchResponse of(List<CallvanPost> posts, Long totalCount, Integer currentPage,
-        Integer totalPage) {
+        Integer totalPage, Set<Integer> joinedPostIds, Integer userId) {
         return new CallvanPostSearchResponse(
-            posts.stream().map(CallvanPostResponse::from).toList(),
+            posts.stream()
+                .map(post -> CallvanPostResponse.from(post, joinedPostIds.contains(post.getId()), userId))
+                .toList(),
             totalCount,
             currentPage,
             totalPage
@@ -50,10 +53,12 @@ public record CallvanPostSearchResponse(
         String arrival,
 
         @Schema(description = "출발 날짜", example = "2024-03-24")
-        @JsonFormat(pattern = "yyyy-MM-dd") LocalDate departureDate,
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        LocalDate departureDate,
 
         @Schema(description = "출발 시간", example = "14:00")
-        @JsonFormat(pattern = "HH:mm") LocalTime departureTime,
+        @JsonFormat(pattern = "HH:mm")
+        LocalTime departureTime,
 
         @Schema(description = "작성자 닉네임", example = "코인")
         String authorNickname,
@@ -65,9 +70,15 @@ public record CallvanPostSearchResponse(
         Integer maxParticipants,
 
         @Schema(description = "모집 상태", example = "RECRUITING")
-        String status)
-    {
-        public static CallvanPostResponse from(CallvanPost post) {
+        String status,
+
+        @Schema(description = "참여 여부", example = "true")
+        Boolean isJoined,
+
+        @Schema(description = "작성자 여부", example = "true")
+        Boolean isAuthor
+    ) {
+        public static CallvanPostResponse from(CallvanPost post, boolean isJoined, Integer userId) {
             String departureName = post.getDepartureType().getName();
             if (post.getDepartureCustomName() != null && !post.getDepartureCustomName().isBlank()) {
                 departureName = post.getDepartureCustomName();
@@ -88,7 +99,9 @@ public record CallvanPostSearchResponse(
                 post.getAuthor().getNickname(),
                 post.getCurrentParticipants(),
                 post.getMaxParticipants(),
-                post.getStatus().name());
+                post.getStatus().name(),
+                isJoined,
+                post.getAuthor().getId().equals(userId));
         }
     }
 }
