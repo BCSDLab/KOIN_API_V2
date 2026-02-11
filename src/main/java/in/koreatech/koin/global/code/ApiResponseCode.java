@@ -87,6 +87,8 @@ public enum ApiResponseCode {
     CANNOT_UPDATE_FOUND_ITEM(HttpStatus.BAD_REQUEST, "이미 찾은 물건의 정보를 수정할 수 없습니다"),
     CALLVAN_POST_NOT_RECRUITING(HttpStatus.BAD_REQUEST, "모집 중인 게시글이 아닙니다."),
     CALLVAN_POST_FULL(HttpStatus.BAD_REQUEST, "참여 인원이 가득 찼습니다."),
+    CALLVAN_POST_REOPEN_FAILED_FULL(HttpStatus.BAD_REQUEST, "인원이 가득 차서 모집을 다시 열 수 없습니다."),
+    CALLVAN_POST_REOPEN_FAILED_TIME(HttpStatus.BAD_REQUEST, "출발 시간이 지나서 모집을 다시 열 수 없습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)

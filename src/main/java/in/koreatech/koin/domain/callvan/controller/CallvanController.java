@@ -20,9 +20,12 @@ import in.koreatech.koin.domain.callvan.model.filter.CallvanPostStatusFilter;
 import in.koreatech.koin.domain.callvan.service.CallvanPostQueryService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostCreateService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
+import in.koreatech.koin.domain.callvan.service.CallvanPostStatusService;
 import in.koreatech.koin.global.auth.UserId;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/callvan")
@@ -32,6 +35,7 @@ public class CallvanController implements CallvanApi {
     private final CallvanPostCreateService callvanPostCreateService;
     private final CallvanPostQueryService callvanPostQueryService;
     private final CallvanPostJoinService callvanPostJoinService;
+    private final CallvanPostStatusService callvanPostStatusService;
 
     @PostMapping
     public ResponseEntity<CallvanPostCreateResponse> createCallvanPost(
@@ -64,10 +68,37 @@ public class CallvanController implements CallvanApi {
 
     @PostMapping("/posts/{postId}/participants")
     public ResponseEntity<Void> joinCallvanPost(
-            @PathVariable Integer postId,
-            @UserId Integer userId
+        @PathVariable Integer postId,
+        @UserId Integer userId
     ) {
         callvanPostJoinService.join(postId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/posts/{postId}/close")
+    public ResponseEntity<Void> closeCallvanPost(
+        @PathVariable Integer postId,
+        @UserId Integer userId
+    ) {
+        callvanPostStatusService.close(postId, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/posts/{postId}/reopen")
+    public ResponseEntity<Void> reopenCallvanPost(
+        @PathVariable Integer postId,
+        @UserId Integer userId
+    ) {
+        callvanPostStatusService.reopen(postId, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/posts/{postId}/complete")
+    public ResponseEntity<Void> completeCallvanPost(
+        @PathVariable Integer postId,
+        @UserId Integer userId
+    ) {
+        callvanPostStatusService.complete(postId, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

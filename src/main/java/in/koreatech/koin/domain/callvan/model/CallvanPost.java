@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.callvan.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,11 +140,36 @@ public class CallvanPost extends BaseEntity {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_FULL);
         }
         this.currentParticipants++;
+        if (this.currentParticipants >= this.maxParticipants) {
+            this.status = CallvanStatus.CLOSED;
+        }
     }
 
     public void decreaseParticipantCount() {
         if (this.currentParticipants > 1) {
             this.currentParticipants--;
+        }
+    }
+
+    public void closeRecruitment() {
+        if (this.status == CallvanStatus.RECRUITING) {
+            this.status = CallvanStatus.CLOSED;
+        }
+    }
+
+    public void reopenRecruitment() {
+        if (this.currentParticipants >= this.maxParticipants) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_POST_REOPEN_FAILED_FULL);
+        }
+        if (LocalDateTime.of(this.departureDate, this.departureTime).isBefore(LocalDateTime.now())) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_POST_REOPEN_FAILED_TIME);
+        }
+        this.status = CallvanStatus.RECRUITING;
+    }
+
+    public void completeRecruitment() {
+        if (this.status == CallvanStatus.CLOSED) {
+            this.status = CallvanStatus.COMPLETED;
         }
     }
 }

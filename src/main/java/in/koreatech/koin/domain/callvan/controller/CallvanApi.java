@@ -6,6 +6,7 @@ import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -107,7 +108,8 @@ public interface CallvanApi {
         @RequestParam(required = false, defaultValue = "LATEST") CallvanPostSortCriteria sort,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @UserId Integer userId);
+        @UserId Integer userId
+    );
 
     @ApiResponseCodes({
         CREATED,
@@ -129,9 +131,87 @@ public interface CallvanApi {
         3. 이미 참여한 사용자이거나 작성자인 경우(`CALLVAN_ALREADY_JOINED`) 예외가 발생합니다.
         4. 모집 인원이 꽉 찬 경우(`CALLVAN_POST_FULL`) 예외가 발생합니다.
         5. 성공 시 참여자로 등록되고, 현재 모집 인원이 1 증가합니다.
+        6. 참여로 인해 모집 인원이 가득 차면, 게시글 상태가 자동으로 `CLOSED`로 변경됩니다.
         """)
     @PostMapping("/posts/{postId}/participants")
     ResponseEntity<Void> joinCallvanPost(
+        @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        NO_CONTENT,
+        NOT_FOUND_ARTICLE,
+        FORBIDDEN_AUTHOR
+    })
+    @Operation(summary = "콜밴 게시글 마감", description = """
+        ### 콜밴 게시글 마감 API
+        콜밴 게시글 작성자가 모집을 마감합니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+        - 게시글 작성자 본인이어야 합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 작성자가 아닌 경우(`FORBIDDEN_AUTHOR`) 예외가 발생합니다.
+        3. 게시글 상태가 `CLOSED`로 변경됩니다.
+        """)
+    @PutMapping("/posts/{postId}/close")
+    ResponseEntity<Void> closeCallvanPost(
+        @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        NO_CONTENT,
+        NOT_FOUND_ARTICLE,
+        FORBIDDEN_AUTHOR,
+        CALLVAN_POST_REOPEN_FAILED_FULL,
+        CALLVAN_POST_REOPEN_FAILED_TIME
+    })
+    @Operation(summary = "콜밴 게시글 재모집", description = """
+        ### 콜밴 게시글 재모집 API
+        콜밴 게시글 작성자가 마감된 게시글을 다시 모집 상태로 변경합니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+        - 게시글 작성자 본인이어야 합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 작성자가 아닌 경우(`FORBIDDEN_AUTHOR`) 예외가 발생합니다.
+        3. 인원이 가득 찬 경우(`CALLVAN_POST_REOPEN_FAILED_FULL`) 예외가 발생합니다.
+        4. 출발 시간이 이미 지난 경우(`CALLVAN_POST_REOPEN_FAILED_TIME`) 예외가 발생합니다.
+        5. 게시글 상태가 `RECRUITING`으로 변경됩니다.
+        """)
+    @PutMapping("/posts/{postId}/reopen")
+    ResponseEntity<Void> reopenCallvanPost(
+        @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        NO_CONTENT,
+        NOT_FOUND_ARTICLE,
+        FORBIDDEN_AUTHOR
+    })
+    @Operation(summary = "콜밴 게시글 완료", description = """
+        ### 콜밴 게시글 완료 API
+        콜밴 게시글 작성자가 모집을 완료합니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+        - 게시글 작성자 본인이어야 합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 작성자가 아닌 경우(`FORBIDDEN_AUTHOR`) 예외가 발생합니다.
+        3. 게시글 상태가 `COMPLETED`로 변경됩니다.
+        4. 마감 상태(`CLOSED`) 인 게시글만 `COMPLETED`로 변경됩니다.
+        """)
+    @PutMapping("/posts/{postId}/complete")
+    ResponseEntity<Void> completeCallvanPost(
         @PathVariable Integer postId,
         @Auth(permit = {STUDENT}) Integer userId
     );
