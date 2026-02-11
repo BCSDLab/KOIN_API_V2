@@ -85,6 +85,8 @@ public enum ApiResponseCode {
     INVALID_SEMESTER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 학기 형식입니다."),
     INVALID_DETAIL_SUBSCRIBE_TYPE(HttpStatus.BAD_REQUEST, "세부 구독 타입이 구독 타입에 속하지 않습니다."),
     CANNOT_UPDATE_FOUND_ITEM(HttpStatus.BAD_REQUEST, "이미 찾은 물건의 정보를 수정할 수 없습니다"),
+    CALLVAN_POST_NOT_RECRUITING(HttpStatus.BAD_REQUEST, "모집 중인 게시글이 아닙니다."),
+    CALLVAN_POST_FULL(HttpStatus.BAD_REQUEST, "참여 인원이 가득 찼습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -150,6 +152,7 @@ public enum ApiResponseCode {
     DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "이미 존재하는 학기입니다."),
     OVERLAPPING_SEMESTER_DATE_RANGE(HttpStatus.CONFLICT, "학기 기간이 기존 학기와 겹칩니다."),
     DUPLICATE_FOUND_STATUS(HttpStatus.CONFLICT, "이미 찾음 처리된 분실물 게시글입니다."),
+    CALLVAN_ALREADY_JOINED(HttpStatus.CONFLICT, "이미 참여한 게시글입니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)

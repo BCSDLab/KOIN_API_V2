@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -105,6 +106,32 @@ public interface CallvanApi {
         @RequestParam(required = false, defaultValue = "LATEST") CallvanPostSortCriteria sort,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @UserId Integer userId
+        @UserId Integer userId);
+
+    @ApiResponseCodes({
+        CREATED,
+        NOT_FOUND_ARTICLE,
+        CALLVAN_POST_NOT_RECRUITING,
+        CALLVAN_POST_FULL,
+        CALLVAN_ALREADY_JOINED
+    })
+    @Operation(summary = "콜밴 게시글 참여", description = """
+        ### 콜밴 게시글 참여 API
+        사용자가 특정 콜밴 게시글에 참여합니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 모집 중인 상태(`RECRUITING`)가 아니면(`CALLVAN_POST_NOT_RECRUITING`) 예외가 발생합니다.
+        3. 이미 참여한 사용자이거나 작성자인 경우(`CALLVAN_ALREADY_JOINED`) 예외가 발생합니다.
+        4. 모집 인원이 꽉 찬 경우(`CALLVAN_POST_FULL`) 예외가 발생합니다.
+        5. 성공 시 참여자로 등록되고, 현재 모집 인원이 1 증가합니다.
+        """)
+    @PostMapping("/posts/{postId}/participants")
+    ResponseEntity<Void> joinCallvanPost(
+        @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
     );
 }

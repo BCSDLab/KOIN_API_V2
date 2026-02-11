@@ -17,25 +17,28 @@ import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostSortCriteria;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostStatusFilter;
-import in.koreatech.koin.domain.callvan.service.CallvanQueryService;
-import in.koreatech.koin.domain.callvan.service.CallvanService;
+import in.koreatech.koin.domain.callvan.service.CallvanPostQueryService;
+import in.koreatech.koin.domain.callvan.service.CallvanPostCreateService;
+import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
 import in.koreatech.koin.global.auth.UserId;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/callvan")
 @RequiredArgsConstructor
 public class CallvanController implements CallvanApi {
 
-    private final CallvanService callvanService;
-    private final CallvanQueryService callvanQueryService;
+    private final CallvanPostCreateService callvanPostCreateService;
+    private final CallvanPostQueryService callvanPostQueryService;
+    private final CallvanPostJoinService callvanPostJoinService;
 
     @PostMapping
     public ResponseEntity<CallvanPostCreateResponse> createCallvanPost(
         @RequestBody CallvanPostCreateRequest request,
         Integer userId
     ) {
-        CallvanPostCreateResponse response = callvanService.createCallvanPost(request, userId);
+        CallvanPostCreateResponse response = callvanPostCreateService.createCallvanPost(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -53,9 +56,18 @@ public class CallvanController implements CallvanApi {
         Integer limit,
         @UserId Integer userId
     ) {
-        CallvanPostSearchResponse response = callvanQueryService.getCallvanPosts(
+        CallvanPostSearchResponse response = callvanPostQueryService.getCallvanPosts(
             author, departures, departureKeyword, arrivals, arrivalKeyword, status, title, sort, page, limit, userId
         );
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/posts/{postId}/participants")
+    public ResponseEntity<Void> joinCallvanPost(
+            @PathVariable Integer postId,
+            @UserId Integer userId
+    ) {
+        callvanPostJoinService.join(postId, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

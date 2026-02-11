@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CallvanQueryService {
+public class CallvanPostQueryService {
 
     private final CallvanPostQueryRepository callvanPostQueryRepository;
 

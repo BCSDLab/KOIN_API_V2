@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CallvanService {
+public class CallvanPostCreateService {
 
     private final CallvanPostRepository callvanPostRepository;
     private final CallvanParticipantRepository callvanParticipantRepository;

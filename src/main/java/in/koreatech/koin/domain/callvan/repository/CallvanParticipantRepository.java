@@ -7,4 +7,6 @@ import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
 public interface CallvanParticipantRepository extends Repository<CallvanParticipant, Integer> {
 
     CallvanParticipant save(CallvanParticipant callvanParticipant);
+
+    boolean existsByPostIdAndMemberId(Integer postId, Integer memberId);
 }

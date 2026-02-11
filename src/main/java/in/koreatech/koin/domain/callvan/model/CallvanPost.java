@@ -13,6 +13,8 @@ import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanStatus;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -92,18 +94,19 @@ public class CallvanPost extends BaseEntity {
 
     @Builder
     private CallvanPost(
-            User author,
-            String title,
-            CallvanLocation departureType,
-            String departureCustomName,
-            CallvanLocation arrivalType,
-            String arrivalCustomName,
-            LocalDate departureDate,
-            LocalTime departureTime,
-            Integer maxParticipants,
-            Integer currentParticipants,
-            CallvanStatus status,
-            Boolean isDeleted) {
+        User author,
+        String title,
+        CallvanLocation departureType,
+        String departureCustomName,
+        CallvanLocation arrivalType,
+        String arrivalCustomName,
+        LocalDate departureDate,
+        LocalTime departureTime,
+        Integer maxParticipants,
+        Integer currentParticipants,
+        CallvanStatus status,
+        Boolean isDeleted
+    ) {
         this.author = author;
         this.title = title;
         this.departureType = departureType;
@@ -120,5 +123,27 @@ public class CallvanPost extends BaseEntity {
 
     public void updateChatRoom(CallvanChatRoom chatRoom) {
         this.chatRoom = chatRoom;
+    }
+
+    public void checkJoinable() {
+        if (this.status != CallvanStatus.RECRUITING) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_POST_NOT_RECRUITING);
+        }
+        if (this.currentParticipants >= this.maxParticipants) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_POST_FULL);
+        }
+    }
+
+    public void increaseParticipantCount() {
+        if (this.currentParticipants >= this.maxParticipants) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_POST_FULL);
+        }
+        this.currentParticipants++;
+    }
+
+    public void decreaseParticipantCount() {
+        if (this.currentParticipants > 1) {
+            this.currentParticipants--;
+        }
     }
 }
