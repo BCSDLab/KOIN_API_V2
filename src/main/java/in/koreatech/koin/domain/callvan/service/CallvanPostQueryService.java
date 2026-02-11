@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.common.model.Criteria;
+import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
@@ -15,6 +16,9 @@ import in.koreatech.koin.domain.callvan.model.filter.CallvanPostSortCriteria;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostStatusFilter;
 import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostQueryRepository;
+import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
@@ -28,6 +32,7 @@ public class CallvanPostQueryService {
 
     private final CallvanPostQueryRepository callvanPostQueryRepository;
     private final CallvanParticipantRepository callvanParticipantRepository;
+    private final CallvanPostRepository callvanPostRepository;
 
     public CallvanPostSearchResponse getCallvanPosts(
         CallvanAuthorFilter authorFilter,
@@ -75,7 +80,15 @@ public class CallvanPostQueryService {
             criteria.getPage() + 1,
             totalPage,
             joinedPostIds,
-            userId
-        );
+            userId);
+    }
+
+    public CallvanPostDetailResponse getCallvanPostDetail(Integer postId, Integer userId) {
+        if (!callvanParticipantRepository.existsByPostIdAndMemberId(postId, userId)) {
+            throw CustomException.of(ApiResponseCode.FORBIDDEN_PARTICIPANT);
+        }
+        CallvanPost callvanPost = callvanPostRepository.getById(postId);
+
+        return CallvanPostDetailResponse.from(callvanPost, userId);
     }
 }

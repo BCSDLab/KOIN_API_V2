@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
+import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
@@ -109,6 +111,30 @@ public interface CallvanApi {
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @UserId Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK,
+        NOT_FOUND_ARTICLE,
+        FORBIDDEN_PARTICIPANT
+    })
+    @Operation(summary = "콜밴 게시글 상세 조회", description = """
+        ### 콜밴 게시글 상세 조회 API
+        콜밴 게시글의 상세 정보를 조회합니다. 참여자만 조회할 수 있습니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+        - 해당 게시글의 참여자여야 합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 참여자가 아닌 경우(`FORBIDDEN_PARTICIPANT`) 예외가 발생합니다.
+        3. 참여자 목록(`participants`)에는 닉네임이 포함됩니다. (닉네임/익명닉네임 없을 시 랜덤 생성)
+        """)
+    @GetMapping("/posts/{postId}")
+    ResponseEntity<CallvanPostDetailResponse> getCallvanPostDetail(
+        @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
     );
 
     @ApiResponseCodes({
