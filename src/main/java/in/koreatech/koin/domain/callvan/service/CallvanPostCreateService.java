@@ -28,6 +28,7 @@ public class CallvanPostCreateService {
     private final CallvanParticipantRepository callvanParticipantRepository;
     private final CallvanChatRoomRepository callvanChatRoomRepository;
     private final UserRepository userRepository;
+    private final CallvanNotificationScheduler callvanNotificationScheduler;
 
     @Transactional
     public CallvanPostCreateResponse createCallvanPost(CallvanPostCreateRequest request, Integer userId) {
@@ -63,6 +64,7 @@ public class CallvanPostCreateService {
         callvanChatRoom.determineCallvanPost(callvanPost);
         callvanChatRoomRepository.save(callvanChatRoom);
 
+        callvanNotificationScheduler.scheduleNotification(callvanPost);
         return CallvanPostCreateResponse.from(callvanPost);
     }
 

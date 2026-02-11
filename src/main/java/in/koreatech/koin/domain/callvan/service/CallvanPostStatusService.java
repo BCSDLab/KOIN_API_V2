@@ -1,7 +1,10 @@
 package in.koreatech.koin.domain.callvan.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.callvan.event.CallvanRecruitmentCompletedEvent;
 
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class CallvanPostStatusService {
 
     private final CallvanPostRepository callvanPostRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void close(Integer postId, Integer userId) {
@@ -25,6 +29,7 @@ public class CallvanPostStatusService {
         }
 
         callvanPost.closeRecruitment();
+        eventPublisher.publishEvent(new CallvanRecruitmentCompletedEvent(callvanPost.getId()));
     }
 
     @Transactional

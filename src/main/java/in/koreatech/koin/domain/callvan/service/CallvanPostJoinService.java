@@ -1,7 +1,12 @@
 package in.koreatech.koin.domain.callvan.service;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.callvan.event.CallvanParticipantJoinedEvent;
+import in.koreatech.koin.domain.callvan.event.CallvanRecruitmentCompletedEvent;
 
 import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
@@ -25,6 +30,7 @@ public class CallvanPostJoinService {
     private final CallvanChatMessageRepository callvanChatMessageRepository;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @ConcurrencyGuard(lockName = "callvanJoin")
@@ -53,6 +59,12 @@ public class CallvanPostJoinService {
         }
         entityManager.flush();
         updateUserCallvanChatMessage(callvanPost.getChatRoom().getId(), userId, false);
+
+        eventPublisher.publishEvent(new CallvanParticipantJoinedEvent(callvanPost.getId(), user.getId(), getNickname(user)));
+
+        if (callvanPost.getCurrentParticipants() >= callvanPost.getMaxParticipants()) {
+            eventPublisher.publishEvent(new CallvanRecruitmentCompletedEvent(callvanPost.getId()));
+        }
     }
 
     @Transactional
@@ -80,5 +92,15 @@ public class CallvanPostJoinService {
         callvanChatMessageRepository.updateIsLeftUserByChatRoomIdAndSenderId(
             postId, userId, isLeft
         );
+    }
+
+    private String getNickname(User user) {
+        if (user.getNickname() != null) {
+            return user.getNickname();
+        }
+        if (user.getAnonymousNickname() != null) {
+            return user.getAnonymousNickname();
+        }
+        return "익명_" + RandomStringUtils.randomAlphabetic(13);
     }
 }

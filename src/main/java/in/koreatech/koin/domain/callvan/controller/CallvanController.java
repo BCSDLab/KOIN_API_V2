@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.callvan.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -23,8 +25,11 @@ import in.koreatech.koin.domain.callvan.service.CallvanPostCreateService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostStatusService;
 import in.koreatech.koin.domain.callvan.service.CallvanChatService;
+import in.koreatech.koin.domain.callvan.service.CallvanNotificationService;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
+import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +47,7 @@ public class CallvanController implements CallvanApi {
     private final CallvanPostJoinService callvanPostJoinService;
     private final CallvanPostStatusService callvanPostStatusService;
     private final CallvanChatService callvanChatService;
+    private final CallvanNotificationService callvanNotificationService;
 
     @PostMapping
     public ResponseEntity<CallvanPostCreateResponse> createCallvanPost(
@@ -67,8 +73,8 @@ public class CallvanController implements CallvanApi {
         @UserId Integer userId
     ) {
         CallvanPostSearchResponse response = callvanPostQueryService.getCallvanPosts(
-            author, departures, departureKeyword, arrivals, arrivalKeyword, status, title, sort, page, limit, userId
-        );
+            author, departures, departureKeyword, arrivals, arrivalKeyword, status, title, sort, page, limit,
+            userId);
         return ResponseEntity.ok().body(response);
     }
 
@@ -142,6 +148,22 @@ public class CallvanController implements CallvanApi {
         @UserId Integer userId
     ) {
         callvanPostStatusService.complete(postId, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/notifications")
+    public ResponseEntity<List<CallvanNotificationResponse>> getNotifications(
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        List<CallvanNotificationResponse> responses = callvanNotificationService.getNotifications(userId);
+        return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping("/notifications/mark-all-read")
+    public ResponseEntity<Void> markAllNotificationsAsRead(
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        callvanNotificationService.markAllRead(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

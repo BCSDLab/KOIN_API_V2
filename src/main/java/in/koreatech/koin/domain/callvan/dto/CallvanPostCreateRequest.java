@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.callvan.dto;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
@@ -32,7 +31,7 @@ public record CallvanPostCreateRequest(
     @Schema(description = "도착지 직접 입력 (기타 선택 시)", example = "한기대 제2캠퍼스")
     String arrivalCustomName,
 
-    @Schema(description = "출발일", example = "2024-03-25", requiredMode = REQUIRED)
+    @Schema(description = "출발일", example = "2026-03-01", requiredMode = REQUIRED)
     @NotNull(message = "출발일은 필수입니다.")
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate departureDate,

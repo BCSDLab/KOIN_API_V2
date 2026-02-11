@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
+import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
@@ -317,6 +318,45 @@ public interface CallvanApi {
     ResponseEntity<Void> sendMessage(
         @PathVariable Integer postId,
         @RequestBody @Valid CallvanChatMessageRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK
+    })
+    @Operation(summary = "콜밴 알림 목록 조회", description = """
+        ### 콜밴 알림 목록 조회 API
+        로그인한 사용자의 알림 목록을 최신순으로 조회합니다.
+
+        ### 알림 타입별 데이터 구조
+        | 필드명 | RECRUITMENT_COMPLETE(인원 모집 완료) | NEW_MESSAGE(신규 채팅 도착) | PARTICIPANT_JOINED(신규 인원 참여) | DEPARTURE_UPCOMING(출발 30분 전) |
+        | :--- | :--- | :--- | :--- | :--- |
+        | type | RECRUITMENT_COMPLETE | NEW_MESSAGE | PARTICIPANT_JOINED | DEPARTURE_UPCOMING |
+        | message_preview | "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요" | 신규 채팅 메시지 내용 | null | null |
+        | sender_nickname | null | 발신자 닉네임 | null | null |
+        | joined_member_nickname | null | null | 참여자 닉네임 | null |
+        | post_id | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID |
+        | departure | 출발지 | 출발지 | 출발지 | 출발지 |
+        | arrival | 도착지 | 도착지 | 도착지 | 도착지 |
+        | departure_date | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 |
+        | departure_time | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 |
+        | current_participants | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 |
+        | max_participants | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 |
+        """)
+    @GetMapping("/notifications")
+    ResponseEntity<List<CallvanNotificationResponse>> getNotifications(
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        NO_CONTENT
+    })
+    @Operation(summary = "콜밴 알림 모두 읽음 처리", description = """
+        ### 콜밴 알림 모두 읽음 처리 API
+        로그인한 사용자의 모든 알림을 읽음 처리합니다.
+        """)
+    @PostMapping("/notifications/mark-all-read")
+    ResponseEntity<Void> markAllNotificationsAsRead(
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

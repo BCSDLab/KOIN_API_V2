@@ -3,8 +3,11 @@ package in.koreatech.koin.domain.callvan.service;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.callvan.event.CallvanNewMessageEvent;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
@@ -29,6 +32,7 @@ public class CallvanChatService {
     private final CallvanParticipantRepository callvanParticipantRepository;
     private final CallvanChatMessageRepository callvanChatMessageRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public CallvanChatMessageResponse getMessages(Integer postId, Integer userId) {
         if (!callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId)) {
@@ -62,6 +66,9 @@ public class CallvanChatService {
             .build();
 
         callvanChatMessageRepository.save(message);
+
+        eventPublisher.publishEvent(
+            new CallvanNewMessageEvent(callvanPost.getId(), message.getSenderNickname(), sender.getId(), message.getContent()));
     }
 
     private String getNickname(User user) {

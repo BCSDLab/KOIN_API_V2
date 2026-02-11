@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -67,6 +68,7 @@ public class CallvanNotification extends BaseEntity {
     private LocalDate departureDate;
 
     @Column(name = "departure_time")
+    @Convert(disableConversion = true)
     private LocalTime departureTime;
 
     @Column(name = "current_participants")
