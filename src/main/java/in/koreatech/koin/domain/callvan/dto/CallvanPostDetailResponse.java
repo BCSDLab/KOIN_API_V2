@@ -72,6 +72,7 @@ public record CallvanPostDetailResponse(
             post.getMaxParticipants(),
             post.getStatus().name(),
             post.getParticipants().stream()
+                .filter(p -> !p.getIsDeleted())
                 .map(it -> CallvanParticipantResponse.from(it, userId))
                 .toList()
         );

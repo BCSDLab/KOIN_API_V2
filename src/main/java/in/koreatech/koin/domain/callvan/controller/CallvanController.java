@@ -22,9 +22,13 @@ import in.koreatech.koin.domain.callvan.service.CallvanPostQueryService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostCreateService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostStatusService;
+import in.koreatech.koin.domain.callvan.service.CallvanChatService;
+import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
+import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
 import in.koreatech.koin.global.auth.UserId;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -37,6 +41,7 @@ public class CallvanController implements CallvanApi {
     private final CallvanPostQueryService callvanPostQueryService;
     private final CallvanPostJoinService callvanPostJoinService;
     private final CallvanPostStatusService callvanPostStatusService;
+    private final CallvanChatService callvanChatService;
 
     @PostMapping
     public ResponseEntity<CallvanPostCreateResponse> createCallvanPost(
@@ -82,6 +87,34 @@ public class CallvanController implements CallvanApi {
         @UserId Integer userId
     ) {
         callvanPostJoinService.join(postId, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/posts/{postId}/participants")
+    public ResponseEntity<Void> leaveCallvanPost(
+        @PathVariable Integer postId,
+        @UserId Integer userId
+    ) {
+        callvanPostJoinService.leave(postId, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/posts/{postId}/chat")
+    public ResponseEntity<CallvanChatMessageResponse> getCallvanChatMessages(
+        @PathVariable Integer postId,
+        @UserId Integer userId
+    ) {
+        CallvanChatMessageResponse response = callvanChatService.getMessages(postId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/posts/{postId}/chat")
+    public ResponseEntity<Void> sendMessage(
+        @PathVariable Integer postId,
+        @RequestBody CallvanChatMessageRequest request,
+        @UserId Integer userId
+    ) {
+        callvanChatService.sendMessage(postId, userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

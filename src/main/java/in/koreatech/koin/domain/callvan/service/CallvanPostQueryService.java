@@ -84,7 +84,7 @@ public class CallvanPostQueryService {
     }
 
     public CallvanPostDetailResponse getCallvanPostDetail(Integer postId, Integer userId) {
-        if (!callvanParticipantRepository.existsByPostIdAndMemberId(postId, userId)) {
+        if (!callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId)) {
             throw CustomException.of(ApiResponseCode.FORBIDDEN_PARTICIPANT);
         }
         CallvanPost callvanPost = callvanPostRepository.getById(postId);

@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
+import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
@@ -239,6 +242,81 @@ public interface CallvanApi {
     @PutMapping("/posts/{postId}/complete")
     ResponseEntity<Void> completeCallvanPost(
         @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        NO_CONTENT,
+        NOT_FOUND_ARTICLE,
+        FORBIDDEN_PARTICIPANT,
+        CALLVAN_POST_AUTHOR
+    })
+    @Operation(summary = "콜밴 나가기", description = """
+        ### 콜밴 게시글 탈퇴 API
+        사용자가 참여한 콜밴 게시글에서 탈퇴합니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 참여자가 아닌 경우(`FORBIDDEN_PARTICIPANT`) 예외가 발생합니다.
+        3. 탈퇴 시 참여자 목록에서 삭제되고, 현재 모집 인원이 1 감소합니다.
+        4. 채팅 내역에서 해당 사용자는 '나감' 상태로 표시됩니다.
+        5. 콜벤 게시글 작성자는 나갈 수 없습니다.
+        """)
+    @DeleteMapping("/posts/{postId}/participants")
+    ResponseEntity<Void> leaveCallvanPost(
+        @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK,
+        NOT_FOUND_ARTICLE,
+        FORBIDDEN_PARTICIPANT
+    })
+    @Operation(summary = "콜밴 게시글 채팅 조회", description = """
+        ### 콜밴 게시글 채팅 조회 API
+        콜밴 게시글의 채팅 내역을 조회합니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+        - 해당 콜벤의 참여자여야 합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 참여자가 아닌 경우(`FORBIDDEN_PARTICIPANT`) 예외가 발생합니다.
+        3. 채팅 내역은 오래된 순으로 정렬되어 반환됩니다.
+        """)
+    @GetMapping("/posts/{postId}/chat")
+    ResponseEntity<CallvanChatMessageResponse> getCallvanChatMessages(
+        @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        CREATED,
+        NOT_FOUND_ARTICLE,
+        FORBIDDEN_PARTICIPANT
+    })
+    @Operation(summary = "콜밴 게시글 채팅 전송", description = """
+        ### 콜밴 게시글 채팅 전송 API
+        콜밴 게시글 채팅방에 메시지를 전송합니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+        - 해당 콜벤의 참여자여야 합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 참여자가 아닌 경우(`FORBIDDEN_PARTICIPANT`) 예외가 발생합니다.
+        3. 이미지 전송 시 `is_image`를 true로 설정하고 `content`에 이미지 URL을 담아 보내야 합니다.
+        """)
+    @PostMapping("/posts/{postId}/chat")
+    ResponseEntity<Void> sendMessage(
+        @PathVariable Integer postId,
+        @RequestBody @Valid CallvanChatMessageRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

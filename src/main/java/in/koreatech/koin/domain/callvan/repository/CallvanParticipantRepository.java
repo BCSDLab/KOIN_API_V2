@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.callvan.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
@@ -10,7 +11,13 @@ public interface CallvanParticipantRepository extends Repository<CallvanParticip
 
     CallvanParticipant save(CallvanParticipant callvanParticipant);
 
-    boolean existsByPostIdAndMemberId(Integer postId, Integer memberId);
+    boolean existsByPostIdAndMemberIdAndIsDeletedFalse(Integer postId, Integer memberId);
+
+    boolean existsByPostIdAndMemberIdAndIsDeletedTrue(Integer postId, Integer memberId);
+
+    Optional<CallvanParticipant> findByPostIdAndMemberId(Integer postId, Integer memberId);
+
+    void delete(CallvanParticipant callvanParticipant);
 
     List<CallvanParticipant> findAllByMemberIdAndPostIdIn(Integer memberId, List<Integer> postIds);
 }

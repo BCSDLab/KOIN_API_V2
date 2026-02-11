@@ -27,7 +27,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "callvan_participant")
-@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class CallvanParticipant extends BaseEntity {
 
@@ -53,13 +52,26 @@ public class CallvanParticipant extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    public void joinCallvanAgain() {
+        if(this.isDeleted) {
+            this.isDeleted = false;
+        }
+    }
+
+    public void leaveCallvan() {
+        if(!this.isDeleted) {
+            this.isDeleted = true;
+        }
+    }
+
     @Builder
     private CallvanParticipant(
             CallvanPost post,
             User member,
             CallvanRole role,
             LocalDateTime joinedAt,
-            Boolean isDeleted) {
+            Boolean isDeleted
+    ) {
         this.post = post;
         this.member = member;
         this.role = role != null ? role : CallvanRole.PARTICIPANT;
