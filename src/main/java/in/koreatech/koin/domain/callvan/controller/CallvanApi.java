@@ -86,7 +86,7 @@ public interface CallvanApi {
 
         #### 요청 필드 설명
         - `author`: 작성자 필터 (`ALL`(전체), `MY`(내 게시글)). `MY` 선택 시 인증이 필수입니다.
-        - `status`: 모집 상태 필터 (`ALL`(전체), `RECRUITING`(모집 중), `CLOSED`(모집 마감), `COMPLETED`(완료)). 기본값은 `ALL`입니다.
+        - `statuses`: 모집 상태 필터 (`RECRUITING`, `CLOSED`, `COMPLETED`). 여러 값을 전달할 수 있으며, 미전달 시 전체 상태를 조회합니다.
         - `departures`: 출발지 필터 (`CallvanLocation` 목록). 여러 개 선택 가능합니다.
         - `departure_keyword`: 출발지 직접 입력 검색어. `departures`에 `CUSTOM`이 포함된 경우에만 유효하며, `departure_custom_name`에서 해당 검색어를 포함하는 게시글을 찾습니다.
         - `arrivals`: 도착지 필터. 출발지와 동일한 방식입니다.
@@ -99,9 +99,10 @@ public interface CallvanApi {
         #### 비즈니스 로직
         1. 출발지/도착지 필터링 시, 선택된 장소 타입들에 해당하는 게시글을 조회합니다.
         2. `CUSTOM` 타입이 선택되고 키워드가 입력된 경우, 사용자가 직접 입력한 장소명에서 해당 키워드를 포함하는 게시글도 결과에 포함됩니다.
-        3. `DEPARTURE_ASC`는 출발 날짜+시간 기준 오름차순, `DEPARTURE_DESC`는 출발 날짜+시간 기준 내림차순으로 정렬됩니다.
-        4. `LATEST_ASC`는 게시글 등록순 오름차순, `LATEST_DESC`는 게시글 등록순 내림차순으로 정렬됩니다.
-        5. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
+        3. `statuses`가 전달되면 해당 상태들만 조회하고, 미전달 시 상태 조건 없이 전체를 조회합니다.
+        4. `DEPARTURE_ASC`는 출발 날짜+시간 기준 오름차순, `DEPARTURE_DESC`는 출발 날짜+시간 기준 내림차순으로 정렬됩니다.
+        5. `LATEST_ASC`는 게시글 등록순 오름차순, `LATEST_DESC`는 게시글 등록순 내림차순으로 정렬됩니다.
+        6. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
         """)
     @GetMapping
     ResponseEntity<CallvanPostSearchResponse> getCallvanPosts(
@@ -110,7 +111,7 @@ public interface CallvanApi {
         @RequestParam(required = false, name = "departure_keyword") String departureKeyword,
         @RequestParam(required = false, name = "arrivals") List<CallvanLocation> arrivals,
         @RequestParam(required = false, name = "arrival_keyword") String arrivalKeyword,
-        @RequestParam(required = false, defaultValue = "ALL") CallvanPostStatusFilter status,
+        @RequestParam(required = false, name = "statuses") List<CallvanPostStatusFilter> statuses,
         @RequestParam(required = false) String title,
         @RequestParam(required = false, defaultValue = "LATEST_DESC") CallvanPostSortCriteria sort,
         @RequestParam(required = false) Integer page,

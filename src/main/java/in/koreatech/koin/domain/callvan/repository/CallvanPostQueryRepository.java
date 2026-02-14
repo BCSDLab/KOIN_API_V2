@@ -30,7 +30,7 @@ public class CallvanPostQueryRepository {
         String departureKeyword,
         List<CallvanLocation> arrivals,
         String arrivalKeyword,
-        CallvanStatus status,
+        List<CallvanStatus> statuses,
         String title,
         CallvanPostSortCriteria sort,
         Criteria criteria
@@ -41,7 +41,7 @@ public class CallvanPostQueryRepository {
                 authorEq(authorId),
                 departureFilter(departures, departureKeyword),
                 arrivalFilter(arrivals, arrivalKeyword),
-                statusEq(status),
+                statusIn(statuses),
                 titleContains(title))
             .orderBy(getOrderSpecifiers(sort))
             .offset((long)criteria.getPage() * criteria.getLimit())
@@ -55,7 +55,7 @@ public class CallvanPostQueryRepository {
         String departureKeyword,
         List<CallvanLocation> arrivals,
         String arrivalKeyword,
-        CallvanStatus status,
+        List<CallvanStatus> statuses,
         String title
     ) {
         return queryFactory
@@ -65,7 +65,7 @@ public class CallvanPostQueryRepository {
                 authorEq(authorId),
                 departureFilter(departures, departureKeyword),
                 arrivalFilter(arrivals, arrivalKeyword),
-                statusEq(status),
+                statusIn(statuses),
                 titleContains(title))
             .fetchOne();
     }
@@ -124,8 +124,8 @@ public class CallvanPostQueryRepository {
         return expression;
     }
 
-    private BooleanExpression statusEq(CallvanStatus status) {
-        return status != null ? callvanPost.status.eq(status) : null;
+    private BooleanExpression statusIn(List<CallvanStatus> statuses) {
+        return statuses != null && !statuses.isEmpty() ? callvanPost.status.in(statuses) : null;
     }
 
     private BooleanExpression titleContains(String title) {

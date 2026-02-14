@@ -65,7 +65,7 @@ public class CallvanController implements CallvanApi {
         String departureKeyword,
         List<CallvanLocation> arrivals,
         String arrivalKeyword,
-        CallvanPostStatusFilter status,
+        List<CallvanPostStatusFilter> statuses,
         String title,
         CallvanPostSortCriteria sort,
         Integer page,
@@ -73,7 +73,7 @@ public class CallvanController implements CallvanApi {
         @UserId Integer userId
     ) {
         CallvanPostSearchResponse response = callvanPostQueryService.getCallvanPosts(
-            author, departures, departureKeyword, arrivals, arrivalKeyword, status, title, sort, page, limit,
+            author, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, sort, page, limit,
             userId);
         return ResponseEntity.ok().body(response);
     }

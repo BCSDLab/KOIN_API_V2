@@ -11,6 +11,7 @@ import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanStatus;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostSortCriteria;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostStatusFilter;
@@ -40,7 +41,7 @@ public class CallvanPostQueryService {
         String departureKeyword,
         List<CallvanLocation> arrivals,
         String arrivalKeyword,
-        CallvanPostStatusFilter statusFilter,
+        List<CallvanPostStatusFilter> statusFilters,
         String title,
         CallvanPostSortCriteria sort,
         Integer page,
@@ -48,14 +49,15 @@ public class CallvanPostQueryService {
         Integer userId
     ) {
         Integer authorId = authorFilter.getRequiredAuthorId(userId);
+        List<CallvanStatus> statuses = CallvanPostStatusFilter.toStatuses(statusFilters);
 
         Long totalCount = callvanPostQueryRepository.countCallvanPosts(
-            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statusFilter.getStatus(), title);
+            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title);
 
         Criteria criteria = Criteria.of(page, limit, totalCount.intValue());
 
         List<CallvanPost> posts = callvanPostQueryRepository.findCallvanPosts(
-            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statusFilter.getStatus(), title, sort,
+            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, sort,
             criteria);
 
         int totalPage = (int)Math.ceil((double)totalCount / criteria.getLimit());
