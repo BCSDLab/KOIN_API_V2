@@ -92,15 +92,16 @@ public interface CallvanApi {
         - `arrivals`: 도착지 필터. 출발지와 동일한 방식입니다.
         - `arrival_keyword`: 도착지 직접 입력 검색어.
         - `title`: 게시글 제목 검색어.
-        - `sort`: 정렬 기준 (`LATEST`(최신순), `DEPARTURE`(출발 시간순)). 기본값은 `LATEST`입니다.
+        - `sort`: 정렬 기준 (`DEPARTURE_ASC`(출발일 오름차순), `DEPARTURE_DESC`(출발일 내림차순), `LATEST_ASC`(게시글 등록순 오름차순), `LATEST_DESC`(게시글 등록순 내림차순)). 기본값은 `LATEST_DESC`입니다.
         - `page`: 페이지 번호 (1부터 시작, 기본값 1)
         - `limit`: 한 페이지당 게시글 수 (최대 50, 기본값 10)
 
         #### 비즈니스 로직
         1. 출발지/도착지 필터링 시, 선택된 장소 타입들에 해당하는 게시글을 조회합니다.
         2. `CUSTOM` 타입이 선택되고 키워드가 입력된 경우, 사용자가 직접 입력한 장소명에서 해당 키워드를 포함하는 게시글도 결과에 포함됩니다.
-        3. 정렬 기준이 `DEPARTURE`인 경우, 출발 날짜와 시간 순으로 오름차순 정렬됩니다.
-        4. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
+        3. `DEPARTURE_ASC`는 출발 날짜+시간 기준 오름차순, `DEPARTURE_DESC`는 출발 날짜+시간 기준 내림차순으로 정렬됩니다.
+        4. `LATEST_ASC`는 게시글 등록순 오름차순, `LATEST_DESC`는 게시글 등록순 내림차순으로 정렬됩니다.
+        5. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
         """)
     @GetMapping
     ResponseEntity<CallvanPostSearchResponse> getCallvanPosts(
@@ -111,7 +112,7 @@ public interface CallvanApi {
         @RequestParam(required = false, name = "arrival_keyword") String arrivalKeyword,
         @RequestParam(required = false, defaultValue = "ALL") CallvanPostStatusFilter status,
         @RequestParam(required = false) String title,
-        @RequestParam(required = false, defaultValue = "LATEST") CallvanPostSortCriteria sort,
+        @RequestParam(required = false, defaultValue = "LATEST_DESC") CallvanPostSortCriteria sort,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @UserId Integer userId

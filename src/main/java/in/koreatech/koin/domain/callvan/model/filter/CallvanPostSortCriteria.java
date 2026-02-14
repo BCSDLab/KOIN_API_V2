@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum CallvanPostSortCriteria {
-    LATEST("LATEST"),
-    DEPARTURE("DEPARTURE");
+    DEPARTURE_ASC("DEPARTURE_ASC"),
+    DEPARTURE_DESC("DEPARTURE_DESC"),
+    LATEST_ASC("LATEST_ASC"),
+    LATEST_DESC("LATEST_DESC");
 
     private final String value;
 }

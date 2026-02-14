@@ -133,13 +133,32 @@ public class CallvanPostQueryRepository {
     }
 
     private OrderSpecifier<?>[] getOrderSpecifiers(CallvanPostSortCriteria sort) {
-        if (sort == CallvanPostSortCriteria.DEPARTURE) {
+        if (sort == null) {
             return new OrderSpecifier[] {
+                callvanPost.createdAt.desc(),
+                callvanPost.id.desc()
+            };
+        }
+
+        return switch (sort) {
+            case DEPARTURE_ASC -> new OrderSpecifier[] {
                 callvanPost.departureDate.asc(),
                 callvanPost.departureTime.asc(),
                 callvanPost.id.desc()
             };
-        }
-        return new OrderSpecifier[] {callvanPost.createdAt.desc()};
+            case DEPARTURE_DESC -> new OrderSpecifier[] {
+                callvanPost.departureDate.desc(),
+                callvanPost.departureTime.desc(),
+                callvanPost.id.desc()
+            };
+            case LATEST_ASC -> new OrderSpecifier[] {
+                callvanPost.createdAt.asc(),
+                callvanPost.id.asc()
+            };
+            case LATEST_DESC -> new OrderSpecifier[] {
+                callvanPost.createdAt.desc(),
+                callvanPost.id.desc()
+            };
+        };
     }
 }
