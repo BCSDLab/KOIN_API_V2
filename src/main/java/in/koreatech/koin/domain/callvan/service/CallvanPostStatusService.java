@@ -23,10 +23,7 @@ public class CallvanPostStatusService {
     @Transactional
     public void close(Integer postId, Integer userId) {
         CallvanPost callvanPost = callvanPostRepository.getById(postId);
-
-        if (!callvanPost.getAuthor().getId().equals(userId)) {
-            throw CustomException.of(ApiResponseCode.FORBIDDEN_AUTHOR);
-        }
+        callvanPost.verifyAuthor(userId);
 
         callvanPost.closeRecruitment();
         eventPublisher.publishEvent(new CallvanRecruitmentCompletedEvent(callvanPost.getId()));
@@ -35,10 +32,7 @@ public class CallvanPostStatusService {
     @Transactional
     public void reopen(Integer postId, Integer userId) {
         CallvanPost callvanPost = callvanPostRepository.getById(postId);
-
-        if (!callvanPost.getAuthor().getId().equals(userId)) {
-            throw CustomException.of(ApiResponseCode.FORBIDDEN_AUTHOR);
-        }
+        callvanPost.verifyAuthor(userId);
 
         callvanPost.reopenRecruitment();
     }
@@ -46,10 +40,7 @@ public class CallvanPostStatusService {
     @Transactional
     public void complete(Integer postId, Integer userId) {
         CallvanPost callvanPost = callvanPostRepository.getById(postId);
-
-        if (!callvanPost.getAuthor().getId().equals(userId)) {
-            throw CustomException.of(ApiResponseCode.FORBIDDEN_AUTHOR);
-        }
+        callvanPost.verifyAuthor(userId);
 
         callvanPost.completeRecruitment();
     }

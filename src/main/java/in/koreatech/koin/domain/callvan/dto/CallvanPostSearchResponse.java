@@ -5,6 +5,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -78,14 +80,15 @@ public record CallvanPostSearchResponse(
         @Schema(description = "작성자 여부", example = "true")
         Boolean isAuthor
     ) {
+
         public static CallvanPostResponse from(CallvanPost post, boolean isJoined, Integer userId) {
             String departureName = post.getDepartureType().getName();
-            if (post.getDepartureCustomName() != null && !post.getDepartureCustomName().isBlank()) {
+            if (StringUtils.hasText(post.getDepartureCustomName())) {
                 departureName = post.getDepartureCustomName();
             }
 
             String arrivalName = post.getArrivalType().getName();
-            if (post.getArrivalCustomName() != null && !post.getArrivalCustomName().isBlank()) {
+            if (StringUtils.hasText(post.getArrivalCustomName())) {
                 arrivalName = post.getArrivalCustomName();
             }
 

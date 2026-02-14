@@ -172,4 +172,10 @@ public class CallvanPost extends BaseEntity {
             this.status = CallvanStatus.COMPLETED;
         }
     }
+
+    public void verifyAuthor(Integer authorId) {
+        if (!getAuthor().getId().equals(authorId)) {
+            throw CustomException.of(ApiResponseCode.FORBIDDEN_AUTHOR);
+        }
+    }
 }

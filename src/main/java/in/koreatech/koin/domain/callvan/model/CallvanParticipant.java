@@ -53,15 +53,11 @@ public class CallvanParticipant extends BaseEntity {
     private Boolean isDeleted = false;
 
     public void joinCallvanAgain() {
-        if(this.isDeleted) {
-            this.isDeleted = false;
-        }
+        this.isDeleted = false;
     }
 
     public void leaveCallvan() {
-        if(!this.isDeleted) {
-            this.isDeleted = true;
-        }
+        this.isDeleted = true;
     }
 
     @Builder

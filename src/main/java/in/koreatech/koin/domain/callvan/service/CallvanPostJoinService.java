@@ -60,7 +60,7 @@ public class CallvanPostJoinService {
         entityManager.flush();
         updateUserCallvanChatMessage(callvanPost.getChatRoom().getId(), userId, false);
 
-        eventPublisher.publishEvent(new CallvanParticipantJoinedEvent(callvanPost.getId(), user.getId(), getNickname(user)));
+        eventPublisher.publishEvent(new CallvanParticipantJoinedEvent(callvanPost.getId(), user.getId(), user.getDisplayNickname()));
 
         if (callvanPost.getCurrentParticipants() >= callvanPost.getMaxParticipants()) {
             eventPublisher.publishEvent(new CallvanRecruitmentCompletedEvent(callvanPost.getId()));
@@ -92,15 +92,5 @@ public class CallvanPostJoinService {
         callvanChatMessageRepository.updateIsLeftUserByChatRoomIdAndSenderId(
             postId, userId, isLeft
         );
-    }
-
-    private String getNickname(User user) {
-        if (user.getNickname() != null) {
-            return user.getNickname();
-        }
-        if (user.getAnonymousNickname() != null) {
-            return user.getAnonymousNickname();
-        }
-        return "익명_" + RandomStringUtils.randomAlphabetic(13);
     }
 }

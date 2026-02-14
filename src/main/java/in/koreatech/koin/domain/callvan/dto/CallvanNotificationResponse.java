@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -59,12 +61,12 @@ public record CallvanNotificationResponse(
 
     public static CallvanNotificationResponse from(CallvanNotification notification) {
         String departureName = notification.getDepartureType().getName();
-        if (notification.getDepartureCustomName() != null && !notification.getDepartureCustomName().isBlank()) {
+        if (StringUtils.hasText(notification.getDepartureCustomName())) {
             departureName = notification.getDepartureCustomName();
         }
 
         String arrivalName = notification.getArrivalType().getName();
-        if (notification.getArrivalCustomName() != null && !notification.getArrivalCustomName().isBlank()) {
+        if (StringUtils.hasText(notification.getArrivalCustomName())) {
             arrivalName = notification.getArrivalCustomName();
         }
 

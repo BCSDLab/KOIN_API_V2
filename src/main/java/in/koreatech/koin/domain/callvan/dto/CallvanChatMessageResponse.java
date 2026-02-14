@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -21,14 +23,15 @@ public record CallvanChatMessageResponse(
     @Schema(description = "메시지 목록")
     List<CallvanMessageDto> messages
 ) {
+
     public static CallvanChatMessageResponse of(CallvanPost post, List<CallvanChatMessage> messages, Integer userId) {
         String departure = post.getDepartureType().getName();
-        if (post.getDepartureCustomName() != null && !post.getDepartureCustomName().isBlank()) {
+        if (StringUtils.hasText(post.getDepartureCustomName())) {
             departure = post.getDepartureCustomName();
         }
 
         String arrival = post.getArrivalType().getName();
-        if (post.getArrivalCustomName() != null && !post.getArrivalCustomName().isBlank()) {
+        if (StringUtils.hasText(post.getArrivalCustomName())) {
             arrival = post.getArrivalCustomName();
         }
 
@@ -69,6 +72,7 @@ public record CallvanChatMessageResponse(
         @Schema(description = "내 메시지 여부", example = "true")
         Boolean isMine
     ) {
+
         public static CallvanMessageDto from(CallvanChatMessage message, Integer currentUserId) {
             return new CallvanMessageDto(
                 message.getSender().getId(),

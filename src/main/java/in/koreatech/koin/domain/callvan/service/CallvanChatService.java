@@ -59,7 +59,7 @@ public class CallvanChatService {
         CallvanChatMessage message = CallvanChatMessage.builder()
             .chatRoom(callvanPost.getChatRoom())
             .sender(sender)
-            .senderNickname(getNickname(sender))
+            .senderNickname(sender.getDisplayNickname())
             .content(request.content())
             .messageType(request.isImage() ? CallvanMessageType.IMAGE : CallvanMessageType.TEXT)
             .isImage(request.isImage())
@@ -69,15 +69,5 @@ public class CallvanChatService {
 
         eventPublisher.publishEvent(
             new CallvanNewMessageEvent(callvanPost.getId(), message.getSenderNickname(), sender.getId(), message.getContent()));
-    }
-
-    private String getNickname(User user) {
-        if (user.getNickname() != null) {
-            return user.getNickname();
-        }
-        if (user.getAnonymousNickname() != null) {
-            return user.getAnonymousNickname();
-        }
-        return "익명_" + RandomStringUtils.randomAlphabetic(13);
     }
 }

@@ -32,8 +32,7 @@ public class CallvanPostCreateService {
 
     @Transactional
     public CallvanPostCreateResponse createCallvanPost(CallvanPostCreateRequest request, Integer userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_USER));
+        User user = userRepository.getById(userId);
 
         validateLocation(request.departureType(), request.departureCustomName());
         validateLocation(request.arrivalType(), request.arrivalCustomName());

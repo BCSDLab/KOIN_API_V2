@@ -244,4 +244,14 @@ public class User extends BaseEntity {
         ensureAuthed();
         return id;
     }
+
+    public String getDisplayNickname() {
+        if (StringUtils.hasText(this.nickname)) {
+            return this.nickname;
+        }
+        if (StringUtils.hasText(this.anonymousNickname)) {
+            return this.anonymousNickname;
+        }
+        return "익명 사용자";
+    }
 }

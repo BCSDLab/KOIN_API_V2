@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -50,14 +51,15 @@ public record CallvanPostDetailResponse(
     @Schema(description = "참여자 목록")
     List<CallvanParticipantResponse> participants
 ) {
+
     public static CallvanPostDetailResponse from(CallvanPost post, Integer userId) {
         String departureName = post.getDepartureType().getName();
-        if (post.getDepartureCustomName() != null && !post.getDepartureCustomName().isBlank()) {
+        if (StringUtils.hasText(post.getDepartureCustomName())) {
             departureName = post.getDepartureCustomName();
         }
 
         String arrivalName = post.getArrivalType().getName();
-        if (post.getArrivalCustomName() != null && !post.getArrivalCustomName().isBlank()) {
+        if (StringUtils.hasText(post.getArrivalCustomName())) {
             arrivalName = post.getArrivalCustomName();
         }
 
@@ -89,6 +91,7 @@ public record CallvanPostDetailResponse(
         @Schema(description = "본인 여부", example = "false")
         Boolean is_me
     ) {
+
         public static CallvanParticipantResponse from(CallvanParticipant participant, Integer userId) {
             String nickname = participant.getMember().getNickname();
             if (nickname == null) {
