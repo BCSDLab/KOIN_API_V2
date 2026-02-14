@@ -19,7 +19,7 @@ public record CallvanPostCreateResponse(
     @Schema(description = "게시글 ID", example = "1", requiredMode = REQUIRED)
     Integer id,
 
-    @Schema(description = "작성자 닉네임", example = "포도", requiredMode = REQUIRED)
+    @Schema(description = "작성자 닉네임", example = "코룡이", requiredMode = REQUIRED)
     String author,
 
     @Schema(description = "출발지 타입", example = "FRONT_GATE", requiredMode = REQUIRED)
