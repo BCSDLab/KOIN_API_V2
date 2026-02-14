@@ -93,13 +93,7 @@ public record CallvanPostDetailResponse(
     ) {
 
         public static CallvanParticipantResponse from(CallvanParticipant participant, Integer userId) {
-            String nickname = participant.getMember().getNickname();
-            if (nickname == null) {
-                nickname = participant.getMember().getAnonymousNickname();
-            }
-            if (nickname == null) {
-                nickname = "익명_" + RandomStringUtils.randomAlphabetic(13);
-            }
+            String nickname = participant.getMember().getDisplayNickname();
             Integer participantId = participant.getMember().getId();
             return new CallvanParticipantResponse(
                 participant.getMember().getId(),
