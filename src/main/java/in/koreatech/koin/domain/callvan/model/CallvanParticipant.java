@@ -46,7 +46,7 @@ public class CallvanParticipant extends BaseEntity {
     @Column(name = "role", nullable = false, length = 20)
     private CallvanRole role = CallvanRole.PARTICIPANT;
 
-    @Column(name = "joined_at", nullable = false)
+    @Column(name = "joined_at", columnDefinition = "DATETIME", nullable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();
 
     @Column(name = "is_deleted", nullable = false)
