@@ -90,6 +90,7 @@ public enum ApiResponseCode {
     CALLVAN_POST_REOPEN_FAILED_FULL(HttpStatus.BAD_REQUEST, "인원이 가득 차서 모집을 다시 열 수 없습니다."),
     CALLVAN_POST_REOPEN_FAILED_TIME(HttpStatus.BAD_REQUEST, "출발 시간이 지나서 모집을 다시 열 수 없습니다."),
     CALLVAN_POST_AUTHOR(HttpStatus.BAD_REQUEST, "콜벤 게시글 작성자는 나갈 수 없습니다"),
+    CALLVAN_REPORT_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 신고할 수 없습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -112,6 +113,7 @@ public enum ApiResponseCode {
     FORBIDDEN_SHOP_OWNER(HttpStatus.FORBIDDEN, "상점의 사장님이 아닙니다."),
     FORBIDDEN_AUTHOR(HttpStatus.FORBIDDEN, "게시글 접근 권한이 없습니다."),
     FORBIDDEN_PARTICIPANT(HttpStatus.FORBIDDEN, "콜벤 게시글 참여자가 아닙니다."),
+    CALLVAN_REPORT_ONLY_PARTICIPANT(HttpStatus.FORBIDDEN, "같은 콜벤팟 참여자만 신고할 수 있습니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -157,6 +159,7 @@ public enum ApiResponseCode {
     OVERLAPPING_SEMESTER_DATE_RANGE(HttpStatus.CONFLICT, "학기 기간이 기존 학기와 겹칩니다."),
     DUPLICATE_FOUND_STATUS(HttpStatus.CONFLICT, "이미 찾음 처리된 분실물 게시글입니다."),
     CALLVAN_ALREADY_JOINED(HttpStatus.CONFLICT, "이미 참여한 게시글입니다."),
+    CALLVAN_REPORT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 접수된 신고가 있어 추가 신고할 수 없습니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)

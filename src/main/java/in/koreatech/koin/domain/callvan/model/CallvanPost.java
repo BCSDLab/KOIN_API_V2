@@ -173,9 +173,27 @@ public class CallvanPost extends BaseEntity {
         }
     }
 
+    public void verifyReportableParticipants(Integer reporterId, Integer reportedId) {
+        if (reporterId.equals(reportedId)) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_REPORT_SELF);
+        }
+
+        verifyParticipantForReport(reporterId);
+        verifyParticipantForReport(reportedId);
+    }
+
     public void verifyAuthor(Integer authorId) {
         if (!getAuthor().getId().equals(authorId)) {
             throw CustomException.of(ApiResponseCode.FORBIDDEN_AUTHOR);
+        }
+    }
+
+    private void verifyParticipantForReport(Integer memberId) {
+        boolean isParticipant = this.participants.stream()
+            .anyMatch(participant -> participant.getMember().getId().equals(memberId));
+
+        if (!isParticipant) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_REPORT_ONLY_PARTICIPANT);
         }
     }
 }

@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
+import in.koreatech.koin.domain.callvan.dto.CallvanUserReportCreateRequest;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostSortCriteria;
@@ -26,11 +27,13 @@ import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostStatusService;
 import in.koreatech.koin.domain.callvan.service.CallvanChatService;
 import in.koreatech.koin.domain.callvan.service.CallvanNotificationService;
+import in.koreatech.koin.domain.callvan.service.CallvanUserReportService;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,6 +51,7 @@ public class CallvanController implements CallvanApi {
     private final CallvanPostStatusService callvanPostStatusService;
     private final CallvanChatService callvanChatService;
     private final CallvanNotificationService callvanNotificationService;
+    private final CallvanUserReportService callvanUserReportService;
 
     @PostMapping
     public ResponseEntity<CallvanPostCreateResponse> createCallvanPost(
@@ -103,6 +107,16 @@ public class CallvanController implements CallvanApi {
     ) {
         callvanPostJoinService.leave(postId, userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/posts/{postId}/reports")
+    public ResponseEntity<Void> reportCallvanUser(
+        @PathVariable Integer postId,
+        @RequestBody @Valid CallvanUserReportCreateRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        callvanUserReportService.reportUser(postId, userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/posts/{postId}/chat")

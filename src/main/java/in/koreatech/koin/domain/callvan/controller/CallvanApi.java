@@ -19,6 +19,7 @@ import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
+import in.koreatech.koin.domain.callvan.dto.CallvanUserReportCreateRequest;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostSortCriteria;
@@ -271,6 +272,38 @@ public interface CallvanApi {
     @DeleteMapping("/posts/{postId}/participants")
     ResponseEntity<Void> leaveCallvanPost(
         @PathVariable Integer postId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        CREATED,
+        NOT_FOUND_ARTICLE,
+        NOT_FOUND_USER,
+        INVALID_REQUEST_BODY,
+        CALLVAN_REPORT_SELF,
+        CALLVAN_REPORT_ONLY_PARTICIPANT,
+        CALLVAN_REPORT_ALREADY_PENDING
+    })
+    @Operation(summary = "콜벤 사용자 신고", description = """
+        ### 콜벤 사용자 신고 API
+        같은 콜벤팟 참여자를 신고합니다. 신고는 접수 후 운영 정책에 따라 검토되며, 어드민 검토 결과에 따라 콜벤 기능 이용 제한이 적용됩니다.
+
+        #### 요청 필드 설명
+        - `reported_id`: 신고 대상 사용자 ID
+        - `description`: 신고 상세 내용 (선택)
+        - `reasons`: 신고 사유 목록 (1개 이상)
+          - `reason_code`: `NO_SHOW`, `NON_PAYMENT`, `PROFANITY`, `OTHER`
+          - `custom_text`: `OTHER`일 때만 입력 가능. `OTHER` 선택 시 `custom_text`는 필수입니다
+
+        #### 비즈니스 로직
+        1. 신고자와 피신고자가 동일하면 실패합니다. (`CALLVAN_REPORT_SELF`)
+        2. 신고자/피신고자 모두 같은 콜벤팟 참여자여야 합니다. (`CALLVAN_REPORT_ONLY_PARTICIPANT`)
+        3. 동일한 게시글에서 동일 대상에 대한 진행 중 신고(`PENDING`, `UNDER_REVIEW`)가 있으면 중복 접수할 수 없습니다. (`CALLVAN_REPORT_ALREADY_PENDING`)
+        """)
+    @PostMapping("/posts/{postId}/reports")
+    ResponseEntity<Void> reportCallvanUser(
+        @PathVariable Integer postId,
+        @RequestBody @Valid CallvanUserReportCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
