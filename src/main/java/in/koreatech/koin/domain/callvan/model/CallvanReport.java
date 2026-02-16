@@ -71,10 +71,10 @@ public class CallvanReport extends BaseEntity {
     @Column(name = "review_note", length = 500)
     private String reviewNote;
 
-    @Column(name = "reviewed_at")
+    @Column(name = "reviewed_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime reviewedAt;
 
-    @Column(name = "confirmed_at")
+    @Column(name = "confirmed_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime confirmedAt;
 
     @Column(name = "is_deleted", nullable = false)
