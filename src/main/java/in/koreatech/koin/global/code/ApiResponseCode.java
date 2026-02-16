@@ -28,6 +28,7 @@ public enum ApiResponseCode {
     INVALID_DATE_TIME(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다."),
     INVALID_GENDER_INDEX(HttpStatus.BAD_REQUEST, "올바르지 않은 성별 인덱스입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "올바르지 않은 인증 토큰입니다."),
+    INVALID_CUSTOM_LOCATION_NAME(HttpStatus.BAD_REQUEST, "기타 장소명이 올바르지 않습니다."),
     INVALID_DELIVERY_AREA(HttpStatus.BAD_REQUEST, "배달이 불가능한 지역이에요."),
     INVALID_DELIVERY_BUILDING(HttpStatus.BAD_REQUEST, "교외 주문 주소에 교내 주문 주소를 입력할 수 없습니다."),
     NOT_MATCHED_EMAIL(HttpStatus.BAD_REQUEST, "이메일이 일치하지 않습니다."),
@@ -84,6 +85,12 @@ public enum ApiResponseCode {
     INVALID_SEMESTER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 학기 형식입니다."),
     INVALID_DETAIL_SUBSCRIBE_TYPE(HttpStatus.BAD_REQUEST, "세부 구독 타입이 구독 타입에 속하지 않습니다."),
     CANNOT_UPDATE_FOUND_ITEM(HttpStatus.BAD_REQUEST, "이미 찾은 물건의 정보를 수정할 수 없습니다"),
+    CALLVAN_POST_NOT_RECRUITING(HttpStatus.BAD_REQUEST, "모집 중인 게시글이 아닙니다."),
+    CALLVAN_POST_FULL(HttpStatus.BAD_REQUEST, "참여 인원이 가득 찼습니다."),
+    CALLVAN_POST_REOPEN_FAILED_FULL(HttpStatus.BAD_REQUEST, "인원이 가득 차서 모집을 다시 열 수 없습니다."),
+    CALLVAN_POST_REOPEN_FAILED_TIME(HttpStatus.BAD_REQUEST, "출발 시간이 지나서 모집을 다시 열 수 없습니다."),
+    CALLVAN_POST_AUTHOR(HttpStatus.BAD_REQUEST, "콜벤 게시글 작성자는 나갈 수 없습니다"),
+    CALLVAN_REPORT_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 신고할 수 없습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -105,6 +112,8 @@ public enum ApiResponseCode {
     FORBIDDEN_ORDER(HttpStatus.FORBIDDEN, "주문 정보 접근 권한이 없습니다."),
     FORBIDDEN_SHOP_OWNER(HttpStatus.FORBIDDEN, "상점의 사장님이 아닙니다."),
     FORBIDDEN_AUTHOR(HttpStatus.FORBIDDEN, "게시글 접근 권한이 없습니다."),
+    FORBIDDEN_PARTICIPANT(HttpStatus.FORBIDDEN, "콜벤 게시글 참여자가 아닙니다."),
+    CALLVAN_REPORT_ONLY_PARTICIPANT(HttpStatus.FORBIDDEN, "같은 콜벤팟 참여자만 신고할 수 있습니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -149,6 +158,8 @@ public enum ApiResponseCode {
     DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "이미 존재하는 학기입니다."),
     OVERLAPPING_SEMESTER_DATE_RANGE(HttpStatus.CONFLICT, "학기 기간이 기존 학기와 겹칩니다."),
     DUPLICATE_FOUND_STATUS(HttpStatus.CONFLICT, "이미 찾음 처리된 분실물 게시글입니다."),
+    CALLVAN_ALREADY_JOINED(HttpStatus.CONFLICT, "이미 참여한 게시글입니다."),
+    CALLVAN_REPORT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 접수된 신고가 있어 추가 신고할 수 없습니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)
