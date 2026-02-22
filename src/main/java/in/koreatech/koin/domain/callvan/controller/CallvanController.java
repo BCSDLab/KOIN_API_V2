@@ -180,4 +180,12 @@ public class CallvanController implements CallvanApi {
         callvanNotificationService.markAllRead(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @DeleteMapping("/notifications")
+    public ResponseEntity<Void> deleteAllNotifications(
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        callvanNotificationService.deleteAll(userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

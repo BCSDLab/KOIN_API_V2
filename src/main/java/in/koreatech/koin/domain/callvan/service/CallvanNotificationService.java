@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
-import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
 import in.koreatech.koin.domain.callvan.repository.CallvanNotificationRepository;
@@ -32,6 +31,11 @@ public class CallvanNotificationService {
     @Transactional
     public void markAllRead(Integer userId) {
         callvanNotificationRepository.updateIsReadByRecipientId(userId);
+    }
+
+    @Transactional
+    public void deleteAll(Integer userId) {
+        callvanNotificationRepository.updateIsDeletedByRecipientId(userId);
     }
 
     @Transactional
