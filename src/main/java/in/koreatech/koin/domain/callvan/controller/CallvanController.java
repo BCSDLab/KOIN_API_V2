@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
@@ -178,6 +179,15 @@ public class CallvanController implements CallvanApi {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         callvanNotificationService.markAllRead(userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/notifications/{notificationId}/read")
+    public ResponseEntity<Void> markNotificationAsRead(
+        @Auth(permit = {STUDENT}) Integer userId,
+        @PathVariable Integer notificationId
+    ) {
+        callvanNotificationService.markAsRead(userId, notificationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

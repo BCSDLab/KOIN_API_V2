@@ -18,6 +18,13 @@ public interface CallvanNotificationRepository extends JpaRepository<CallvanNoti
     void updateIsReadByRecipientId(@Param("recipientId") Integer recipientId);
 
     @Modifying(clearAutomatically = true)
+    @Query("UPDATE CallvanNotification n SET n.isRead = true WHERE n.recipient.id = :recipientId AND n.id = :id AND n.isDeleted = false")
+    void updateIsReadByRecipientIdAndNotificationId(
+        @Param("recipientId") Integer recipientId,
+        @Param("id") Integer notificationId
+    );
+
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE CallvanNotification n SET n.isDeleted = true WHERE n.recipient.id = :recipientId AND n.isDeleted = false")
     void updateIsDeletedByRecipientId(@Param("recipientId") Integer recipientId);
 }

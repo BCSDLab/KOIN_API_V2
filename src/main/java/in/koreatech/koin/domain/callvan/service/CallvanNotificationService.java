@@ -34,6 +34,11 @@ public class CallvanNotificationService {
     }
 
     @Transactional
+    public void markAsRead(Integer userId, Integer notificationId) {
+        callvanNotificationRepository.updateIsReadByRecipientIdAndNotificationId(userId, notificationId);
+    }
+
+    @Transactional
     public void deleteAll(Integer userId) {
         callvanNotificationRepository.updateIsDeletedByRecipientId(userId);
     }

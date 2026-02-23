@@ -398,6 +398,19 @@ public interface CallvanApi {
     @ApiResponseCodes({
         NO_CONTENT
     })
+    @Operation(summary = "콜밴 알림 단건 읽음 처리", description = """
+        ### 콜밴 알림 딘건 읽음 처리 API
+        로그인한 사용자의 알림을 읽음 처리합니다.
+        """)
+    @PostMapping("/notifications/{notificationId}/read")
+    ResponseEntity<Void> markNotificationAsRead(
+        @Auth(permit = {STUDENT}) Integer userId,
+        @PathVariable Integer notificationId
+    );
+
+    @ApiResponseCodes({
+        NO_CONTENT
+    })
     @Operation(summary = "콜벤 알림 전체 삭제", description = """
         ### 콜벤 알림 전체 삭제 API
         로그인한 사용자의 모든 콜벤 알림을 일괄 삭제(soft delete) 처리합니다.
