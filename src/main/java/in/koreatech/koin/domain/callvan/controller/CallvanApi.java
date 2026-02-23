@@ -419,4 +419,17 @@ public interface CallvanApi {
     ResponseEntity<Void> deleteAllNotifications(
         @Auth(permit = {STUDENT}) Integer userId
     );
+
+    @ApiResponseCodes({
+        NO_CONTENT
+    })
+    @Operation(summary = "콜벤 알림 단건 삭제", description = """
+        ### 콜벤 알림 단건 삭제 API
+        로그인한 사용자의 콜벤 알림을 삭제(soft delete) 처리합니다.
+        """)
+    @DeleteMapping("/notifications/{notificationId}")
+    ResponseEntity<Void> deleteNotification(
+        @Auth(permit = {STUDENT}) Integer userId,
+        @PathVariable Integer notificationId
+    );
 }

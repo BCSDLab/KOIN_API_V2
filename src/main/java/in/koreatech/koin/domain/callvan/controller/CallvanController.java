@@ -198,4 +198,13 @@ public class CallvanController implements CallvanApi {
         callvanNotificationService.deleteAll(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @DeleteMapping("/notifications/{notificationId}")
+    public ResponseEntity<Void> deleteNotification(
+        @Auth(permit = {STUDENT}) Integer userId,
+        @PathVariable Integer notificationId
+    ) {
+        callvanNotificationService.delete(userId, notificationId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

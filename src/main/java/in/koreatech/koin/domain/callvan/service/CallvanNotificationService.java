@@ -44,6 +44,11 @@ public class CallvanNotificationService {
     }
 
     @Transactional
+    public void delete(Integer userId, Integer notificationId) {
+        callvanNotificationRepository.updateIsDeletedByRecipientIdAndNotificationId(userId, notificationId);
+    }
+
+    @Transactional
     public void notifyRecruitmentCompleted(Integer postId) {
         CallvanPost post = callvanPostRepository.getById(postId);
 
