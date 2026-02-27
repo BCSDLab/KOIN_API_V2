@@ -40,6 +40,21 @@ public enum Dept {
     ENERGY_MATERIALS_ENGINEERING(
         "에너지신소재공학부", List.of("N/A"),
         "https://www.koreatech.ac.kr/board.es?mid=b40301000000&bid=0128"),
+    SEMICONDUCTOR_DISPLAY_ENGINEERING(
+        "반도체·디스플레이공학과", List.of("N/A"),
+        "https://www.koreatech.ac.kr/menu.es?mid=a10201000000"),
+    FUTURE_CONVERGENCE(
+        "미래융합학부", List.of("N/A"),
+        "https://www.koreatech.ac.kr/menu.es?mid=a10201000000"),
+    ENGINEERING_CONVERGENCE_AUTONOMOUS_MAJOR(
+        "공학융합자율전공", List.of("N/A"),
+        "https://www.koreatech.ac.kr/menu.es?mid=a10201000000"),
+    ICT_CONVERGENCE_AUTONOMOUS_MAJOR(
+        "ICT융합자율전공", List.of("N/A"),
+        "https://www.koreatech.ac.kr/menu.es?mid=a10201000000"),
+    SOCIAL_CONVERGENCE_AUTONOMOUS_MAJOR(
+        "사회융합자율전공", List.of("N/A"),
+        "https://www.koreatech.ac.kr/menu.es?mid=a10201000000"),
 
     // 없어진 과(고 학번을 위해 유지)
     NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING(

@@ -57,6 +57,7 @@ public class SwaggerGroupConfig {
                 "in.koreatech.koin.domain.dining",
                 "in.koreatech.koin.domain.banner",
                 "in.koreatech.koin.domain.club",
+                "in.koreatech.koin.domain.callvan"
             });
     }
 
@@ -87,7 +88,10 @@ public class SwaggerGroupConfig {
     public GroupedOpenApi socketApi() {
         return createGroupedOpenApi(
             "6. chat API",
-            new String[] {"in.koreatech.koin.domain.community.lostitem.chatroom"});
+            new String[] {
+                "in.koreatech.koin.domain.community.lostitem.chatroom",
+                "in.koreatech.koin.domain.community.lostitem.chatmessage",
+            });
     }
 
     @Bean

@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.dept.model.Dept.NEW_ENERGY_MATERIALS_CHEM
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -43,10 +42,10 @@ public class DeptService {
         List<Department> departments = departmentRepository.findAll().orElse(Collections.emptyList());
         return departments.stream().map(department -> {
             List<Major> majors = majorRepository.findAllByDepartmentId(department.getId())
-                    .orElse(Collections.emptyList())
-                    .stream()
-                    .filter(major -> major.getName() != null)
-                    .toList();
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(major -> major.getName() != null)
+                .toList();
             return DepartmentAndMajorResponse.of(department, majors);
         }).toList();
     }
