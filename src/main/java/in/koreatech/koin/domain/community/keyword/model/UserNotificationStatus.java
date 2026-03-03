@@ -34,4 +34,8 @@ public class UserNotificationStatus extends BaseEntity {
         this.userId = userId;
         this.notifiedArticleId = notifiedArticleId;
     }
+
+    public void updateNotifiedArticleId(Integer notifiedArticleId) {
+        this.notifiedArticleId = notifiedArticleId;
+    }
 }

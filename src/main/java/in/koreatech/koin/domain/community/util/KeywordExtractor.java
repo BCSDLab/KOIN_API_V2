@@ -1,7 +1,9 @@
 package in.koreatech.koin.domain.community.util;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +26,7 @@ public class KeywordExtractor {
     private final ArticleKeywordRepository articleKeywordRepository;
 
     public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId) {
-        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
+        Map<Integer, List<ArticleKeyword>> matchedKeywordsByArticleId = new LinkedHashMap<>();
         int offset = 0;
 
         while (true) {
@@ -39,11 +41,21 @@ public class KeywordExtractor {
                 String title = article.getTitle();
                 for (ArticleKeyword keyword : keywords) {
                     if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), authorId, keyword));
+                        matchedKeywordsByArticleId
+                            .computeIfAbsent(article.getId(), ignored -> new ArrayList<>())
+                            .add(keyword);
                     }
                 }
             }
             offset += KEYWORD_BATCH_SIZE;
+        }
+
+        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
+        for (Article article : articles) {
+            List<ArticleKeyword> matchedKeywords = matchedKeywordsByArticleId.get(article.getId());
+            if (matchedKeywords != null && !matchedKeywords.isEmpty()) {
+                keywordEvents.add(new ArticleKeywordEvent(article.getId(), authorId, matchedKeywords));
+            }
         }
 
         return keywordEvents;

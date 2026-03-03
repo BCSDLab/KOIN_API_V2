@@ -3,8 +3,12 @@ package in.koreatech.koin.domain.notification.eventlistener;
 import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -15,6 +19,7 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.domain.notification.model.Notification;
@@ -40,15 +45,33 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
     public void onKeywordRequest(ArticleKeywordEvent event) {
         Article article = articleRepository.getById(event.articleId());
         Board board = article.getBoard();
+        Map<Integer, String> matchedKeywordByUserId = getMatchedKeywordByUserId(event.matchedKeywords());
 
-        List<Notification> notifications = notificationSubscribeRepository
+        if (matchedKeywordByUserId.isEmpty()) {
+            return;
+        }
+
+        Map<Integer, NotificationSubscribe> keywordSubscribersByUserId = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD)
             .stream()
             .filter(this::hasDeviceToken)
-            .filter(subscribe -> isKeywordRegistered(event, subscribe))
+            .collect(Collectors.toMap(
+                subscribe -> subscribe.getUser().getId(),
+                Function.identity(),
+                (existing, ignored) -> existing,
+                LinkedHashMap::new
+            ));
+
+        List<Notification> notifications = keywordSubscribersByUserId.values().stream()
+            .filter(subscribe -> matchedKeywordByUserId.containsKey(subscribe.getUser().getId()))
             .filter(subscribe -> isNewNotifiedArticleId(event.articleId(), subscribe))
             .filter(subscribe -> !isMyArticle(event, subscribe))
-            .map(subscribe -> createAndRecordNotification(article, board, event.keyword(), subscribe))
+            .map(subscribe -> createAndRecordNotification(
+                article,
+                board,
+                matchedKeywordByUserId.get(subscribe.getUser().getId()),
+                subscribe
+            ))
             .toList();
 
         notificationService.pushNotifications(notifications);
@@ -58,10 +81,25 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         return subscribe.getUser().getDeviceToken() != null;
     }
 
-    private boolean isKeywordRegistered(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
-        return event.keyword().getArticleKeywordUserMaps().stream()
-            .filter(map -> !map.getIsDeleted())
-            .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getId()));
+    private Map<Integer, String> getMatchedKeywordByUserId(List<ArticleKeyword> matchedKeywords) {
+        Map<Integer, String> matchedKeywordByUserId = new LinkedHashMap<>();
+        for (ArticleKeyword keyword : matchedKeywords) {
+            for (ArticleKeywordUserMap keywordUserMap : keyword.getArticleKeywordUserMaps()) {
+                if (keywordUserMap.getIsDeleted()) {
+                    continue;
+                }
+                Integer userId = keywordUserMap.getUser().getId();
+                matchedKeywordByUserId.merge(userId, keyword.getKeyword(), this::pickHigherPriorityKeyword);
+            }
+        }
+        return matchedKeywordByUserId;
+    }
+
+    private String pickHigherPriorityKeyword(String previousKeyword, String candidateKeyword) {
+        if (candidateKeyword.length() > previousKeyword.length()) {
+            return candidateKeyword;
+        }
+        return previousKeyword;
     }
 
     private boolean isNewNotifiedArticleId(Integer articleId, NotificationSubscribe subscribe) {
@@ -78,16 +116,16 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
     private Notification createAndRecordNotification(
         Article article,
         Board board,
-        ArticleKeyword keyword,
+        String keyword,
         NotificationSubscribe subscribe
     ) {
         Integer userId = subscribe.getUser().getId();
-        String description = generateDescription(keyword.getKeyword());
+        String description = generateDescription(keyword);
 
         Notification notification = notificationFactory.generateKeywordNotification(
             KEYWORD,
             article.getId(),
-            keyword.getKeyword(),
+            keyword,
             article.getTitle(),
             board.getId(),
             description,

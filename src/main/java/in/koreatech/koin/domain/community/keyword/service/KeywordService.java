@@ -148,22 +148,22 @@ public class KeywordService {
     }
 
     public void sendKeywordNotification(KeywordNotificationRequest request) {
-        List<Integer> updateNotificationIds = request.updateNotification();
+        List<Integer> updateNotificationIds = request.updateNotification().stream()
+            .distinct()
+            .toList();
 
-        if (!updateNotificationIds.isEmpty()) {
-            List<Article> articles = new ArrayList<>();
+        if (updateNotificationIds.isEmpty()) {
+            return;
+        }
 
-            for (Integer id : updateNotificationIds) {
-                articles.add(articleRepository.getById(id));
-            }
+        List<Article> articles = new ArrayList<>();
+        for (Integer id : updateNotificationIds) {
+            articles.add(articleRepository.getById(id));
+        }
 
-            List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
-
-            if (!keywordEvents.isEmpty()) {
-                for (ArticleKeywordEvent event : keywordEvents) {
-                    eventPublisher.publishEvent(event);
-                }
-            }
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
+        for (ArticleKeywordEvent event : keywordEvents) {
+            eventPublisher.publishEvent(event);
         }
     }
 
@@ -201,6 +201,10 @@ public class KeywordService {
 
     @Transactional
     public void createNotifiedArticleStatus(Integer userId, Integer articleId) {
-        userNotificationStatusRepository.save(new UserNotificationStatus(userId, articleId));
+        userNotificationStatusRepository.findByUserId(userId)
+            .ifPresentOrElse(
+                status -> status.updateNotifiedArticleId(articleId),
+                () -> userNotificationStatusRepository.save(new UserNotificationStatus(userId, articleId))
+            );
     }
 }
