@@ -100,4 +100,12 @@ class KeywordServiceTest {
         verifyNoInteractions(keywordExtractor);
         verifyNoInteractions(eventPublisher);
     }
+
+    @Test
+    @DisplayName("발송 이력 저장은 DB upsert를 사용한다.")
+    void createNotifiedArticleStatus_usesAtomicUpsert() {
+        keywordService.createNotifiedArticleStatus(1, 100);
+
+        verify(userNotificationStatusRepository).upsertLastNotifiedArticleId(1, 100);
+    }
 }

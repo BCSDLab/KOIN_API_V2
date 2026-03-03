@@ -26,7 +26,6 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
-import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
@@ -201,10 +200,6 @@ public class KeywordService {
 
     @Transactional
     public void createNotifiedArticleStatus(Integer userId, Integer articleId) {
-        userNotificationStatusRepository.findByUserId(userId)
-            .ifPresentOrElse(
-                status -> status.updateNotifiedArticleId(articleId),
-                () -> userNotificationStatusRepository.save(new UserNotificationStatus(userId, articleId))
-            );
+        userNotificationStatusRepository.upsertLastNotifiedArticleId(userId, articleId);
     }
 }
