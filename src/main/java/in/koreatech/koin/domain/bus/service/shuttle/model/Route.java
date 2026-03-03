@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
@@ -88,20 +89,31 @@ public class Route {
 
     public void sortArrivalNodesByDirection() {
         setDirection();
-        if (direction.equals("하교") && routeType != SHUTTLE) {
+        if (BusDirection.SOUTH.getName().equals(direction) && routeType != SHUTTLE) {
             Collections.reverse(this.arrivalNodes);
         }
     }
 
     private void setDirection() {
         if (routeType.equals(WEEKDAYS)) {
-            this.direction = routeInfo;
+            this.direction = normalizeDirection(routeInfo);
             return;
         }
+
         if (routeType.equals(WEEKEND)) {
-            this.direction = routeDetail;
+            this.direction = normalizeDirection(routeDetail);
             return;
         }
-        this.direction = arrivalNodes.get(0).getArrivalTime() == null ? "등교" : "하교";
+
+        this.direction = arrivalNodes.get(0).getArrivalTime() == null
+            ? BusDirection.NORTH.getName()
+            : BusDirection.SOUTH.getName();
+    }
+
+    private String normalizeDirection(String value) {
+        if (BusDirection.SOUTH.getName().equals(value)) {
+            return BusDirection.SOUTH.getName();
+        }
+        return BusDirection.NORTH.getName();
     }
 }
