@@ -50,7 +50,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         }
 
         Map<Integer, NotificationSubscribe> keywordSubscribersByUserId = notificationSubscribeRepository
-            .findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD)
+            .findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD)
             .stream()
             .filter(this::hasDeviceToken)
             .collect(Collectors.toMap(

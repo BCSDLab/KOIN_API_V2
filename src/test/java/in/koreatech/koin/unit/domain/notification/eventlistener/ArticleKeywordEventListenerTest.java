@@ -83,7 +83,7 @@ class ArticleKeywordEventListenerTest {
         when(article.getTitle()).thenReturn("근로장학생 모집");
         when(article.getBoard()).thenReturn(board);
         when(board.getId()).thenReturn(boardId);
-        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD))
+        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(subscribeA, subscribeB));
         when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(false);
 
@@ -123,7 +123,7 @@ class ArticleKeywordEventListenerTest {
         Board board = mock(Board.class);
         when(articleRepository.getById(articleId)).thenReturn(article);
         when(article.getBoard()).thenReturn(board);
-        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD))
+        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(subscribe));
         when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(false);
 
@@ -157,7 +157,7 @@ class ArticleKeywordEventListenerTest {
         Board board = mock(Board.class);
         when(articleRepository.getById(articleId)).thenReturn(article);
         when(article.getBoard()).thenReturn(board);
-        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD))
+        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(subscribe));
         when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(true);
 
