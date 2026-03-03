@@ -48,16 +48,18 @@ public class FcmClient {
         if (targetDeviceToken == null) {
             return false;
         }
-        log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
-
-        ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
-        AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, schemeUri, type);
-
-        Message message = Message.builder()
-            .setToken(targetDeviceToken)
-            .setApnsConfig(apnsConfig)
-            .setAndroidConfig(androidConfig).build();
         try {
+            log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
+
+            ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
+            AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, schemeUri, type);
+
+            Message message = Message.builder()
+                .setToken(targetDeviceToken)
+                .setApnsConfig(apnsConfig)
+                .setAndroidConfig(androidConfig)
+                .build();
+
             String result = FirebaseMessaging.getInstance().send(message);
             log.info("FCM 알림 전송 성공: {}", result);
             return true;
