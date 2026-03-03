@@ -89,8 +89,11 @@ class ArticleKeywordEventListenerTest {
             .thenReturn(List.of());
 
         Notification notification = mock(Notification.class);
+        when(notification.getUser()).thenReturn(subscriber);
         when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
             .thenReturn(notification);
+        when(notificationService.pushNotificationsWithResult(any()))
+            .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, true)));
 
         articleKeywordEventListener.onKeywordRequest(event);
 
@@ -104,7 +107,7 @@ class ArticleKeywordEventListenerTest {
             eq(subscriber)
         );
         verify(keywordService, times(1)).createNotifiedArticleStatus(userId, articleId);
-        verify(notificationService).pushNotifications(argThat(notifications ->
+        verify(notificationService).pushNotificationsWithResult(argThat(notifications ->
             notifications.size() == 1 && notifications.contains(notification)
         ));
     }
@@ -128,6 +131,7 @@ class ArticleKeywordEventListenerTest {
             .thenReturn(List.of(subscribe));
         when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(eq(articleId), any()))
             .thenReturn(List.of());
+        when(notificationService.pushNotificationsWithResult(any())).thenReturn(List.of());
 
         articleKeywordEventListener.onKeywordRequest(event);
 
@@ -141,7 +145,7 @@ class ArticleKeywordEventListenerTest {
             any()
         );
         verify(keywordService, never()).createNotifiedArticleStatus(anyInt(), anyInt());
-        verify(notificationService).pushNotifications(argThat(List::isEmpty));
+        verify(notificationService).pushNotificationsWithResult(argThat(List::isEmpty));
     }
 
     @Test
@@ -163,6 +167,7 @@ class ArticleKeywordEventListenerTest {
             .thenReturn(List.of(subscribe));
         when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(eq(articleId), any()))
             .thenReturn(List.of(userId));
+        when(notificationService.pushNotificationsWithResult(any())).thenReturn(List.of());
 
         articleKeywordEventListener.onKeywordRequest(event);
 
@@ -176,7 +181,7 @@ class ArticleKeywordEventListenerTest {
             any()
         );
         verify(keywordService, never()).createNotifiedArticleStatus(anyInt(), anyInt());
-        verify(notificationService).pushNotifications(argThat(List::isEmpty));
+        verify(notificationService).pushNotificationsWithResult(argThat(List::isEmpty));
     }
 
     private NotificationSubscribe createKeywordSubscribe(User user) {

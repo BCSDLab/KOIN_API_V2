@@ -30,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class NotificationService {
 
+    public record NotificationDeliveryResult(Notification notification, boolean delivered) {}
+
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final FcmClient fcmClient;
@@ -40,6 +42,13 @@ public class NotificationService {
         for (Notification notification : notifications) {
             pushNotification(notification);
         }
+    }
+
+    @Transactional
+    public List<NotificationDeliveryResult> pushNotificationsWithResult(List<Notification> notifications) {
+        return notifications.stream()
+            .map(this::pushNotificationWithResult)
+            .toList();
     }
 
     @Transactional
@@ -55,6 +64,21 @@ public class NotificationService {
             notification.getSchemeUri(),
             notification.getType().toLowerCase()
         );
+    }
+
+    private NotificationDeliveryResult pushNotificationWithResult(Notification notification) {
+        notificationRepository.save(notification);
+        String deviceToken = notification.getUser().getDeviceToken();
+        boolean delivered = fcmClient.sendMessageWithResult(
+            deviceToken,
+            notification.getTitle(),
+            notification.getMessage(),
+            notification.getImageUrl(),
+            notification.getMobileAppPath(),
+            notification.getSchemeUri(),
+            notification.getType().toLowerCase()
+        );
+        return new NotificationDeliveryResult(notification, delivered);
     }
 
     public NotificationStatusResponse getNotificationInfo(Integer userId) {

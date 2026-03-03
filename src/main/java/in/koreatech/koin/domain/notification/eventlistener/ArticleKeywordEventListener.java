@@ -71,7 +71,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             .filter(subscribe -> matchedKeywordByUserId.containsKey(subscribe.getUser().getId()))
             .filter(subscribe -> !alreadyNotifiedUserIds.contains(subscribe.getUser().getId()))
             .filter(subscribe -> !isMyArticle(event, subscribe))
-            .map(subscribe -> createAndRecordNotification(
+            .map(subscribe -> createNotification(
                 article,
                 board,
                 matchedKeywordByUserId.get(subscribe.getUser().getId()),
@@ -79,7 +79,13 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             ))
             .toList();
 
-        notificationService.pushNotifications(notifications);
+        List<NotificationService.NotificationDeliveryResult> deliveryResults =
+            notificationService.pushNotificationsWithResult(notifications);
+        for (NotificationService.NotificationDeliveryResult deliveryResult : deliveryResults) {
+            if (deliveryResult.delivered()) {
+                keywordService.createNotifiedArticleStatus(deliveryResult.notification().getUser().getId(), article.getId());
+            }
+        }
     }
 
     private boolean hasDeviceToken(NotificationSubscribe subscribe) {
@@ -101,13 +107,12 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         return Objects.equals(authorId, subscriberId);
     }
 
-    private Notification createAndRecordNotification(
+    private Notification createNotification(
         Article article,
         Board board,
         String keyword,
         NotificationSubscribe subscribe
     ) {
-        Integer userId = subscribe.getUser().getId();
         String description = generateDescription(keyword);
 
         Notification notification = notificationFactory.generateKeywordNotification(
@@ -119,8 +124,6 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             description,
             subscribe.getUser()
         );
-
-        keywordService.createNotifiedArticleStatus(userId, article.getId());
         return notification;
     }
 
