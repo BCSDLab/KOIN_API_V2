@@ -69,7 +69,6 @@ public class NotificationService {
     }
 
     private NotificationDeliveryResult pushNotificationWithResult(Notification notification) {
-        notificationRepository.save(notification);
         String deviceToken = notification.getUser().getDeviceToken();
         boolean delivered = fcmClient.sendMessageWithResult(
             deviceToken,
@@ -80,6 +79,9 @@ public class NotificationService {
             notification.getSchemeUri(),
             notification.getType().toLowerCase()
         );
+        if (delivered) {
+            notificationRepository.save(notification);
+        }
         return new NotificationDeliveryResult(notification, delivered);
     }
 
