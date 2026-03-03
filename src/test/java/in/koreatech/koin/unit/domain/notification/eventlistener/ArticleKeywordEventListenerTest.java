@@ -1,0 +1,204 @@
+package in.koreatech.koin.unit.domain.notification.eventlistener;
+
+import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import in.koreatech.koin.common.event.ArticleKeywordEvent;
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
+import in.koreatech.koin.domain.community.keyword.service.KeywordService;
+import in.koreatech.koin.domain.notification.eventlistener.ArticleKeywordEventListener;
+import in.koreatech.koin.domain.notification.model.Notification;
+import in.koreatech.koin.domain.notification.model.NotificationFactory;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.domain.notification.service.NotificationService;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.unit.fixture.UserFixture;
+
+@ExtendWith(MockitoExtension.class)
+class ArticleKeywordEventListenerTest {
+
+    @InjectMocks
+    private ArticleKeywordEventListener articleKeywordEventListener;
+
+    @Mock
+    private NotificationService notificationService;
+
+    @Mock
+    private NotificationFactory notificationFactory;
+
+    @Mock
+    private NotificationSubscribeRepository notificationSubscribeRepository;
+
+    @Mock
+    private UserNotificationStatusRepository userNotificationStatusRepository;
+
+    @Mock
+    private KeywordService keywordService;
+
+    @Mock
+    private ArticleRepository articleRepository;
+
+    @Test
+    @DisplayName("중복 구독/다중 키워드 매칭이어도 사용자당 알림은 한 번만 발송된다.")
+    void onKeywordRequest_withDuplicateSubscriptionsAndMatchedKeywords_sendsSingleNotification() {
+        Integer articleId = 100;
+        Integer boardId = 12;
+        Integer userId = 1;
+        User subscriber = UserFixture.id_설정_코인_유저(userId);
+        subscriber.permitNotification("device-token");
+
+        NotificationSubscribe subscribeA = createKeywordSubscribe(subscriber);
+        NotificationSubscribe subscribeB = createKeywordSubscribe(subscriber);
+        ArticleKeyword keywordA = createKeyword("근로", subscriber);
+        ArticleKeyword keywordB = createKeyword("근로장학", subscriber);
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, List.of(keywordA, keywordB));
+
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        when(articleRepository.getById(articleId)).thenReturn(article);
+        when(article.getId()).thenReturn(articleId);
+        when(article.getTitle()).thenReturn("근로장학생 모집");
+        when(article.getBoard()).thenReturn(board);
+        when(board.getId()).thenReturn(boardId);
+        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD))
+            .thenReturn(List.of(subscribeA, subscribeB));
+        when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(false);
+
+        Notification notification = mock(Notification.class);
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+            .thenReturn(notification);
+
+        articleKeywordEventListener.onKeywordRequest(event);
+
+        verify(notificationFactory, times(1)).generateKeywordNotification(
+            eq(KEYWORD),
+            eq(articleId),
+            eq("근로장학"),
+            eq("근로장학생 모집"),
+            eq(boardId),
+            contains("근로장학"),
+            eq(subscriber)
+        );
+        verify(keywordService, times(1)).createNotifiedArticleStatus(userId, articleId);
+        verify(notificationService).pushNotifications(argThat(notifications ->
+            notifications.size() == 1 && notifications.contains(notification)
+        ));
+    }
+
+    @Test
+    @DisplayName("게시글 작성자 본인에게는 키워드 알림을 보내지 않는다.")
+    void onKeywordRequest_whenSubscriberIsAuthor_skipsNotification() {
+        Integer articleId = 200;
+        Integer userId = 2;
+        User subscriber = UserFixture.id_설정_코인_유저(userId);
+        subscriber.permitNotification("device-token");
+
+        NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
+        ArticleKeyword keyword = createKeyword("A", subscriber);
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, userId, List.of(keyword));
+
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        when(articleRepository.getById(articleId)).thenReturn(article);
+        when(article.getBoard()).thenReturn(board);
+        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD))
+            .thenReturn(List.of(subscribe));
+        when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(false);
+
+        articleKeywordEventListener.onKeywordRequest(event);
+
+        verify(notificationFactory, never()).generateKeywordNotification(
+            any(),
+            anyInt(),
+            anyString(),
+            anyString(),
+            anyInt(),
+            anyString(),
+            any()
+        );
+        verify(keywordService, never()).createNotifiedArticleStatus(anyInt(), anyInt());
+        verify(notificationService).pushNotifications(argThat(List::isEmpty));
+    }
+
+    @Test
+    @DisplayName("이미 해당 게시글 알림을 받은 사용자는 다시 발송하지 않는다.")
+    void onKeywordRequest_whenAlreadyNotified_skipsNotification() {
+        Integer articleId = 300;
+        Integer userId = 3;
+        User subscriber = UserFixture.id_설정_코인_유저(userId);
+        subscriber.permitNotification("device-token");
+
+        NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
+        ArticleKeyword keyword = createKeyword("C", subscriber);
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, List.of(keyword));
+
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        when(articleRepository.getById(articleId)).thenReturn(article);
+        when(article.getBoard()).thenReturn(board);
+        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD))
+            .thenReturn(List.of(subscribe));
+        when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(true);
+
+        articleKeywordEventListener.onKeywordRequest(event);
+
+        verify(notificationFactory, never()).generateKeywordNotification(
+            any(),
+            anyInt(),
+            anyString(),
+            anyString(),
+            anyInt(),
+            anyString(),
+            any()
+        );
+        verify(keywordService, never()).createNotifiedArticleStatus(anyInt(), anyInt());
+        verify(notificationService).pushNotifications(argThat(List::isEmpty));
+    }
+
+    private NotificationSubscribe createKeywordSubscribe(User user) {
+        return NotificationSubscribe.builder()
+            .subscribeType(ARTICLE_KEYWORD)
+            .user(user)
+            .build();
+    }
+
+    private ArticleKeyword createKeyword(String keyword, User... users) {
+        ArticleKeyword articleKeyword = ArticleKeyword.builder()
+            .keyword(keyword)
+            .build();
+        for (User user : users) {
+            ArticleKeywordUserMap userMap = ArticleKeywordUserMap.builder()
+                .articleKeyword(articleKeyword)
+                .user(user)
+                .build();
+            articleKeyword.addUserMap(userMap);
+        }
+        return articleKeyword;
+    }
+}
