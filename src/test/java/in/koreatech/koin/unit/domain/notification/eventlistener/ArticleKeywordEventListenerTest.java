@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -229,6 +230,46 @@ class ArticleKeywordEventListenerTest {
             notifications.size() == 1 && notifications.contains(notification)
         ));
         verify(keywordService, never()).createNotifiedArticleStatus(anyInt(), anyInt());
+    }
+
+    @Test
+    @DisplayName("기발송 사용자 조회는 매칭된 사용자 ID만 대상으로 수행한다.")
+    void onKeywordRequest_queriesNotifiedStatusOnlyForMatchedUsers() {
+        Integer articleId = 500;
+        Integer boardId = 16;
+        Integer matchedUserId = 5;
+        Integer unmatchedUserId = 6;
+
+        User matchedUser = UserFixture.id_설정_코인_유저(matchedUserId);
+        matchedUser.permitNotification("matched-device-token");
+        User unmatchedUser = UserFixture.id_설정_코인_유저(unmatchedUserId);
+        unmatchedUser.permitNotification("unmatched-device-token");
+
+        NotificationSubscribe matchedSubscribe = createKeywordSubscribe(matchedUser);
+        NotificationSubscribe unmatchedSubscribe = createKeywordSubscribe(unmatchedUser);
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(matchedUserId, "근로장학"));
+
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        when(articleRepository.getById(articleId)).thenReturn(article);
+        when(article.getId()).thenReturn(articleId);
+        when(article.getTitle()).thenReturn("근로장학생 모집");
+        when(article.getBoard()).thenReturn(board);
+        when(board.getId()).thenReturn(boardId);
+        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
+            .thenReturn(List.of(matchedSubscribe, unmatchedSubscribe));
+        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId, Set.of(matchedUserId)))
+            .thenReturn(List.of());
+
+        Notification notification = mock(Notification.class);
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+            .thenReturn(notification);
+        when(notificationService.pushNotificationsWithResult(any())).thenReturn(List.of());
+
+        articleKeywordEventListener.onKeywordRequest(event);
+
+        verify(userNotificationStatusRepository)
+            .findUserIdsByNotifiedArticleIdAndUserIdIn(articleId, Set.of(matchedUserId));
     }
 
     private NotificationSubscribe createKeywordSubscribe(User user) {

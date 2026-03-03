@@ -62,13 +62,17 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
                 LinkedHashMap::new
             ));
 
+        Set<Integer> matchedUserIds = keywordSubscribersByUserId.keySet().stream()
+            .filter(matchedKeywordByUserId::containsKey)
+            .collect(Collectors.toSet());
+
         Set<Integer> alreadyNotifiedUserIds = getAlreadyNotifiedUserIds(
             event.articleId(),
-            keywordSubscribersByUserId.keySet()
+            matchedUserIds
         );
 
         List<Notification> notifications = keywordSubscribersByUserId.values().stream()
-            .filter(subscribe -> matchedKeywordByUserId.containsKey(subscribe.getUser().getId()))
+            .filter(subscribe -> matchedUserIds.contains(subscribe.getUser().getId()))
             .filter(subscribe -> !alreadyNotifiedUserIds.contains(subscribe.getUser().getId()))
             .filter(subscribe -> !isMyArticle(event, subscribe))
             .map(subscribe -> createNotification(
