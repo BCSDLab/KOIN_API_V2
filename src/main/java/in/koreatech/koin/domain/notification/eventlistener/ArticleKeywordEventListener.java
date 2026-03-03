@@ -3,10 +3,12 @@ package in.koreatech.koin.domain.notification.eventlistener;
 import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,9 +62,14 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
                 LinkedHashMap::new
             ));
 
+        Set<Integer> alreadyNotifiedUserIds = getAlreadyNotifiedUserIds(
+            event.articleId(),
+            keywordSubscribersByUserId.keySet()
+        );
+
         List<Notification> notifications = keywordSubscribersByUserId.values().stream()
             .filter(subscribe -> matchedKeywordByUserId.containsKey(subscribe.getUser().getId()))
-            .filter(subscribe -> isNewNotifiedArticleId(event.articleId(), subscribe))
+            .filter(subscribe -> !alreadyNotifiedUserIds.contains(subscribe.getUser().getId()))
             .filter(subscribe -> !isMyArticle(event, subscribe))
             .map(subscribe -> createAndRecordNotification(
                 article,
@@ -79,9 +86,13 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         return subscribe.getUser().getDeviceToken() != null;
     }
 
-    private boolean isNewNotifiedArticleId(Integer articleId, NotificationSubscribe subscribe) {
-        Integer userId = subscribe.getUser().getId();
-        return !userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId);
+    private Set<Integer> getAlreadyNotifiedUserIds(Integer articleId, Set<Integer> subscriberUserIds) {
+        if (subscriberUserIds.isEmpty()) {
+            return Set.of();
+        }
+        return new HashSet<>(
+            userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId, subscriberUserIds)
+        );
     }
 
     private boolean isMyArticle(ArticleKeywordEvent event, NotificationSubscribe subscribe) {

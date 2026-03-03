@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.keyword.repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,6 +18,17 @@ public interface UserNotificationStatusRepository extends Repository<UserNotific
     Optional<UserNotificationStatus> findByUserId(Integer userId);
 
     boolean existsByNotifiedArticleIdAndUserId(Integer notifiedArticleId, Integer userId);
+
+    @Query("""
+        SELECT status.userId
+        FROM UserNotificationStatus status
+        WHERE status.notifiedArticleId = :notifiedArticleId
+        AND status.userId IN :userIds
+        """)
+    List<Integer> findUserIdsByNotifiedArticleIdAndUserIdIn(
+        @Param("notifiedArticleId") Integer notifiedArticleId,
+        @Param("userIds") Collection<Integer> userIds
+    );
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """

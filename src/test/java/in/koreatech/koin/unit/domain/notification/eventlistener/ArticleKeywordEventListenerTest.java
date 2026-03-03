@@ -85,7 +85,8 @@ class ArticleKeywordEventListenerTest {
         when(board.getId()).thenReturn(boardId);
         when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(subscribeA, subscribeB));
-        when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(false);
+        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(eq(articleId), any()))
+            .thenReturn(List.of());
 
         Notification notification = mock(Notification.class);
         when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
@@ -125,7 +126,8 @@ class ArticleKeywordEventListenerTest {
         when(article.getBoard()).thenReturn(board);
         when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(subscribe));
-        when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(false);
+        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(eq(articleId), any()))
+            .thenReturn(List.of());
 
         articleKeywordEventListener.onKeywordRequest(event);
 
@@ -159,7 +161,8 @@ class ArticleKeywordEventListenerTest {
         when(article.getBoard()).thenReturn(board);
         when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(subscribe));
-        when(userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId)).thenReturn(true);
+        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(eq(articleId), any()))
+            .thenReturn(List.of(userId));
 
         articleKeywordEventListener.onKeywordRequest(event);
 
