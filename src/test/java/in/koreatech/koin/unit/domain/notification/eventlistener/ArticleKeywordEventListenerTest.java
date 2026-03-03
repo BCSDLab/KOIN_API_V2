@@ -184,6 +184,53 @@ class ArticleKeywordEventListenerTest {
         verify(notificationService).pushNotificationsWithResult(argThat(List::isEmpty));
     }
 
+    @Test
+    @DisplayName("알림 전송 실패 시 발송 이력을 저장하지 않는다.")
+    void onKeywordRequest_whenDeliveryFails_doesNotRecordNotifiedStatus() {
+        Integer articleId = 400;
+        Integer boardId = 15;
+        Integer userId = 4;
+        User subscriber = UserFixture.id_설정_코인_유저(userId);
+        subscriber.permitNotification("device-token");
+
+        NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "근로장학"));
+
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        when(articleRepository.getById(articleId)).thenReturn(article);
+        when(article.getId()).thenReturn(articleId);
+        when(article.getTitle()).thenReturn("근로장학생 모집");
+        when(article.getBoard()).thenReturn(board);
+        when(board.getId()).thenReturn(boardId);
+        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
+            .thenReturn(List.of(subscribe));
+        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(eq(articleId), any()))
+            .thenReturn(List.of());
+
+        Notification notification = mock(Notification.class);
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+            .thenReturn(notification);
+        when(notificationService.pushNotificationsWithResult(any()))
+            .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, false)));
+
+        articleKeywordEventListener.onKeywordRequest(event);
+
+        verify(notificationFactory, times(1)).generateKeywordNotification(
+            eq(KEYWORD),
+            eq(articleId),
+            eq("근로장학"),
+            eq("근로장학생 모집"),
+            eq(boardId),
+            contains("근로장학"),
+            eq(subscriber)
+        );
+        verify(notificationService).pushNotificationsWithResult(argThat(notifications ->
+            notifications.size() == 1 && notifications.contains(notification)
+        ));
+        verify(keywordService, never()).createNotifiedArticleStatus(anyInt(), anyInt());
+    }
+
     private NotificationSubscribe createKeywordSubscribe(User user) {
         return NotificationSubscribe.builder()
             .subscribeType(ARTICLE_KEYWORD)
