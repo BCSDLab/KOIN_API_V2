@@ -1,13 +1,11 @@
 package in.koreatech.koin.common.event;
 
-import java.util.List;
-
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import java.util.Map;
 
 public record ArticleKeywordEvent(
     Integer articleId,
     Integer authorId,
-    List<ArticleKeyword> matchedKeywords
+    Map<Integer, String> matchedKeywordByUserId
 ) {
 
 }

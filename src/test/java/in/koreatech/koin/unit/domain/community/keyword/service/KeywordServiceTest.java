@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,6 @@ import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
@@ -72,12 +72,12 @@ class KeywordServiceTest {
         ArticleKeywordEvent event10 = new ArticleKeywordEvent(
             10,
             null,
-            List.of(ArticleKeyword.builder().keyword("A").build())
+            Map.of(1, "A")
         );
         ArticleKeywordEvent event11 = new ArticleKeywordEvent(
             11,
             null,
-            List.of(ArticleKeyword.builder().keyword("B").build())
+            Map.of(2, "B")
         );
         when(keywordExtractor.matchKeyword(List.of(article10, article11), null)).thenReturn(List.of(event10, event11));
 

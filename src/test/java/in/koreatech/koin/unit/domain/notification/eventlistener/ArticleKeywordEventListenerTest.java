@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,6 @@ import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.domain.notification.eventlistener.ArticleKeywordEventListener;
@@ -65,8 +64,8 @@ class ArticleKeywordEventListenerTest {
     private ArticleRepository articleRepository;
 
     @Test
-    @DisplayName("중복 구독/다중 키워드 매칭이어도 사용자당 알림은 한 번만 발송된다.")
-    void onKeywordRequest_withDuplicateSubscriptionsAndMatchedKeywords_sendsSingleNotification() {
+    @DisplayName("중복 구독이 있어도 사용자당 알림은 한 번만 발송된다.")
+    void onKeywordRequest_withDuplicateSubscriptions_sendsSingleNotification() {
         Integer articleId = 100;
         Integer boardId = 12;
         Integer userId = 1;
@@ -75,9 +74,7 @@ class ArticleKeywordEventListenerTest {
 
         NotificationSubscribe subscribeA = createKeywordSubscribe(subscriber);
         NotificationSubscribe subscribeB = createKeywordSubscribe(subscriber);
-        ArticleKeyword keywordA = createKeyword("근로", subscriber);
-        ArticleKeyword keywordB = createKeyword("근로장학", subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, List.of(keywordA, keywordB));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "근로장학"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -120,8 +117,7 @@ class ArticleKeywordEventListenerTest {
         subscriber.permitNotification("device-token");
 
         NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
-        ArticleKeyword keyword = createKeyword("A", subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, userId, List.of(keyword));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, userId, Map.of(userId, "A"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -155,8 +151,7 @@ class ArticleKeywordEventListenerTest {
         subscriber.permitNotification("device-token");
 
         NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
-        ArticleKeyword keyword = createKeyword("C", subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, List.of(keyword));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "C"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -186,19 +181,5 @@ class ArticleKeywordEventListenerTest {
             .subscribeType(ARTICLE_KEYWORD)
             .user(user)
             .build();
-    }
-
-    private ArticleKeyword createKeyword(String keyword, User... users) {
-        ArticleKeyword articleKeyword = ArticleKeyword.builder()
-            .keyword(keyword)
-            .build();
-        for (User user : users) {
-            ArticleKeywordUserMap userMap = ArticleKeywordUserMap.builder()
-                .articleKeyword(articleKeyword)
-                .user(user)
-                .build();
-            articleKeyword.addUserMap(userMap);
-        }
-        return articleKeyword;
     }
 }

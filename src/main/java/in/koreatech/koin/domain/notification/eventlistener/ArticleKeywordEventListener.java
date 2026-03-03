@@ -18,8 +18,6 @@ import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.domain.notification.model.Notification;
@@ -45,7 +43,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
     public void onKeywordRequest(ArticleKeywordEvent event) {
         Article article = articleRepository.getById(event.articleId());
         Board board = article.getBoard();
-        Map<Integer, String> matchedKeywordByUserId = getMatchedKeywordByUserId(event.matchedKeywords());
+        Map<Integer, String> matchedKeywordByUserId = event.matchedKeywordByUserId();
 
         if (matchedKeywordByUserId.isEmpty()) {
             return;
@@ -79,27 +77,6 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
 
     private boolean hasDeviceToken(NotificationSubscribe subscribe) {
         return subscribe.getUser().getDeviceToken() != null;
-    }
-
-    private Map<Integer, String> getMatchedKeywordByUserId(List<ArticleKeyword> matchedKeywords) {
-        Map<Integer, String> matchedKeywordByUserId = new LinkedHashMap<>();
-        for (ArticleKeyword keyword : matchedKeywords) {
-            for (ArticleKeywordUserMap keywordUserMap : keyword.getArticleKeywordUserMaps()) {
-                if (keywordUserMap.getIsDeleted()) {
-                    continue;
-                }
-                Integer userId = keywordUserMap.getUser().getId();
-                matchedKeywordByUserId.merge(userId, keyword.getKeyword(), this::pickHigherPriorityKeyword);
-            }
-        }
-        return matchedKeywordByUserId;
-    }
-
-    private String pickHigherPriorityKeyword(String previousKeyword, String candidateKeyword) {
-        if (candidateKeyword.length() > previousKeyword.length()) {
-            return candidateKeyword;
-        }
-        return previousKeyword;
     }
 
     private boolean isNewNotifiedArticleId(Integer articleId, NotificationSubscribe subscribe) {
