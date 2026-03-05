@@ -7,7 +7,6 @@ import static in.koreatech.koin.domain.notification.model.NotificationSubscribeT
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.dining.model.DiningType;
@@ -39,21 +38,21 @@ public class NotificationService {
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final NotificationFactory notificationFactory;
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional
     public void pushNotifications(List<Notification> notifications) {
         for (Notification notification : notifications) {
             pushNotification(notification);
         }
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional
     public List<NotificationDeliveryResult> pushNotificationsWithResult(List<Notification> notifications) {
         return notifications.stream()
             .map(this::pushNotificationWithResult)
             .toList();
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional
     public void pushNotification(Notification notification) {
         notificationRepository.save(notification);
         String deviceToken = notification.getUser().getDeviceToken();
@@ -150,7 +149,7 @@ public class NotificationService {
         notificationSubscribeRepository.deleteByUserIdAndDetailType(userId, detailType);
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional
     public void sendDiningSoldOutNotifications(Integer dinningId, String place, DiningType diningType) {
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(diningType);
         var notifications = notificationSubscribeRepository.findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, detailType)
