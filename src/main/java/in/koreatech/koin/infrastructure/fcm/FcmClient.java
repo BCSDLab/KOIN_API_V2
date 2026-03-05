@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.ApnsConfig;
@@ -45,7 +46,7 @@ public class FcmClient {
         String schemeUri,
         String type
     ) {
-        if (targetDeviceToken == null) {
+        if (!StringUtils.hasText(targetDeviceToken)) {
             return false;
         }
         try {
