@@ -67,6 +67,15 @@ public class CallvanUserReportService {
                 .toList()
         );
 
+        callvanReport.registerAttachments(
+            request.attachments() == null ? List.of() : request.attachments().stream()
+                .map(attachment -> new CallvanReport.CallvanReportAttachmentCreateCommand(
+                    attachment.attachmentType(),
+                    attachment.url()
+                ))
+                .toList()
+        );
+
         callvanReportRepository.save(callvanReport);
     }
 }
