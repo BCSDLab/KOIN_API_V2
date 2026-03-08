@@ -45,7 +45,8 @@ public interface CallvanApi {
         CREATED,
         NOT_FOUND_USER,
         INVALID_REQUEST_BODY,
-        INVALID_CUSTOM_LOCATION_NAME
+        INVALID_CUSTOM_LOCATION_NAME,
+        FORBIDDEN_CALLVAN_RESTRICTED_USER
     })
     @Operation(summary = "콜밴 게시글 생성", description = """
         ### 콜밴 게시글 생성 API
@@ -149,7 +150,8 @@ public interface CallvanApi {
         NOT_FOUND_ARTICLE,
         CALLVAN_POST_NOT_RECRUITING,
         CALLVAN_POST_FULL,
-        CALLVAN_ALREADY_JOINED
+        CALLVAN_ALREADY_JOINED,
+        FORBIDDEN_CALLVAN_RESTRICTED_USER
     })
     @Operation(summary = "콜밴 게시글 참여", description = """
         ### 콜밴 게시글 참여 API
