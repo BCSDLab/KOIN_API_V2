@@ -8,10 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
+import in.koreatech.koin.domain.callvan.model.CallvanReport;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
 import in.koreatech.koin.domain.callvan.repository.CallvanNotificationRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -19,8 +21,11 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class CallvanNotificationService {
 
+    private static final String CALLVAN_WARNING_MESSAGE =
+        "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 주의 안내가 전달되었습니다. 이후 동일한 문제가 반복될 경우 콜벤 기능 이용이 제한될 수 있습니다.";
     private final CallvanPostRepository callvanPostRepository;
     private final CallvanNotificationRepository callvanNotificationRepository;
+    private final UserRepository userRepository;
 
     public List<CallvanNotificationResponse> getNotifications(Integer userId) {
         return callvanNotificationRepository.findAllByRecipientIdOrderByCreatedAtDesc(userId).stream()
@@ -95,6 +100,17 @@ public class CallvanNotificationService {
         }
     }
 
+    @Transactional
+    public void notifyReportWarning(Integer recipientId, Integer postId) {
+        User recipient = userRepository.getById(recipientId);
+        CallvanPost post = callvanPostRepository.getById(postId);
+        CallvanNotification callvanNotification = buildNotification(
+            recipient, CallvanNotificationType.REPORT_WARNING, post, null,
+            CALLVAN_WARNING_MESSAGE, null
+        );
+
+        callvanNotificationRepository.save(callvanNotification);
+    }
 
     private CallvanNotification buildNotification(User recipient, CallvanNotificationType type, CallvanPost post,
         String senderNickname, String messagePreview, String joinedMemberNickname
@@ -117,5 +133,4 @@ public class CallvanNotificationService {
             .joinedMemberNickname(joinedMemberNickname)
             .build();
     }
-
 }
