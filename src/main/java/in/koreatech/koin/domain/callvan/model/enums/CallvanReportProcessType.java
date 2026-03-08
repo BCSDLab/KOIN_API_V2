@@ -16,6 +16,10 @@ public enum CallvanReportProcessType {
         return this == WARNING;
     }
 
+    public boolean isSanction() {
+        return this == WARNING || this == TEMPORARY_RESTRICTION_14_DAYS || this == PERMANENT_RESTRICTION;
+    }
+
     public LocalDateTime calculateRestrictedUntil(LocalDateTime processedAt) {
         if (this == TEMPORARY_RESTRICTION_14_DAYS) {
             return processedAt.plusDays(14);

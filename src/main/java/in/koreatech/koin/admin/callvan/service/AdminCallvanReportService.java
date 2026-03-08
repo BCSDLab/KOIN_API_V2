@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.callvan.dto.AdminCallvanReportProcessRequest;
-import in.koreatech.koin.domain.callvan.event.CallvanReportWarningEvent;
+import in.koreatech.koin.domain.callvan.event.CallvanReportSanctionEvent;
 import in.koreatech.koin.domain.callvan.model.CallvanReport;
 import in.koreatech.koin.domain.callvan.model.CallvanReportProcess;
 import in.koreatech.koin.domain.callvan.repository.CallvanReportProcessRepository;
@@ -39,8 +39,7 @@ public class AdminCallvanReportService {
         LocalDateTime processedAt = LocalDateTime.now();
 
         CallvanReportProcess process = CallvanReportProcess.create(
-            report, adminUser, request.processType(), request.processType().calculateRestrictedUntil(processedAt)
-        );
+            report, adminUser, request.processType(), request.processType().calculateRestrictedUntil(processedAt));
         callvanReportProcessRepository.save(process);
 
         if (request.processType().isRejected()) {
@@ -50,9 +49,10 @@ public class AdminCallvanReportService {
 
         report.confirm(adminUser);
 
-        if (request.processType().isWarning()) {
+        if (request.processType().isSanction()) {
             eventPublisher.publishEvent(
-                new CallvanReportWarningEvent(report.getReported().getId(), report.getPost().getId()));
+                new CallvanReportSanctionEvent(report.getReported().getId(), report.getPost().getId(),
+                    request.processType()));
         }
     }
 

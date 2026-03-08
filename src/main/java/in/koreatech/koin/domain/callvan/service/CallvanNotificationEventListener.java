@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.callvan.event.CallvanReportWarningEvent;
+import in.koreatech.koin.domain.callvan.event.CallvanReportSanctionEvent;
 import in.koreatech.koin.domain.callvan.event.CallvanNewMessageEvent;
 import in.koreatech.koin.domain.callvan.event.CallvanParticipantJoinedEvent;
 import in.koreatech.koin.domain.callvan.event.CallvanRecruitmentCompletedEvent;
@@ -39,7 +39,8 @@ public class CallvanNotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onReportWarningIssued(CallvanReportWarningEvent event) {
-        callvanNotificationService.notifyReportWarning(event.reportedUserId(), event.callvanPostId());
+    public void onReportSanctionIssued(CallvanReportSanctionEvent event) {
+        callvanNotificationService.notifyReportSanction(
+            event.reportedUserId(), event.callvanPostId(), event.processType());
     }
 }

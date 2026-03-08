@@ -366,19 +366,19 @@ public interface CallvanApi {
         로그인한 사용자의 알림 목록을 최신순으로 조회합니다.
 
         ### 알림 타입별 데이터 구조
-        | 필드명 | RECRUITMENT_COMPLETE(인원 모집 완료) | NEW_MESSAGE(신규 채팅 도착) | PARTICIPANT_JOINED(신규 인원 참여) | DEPARTURE_UPCOMING(출발 30분 전) | REPORT_WARNING(사용자 1차 제재(경고)) |
-        | :--- | :--- | :--- | :--- | :--- | :--- |
-        | type | RECRUITMENT_COMPLETE | NEW_MESSAGE | PARTICIPANT_JOINED | DEPARTURE_UPCOMING | REPORT_WARNING |
-        | message_preview | "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요" | 신규 채팅 메시지 내용 | null | null | "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후..." |
-        | sender_nickname | null | 발신자 닉네임 | null | null | null |
-        | joined_member_nickname | null | null | 참여자 닉네임 | null | null |
-        | post_id | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID |
-        | departure | 출발지 | 출발지 | 출발지 | 출발지 | 출발지 |
-        | arrival | 도착지 | 도착지 | 도착지 | 도착지 | 도착지 |
-        | departure_date | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 |
-        | departure_time | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 |
-        | current_participants | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 |
-        | max_participants | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 |
+        | 필드명 | RECRUITMENT_COMPLETE(인원 모집 완료) | NEW_MESSAGE(신규 채팅 도착) | PARTICIPANT_JOINED(신규 인원 참여) | DEPARTURE_UPCOMING(출발 30분 전) | REPORT_WARNING(사용자 1차 제재(경고)) | REPORT_RESTRICTION_14_DAYS(14일 이용 제한) | REPORT_PERMANENT_RESTRICTION(영구 이용 제한) |
+        | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+        | type | RECRUITMENT_COMPLETE | NEW_MESSAGE | PARTICIPANT_JOINED | DEPARTURE_UPCOMING | REPORT_WARNING | REPORT_RESTRICTION_14_DAYS | REPORT_PERMANENT_RESTRICTION |
+        | message_preview | "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요" | 신규 채팅 메시지 내용 | null | null | "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후..." | "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 14일간..." | "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 콜벤 기능 이용이 영구적으로..." |
+        | sender_nickname | null | 발신자 닉네임 | null | null | null | null | null |
+        | joined_member_nickname | null | null | 참여자 닉네임 | null | null | null | null |
+        | post_id | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID |
+        | departure | 출발지 | 출발지 | 출발지 | 출발지 | 출발지 | 출발지 | 출발지 |
+        | arrival | 도착지 | 도착지 | 도착지 | 도착지 | 도착지 | 도착지 | 도착지 |
+        | departure_date | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 |
+        | departure_time | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 |
+        | current_participants | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 |
+        | max_participants | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 |
         """)
     @GetMapping("/notifications")
     ResponseEntity<List<CallvanNotificationResponse>> getNotifications(

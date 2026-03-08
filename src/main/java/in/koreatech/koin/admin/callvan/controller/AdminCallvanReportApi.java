@@ -40,8 +40,7 @@ public interface AdminCallvanReportApi {
         @RequestParam(name = "only_pending", required = false, defaultValue = "false") Boolean onlyPending,
         @RequestParam(name = "page", required = false) Integer page,
         @RequestParam(name = "limit", required = false) Integer limit,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
+        @Auth(permit = {ADMIN}) Integer adminId);
 
     @ApiResponseCodes({
         OK,
@@ -54,14 +53,20 @@ public interface AdminCallvanReportApi {
     @Operation(summary = "콜벤 신고 처리", description = """
         콜벤 신고를 처리합니다.
         - `WARNING`: 신고 확정 후 주의 안내 알림을 발송합니다.
-        - `TEMPORARY_RESTRICTION_14_DAYS`: 신고 확정 후 14일간 새 모집/참여를 제한합니다.
-        - `PERMANENT_RESTRICTION`: 신고 확정 후 콜벤 기능을 영구 제한합니다.
-        - `REJECT`: 신고를 반려하고 상태를 REJECTED로 변경합니다.
+        - `TEMPORARY_RESTRICTION_14_DAYS`: 신고 확정 후 14일간 새 모집/참여를 제한하며, 제재 알림을 발송합니다.
+        - `PERMANENT_RESTRICTION`: 신고 확정 후 콜벤 기능을 영구 제한하며, 제재 알림을 발송합니다.
+        - `REJECT`: 신고를 반려하고 상태를 REJECTED로 변경합니다. 알림은 발송되지 않습니다.
+        
+        #### 제재 유형별 알림 메시지
+        | 처리 유형 | 알림 타입 | 메시지 |
+        | :--- | :--- | :--- |
+        | `WARNING` | `REPORT_WARNING` | 콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 주의 안내가 전달되었습니다. 이후 동일한 문제가 반복될 경우 콜벤 기능 이용이 제한될 수 있습니다. |
+        | `TEMPORARY_RESTRICTION_14_DAYS` | `REPORT_RESTRICTION_14_DAYS` | 콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 14일간 콜벤 기능 이용이 제한되었습니다. |
+        | `PERMANENT_RESTRICTION` | `REPORT_PERMANENT_RESTRICTION` | 콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 콜벤 기능 이용이 영구적으로 제한되었습니다. |
         """)
     @PostMapping("/{reportId}/process")
     ResponseEntity<Void> processCallvanReport(
         @Parameter(in = PATH) @PathVariable Integer reportId,
         @RequestBody @Valid AdminCallvanReportProcessRequest request,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
+        @Auth(permit = {ADMIN}) Integer adminId);
 }

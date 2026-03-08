@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
-import in.koreatech.koin.domain.callvan.model.CallvanReport;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanReportProcessType;
 import in.koreatech.koin.domain.callvan.repository.CallvanNotificationRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -21,8 +21,9 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class CallvanNotificationService {
 
-    private static final String CALLVAN_WARNING_MESSAGE =
-        "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 주의 안내가 전달되었습니다. 이후 동일한 문제가 반복될 경우 콜벤 기능 이용이 제한될 수 있습니다.";
+    private static final String CALLVAN_WARNING_MESSAGE = "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 주의 안내가 전달되었습니다. 이후 동일한 문제가 반복될 경우 콜벤 기능 이용이 제한될 수 있습니다.";
+    private static final String CALLVAN_RESTRICTION_14_DAYS_MESSAGE = "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 14일간 콜벤 기능 이용이 제한되었습니다.";
+    private static final String CALLVAN_PERMANENT_RESTRICTION_MESSAGE = "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 콜벤 기능 이용이 영구적으로 제한되었습니다.";
     private final CallvanPostRepository callvanPostRepository;
     private final CallvanNotificationRepository callvanNotificationRepository;
     private final UserRepository userRepository;
@@ -101,20 +102,32 @@ public class CallvanNotificationService {
     }
 
     @Transactional
-    public void notifyReportWarning(Integer recipientId, Integer postId) {
+    public void notifyReportSanction(Integer recipientId, Integer postId, CallvanReportProcessType processType) {
         User recipient = userRepository.getById(recipientId);
         CallvanPost post = callvanPostRepository.getById(postId);
+
+        CallvanNotificationType notificationType = switch (processType) {
+            case WARNING -> CallvanNotificationType.REPORT_WARNING;
+            case TEMPORARY_RESTRICTION_14_DAYS -> CallvanNotificationType.REPORT_RESTRICTION_14_DAYS;
+            case PERMANENT_RESTRICTION -> CallvanNotificationType.REPORT_PERMANENT_RESTRICTION;
+            default -> throw new IllegalArgumentException("Unsupported sanction type: " + processType);
+        };
+
+        String message = switch (processType) {
+            case WARNING -> CALLVAN_WARNING_MESSAGE;
+            case TEMPORARY_RESTRICTION_14_DAYS -> CALLVAN_RESTRICTION_14_DAYS_MESSAGE;
+            case PERMANENT_RESTRICTION -> CALLVAN_PERMANENT_RESTRICTION_MESSAGE;
+            default -> throw new IllegalArgumentException("Unsupported sanction type: " + processType);
+        };
+
         CallvanNotification callvanNotification = buildNotification(
-            recipient, CallvanNotificationType.REPORT_WARNING, post, null,
-            CALLVAN_WARNING_MESSAGE, null
-        );
+            recipient, notificationType, post, null, message, null);
 
         callvanNotificationRepository.save(callvanNotification);
     }
 
     private CallvanNotification buildNotification(User recipient, CallvanNotificationType type, CallvanPost post,
-        String senderNickname, String messagePreview, String joinedMemberNickname
-    ) {
+        String senderNickname, String messagePreview, String joinedMemberNickname) {
         return CallvanNotification.builder()
             .recipient(recipient)
             .notificationType(type)
