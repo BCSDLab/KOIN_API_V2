@@ -8,12 +8,15 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanReportProcessType;
 import in.koreatech.koin.domain.callvan.repository.CallvanNotificationRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -86,14 +89,17 @@ public class CallvanNotificationService {
     }
 
     @Transactional
-    public void notifyNewMessageReceived(Integer postId, Integer senderId, String senderNickname, String messageContent) {
+    public void notifyNewMessageReceived(Integer postId, Integer senderId, String senderNickname, String messageContent,
+        CallvanMessageType messageType
+    ) {
         CallvanPost post = callvanPostRepository.getById(postId);
+        String notificationContent = messageType.toNotificationContent(senderNickname, messageContent);
 
         List<CallvanNotification> notifications = post.getParticipants().stream()
             .filter(p -> !p.getIsDeleted())
             .filter(p -> !p.getMember().getId().equals(senderId))
             .map(p -> buildNotification(p.getMember(), CallvanNotificationType.NEW_MESSAGE, post,
-                senderNickname, messageContent, null))
+                senderNickname, notificationContent, null))
             .toList();
 
         if (!notifications.isEmpty()) {
@@ -110,14 +116,14 @@ public class CallvanNotificationService {
             case WARNING -> CallvanNotificationType.REPORT_WARNING;
             case TEMPORARY_RESTRICTION_14_DAYS -> CallvanNotificationType.REPORT_RESTRICTION_14_DAYS;
             case PERMANENT_RESTRICTION -> CallvanNotificationType.REPORT_PERMANENT_RESTRICTION;
-            default -> throw new IllegalArgumentException("Unsupported sanction type: " + processType);
+            default -> throw CustomException.of(ApiResponseCode.ILLEGAL_ARGUMENT);
         };
 
         String message = switch (processType) {
             case WARNING -> CALLVAN_WARNING_MESSAGE;
             case TEMPORARY_RESTRICTION_14_DAYS -> CALLVAN_RESTRICTION_14_DAYS_MESSAGE;
             case PERMANENT_RESTRICTION -> CALLVAN_PERMANENT_RESTRICTION_MESSAGE;
-            default -> throw new IllegalArgumentException("Unsupported sanction type: " + processType);
+            default -> throw CustomException.of(ApiResponseCode.ILLEGAL_ARGUMENT);
         };
 
         CallvanNotification callvanNotification = buildNotification(

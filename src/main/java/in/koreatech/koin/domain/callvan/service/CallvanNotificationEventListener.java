@@ -27,7 +27,7 @@ public class CallvanNotificationEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onNewMessage(CallvanNewMessageEvent event) {
         callvanNotificationService.notifyNewMessageReceived(event.postId(), event.sendUserId(), event.senderNickname(),
-            event.content());
+            event.content(), event.messageType());
     }
 
     @Async
