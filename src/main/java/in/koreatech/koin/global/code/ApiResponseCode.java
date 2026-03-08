@@ -91,6 +91,7 @@ public enum ApiResponseCode {
     CALLVAN_POST_REOPEN_FAILED_TIME(HttpStatus.BAD_REQUEST, "출발 시간이 지나서 모집을 다시 열 수 없습니다."),
     CALLVAN_POST_AUTHOR(HttpStatus.BAD_REQUEST, "콜벤 게시글 작성자는 나갈 수 없습니다"),
     CALLVAN_REPORT_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 신고할 수 없습니다."),
+    CALLVAN_REPORT_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "이미 처리된 콜벤 신고입니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -114,6 +115,7 @@ public enum ApiResponseCode {
     FORBIDDEN_AUTHOR(HttpStatus.FORBIDDEN, "게시글 접근 권한이 없습니다."),
     FORBIDDEN_PARTICIPANT(HttpStatus.FORBIDDEN, "콜벤 게시글 참여자가 아닙니다."),
     CALLVAN_REPORT_ONLY_PARTICIPANT(HttpStatus.FORBIDDEN, "같은 콜벤팟 참여자만 신고할 수 있습니다."),
+    FORBIDDEN_CALLVAN_RESTRICTED_USER(HttpStatus.FORBIDDEN, "콜벤 기능 이용이 제한된 사용자입니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -142,6 +144,7 @@ public enum ApiResponseCode {
     NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST(HttpStatus.NOT_FOUND, "상점 서비스 전환 요청이 존재하지 않습니다."),
     NOT_FOUND_CHAT_PARTNER(HttpStatus.NOT_FOUND, "채팅 상대방이 존재하지 않습니다."),
     NOT_FOUND_IMAGE(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다"),
+    NOT_FOUND_CALLVAN_REPORT(HttpStatus.NOT_FOUND, "콜벤 신고 내역을 찾을 수 없습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
