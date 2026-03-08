@@ -115,12 +115,14 @@ public class CallvanReport extends BaseEntity {
     public static CallvanReport create(
         CallvanPost post,
         User reporter,
-        User reported
+        User reported,
+        String description
     ) {
         return CallvanReport.builder()
             .post(post)
             .reporter(reporter)
             .reported(reported)
+            .description(description)
             .status(CallvanReportStatus.PENDING)
             .build();
     }
@@ -167,6 +169,19 @@ public class CallvanReport extends BaseEntity {
 
     public void cancel() {
         this.status = CallvanReportStatus.CANCELED;
+    }
+
+    public void confirm(User reviewer) {
+        this.status = CallvanReportStatus.CONFIRMED;
+        this.reviewer = reviewer;
+        this.reviewedAt = LocalDateTime.now();
+        this.confirmedAt = this.reviewedAt;
+    }
+
+    public void reject(User reviewer) {
+        this.status = CallvanReportStatus.REJECTED;
+        this.reviewer = reviewer;
+        this.reviewedAt = LocalDateTime.now();
     }
 
     private static String normalizeText(String text) {

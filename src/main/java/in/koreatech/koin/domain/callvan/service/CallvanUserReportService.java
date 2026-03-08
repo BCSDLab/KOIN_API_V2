@@ -55,7 +55,8 @@ public class CallvanUserReportService {
         CallvanReport callvanReport = CallvanReport.create(
             callvanPost,
             reporter,
-            reported
+            reported,
+            request.description()
         );
 
         callvanReport.registerReasons(

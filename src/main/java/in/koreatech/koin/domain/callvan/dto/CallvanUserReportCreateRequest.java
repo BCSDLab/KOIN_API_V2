@@ -26,6 +26,9 @@ public record CallvanUserReportCreateRequest(
     @Valid
     List<CallvanUserReportReasonRequest> reasons,
 
+    @Schema(description = "신고 상세 상황 설명")
+    String description,
+
     @Schema(description = "신고 증빙 자료 첨부")
     List<CallvanUserReportAttachmentRequest> attachments
 ) {
