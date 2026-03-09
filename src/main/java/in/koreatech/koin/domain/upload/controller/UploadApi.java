@@ -53,6 +53,9 @@ public interface UploadApi {
         - coop
         - admin
         - banner
+        - callvan_report
+        - lost_items
+        - club
         """)
     @PostMapping("/{domain}/upload/url")
     ResponseEntity<UploadUrlResponse> getPresignedUrl(

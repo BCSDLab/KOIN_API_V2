@@ -13,6 +13,7 @@ import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanReportStatus;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanRole;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanStatus;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostSortCriteria;
@@ -99,8 +100,18 @@ public class CallvanPostQueryService {
         }
         CallvanPost callvanPost = callvanPostRepository.getWithParticipantsById(postId);
 
-        Set<Integer> reportedUserIds = callvanReportRepository.findReportedUserIdsByPostIdAndStatusIn(
-            postId, ACTIVE_REPORT_STATUSES);
+        boolean isAuthor = callvanPost.getParticipants().stream()
+            .anyMatch(p -> p.getMember().getId().equals(userId)
+                && p.getRole() == CallvanRole.AUTHOR);
+
+        Set<Integer> reportedUserIds;
+        if (isAuthor) {
+            reportedUserIds = callvanReportRepository.findReportedUserIdsByPostIdAndStatusIn(
+                postId, ACTIVE_REPORT_STATUSES);
+        } else {
+            reportedUserIds = callvanReportRepository.findReportedUserIdsByPostIdAndReporterIdAndStatusIn(
+                postId, userId, ACTIVE_REPORT_STATUSES);
+        }
 
         return CallvanPostDetailResponse.from(callvanPost, userId, reportedUserIds);
     }

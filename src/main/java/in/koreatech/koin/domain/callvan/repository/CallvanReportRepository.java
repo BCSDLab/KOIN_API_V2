@@ -52,4 +52,14 @@ public interface CallvanReportRepository extends Repository<CallvanReport, Integ
         @Param("postId") Integer postId,
         @Param("statuses") List<CallvanReportStatus> statuses
     );
+
+    @Query("SELECT DISTINCT r.reported.id FROM CallvanReport r " +
+        "WHERE r.post.id = :postId " +
+        "AND r.reporter.id = :reporterId " +
+        "AND r.status IN :statuses " +
+        "AND r.isDeleted = false")
+    Set<Integer> findReportedUserIdsByPostIdAndReporterIdAndStatusIn(
+        @Param("postId") Integer postId,
+        @Param("reporterId") Integer reporterId,
+        @Param("statuses") List<CallvanReportStatus> statuses);
 }
