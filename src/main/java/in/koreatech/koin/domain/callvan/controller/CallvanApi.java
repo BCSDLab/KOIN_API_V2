@@ -296,6 +296,9 @@ public interface CallvanApi {
         - `reasons`: 신고 사유 목록 (1개 이상)
           - `reason_code`: `NO_SHOW`, `NON_PAYMENT`, `PROFANITY`, `OTHER`
           - `custom_text`: `OTHER`일 때만 입력 가능. `OTHER` 선택 시 `custom_text`는 필수입니다
+        - `attachments`: 첨부 사항
+          - `attachment_type`: `IMAGE`
+          - `url`: 업로드된 이미지 s3 링크
 
         #### 비즈니스 로직
         1. 신고자와 피신고자가 동일하면 실패합니다. (`CALLVAN_REPORT_SELF`)

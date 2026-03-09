@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "(Admin) Callvan: Reports", description = "Admin callvan report management")
+@Tag(name = "(Admin) Callvan: 신고 처리", description = "어드민 콜벤 사용자 신고 내역 관리")
 @RequestMapping("/admin/callvan/reports")
 public interface AdminCallvanReportApi {
 

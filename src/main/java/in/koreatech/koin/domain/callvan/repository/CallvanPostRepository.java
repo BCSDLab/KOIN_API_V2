@@ -1,10 +1,8 @@
 package in.koreatech.koin.domain.callvan.repository;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
@@ -21,6 +19,11 @@ public interface CallvanPostRepository extends Repository<CallvanPost, Integer> 
         return findById(postId).orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_ARTICLE));
     }
 
-    List<CallvanPost> findAllByDepartureDateAndDepartureTimeAndIsDeletedFalse(LocalDate departureDate,
-            LocalTime departureTime);
+    @EntityGraph(attributePaths = { "participants", "participants.member" })
+    Optional<CallvanPost> findWithParticipantsById(Integer id);
+
+    default CallvanPost getWithParticipantsById(Integer postId) {
+        return findWithParticipantsById(postId)
+                .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_ARTICLE));
+    }
 }
