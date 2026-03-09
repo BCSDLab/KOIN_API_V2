@@ -29,9 +29,11 @@ public class CallvanPostCreateService {
     private final CallvanChatRoomRepository callvanChatRoomRepository;
     private final UserRepository userRepository;
     private final CallvanNotificationScheduler callvanNotificationScheduler;
+    private final CallvanRestrictionService callvanRestrictionService;
 
     @Transactional
     public CallvanPostCreateResponse createCallvanPost(CallvanPostCreateRequest request, Integer userId) {
+        callvanRestrictionService.validateNotRestricted(userId);
         User user = userRepository.getById(userId);
 
         validateLocation(request.departureType(), request.departureCustomName());

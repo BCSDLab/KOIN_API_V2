@@ -12,6 +12,7 @@ import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanReportAttachmentType;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanReportReasonCode;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanReportStatus;
 import in.koreatech.koin.domain.user.model.User;
@@ -83,6 +84,9 @@ public class CallvanReport extends BaseEntity {
     @OneToMany(mappedBy = "report", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<CallvanReportReason> reasons = new ArrayList<>();
 
+    @OneToMany(mappedBy = "report", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private List<CallvanReportAttachment> attachments = new ArrayList<>();
+
     @Builder
     private CallvanReport(
         CallvanPost post,
@@ -111,12 +115,14 @@ public class CallvanReport extends BaseEntity {
     public static CallvanReport create(
         CallvanPost post,
         User reporter,
-        User reported
+        User reported,
+        String description
     ) {
         return CallvanReport.builder()
             .post(post)
             .reporter(reporter)
             .reported(reported)
+            .description(description)
             .status(CallvanReportStatus.PENDING)
             .build();
     }
@@ -142,8 +148,40 @@ public class CallvanReport extends BaseEntity {
         }
     }
 
+    public void registerAttachments(List<CallvanReportAttachmentCreateCommand> attachmentCommands) {
+        if (attachmentCommands == null || attachmentCommands.isEmpty()) {
+            return;
+        }
+
+        if (attachmentCommands.size() > 10)
+            throw CustomException.of(ApiResponseCode.INVALID_REQUEST_BODY);
+
+        for (CallvanReportAttachmentCreateCommand attachmentCommand : attachmentCommands) {
+            if (attachmentCommand == null) {
+                throw CustomException.of(ApiResponseCode.INVALID_REQUEST_BODY);
+            }
+
+            this.attachments.add(
+                CallvanReportAttachment.create(this, attachmentCommand.attachmentType, attachmentCommand.url)
+            );
+        }
+    }
+
     public void cancel() {
         this.status = CallvanReportStatus.CANCELED;
+    }
+
+    public void confirm(User reviewer) {
+        this.status = CallvanReportStatus.CONFIRMED;
+        this.reviewer = reviewer;
+        this.reviewedAt = LocalDateTime.now();
+        this.confirmedAt = this.reviewedAt;
+    }
+
+    public void reject(User reviewer) {
+        this.status = CallvanReportStatus.REJECTED;
+        this.reviewer = reviewer;
+        this.reviewedAt = LocalDateTime.now();
     }
 
     private static String normalizeText(String text) {
@@ -157,6 +195,12 @@ public class CallvanReport extends BaseEntity {
     public record CallvanReportReasonCreateCommand(
         CallvanReportReasonCode reasonCode,
         String customText
+    ) {
+    }
+
+    public record CallvanReportAttachmentCreateCommand(
+        CallvanReportAttachmentType attachmentType,
+        String url
     ) {
     }
 }

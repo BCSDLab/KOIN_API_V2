@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.callvan.model.enums.CallvanReportAttachmentType;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanReportReasonCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -23,7 +24,13 @@ public record CallvanUserReportCreateRequest(
     @Schema(description = "신고 사유 목록", requiredMode = REQUIRED)
     @NotEmpty(message = "신고 사유는 1개 이상 선택해야 합니다.")
     @Valid
-    List<CallvanUserReportReasonRequest> reasons
+    List<CallvanUserReportReasonRequest> reasons,
+
+    @Schema(description = "신고 상세 상황 설명")
+    String description,
+
+    @Schema(description = "신고 증빙 자료 첨부")
+    List<CallvanUserReportAttachmentRequest> attachments
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
@@ -35,6 +42,18 @@ public record CallvanUserReportCreateRequest(
         @Schema(description = "기타(OTHER) 선택 시 상세 입력", example = "욕설 및 협박성 발언")
         @Size(max = 150, message = "기타 사유는 150자 이하여야 합니다.")
         String customText
+    ) {
+    }
+
+    @JsonNaming(SnakeCaseStrategy.class)
+    public record CallvanUserReportAttachmentRequest(
+        @Schema(description = "첨부파일 유형", example = "IMAGE", requiredMode = REQUIRED)
+        @NotNull(message = "첨부파일 유형은 필수입니다.")
+        CallvanReportAttachmentType attachmentType,
+
+        @Schema(description = "첨부파일 S3 url", requiredMode = REQUIRED)
+        @Size(max = 500, message = "첨부파일 S3 url은 500자 이하여야 합니다.")
+        String url
     ) {
     }
 }

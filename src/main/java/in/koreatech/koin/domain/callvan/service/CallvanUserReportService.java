@@ -55,7 +55,8 @@ public class CallvanUserReportService {
         CallvanReport callvanReport = CallvanReport.create(
             callvanPost,
             reporter,
-            reported
+            reported,
+            request.description()
         );
 
         callvanReport.registerReasons(
@@ -63,6 +64,15 @@ public class CallvanUserReportService {
                 .map(reason -> new CallvanReport.CallvanReportReasonCreateCommand(
                     reason.reasonCode(),
                     reason.customText()
+                ))
+                .toList()
+        );
+
+        callvanReport.registerAttachments(
+            request.attachments() == null ? List.of() : request.attachments().stream()
+                .map(attachment -> new CallvanReport.CallvanReportAttachmentCreateCommand(
+                    attachment.attachmentType(),
+                    attachment.url()
                 ))
                 .toList()
         );
