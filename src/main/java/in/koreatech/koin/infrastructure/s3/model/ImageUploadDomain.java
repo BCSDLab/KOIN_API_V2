@@ -20,6 +20,7 @@ public enum ImageUploadDomain {
     LOST_ITEMS,
     BANNER,
     CLUB,
+    CALLVAN_REPORT
     ;
 
     public static ImageUploadDomain from(String domain) {

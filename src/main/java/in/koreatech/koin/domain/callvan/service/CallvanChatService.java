@@ -68,6 +68,8 @@ public class CallvanChatService {
         callvanChatMessageRepository.save(message);
 
         eventPublisher.publishEvent(
-            new CallvanNewMessageEvent(callvanPost.getId(), message.getSenderNickname(), sender.getId(), message.getContent()));
+            new CallvanNewMessageEvent(callvanPost.getId(), message.getSenderNickname(), sender.getId(),
+                message.getContent(), message.getMessageType())
+        );
     }
 }

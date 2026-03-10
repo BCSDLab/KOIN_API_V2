@@ -31,10 +31,12 @@ public class CallvanPostJoinService {
     private final UserRepository userRepository;
     private final EntityManager entityManager;
     private final ApplicationEventPublisher eventPublisher;
+    private final CallvanRestrictionService callvanRestrictionService;
 
     @Transactional
     @ConcurrencyGuard(lockName = "callvanJoin")
     public void join(Integer postId, Integer userId) {
+        callvanRestrictionService.validateNotRestricted(userId);
         CallvanPost callvanPost = callvanPostRepository.getById(postId);
         User user = userRepository.getById(userId);
 
