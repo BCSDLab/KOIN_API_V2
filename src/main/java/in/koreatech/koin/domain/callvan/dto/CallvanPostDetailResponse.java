@@ -87,10 +87,10 @@ public record CallvanPostDetailResponse(
         String nickname,
 
         @Schema(description = "본인 여부", example = "false")
-        Boolean is_me,
+        Boolean isMe,
 
         @Schema(description = "신고 접수 여부", example = "false")
-        Boolean is_reported
+        Boolean isReported
     ) {
 
         public static CallvanParticipantResponse from(

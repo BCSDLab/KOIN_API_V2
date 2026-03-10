@@ -54,6 +54,7 @@ public interface UploadApi {
         - admin
         - banner
         - callvan_report
+        - callvan_chat
         - lost_items
         - club
         """)
