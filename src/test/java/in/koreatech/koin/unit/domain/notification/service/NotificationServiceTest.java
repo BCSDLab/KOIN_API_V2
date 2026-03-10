@@ -3,6 +3,7 @@ package in.koreatech.koin.unit.domain.notification.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -51,8 +52,8 @@ class NotificationServiceTest {
     private NotificationFactory notificationFactory;
 
     @Test
-    @DisplayName("알림 전송 결과 조회는 전송 전에 알림 레코드를 저장한다.")
-    void pushNotificationsWithResult_whenDelivered_savesNotificationBeforeSend() {
+    @DisplayName("알림 전송 결과 조회는 전송 성공 시에만 알림 레코드를 저장한다.")
+    void pushNotificationsWithResult_whenDelivered_savesNotification() {
         Notification notification = createNotification("device-token");
         when(fcmClient.sendMessageWithResult(anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()))
             .thenReturn(true);
@@ -64,15 +65,15 @@ class NotificationServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).delivered()).isTrue();
         InOrder inOrder = inOrder(notificationRepository, fcmClient);
-        inOrder.verify(notificationRepository).saveAll(List.of(notification));
         inOrder.verify(fcmClient).sendMessageWithResult(
             anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()
         );
+        inOrder.verify(notificationRepository).save(notification);
     }
 
     @Test
-    @DisplayName("알림 전송 실패 시에도 저장된 알림 기준으로 실패 결과를 반환한다.")
-    void pushNotificationsWithResult_whenDeliveryFails_returnsFailedResult() {
+    @DisplayName("알림 전송 실패 시 알림 레코드를 저장하지 않는다.")
+    void pushNotificationsWithResult_whenDeliveryFails_doesNotSaveNotification() {
         Notification notification = createNotification("device-token");
         when(fcmClient.sendMessageWithResult(anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()))
             .thenReturn(false);
@@ -83,11 +84,31 @@ class NotificationServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).delivered()).isFalse();
-        verify(notificationRepository).saveAll(List.of(notification));
+        verify(notificationRepository, never()).save(notification);
     }
 
     @Test
-    @DisplayName("배치 알림은 전송 성공 여부를 각각 반환한다.")
+    @DisplayName("배치 알림 중 일부 저장이 실패해도 다음 알림을 계속 처리한다.")
+    void pushNotificationsWithResult_whenSaveFails_continuesNextNotification() {
+        Notification firstNotification = createNotification("device-token-1");
+        Notification secondNotification = createNotification("device-token-2");
+        when(fcmClient.sendMessageWithResult(anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()))
+            .thenReturn(true, true);
+        doThrow(new RuntimeException("save fail")).when(notificationRepository).save(firstNotification);
+
+        List<NotificationService.NotificationDeliveryResult> result = notificationService.pushNotificationsWithResult(
+            List.of(firstNotification, secondNotification)
+        );
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).delivered()).isFalse();
+        assertThat(result.get(1).delivered()).isTrue();
+        verify(notificationRepository).save(firstNotification);
+        verify(notificationRepository).save(secondNotification);
+    }
+
+    @Test
+    @DisplayName("배치 알림은 전송 성공 여부를 각각 반환하고 성공한 알림만 저장한다.")
     void pushNotificationsWithResult_whenBatchContainsMixedResults_returnsEachResult() {
         Notification firstNotification = createNotification("device-token-1");
         Notification secondNotification = createNotification("device-token-2");
@@ -101,7 +122,8 @@ class NotificationServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).delivered()).isTrue();
         assertThat(result.get(1).delivered()).isFalse();
-        verify(notificationRepository).saveAll(List.of(firstNotification, secondNotification));
+        verify(notificationRepository).save(firstNotification);
+        verify(notificationRepository, never()).save(secondNotification);
     }
 
     @Test

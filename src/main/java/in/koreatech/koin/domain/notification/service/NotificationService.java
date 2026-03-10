@@ -58,7 +58,6 @@ public class NotificationService {
             return List.of();
         }
 
-        notificationRepository.saveAll(notifications);
         List<NotificationDeliveryResult> deliveryResults = new ArrayList<>(notifications.size());
         // afterCommit 콜백은 트랜잭션 프록시가 반환되기 전에 실행되므로 호출자는 채워진 결과를 받는다.
         runAfterCommit(() -> notifications.forEach(notification ->
@@ -75,6 +74,10 @@ public class NotificationService {
     private NotificationDeliveryResult pushNotificationWithResult(Notification notification) {
         try {
             boolean delivered = sendNotificationWithResult(notification);
+            if (!delivered) {
+                return new NotificationDeliveryResult(notification, false);
+            }
+            notificationRepository.save(notification);
             return new NotificationDeliveryResult(notification, delivered);
         } catch (Exception e) {
             log.warn("알림 전송 처리 중 예외가 발생했습니다.", e);
