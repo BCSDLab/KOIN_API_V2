@@ -3,6 +3,7 @@ package in.koreatech.koin.unit.domain.notification.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -78,6 +79,45 @@ class NotificationServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).delivered()).isFalse();
         verify(notificationRepository, never()).save(notification);
+    }
+
+    @Test
+    @DisplayName("배치 알림 중 일부 전송 결과 저장이 실패해도 다음 알림을 계속 처리한다.")
+    void pushNotificationsWithResult_whenSaveFails_continuesNextNotification() {
+        Notification firstNotification = createNotification("device-token-1");
+        Notification secondNotification = createNotification("device-token-2");
+        when(fcmClient.sendMessageWithResult(anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()))
+            .thenReturn(true, true);
+        doThrow(new RuntimeException("save fail")).when(notificationRepository).save(firstNotification);
+
+        List<NotificationService.NotificationDeliveryResult> result = notificationService.pushNotificationsWithResult(
+            List.of(firstNotification, secondNotification)
+        );
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).delivered()).isFalse();
+        assertThat(result.get(1).delivered()).isTrue();
+        verify(notificationRepository).save(firstNotification);
+        verify(notificationRepository).save(secondNotification);
+    }
+
+    @Test
+    @DisplayName("배치 알림은 전송 성공 여부를 각각 반환하고 성공한 알림만 저장한다.")
+    void pushNotificationsWithResult_whenBatchContainsMixedResults_returnsEachResult() {
+        Notification firstNotification = createNotification("device-token-1");
+        Notification secondNotification = createNotification("device-token-2");
+        when(fcmClient.sendMessageWithResult(anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()))
+            .thenReturn(true, false);
+
+        List<NotificationService.NotificationDeliveryResult> result = notificationService.pushNotificationsWithResult(
+            List.of(firstNotification, secondNotification)
+        );
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).delivered()).isTrue();
+        assertThat(result.get(1).delivered()).isFalse();
+        verify(notificationRepository).save(firstNotification);
+        verify(notificationRepository, never()).save(secondNotification);
     }
 
     private Notification createNotification(String deviceToken) {

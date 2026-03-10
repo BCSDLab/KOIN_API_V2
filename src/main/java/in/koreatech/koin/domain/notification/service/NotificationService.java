@@ -24,7 +24,9 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -48,7 +50,14 @@ public class NotificationService {
     @Transactional
     public List<NotificationDeliveryResult> pushNotificationsWithResult(List<Notification> notifications) {
         return notifications.stream()
-            .map(this::pushNotificationWithResult)
+            .map(notification -> {
+                try {
+                    return pushNotificationWithResult(notification);
+                } catch (Exception e) {
+                    log.warn("알림 전송 처리 중 예외가 발생했습니다.", e);
+                    return new NotificationDeliveryResult(notification, false);
+                }
+            })
             .toList();
     }
 
