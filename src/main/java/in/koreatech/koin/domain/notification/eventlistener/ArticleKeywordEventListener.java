@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
@@ -43,13 +44,14 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
 
     @TransactionalEventListener
     public void onKeywordRequest(ArticleKeywordEvent event) {
-        Article article = articleRepository.getById(event.articleId());
-        Board board = article.getBoard();
         Map<Integer, String> matchedKeywordByUserId = event.matchedKeywordByUserId();
 
         if (matchedKeywordByUserId.isEmpty()) {
             return;
         }
+
+        Article article = articleRepository.getById(event.articleId());
+        Board board = article.getBoard();
 
         Map<Integer, NotificationSubscribe> keywordSubscribersByUserId = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD)
@@ -93,7 +95,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
     }
 
     private boolean hasDeviceToken(NotificationSubscribe subscribe) {
-        return subscribe.getUser().getDeviceToken() != null;
+        return StringUtils.hasText(subscribe.getUser().getDeviceToken());
     }
 
     private Set<Integer> getAlreadyNotifiedUserIds(Integer articleId, Set<Integer> subscriberUserIds) {

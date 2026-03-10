@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -12,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -155,10 +155,18 @@ public class KeywordService {
             return;
         }
 
-        List<Article> articles = new ArrayList<>();
-        for (Integer id : updateNotificationIds) {
-            articles.add(articleRepository.getById(id));
-        }
+        List<Article> fetchedArticles = articleRepository.findAllByIdIn(updateNotificationIds);
+        var articleById = fetchedArticles.stream()
+            .collect(Collectors.toMap(Article::getId, article -> article));
+        List<Article> articles = updateNotificationIds.stream()
+            .map(articleId -> {
+                Article article = articleById.get(articleId);
+                if (article == null) {
+                    throw ArticleNotFoundException.withDetail("articleId: " + articleId);
+                }
+                return article;
+            })
+            .toList();
 
         List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
         for (ArticleKeywordEvent event : keywordEvents) {

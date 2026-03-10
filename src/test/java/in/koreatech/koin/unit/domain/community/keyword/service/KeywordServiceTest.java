@@ -1,7 +1,6 @@
 package in.koreatech.koin.unit.domain.community.keyword.service;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -66,8 +65,9 @@ class KeywordServiceTest {
         KeywordNotificationRequest request = new KeywordNotificationRequest(List.of(10, 10, 11, 11));
         Article article10 = mock(Article.class);
         Article article11 = mock(Article.class);
-        when(articleRepository.getById(10)).thenReturn(article10);
-        when(articleRepository.getById(11)).thenReturn(article11);
+        when(article10.getId()).thenReturn(10);
+        when(article11.getId()).thenReturn(11);
+        when(articleRepository.findAllByIdIn(List.of(10, 11))).thenReturn(List.of(article11, article10));
 
         ArticleKeywordEvent event10 = new ArticleKeywordEvent(
             10,
@@ -83,8 +83,7 @@ class KeywordServiceTest {
 
         keywordService.sendKeywordNotification(request);
 
-        verify(articleRepository, times(1)).getById(10);
-        verify(articleRepository, times(1)).getById(11);
+        verify(articleRepository).findAllByIdIn(List.of(10, 11));
         verify(keywordExtractor).matchKeyword(List.of(article10, article11), null);
         verify(eventPublisher).publishEvent(event10);
         verify(eventPublisher).publishEvent(event11);

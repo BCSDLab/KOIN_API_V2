@@ -3,6 +3,7 @@ package in.koreatech.koin.unit.domain.community.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -66,6 +67,74 @@ class KeywordExtractorTest {
         assertThat(event.articleId()).isEqualTo(1);
         assertThat(event.authorId()).isNull();
         assertThat(event.matchedKeywordByUserId()).isEqualTo(Map.of(1, "근로장학"));
+    }
+
+    @Test
+    @DisplayName("매칭되는 키워드가 없으면 이벤트를 생성하지 않는다.")
+    void matchKeyword_whenNoKeywordsMatch_returnsEmptyResult() {
+        Article article = mock(Article.class);
+        when(article.getId()).thenReturn(1);
+        when(article.getTitle()).thenReturn("근로장학생 모집");
+
+        User subscriber = UserFixture.id_설정_코인_유저(1);
+        ArticleKeyword keyword = createKeyword(1, "장학금", subscriber);
+
+        when(articleKeywordRepository.findAll(any(Pageable.class)))
+            .thenReturn(List.of(keyword))
+            .thenReturn(List.of());
+        when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
+            .thenReturn(List.of(keyword.getArticleKeywordUserMaps().get(0)));
+
+        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("여러 게시글이 각각 다른 키워드에 매칭되면 게시글별 이벤트를 생성한다.")
+    void matchKeyword_withMultipleArticles_createsEventPerArticle() {
+        Article firstArticle = mock(Article.class);
+        when(firstArticle.getId()).thenReturn(1);
+        when(firstArticle.getTitle()).thenReturn("근로장학생 모집");
+
+        Article secondArticle = mock(Article.class);
+        when(secondArticle.getId()).thenReturn(2);
+        when(secondArticle.getTitle()).thenReturn("국가장학금 신청 안내");
+
+        User firstSubscriber = UserFixture.id_설정_코인_유저(1);
+        User secondSubscriber = UserFixture.id_설정_코인_유저(2);
+        ArticleKeyword firstKeyword = createKeyword(1, "근로", firstSubscriber);
+        ArticleKeyword secondKeyword = createKeyword(2, "장학금", secondSubscriber);
+
+        when(articleKeywordRepository.findAll(any(Pageable.class)))
+            .thenReturn(List.of(firstKeyword, secondKeyword))
+            .thenReturn(List.of());
+        when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
+            .thenReturn(List.of(
+                firstKeyword.getArticleKeywordUserMaps().get(0),
+                secondKeyword.getArticleKeywordUserMaps().get(0)
+            ));
+
+        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(firstArticle, secondArticle), null);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).articleId()).isEqualTo(1);
+        assertThat(result.get(0).matchedKeywordByUserId()).isEqualTo(Map.of(1, "근로"));
+        assertThat(result.get(1).articleId()).isEqualTo(2);
+        assertThat(result.get(1).matchedKeywordByUserId()).isEqualTo(Map.of(2, "장학금"));
+    }
+
+    @Test
+    @DisplayName("등록된 키워드가 없으면 빈 결과를 반환한다.")
+    void matchKeyword_whenNoKeywordsExist_returnsEmptyResult() {
+        Article article = mock(Article.class);
+        when(article.getId()).thenReturn(1);
+        when(articleKeywordRepository.findAll(any(Pageable.class))).thenReturn(List.of());
+
+        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null);
+
+        assertThat(result).isEmpty();
+        verifyNoInteractions(articleKeywordUserMapRepository);
     }
 
     private ArticleKeyword createKeyword(Integer keywordId, String keyword, User... users) {
