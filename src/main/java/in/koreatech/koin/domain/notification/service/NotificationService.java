@@ -39,6 +39,7 @@ public class NotificationService {
 
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
+    private final NotificationPersistenceService notificationPersistenceService;
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final NotificationFactory notificationFactory;
@@ -77,8 +78,8 @@ public class NotificationService {
             if (!delivered) {
                 return new NotificationDeliveryResult(notification, false);
             }
-            notificationRepository.save(notification);
-            return new NotificationDeliveryResult(notification, delivered);
+            saveNotificationAfterSend(notification);
+            return new NotificationDeliveryResult(notification, true);
         } catch (Exception e) {
             log.warn("알림 전송 처리 중 예외가 발생했습니다.", e);
             return new NotificationDeliveryResult(notification, false);
@@ -197,6 +198,14 @@ public class NotificationService {
             notification.getSchemeUri(),
             notification.getType().toLowerCase()
         );
+    }
+
+    private void saveNotificationAfterSend(Notification notification) {
+        try {
+            notificationPersistenceService.saveAfterSend(notification);
+        } catch (Exception e) {
+            log.warn("발송된 알림 저장 중 예외가 발생했습니다.", e);
+        }
     }
 
     private void runAfterCommit(Runnable task) {

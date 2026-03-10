@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.domain.notification.service.NotificationPersistenceService;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -41,6 +42,9 @@ class NotificationServiceTest {
 
     @Mock
     private NotificationRepository notificationRepository;
+
+    @Mock
+    private NotificationPersistenceService notificationPersistenceService;
 
     @Mock
     private FcmClient fcmClient;
@@ -64,11 +68,11 @@ class NotificationServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).delivered()).isTrue();
-        InOrder inOrder = inOrder(notificationRepository, fcmClient);
+        InOrder inOrder = inOrder(fcmClient, notificationPersistenceService);
         inOrder.verify(fcmClient).sendMessageWithResult(
             anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()
         );
-        inOrder.verify(notificationRepository).save(notification);
+        inOrder.verify(notificationPersistenceService).saveAfterSend(notification);
     }
 
     @Test
@@ -84,27 +88,27 @@ class NotificationServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).delivered()).isFalse();
-        verify(notificationRepository, never()).save(notification);
+        verify(notificationPersistenceService, never()).saveAfterSend(notification);
     }
 
     @Test
-    @DisplayName("배치 알림 중 일부 저장이 실패해도 다음 알림을 계속 처리한다.")
-    void pushNotificationsWithResult_whenSaveFails_continuesNextNotification() {
+    @DisplayName("배치 알림 중 일부 저장이 실패해도 발송 결과는 유지하고 다음 알림을 계속 처리한다.")
+    void pushNotificationsWithResult_whenSaveFails_keepsDeliveryResultAndContinuesNextNotification() {
         Notification firstNotification = createNotification("device-token-1");
         Notification secondNotification = createNotification("device-token-2");
         when(fcmClient.sendMessageWithResult(anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()))
             .thenReturn(true, true);
-        doThrow(new RuntimeException("save fail")).when(notificationRepository).save(firstNotification);
+        doThrow(new RuntimeException("save fail")).when(notificationPersistenceService).saveAfterSend(firstNotification);
 
         List<NotificationService.NotificationDeliveryResult> result = notificationService.pushNotificationsWithResult(
             List.of(firstNotification, secondNotification)
         );
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).delivered()).isFalse();
+        assertThat(result.get(0).delivered()).isTrue();
         assertThat(result.get(1).delivered()).isTrue();
-        verify(notificationRepository).save(firstNotification);
-        verify(notificationRepository).save(secondNotification);
+        verify(notificationPersistenceService).saveAfterSend(firstNotification);
+        verify(notificationPersistenceService).saveAfterSend(secondNotification);
     }
 
     @Test
@@ -122,8 +126,8 @@ class NotificationServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).delivered()).isTrue();
         assertThat(result.get(1).delivered()).isFalse();
-        verify(notificationRepository).save(firstNotification);
-        verify(notificationRepository, never()).save(secondNotification);
+        verify(notificationPersistenceService).saveAfterSend(firstNotification);
+        verify(notificationPersistenceService, never()).saveAfterSend(secondNotification);
     }
 
     @Test
