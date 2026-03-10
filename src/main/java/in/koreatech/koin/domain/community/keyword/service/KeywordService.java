@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -12,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -26,7 +26,6 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
-import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
@@ -148,22 +147,30 @@ public class KeywordService {
     }
 
     public void sendKeywordNotification(KeywordNotificationRequest request) {
-        List<Integer> updateNotificationIds = request.updateNotification();
+        List<Integer> updateNotificationIds = request.updateNotification().stream()
+            .distinct()
+            .toList();
 
-        if (!updateNotificationIds.isEmpty()) {
-            List<Article> articles = new ArrayList<>();
+        if (updateNotificationIds.isEmpty()) {
+            return;
+        }
 
-            for (Integer id : updateNotificationIds) {
-                articles.add(articleRepository.getById(id));
-            }
-
-            List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
-
-            if (!keywordEvents.isEmpty()) {
-                for (ArticleKeywordEvent event : keywordEvents) {
-                    eventPublisher.publishEvent(event);
+        List<Article> fetchedArticles = articleRepository.findAllByIdIn(updateNotificationIds);
+        var articleById = fetchedArticles.stream()
+            .collect(Collectors.toMap(Article::getId, article -> article));
+        List<Article> articles = updateNotificationIds.stream()
+            .map(articleId -> {
+                Article article = articleById.get(articleId);
+                if (article == null) {
+                    throw ArticleNotFoundException.withDetail("articleId: " + articleId);
                 }
-            }
+                return article;
+            })
+            .toList();
+
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
+        for (ArticleKeywordEvent event : keywordEvents) {
+            eventPublisher.publishEvent(event);
         }
     }
 
@@ -201,6 +208,6 @@ public class KeywordService {
 
     @Transactional
     public void createNotifiedArticleStatus(Integer userId, Integer articleId) {
-        userNotificationStatusRepository.save(new UserNotificationStatus(userId, articleId));
+        userNotificationStatusRepository.upsertLastNotifiedArticleId(userId, articleId);
     }
 }

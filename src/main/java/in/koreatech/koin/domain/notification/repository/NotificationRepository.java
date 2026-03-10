@@ -7,4 +7,6 @@ import in.koreatech.koin.domain.notification.model.Notification;
 public interface NotificationRepository extends Repository<Notification, Long> {
 
     Notification save(Notification notification);
+
+    void saveAll(Iterable<Notification> notifications);
 }

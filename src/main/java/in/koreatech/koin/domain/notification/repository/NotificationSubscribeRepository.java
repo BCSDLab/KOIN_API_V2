@@ -17,6 +17,17 @@ public interface NotificationSubscribeRepository extends Repository<Notification
     // TODO : Service 메서드로 네이밍 변경
     List<NotificationSubscribe> findAllBySubscribeTypeAndDetailTypeIsNull(NotificationSubscribeType type);
 
+    @Query("""
+        SELECT ns
+        FROM NotificationSubscribe ns
+        JOIN FETCH ns.user
+        WHERE ns.subscribeType = :subscribeType
+        AND ns.detailType IS NULL
+        """)
+    List<NotificationSubscribe> findAllBySubscribeTypeAndDetailTypeIsNullWithUser(
+        @Param("subscribeType") NotificationSubscribeType subscribeType
+    );
+
     boolean existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(Integer userId, NotificationSubscribeType type);
 
     boolean existsByUserIdAndSubscribeTypeAndDetailType(

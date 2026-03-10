@@ -3,18 +3,24 @@ package in.koreatech.koin.domain.notification.eventlistener;
 import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
 
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.domain.notification.model.Notification;
@@ -38,35 +44,67 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
 
     @TransactionalEventListener
     public void onKeywordRequest(ArticleKeywordEvent event) {
+        Map<Integer, String> matchedKeywordByUserId = event.matchedKeywordByUserId();
+
+        if (matchedKeywordByUserId.isEmpty()) {
+            return;
+        }
+
         Article article = articleRepository.getById(event.articleId());
         Board board = article.getBoard();
 
-        List<Notification> notifications = notificationSubscribeRepository
-            .findAllBySubscribeTypeAndDetailTypeIsNull(ARTICLE_KEYWORD)
+        Map<Integer, NotificationSubscribe> keywordSubscribersByUserId = notificationSubscribeRepository
+            .findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD)
             .stream()
             .filter(this::hasDeviceToken)
-            .filter(subscribe -> isKeywordRegistered(event, subscribe))
-            .filter(subscribe -> isNewNotifiedArticleId(event.articleId(), subscribe))
+            .collect(Collectors.toMap(
+                subscribe -> subscribe.getUser().getId(),
+                Function.identity(),
+                (existing, ignored) -> existing,
+                LinkedHashMap::new
+            ));
+
+        Set<Integer> matchedUserIds = keywordSubscribersByUserId.keySet().stream()
+            .filter(matchedKeywordByUserId::containsKey)
+            .collect(Collectors.toSet());
+
+        Set<Integer> alreadyNotifiedUserIds = getAlreadyNotifiedUserIds(
+            event.articleId(),
+            matchedUserIds
+        );
+
+        List<Notification> notifications = keywordSubscribersByUserId.values().stream()
+            .filter(subscribe -> matchedUserIds.contains(subscribe.getUser().getId()))
+            .filter(subscribe -> !alreadyNotifiedUserIds.contains(subscribe.getUser().getId()))
             .filter(subscribe -> !isMyArticle(event, subscribe))
-            .map(subscribe -> createAndRecordNotification(article, board, event.keyword(), subscribe))
+            .map(subscribe -> createNotification(
+                article,
+                board,
+                matchedKeywordByUserId.get(subscribe.getUser().getId()),
+                subscribe
+            ))
             .toList();
 
-        notificationService.pushNotifications(notifications);
+        List<NotificationService.NotificationDeliveryResult> deliveryResults =
+            notificationService.pushNotificationsWithResult(notifications);
+        for (NotificationService.NotificationDeliveryResult deliveryResult : deliveryResults) {
+            if (deliveryResult.delivered()) {
+                keywordService.createNotifiedArticleStatus(deliveryResult.notification().getUser().getId(), article.getId());
+            }
+        }
     }
 
     private boolean hasDeviceToken(NotificationSubscribe subscribe) {
-        return subscribe.getUser().getDeviceToken() != null;
+        return StringUtils.hasText(subscribe.getUser().getDeviceToken());
     }
 
-    private boolean isKeywordRegistered(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
-        return event.keyword().getArticleKeywordUserMaps().stream()
-            .filter(map -> !map.getIsDeleted())
-            .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getId()));
-    }
-
-    private boolean isNewNotifiedArticleId(Integer articleId, NotificationSubscribe subscribe) {
-        Integer userId = subscribe.getUser().getId();
-        return !userNotificationStatusRepository.existsByNotifiedArticleIdAndUserId(articleId, userId);
+    private Set<Integer> getAlreadyNotifiedUserIds(Integer articleId, Set<Integer> subscriberUserIds) {
+        if (subscriberUserIds.isEmpty()) {
+            return Set.of();
+        }
+        return new HashSet<>(
+            userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId, subscriberUserIds)
+        );
     }
 
     private boolean isMyArticle(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
@@ -75,26 +113,23 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         return Objects.equals(authorId, subscriberId);
     }
 
-    private Notification createAndRecordNotification(
+    private Notification createNotification(
         Article article,
         Board board,
-        ArticleKeyword keyword,
+        String keyword,
         NotificationSubscribe subscribe
     ) {
-        Integer userId = subscribe.getUser().getId();
-        String description = generateDescription(keyword.getKeyword());
+        String description = generateDescription(keyword);
 
         Notification notification = notificationFactory.generateKeywordNotification(
             KEYWORD,
             article.getId(),
-            keyword.getKeyword(),
+            keyword,
             article.getTitle(),
             board.getId(),
             description,
             subscribe.getUser()
         );
-
-        keywordService.createNotifiedArticleStatus(userId, article.getId());
         return notification;
     }
 
