@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.callvan.service;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,8 @@ import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanReportStatus;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanRole;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanStatus;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostSortCriteria;
@@ -18,12 +21,12 @@ import in.koreatech.koin.domain.callvan.model.filter.CallvanPostStatusFilter;
 import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostQueryRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
+import in.koreatech.koin.domain.callvan.repository.CallvanReportRepository;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,9 +34,15 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CallvanPostQueryService {
 
+    private static final List<CallvanReportStatus> ACTIVE_REPORT_STATUSES = List.of(
+        CallvanReportStatus.PENDING,
+        CallvanReportStatus.UNDER_REVIEW,
+        CallvanReportStatus.CONFIRMED);
+
     private final CallvanPostQueryRepository callvanPostQueryRepository;
     private final CallvanParticipantRepository callvanParticipantRepository;
     private final CallvanPostRepository callvanPostRepository;
+    private final CallvanReportRepository callvanReportRepository;
 
     public CallvanPostSearchResponse getCallvanPosts(
         CallvanAuthorFilter authorFilter,
@@ -89,8 +98,21 @@ public class CallvanPostQueryService {
         if (!callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId)) {
             throw CustomException.of(ApiResponseCode.FORBIDDEN_PARTICIPANT);
         }
-        CallvanPost callvanPost = callvanPostRepository.getById(postId);
+        CallvanPost callvanPost = callvanPostRepository.getWithParticipantsById(postId);
 
-        return CallvanPostDetailResponse.from(callvanPost, userId);
+        boolean isAuthor = callvanPost.getParticipants().stream()
+            .anyMatch(p -> p.getMember().getId().equals(userId)
+                && p.getRole() == CallvanRole.AUTHOR);
+
+        Set<Integer> reportedUserIds;
+        if (isAuthor) {
+            reportedUserIds = callvanReportRepository.findReportedUserIdsByPostIdAndStatusIn(
+                postId, ACTIVE_REPORT_STATUSES);
+        } else {
+            reportedUserIds = callvanReportRepository.findReportedUserIdsByPostIdAndReporterIdAndStatusIn(
+                postId, userId, ACTIVE_REPORT_STATUSES);
+        }
+
+        return CallvanPostDetailResponse.from(callvanPost, userId, reportedUserIds);
     }
 }

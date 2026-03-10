@@ -93,6 +93,9 @@ public class CallvanPost extends BaseEntity {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<CallvanParticipant> participants = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<CallvanReport> reports = new ArrayList<>();
+
     @Builder
     private CallvanPost(
         User author,

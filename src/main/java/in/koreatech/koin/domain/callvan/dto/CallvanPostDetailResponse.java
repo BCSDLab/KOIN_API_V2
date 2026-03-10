@@ -4,12 +4,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -52,7 +51,7 @@ public record CallvanPostDetailResponse(
     List<CallvanParticipantResponse> participants
 ) {
 
-    public static CallvanPostDetailResponse from(CallvanPost post, Integer userId) {
+    public static CallvanPostDetailResponse from(CallvanPost post, Integer userId, Set<Integer> reportedUserIds) {
         String departureName = post.getDepartureType().getName();
         if (StringUtils.hasText(post.getDepartureCustomName())) {
             departureName = post.getDepartureCustomName();
@@ -75,9 +74,8 @@ public record CallvanPostDetailResponse(
             post.getStatus().name(),
             post.getParticipants().stream()
                 .filter(p -> !p.getIsDeleted())
-                .map(it -> CallvanParticipantResponse.from(it, userId))
-                .toList()
-        );
+                .map(it -> CallvanParticipantResponse.from(it, userId, reportedUserIds))
+                .toList());
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
@@ -89,16 +87,22 @@ public record CallvanPostDetailResponse(
         String nickname,
 
         @Schema(description = "본인 여부", example = "false")
-        Boolean is_me
+        Boolean isMe,
+
+        @Schema(description = "신고 접수 여부", example = "false")
+        Boolean isReported
     ) {
 
-        public static CallvanParticipantResponse from(CallvanParticipant participant, Integer userId) {
-            String nickname = participant.getMember().getDisplayNickname();
+        public static CallvanParticipantResponse from(
+            CallvanParticipant participant, Integer userId, Set<Integer> reportedUserIds
+        ) {
             Integer participantId = participant.getMember().getId();
+            String nickname = participant.getMember().getDisplayNickname();
             return new CallvanParticipantResponse(
-                participant.getMember().getId(),
+                participantId,
                 nickname,
-                Objects.equals(userId, participantId)
+                Objects.equals(userId, participantId),
+                reportedUserIds.contains(participantId)
             );
         }
     }
