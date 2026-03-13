@@ -15,20 +15,15 @@ jobs:
         run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
 
       - name: Notify Slack - Deploy Start
+        env:
+          ACTIONS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          COMMIT_MSG=$(git log -1 --pretty=%s HEAD)
           curl -X POST ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }} \
             -H 'Content-Type: application/json' \
-            -d '{
-              "attachments": [{
-                "color": "#439FE0",
-                "title": ":rocket: 배포 시작",
-                "fields": [
-                  {"title": "브랜치", "value": "main", "short": true},
-                  {"title": "배포자", "value": "${{ github.actor }}", "short": true},
-                  {"title": "커밋", "value": "${{ github.sha }}", "short": false}
-                ]
-              }]
-            }'
+            -d "{
+              \"text\": \":rocket: *[Production] 배포 시작*\n• Repo: ${{ github.repository }}\n• Branch: main\n• Author: @${{ github.actor }}\n• Commit: ${COMMIT_MSG}\n• <${ACTIONS_URL}|Actions 보기>\"
+            }"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -66,27 +61,21 @@ jobs:
 
       - name: Notify Slack - Deploy Result
         if: always()
+        env:
+          ACTIONS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          COMMIT_MSG=$(git log -1 --pretty=%s HEAD)
           DURATION_SEC=$(( $(date +%s) - START_TIME ))
           DURATION="${DURATION_SEC}초 (약 $(( DURATION_SEC / 60 ))분)"
           if [ "${{ job.status }}" = "success" ]; then
-            COLOR="#36a64f"
             ICON=":white_check_mark:"
-            MSG="배포 성공"
+            STATUS="배포 성공"
           else
-            COLOR="#ff0000"
             ICON=":x:"
-            MSG="배포 실패"
+            STATUS="배포 실패"
           fi
           curl -X POST ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }} \
             -H 'Content-Type: application/json' \
             -d "{
-              \"attachments\": [{
-                \"color\": \"$COLOR\",
-                \"title\": \"$ICON $MSG\",
-                \"fields\": [
-                  {\"title\": \"브랜치\", \"value\": \"main\", \"short\": true},
-                  {\"title\": \"소요 시간\", \"value\": \"$DURATION\", \"short\": true}
-                ]
-              }]
+              \"text\": \"${ICON} *[Production] ${STATUS}*\n• Repo: ${{ github.repository }}\n• Branch: main\n• Author: @${{ github.actor }}\n• Commit: ${COMMIT_MSG}\n• Duration: ${DURATION}\n• <${ACTIONS_URL}|Actions 보기>\"
             }"
