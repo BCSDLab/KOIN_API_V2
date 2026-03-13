@@ -13,6 +13,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Record start time
+        run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
+
+      - name: Notify Slack - Deploy Start
+        run: |
+          curl -X POST ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }} \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "attachments": [{
+                "color": "#439FE0",
+                "title": ":rocket: 배포 시작",
+                "fields": [
+                  {"title": "브랜치", "value": "develop", "short": true},
+                  {"title": "배포자", "value": "${{ github.actor }}", "short": true},
+                  {"title": "커밋", "value": "${{ github.sha }}", "short": false}
+                ]
+              }]
+            }'
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -46,3 +65,30 @@ jobs:
           key: ${{ secrets.DEVELOP_SSH_PRIVATE_KEY }}
           port: ${{ secrets.DEVELOP_SERVER_PORT }}
           script: ${{ secrets.DEVELOP_DEPLOY_SCRIPT_PATH }}
+
+      - name: Notify Slack - Deploy Result
+        if: always()
+        run: |
+          DURATION_SEC=$(( $(date +%s) - START_TIME ))
+          DURATION="${DURATION_SEC}초 (약 $(( DURATION_SEC / 60 ))분)"
+          if [ "${{ job.status }}" = "success" ]; then
+            COLOR="#36a64f"
+            ICON=":white_check_mark:"
+            MSG="배포 성공"
+          else
+            COLOR="#ff0000"
+            ICON=":x:"
+            MSG="배포 실패"
+          fi
+          curl -X POST ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }} \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"attachments\": [{
+                \"color\": \"$COLOR\",
+                \"title\": \"$ICON $MSG\",
+                \"fields\": [
+                  {\"title\": \"브랜치\", \"value\": \"develop\", \"short\": true},
+                  {\"title\": \"소요 시간\", \"value\": \"$DURATION\", \"short\": true}
+                ]
+              }]
+            }"
