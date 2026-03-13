@@ -51,6 +51,7 @@ jobs:
           port: ${{ secrets.DEVELOP_SERVER_PORT }}
           source: ${{ secrets.SOURCE_JAR_PATH }}
           target: ${{ secrets.DEVELOP_SERVER_JAR_PATH }}
+          strip_components: 2
 
       - name: Run deploy script on develop server
         uses: appleboy/ssh-action@v1.0.3
