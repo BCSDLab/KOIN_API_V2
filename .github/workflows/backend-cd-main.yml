@@ -49,6 +49,7 @@ jobs:
           port: ${{ secrets.MAIN_SERVER_PORT }}
           source: ${{ secrets.SOURCE_JAR_PATH }}
           target: ${{ secrets.MAIN_SERVER_JAR_PATH }}
+          strip_components: 2
 
       - name: Run deploy script on main server
         uses: appleboy/ssh-action@v1.0.3
