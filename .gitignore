@@ -38,5 +38,7 @@ out/
 .DS_STORE
 
 *adminsdk.json
+.env*
+!.env.example
 
 logs
