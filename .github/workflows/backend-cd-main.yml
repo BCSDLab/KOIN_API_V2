@@ -38,7 +38,11 @@ jobs:
           cache-encryption-key: ${{ secrets.GRADLE_CACHE_ENCRYPTION_KEY }}
 
       - name: Build JAR
-        run: ./gradlew build --build-cache -x test
+        run: |
+          set -a
+          source .env.example
+          set +a
+          ./gradlew clean build -x test -Dspring.profiles.active=prod
 
       - name: SCP JAR to main server
         uses: appleboy/scp-action@v0.1.7
