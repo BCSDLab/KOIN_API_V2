@@ -39,6 +39,9 @@ jobs:
           cache-read-only: false
           cache-encryption-key: ${{ secrets.GRADLE_CACHE_ENCRYPTION_KEY }}
 
+      - name: Create Firebase Admin SDK JSON
+        run: echo '${{ secrets.FCM_ADMIN_SDK_JSON_DEVELOP }}' > src/main/resources/koin-firebase-adminsdk.json
+
       - name: Build JAR
         run: |
           set -a
