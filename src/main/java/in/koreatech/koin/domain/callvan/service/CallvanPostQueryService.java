@@ -115,4 +115,11 @@ public class CallvanPostQueryService {
 
         return CallvanPostDetailResponse.from(callvanPost, userId, reportedUserIds);
     }
+
+    public CallvanPostSearchResponse.CallvanPostResponse getCallvanPostSummary(Integer postId, Integer userId) {
+        CallvanPost callvanPost = callvanPostRepository.getById(postId);
+        boolean isJoined =
+            userId != null && callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId);
+        return CallvanPostSearchResponse.CallvanPostResponse.from(callvanPost, isJoined, userId);
+    }
 }
