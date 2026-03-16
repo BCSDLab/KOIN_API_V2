@@ -78,8 +78,8 @@ public class CallvanPostQueryService {
             List<Integer> postIds = posts.stream()
                 .map(CallvanPost::getId)
                 .toList();
-            List<CallvanParticipant> participants = callvanParticipantRepository.findAllByMemberIdAndPostIdIn(userId,
-                postIds);
+            List<CallvanParticipant> participants = callvanParticipantRepository.findAllByMemberIdAndPostIdInAndIsDeletedFalse(
+                userId, postIds);
             joinedPostIds = participants.stream()
                 .map(participant -> participant.getPost().getId())
                 .collect(Collectors.toSet());

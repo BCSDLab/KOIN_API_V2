@@ -19,5 +19,5 @@ public interface CallvanParticipantRepository extends Repository<CallvanParticip
 
     void delete(CallvanParticipant callvanParticipant);
 
-    List<CallvanParticipant> findAllByMemberIdAndPostIdIn(Integer memberId, List<Integer> postIds);
+    List<CallvanParticipant> findAllByMemberIdAndPostIdInAndIsDeletedFalse(Integer memberId, List<Integer> postIds);
 }
