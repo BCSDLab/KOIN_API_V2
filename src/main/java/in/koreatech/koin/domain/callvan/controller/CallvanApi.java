@@ -123,6 +123,24 @@ public interface CallvanApi {
 
     @ApiResponseCodes({
         OK,
+        NOT_FOUND_ARTICLE
+    })
+    @Operation(summary = "콜밴 게시글 요약 정보 조회", description = """
+        ### 콜밴 게시글 요약 정보 조회 API
+        목록 갱신을 위해 콜밴 게시글 목록 조회에서 출력되는 각 게시글을 단건으로 조회합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
+        """)
+    @GetMapping("/posts/{postId}/summary")
+    ResponseEntity<CallvanPostSearchResponse.CallvanPostResponse> getCallvanPostSummary(
+        @PathVariable Integer postId,
+        @UserId Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK,
         NOT_FOUND_ARTICLE,
         FORBIDDEN_PARTICIPANT
     })
