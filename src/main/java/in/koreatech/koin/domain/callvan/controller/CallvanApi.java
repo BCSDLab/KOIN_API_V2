@@ -45,7 +45,8 @@ public interface CallvanApi {
         CREATED,
         NOT_FOUND_USER,
         INVALID_REQUEST_BODY,
-        INVALID_CUSTOM_LOCATION_NAME
+        INVALID_CUSTOM_LOCATION_NAME,
+        FORBIDDEN_CALLVAN_RESTRICTED_USER
     })
     @Operation(summary = "콜밴 게시글 생성", description = """
         ### 콜밴 게시글 생성 API
@@ -122,6 +123,24 @@ public interface CallvanApi {
 
     @ApiResponseCodes({
         OK,
+        NOT_FOUND_ARTICLE
+    })
+    @Operation(summary = "콜밴 게시글 요약 정보 조회", description = """
+        ### 콜밴 게시글 요약 정보 조회 API
+        목록 갱신을 위해 콜밴 게시글 목록 조회에서 출력되는 각 게시글을 단건으로 조회합니다.
+
+        #### 비즈니스 로직
+        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
+        2. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
+        """)
+    @GetMapping("/posts/{postId}/summary")
+    ResponseEntity<CallvanPostSearchResponse.CallvanPostResponse> getCallvanPostSummary(
+        @PathVariable Integer postId,
+        @UserId Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK,
         NOT_FOUND_ARTICLE,
         FORBIDDEN_PARTICIPANT
     })
@@ -149,7 +168,8 @@ public interface CallvanApi {
         NOT_FOUND_ARTICLE,
         CALLVAN_POST_NOT_RECRUITING,
         CALLVAN_POST_FULL,
-        CALLVAN_ALREADY_JOINED
+        CALLVAN_ALREADY_JOINED,
+        FORBIDDEN_CALLVAN_RESTRICTED_USER
     })
     @Operation(summary = "콜밴 게시글 참여", description = """
         ### 콜밴 게시글 참여 API
@@ -294,6 +314,9 @@ public interface CallvanApi {
         - `reasons`: 신고 사유 목록 (1개 이상)
           - `reason_code`: `NO_SHOW`, `NON_PAYMENT`, `PROFANITY`, `OTHER`
           - `custom_text`: `OTHER`일 때만 입력 가능. `OTHER` 선택 시 `custom_text`는 필수입니다
+        - `attachments`: 첨부 사항
+          - `attachment_type`: `IMAGE`
+          - `url`: 업로드된 이미지 s3 링크
 
         #### 비즈니스 로직
         1. 신고자와 피신고자가 동일하면 실패합니다. (`CALLVAN_REPORT_SELF`)
@@ -364,19 +387,19 @@ public interface CallvanApi {
         로그인한 사용자의 알림 목록을 최신순으로 조회합니다.
 
         ### 알림 타입별 데이터 구조
-        | 필드명 | RECRUITMENT_COMPLETE(인원 모집 완료) | NEW_MESSAGE(신규 채팅 도착) | PARTICIPANT_JOINED(신규 인원 참여) | DEPARTURE_UPCOMING(출발 30분 전) |
-        | :--- | :--- | :--- | :--- | :--- |
-        | type | RECRUITMENT_COMPLETE | NEW_MESSAGE | PARTICIPANT_JOINED | DEPARTURE_UPCOMING |
-        | message_preview | "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요" | 신규 채팅 메시지 내용 | null | null |
-        | sender_nickname | null | 발신자 닉네임 | null | null |
-        | joined_member_nickname | null | null | 참여자 닉네임 | null |
-        | post_id | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID |
-        | departure | 출발지 | 출발지 | 출발지 | 출발지 |
-        | arrival | 도착지 | 도착지 | 도착지 | 도착지 |
-        | departure_date | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 |
-        | departure_time | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 |
-        | current_participants | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 |
-        | max_participants | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 |
+        | 필드명 | RECRUITMENT_COMPLETE(인원 모집 완료) | NEW_MESSAGE(신규 채팅 도착) | PARTICIPANT_JOINED(신규 인원 참여) | DEPARTURE_UPCOMING(출발 30분 전) | REPORT_WARNING(사용자 1차 제재(경고)) | REPORT_RESTRICTION_14_DAYS(14일 이용 제한) | REPORT_PERMANENT_RESTRICTION(영구 이용 제한) |
+        | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+        | type | RECRUITMENT_COMPLETE | NEW_MESSAGE | PARTICIPANT_JOINED | DEPARTURE_UPCOMING | REPORT_WARNING | REPORT_RESTRICTION_14_DAYS | REPORT_PERMANENT_RESTRICTION |
+        | message_preview | "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요" | 신규 채팅 메시지 내용 | null | null | "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후..." | "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 14일간..." | "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 콜벤 기능 이용이 영구적으로..." |
+        | sender_nickname | null | 발신자 닉네임 | null | null | null | null | null |
+        | joined_member_nickname | null | null | 참여자 닉네임 | null | null | null | null |
+        | post_id | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID | 게시글 ID |
+        | departure | 출발지 | 출발지 | 출발지 | 출발지 | 출발지 | 출발지 | 출발지 |
+        | arrival | 도착지 | 도착지 | 도착지 | 도착지 | 도착지 | 도착지 | 도착지 |
+        | departure_date | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 | 출발 날짜 |
+        | departure_time | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 | 출발 시간 |
+        | current_participants | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 | 현재 인원 |
+        | max_participants | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 | 최대 인원 |
         """)
     @GetMapping("/notifications")
     ResponseEntity<List<CallvanNotificationResponse>> getNotifications(

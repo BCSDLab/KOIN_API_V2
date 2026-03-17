@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
+import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse.CallvanPostResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanUserReportCreateRequest;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
@@ -81,6 +81,15 @@ public class CallvanController implements CallvanApi {
             author, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, sort, page, limit,
             userId);
         return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/posts/{postId}/summary")
+    public ResponseEntity<CallvanPostResponse> getCallvanPostSummary(
+        @PathVariable Integer postId,
+        @UserId Integer userId
+    ) {
+        CallvanPostResponse response = callvanPostQueryService.getCallvanPostSummary(postId, userId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/posts/{postId}")

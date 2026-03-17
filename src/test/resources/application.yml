@@ -98,6 +98,9 @@ naver:
     serviceId: ncp:sms:kr:test
     fromNumber: "01012331234"
 
+user:
+  verification:
+    max-verification-count: 5
 
 OPEN_API_KEY_PUBLIC: testck
 

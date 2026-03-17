@@ -45,4 +45,6 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
         @Param("articleKeywordId") Integer articleKeywordId,
         @Param("userId") Integer userId
     );
+
+    List<ArticleKeywordUserMap> findAllByArticleKeywordIdIn(List<Integer> articleKeywordIds);
 }

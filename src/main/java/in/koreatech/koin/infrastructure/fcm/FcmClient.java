@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.ApnsConfig;
@@ -33,23 +34,39 @@ public class FcmClient {
         String schemeUri,
         String type
     ) {
-        if (targetDeviceToken == null) {
-            return;
+        sendMessageWithResult(targetDeviceToken, title, content, imageUrl, path, schemeUri, type);
+    }
+
+    public boolean sendMessageWithResult(
+        String targetDeviceToken,
+        String title,
+        String content,
+        String imageUrl,
+        MobileAppPath path,
+        String schemeUri,
+        String type
+    ) {
+        if (!StringUtils.hasText(targetDeviceToken)) {
+            return false;
         }
-        log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
-
-        ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
-        AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, schemeUri, type);
-
-        Message message = Message.builder()
-            .setToken(targetDeviceToken)
-            .setApnsConfig(apnsConfig)
-            .setAndroidConfig(androidConfig).build();
         try {
+            log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
+
+            ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
+            AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, schemeUri, type);
+
+            Message message = Message.builder()
+                .setToken(targetDeviceToken)
+                .setApnsConfig(apnsConfig)
+                .setAndroidConfig(androidConfig)
+                .build();
+
             String result = FirebaseMessaging.getInstance().send(message);
             log.info("FCM 알림 전송 성공: {}", result);
+            return true;
         } catch (Exception e) {
             log.warn("FCM 알림 전송 실패", e);
+            return false;
         }
     }
 

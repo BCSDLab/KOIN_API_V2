@@ -28,6 +28,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Optional<Article> findById(Integer articleId);
 
+    List<Article> findAllByIdIn(List<Integer> articleIds);
+
     Page<Article> findAll(Pageable pageable);
 
     Page<Article> findAllByBoardIdNot(Integer boardId, PageRequest pageRequest);

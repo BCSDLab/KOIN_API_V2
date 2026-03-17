@@ -1,0 +1,128 @@
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-token:
+    expiration-time: ${JWT_ACCESS_TOKEN_EXPIRATION_TIME}
+
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+  lifecycle:
+    timeout-per-shutdown-phase: 5s
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+    hibernate:
+      ddl-auto: validate
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+    mongodb:
+      uri: ${MONGODB_URI}
+
+  thymeleaf:
+    prefix: "classpath:/mail/"
+    suffix: ".html"
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
+
+server:
+  tomcat:
+    max-http-form-post-size: 10MB
+  lifecycle:
+    timeout-per-shutdown-phase: 5s
+
+swagger:
+  server-url: ${SWAGGER_SERVER_URL}
+
+aws:
+  ses:
+    access-key: ${AWS_SES_ACCESS_KEY}
+    secret-key: ${AWS_SES_SECRET_KEY}
+
+s3:
+  bucket: ${S3_BUCKET}
+  custom_domain: ${S3_CUSTOM_DOMAIN}
+
+slack:
+  koin_event_notify_url: ${SLACK_KOIN_EVENT_NOTIFY_URL}
+  koin_owner_event_notify_url: ${SLACK_KOIN_OWNER_EVENT_NOTIFY_URL}
+  koin_shop_review_notify_url: ${SLACK_KOIN_SHOP_REVIEW_NOTIFY_URL}
+  koin_lost_item_notify_url: ${SLACK_KOIN_LOST_ITEM_NOTIFY_URL}
+  logging:
+    error: ${SLACK_LOGGING_ERROR_URL}
+
+koin:
+  admin:
+    shop:
+      url: ${KOIN_ADMIN_SHOP_URL}
+    review:
+      url: ${KOIN_ADMIN_REVIEW_URL}
+
+OPEN_API_KEY_PUBLIC: ${OPEN_API_KEY_PUBLIC}
+OPEN_API_KEY_TMONEY: ${OPEN_API_KEY_TMONEY}
+
+fcm:
+  koin:
+    url: ${FCM_KOIN_URL}
+
+naver:
+  accessKey: ${NAVER_ACCESS_KEY}
+  secretKey: ${NAVER_SECRET_KEY}
+  sms:
+    apiUrl: ${NAVER_SMS_API_URL}
+    serviceId: ${NAVER_SMS_SERVICE_ID}
+    fromNumber: ${NAVER_SMS_FROM_NUMBER}
+
+cors:
+  allowedOrigins: ${CORS_ALLOWED_ORIGINS}
+
+springdoc:
+  use-fqn: true
+
+cloudfront:
+  distribution-id: ${CLOUDFRONT_DISTRIBUTION_ID}
+  region: ${CLOUDFRONT_REGION}
+
+user:
+  verification:
+    max-verification-count: ${MAX_VERIFICATION_COUNT}
+
+address:
+  api:
+    url: ${ADDRESS_API_URL}
+    key: ${ADDRESS_API_KEY}
+
+toss-payment:
+  secret-key: ${TOSS_PAYMENT_SECRET_KEY}
+  api-base-url: ${TOSS_PAYMENT_API_BASE_URL}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
