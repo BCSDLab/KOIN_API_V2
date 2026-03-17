@@ -108,7 +108,7 @@ cloudfront:
 
 user:
   verification:
-    max-verification-count: 100
+    max-verification-count: ${VERIFICATION_MAX_COUNT}
 
 address:
   api:

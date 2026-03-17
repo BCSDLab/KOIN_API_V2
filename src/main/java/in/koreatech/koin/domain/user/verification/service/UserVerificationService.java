@@ -33,7 +33,7 @@ public class UserVerificationService {
         VerificationCountRedisRepository verificationCountRedisRepository,
         VerificationNumberGenerator verificationNumberGenerator,
         ApplicationEventPublisher eventPublisher,
-        @Value("${user.verification.max-verification-count:5}") int maxVerificationCount
+        @Value("${user.verification.max-verification-count}") int maxVerificationCount
     ) {
         this.verificationCodeRedisRepository = verificationCodeRedisRepository;
         this.verificationCountRedisRepository = verificationCountRedisRepository;
