@@ -53,6 +53,8 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 10MB
+  lifecycle:
+    timeout-per-shutdown-phase: 5s
 
 swagger:
   server-url: ${SWAGGER_SERVER_URL}
