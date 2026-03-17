@@ -53,6 +53,8 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 10MB
+  lifecycle:
+    timeout-per-shutdown-phase: 5s
 
 swagger:
   server-url: ${SWAGGER_SERVER_URL}
@@ -108,7 +110,7 @@ cloudfront:
 
 user:
   verification:
-    max-verification-count: 100
+    max-verification-count: ${MAX_VERIFICATION_COUNT}
 
 address:
   api:
