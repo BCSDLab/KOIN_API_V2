@@ -110,7 +110,7 @@ cloudfront:
 
 user:
   verification:
-    max-verification-count: ${VERIFICATION_MAX_COUNT}
+    max-verification-count: ${MAX_VERIFICATION_COUNT}
 
 address:
   api:
