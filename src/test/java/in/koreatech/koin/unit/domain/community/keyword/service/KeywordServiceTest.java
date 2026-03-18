@@ -1,11 +1,13 @@
 package in.koreatech.koin.unit.domain.community.keyword.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -106,5 +110,15 @@ class KeywordServiceTest {
         keywordService.createNotifiedArticleStatus(1, 100);
 
         verify(userNotificationStatusRepository).upsertLastNotifiedArticleId(1, 100);
+    }
+
+    @Test
+    @DisplayName("발송 이력 저장은 항상 새로운 트랜잭션에서 수행한다.")
+    void createNotifiedArticleStatus_startsNewTransaction() throws NoSuchMethodException {
+        Method method = KeywordService.class.getMethod("createNotifiedArticleStatus", Integer.class, Integer.class);
+        Transactional transactional = method.getAnnotation(Transactional.class);
+
+        assertThat(transactional).isNotNull();
+        assertThat(transactional.propagation()).isEqualTo(Propagation.REQUIRES_NEW);
     }
 }
