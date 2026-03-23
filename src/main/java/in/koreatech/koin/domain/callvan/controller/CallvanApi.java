@@ -95,6 +95,7 @@ public interface CallvanApi {
         - `arrival_keyword`: 도착지 직접 입력 검색어.
         - `title`: 게시글 제목 검색어.
         - `sort`: 정렬 기준 (`DEPARTURE_ASC`(출발일 오름차순), `DEPARTURE_DESC`(출발일 내림차순), `LATEST_ASC`(게시글 등록순 오름차순), `LATEST_DESC`(게시글 등록순 내림차순)). 기본값은 `LATEST_DESC`입니다.
+        - `joined`: `true`일 경우 로그인 사용자가 참여한 게시글만 조회합니다. 비로그인 사용자는 자동으로 `false` 처리됩니다.
         - `page`: 페이지 번호 (1부터 시작, 기본값 1)
         - `limit`: 한 페이지당 게시글 수 (최대 50, 기본값 10)
 
@@ -104,7 +105,8 @@ public interface CallvanApi {
         3. `statuses`가 전달되면 해당 상태들만 조회하고, 미전달 시 상태 조건 없이 전체를 조회합니다.
         4. `DEPARTURE_ASC`는 출발 날짜+시간 기준 오름차순, `DEPARTURE_DESC`는 출발 날짜+시간 기준 내림차순으로 정렬됩니다.
         5. `LATEST_ASC`는 게시글 등록순 오름차순, `LATEST_DESC`는 게시글 등록순 내림차순으로 정렬됩니다.
-        6. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
+        6. `joined=true`이면 로그인 사용자가 참여한 게시글만 반환합니다. 비로그인 사용자는 자동으로 `false` 처리됩니다. `false`는 모든 게시글이 반환됩니다.
+        7. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
         """)
     @GetMapping
     ResponseEntity<CallvanPostSearchResponse> getCallvanPosts(
@@ -116,6 +118,7 @@ public interface CallvanApi {
         @RequestParam(required = false, name = "statuses") List<CallvanPostStatusFilter> statuses,
         @RequestParam(required = false) String title,
         @RequestParam(required = false, defaultValue = "LATEST_DESC") CallvanPostSortCriteria sort,
+        @RequestParam(required = false,  name = "joined", defaultValue = "false") Boolean isJoined,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @UserId Integer userId
