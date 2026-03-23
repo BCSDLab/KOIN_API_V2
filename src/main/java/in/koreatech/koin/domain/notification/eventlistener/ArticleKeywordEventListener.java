@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -42,6 +43,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
     private final KeywordService keywordService;
     private final ArticleRepository articleRepository;
 
+    @Async
     @TransactionalEventListener
     public void onKeywordRequest(ArticleKeywordEvent event) {
         Map<Integer, String> matchedKeywordByUserId = event.matchedKeywordByUserId();
