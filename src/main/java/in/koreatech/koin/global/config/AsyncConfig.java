@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.config;
 
+import static java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -22,6 +24,7 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setMaxPoolSize(5);
         executor.setQueueCapacity(20);
         executor.setThreadNamePrefix("AsyncExecutor-");
+        executor.setRejectedExecutionHandler(new CallerRunsPolicy());
         executor.initialize();
         return executor;
     }
