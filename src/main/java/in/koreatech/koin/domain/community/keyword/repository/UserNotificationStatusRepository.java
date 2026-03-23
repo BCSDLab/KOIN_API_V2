@@ -32,9 +32,11 @@ public interface UserNotificationStatusRepository extends Repository<UserNotific
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
-        INSERT INTO user_notification_status (user_id, last_notified_article_id)
-        VALUES (:userId, :notifiedArticleId)
-        ON DUPLICATE KEY UPDATE last_notified_article_id = :notifiedArticleId
+        INSERT INTO user_notification_status (user_id, last_notified_article_id, created_at, updated_at)
+        VALUES (:userId, :notifiedArticleId, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON DUPLICATE KEY UPDATE
+            last_notified_article_id = :notifiedArticleId,
+            updated_at = CURRENT_TIMESTAMP
         """, nativeQuery = true)
     void upsertLastNotifiedArticleId(
         @Param("userId") Integer userId,
