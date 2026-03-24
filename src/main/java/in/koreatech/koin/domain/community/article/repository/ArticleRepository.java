@@ -185,9 +185,19 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     @Query("SELECT a.title FROM Article a WHERE a.id = :id")
     String getTitleById(@Param("id") Integer id);
 
-    @Query(value = "SELECT a.id AS id, a.title AS title, a.created_at AS createdAt "
-        + "FROM new_articles a "
-        + "WHERE a.title REGEXP '통학버스|등교버스|셔틀버스|하교버스' AND a.is_notice = true "
-        + "ORDER BY a.created_at DESC LIMIT 5", nativeQuery = true)
-    List<BusArticleProjection> findBusArticlesTop5OrderByCreatedAtDesc();
+    @Query("""
+        SELECT new in.koreatech.koin.domain.community.article.dto.BusArticleProjection(
+            a.id, a.title, a.createdAt
+        )
+        FROM Article a
+        WHERE (
+            a.title LIKE '%통학버스%'
+            OR a.title LIKE '%등교버스%'
+            OR a.title LIKE '%셔틀버스%'
+            OR a.title LIKE '%하교버스%'
+        )
+        AND a.isNotice = true
+        ORDER BY a.createdAt DESC
+        """)
+    List<BusArticleProjection> findBusArticlesTop5OrderByCreatedAtDesc(Pageable pageable);
 }
