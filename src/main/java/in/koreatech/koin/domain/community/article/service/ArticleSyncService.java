@@ -1,5 +1,21 @@
 package in.koreatech.koin.domain.community.article.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.community.article.dto.BusArticleProjection;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
@@ -13,20 +29,6 @@ import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRep
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -75,10 +77,11 @@ public class ArticleSyncService {
 
     @Transactional
     public void updateBusNoticeArticle() {
-        List<Article> articles = articleRepository.findBusArticlesTop5OrderByCreatedAtDesc();
-        LocalDate latestDate = articles.get(0).getCreatedAt().toLocalDate();
-        List<Article> latestArticles = articles.stream()
-            .filter(article -> article.getCreatedAt().toLocalDate().isEqual(latestDate))
+        List<BusArticleProjection> articles = articleRepository.findBusArticlesTop5OrderByCreatedAtDesc(
+            PageRequest.of(0, 5));
+        LocalDate latestDate = articles.get(0).createdAt().toLocalDate();
+        List<BusArticleProjection> latestArticles = articles.stream()
+            .filter(article -> article.createdAt().toLocalDate().isEqual(latestDate))
             .toList();
 
         if (latestArticles.size() >= 2) {
@@ -88,21 +91,23 @@ public class ArticleSyncService {
                     int secondWeight = 0;
 
                     // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
-                    if (first.getTitle().contains("사과"))
+                    if (first.title().contains("사과"))
                         firstWeight++;
-                    if (first.getTitle().contains("긴급"))
+                    if (first.title().contains("긴급"))
                         firstWeight--;
 
-                    if (second.getTitle().contains("사과"))
+                    if (second.title().contains("사과"))
                         secondWeight++;
-                    if (second.getTitle().contains("긴급"))
+                    if (second.title().contains("긴급"))
                         secondWeight--;
 
                     return Integer.compare(firstWeight, secondWeight);
                 })
                 .toList();
         }
-        busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
+
+        BusArticleProjection latestArticle = latestArticles.get(0);
+        busArticleRepository.save(BusNoticeArticle.of(latestArticle.id(), latestArticle.title()));
     }
 
     @Transactional
@@ -130,9 +135,10 @@ public class ArticleSyncService {
             String ipAddress = ipKey.replace(IP_SEARCH_COUNT_PREFIX, "");
 
             for (Map.Entry<Object, Object> entry : keywordSearchCounts.entrySet()) {
-                String searchedKeyword = (String) entry.getKey();
+                String searchedKeyword = (String)entry.getKey();
                 int searchCount = Integer.parseInt(entry.getValue().toString());
-                if (searchCount <= 0) continue;
+                if (searchCount <= 0)
+                    continue;
 
                 articleSearchKeywordRepository.findByKeyword(searchedKeyword).ifPresent(keywordEntity -> {
                     ipMapRepository.findByArticleSearchKeywordAndIpAddress(keywordEntity, ipAddress)
