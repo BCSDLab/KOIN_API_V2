@@ -86,7 +86,7 @@ public class StaticExpressBusClient extends ExpressBusClient {
             new ExpressBusCacheInfo(LocalTime.of(16, 0), LocalTime.of(16, 33), 1900),
             new ExpressBusCacheInfo(LocalTime.of(17, 0), LocalTime.of(17, 33), 1900),
             new ExpressBusCacheInfo(LocalTime.of(18, 0), LocalTime.of(18, 33), 1900),
-            new ExpressBusCacheInfo(LocalTime.of(19, 30), LocalTime.of(20, 3), 1900),
+            new ExpressBusCacheInfo(LocalTime.of(19, 0), LocalTime.of(19, 33), 1900),
             new ExpressBusCacheInfo(LocalTime.of(20, 30), LocalTime.of(21, 3), 1900)
         );
     }
