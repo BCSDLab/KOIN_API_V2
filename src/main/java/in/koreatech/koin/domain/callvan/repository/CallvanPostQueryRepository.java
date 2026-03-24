@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.callvan.repository;
 
+import static in.koreatech.koin.domain.callvan.model.QCallvanParticipant.callvanParticipant;
 import static in.koreatech.koin.domain.callvan.model.QCallvanPost.callvanPost;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import in.koreatech.koin.common.model.Criteria;
@@ -32,6 +34,7 @@ public class CallvanPostQueryRepository {
         String arrivalKeyword,
         List<CallvanStatus> statuses,
         String title,
+        Integer joinedMemberId,
         CallvanPostSortCriteria sort,
         Criteria criteria
     ) {
@@ -42,7 +45,8 @@ public class CallvanPostQueryRepository {
                 departureFilter(departures, departureKeyword),
                 arrivalFilter(arrivals, arrivalKeyword),
                 statusIn(statuses),
-                titleContains(title))
+                titleContains(title),
+                joinedByMemberId(joinedMemberId))
             .orderBy(getOrderSpecifiers(sort))
             .offset((long)criteria.getPage() * criteria.getLimit())
             .limit(criteria.getLimit())
@@ -56,7 +60,8 @@ public class CallvanPostQueryRepository {
         List<CallvanLocation> arrivals,
         String arrivalKeyword,
         List<CallvanStatus> statuses,
-        String title
+        String title,
+        Integer joinedMemberId
     ) {
         return queryFactory
             .select(callvanPost.count())
@@ -66,7 +71,8 @@ public class CallvanPostQueryRepository {
                 departureFilter(departures, departureKeyword),
                 arrivalFilter(arrivals, arrivalKeyword),
                 statusIn(statuses),
-                titleContains(title))
+                titleContains(title),
+                joinedByMemberId(joinedMemberId))
             .fetchOne();
     }
 
@@ -130,6 +136,22 @@ public class CallvanPostQueryRepository {
 
     private BooleanExpression titleContains(String title) {
         return (title != null && !title.isBlank()) ? callvanPost.title.contains(title) : null;
+    }
+
+    private BooleanExpression joinedByMemberId(Integer joinedMemberId) {
+        if (joinedMemberId == null) {
+            return null;
+        }
+
+        return JPAExpressions
+            .selectOne()
+            .from(callvanParticipant)
+            .where(
+                callvanParticipant.post.id.eq(callvanPost.id),
+                callvanParticipant.member.id.eq(joinedMemberId),
+                callvanParticipant.isDeleted.isFalse()
+            )
+            .exists();
     }
 
     private OrderSpecifier<?>[] getOrderSpecifiers(CallvanPostSortCriteria sort) {
