@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.model.redis;
 
+import in.koreatech.koin.domain.community.article.dto.BusArticleProjection;
 import in.koreatech.koin.domain.community.article.model.Article;
 import org.springframework.data.annotation.Id;
 import lombok.Builder;
@@ -25,6 +26,13 @@ public class BusNoticeArticle {
         return BusNoticeArticle.builder()
                 .id(article.getId())
                 .title(article.getTitle())
+                .build();
+    }
+
+    public static BusNoticeArticle from(BusArticleProjection projection) {
+        return BusNoticeArticle.builder()
+                .id(projection.getId())
+                .title(projection.getTitle())
                 .build();
     }
 }

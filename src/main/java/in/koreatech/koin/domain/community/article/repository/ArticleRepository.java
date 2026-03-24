@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin.domain.community.article.dto.BusArticleProjection;
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -184,8 +185,9 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     @Query("SELECT a.title FROM Article a WHERE a.id = :id")
     String getTitleById(@Param("id") Integer id);
 
-    @Query(value = "SELECT * FROM new_articles a "
+    @Query(value = "SELECT a.id AS id, a.title AS title, a.created_at AS createdAt "
+        + "FROM new_articles a "
         + "WHERE a.title REGEXP '통학버스|등교버스|셔틀버스|하교버스' AND a.is_notice = true "
         + "ORDER BY a.created_at DESC LIMIT 5", nativeQuery = true)
-    List<Article> findBusArticlesTop5OrderByCreatedAtDesc();
+    List<BusArticleProjection> findBusArticlesTop5OrderByCreatedAtDesc();
 }

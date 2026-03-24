@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.service;
 
+import in.koreatech.koin.domain.community.article.dto.BusArticleProjection;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
@@ -75,9 +76,9 @@ public class ArticleSyncService {
 
     @Transactional
     public void updateBusNoticeArticle() {
-        List<Article> articles = articleRepository.findBusArticlesTop5OrderByCreatedAtDesc();
+        List<BusArticleProjection> articles = articleRepository.findBusArticlesTop5OrderByCreatedAtDesc();
         LocalDate latestDate = articles.get(0).getCreatedAt().toLocalDate();
-        List<Article> latestArticles = articles.stream()
+        List<BusArticleProjection> latestArticles = articles.stream()
             .filter(article -> article.getCreatedAt().toLocalDate().isEqual(latestDate))
             .toList();
 
