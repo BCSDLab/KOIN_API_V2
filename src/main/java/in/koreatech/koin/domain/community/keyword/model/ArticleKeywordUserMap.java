@@ -56,4 +56,12 @@ public class ArticleKeywordUserMap extends BaseEntity {
     public void restore() {
         this.isDeleted = false;
     }
+
+    public String getKeyword() {
+        return articleKeyword.getKeyword();
+    }
+
+    public Integer getUserId() {
+        return user.getId();
+    }
 }
