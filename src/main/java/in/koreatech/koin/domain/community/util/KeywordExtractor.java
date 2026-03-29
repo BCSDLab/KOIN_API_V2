@@ -30,6 +30,8 @@ public class KeywordExtractor {
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId) {
+        List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAll();
+
         Map<Integer, Map<Integer, String>> matchedKeywordByUserIdByArticleId = new LinkedHashMap<>();
         int offset = 0;
 
