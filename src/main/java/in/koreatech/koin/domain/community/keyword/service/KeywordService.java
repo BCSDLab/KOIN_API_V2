@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -23,7 +23,6 @@ import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest
 import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
@@ -151,19 +150,7 @@ public class KeywordService {
             return;
         }
 
-        List<Article> fetchedArticles = articleRepository.findAllByIdIn(request.updateNotification());
-        var articleById = fetchedArticles.stream()
-            .collect(Collectors.toMap(Article::getId, article -> article));
-        List<Article> articles = request.updateNotification().stream()
-            .map(articleId -> {
-                Article article = articleById.get(articleId);
-                if (article == null) {
-                    throw ArticleNotFoundException.withDetail("articleId: " + articleId);
-                }
-                return article;
-            })
-            .toList();
-
+        List<Article> articles = articleRepository.findAllByIdIn(request.updateNotification());
         List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
         for (ArticleKeywordEvent event : keywordEvents) {
             eventPublisher.publishEvent(event);
