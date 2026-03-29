@@ -147,18 +147,14 @@ public class KeywordService {
     }
 
     public void sendKeywordNotification(KeywordNotificationRequest request) {
-        List<Integer> updateNotificationIds = request.updateNotification().stream()
-            .distinct()
-            .toList();
-
-        if (updateNotificationIds.isEmpty()) {
+        if (request.updateNotification().isEmpty()) {
             return;
         }
 
-        List<Article> fetchedArticles = articleRepository.findAllByIdIn(updateNotificationIds);
+        List<Article> fetchedArticles = articleRepository.findAllByIdIn(request.updateNotification());
         var articleById = fetchedArticles.stream()
             .collect(Collectors.toMap(Article::getId, article -> article));
-        List<Article> articles = updateNotificationIds.stream()
+        List<Article> articles = request.updateNotification().stream()
             .map(articleId -> {
                 Article article = articleById.get(articleId);
                 if (article == null) {
