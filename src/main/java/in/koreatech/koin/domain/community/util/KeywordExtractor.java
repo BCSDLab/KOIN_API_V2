@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class KeywordExtractor {
 
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
