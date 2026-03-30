@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.community.keyword.model.KeywordMatchResult;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import lombok.RequiredArgsConstructor;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class KeywordExtractor {
