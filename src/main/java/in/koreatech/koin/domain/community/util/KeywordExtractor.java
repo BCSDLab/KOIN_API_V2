@@ -36,18 +36,18 @@ public class KeywordExtractor {
     }
 
     private void addOrUpdateResult(
-        Set<KeywordMatchResult> results, Article article, ArticleKeywordUserMap userMap
+        Set<KeywordMatchResult> keywordMatchResults, Article article, ArticleKeywordUserMap articleKeywordUserMap
     ) {
         KeywordMatchResult keywordMatchResult = KeywordMatchResult.of(
-            article.getId(), userMap.getUserId(), userMap.getKeyword()
+            article.getId(), articleKeywordUserMap.getUserId(), articleKeywordUserMap.getKeyword()
         );
 
-        results.stream()
+        keywordMatchResults.stream()
             .filter(result -> result.equals(keywordMatchResult))
             .findFirst()
             .ifPresentOrElse(
-                existing -> existing.updateKeywordIfLonger(userMap.getKeyword()),
-                () -> results.add(keywordMatchResult)
+                existing -> existing.updateKeywordIfLonger(articleKeywordUserMap.getKeyword()),
+                () -> keywordMatchResults.add(keywordMatchResult)
             );
     }
 }
