@@ -10,17 +10,14 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.KeywordMatchResult;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class KeywordExtractor {
 
-    private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
-
-    public List<KeywordMatchResult> matchKeyword(List<Article> articles, Integer authorId) {
-        List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAll();
+    public List<KeywordMatchResult> matchKeyword(
+        List<Article> articles, List<ArticleKeywordUserMap> articleKeywordUserMaps, Integer authorId
+    ) {
         Set<KeywordMatchResult> keywordMatchResults = new HashSet<>();
 
         for (Article article : articles) {
