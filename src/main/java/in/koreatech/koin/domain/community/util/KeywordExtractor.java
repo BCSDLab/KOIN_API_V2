@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.KeywordMatchResult;
-import lombok.RequiredArgsConstructor;
 
 @Component
 public class KeywordExtractor {
