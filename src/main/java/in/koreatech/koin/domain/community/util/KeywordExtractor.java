@@ -20,32 +20,34 @@ public class KeywordExtractor {
         Set<KeywordMatchResult> keywordMatchResults = new HashSet<>();
 
         for (Article article : articles) {
-            String title = article.getTitle();
-
             for (ArticleKeywordUserMap articleKeywordUserMap : articleKeywordUserMaps) {
-                if (Objects.equals(articleKeywordUserMap.getUserId(), authorId)) {
-                    continue;
+                if (isMatchable(article, articleKeywordUserMap, authorId)) {
+                    addOrUpdateResult(keywordMatchResults, article, articleKeywordUserMap);
                 }
-
-                String keyword = articleKeywordUserMap.getKeyword();
-                if (!title.contains(keyword)) {
-                    continue;
-                }
-
-                KeywordMatchResult keywordMatchResult = KeywordMatchResult.of(
-                    article.getId(), articleKeywordUserMap.getUserId(), keyword
-                );
-
-                keywordMatchResults.stream()
-                    .filter(result -> result.equals(keywordMatchResult))
-                    .findFirst()
-                    .ifPresentOrElse(
-                        existing -> existing.updateKeywordIfLonger(keyword),
-                        () -> keywordMatchResults.add(keywordMatchResult)
-                    );
             }
         }
 
         return keywordMatchResults.stream().toList();
+    }
+
+    private boolean isMatchable(Article article, ArticleKeywordUserMap articleKeywordUserMap, Integer authorId) {
+        return !Objects.equals(articleKeywordUserMap.getUserId(), authorId)
+            && article.getTitle().contains(articleKeywordUserMap.getKeyword());
+    }
+
+    private void addOrUpdateResult(
+        Set<KeywordMatchResult> results, Article article, ArticleKeywordUserMap userMap
+    ) {
+        KeywordMatchResult keywordMatchResult = KeywordMatchResult.of(
+            article.getId(), userMap.getUserId(), userMap.getKeyword()
+        );
+
+        results.stream()
+            .filter(result -> result.equals(keywordMatchResult))
+            .findFirst()
+            .ifPresentOrElse(
+                existing -> existing.updateKeywordIfLonger(userMap.getKeyword()),
+                () -> results.add(keywordMatchResult)
+            );
     }
 }
