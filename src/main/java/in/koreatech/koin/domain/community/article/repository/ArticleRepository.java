@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin.domain.community.article.dto.ArticleSummary;
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -30,6 +31,13 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Optional<Article> findById(Integer articleId);
 
     List<Article> findAllByIdIn(Collection<Integer> articleIds);
+
+    @Query(value = """
+        SELECT new in.koreatech.koin.domain.community.article.dto.ArticleSummary(a.id, a.title)
+        FROM Article a
+        WHERE a.id IN :articleIds
+        """)
+    List<ArticleSummary> findAllSummaryByIdIn(@Param("articleIds") Collection<Integer> articleIds);
 
     Page<Article> findAll(Pageable pageable);
 
