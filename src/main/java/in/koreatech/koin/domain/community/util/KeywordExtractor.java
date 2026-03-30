@@ -1,20 +1,13 @@
 package in.koreatech.koin.domain.community.util;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.community.article.model.Article;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +25,8 @@ public class KeywordExtractor {
     public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId) {
         List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAll();
 
+
+        /*
         Map<Integer, Map<Integer, String>> matchedKeywordByUserIdByArticleId = new LinkedHashMap<>();
         int offset = 0;
 
@@ -85,8 +80,9 @@ public class KeywordExtractor {
                 keywordEvents.add(new ArticleKeywordEvent(article.getId(), authorId, matchedKeywordByUserId));
             }
         }
+         */
 
-        return keywordEvents;
+        return null;
     }
 
     private String pickHigherPriorityKeyword(String previousKeyword, String candidateKeyword) {
