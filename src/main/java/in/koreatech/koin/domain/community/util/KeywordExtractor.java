@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.community.util;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keyword.model.KeywordMatchResult;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,12 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class KeywordExtractor {
 
+    /**
+     * - 하나의 게시글에서 여러 키워드가 매칭 될 경우
+     * - 하나의 게시글에서 동일한 키워드가 매칭 될 경우
+     * - 여러개의 게시글에서 동일한 키워드가 매칭 될 경우
+     */
+
     private static final int KEYWORD_BATCH_SIZE = 100;
 
     private final ArticleKeywordRepository articleKeywordRepository;
@@ -24,7 +33,30 @@ public class KeywordExtractor {
 
     public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId) {
         List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAll();
+        Set<KeywordMatchResult> keywordMatchResults = new HashSet<>();
 
+        for (Article article : articles) {
+            String title = article.getTitle();
+
+            for (ArticleKeywordUserMap articleKeywordUserMap : articleKeywordUserMaps) {
+                String keyword = articleKeywordUserMap.getKeyword();
+                if (!title.contains(keyword)) {
+                    continue;
+                }
+
+                KeywordMatchResult keywordMatchResult = KeywordMatchResult.of(
+                    article.getId(), articleKeywordUserMap.getUserId(), keyword
+                );
+
+                keywordMatchResults.stream()
+                    .filter(result -> result.equals(keywordMatchResult))
+                    .findFirst()
+                    .ifPresentOrElse(
+                        existing -> existing.updateKeywordIfLonger(keyword),
+                        () -> keywordMatchResults.add(keywordMatchResult)
+                    );
+            }
+        }
 
         /*
         Map<Integer, Map<Integer, String>> matchedKeywordByUserIdByArticleId = new LinkedHashMap<>();
