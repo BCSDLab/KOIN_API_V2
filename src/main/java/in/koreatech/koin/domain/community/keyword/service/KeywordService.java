@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
+import in.koreatech.koin.domain.community.article.dto.ArticleSummary;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
@@ -150,8 +151,8 @@ public class KeywordService {
             return;
         }
 
-        List<Article> articles = articleRepository.findAllByIdIn(request.updateNotification());
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
+        List<ArticleSummary> articleSummaries = articleRepository.findAllSummaryByIdIn(request.updateNotification());
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articleSummaries, null);
         for (ArticleKeywordEvent event : keywordEvents) {
             eventPublisher.publishEvent(event);
         }

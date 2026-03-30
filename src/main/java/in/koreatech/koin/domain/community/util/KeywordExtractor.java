@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.dto.ArticleSummary;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.KeywordMatchResult;
 
@@ -15,14 +15,14 @@ import in.koreatech.koin.domain.community.keyword.model.KeywordMatchResult;
 public class KeywordExtractor {
 
     public List<KeywordMatchResult> matchKeyword(
-        List<Article> articles, List<ArticleKeywordUserMap> articleKeywordUserMaps, Integer authorId
+        List<ArticleSummary> articleSummaries, List<ArticleKeywordUserMap> articleKeywordUserMaps, Integer authorId
     ) {
         Set<KeywordMatchResult> keywordMatchResults = new HashSet<>();
 
-        for (Article article : articles) {
+        for (ArticleSummary articleSummary : articleSummaries) {
             for (ArticleKeywordUserMap articleKeywordUserMap : articleKeywordUserMaps) {
-                if (isMatchable(article, articleKeywordUserMap, authorId)) {
-                    addOrUpdateResult(keywordMatchResults, article, articleKeywordUserMap);
+                if (isMatchable(articleSummary, articleKeywordUserMap, authorId)) {
+                    addOrUpdateResult(keywordMatchResults, articleSummary, articleKeywordUserMap);
                 }
             }
         }
@@ -30,16 +30,19 @@ public class KeywordExtractor {
         return keywordMatchResults.stream().toList();
     }
 
-    private boolean isMatchable(Article article, ArticleKeywordUserMap articleKeywordUserMap, Integer authorId) {
+    private boolean isMatchable(
+        ArticleSummary articleSummaries, ArticleKeywordUserMap articleKeywordUserMap, Integer authorId
+    ) {
         return !Objects.equals(articleKeywordUserMap.getUserId(), authorId)
-            && article.getTitle().contains(articleKeywordUserMap.getKeyword());
+            && articleSummaries.title().contains(articleKeywordUserMap.getKeyword());
     }
 
     private void addOrUpdateResult(
-        Set<KeywordMatchResult> keywordMatchResults, Article article, ArticleKeywordUserMap articleKeywordUserMap
+        Set<KeywordMatchResult> keywordMatchResults, ArticleSummary ArticleSummary,
+        ArticleKeywordUserMap articleKeywordUserMap
     ) {
         KeywordMatchResult keywordMatchResult = KeywordMatchResult.of(
-            article.getId(), articleKeywordUserMap.getUserId(), articleKeywordUserMap.getKeyword()
+            ArticleSummary.id(), articleKeywordUserMap.getUserId(), articleKeywordUserMap.getKeyword()
         );
 
         keywordMatchResults.stream()
