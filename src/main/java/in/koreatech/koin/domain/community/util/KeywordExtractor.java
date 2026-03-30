@@ -31,7 +31,7 @@ public class KeywordExtractor {
     private final ArticleKeywordRepository articleKeywordRepository;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
-    public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId) {
+    public List<KeywordMatchResult> matchKeyword(List<Article> articles, Integer authorId) {
         List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAll();
         Set<KeywordMatchResult> keywordMatchResults = new HashSet<>();
 
@@ -57,6 +57,8 @@ public class KeywordExtractor {
                     );
             }
         }
+
+        return keywordMatchResults.stream().toList();
 
         /*
         Map<Integer, Map<Integer, String>> matchedKeywordByUserIdByArticleId = new LinkedHashMap<>();
