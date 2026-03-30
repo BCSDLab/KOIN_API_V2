@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.community.util;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
@@ -28,6 +29,10 @@ public class KeywordExtractor {
             String title = article.getTitle();
 
             for (ArticleKeywordUserMap articleKeywordUserMap : articleKeywordUserMaps) {
+                if (Objects.equals(articleKeywordUserMap.getUserId(), authorId)) {
+                    continue;
+                }
+
                 String keyword = articleKeywordUserMap.getKeyword();
                 if (!title.contains(keyword)) {
                     continue;
