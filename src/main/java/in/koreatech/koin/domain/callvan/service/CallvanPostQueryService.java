@@ -53,20 +53,22 @@ public class CallvanPostQueryService {
         List<CallvanPostStatusFilter> statusFilters,
         String title,
         CallvanPostSortCriteria sort,
+        Boolean isJoined,
         Integer page,
         Integer limit,
         Integer userId
     ) {
         Integer authorId = authorFilter.getRequiredAuthorId(userId);
+        Integer joinedMemberId = getJoinedMemberId(isJoined, userId);
         List<CallvanStatus> statuses = CallvanPostStatusFilter.toStatuses(statusFilters);
 
         Long totalCount = callvanPostQueryRepository.countCallvanPosts(
-            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title);
+            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, joinedMemberId);
 
         Criteria criteria = Criteria.of(page, limit, totalCount.intValue());
 
         List<CallvanPost> posts = callvanPostQueryRepository.findCallvanPosts(
-            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, sort,
+            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, joinedMemberId, sort,
             criteria);
 
         int totalPage = (int)Math.ceil((double)totalCount / criteria.getLimit());
@@ -92,6 +94,13 @@ public class CallvanPostQueryService {
             totalPage,
             joinedPostIds,
             userId);
+    }
+
+    private Integer getJoinedMemberId(Boolean isJoined, Integer userId) {
+        if (Boolean.TRUE.equals(isJoined) && userId != null) {
+            return userId;
+        }
+        return null;
     }
 
     public CallvanPostDetailResponse getCallvanPostDetail(Integer postId, Integer userId) {
