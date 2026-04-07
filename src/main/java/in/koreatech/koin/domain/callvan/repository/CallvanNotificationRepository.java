@@ -13,6 +13,17 @@ public interface CallvanNotificationRepository extends JpaRepository<CallvanNoti
 
     List<CallvanNotification> findAllByRecipientIdOrderByCreatedAtDesc(Integer recipientId);
 
+    @Query("""
+        SELECT DISTINCT n
+        FROM CallvanNotification n
+        JOIN FETCH n.recipient
+        LEFT JOIN FETCH n.post
+        LEFT JOIN FETCH n.chatRoom
+        WHERE n.id IN :notificationIds
+        AND n.isDeleted = false
+        """)
+    List<CallvanNotification> findAllByIdInWithRelations(@Param("notificationIds") List<Integer> notificationIds);
+
     @Modifying(clearAutomatically = true)
     @Query("UPDATE CallvanNotification n SET n.isRead = true WHERE n.recipient.id = :recipientId AND n.isDeleted = false")
     void updateIsReadByRecipientId(@Param("recipientId") Integer recipientId);
