@@ -4,16 +4,12 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
 
-public interface CallvanNotificationRepository extends Repository<CallvanNotification, Integer> {
-
-    CallvanNotification save(CallvanNotification entity);
-
-    <S extends CallvanNotification> List<S> saveAll(Iterable<S> entities);
+public interface CallvanNotificationRepository extends CrudRepository<CallvanNotification, Integer> {
 
     List<CallvanNotification> findAllByRecipientIdOrderByCreatedAtDesc(Integer recipientId);
 
