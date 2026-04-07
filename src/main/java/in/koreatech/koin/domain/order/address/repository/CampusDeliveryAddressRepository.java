@@ -3,15 +3,15 @@ package in.koreatech.koin.domain.order.address.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
 
-public interface CampusDeliveryAddressRepository extends JpaRepository<CampusDeliveryAddress, Integer> {
+public interface CampusDeliveryAddressRepository extends Repository<CampusDeliveryAddress, Integer> {
 
     @Query("""
             SELECT cda

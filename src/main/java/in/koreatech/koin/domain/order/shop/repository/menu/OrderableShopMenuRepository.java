@@ -3,8 +3,8 @@ package in.koreatech.koin.domain.order.shop.repository.menu;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.global.code.ApiResponseCode;
@@ -12,7 +12,7 @@ import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.order.cart.model.OrderableShopMenus;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenu;
 
-public interface OrderableShopMenuRepository extends JpaRepository<OrderableShopMenu, Integer> {
+public interface OrderableShopMenuRepository extends Repository<OrderableShopMenu, Integer> {
 
     @Query("""
             SELECT DISTINCT osm

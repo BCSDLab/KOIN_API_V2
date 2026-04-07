@@ -2,8 +2,8 @@ package in.koreatech.koin.domain.order.shop.repository;
 
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.order.shop.model.domain.OrderableShopInfoSummary;
@@ -11,7 +11,11 @@ import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 
-public interface OrderableShopRepository extends JpaRepository<OrderableShop, Integer> {
+public interface OrderableShopRepository extends Repository<OrderableShop, Integer> {
+
+    Optional<OrderableShop> findById(Integer id);
+
+    OrderableShop save(OrderableShop orderableShop);
 
     @Query("""
             SELECT new in.koreatech.koin.domain.order.shop.model.domain.OrderableShopInfoSummary(

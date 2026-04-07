@@ -2,14 +2,14 @@ package in.koreatech.koin.domain.order.shop.repository.menu;
 
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.order.cart.model.OrderableShopMenuOptions;
 import in.koreatech.koin.domain.order.shop.model.entity.menu.OrderableShopMenuOption;
 
-public interface OrderableShopMenuOptionRepository extends JpaRepository<OrderableShopMenuOption, Integer> {
+public interface OrderableShopMenuOptionRepository extends Repository<OrderableShopMenuOption, Integer> {
 
     @Query("SELECT mo FROM OrderableShopMenuOption mo " +
         "JOIN mo.optionGroup og " +
