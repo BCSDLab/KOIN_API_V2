@@ -12,26 +12,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
+import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
+import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse.CallvanPostResponse;
+import in.koreatech.koin.domain.callvan.dto.CallvanRestrictionResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanUserReportCreateRequest;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostSortCriteria;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanPostStatusFilter;
-import in.koreatech.koin.domain.callvan.service.CallvanPostQueryService;
-import in.koreatech.koin.domain.callvan.service.CallvanPostCreateService;
-import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
-import in.koreatech.koin.domain.callvan.service.CallvanPostStatusService;
 import in.koreatech.koin.domain.callvan.service.CallvanChatService;
 import in.koreatech.koin.domain.callvan.service.CallvanNotificationService;
+import in.koreatech.koin.domain.callvan.service.CallvanPostCreateService;
+import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
+import in.koreatech.koin.domain.callvan.service.CallvanPostQueryService;
+import in.koreatech.koin.domain.callvan.service.CallvanPostStatusService;
+import in.koreatech.koin.domain.callvan.service.CallvanRestrictionQueryService;
 import in.koreatech.koin.domain.callvan.service.CallvanUserReportService;
-import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
-import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
-import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import jakarta.validation.Valid;
@@ -52,6 +54,7 @@ public class CallvanController implements CallvanApi {
     private final CallvanPostStatusService callvanPostStatusService;
     private final CallvanChatService callvanChatService;
     private final CallvanNotificationService callvanNotificationService;
+    private final CallvanRestrictionQueryService callvanRestrictionQueryService;
     private final CallvanUserReportService callvanUserReportService;
 
     @PostMapping
@@ -82,6 +85,14 @@ public class CallvanController implements CallvanApi {
             author, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, sort, isJoined, page, limit,
             userId);
         return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/restriction")
+    public ResponseEntity<CallvanRestrictionResponse> getCallvanRestriction(
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        CallvanRestrictionResponse response = callvanRestrictionQueryService.getRestriction(userId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/posts/{postId}/summary")
