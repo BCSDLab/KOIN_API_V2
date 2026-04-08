@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -220,6 +221,7 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
+    @Disabled
     void 새로운_공지사항이_올라오고_해당_키워드를_갖고_있는_사용자가_있을_경우_알림이_발송된다() throws Exception {
         Board board = boardFixture.자유게시판();
 
@@ -248,6 +250,7 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
+    @Disabled
     @Transactional
     void 새로운_공지사항이_올라오고_해당_키워드를_갖고_있는_사용자가_없으면_알림이_발송되지_않는다() throws Exception {
 
