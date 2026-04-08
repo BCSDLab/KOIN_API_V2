@@ -2,10 +2,12 @@ package in.koreatech.koin.domain.callvan.service;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
+import in.koreatech.koin.domain.callvan.event.CallvanPushNotificationEvent;
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
@@ -27,9 +29,11 @@ public class CallvanNotificationService {
     private static final String CALLVAN_WARNING_MESSAGE = "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 주의 안내가 전달되었습니다. 이후 동일한 문제가 반복될 경우 콜벤 기능 이용이 제한될 수 있습니다.";
     private static final String CALLVAN_RESTRICTION_14_DAYS_MESSAGE = "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 14일간 콜벤 기능 이용이 제한되었습니다.";
     private static final String CALLVAN_PERMANENT_RESTRICTION_MESSAGE = "콜벤팟 이용 과정에서 신고가 접수되어 운영 검토 후 콜벤 기능 이용이 영구적으로 제한되었습니다.";
+
     private final CallvanPostRepository callvanPostRepository;
     private final CallvanNotificationRepository callvanNotificationRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public List<CallvanNotificationResponse> getNotifications(Integer userId) {
         return callvanNotificationRepository.findAllByRecipientIdOrderByCreatedAtDesc(userId).stream()
@@ -63,12 +67,19 @@ public class CallvanNotificationService {
 
         List<CallvanNotification> notifications = post.getParticipants().stream()
             .filter(p -> !p.getIsDeleted())
-            .map(p -> buildNotification(p.getMember(), CallvanNotificationType.RECRUITMENT_COMPLETE, post,
-                null, "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요", null))
+            .map(p -> buildNotification(
+                p.getMember(),
+                CallvanNotificationType.RECRUITMENT_COMPLETE,
+                post,
+                null,
+                "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요",
+                null
+            ))
             .toList();
 
         if (!notifications.isEmpty()) {
-            callvanNotificationRepository.saveAll(notifications);
+            List<CallvanNotification> savedNotifications = callvanNotificationRepository.saveAllAndFlush(notifications);
+            publishPushNotifications(savedNotifications);
         }
     }
 
@@ -79,17 +90,28 @@ public class CallvanNotificationService {
         List<CallvanNotification> notifications = post.getParticipants().stream()
             .filter(p -> !p.getIsDeleted())
             .filter(p -> !p.getMember().getId().equals(joinUserId))
-            .map(p -> buildNotification(p.getMember(), CallvanNotificationType.PARTICIPANT_JOINED, post,
-                null, null, joinUserNickname))
+            .map(p -> buildNotification(
+                p.getMember(),
+                CallvanNotificationType.PARTICIPANT_JOINED,
+                post,
+                null,
+                null,
+                joinUserNickname
+            ))
             .toList();
 
         if (!notifications.isEmpty()) {
-            callvanNotificationRepository.saveAll(notifications);
+            List<CallvanNotification> savedNotifications = callvanNotificationRepository.saveAllAndFlush(notifications);
+            publishPushNotifications(savedNotifications);
         }
     }
 
     @Transactional
-    public void notifyNewMessageReceived(Integer postId, Integer senderId, String senderNickname, String messageContent,
+    public void notifyNewMessageReceived(
+        Integer postId,
+        Integer senderId,
+        String senderNickname,
+        String messageContent,
         CallvanMessageType messageType
     ) {
         CallvanPost post = callvanPostRepository.getById(postId);
@@ -98,12 +120,19 @@ public class CallvanNotificationService {
         List<CallvanNotification> notifications = post.getParticipants().stream()
             .filter(p -> !p.getIsDeleted())
             .filter(p -> !p.getMember().getId().equals(senderId))
-            .map(p -> buildNotification(p.getMember(), CallvanNotificationType.NEW_MESSAGE, post,
-                senderNickname, notificationContent, null))
+            .map(p -> buildNotification(
+                p.getMember(),
+                CallvanNotificationType.NEW_MESSAGE,
+                post,
+                senderNickname,
+                notificationContent,
+                null
+            ))
             .toList();
 
         if (!notifications.isEmpty()) {
-            callvanNotificationRepository.saveAll(notifications);
+            List<CallvanNotification> savedNotifications = callvanNotificationRepository.saveAllAndFlush(notifications);
+            publishPushNotifications(savedNotifications);
         }
     }
 
@@ -126,14 +155,20 @@ public class CallvanNotificationService {
             default -> throw CustomException.of(ApiResponseCode.ILLEGAL_ARGUMENT);
         };
 
-        CallvanNotification callvanNotification = buildNotification(
-            recipient, notificationType, post, null, message, null);
-
-        callvanNotificationRepository.save(callvanNotification);
+        CallvanNotification callvanNotification = buildNotification(recipient, notificationType, post, null, message,
+            null);
+        CallvanNotification savedNotification = callvanNotificationRepository.saveAndFlush(callvanNotification);
+        publishPushNotifications(List.of(savedNotification));
     }
 
-    private CallvanNotification buildNotification(User recipient, CallvanNotificationType type, CallvanPost post,
-        String senderNickname, String messagePreview, String joinedMemberNickname) {
+    private CallvanNotification buildNotification(
+        User recipient,
+        CallvanNotificationType type,
+        CallvanPost post,
+        String senderNickname,
+        String messagePreview,
+        String joinedMemberNickname
+    ) {
         return CallvanNotification.builder()
             .recipient(recipient)
             .notificationType(type)
@@ -151,5 +186,16 @@ public class CallvanNotificationService {
             .chatRoom(post.getChatRoom())
             .joinedMemberNickname(joinedMemberNickname)
             .build();
+    }
+
+    private void publishPushNotifications(List<CallvanNotification> notifications) {
+        if (notifications.isEmpty()) {
+            return;
+        }
+
+        List<Integer> notificationIds = notifications.stream()
+            .map(CallvanNotification::getId)
+            .toList();
+        eventPublisher.publishEvent(new CallvanPushNotificationEvent(notificationIds));
     }
 }

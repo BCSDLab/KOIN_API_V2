@@ -6,27 +6,23 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.callvan.dto.CallvanRestrictionResponse;
 import in.koreatech.koin.domain.callvan.repository.CallvanReportProcessRepository;
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CallvanRestrictionService {
+public class CallvanRestrictionQueryService {
 
     private final CallvanReportProcessRepository callvanReportProcessRepository;
     private final Clock clock;
 
-    public void validateNotRestricted(Integer userId) {
-        boolean isRestricted = callvanReportProcessRepository.existsActiveRestrictionByReportedUserId(
-            userId,
-            LocalDateTime.now(clock)
-        );
+    public CallvanRestrictionResponse getRestriction(Integer userId) {
+        LocalDateTime now = LocalDateTime.now(clock);
 
-        if (isRestricted) {
-            throw CustomException.of(ApiResponseCode.FORBIDDEN_CALLVAN_RESTRICTED_USER);
-        }
+        return callvanReportProcessRepository.findActiveRestrictionByReportedUserId(userId, now)
+            .map(CallvanRestrictionResponse::from)
+            .orElseGet(CallvanRestrictionResponse::unrestricted);
     }
 }
