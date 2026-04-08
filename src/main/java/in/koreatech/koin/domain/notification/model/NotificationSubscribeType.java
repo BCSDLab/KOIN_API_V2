@@ -18,6 +18,7 @@ public enum NotificationSubscribeType {
     DINING_IMAGE_UPLOAD(List.of()),
     ARTICLE_KEYWORD(List.of()),
     LOST_ITEM_CHAT(List.of()),
+    CALLVAN(List.of()),
     MARKETING(List.of()),
     ;
 

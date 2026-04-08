@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.koreatech.koin.domain.callvan.event.CallvanPushNotificationEvent;
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
@@ -29,12 +31,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CallvanNotificationScheduler {
 
+    private static final String NOTIFICATION_QUEUE_KEY = "callvan:notification:queue";
+
     private final CallvanPostRepository callvanPostRepository;
     private final CallvanNotificationRepository callvanNotificationRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
     private final ZoneId systemZone = ZoneId.of("Asia/Seoul");
-    private static final String NOTIFICATION_QUEUE_KEY = "callvan:notification:queue";
 
     public void scheduleNotification(CallvanPost post) {
         LocalDateTime departureTime = LocalDateTime.of(
@@ -45,8 +49,10 @@ public class CallvanNotificationScheduler {
         LocalDateTime now = LocalDateTime.now();
 
         if (notificationTime.isBefore(now) || notificationTime.isEqual(now)) {
-            log.info("콜벤팟 알림 시간이 이미 지나서 스케줄링하지 않음 - postId: {}, notificationTime: {}",
-                post.getId(), notificationTime
+            log.info(
+                "콜벤팟 알림 시간이 이미 지나서 스케줄링하지 않음 - postId: {}, notificationTime: {}",
+                post.getId(),
+                notificationTime
             );
             return;
         }
@@ -71,9 +77,7 @@ public class CallvanNotificationScheduler {
     public void processScheduledNotifications() {
         long now = ZonedDateTime.now(systemZone).toEpochSecond();
 
-        Set<String> tasks = redisTemplate.opsForZSet()
-            .rangeByScore(NOTIFICATION_QUEUE_KEY, 0, now);
-
+        Set<String> tasks = redisTemplate.opsForZSet().rangeByScore(NOTIFICATION_QUEUE_KEY, 0, now);
         if (tasks == null || tasks.isEmpty()) {
             return;
         }
@@ -82,7 +86,6 @@ public class CallvanNotificationScheduler {
             try {
                 CallvanNotificationTask task = objectMapper.readValue(taskJson, CallvanNotificationTask.class);
                 processNotification(task);
-
                 redisTemplate.opsForZSet().remove(NOTIFICATION_QUEUE_KEY, taskJson);
             } catch (Exception e) {
                 log.info("콜벤팟 알림 작업 처리 실패 : {}", e.getMessage());
@@ -91,9 +94,7 @@ public class CallvanNotificationScheduler {
     }
 
     private void processNotification(CallvanNotificationTask task) {
-        CallvanPost post = callvanPostRepository.findById(task.getPostId())
-            .orElse(null);
-
+        CallvanPost post = callvanPostRepository.findById(task.getPostId()).orElse(null);
         if (post == null || post.getIsDeleted()) {
             return;
         }
@@ -115,12 +116,25 @@ public class CallvanNotificationScheduler {
                 .build())
             .toList();
 
-        callvanNotificationRepository.saveAll(notifications);
+        List<CallvanNotification> savedNotifications = callvanNotificationRepository.saveAllAndFlush(notifications);
+        publishPushNotifications(savedNotifications);
+    }
+
+    private void publishPushNotifications(List<CallvanNotification> notifications) {
+        if (notifications.isEmpty()) {
+            return;
+        }
+
+        List<Integer> notificationIds = notifications.stream()
+            .map(CallvanNotification::getId)
+            .toList();
+        eventPublisher.publishEvent(new CallvanPushNotificationEvent(notificationIds));
     }
 
     @Builder
     @Getter
     private static class CallvanNotificationTask {
+
         private Integer postId;
         private CallvanNotificationType type;
     }
