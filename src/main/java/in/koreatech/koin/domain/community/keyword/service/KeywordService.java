@@ -170,9 +170,9 @@ public class KeywordService {
             .toList();
 
         List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
-        // for (ArticleKeywordEvent event : keywordEvents) {
-        //     eventPublisher.publishEvent(event);
-        // }
+        for (ArticleKeywordEvent event : keywordEvents) {
+            eventPublisher.publishEvent(event);
+        }
     }
 
     private String validateAndGetKeyword(String keyword) {
