@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
@@ -50,8 +51,9 @@ class KeywordExtractorTest {
         ArticleKeyword keywordA = createKeyword(1, "근로", subscriber);
         ArticleKeyword keywordB = createKeyword(2, "근로장학", subscriber);
 
-        when(articleKeywordRepository.findAll())
-            .thenReturn(List.of(keywordA, keywordB));
+        when(articleKeywordRepository.findAll(any(Pageable.class)))
+            .thenReturn(List.of(keywordA, keywordB))
+            .thenReturn(List.of());
         when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
             .thenReturn(List.of(
                 keywordA.getArticleKeywordUserMaps().get(0),
@@ -77,8 +79,9 @@ class KeywordExtractorTest {
         User subscriber = UserFixture.id_설정_코인_유저(1);
         ArticleKeyword keyword = createKeyword(1, "장학금", subscriber);
 
-        when(articleKeywordRepository.findAll())
-            .thenReturn(List.of(keyword));
+        when(articleKeywordRepository.findAll(any(Pageable.class)))
+            .thenReturn(List.of(keyword))
+            .thenReturn(List.of());
         when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
             .thenReturn(List.of(keyword.getArticleKeywordUserMaps().get(0)));
 
@@ -103,8 +106,9 @@ class KeywordExtractorTest {
         ArticleKeyword firstKeyword = createKeyword(1, "근로", firstSubscriber);
         ArticleKeyword secondKeyword = createKeyword(2, "장학금", secondSubscriber);
 
-        when(articleKeywordRepository.findAll())
-            .thenReturn(List.of(firstKeyword, secondKeyword));
+        when(articleKeywordRepository.findAll(any(Pageable.class)))
+            .thenReturn(List.of(firstKeyword, secondKeyword))
+            .thenReturn(List.of());
         when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
             .thenReturn(List.of(
                 firstKeyword.getArticleKeywordUserMaps().get(0),
@@ -124,7 +128,8 @@ class KeywordExtractorTest {
     @DisplayName("등록된 키워드가 없으면 빈 결과를 반환한다.")
     void matchKeyword_whenNoKeywordsExist_returnsEmptyResult() {
         Article article = mock(Article.class);
-        when(articleKeywordRepository.findAll()).thenReturn(List.of());
+        when(article.getId()).thenReturn(1);
+        when(articleKeywordRepository.findAll(any(Pageable.class))).thenReturn(List.of());
 
         List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null);
 
