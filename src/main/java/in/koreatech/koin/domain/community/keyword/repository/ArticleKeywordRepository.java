@@ -30,8 +30,6 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
 
     List<ArticleKeyword> findAll(Pageable pageable);
 
-    List<ArticleKeyword> findAll();
-
     @Query("""
     SELECT new in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult(k.id, k.keyword, COUNT(u))
     FROM ArticleKeywordUserMap u
