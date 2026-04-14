@@ -54,7 +54,7 @@ public class AdminLandService {
     public void updateLand(Integer id, AdminLandRequest request) {
         Land land = adminLandRepository.getById(id);
         land.update(
-            request.internalName(),
+            request.name().trim().replace(" ","").toLowerCase(),
             request.name(),
             request.size(),
             request.roomType(),

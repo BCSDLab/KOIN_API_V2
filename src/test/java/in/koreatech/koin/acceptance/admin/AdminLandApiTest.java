@@ -230,7 +230,6 @@ class AdminLandApiTest extends AcceptanceTest {
         String jsonBody = """
             {
                 "name": "신안빌 수정",
-                "internal_name": "신안빌",
                 "size": "110.0",
                 "room_type": "투룸",
                 "latitude": "37.556",
@@ -267,7 +266,7 @@ class AdminLandApiTest extends AcceptanceTest {
 
         assertSoftly(softly -> {
             softly.assertThat(updatedLand.getName()).isEqualTo("신안빌 수정");
-            softly.assertThat(updatedLand.getInternalName()).isEqualTo("신안빌");
+            softly.assertThat(updatedLand.getInternalName()).isEqualTo("신안빌수정");
             softly.assertThat(updatedLand.getSize()).isEqualTo(110.0);
             softly.assertThat(updatedLand.getRoomType()).isEqualTo("투룸");
             softly.assertThat(updatedLand.getLatitude()).isEqualTo(37.556);
