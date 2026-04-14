@@ -1,17 +1,15 @@
 package in.koreatech.koin.admin.land.dto;
 
-import java.util.List;
-
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
+import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -24,7 +22,6 @@ public record AdminLandRequest(
     String name,
 
     @Schema(description = "이름", example = "금실타운")
-    @NotBlank(message = "방이름은 필수입니다.")
     @Size(max = 50, message = "방이름의 최대 길이는 50자입니다.")
     String internalName,
 
@@ -127,7 +124,7 @@ public record AdminLandRequest(
     public Land toLand() {
         return Land.builder()
             .name(name)
-            .internalName(internalName)
+            .internalName(name.trim().replace(" ", "").toLowerCase())
             .size(String.valueOf(size))
             .roomType(roomType)
             .latitude(String.valueOf(latitude))
