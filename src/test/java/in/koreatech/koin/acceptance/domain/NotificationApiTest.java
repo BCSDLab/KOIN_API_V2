@@ -127,6 +127,13 @@ class NotificationApiTest extends AcceptanceTest {
                                  ]
                              },
                              {
+                                 "type": "CALLVAN",
+                                 "is_permit": false,
+                                 "detail_subscribes": [
+                                    \s
+                                 ]
+                             },
+                             {
                                  "type": "MARKETING",
                                  "is_permit": false,
                                  "detail_subscribes": [
@@ -252,6 +259,13 @@ class NotificationApiTest extends AcceptanceTest {
                              ]
                          },
                          {
+                             "type": "CALLVAN",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
                              "type": "MARKETING",
                              "is_permit": false,
                              "detail_subscribes": [
@@ -371,6 +385,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "LOST_ITEM_CHAT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "CALLVAN",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -510,6 +531,13 @@ class NotificationApiTest extends AcceptanceTest {
                              ]
                          },
                          {
+                             "type": "CALLVAN",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
                              "type": "MARKETING",
                              "is_permit": false,
                              "detail_subscribes": [
@@ -634,6 +662,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "LOST_ITEM_CHAT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "CALLVAN",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
