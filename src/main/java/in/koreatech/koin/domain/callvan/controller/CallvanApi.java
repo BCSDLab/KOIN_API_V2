@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
@@ -19,6 +20,7 @@ import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostCreateResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostDetailResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanPostSearchResponse;
+import in.koreatech.koin.domain.callvan.dto.CallvanRestrictionResponse;
 import in.koreatech.koin.domain.callvan.dto.CallvanUserReportCreateRequest;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.filter.CallvanAuthorFilter;
@@ -28,9 +30,6 @@ import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 
 import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -122,6 +121,29 @@ public interface CallvanApi {
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @UserId Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK,
+        NOT_FOUND_USER
+    })
+    @Operation(summary = "내 콜밴 이용 제한 상태 조회", description = """
+        ### 내 콜밴 이용 제한 상태 조회 API
+        로그인한 사용자의 현재 활성화된 콜밴 이용 제한 상태를 조회합니다.
+
+        #### 인증 조건
+        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
+
+        #### 비즈니스 로직
+        1. 현재 활성화된 정지 상태가 있으면 `is_restricted=true`를 반환합니다.
+        2. 14일 이용 정지인 경우 `restriction_type=TEMPORARY_RESTRICTION_14_DAYS`와 `restricted_until`을 반환합니다.
+        3. 영구 이용 정지인 경우 `restriction_type=PERMANENT_RESTRICTION`을 반환하고 `restricted_until`은 null입니다.
+        4. 경고(`WARNING`)와 만료된 14일 정지는 이 API에서 반환하지 않습니다.
+        5. 활성화된 정지가 없으면 `is_restricted=false`와 null 필드들을 반환합니다.
+        """)
+    @GetMapping("/restriction")
+    ResponseEntity<CallvanRestrictionResponse> getCallvanRestriction(
+        @Auth(permit = {STUDENT}) Integer userId
     );
 
     @ApiResponseCodes({

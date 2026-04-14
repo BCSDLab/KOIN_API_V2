@@ -38,11 +38,10 @@ public class CityBusRouteStrategy implements BusRouteStrategy {
     }
 
     private CityBusTimetable getScheduleForRoute(Long busNumber, BusStation depart, CityBusDirection cityBusInfo) {
-        if (depart == BusStation.TERMINAL) {
-            return cityBusTimetableRepository.getByBusInfoNumberAndBusInfoDepart(busNumber, "종합터미널");
-        } else {
+        if (depart == BusStation.KOREATECH) {
             return cityBusTimetableRepository.getByBusInfoNumberAndBusInfoDepart(busNumber, cityBusInfo.getName());
         }
+        return cityBusTimetableRepository.getByBusInfoNumberAndBusInfoDepart(busNumber, "종합터미널");
     }
 
     @Override
