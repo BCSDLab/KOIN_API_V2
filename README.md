@@ -103,9 +103,9 @@ src
 | :--: | :--: | :--: | :--: |
 | [진호](https://github.com/BaeJinho4028) | [관규](https://github.com/Soundbar91) | [성빈](https://github.com/ImTotem) | [인화](https://github.com/kih1015) |
 
-| <img src="https://github.com/user-attachments/assets/6068f003-71cc-4119-93bf-97c9a27ed256" width="130"> | <img src="https://github.com/taejinn.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> |
-| :--: | :--: | :--: |
-| [두현](https://github.com/DHkimgit) | [박태진](https://github.com/taejinn) | [이동훈](https://github.com/dh2906) |
+| <img src="https://github.com/user-attachments/assets/6068f003-71cc-4119-93bf-97c9a27ed256" width="130"> | <img src="https://github.com/taejinn.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> | <img src="https://github.com/JanooGwan.png" width="130"> |
+| :--: | :--: | :--: | :--: |
+| [두현](https://github.com/DHkimgit) | [박태진](https://github.com/taejinn) | [이동훈](https://github.com/dh2906) | [관우](https://github.com/JanooGwan) |
    
    
 --- 
