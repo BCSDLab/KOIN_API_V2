@@ -99,17 +99,13 @@ src
 
 ### 🧑‍🧑‍🧒‍🧒 Team Members
 
-| <img src="https://github.com/user-attachments/assets/7f3ce35a-0b5d-4755-b5c3-2baef4a2677f" width="130"> | <img src="https://github.com/user-attachments/assets/530d5b55-26a0-4b85-ac65-d0da0e5f895a" width="130"> | <img src="https://github.com/user-attachments/assets/1210988c-4ed0-4759-949c-b435bb81e803" width="130"> | <img src="https://github.com/user-attachments/assets/25e3bc7a-0c9e-4fca-97f8-6bbfb45079ee" width="130"> |
+| <img src="https://github.com/user-attachments/assets/7f3ce35a-0b5d-4755-b5c3-2baef4a2677f" width="130"> | <img src="https://github.com/user-attachments/assets/1210988c-4ed0-4759-949c-b435bb81e803" width="130"> | <img src="https://github.com/user-attachments/assets/25e3bc7a-0c9e-4fca-97f8-6bbfb45079ee" width="130"> | <img src="https://github.com/user-attachments/assets/b217bbd3-9a6e-4262-abd3-46acb1fd3cbd" width="130"> |
 | :--: | :--: | :--: | :--: |
-| [진호](https://github.com/BaeJinho4028) | [성현](https://github.com/krSeonghyeon) | [관규](https://github.com/Soundbar91) | [성빈](https://github.com/ImTotem) |
+| [진호](https://github.com/BaeJinho4028) | [관규](https://github.com/Soundbar91) | [성빈](https://github.com/ImTotem) | [인화](https://github.com/kih1015) |
 
-| <img src="https://github.com/user-attachments/assets/d0ae5872-2ae6-45f8-aae8-fa053fa475e5" width="130"> | <img src="https://github.com/user-attachments/assets/b3373849-7ed8-46a3-81f2-fdae8e52d82a" width="130"> | <img src="https://github.com/user-attachments/assets/b217bbd3-9a6e-4262-abd3-46acb1fd3cbd" width="130"> | <img src="https://github.com/user-attachments/assets/6068f003-71cc-4119-93bf-97c9a27ed256" width="130"> |
+| <img src="https://github.com/user-attachments/assets/6068f003-71cc-4119-93bf-97c9a27ed256" width="130"> | <img src="https://github.com/taejinn.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> | <img src="https://github.com/JanooGwan.png" width="130"> |
 | :--: | :--: | :--: | :--: |
-| [정빈](https://github.com/duehee) | [현식](https://github.com/Choon0414) | [인화](https://github.com/kih1015) | [두현](https://github.com/DHkimgit) |
-
-| <img src="https://github.com/asa9874.png" width="130"> | <img src="https://github.com/taejinn.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> | <img src="https://github.com/dldb-chamchi.png" width="130"> |
-| :--: | :--: | :--: | :--: |
-| [박종범](https://github.com/asa9874) | [박태진](https://github.com/taejinn) | [이동훈](https://github.com/dh2906) | [임아리](https://github.com/dldb-chamchi) |
+| [두현](https://github.com/DHkimgit) | [박태진](https://github.com/taejinn) | [이동훈](https://github.com/dh2906) | [관우](https://github.com/JanooGwan) |
    
    
 --- 
