@@ -27,6 +27,9 @@ public class CoopName {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "icon_url")
+    private String iconUrl;
+
     @Builder
     private CoopName(
         String name

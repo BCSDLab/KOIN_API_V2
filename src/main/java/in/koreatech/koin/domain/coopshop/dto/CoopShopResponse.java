@@ -36,6 +36,9 @@ public record CoopShopResponse(
     @Schema(example = "공휴일 휴무", description = "생협 매장 특이사항")
     String remarks,
 
+    @Schema(example = "https://kap-test.s3.ap-northeast-2.amazonaws.com/assets/img/coopshop/bookstore.svg", description = "아이콘 url")
+    String iconUrl,
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Schema(example = "2024-06-26", description = "학식 운영시간 업데이트 날짜", requiredMode = REQUIRED)
     LocalDateTime updatedAt
@@ -52,6 +55,7 @@ public record CoopShopResponse(
             coopShop.getPhone(),
             coopShop.getLocation(),
             coopShop.getRemarks(),
+            coopShop.getCoopName().getIconUrl(),
             coopShop.getUpdatedAt()
         );
     }
