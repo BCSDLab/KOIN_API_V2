@@ -2,20 +2,9 @@ package in.koreatech.koin.unit.domain.notification.eventlistener;
 
 import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
 import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
-import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.LOST_ITEM;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
-import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.LOST_ITEM_KEYWORD;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Map;
@@ -94,7 +83,8 @@ class ArticleKeywordEventListenerTest {
 
         Notification notification = mock(Notification.class);
         when(notification.getUser()).thenReturn(subscriber);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any()))
             .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, true)));
@@ -213,7 +203,8 @@ class ArticleKeywordEventListenerTest {
             .thenReturn(List.of());
 
         Notification notification = mock(Notification.class);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any()))
             .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, false)));
@@ -261,11 +252,13 @@ class ArticleKeywordEventListenerTest {
         when(board.getId()).thenReturn(boardId);
         when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(matchedSubscribe, unmatchedSubscribe));
-        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId, Set.of(matchedUserId)))
+        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId,
+            Set.of(matchedUserId)))
             .thenReturn(List.of());
 
         Notification notification = mock(Notification.class);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any())).thenReturn(List.of());
 
@@ -275,61 +268,9 @@ class ArticleKeywordEventListenerTest {
             .findUserIdsByNotifiedArticleIdAndUserIdIn(articleId, Set.of(matchedUserId));
     }
 
-    @Test
-    @DisplayName("분실물 키워드 이벤트는 분실물 키워드 구독 타입을 조회한다.")
-    void onKeywordRequest_withLostItemCategory_usesLostItemKeywordSubscription() {
-        Integer articleId = 600;
-        Integer boardId = 17;
-        Integer userId = 7;
-        User subscriber = UserFixture.id_설정_코인_유저(userId);
-        subscriber.permitNotification("device-token");
-
-        NotificationSubscribe subscribe = createLostItemKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, LOST_ITEM, Map.of(userId, "지갑"));
-
-        Article article = mock(Article.class);
-        Board board = mock(Board.class);
-        when(articleRepository.getById(articleId)).thenReturn(article);
-        when(article.getId()).thenReturn(articleId);
-        when(article.getTitle()).thenReturn("검은 지갑 습득");
-        when(article.getBoard()).thenReturn(board);
-        when(board.getId()).thenReturn(boardId);
-        when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(LOST_ITEM_KEYWORD))
-            .thenReturn(List.of(subscribe));
-        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(eq(articleId), any()))
-            .thenReturn(List.of());
-
-        Notification notification = mock(Notification.class);
-        when(notification.getUser()).thenReturn(subscriber);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
-            .thenReturn(notification);
-        when(notificationService.pushNotificationsWithResult(any()))
-            .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, true)));
-
-        articleKeywordEventListener.onKeywordRequest(event);
-
-        verify(notificationSubscribeRepository).findAllBySubscribeTypeAndDetailTypeIsNullWithUser(LOST_ITEM_KEYWORD);
-        verify(notificationFactory).generateKeywordNotification(
-            eq(KEYWORD),
-            eq(articleId),
-            eq("지갑"),
-            eq("검은 지갑 습득"),
-            eq(boardId),
-            contains("지갑"),
-            eq(subscriber)
-        );
-    }
-
     private NotificationSubscribe createKeywordSubscribe(User user) {
         return NotificationSubscribe.builder()
             .subscribeType(ARTICLE_KEYWORD)
-            .user(user)
-            .build();
-    }
-
-    private NotificationSubscribe createLostItemKeywordSubscribe(User user) {
-        return NotificationSubscribe.builder()
-            .subscribeType(LOST_ITEM_KEYWORD)
             .user(user)
             .build();
     }

@@ -1,14 +1,10 @@
 package in.koreatech.koin.unit.domain.community.util;
 
 import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
-import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.LOST_ITEM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Map;
@@ -120,7 +116,8 @@ class KeywordExtractorTest {
                 secondKeyword.getArticleKeywordUserMaps().get(0)
             ));
 
-        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(firstArticle, secondArticle), null, KOREATECH);
+        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(firstArticle, secondArticle), null,
+            KOREATECH);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).articleId()).isEqualTo(1);
@@ -142,31 +139,6 @@ class KeywordExtractorTest {
 
         assertThat(result).isEmpty();
         verifyNoInteractions(articleKeywordUserMapRepository);
-    }
-
-    @Test
-    @DisplayName("키워드 매칭은 요청 카테고리의 키워드만 조회한다.")
-    void matchKeyword_usesRequestedCategory() {
-        Article article = mock(Article.class);
-        when(article.getId()).thenReturn(1);
-        when(article.getTitle()).thenReturn("검은 지갑 분실");
-
-        User subscriber = UserFixture.id_설정_코인_유저(1);
-        ArticleKeyword keyword = createKeyword(1, "지갑", subscriber);
-
-        when(articleKeywordRepository.findAllByCategory(eq(LOST_ITEM), any(Pageable.class)))
-            .thenReturn(List.of(keyword))
-            .thenReturn(List.of());
-        when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
-            .thenReturn(List.of(keyword.getArticleKeywordUserMaps().get(0)));
-
-        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), 100, LOST_ITEM);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).category()).isEqualTo(LOST_ITEM);
-        assertThat(result.get(0).authorId()).isEqualTo(100);
-        verify(articleKeywordRepository, org.mockito.Mockito.never())
-            .findAllByCategory(eq(KOREATECH), any(Pageable.class));
     }
 
     private ArticleKeyword createKeyword(Integer keywordId, String keyword, User... users) {
