@@ -21,6 +21,7 @@ import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
+import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
@@ -56,40 +57,45 @@ public class KeywordService {
     private final KeywordExtractor keywordExtractor;
 
     @Transactional
-    public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
+    public ArticleKeywordResponse createKeyword(
+        Integer userId,
+        ArticleKeywordCreateRequest request,
+        KeywordCategory category
+    ) {
         String keyword = validateAndGetKeyword(request.keyword());
 
-        validateKeywordLimit(userId);
+        validateKeywordLimit(userId, category);
 
-        ArticleKeyword existingKeyword = findOrRestoreKeyword(keyword);
+        ArticleKeyword existingKeyword = findOrRestoreKeyword(keyword, category);
 
         ArticleKeywordUserMap userMap = findOrCreateKeywordMapping(existingKeyword, userId);
 
         return new ArticleKeywordResponse(userMap.getId(), existingKeyword.getKeyword());
     }
 
-    private void validateKeywordLimit(Integer userId) {
-        if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
-            throw KeywordLimitExceededException.withDetail("userId: " + userId);
+    private void validateKeywordLimit(Integer userId, KeywordCategory category) {
+        if (articleKeywordUserMapRepository.countByUserIdAndArticleKeywordCategory(userId, category) >= ARTICLE_KEYWORD_LIMIT) {
+            throw KeywordLimitExceededException.withDetail("userId: " + userId + ", category: " + category);
         }
     }
 
     @ConcurrencyGuard(lockName = "createKeywordManagement")
-    private ArticleKeyword findOrRestoreKeyword(String keyword) {
-        return articleKeywordRepository.findByKeywordIncludingDeleted(keyword)
+    private ArticleKeyword findOrRestoreKeyword(String keyword, KeywordCategory category) {
+        return articleKeywordRepository.findByKeywordAndCategoryIncludingDeleted(keyword, category.name())
             .map(keywordEntity -> {
                 if (keywordEntity.getIsDeleted()) {
                     keywordEntity.restore();
                 }
                 return keywordEntity;
             })
-            .orElseGet(() -> createNewKeyword(keyword));
+            .orElseGet(() -> createNewKeyword(keyword, category));
     }
 
-    private ArticleKeyword createNewKeyword(String keyword) {
+    private ArticleKeyword createNewKeyword(String keyword, KeywordCategory category) {
         return articleKeywordRepository.save(
             ArticleKeyword.builder()
                 .keyword(keyword)
+                .category(category)
                 .lastUsedAt(LocalDateTime.now())
                 .build()
         );
@@ -133,14 +139,16 @@ public class KeywordService {
         }
     }
 
-    public ArticleKeywordsResponse getMyKeywords(Integer userId) {
-        List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAllByUserId(userId);
+    public ArticleKeywordsResponse getMyKeywords(Integer userId, KeywordCategory category) {
+        List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository
+            .findAllByUserIdAndArticleKeywordCategory(userId, category);
         return ArticleKeywordsResponse.from(articleKeywordUserMaps);
     }
 
-    public ArticleKeywordsSuggestionResponse suggestKeywords() {
+    public ArticleKeywordsSuggestionResponse suggestKeywords(KeywordCategory category) {
         List<String> suggestions = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc()
             .stream()
+            .filter(hotKeyword -> hotKeyword.getCategory() == category)
             .map(ArticleKeywordSuggestCache::getKeyword)
             .collect(Collectors.toList());
 
@@ -169,7 +177,7 @@ public class KeywordService {
             })
             .toList();
 
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null);
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null, KeywordCategory.KOREATECH);
         for (ArticleKeywordEvent event : keywordEvents) {
             eventPublisher.publishEvent(event);
         }
@@ -187,16 +195,21 @@ public class KeywordService {
         Pageable top15 = PageRequest.of(0, 15);
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
 
-        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(oneWeekAgo, top15);
+        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(
+            oneWeekAgo,
+            KeywordCategory.KOREATECH,
+            top15
+        );
 
         if (topKeywords.size() < 15) {
-            topKeywords = articleKeywordRepository.findTop15KeywordsExcludingFiltered(top15);
+            topKeywords = articleKeywordRepository.findTop15KeywordsExcludingFiltered(KeywordCategory.KOREATECH, top15);
         }
 
         List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
             .map(result -> ArticleKeywordSuggestCache.builder()
                 .hotKeywordId(result.hotKeywordId())
                 .keyword(result.keyword())
+                .category(KeywordCategory.KOREATECH)
                 .count(result.count().intValue())
                 .build())
             .toList();

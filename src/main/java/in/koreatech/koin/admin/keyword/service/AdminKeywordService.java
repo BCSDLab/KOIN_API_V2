@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.keyword.repository.AdminArticleKeywordRepository;
 import in.koreatech.koin.admin.keyword.dto.AdminFilteredKeywordsResponse;
+import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,10 @@ public class AdminKeywordService {
     }
 
     public AdminFilteredKeywordsResponse getFilteredKeywords() {
-        List<ArticleKeyword> filteredKeywords = adminArticleKeywordRepository.findByIsFiltered(true);
+        List<ArticleKeyword> filteredKeywords = adminArticleKeywordRepository.findByIsFilteredAndCategory(
+            true,
+            KeywordCategory.KOREATECH
+        );
         return AdminFilteredKeywordsResponse.from(filteredKeywords);
     }
 }

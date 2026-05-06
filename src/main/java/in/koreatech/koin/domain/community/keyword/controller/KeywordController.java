@@ -36,7 +36,7 @@ public class KeywordController implements KeywordApi {
         @RequestParam(value = "type", required = false, defaultValue = "KOREATECH") KeywordCategory keywordCategory,
         @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
-        ArticleKeywordResponse response = keywordService.createKeyword(userId, request);
+        ArticleKeywordResponse response = keywordService.createKeyword(userId, request, keywordCategory);
         return ResponseEntity.ok(response);
     }
 
@@ -54,7 +54,7 @@ public class KeywordController implements KeywordApi {
         @RequestParam(value = "type", required = false, defaultValue = "KOREATECH") KeywordCategory keywordCategory,
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     ) {
-        ArticleKeywordsResponse response = keywordService.getMyKeywords(userId);
+        ArticleKeywordsResponse response = keywordService.getMyKeywords(userId, keywordCategory);
         return ResponseEntity.ok(response);
     }
 
@@ -62,7 +62,7 @@ public class KeywordController implements KeywordApi {
     public ResponseEntity<ArticleKeywordsSuggestionResponse> suggestKeywords(
         @RequestParam(value = "type", required = false, defaultValue = "KOREATECH") KeywordCategory keywordCategory
     ) {
-        ArticleKeywordsSuggestionResponse response = keywordService.suggestKeywords();
+        ArticleKeywordsSuggestionResponse response = keywordService.suggestKeywords(keywordCategory);
         return ResponseEntity.ok(response);
     }
 
