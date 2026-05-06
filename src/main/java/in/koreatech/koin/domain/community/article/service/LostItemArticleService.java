@@ -34,6 +34,7 @@ import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTrac
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
+import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.organization.model.Organization;
 import in.koreatech.koin.domain.organization.repository.OrganizationRepository;
@@ -252,7 +253,7 @@ public class LostItemArticleService {
     }
 
     private void sendKeywordNotification(List<Article> articles, Integer authorId) {
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, authorId);
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, authorId, KeywordCategory.LOST_ITEM);
         if (!keywordEvents.isEmpty()) {
             for (ArticleKeywordEvent event : keywordEvents) {
                 eventPublisher.publishEvent(event);
