@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
+import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,6 +41,7 @@ public interface KeywordApi {
     @PostMapping("/articles/keyword")
     ResponseEntity<ArticleKeywordResponse> createKeyword(
         @Valid @RequestBody ArticleKeywordCreateRequest request,
+        @RequestParam(value = "type", required = false, defaultValue = "KOREATECH") KeywordCategory keywordCategory,
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     );
 
@@ -67,6 +70,7 @@ public interface KeywordApi {
     @Operation(summary = "자신의 알림 키워드 전체 조회")
     @GetMapping("/articles/keyword/me")
     ResponseEntity<ArticleKeywordsResponse> getMyKeywords(
+        @RequestParam(value = "type", required = false, defaultValue = "KOREATECH") KeywordCategory keywordCategory,
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     );
 
@@ -79,6 +83,7 @@ public interface KeywordApi {
     @Operation(summary = "알림 키워드 추천")
     @GetMapping("/articles/keyword/suggestions")
     ResponseEntity<ArticleKeywordsSuggestionResponse> suggestKeywords(
+        @RequestParam(value = "type", required = false, defaultValue = "KOREATECH") KeywordCategory keywordCategory
     );
 
     @Operation(summary = "키워드 알림 전송", hidden = true)
