@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.community.keyword.model;
 import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +15,7 @@ public class ArticleKeywordSuggestCache {
     @Id
     private Integer hotKeywordId;
     private String keyword;
+    @Indexed
     private KeywordCategory category;
     private Integer count;
 

@@ -144,9 +144,8 @@ public class KeywordService {
     }
 
     public ArticleKeywordsSuggestionResponse suggestKeywords(KeywordCategory category) {
-        List<String> suggestions = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc()
+        List<String> suggestions = articleKeywordSuggestRepository.findTop15ByCategoryOrderByCountDesc(category)
             .stream()
-            .filter(hotKeyword -> hotKeyword.getCategory() == category)
             .map(ArticleKeywordSuggestCache::getKeyword)
             .collect(Collectors.toList());
 
