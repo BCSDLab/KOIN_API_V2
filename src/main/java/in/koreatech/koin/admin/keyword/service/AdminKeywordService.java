@@ -21,21 +21,21 @@ public class AdminKeywordService {
     private final AdminArticleKeywordRepository adminArticleKeywordRepository;
 
     @Transactional
-    public void filterKeyword(String keyword, Boolean isFiltered) {
-        ArticleKeyword articleKeyword = adminArticleKeywordRepository.getByKeyword(keyword);
+    public void filterKeyword(String keyword, Boolean isFiltered, KeywordCategory category) {
+        ArticleKeyword articleKeyword = adminArticleKeywordRepository.getByKeywordAndCategory(keyword, category);
 
         if (Objects.equals(articleKeyword.getIsFiltered(), isFiltered)) {
             String action = isFiltered ? "필터링 된" : "필터링이 취소된";
-            throw new KoinIllegalArgumentException("이미 " + action + " 키워드입니다: " + keyword);
+            throw new KoinIllegalArgumentException("이미 " + action + " 키워드입니다: " + keyword + ", category: " + category);
         }
 
         articleKeyword.applyFiltered(isFiltered);
     }
 
-    public AdminFilteredKeywordsResponse getFilteredKeywords() {
+    public AdminFilteredKeywordsResponse getFilteredKeywords(KeywordCategory category) {
         List<ArticleKeyword> filteredKeywords = adminArticleKeywordRepository.findByIsFilteredAndCategory(
             true,
-            KeywordCategory.KOREATECH
+            category
         );
         return AdminFilteredKeywordsResponse.from(filteredKeywords);
     }

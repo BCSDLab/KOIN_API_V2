@@ -13,9 +13,11 @@ public interface AdminArticleKeywordRepository extends Repository<ArticleKeyword
 
     Optional<ArticleKeyword> findByKeywordAndCategory(String keyword, KeywordCategory category);
 
-    default ArticleKeyword getByKeyword(String keyword) {
-        return findByKeywordAndCategory(keyword, KeywordCategory.KOREATECH)
-            .orElseThrow(() -> ArticleKeywordNotFoundException.withDetail("keyword : " + keyword));
+    default ArticleKeyword getByKeywordAndCategory(String keyword, KeywordCategory category) {
+        return findByKeywordAndCategory(keyword, category)
+            .orElseThrow(() -> ArticleKeywordNotFoundException.withDetail(
+                "keyword : " + keyword + ", category : " + category
+            ));
     }
 
     List<ArticleKeyword> findByIsFilteredAndCategory(boolean isFiltered, KeywordCategory category);
