@@ -58,9 +58,7 @@ public class KeywordService {
 
     @Transactional
     public ArticleKeywordResponse createKeyword(
-        Integer userId,
-        ArticleKeywordCreateRequest request,
-        KeywordCategory category
+        Integer userId, ArticleKeywordCreateRequest request, KeywordCategory category
     ) {
         String keyword = validateAndGetKeyword(request.keyword());
 
