@@ -20,6 +20,7 @@ public enum NotificationSubscribeType {
     LOST_ITEM_CHAT(List.of()),
     CALLVAN(List.of()),
     MARKETING(List.of()),
+    LOST_ITEM_KEYWORD(List.of()),
     ;
 
     private final List<NotificationDetailSubscribeType> detailTypes;
