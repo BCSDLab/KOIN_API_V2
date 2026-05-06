@@ -193,28 +193,30 @@ public class KeywordService {
         Pageable top15 = PageRequest.of(0, 15);
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
 
-        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(
-            oneWeekAgo,
-            KeywordCategory.KOREATECH,
-            top15
-        );
-
-        if (topKeywords.size() < 15) {
-            topKeywords = articleKeywordRepository.findTop15KeywordsExcludingFiltered(KeywordCategory.KOREATECH, top15);
-        }
-
-        List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
-            .map(result -> ArticleKeywordSuggestCache.builder()
-                .hotKeywordId(result.hotKeywordId())
-                .keyword(result.keyword())
-                .category(KeywordCategory.KOREATECH)
-                .count(result.count().intValue())
-                .build())
-            .toList();
-
         articleKeywordSuggestRepository.deleteAll();
-        for (ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
-            articleKeywordSuggestRepository.save(hotKeyword);
+        for (KeywordCategory category : KeywordCategory.values()) {
+            List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(
+                oneWeekAgo,
+                category,
+                top15
+            );
+
+            if (topKeywords.size() < 15) {
+                topKeywords = articleKeywordRepository.findTop15KeywordsExcludingFiltered(category, top15);
+            }
+
+            List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
+                .map(result -> ArticleKeywordSuggestCache.builder()
+                    .hotKeywordId(result.hotKeywordId())
+                    .keyword(result.keyword())
+                    .category(category)
+                    .count(result.count().intValue())
+                    .build())
+                .toList();
+
+            for (ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
+                articleKeywordSuggestRepository.save(hotKeyword);
+            }
         }
     }
 

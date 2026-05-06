@@ -1,6 +1,7 @@
 package in.koreatech.koin.unit.domain.community.keyword.service;
 
 import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
+import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.LOST_ITEM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,10 +21,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
+import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
@@ -103,6 +107,34 @@ class KeywordServiceTest {
         verifyNoInteractions(articleRepository);
         verifyNoInteractions(keywordExtractor);
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    @DisplayName("추천 키워드 갱신은 카테고리별로 탑 키워드를 선정한다.")
+    void fetchTopKeywordsFromLastWeek_fetchesTopKeywordsByCategory() {
+        ArticleKeywordResult koreatechKeyword = new ArticleKeywordResult(1, "장학금", 10L);
+        ArticleKeywordResult lostItemKeyword = new ArticleKeywordResult(2, "지갑", 5L);
+
+        when(articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(any(), eq(KOREATECH), any()))
+            .thenReturn(List.of(koreatechKeyword));
+        when(articleKeywordRepository.findTop15KeywordsExcludingFiltered(eq(KOREATECH), any()))
+            .thenReturn(List.of(koreatechKeyword));
+        when(articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(any(), eq(LOST_ITEM), any()))
+            .thenReturn(List.of(lostItemKeyword));
+        when(articleKeywordRepository.findTop15KeywordsExcludingFiltered(eq(LOST_ITEM), any()))
+            .thenReturn(List.of(lostItemKeyword));
+
+        keywordService.fetchTopKeywordsFromLastWeek();
+
+        ArgumentCaptor<ArticleKeywordSuggestCache> captor = ArgumentCaptor.forClass(ArticleKeywordSuggestCache.class);
+        verify(articleKeywordSuggestRepository).deleteAll();
+        verify(articleKeywordSuggestRepository, times(2)).save(captor.capture());
+        assertThat(captor.getAllValues())
+            .extracting(ArticleKeywordSuggestCache::getKeyword, ArticleKeywordSuggestCache::getCategory)
+            .containsExactlyInAnyOrder(
+                org.assertj.core.groups.Tuple.tuple("장학금", KOREATECH),
+                org.assertj.core.groups.Tuple.tuple("지갑", LOST_ITEM)
+            );
     }
 
     @Test
