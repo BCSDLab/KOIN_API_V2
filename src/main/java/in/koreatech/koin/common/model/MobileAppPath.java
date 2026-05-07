@@ -10,6 +10,8 @@ public enum MobileAppPath {
     DINING("dining"),
     KEYWORD("keyword"),
     CHAT("chat"),
+    CALLVAN("callvan"),
+    CALLVAN_CHAT("callvan-chat"),
     CLUB("club"),
     TIMETABLE("timetable"),
     ;
