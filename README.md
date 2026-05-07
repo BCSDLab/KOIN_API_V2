@@ -97,15 +97,40 @@ src
 
 ---
 
-### 🧑‍🧑‍🧒‍🧒 Team Members
+<details>
+<summary><h3>🧑‍🧑‍🧒‍🧒 Team Members</h3></summary>
 
-| <img src="https://github.com/user-attachments/assets/7f3ce35a-0b5d-4755-b5c3-2baef4a2677f" width="130"> | <img src="https://github.com/user-attachments/assets/1210988c-4ed0-4759-949c-b435bb81e803" width="130"> | <img src="https://github.com/user-attachments/assets/25e3bc7a-0c9e-4fca-97f8-6bbfb45079ee" width="130"> | <img src="https://github.com/user-attachments/assets/b217bbd3-9a6e-4262-abd3-46acb1fd3cbd" width="130"> |
-| :--: | :--: | :--: | :--: |
-| [진호](https://github.com/BaeJinho4028) | [관규](https://github.com/Soundbar91) | [성빈](https://github.com/ImTotem) | [인화](https://github.com/kih1015) |
+<br/>
 
-| <img src="https://github.com/user-attachments/assets/6068f003-71cc-4119-93bf-97c9a27ed256" width="130"> | <img src="https://github.com/taejinn.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> | <img src="https://github.com/JanooGwan.png" width="130"> |
+#### Active Members
+
+| <img src="https://github.com/Soundbar91.png" width="130"> | <img src="https://github.com/dh2906.png" width="130"> | <img src="https://github.com/DHkimgit.png" width="130"> |
+| :--: | :--: | :--: |
+| [관규](https://github.com/Soundbar91) | [동훈](https://github.com/dh2906) | [두현](https://github.com/DHkimgit) |
+
+| <img src="https://github.com/ImTotem.png" width="130"> | <img src="https://github.com/BaeJinho4028.png" width="130"> | <img src="https://github.com/taejinn.png" width="130"> |
+| :--: | :--: | :--: |
+| [성빈](https://github.com/ImTotem) | [진호](https://github.com/BaeJinho4028) | [태진](https://github.com/taejinn) |
+
+#### Former Members
+
+| <img src="https://github.com/daheeParkk.png" width="130"> | <img src="https://github.com/songsunkook.png" width="130"> | <img src="https://github.com/seongjae6751.png" width="130"> | <img src="https://github.com/krSeonghyeon.png" width="130"> |
 | :--: | :--: | :--: | :--: |
-| [두현](https://github.com/DHkimgit) | [박태진](https://github.com/taejinn) | [이동훈](https://github.com/dh2906) | [관우](https://github.com/JanooGwan) |
+| [다희](https://github.com/daheeParkk) | [선권](https://github.com/songsunkook) | [성재](https://github.com/seongjae6751) | [성현](https://github.com/krSeonghyeon) |
+
+| <img src="https://github.com/kwoo28.png" width="130"> | <img src="https://github.com/kih1015.png" width="130"> | <img src="https://github.com/duehee.png" width="130"> | <img src="https://github.com/dradnats1012.png" width="130"> |
+| :--: | :--: | :--: | :--: |
+| [원경](https://github.com/kwoo28) | [인화](https://github.com/kih1015) | [정빈](https://github.com/duehee) | [준기](https://github.com/dradnats1012) |
+
+| <img src="https://github.com/johnny19991006.png" width="130"> | <img src="https://github.com/Choi-JJunho.png" width="130"> | <img src="https://github.com/Invidam.png" width="130"> | <img src="https://github.com/20HyeonsuLee.png" width="130"> |
+| :--: | :--: | :--: | :--: |
+| [준영](https://github.com/johnny19991006) | [준호](https://github.com/Choi-JJunho) | [한수](https://github.com/Invidam) | [현수](https://github.com/20HyeonsuLee) |
+
+| <img src="https://github.com/Choon0414.png" width="130"> |
+| :--: |
+| [현식](https://github.com/Choon0414) |
+
+</details>
    
    
 --- 
