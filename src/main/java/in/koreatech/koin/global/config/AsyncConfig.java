@@ -27,8 +27,8 @@ public class AsyncConfig implements AsyncConfigurer {
     public ThreadPoolTaskExecutor keywordNotificationTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(100);
+        executor.setMaxPoolSize(6);
+        executor.setQueueCapacity(5);
         executor.setKeepAliveSeconds(60);
         executor.setThreadNamePrefix("keyword-notification-");
         executor.setRejectedExecutionHandler(new CallerRunsPolicy());
