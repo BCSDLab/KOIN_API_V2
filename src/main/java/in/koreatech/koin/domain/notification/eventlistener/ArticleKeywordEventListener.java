@@ -20,6 +20,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
+import in.koreatech.koin.common.model.MobileAppPath;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -55,6 +56,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
 
         Article article = articleRepository.getById(event.articleId());
         Board board = article.getBoard();
+        MobileAppPath appPath = getAppPath(event);
 
         Map<Integer, NotificationSubscribe> keywordSubscribersByUserId = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailTypeIsNullWithUser(getSubscribeType(event))
@@ -83,6 +85,8 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             .map(subscribe -> createNotification(
                 article,
                 board,
+                appPath,
+                event,
                 matchedKeywordByUserId.get(subscribe.getUser().getId()),
                 subscribe
             ))
@@ -111,6 +115,16 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         throw new IllegalArgumentException("지원하지 않는 키워드 카테고리입니다: " + event.category());
     }
 
+    private MobileAppPath getAppPath(ArticleKeywordEvent event) {
+        if (event.category() == KOREATECH) {
+            return KEYWORD;
+        }
+        if (event.category() == LOST_ITEM) {
+            return MobileAppPath.LOST_ITEM;
+        }
+        throw new IllegalArgumentException("지원하지 않는 키워드 카테고리입니다: " + event.category());
+    }
+
     private Set<Integer> getAlreadyNotifiedUserIds(Integer articleId, Set<Integer> subscriberUserIds) {
         if (subscriberUserIds.isEmpty()) {
             return Set.of();
@@ -129,13 +143,15 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
     private Notification createNotification(
         Article article,
         Board board,
+        MobileAppPath appPath,
+        ArticleKeywordEvent event,
         String keyword,
         NotificationSubscribe subscribe
     ) {
-        String description = generateDescription(keyword);
+        String description = generateDescription(event, keyword);
 
-        Notification notification = notificationFactory.generateKeywordNotification(
-            KEYWORD,
+        return notificationFactory.generateKeywordNotification(
+            appPath,
             article.getId(),
             keyword,
             article.getTitle(),
@@ -143,10 +159,12 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             description,
             subscribe.getUser()
         );
-        return notification;
     }
 
-    private String generateDescription(String keyword) {
+    private String generateDescription(ArticleKeywordEvent event, String keyword) {
+        if (event.category() == LOST_ITEM) {
+            return "방금 등록된 %s 분실물 게시물을 확인해보세요!".formatted(keyword);
+        }
         return "방금 등록된 %s 공지를 확인해보세요!".formatted(keyword);
     }
 }

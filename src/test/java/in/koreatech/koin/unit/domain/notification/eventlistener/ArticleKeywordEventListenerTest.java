@@ -27,6 +27,7 @@ import in.koreatech.koin.domain.notification.eventlistener.ArticleKeywordEventLi
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import in.koreatech.koin.domain.user.model.User;
@@ -269,8 +270,12 @@ class ArticleKeywordEventListenerTest {
     }
 
     private NotificationSubscribe createKeywordSubscribe(User user) {
+        return createSubscribe(user, ARTICLE_KEYWORD);
+    }
+
+    private NotificationSubscribe createSubscribe(User user, NotificationSubscribeType subscribeType) {
         return NotificationSubscribe.builder()
-            .subscribeType(ARTICLE_KEYWORD)
+            .subscribeType(subscribeType)
             .user(user)
             .build();
     }
