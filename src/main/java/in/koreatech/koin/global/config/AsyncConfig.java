@@ -23,7 +23,7 @@ public class AsyncConfig implements AsyncConfigurer {
         return null;
     }
 
-    @Bean
+    @Bean(name = "keywordNotificationTaskExecutor")
     public ThreadPoolTaskExecutor keywordNotificationTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
