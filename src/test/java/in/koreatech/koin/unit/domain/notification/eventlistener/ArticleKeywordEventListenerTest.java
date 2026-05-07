@@ -1,6 +1,7 @@
 package in.koreatech.koin.unit.domain.notification.eventlistener;
 
 import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
+import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -31,6 +32,7 @@ import in.koreatech.koin.domain.notification.eventlistener.ArticleKeywordEventLi
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import in.koreatech.koin.domain.user.model.User;
@@ -84,7 +86,7 @@ class ArticleKeywordEventListenerTest {
 
         NotificationSubscribe subscribeA = createKeywordSubscribe(subscriber);
         NotificationSubscribe subscribeB = createKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "근로장학"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, KOREATECH, Map.of(userId, "근로장학"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -100,7 +102,8 @@ class ArticleKeywordEventListenerTest {
 
         Notification notification = mock(Notification.class);
         when(notification.getUser()).thenReturn(subscriber);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any()))
             .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, true)));
@@ -131,7 +134,7 @@ class ArticleKeywordEventListenerTest {
         subscriber.permitNotification("device-token");
 
         NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, userId, Map.of(userId, "A"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, userId, KOREATECH, Map.of(userId, "A"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -167,7 +170,7 @@ class ArticleKeywordEventListenerTest {
         subscriber.permitNotification("device-token");
 
         NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "C"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, KOREATECH, Map.of(userId, "C"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -204,7 +207,7 @@ class ArticleKeywordEventListenerTest {
         subscriber.permitNotification("device-token");
 
         NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "근로장학"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, KOREATECH, Map.of(userId, "근로장학"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -219,7 +222,8 @@ class ArticleKeywordEventListenerTest {
             .thenReturn(List.of());
 
         Notification notification = mock(Notification.class);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any()))
             .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, false)));
@@ -256,7 +260,7 @@ class ArticleKeywordEventListenerTest {
 
         NotificationSubscribe matchedSubscribe = createKeywordSubscribe(matchedUser);
         NotificationSubscribe unmatchedSubscribe = createKeywordSubscribe(unmatchedUser);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(matchedUserId, "근로장학"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, KOREATECH, Map.of(matchedUserId, "근로장학"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -267,11 +271,13 @@ class ArticleKeywordEventListenerTest {
         when(board.getId()).thenReturn(boardId);
         when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(matchedSubscribe, unmatchedSubscribe));
-        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId, Set.of(matchedUserId)))
+        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId,
+            Set.of(matchedUserId)))
             .thenReturn(List.of());
 
         Notification notification = mock(Notification.class);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any())).thenReturn(List.of());
 
@@ -282,8 +288,12 @@ class ArticleKeywordEventListenerTest {
     }
 
     private NotificationSubscribe createKeywordSubscribe(User user) {
+        return createSubscribe(user, ARTICLE_KEYWORD);
+    }
+
+    private NotificationSubscribe createSubscribe(User user, NotificationSubscribeType subscribeType) {
         return NotificationSubscribe.builder()
-            .subscribeType(ARTICLE_KEYWORD)
+            .subscribeType(subscribeType)
             .user(user)
             .build();
     }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
@@ -29,13 +30,13 @@ public class KeywordExtractor {
     private final ArticleKeywordRepository articleKeywordRepository;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
-    public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId) {
+    public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId, KeywordCategory category) {
         Map<Integer, Map<Integer, String>> matchedKeywordByUserIdByArticleId = new LinkedHashMap<>();
         int offset = 0;
 
         while (true) {
             Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
-            List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
+            List<ArticleKeyword> keywords = articleKeywordRepository.findAllByCategory(category, pageable);
 
             if (keywords.isEmpty()) {
                 break;
@@ -80,7 +81,7 @@ public class KeywordExtractor {
         for (Article article : articles) {
             Map<Integer, String> matchedKeywordByUserId = matchedKeywordByUserIdByArticleId.get(article.getId());
             if (matchedKeywordByUserId != null && !matchedKeywordByUserId.isEmpty()) {
-                keywordEvents.add(new ArticleKeywordEvent(article.getId(), authorId, matchedKeywordByUserId));
+                keywordEvents.add(new ArticleKeywordEvent(article.getId(), authorId, category, matchedKeywordByUserId));
             }
         }
 
