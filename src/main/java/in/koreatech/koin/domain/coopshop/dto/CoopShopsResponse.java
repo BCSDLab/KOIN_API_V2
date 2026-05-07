@@ -66,7 +66,10 @@ public record CoopShopsResponse(
         String location,
 
         @Schema(example = "공휴일 휴무", description = "생협 매장 특이사항")
-        String remarks
+        String remarks,
+
+        @Schema(example = "https://kap-test.s3.ap-northeast-2.amazonaws.com/assets/img/coopshop/bookstore.svg", description = "아이콘 url")
+        String iconUrl
     ) {
 
         public static InnerCoopShop from(CoopShop coopShop) {
@@ -78,7 +81,8 @@ public record CoopShopsResponse(
                     .toList(),
                 coopShop.getPhone(),
                 coopShop.getLocation(),
-                coopShop.getRemarks()
+                coopShop.getRemarks(),
+                coopShop.getCoopName().getIconUrl()
             );
         }
 
