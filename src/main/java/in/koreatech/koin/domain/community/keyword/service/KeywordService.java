@@ -25,7 +25,7 @@ import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.common.event.ArticleKeywordEvent;
+import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
@@ -174,8 +174,8 @@ public class KeywordService {
             })
             .toList();
 
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null, KeywordCategory.KOREATECH);
-        for (ArticleKeywordEvent event : keywordEvents) {
+        List<KoreatechArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, KeywordCategory.KOREATECH);
+        for (KoreatechArticleKeywordEvent event : keywordEvents) {
             eventPublisher.publishEvent(event);
         }
     }

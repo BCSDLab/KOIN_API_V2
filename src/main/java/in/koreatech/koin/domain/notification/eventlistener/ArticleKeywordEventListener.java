@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.StringUtils;
 
-import in.koreatech.koin.common.event.ArticleKeywordEvent;
+import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.common.model.MobileAppPath;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
@@ -51,7 +51,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
 
     @Async(value = "keywordNotificationTaskExecutor")
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onKeywordRequest(ArticleKeywordEvent event) {
+    public void onKeywordRequest(KoreatechArticleKeywordEvent event) {
         Map<Integer, String> matchedKeywordByUserId = event.matchedKeywordByUserId();
 
         if (matchedKeywordByUserId.isEmpty()) {
@@ -110,7 +110,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         return StringUtils.hasText(subscribe.getUser().getDeviceToken());
     }
 
-    private NotificationSubscribeType getSubscribeType(ArticleKeywordEvent event) {
+    private NotificationSubscribeType getSubscribeType(KoreatechArticleKeywordEvent event) {
         if (event.category() == KOREATECH) {
             return ARTICLE_KEYWORD;
         }
@@ -120,7 +120,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         throw new IllegalArgumentException("지원하지 않는 키워드 카테고리입니다: " + event.category());
     }
 
-    private MobileAppPath getAppPath(ArticleKeywordEvent event) {
+    private MobileAppPath getAppPath(KoreatechArticleKeywordEvent event) {
         if (event.category() == KOREATECH) {
             return KEYWORD;
         }
@@ -139,7 +139,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         );
     }
 
-    private boolean isMyArticle(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
+    private boolean isMyArticle(KoreatechArticleKeywordEvent event, NotificationSubscribe subscribe) {
         Integer authorId = event.authorId();
         Integer subscriberId = subscribe.getUser().getId();
         return Objects.equals(authorId, subscriberId);
@@ -149,7 +149,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         Article article,
         Board board,
         MobileAppPath appPath,
-        ArticleKeywordEvent event,
+        KoreatechArticleKeywordEvent event,
         String keyword,
         NotificationSubscribe subscribe
     ) {
@@ -166,7 +166,7 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
         );
     }
 
-    private String generateDescription(ArticleKeywordEvent event, String keyword) {
+    private String generateDescription(KoreatechArticleKeywordEvent event, String keyword) {
         if (event.category() == LOST_ITEM) {
             return "방금 등록된 %s 분실물 게시물을 확인해보세요!".formatted(keyword);
         }

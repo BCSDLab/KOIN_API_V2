@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
-import in.koreatech.koin.common.event.ArticleKeywordEvent;
+import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class KeywordExtractor {
     private final ArticleKeywordRepository articleKeywordRepository;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
-    public List<ArticleKeywordEvent> matchKeyword(List<Article> articles, Integer authorId, KeywordCategory category) {
+    public List<KoreatechArticleKeywordEvent> matchKeyword(List<Article> articles, KeywordCategory category) {
         Map<Integer, Map<Integer, String>> matchedKeywordByUserIdByArticleId = new LinkedHashMap<>();
         int offset = 0;
 
@@ -77,11 +77,11 @@ public class KeywordExtractor {
             offset += KEYWORD_BATCH_SIZE;
         }
 
-        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
+        List<KoreatechArticleKeywordEvent> keywordEvents = new ArrayList<>();
         for (Article article : articles) {
             Map<Integer, String> matchedKeywordByUserId = matchedKeywordByUserIdByArticleId.get(article.getId());
             if (matchedKeywordByUserId != null && !matchedKeywordByUserId.isEmpty()) {
-                keywordEvents.add(new ArticleKeywordEvent(article.getId(), authorId, category, matchedKeywordByUserId));
+                keywordEvents.add(new KoreatechArticleKeywordEvent(article.getId(), matchedKeywordByUserId));
             }
         }
 
