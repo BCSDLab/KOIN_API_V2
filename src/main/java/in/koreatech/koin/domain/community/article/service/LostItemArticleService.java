@@ -40,7 +40,7 @@ import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.community.util.LostItemKeywordExtractor;
+import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.organization.model.Organization;
 import in.koreatech.koin.domain.organization.repository.OrganizationRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -71,7 +71,7 @@ public class LostItemArticleService {
     private final OrganizationRepository organizationRepository;
     private final PopularKeywordTracker popularKeywordTracker;
     private final ApplicationEventPublisher eventPublisher;
-    private final LostItemKeywordExtractor keywordExtractor;
+    private final KeywordExtractor keywordExtractor;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     @Transactional
