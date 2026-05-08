@@ -12,8 +12,8 @@ import in.koreatech.koin.domain.notification.service.ArticleKeywordNotificationS
 import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 @Profile("!test")
+@RequiredArgsConstructor
 public class ArticleKeywordEventListener {
 
     private final ArticleKeywordNotificationService articleKeywordNotificationService;
