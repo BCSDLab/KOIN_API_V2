@@ -32,6 +32,8 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setKeepAliveSeconds(60);
         executor.setThreadNamePrefix("keyword-notification-");
         executor.setRejectedExecutionHandler(new CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
         executor.initialize();
         return executor;
     }
