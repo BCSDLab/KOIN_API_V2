@@ -1,16 +1,31 @@
 package in.koreatech.koin.common.event;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public record LostItemKeywordEvent(
     Integer articleId,
+    String articleTitle,
     Integer authorId,
-    Map<Integer, String> matchedKeywordByUserId
+    MatchedKeywordUsers matchedKeywordUsers
 ) {
+    public record MatchedKeywordUsers(
+        Map<String, List<Integer>> userIdsByKeyword
+    ) {
 
-    public LostItemKeywordEvent {
-        matchedKeywordByUserId = Collections.unmodifiableMap(new LinkedHashMap<>(matchedKeywordByUserId));
+    }
+
+    public static LostItemKeywordEvent of(
+        Integer articleId,
+        String articleTitle,
+        Integer authorId,
+        Map<String, List<Integer>> userIdsByKeyword
+    ) {
+        return new LostItemKeywordEvent(
+            articleId,
+            articleTitle,
+            authorId,
+            new MatchedKeywordUsers(userIdsByKeyword)
+        );
     }
 }

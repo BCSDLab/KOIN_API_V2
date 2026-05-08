@@ -1,7 +1,9 @@
 package in.koreatech.koin.domain.community.article.service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +37,9 @@ import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
 import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.util.LostItemKeywordExtractor;
 import in.koreatech.koin.domain.organization.model.Organization;
 import in.koreatech.koin.domain.organization.repository.OrganizationRepository;
@@ -67,6 +72,7 @@ public class LostItemArticleService {
     private final PopularKeywordTracker popularKeywordTracker;
     private final ApplicationEventPublisher eventPublisher;
     private final LostItemKeywordExtractor keywordExtractor;
+    private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     @Transactional
     public LostItemArticlesResponse searchLostItemArticles(String query, Integer page, Integer limit,
@@ -253,11 +259,47 @@ public class LostItemArticleService {
     }
 
     private void sendKeywordNotification(List<Article> articles, Integer authorId) {
-        List<LostItemKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, authorId, KeywordCategory.LOST_ITEM);
-        if (!keywordEvents.isEmpty()) {
-            for (LostItemKeywordEvent event : keywordEvents) {
-                eventPublisher.publishEvent(event);
+        for (Article article : articles) {
+            List<String> matchedKeywords = keywordExtractor.matchKeywords(article.getTitle(), KeywordCategory.LOST_ITEM);
+            if (matchedKeywords.isEmpty()) {
+                continue;
+            }
+
+            Map<String, List<Integer>> userIdsByKeyword = findUserIdsByMatchedKeyword(matchedKeywords);
+            if (userIdsByKeyword.isEmpty()) {
+                continue;
+            }
+
+            eventPublisher.publishEvent(LostItemKeywordEvent.of(
+                article.getId(),
+                article.getTitle(),
+                authorId,
+                userIdsByKeyword
+            ));
+        }
+    }
+
+    private Map<String, List<Integer>> findUserIdsByMatchedKeyword(List<String> matchedKeywords) {
+        Map<Integer, ArticleKeyword> keywordByUserId = new LinkedHashMap<>();
+        List<ArticleKeywordUserMap> keywordUserMaps = articleKeywordUserMapRepository
+            .findAllByArticleKeywordCategoryAndArticleKeywordKeywordIn(KeywordCategory.LOST_ITEM, matchedKeywords);
+
+        for (ArticleKeywordUserMap keywordUserMap : keywordUserMaps) {
+            Integer userId = keywordUserMap.getUser().getId();
+            ArticleKeyword keyword = keywordUserMap.getArticleKeyword();
+            ArticleKeyword previousKeyword = keywordByUserId.get(userId);
+
+            if (keyword.hasLongerKeywordThan(previousKeyword)) {
+                keywordByUserId.put(userId, keyword);
             }
         }
+
+        Map<String, List<Integer>> userIdsByKeyword = new LinkedHashMap<>();
+        for (Map.Entry<Integer, ArticleKeyword> entry : keywordByUserId.entrySet()) {
+            Integer userId = entry.getKey();
+            String keyword = entry.getValue().getKeyword();
+            userIdsByKeyword.computeIfAbsent(keyword, ignored -> new ArrayList<>()).add(userId);
+        }
+        return userIdsByKeyword;
     }
 }
