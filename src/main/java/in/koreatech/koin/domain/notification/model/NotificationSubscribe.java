@@ -57,8 +57,4 @@ public class NotificationSubscribe extends BaseEntity {
         this.detailType = detailType;
         this.user = user;
     }
-
-    public boolean hasDeviceToken() {
-        return user.hasDeviceToken();
-    }
 }

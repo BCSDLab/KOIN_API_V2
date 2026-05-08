@@ -254,8 +254,4 @@ public class User extends BaseEntity {
         }
         return "익명 사용자";
     }
-
-    public boolean hasDeviceToken() {
-        return StringUtils.hasText(this.deviceToken);
-    }
 }
