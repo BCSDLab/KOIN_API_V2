@@ -31,7 +31,6 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
@@ -53,7 +52,6 @@ public class KeywordService {
     private final ArticleKeywordSuggestRepository articleKeywordSuggestRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
-    private final UserNotificationStatusRepository userNotificationStatusRepository;
     private final KeywordExtractor keywordExtractor;
     private final ArticleKeywordUserMatcher articleKeywordUserMatcher;
 
