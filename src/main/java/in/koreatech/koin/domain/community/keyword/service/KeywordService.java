@@ -1,8 +1,6 @@
 package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,6 +56,7 @@ public class KeywordService {
     private final UserRepository userRepository;
     private final UserNotificationStatusRepository userNotificationStatusRepository;
     private final KeywordExtractor keywordExtractor;
+    private final ArticleKeywordUserMatcher articleKeywordUserMatcher;
 
     @Transactional
     public ArticleKeywordResponse createKeyword(
@@ -165,7 +164,10 @@ public class KeywordService {
                 continue;
             }
 
-            Map<String, List<Integer>> userIdsByKeyword = findUserIdsByMatchedKeyword(matchedKeywords);
+            Map<String, List<Integer>> userIdsByKeyword = articleKeywordUserMatcher.findUserIdsByMatchedKeyword(
+                KeywordCategory.KOREATECH,
+                matchedKeywords
+            );
             if (userIdsByKeyword.isEmpty()) {
                 continue;
             }
@@ -177,30 +179,6 @@ public class KeywordService {
                 userIdsByKeyword
             ));
         }
-    }
-
-    private Map<String, List<Integer>> findUserIdsByMatchedKeyword(List<String> matchedKeywords) {
-        Map<Integer, ArticleKeyword> keywordByUserId = new LinkedHashMap<>();
-        List<ArticleKeywordUserMap> keywordUserMaps = articleKeywordUserMapRepository
-            .findAllByArticleKeywordCategoryAndArticleKeywordKeywordIn(KeywordCategory.KOREATECH, matchedKeywords);
-
-        for (ArticleKeywordUserMap keywordUserMap : keywordUserMaps) {
-            Integer userId = keywordUserMap.getUser().getId();
-            ArticleKeyword keyword = keywordUserMap.getArticleKeyword();
-            ArticleKeyword previousKeyword = keywordByUserId.get(userId);
-
-            if (keyword.hasLongerKeywordThan(previousKeyword)) {
-                keywordByUserId.put(userId, keyword);
-            }
-        }
-
-        Map<String, List<Integer>> userIdsByKeyword = new LinkedHashMap<>();
-        for (Map.Entry<Integer, ArticleKeyword> entry : keywordByUserId.entrySet()) {
-            Integer userId = entry.getKey();
-            String keyword = entry.getValue().getKeyword();
-            userIdsByKeyword.computeIfAbsent(keyword, ignored -> new ArrayList<>()).add(userId);
-        }
-        return userIdsByKeyword;
     }
 
     private String validateAndGetKeyword(String keyword) {
