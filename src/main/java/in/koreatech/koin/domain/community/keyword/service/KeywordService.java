@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -28,7 +28,6 @@ import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
@@ -164,18 +163,7 @@ public class KeywordService {
             return;
         }
 
-        List<Article> fetchedArticles = articleRepository.findAllByIdIn(updateNotificationIds);
-        var articleById = fetchedArticles.stream()
-            .collect(Collectors.toMap(Article::getId, article -> article));
-        List<Article> articles = updateNotificationIds.stream()
-            .map(articleId -> {
-                Article article = articleById.get(articleId);
-                if (article == null) {
-                    throw ArticleNotFoundException.withDetail("articleId: " + articleId);
-                }
-                return article;
-            })
-            .toList();
+        List<Article> articles = articleRepository.findAllByIdIn(updateNotificationIds);
 
         for (Article article : articles) {
             List<String> matchedKeywords = keywordExtractor.matchKeywords(article.getTitle(), KeywordCategory.KOREATECH);
