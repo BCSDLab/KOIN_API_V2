@@ -1,7 +1,10 @@
 package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -174,10 +177,50 @@ public class KeywordService {
             })
             .toList();
 
-        List<KoreatechArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, KeywordCategory.KOREATECH);
-        for (KoreatechArticleKeywordEvent event : keywordEvents) {
-            eventPublisher.publishEvent(event);
+        for (Article article : articles) {
+            List<String> matchedKeywords = keywordExtractor.matchKeywords(article.getTitle(), KeywordCategory.KOREATECH);
+            if (matchedKeywords.isEmpty()) {
+                continue;
+            }
+
+            Map<String, List<Integer>> userIdsByKeyword = findUserIdsByMatchedKeyword(matchedKeywords);
+            if (userIdsByKeyword.isEmpty()) {
+                continue;
+            }
+
+            eventPublisher.publishEvent(new KoreatechArticleKeywordEvent(
+                article.getId(),
+                article.getBoard().getId(),
+                article.getTitle(),
+                new KoreatechArticleKeywordEvent.MatchedKeywordUsers(userIdsByKeyword)
+            ));
         }
+    }
+
+    private Map<String, List<Integer>> findUserIdsByMatchedKeyword(List<String> matchedKeywords) {
+        Map<Integer, String> keywordByUserId = new LinkedHashMap<>();
+        articleKeywordUserMapRepository
+            .findAllByArticleKeywordCategoryAndArticleKeywordKeywordIn(KeywordCategory.KOREATECH, matchedKeywords)
+            .stream()
+            .filter(keywordUserMap -> !keywordUserMap.getIsDeleted())
+            .forEach(keywordUserMap -> keywordByUserId.merge(
+                keywordUserMap.getUser().getId(),
+                keywordUserMap.getArticleKeyword().getKeyword(),
+                this::pickHigherPriorityKeyword
+            ));
+
+        Map<String, List<Integer>> userIdsByKeyword = new LinkedHashMap<>();
+        keywordByUserId.forEach((userId, keyword) ->
+            userIdsByKeyword.computeIfAbsent(keyword, ignored -> new ArrayList<>()).add(userId)
+        );
+        return userIdsByKeyword;
+    }
+
+    private String pickHigherPriorityKeyword(String previousKeyword, String candidateKeyword) {
+        if (candidateKeyword.length() > previousKeyword.length()) {
+            return candidateKeyword;
+        }
+        return previousKeyword;
     }
 
     private String validateAndGetKeyword(String keyword) {

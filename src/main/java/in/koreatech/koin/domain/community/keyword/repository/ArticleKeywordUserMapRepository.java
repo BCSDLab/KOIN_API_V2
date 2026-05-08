@@ -52,4 +52,17 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
     );
 
     List<ArticleKeywordUserMap> findAllByArticleKeywordIdIn(List<Integer> articleKeywordIds);
+
+    @Query("""
+        SELECT akum
+        FROM ArticleKeywordUserMap akum
+        JOIN FETCH akum.articleKeyword akw
+        JOIN FETCH akum.user
+        WHERE akw.category = :category
+          AND akw.keyword IN :keywords
+        """)
+    List<ArticleKeywordUserMap> findAllByArticleKeywordCategoryAndArticleKeywordKeywordIn(
+        @Param("category") KeywordCategory category,
+        @Param("keywords") List<String> keywords
+    );
 }

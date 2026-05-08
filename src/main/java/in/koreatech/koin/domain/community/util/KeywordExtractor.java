@@ -1,23 +1,16 @@
 package in.koreatech.koin.domain.community.util;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
-import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,10 +21,9 @@ public class KeywordExtractor {
     private static final int KEYWORD_BATCH_SIZE = 100;
 
     private final ArticleKeywordRepository articleKeywordRepository;
-    private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
-    public List<KoreatechArticleKeywordEvent> matchKeyword(List<Article> articles, KeywordCategory category) {
-        Map<Integer, Map<Integer, String>> matchedKeywordByUserIdByArticleId = new LinkedHashMap<>();
+    public List<String> matchKeywords(String title, KeywordCategory category) {
+        List<String> matchedKeywords = new ArrayList<>();
         int offset = 0;
 
         while (true) {
@@ -41,57 +33,14 @@ public class KeywordExtractor {
             if (keywords.isEmpty()) {
                 break;
             }
-            List<Integer> keywordIds = keywords.stream()
-                .map(ArticleKeyword::getId)
-                .toList();
-            Map<Integer, List<ArticleKeywordUserMap>> userMapsByKeywordId = articleKeywordUserMapRepository
-                .findAllByArticleKeywordIdIn(keywordIds)
-                .stream()
-                .filter(keywordUserMap -> !keywordUserMap.getIsDeleted())
-                .collect(Collectors.groupingBy(
-                    keywordUserMap -> keywordUserMap.getArticleKeyword().getId(),
-                    LinkedHashMap::new,
-                    Collectors.toList()
-                ));
-
-            for (Article article : articles) {
-                String title = article.getTitle();
-                for (ArticleKeyword keyword : keywords) {
-                    if (!title.contains(keyword.getKeyword())) {
-                        continue;
-                    }
-                    Map<Integer, String> matchedKeywordByUserId = matchedKeywordByUserIdByArticleId
-                        .computeIfAbsent(article.getId(), ignored -> new LinkedHashMap<>());
-
-                    for (ArticleKeywordUserMap keywordUserMap :
-                        userMapsByKeywordId.getOrDefault(keyword.getId(), List.of())) {
-                        Integer userId = keywordUserMap.getUser().getId();
-                        matchedKeywordByUserId.merge(
-                            userId,
-                            keyword.getKeyword(),
-                            this::pickHigherPriorityKeyword
-                        );
-                    }
+            for (ArticleKeyword keyword : keywords) {
+                if (title.contains(keyword.getKeyword())) {
+                    matchedKeywords.add(keyword.getKeyword());
                 }
             }
             offset += KEYWORD_BATCH_SIZE;
         }
 
-        List<KoreatechArticleKeywordEvent> keywordEvents = new ArrayList<>();
-        for (Article article : articles) {
-            Map<Integer, String> matchedKeywordByUserId = matchedKeywordByUserIdByArticleId.get(article.getId());
-            if (matchedKeywordByUserId != null && !matchedKeywordByUserId.isEmpty()) {
-                keywordEvents.add(new KoreatechArticleKeywordEvent(article.getId(), matchedKeywordByUserId));
-            }
-        }
-
-        return keywordEvents;
-    }
-
-    private String pickHigherPriorityKeyword(String previousKeyword, String candidateKeyword) {
-        if (candidateKeyword.length() > previousKeyword.length()) {
-            return candidateKeyword;
-        }
-        return previousKeyword;
+        return matchedKeywords;
     }
 }
