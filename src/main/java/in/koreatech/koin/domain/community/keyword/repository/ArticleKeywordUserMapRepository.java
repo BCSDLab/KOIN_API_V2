@@ -17,8 +17,6 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
 
     Long countByUserIdAndArticleKeywordCategory(Integer userId, KeywordCategory category);
 
-    void deleteById(Integer keywordId);
-
     boolean existsByArticleKeywordId(Integer id);
 
     Optional<ArticleKeywordUserMap> findById(Integer keywordUserMapId);
@@ -30,17 +28,6 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
 
     List<ArticleKeywordUserMap> findAllByUserIdAndArticleKeywordCategory(Integer userId, KeywordCategory category);
 
-    @Query("""
-        SELECT akw.keyword FROM ArticleKeywordUserMap akum
-        JOIN akum.articleKeyword akw
-        WHERE akum.user.id = :userId
-          AND akw.category = :category
-        """)
-    List<String> findAllKeywordByUserIdAndCategory(
-        @Param("userId") Integer userId,
-        @Param("category") KeywordCategory category
-    );
-
     @Query(value = """
     SELECT * FROM article_keyword_user_map akum
     WHERE akum.keyword_id = :articleKeywordId
@@ -50,8 +37,6 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
         @Param("articleKeywordId") Integer articleKeywordId,
         @Param("userId") Integer userId
     );
-
-    List<ArticleKeywordUserMap> findAllByArticleKeywordIdIn(List<Integer> articleKeywordIds);
 
     @Query("""
         SELECT akum
