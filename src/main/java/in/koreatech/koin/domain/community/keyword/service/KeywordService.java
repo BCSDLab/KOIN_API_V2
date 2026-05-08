@@ -170,11 +170,11 @@ public class KeywordService {
                 continue;
             }
 
-            eventPublisher.publishEvent(new KoreatechArticleKeywordEvent(
+            eventPublisher.publishEvent(KoreatechArticleKeywordEvent.of(
                 article.getId(),
                 article.getBoard().getId(),
                 article.getTitle(),
-                new KoreatechArticleKeywordEvent.MatchedKeywordUsers(userIdsByKeyword)
+                userIdsByKeyword
             ));
         }
     }
