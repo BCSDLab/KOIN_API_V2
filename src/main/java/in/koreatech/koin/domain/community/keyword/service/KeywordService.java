@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -155,14 +156,7 @@ public class KeywordService {
     }
 
     public void sendKeywordNotification(KeywordNotificationRequest request) {
-        List<Integer> updateNotificationIds = request.updateNotification().stream()
-            .distinct()
-            .toList();
-
-        if (updateNotificationIds.isEmpty()) {
-            return;
-        }
-
+        Set<Integer> updateNotificationIds = request.updateNotification();
         List<Article> articles = articleRepository.findAllByIdIn(updateNotificationIds);
 
         for (Article article : articles) {
