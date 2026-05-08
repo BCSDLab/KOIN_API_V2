@@ -66,7 +66,7 @@ public class ArticleKeywordNotificationService {
 
     private Set<Integer> getAlreadyNotifiedUserIds(Integer articleId, List<Integer> userIds) {
         return new HashSet<>(notificationRepository
-            .findUserIdsBySchemeUriLikeAndUserIdIn("keyword?id=%d&%%".formatted(articleId), userIds));
+            .findUserIdsBySchemeUriLikeAndUserIdIn("%s?id=%d&%%".formatted(KEYWORD.getPath(), articleId), userIds));
     }
 
     private List<Notification> createNotifications(
