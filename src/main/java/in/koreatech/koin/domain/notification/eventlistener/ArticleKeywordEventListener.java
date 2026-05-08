@@ -3,7 +3,9 @@ package in.koreatech.koin.domain.notification.eventlistener;
 import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
 import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
 import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.LOST_ITEM;
-import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.*;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.LOST_ITEM_KEYWORD;
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -15,9 +17,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.common.model.MobileAppPath;
@@ -46,7 +49,8 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
     private final KeywordService keywordService;
     private final ArticleRepository articleRepository;
 
-    @TransactionalEventListener
+    @Async(value = "keywordNotificationTaskExecutor")
+    @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onKeywordRequest(ArticleKeywordEvent event) {
         Map<Integer, String> matchedKeywordByUserId = event.matchedKeywordByUserId();
 
@@ -96,7 +100,8 @@ public class ArticleKeywordEventListener { // TODO : 리팩터링 필요 (비즈
             notificationService.pushNotificationsWithResult(notifications);
         for (NotificationService.NotificationDeliveryResult deliveryResult : deliveryResults) {
             if (deliveryResult.delivered()) {
-                keywordService.createNotifiedArticleStatus(deliveryResult.notification().getUser().getId(), article.getId());
+                keywordService.createNotifiedArticleStatus(deliveryResult.notification().getUser().getId(),
+                    article.getId());
             }
         }
     }
