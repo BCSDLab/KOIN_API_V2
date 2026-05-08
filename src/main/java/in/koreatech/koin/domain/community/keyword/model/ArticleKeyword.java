@@ -78,6 +78,14 @@ public class ArticleKeyword extends BaseEntity {
         this.isFiltered = isFiltered;
     }
 
+    public boolean hasLongerKeywordThan(ArticleKeyword other) {
+        return other == null || compareKeywordLength(other) > 0;
+    }
+
+    private int compareKeywordLength(ArticleKeyword other) {
+        return Integer.compare(keyword.length(), other.keyword.length());
+    }
+
     public void delete() {
         this.isDeleted = true;
     }

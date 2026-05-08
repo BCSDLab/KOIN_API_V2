@@ -180,29 +180,27 @@ public class KeywordService {
     }
 
     private Map<String, List<Integer>> findUserIdsByMatchedKeyword(List<String> matchedKeywords) {
-        Map<Integer, String> keywordByUserId = new LinkedHashMap<>();
-        articleKeywordUserMapRepository
-            .findAllByArticleKeywordCategoryAndArticleKeywordKeywordIn(KeywordCategory.KOREATECH, matchedKeywords)
-            .stream()
-            .filter(keywordUserMap -> !keywordUserMap.getIsDeleted())
-            .forEach(keywordUserMap -> keywordByUserId.merge(
-                keywordUserMap.getUser().getId(),
-                keywordUserMap.getArticleKeyword().getKeyword(),
-                this::pickHigherPriorityKeyword
-            ));
+        Map<Integer, ArticleKeyword> keywordByUserId = new LinkedHashMap<>();
+        List<ArticleKeywordUserMap> keywordUserMaps = articleKeywordUserMapRepository
+            .findAllByArticleKeywordCategoryAndArticleKeywordKeywordIn(KeywordCategory.KOREATECH, matchedKeywords);
+
+        for (ArticleKeywordUserMap keywordUserMap : keywordUserMaps) {
+            Integer userId = keywordUserMap.getUser().getId();
+            ArticleKeyword keyword = keywordUserMap.getArticleKeyword();
+            ArticleKeyword previousKeyword = keywordByUserId.get(userId);
+
+            if (keyword.hasLongerKeywordThan(previousKeyword)) {
+                keywordByUserId.put(userId, keyword);
+            }
+        }
 
         Map<String, List<Integer>> userIdsByKeyword = new LinkedHashMap<>();
-        keywordByUserId.forEach((userId, keyword) ->
-            userIdsByKeyword.computeIfAbsent(keyword, ignored -> new ArrayList<>()).add(userId)
-        );
-        return userIdsByKeyword;
-    }
-
-    private String pickHigherPriorityKeyword(String previousKeyword, String candidateKeyword) {
-        if (candidateKeyword.length() > previousKeyword.length()) {
-            return candidateKeyword;
+        for (Map.Entry<Integer, ArticleKeyword> entry : keywordByUserId.entrySet()) {
+            Integer userId = entry.getKey();
+            String keyword = entry.getValue().getKeyword();
+            userIdsByKeyword.computeIfAbsent(keyword, ignored -> new ArrayList<>()).add(userId);
         }
-        return previousKeyword;
+        return userIdsByKeyword;
     }
 
     private String validateAndGetKeyword(String keyword) {

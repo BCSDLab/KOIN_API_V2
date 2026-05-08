@@ -60,6 +60,7 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
         JOIN FETCH akum.user
         WHERE akw.category = :category
           AND akw.keyword IN :keywords
+          AND akum.isDeleted = false
         """)
     List<ArticleKeywordUserMap> findAllByArticleKeywordCategoryAndArticleKeywordKeywordIn(
         @Param("category") KeywordCategory category,
