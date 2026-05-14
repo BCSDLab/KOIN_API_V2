@@ -44,13 +44,6 @@ public interface AdminBenefitCategoryMapRepository extends CrudRepository<Benefi
 
     @Modifying
     @Query("""
-        DELETE FROM BenefitCategoryMap bcm 
-        WHERE bcm.shop.id = :shopId
-        """)
-    void deleteByShopId(@Param("shopId") Integer shopId);
-
-    @Modifying
-    @Query("""
         DELETE FROM BenefitCategoryMap bcm
         WHERE bcm.benefitCategory.id = :benefitId
         """)

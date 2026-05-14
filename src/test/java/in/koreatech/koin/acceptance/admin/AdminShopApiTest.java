@@ -17,8 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryAcceptanceFixture;
-import in.koreatech.koin.acceptance.fixture.BenefitCategoryMapAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.MenuAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.MenuCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopAcceptanceFixture;
@@ -26,14 +24,12 @@ import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
-import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopParentCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
-import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
@@ -67,9 +63,6 @@ class AdminShopApiTest extends AcceptanceTest {
     private AdminShopRepository adminShopRepository;
 
     @Autowired
-    private AdminBenefitCategoryMapRepository adminBenefitCategoryMapRepository;
-
-    @Autowired
     private AdminMenuRepository adminMenuRepository;
 
     @Autowired
@@ -95,12 +88,6 @@ class AdminShopApiTest extends AcceptanceTest {
 
     @Autowired
     private MenuCategoryAcceptanceFixture menuCategoryFixture;
-
-    @Autowired
-    private BenefitCategoryAcceptanceFixture benefitCategoryFixture;
-
-    @Autowired
-    private BenefitCategoryMapAcceptanceFixture benefitCategoryMapFixture;
 
     private Owner owner_현수;
     private Owner owner_준영;
@@ -948,8 +935,6 @@ class AdminShopApiTest extends AcceptanceTest {
     @Test
     void 어드민이_상점을_삭제한다() throws Exception {
         Shop shop = shopFixture.영업중이_아닌_신전_떡볶이(owner_현수);
-        BenefitCategory benefitCategory = benefitCategoryFixture.배달비_무료();
-        benefitCategoryMapFixture.혜택_추가(shop, benefitCategory);
 
         mockMvc.perform(
                 delete("/admin/shops/{id}", shop.getId())
@@ -958,13 +943,7 @@ class AdminShopApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         Shop deletedShop = adminShopRepository.getById(shop.getId());
-        assertSoftly(softly -> {
-            softly.assertThat(deletedShop.isDeleted()).isTrue();
-            softly.assertThat(adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdAndShopIds(
-                benefitCategory.getId(),
-                List.of(shop.getId())
-            )).isEmpty();
-        });
+        assertSoftly(softly -> softly.assertThat(deletedShop.isDeleted()).isTrue());
     }
 
     @Test
