@@ -1,10 +1,10 @@
 package in.koreatech.koin.unit.domain.community.util;
 
+import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ class KeywordExtractorTest {
         ArticleKeyword keywordA = createKeyword(1, "근로", subscriber);
         ArticleKeyword keywordB = createKeyword(2, "근로장학", subscriber);
 
-        when(articleKeywordRepository.findAll(any(Pageable.class)))
+        when(articleKeywordRepository.findAllByCategory(eq(KOREATECH), any(Pageable.class)))
             .thenReturn(List.of(keywordA, keywordB))
             .thenReturn(List.of());
         when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
@@ -60,12 +60,13 @@ class KeywordExtractorTest {
                 keywordB.getArticleKeywordUserMaps().get(0)
             ));
 
-        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null);
+        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null, KOREATECH);
 
         assertThat(result).hasSize(1);
         ArticleKeywordEvent event = result.get(0);
         assertThat(event.articleId()).isEqualTo(1);
         assertThat(event.authorId()).isNull();
+        assertThat(event.category()).isEqualTo(KOREATECH);
         assertThat(event.matchedKeywordByUserId()).isEqualTo(Map.of(1, "근로장학"));
     }
 
@@ -79,13 +80,13 @@ class KeywordExtractorTest {
         User subscriber = UserFixture.id_설정_코인_유저(1);
         ArticleKeyword keyword = createKeyword(1, "장학금", subscriber);
 
-        when(articleKeywordRepository.findAll(any(Pageable.class)))
+        when(articleKeywordRepository.findAllByCategory(eq(KOREATECH), any(Pageable.class)))
             .thenReturn(List.of(keyword))
             .thenReturn(List.of());
         when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
             .thenReturn(List.of(keyword.getArticleKeywordUserMaps().get(0)));
 
-        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null);
+        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null, KOREATECH);
 
         assertThat(result).isEmpty();
     }
@@ -106,7 +107,7 @@ class KeywordExtractorTest {
         ArticleKeyword firstKeyword = createKeyword(1, "근로", firstSubscriber);
         ArticleKeyword secondKeyword = createKeyword(2, "장학금", secondSubscriber);
 
-        when(articleKeywordRepository.findAll(any(Pageable.class)))
+        when(articleKeywordRepository.findAllByCategory(eq(KOREATECH), any(Pageable.class)))
             .thenReturn(List.of(firstKeyword, secondKeyword))
             .thenReturn(List.of());
         when(articleKeywordUserMapRepository.findAllByArticleKeywordIdIn(any()))
@@ -115,12 +116,15 @@ class KeywordExtractorTest {
                 secondKeyword.getArticleKeywordUserMaps().get(0)
             ));
 
-        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(firstArticle, secondArticle), null);
+        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(firstArticle, secondArticle), null,
+            KOREATECH);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).articleId()).isEqualTo(1);
+        assertThat(result.get(0).category()).isEqualTo(KOREATECH);
         assertThat(result.get(0).matchedKeywordByUserId()).isEqualTo(Map.of(1, "근로"));
         assertThat(result.get(1).articleId()).isEqualTo(2);
+        assertThat(result.get(1).category()).isEqualTo(KOREATECH);
         assertThat(result.get(1).matchedKeywordByUserId()).isEqualTo(Map.of(2, "장학금"));
     }
 
@@ -129,9 +133,9 @@ class KeywordExtractorTest {
     void matchKeyword_whenNoKeywordsExist_returnsEmptyResult() {
         Article article = mock(Article.class);
         when(article.getId()).thenReturn(1);
-        when(articleKeywordRepository.findAll(any(Pageable.class))).thenReturn(List.of());
+        when(articleKeywordRepository.findAllByCategory(eq(KOREATECH), any(Pageable.class))).thenReturn(List.of());
 
-        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null);
+        List<ArticleKeywordEvent> result = keywordExtractor.matchKeyword(List.of(article), null, KOREATECH);
 
         assertThat(result).isEmpty();
         verifyNoInteractions(articleKeywordUserMapRepository);

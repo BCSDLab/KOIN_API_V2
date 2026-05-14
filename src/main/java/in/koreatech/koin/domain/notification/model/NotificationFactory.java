@@ -212,6 +212,9 @@ public class NotificationFactory {
         if (keyword == null) {
             return generateSchemeUri(path, eventId);
         }
+        if (path == MobileAppPath.LOST_ITEM) {
+            return String.format("%s?id=%d&keyword=%s", path.getPath(), eventId, keyword);
+        }
         return String.format("%s?id=%d&keyword=%s&board-id=%s", path.getPath(), eventId, keyword, boardId);
     }
 

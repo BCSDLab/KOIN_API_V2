@@ -1,11 +1,15 @@
 package in.koreatech.koin.global.config;
 
+import static java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+
 import java.util.concurrent.Executor;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +21,21 @@ public class AsyncConfig implements AsyncConfigurer {
     @Override
     public Executor getAsyncExecutor() {
         return null;
+    }
+
+    @Bean(name = "keywordNotificationTaskExecutor")
+    public ThreadPoolTaskExecutor keywordNotificationTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(6);
+        executor.setQueueCapacity(5);
+        executor.setKeepAliveSeconds(60);
+        executor.setThreadNamePrefix("keyword-notification-");
+        executor.setRejectedExecutionHandler(new CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        executor.initialize();
+        return executor;
     }
 
     @Override
