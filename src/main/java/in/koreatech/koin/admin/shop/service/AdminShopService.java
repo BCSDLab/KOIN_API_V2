@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopRequest;
 import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopCategoriesOrderRequest;
@@ -57,6 +58,7 @@ public class AdminShopService {
     private final AdminShopCategoryRepository adminShopCategoryRepository;
     private final AdminShopCategoryMapRepository adminShopCategoryMapRepository;
     private final AdminShopParentCategoryRepository adminShopParentCategoryRepository;
+    private final AdminBenefitCategoryMapRepository adminBenefitCategoryMapRepository;
 
     public AdminShopsResponse getShops(Integer page, Integer limit, Boolean isDeleted) {
         Integer total = adminShopRepository.countAllByIsDeleted(isDeleted);
@@ -221,6 +223,7 @@ public class AdminShopService {
     @RefreshShopsCache
     public void deleteShop(Integer shopId) {
         Shop shop = adminShopRepository.getById(shopId);
+        adminBenefitCategoryMapRepository.deleteByShopId(shopId);
         shop.delete();
     }
 
