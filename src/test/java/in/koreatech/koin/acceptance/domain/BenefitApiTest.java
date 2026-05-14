@@ -101,6 +101,23 @@ public class BenefitApiTest extends AcceptanceTest {
         benefitCategoryMapFixture.혜택_추가(마슬랜, 배달비_무료);
         benefitCategoryMapFixture.혜택_추가(영업중인_티바, 배달비_무료);
         benefitCategoryMapFixture.혜택_추가(영업중이_아닌_신전_떡볶이, 배달비_무료);
+        Shop 삭제된_굿모닝살로만치킨 = shopFixture.builder()
+            .owner(현수_사장님)
+            .name("굿모닝살로만치킨")
+            .internalName("굿모닝살로만치킨")
+            .phone("010-0000-0000")
+            .address("천안시 동남구 병천면 1600")
+            .description("삭제된 상점입니다.")
+            .delivery(true)
+            .deliveryPrice(3000)
+            .payCard(true)
+            .payBank(true)
+            .isDeleted(true)
+            .isEvent(false)
+            .remarks("비고")
+            .hit(0)
+            .build();
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(삭제된_굿모닝살로만치킨, 배달비_무료, "배달비 무료");
 
         shopReviewFixture.리뷰_4점(성빈_학생, 마슬랜);
         shopReviewFixture.리뷰_4점(성빈_학생, 영업중인_티바);
