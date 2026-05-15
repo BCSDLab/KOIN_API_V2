@@ -28,6 +28,20 @@ public interface NotificationSubscribeRepository extends Repository<Notification
         @Param("subscribeType") NotificationSubscribeType subscribeType
     );
 
+    @Query("""
+        SELECT ns
+        FROM NotificationSubscribe ns
+        JOIN FETCH ns.user u
+        WHERE ns.subscribeType = :subscribeType
+        AND ns.detailType IS NULL
+        AND u.deviceToken IS NOT NULL
+        AND u.id IN :userIds
+        """)
+    List<NotificationSubscribe> findArticleKeywordSubscribesByUserIdIn(
+        @Param("subscribeType") NotificationSubscribeType subscribeType,
+        @Param("userIds") List<Integer> userIds
+    );
+
     boolean existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(Integer userId, NotificationSubscribeType type);
 
     boolean existsByUserIdAndSubscribeTypeAndDetailType(

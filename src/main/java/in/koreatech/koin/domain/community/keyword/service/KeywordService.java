@@ -2,17 +2,18 @@ package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -25,13 +26,11 @@ import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
@@ -53,8 +52,8 @@ public class KeywordService {
     private final ArticleKeywordSuggestRepository articleKeywordSuggestRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
-    private final UserNotificationStatusRepository userNotificationStatusRepository;
     private final KeywordExtractor keywordExtractor;
+    private final ArticleKeywordUserMatcher articleKeywordUserMatcher;
 
     @Transactional
     public ArticleKeywordResponse createKeyword(
@@ -153,30 +152,29 @@ public class KeywordService {
     }
 
     public void sendKeywordNotification(KeywordNotificationRequest request) {
-        List<Integer> updateNotificationIds = request.updateNotification().stream()
-            .distinct()
-            .toList();
+        Set<Integer> updateNotificationIds = request.updateNotification();
+        List<Article> articles = articleRepository.findAllByIdIn(updateNotificationIds);
 
-        if (updateNotificationIds.isEmpty()) {
-            return;
-        }
+        for (Article article : articles) {
+            List<String> matchedKeywords = keywordExtractor.matchKeywords(article.getTitle(), KeywordCategory.KOREATECH);
+            if (matchedKeywords.isEmpty()) {
+                continue;
+            }
 
-        List<Article> fetchedArticles = articleRepository.findAllByIdIn(updateNotificationIds);
-        var articleById = fetchedArticles.stream()
-            .collect(Collectors.toMap(Article::getId, article -> article));
-        List<Article> articles = updateNotificationIds.stream()
-            .map(articleId -> {
-                Article article = articleById.get(articleId);
-                if (article == null) {
-                    throw ArticleNotFoundException.withDetail("articleId: " + articleId);
-                }
-                return article;
-            })
-            .toList();
+            Map<String, List<Integer>> userIdsByKeyword = articleKeywordUserMatcher.findUserIdsByMatchedKeyword(
+                KeywordCategory.KOREATECH,
+                matchedKeywords
+            );
+            if (userIdsByKeyword.isEmpty()) {
+                continue;
+            }
 
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, null, KeywordCategory.KOREATECH);
-        for (ArticleKeywordEvent event : keywordEvents) {
-            eventPublisher.publishEvent(event);
+            eventPublisher.publishEvent(KoreatechArticleKeywordEvent.of(
+                article.getId(),
+                article.getBoard().getId(),
+                article.getTitle(),
+                userIdsByKeyword
+            ));
         }
     }
 
@@ -219,8 +217,4 @@ public class KeywordService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void createNotifiedArticleStatus(Integer userId, Integer articleId) {
-        userNotificationStatusRepository.upsertLastNotifiedArticleId(userId, articleId);
-    }
 }

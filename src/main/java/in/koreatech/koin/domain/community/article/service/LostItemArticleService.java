@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.community.article.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.common.event.ArticleKeywordEvent;
+import in.koreatech.koin.common.event.LostItemKeywordEvent;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponseV2;
@@ -27,14 +28,15 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemAuthorFilter;
-import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemCategoryFilter;
+import in.koreatech.koin.domain.community.article.model.filter.LostItemFoundStatus;
 import in.koreatech.koin.domain.community.article.model.filter.LostItemSortType;
 import in.koreatech.koin.domain.community.article.model.redis.PopularKeywordTracker;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
 import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
+import in.koreatech.koin.domain.community.keyword.service.ArticleKeywordUserMatcher;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.organization.model.Organization;
 import in.koreatech.koin.domain.organization.repository.OrganizationRepository;
@@ -67,6 +69,7 @@ public class LostItemArticleService {
     private final PopularKeywordTracker popularKeywordTracker;
     private final ApplicationEventPublisher eventPublisher;
     private final KeywordExtractor keywordExtractor;
+    private final ArticleKeywordUserMatcher articleKeywordUserMatcher;
 
     @Transactional
     public LostItemArticlesResponse searchLostItemArticles(String query, Integer page, Integer limit,
@@ -253,11 +256,26 @@ public class LostItemArticleService {
     }
 
     private void sendKeywordNotification(List<Article> articles, Integer authorId) {
-        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles, authorId, KeywordCategory.LOST_ITEM);
-        if (!keywordEvents.isEmpty()) {
-            for (ArticleKeywordEvent event : keywordEvents) {
-                eventPublisher.publishEvent(event);
+        for (Article article : articles) {
+            List<String> matchedKeywords = keywordExtractor.matchKeywords(article.getTitle(), KeywordCategory.LOST_ITEM);
+            if (matchedKeywords.isEmpty()) {
+                continue;
             }
+
+            Map<String, List<Integer>> userIdsByKeyword = articleKeywordUserMatcher.findUserIdsByMatchedKeyword(
+                KeywordCategory.LOST_ITEM,
+                matchedKeywords
+            );
+            if (userIdsByKeyword.isEmpty()) {
+                continue;
+            }
+
+            eventPublisher.publishEvent(LostItemKeywordEvent.of(
+                article.getId(),
+                article.getTitle(),
+                authorId,
+                userIdsByKeyword
+            ));
         }
     }
 }

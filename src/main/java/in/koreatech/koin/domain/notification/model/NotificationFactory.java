@@ -146,14 +146,31 @@ public class NotificationFactory {
         String keyword,
         String title,
         Integer boardId,
-        String description,
         User target
     ) {
         return new Notification(
             path,
             generateKeywordSchemeUri(path, eventKeywordId, keyword, boardId),
             title,
-            description,
+            "방금 등록된 %s 공지를 확인해보세요!".formatted(keyword),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
+    public Notification generateLostItemKeywordNotification(
+        MobileAppPath path,
+        Integer eventKeywordId,
+        String keyword,
+        String title,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateLostItemKeywordSchemeUri(path, eventKeywordId, keyword),
+            title,
+            "방금 등록된 %s 분실물 게시물을 확인해보세요!".formatted(keyword),
             null,
             NotificationType.MESSAGE,
             target
@@ -212,10 +229,14 @@ public class NotificationFactory {
         if (keyword == null) {
             return generateSchemeUri(path, eventId);
         }
-        if (path == MobileAppPath.LOST_ITEM) {
-            return String.format("%s?id=%d&keyword=%s", path.getPath(), eventId, keyword);
-        }
         return String.format("%s?id=%d&keyword=%s&board-id=%s", path.getPath(), eventId, keyword, boardId);
+    }
+
+    private String generateLostItemKeywordSchemeUri(MobileAppPath path, Integer eventId, String keyword) {
+        if (keyword == null) {
+            return generateSchemeUri(path, eventId);
+        }
+        return String.format("%s?id=%d&keyword=%s", path.getPath(), eventId, keyword);
     }
 
     private String generateChatMessageSchemeUri(MobileAppPath path, Integer articleId, Integer chatRoomId) {

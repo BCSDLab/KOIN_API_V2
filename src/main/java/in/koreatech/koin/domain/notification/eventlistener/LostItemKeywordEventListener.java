@@ -7,20 +7,20 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
-import in.koreatech.koin.domain.notification.service.ArticleKeywordNotificationService;
+import in.koreatech.koin.common.event.LostItemKeywordEvent;
+import in.koreatech.koin.domain.notification.service.LostItemKeywordNotificationService;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @Profile("!test")
 @RequiredArgsConstructor
-public class ArticleKeywordEventListener {
+public class LostItemKeywordEventListener {
 
-    private final ArticleKeywordNotificationService articleKeywordNotificationService;
+    private final LostItemKeywordNotificationService lostItemKeywordNotificationService;
 
     @Async(value = "keywordNotificationTaskExecutor")
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onKeywordRequest(KoreatechArticleKeywordEvent event) {
-        articleKeywordNotificationService.notifyArticleKeyword(event);
+    public void onLostItemKeywordRequest(LostItemKeywordEvent event) {
+        lostItemKeywordNotificationService.notifyLostItemKeyword(event);
     }
 }
