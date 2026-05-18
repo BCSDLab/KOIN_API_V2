@@ -15,9 +15,12 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "article.ai-summary")
 public class ArticleAiSummaryProperties {
 
+    private static final int MAX_REFINEMENT_RETRY_COUNT_LIMIT = 2;
+
     private boolean enabled = true;
     private int batchSize = 5;
     private int maxRetryCount = 3;
+    private int maxRefinementRetryCount = 1;
     private int lockMinutes = 30;
     private int retryBackoffMinutes = 5;
     private int maxDocumentsPerArticle = 3;
@@ -26,4 +29,8 @@ public class ArticleAiSummaryProperties {
     private String model = "solar-pro3";
     private String promptVersion = "v2";
     private List<String> allowedDocumentUrlPrefixes = new ArrayList<>();
+
+    public int getBoundedMaxRefinementRetryCount() {
+        return Math.min(Math.max(maxRefinementRetryCount, 0), MAX_REFINEMENT_RETRY_COUNT_LIMIT);
+    }
 }

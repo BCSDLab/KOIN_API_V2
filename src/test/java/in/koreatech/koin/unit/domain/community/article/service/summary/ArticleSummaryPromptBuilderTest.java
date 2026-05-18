@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPrompt;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPromptBuilder;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryIcon;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryItem;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryResult;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySource;
 
 class ArticleSummaryPromptBuilderTest {
@@ -54,5 +57,61 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(prompt.userMessage()).contains("첨부 내용을 반드시 본문과 함께 읽고");
         assertThat(prompt.userMessage()).contains("첨부 문서 확인 필수");
         assertThat(prompt.userMessage()).contains("대상: 재학생");
+    }
+
+    @Test
+    void 재선별_프롬프트는_이전_후보에서_핵심만_최대_3개로_고르도록_지시한다() {
+        ArticleSummarySource source = new ArticleSummarySource(
+            1,
+            "장학금 신청 안내",
+            "신청 기간: 5월 20일까지\n대상: 재학생\n혜택: 50만원 지급",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(),
+            "fingerprint"
+        );
+        ArticleSummaryPrompt originalPrompt = promptBuilder.build(source);
+        ArticleSummaryResult previousResult = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "신청 기간: 5월 20일까지"),
+            new ArticleSummaryItem(ArticleSummaryIcon.TARGET, "대상: 재학생"),
+            new ArticleSummaryItem(ArticleSummaryIcon.MONEY, "혜택: 50만원 지급"),
+            new ArticleSummaryItem(ArticleSummaryIcon.ACTION, "신청 방법: 온라인 제출")
+        ));
+
+        ArticleSummaryPrompt refinementPrompt = promptBuilder.buildRefinement(originalPrompt, previousResult);
+
+        assertThat(refinementPrompt.userMessage()).contains("반드시 최대 3개만 반환");
+        assertThat(refinementPrompt.userMessage()).contains("후보끼리 겹치면 합치거나");
+        assertThat(refinementPrompt.userMessage()).contains("4. icon_key=ACTION, text=신청 방법: 온라인 제출");
+    }
+
+    @Test
+    void 재선별_프롬프트의_이전_후보는_개수와_길이를_제한한다() {
+        ArticleSummarySource source = new ArticleSummarySource(
+            1,
+            "장학금 신청 안내",
+            "신청 기간: 5월 20일까지",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(),
+            "fingerprint"
+        );
+        ArticleSummaryPrompt originalPrompt = promptBuilder.build(source);
+        ArticleSummaryResult previousResult = new ArticleSummaryResult(
+            java.util.stream.IntStream.rangeClosed(1, 11)
+                .mapToObj(index -> new ArticleSummaryItem(
+                    ArticleSummaryIcon.DEFAULT,
+                    "후보 %d ".formatted(index) + "가".repeat(150)
+                ))
+                .toList()
+        );
+
+        ArticleSummaryPrompt refinementPrompt = promptBuilder.buildRefinement(originalPrompt, previousResult);
+
+        assertThat(refinementPrompt.userMessage()).contains("... 이후 후보 1개 생략");
+        assertThat(refinementPrompt.userMessage()).doesNotContain("11. icon_key=DEFAULT");
+        assertThat(refinementPrompt.userMessage()).contains("...");
     }
 }

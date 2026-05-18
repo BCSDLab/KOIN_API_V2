@@ -1,11 +1,17 @@
 package in.koreatech.koin.domain.community.article.service.summary;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 public class ArticleSummaryPromptBuilder {
 
     private static final int MAX_SOURCE_LENGTH = 16_000;
+    private static final int MAX_PREVIOUS_RESULT_ITEMS = 10;
+    private static final int MAX_PREVIOUS_ITEM_TEXT_LENGTH = 120;
 
     private static final String SYSTEM_MESSAGE = """
         당신은 한국기술교육대학교 학생용 게시글 요약기입니다.
@@ -49,6 +55,30 @@ public class ArticleSummaryPromptBuilder {
         return new ArticleSummaryPrompt(SYSTEM_MESSAGE, userMessage, sourceText);
     }
 
+    public ArticleSummaryPrompt buildRefinement(ArticleSummaryPrompt originalPrompt, ArticleSummaryResult previousResult) {
+        String userMessage = """
+            이전 요약 응답이 허용 개수보다 많았습니다.
+            아래 게시글과 이전 후보 요약을 다시 비교해 학생이 반드시 알아야 할 핵심만 1~3개로 재선별하세요.
+
+            재선별 기준:
+            1. 마감일, 일정, 장소, 대상, 신청/제출 방법을 가장 우선하세요.
+            2. 후보끼리 겹치면 합치거나 낮은 우선순위 후보를 제거하세요.
+            3. 첨부 문서에서 확인한 구체 정보는 "첨부 확인"이라고 쓰지 말고 직접 적으세요.
+            4. 원문과 첨부에 없는 정보는 추가하지 마세요.
+
+            icon_key는 CALENDAR, TARGET, LOCATION, ACTION, MONEY, NOTICE, DOCUMENT, DEFAULT 중 하나만 사용하세요.
+            text에는 이모지를 넣지 말고, 한 항목 80자 이내의 개괄식 표현으로 작성하세요.
+            반드시 최대 3개만 반환하고, 3개가 필요 없으면 1~2개만 반환하세요.
+
+            [게시글]
+            %s
+
+            [이전 후보 요약]
+            %s
+            """.formatted(originalPrompt.sourceText(), buildPreviousResultText(previousResult));
+        return new ArticleSummaryPrompt(SYSTEM_MESSAGE, userMessage, originalPrompt.sourceText());
+    }
+
     private String buildSourceText(ArticleSummarySource source) {
         StringBuilder builder = new StringBuilder();
         builder.append("제목: ").append(source.title()).append('\n');
@@ -71,5 +101,31 @@ public class ArticleSummaryPromptBuilder {
             return value;
         }
         return value.substring(0, MAX_SOURCE_LENGTH) + "\n[이후 내용은 길이 제한으로 생략됨]";
+    }
+
+    private String buildPreviousResultText(ArticleSummaryResult result) {
+        if (result == null || result.items() == null || result.items().isEmpty()) {
+            return "(후보 없음)";
+        }
+        int itemCount = Math.min(result.items().size(), MAX_PREVIOUS_RESULT_ITEMS);
+        String previousItems = IntStream.range(0, itemCount)
+            .mapToObj(index -> formatPreviousItem(index, result.items().get(index)))
+            .collect(Collectors.joining("\n"));
+        if (result.items().size() <= MAX_PREVIOUS_RESULT_ITEMS) {
+            return previousItems;
+        }
+        return previousItems + "\n... 이후 후보 %d개 생략".formatted(result.items().size() - MAX_PREVIOUS_RESULT_ITEMS);
+    }
+
+    private String formatPreviousItem(int index, ArticleSummaryItem item) {
+        if (item == null) {
+            return "%d. icon_key=DEFAULT, text=".formatted(index + 1);
+        }
+        ArticleSummaryIcon icon = item.icon() == null ? ArticleSummaryIcon.DEFAULT : item.icon();
+        String text = StringUtils.hasText(item.text()) ? item.text().replaceAll("\\s+", " ").trim() : "";
+        if (text.length() > MAX_PREVIOUS_ITEM_TEXT_LENGTH) {
+            text = text.substring(0, MAX_PREVIOUS_ITEM_TEXT_LENGTH) + "...";
+        }
+        return "%d. icon_key=%s, text=%s".formatted(index + 1, icon.name(), text);
     }
 }

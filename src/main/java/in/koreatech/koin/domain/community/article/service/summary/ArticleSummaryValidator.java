@@ -26,7 +26,7 @@ public class ArticleSummaryValidator {
         if (result == null || result.items() == null || result.items().isEmpty()) {
             throw new ArticleSummaryValidationException("요약할 핵심 정보가 없습니다.");
         }
-        if (result.items().size() > MAX_ITEMS) {
+        if (hasTooManyItems(result)) {
             throw new ArticleSummaryValidationException("요약 항목은 최대 3개까지 허용됩니다.");
         }
 
@@ -35,6 +35,14 @@ public class ArticleSummaryValidator {
         return result.items().stream()
             .map(item -> validateItem(item, normalizedSource, seen))
             .toList();
+    }
+
+    public boolean hasTooManyItems(ArticleSummaryResult result) {
+        return result != null && result.items() != null && result.items().size() > MAX_ITEMS;
+    }
+
+    public int maxItems() {
+        return MAX_ITEMS;
     }
 
     private String validateItem(ArticleSummaryItem item, String normalizedSource, Set<String> seen) {

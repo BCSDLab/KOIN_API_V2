@@ -19,6 +19,7 @@ public class ArticleAiSummaryWorker {
     private final ArticleSummaryPromptBuilder promptBuilder;
     private final ArticleSummaryAiClient articleSummaryAiClient;
     private final ArticleSummaryValidator validator;
+    private final ArticleAiSummaryProperties properties;
 
     @Async("articleSummaryTaskExecutor")
     public void process(Integer summaryId, String workerId) {
@@ -44,7 +45,49 @@ public class ArticleAiSummaryWorker {
             articleAiSummaryService.skip(summaryId, workerId, "요약할 핵심 정보가 없습니다.");
             return;
         }
+        RefinementResult refinementResult = refineIfTooManyItems(result, prompt);
+        result = refinementResult.result();
+        if (result == null || result.items() == null || result.items().isEmpty()) {
+            if (refinementResult.attempted()) {
+                throw new ArticleSummaryValidationException("재선별 결과가 비어 있습니다.");
+            }
+            articleAiSummaryService.skip(summaryId, workerId, "요약할 핵심 정보가 없습니다.");
+            return;
+        }
+        if (validator.hasTooManyItems(result)) {
+            articleAiSummaryService.skip(summaryId, workerId, "요약 항목 재선별 후에도 최대 3개를 초과했습니다.");
+            return;
+        }
         List<String> summaryLines = validator.validate(result, prompt.sourceText());
         articleAiSummaryService.completeSuccess(summaryId, workerId, source, summaryLines);
+    }
+
+    private RefinementResult refineIfTooManyItems(ArticleSummaryResult result, ArticleSummaryPrompt originalPrompt) {
+        ArticleSummaryResult refinedResult = result;
+        int maxAttemptCount = properties.getBoundedMaxRefinementRetryCount();
+        boolean attempted = false;
+        for (int attempt = 1; attempt <= maxAttemptCount; attempt++) {
+            if (!validator.hasTooManyItems(refinedResult)) {
+                return new RefinementResult(refinedResult, attempted);
+            }
+            attempted = true;
+            log.info(
+                "게시글 AI 요약 항목이 {}개라 핵심 {}개 이하로 재선별합니다. attempt: {}/{}",
+                refinedResult.items().size(),
+                validator.maxItems(),
+                attempt,
+                maxAttemptCount
+            );
+            refinedResult = articleSummaryAiClient.summarize(
+                promptBuilder.buildRefinement(originalPrompt, refinedResult)
+            );
+        }
+        return new RefinementResult(refinedResult, attempted);
+    }
+
+    private record RefinementResult(
+        ArticleSummaryResult result,
+        boolean attempted
+    ) {
     }
 }
