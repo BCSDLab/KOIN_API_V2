@@ -84,6 +84,7 @@ public class S3Client {
                 .uri(url)
                 .retrieve()
                 .bodyToMono(String.class)
+                .timeout(Duration.ofSeconds(5))
                 .block();
         } catch (Exception e) {
             throw new KoinIllegalStateException("URL로 부터 데이터를 불러오던 중 문제가 발생했습니다. " + e.getMessage());
