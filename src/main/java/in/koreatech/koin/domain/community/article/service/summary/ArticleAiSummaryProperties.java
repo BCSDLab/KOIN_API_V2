@@ -24,6 +24,6 @@ public class ArticleAiSummaryProperties {
     private int maxDocumentBytes = 10 * 1024 * 1024;
     private int requestTimeoutSeconds = 20;
     private String model = "solar-pro3";
-    private String promptVersion = "v1";
+    private String promptVersion = "v2";
     private List<String> allowedDocumentUrlPrefixes = new ArrayList<>();
 }

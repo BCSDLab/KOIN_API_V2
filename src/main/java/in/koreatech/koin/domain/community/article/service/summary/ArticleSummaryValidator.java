@@ -70,10 +70,15 @@ public class ArticleSummaryValidator {
 
     private boolean isMeaningless(String text) {
         String normalized = normalizeForComparison(text);
-        return (normalized.contains("자세한내용은확인") || normalized.contains("자세한사항은확인"))
-            && !normalized.contains("첨부")
-            && !normalized.contains("파일")
-            && !normalized.contains("문서");
+        if (normalized.contains("자세한내용은확인") || normalized.contains("자세한사항은확인")) {
+            return true;
+        }
+        return normalized.contains("첨부문서확인")
+            || normalized.contains("첨부파일확인")
+            || normalized.contains("첨부자료확인")
+            || normalized.contains("첨부문서참고")
+            || normalized.contains("첨부파일참고")
+            || normalized.contains("첨부자료참고");
     }
 
     private String removeEmoji(String text) {

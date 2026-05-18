@@ -27,10 +27,15 @@ public class ArticleSummaryPromptBuilder {
             3. 장학금, 비용, 선발, 혜택, 변경사항
             4. 첨부파일을 봐야만 알 수 있는 핵심 정보
 
+            첨부 문서/이미지 추출 내용이 제공된 경우:
+            - 첨부 내용을 반드시 본문과 함께 읽고, 학생이 알아야 할 구체 정보를 요약에 반영하세요.
+            - "첨부 문서 확인 필수", "첨부파일 참고"처럼 확인하라는 말만 쓰지 마세요.
+            - 첨부에서 확인한 마감일, 대상, 제출 서류, 신청 방법, 혜택을 직접 적으세요.
+
             제외할 정보:
             - 인사말, 담당자 서명, 반복 안내, 불필요한 홍보 문구
             - 출처에 없는 날짜, 장소, 금액, 대상
-            - "자세한 내용은 확인하세요"처럼 구체 정보가 없는 문장
+            - "자세한 내용은 확인하세요", "첨부 문서 확인 필수"처럼 구체 정보가 없는 문장
 
             icon_key는 CALENDAR, TARGET, LOCATION, ACTION, MONEY, NOTICE, DOCUMENT, DEFAULT 중 하나만 사용하세요.
             text에는 이모지를 넣지 말고, 한 항목 80자 이내의 개괄식 표현으로 작성하세요.
@@ -51,7 +56,7 @@ public class ArticleSummaryPromptBuilder {
         builder.append("등록일: ").append(source.registeredAt()).append('\n');
         builder.append("본문:\n").append(source.contentText()).append('\n');
         if (!source.attachmentTexts().isEmpty()) {
-            builder.append("첨부 문서/이미지 추출 내용:\n");
+            builder.append("첨부 문서/이미지 추출 내용(아래 내용은 이미 문서 파싱으로 읽은 결과입니다):\n");
             for (int i = 0; i < source.attachmentTexts().size(); i++) {
                 builder.append("[첨부 ").append(i + 1).append("]\n")
                     .append(source.attachmentTexts().get(i))

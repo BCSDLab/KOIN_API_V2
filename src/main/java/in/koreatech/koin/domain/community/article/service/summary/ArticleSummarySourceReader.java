@@ -6,9 +6,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -50,7 +53,7 @@ public class ArticleSummarySourceReader {
                 .append(attachment.updatedAt())
                 .append('\n'));
 
-        extractImageUrls(seed.content()).forEach(url -> builder.append("image=").append(url).append('\n'));
+        extractInlineDocumentUrls(seed.content()).forEach(url -> builder.append("inlineDocument=").append(url).append('\n'));
         return sha256(builder.toString());
     }
 
@@ -102,13 +105,14 @@ public class ArticleSummarySourceReader {
 
     private List<String> readAttachmentTexts(ArticleSummarySourceSeed seed) {
         List<DocumentParseRequest> parseRequests = new ArrayList<>();
+        Set<String> parseUrls = new LinkedHashSet<>();
         seed.attachments().forEach(attachment -> {
-            if (isSupported(attachment.url(), attachment.name())) {
+            if (isSupported(attachment.url(), attachment.name()) && parseUrls.add(attachment.url())) {
                 parseRequests.add(new DocumentParseRequest(attachment.url(), attachment.name()));
             }
         });
-        extractImageUrls(seed.content()).forEach(url -> {
-            if (isSupported(url, url)) {
+        extractInlineDocumentUrls(seed.content()).forEach(url -> {
+            if (isSupported(url, url) && parseUrls.add(url)) {
                 parseRequests.add(new DocumentParseRequest(url, fileNameFromUrl(url)));
             }
         });
@@ -122,25 +126,44 @@ public class ArticleSummarySourceReader {
 
     private String parseDocument(DocumentParseRequest request) {
         try {
-            return documentParseClient.parse(request);
+            String parsedText = documentParseClient.parse(request);
+            if (!StringUtils.hasText(parsedText)) {
+                return "";
+            }
+            return "파일명: " + fileNameForPrompt(request) + "\n추출 내용:\n" + parsedText;
         } catch (Exception e) {
             log.warn("게시글 첨부 문서 파싱에 실패했습니다. articleDocument: {}", sanitizeUrl(request.url()), e);
             return "";
         }
     }
 
-    private List<String> extractImageUrls(String html) {
+    private List<String> extractInlineDocumentUrls(String html) {
         if (!StringUtils.hasText(html)) {
             return List.of();
         }
         Document document = Jsoup.parse(html);
-        return document.select("img[src]")
-            .eachAttr("src")
-            .stream()
+        Set<String> urls = new LinkedHashSet<>();
+        collectUrls(document, "img[src]", element -> element.attr("src"), urls);
+        collectUrls(document, "a[href]", element -> element.attr("href"), urls);
+        collectUrls(document, "iframe[src]", element -> element.attr("src"), urls);
+        collectUrls(document, "embed[src]", element -> element.attr("src"), urls);
+        collectUrls(document, "object[data]", element -> element.attr("data"), urls);
+        return urls.stream()
             .map(String::trim)
             .filter(StringUtils::hasText)
-            .distinct()
             .toList();
+    }
+
+    private void collectUrls(
+        Document document,
+        String cssQuery,
+        Function<org.jsoup.nodes.Element, String> urlExtractor,
+        Set<String> urls
+    ) {
+        document.select(cssQuery).forEach(element -> Optional.ofNullable(urlExtractor.apply(element))
+            .map(String::trim)
+            .filter(StringUtils::hasText)
+            .ifPresent(urls::add));
     }
 
     private String htmlToText(String html) {
@@ -191,11 +214,23 @@ public class ArticleSummarySourceReader {
         if (!StringUtils.hasText(url)) {
             return "document";
         }
-        int slashIndex = url.lastIndexOf('/');
-        if (slashIndex < 0 || slashIndex == url.length() - 1) {
+        String normalized = url;
+        int queryIndex = normalized.indexOf('?');
+        if (queryIndex >= 0) {
+            normalized = normalized.substring(0, queryIndex);
+        }
+        int slashIndex = normalized.lastIndexOf('/');
+        if (slashIndex < 0 || slashIndex == normalized.length() - 1) {
             return "document";
         }
-        return url.substring(slashIndex + 1);
+        return normalized.substring(slashIndex + 1);
+    }
+
+    private String fileNameForPrompt(DocumentParseRequest request) {
+        if (StringUtils.hasText(request.fileName())) {
+            return request.fileName();
+        }
+        return fileNameFromUrl(request.url());
     }
 
     private String sha256(String value) {

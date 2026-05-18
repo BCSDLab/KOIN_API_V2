@@ -86,4 +86,14 @@ class ArticleSummaryValidatorTest {
         assertThatThrownBy(() -> validator.validate(result, "재학생을 대상으로 모집합니다."))
             .isInstanceOf(ArticleSummaryValidationException.class);
     }
+
+    @Test
+    void 첨부_확인만_요구하는_요약은_실패한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.DOCUMENT, "첨부 문서 확인 필수")
+        ));
+
+        assertThatThrownBy(() -> validator.validate(result, "첨부 문서/이미지 추출 내용 대상 재학생"))
+            .isInstanceOf(ArticleSummaryValidationException.class);
+    }
 }
