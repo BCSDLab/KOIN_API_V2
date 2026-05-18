@@ -104,6 +104,8 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
                     "properties", Map.of(
                         "items", Map.of(
                             "type", "array",
+                            "minItems", 0,
+                            "maxItems", 3,
                             "items", Map.of(
                                 "type", "object",
                                 "additionalProperties", false,
@@ -117,7 +119,8 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
                                         )
                                     ),
                                     "text", Map.of(
-                                        "type", "string"
+                                        "type", "string",
+                                        "maxLength", 80
                                     )
                                 )
                             )
