@@ -33,7 +33,9 @@ public class ArticleSummaryPromptBuilder {
             - "자세한 내용은 확인하세요"처럼 구체 정보가 없는 문장
 
             icon_key는 CALENDAR, TARGET, LOCATION, ACTION, MONEY, NOTICE, DOCUMENT, DEFAULT 중 하나만 사용하세요.
-            text에는 이모지를 넣지 말고, 한 문장 80자 이내로 작성하세요.
+            text에는 이모지를 넣지 말고, 한 항목 80자 이내의 개괄식 표현으로 작성하세요.
+            문장형 안내보다 "신청 기간: 5월 20일까지", "대상: 재학생", "제출 서류: 신청서 및 첨부파일"처럼 핵심 라벨과 내용을 짧게 정리하세요.
+            불필요한 종결어미(합니다, 됩니다, 바랍니다)는 줄이고, 마침표는 생략하세요.
             정보가 부족해 의미 있는 요약을 만들 수 없다면 items를 빈 배열로 반환하세요.
 
             [게시글]
