@@ -139,6 +139,13 @@ class NotificationApiTest extends AcceptanceTest {
                                  "detail_subscribes": [
                                     \s
                                  ]
+                             },
+                             {
+                                 "type": "LOST_ITEM_KEYWORD",
+                                 "is_permit": false,
+                                 "detail_subscribes": [
+                                    \s
+                                 ]
                              }
                         ]
                     }
@@ -271,6 +278,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "LOST_ITEM_KEYWORD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -399,6 +413,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "MARKETING",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "LOST_ITEM_KEYWORD",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -543,6 +564,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "LOST_ITEM_KEYWORD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -676,6 +704,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "MARKETING",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "LOST_ITEM_KEYWORD",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s

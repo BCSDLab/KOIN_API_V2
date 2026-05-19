@@ -7,10 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.admin.keyword.dto.AdminFilteredKeywordsResponse;
 import in.koreatech.koin.admin.keyword.dto.AdminKeywordFilterRequest;
+import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,6 +38,7 @@ public interface AdminKeywordApi {
     @AdminActivityLogging(domain = KEYWORDS)
     ResponseEntity<Void> toggleKeywordFilter(
         @Valid @RequestBody AdminKeywordFilterRequest request,
+        @RequestParam(value = "type", required = false, defaultValue = "KOREATECH") KeywordCategory keywordCategory,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -50,6 +53,7 @@ public interface AdminKeywordApi {
     @Operation(summary = "필터링 된 키워드 조회")
     @GetMapping("/admin/articles/keyword/filtered")
     ResponseEntity<AdminFilteredKeywordsResponse> getFilteredKeywords(
+        @RequestParam(value = "type", required = false, defaultValue = "KOREATECH") KeywordCategory keywordCategory,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }

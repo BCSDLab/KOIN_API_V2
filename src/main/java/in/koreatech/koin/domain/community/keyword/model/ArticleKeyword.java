@@ -10,13 +10,17 @@ import java.util.List;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +28,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Where(clause = "is_deleted = 0")
-@Table(name = "article_keywords")
+@Table(name = "article_keywords", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"keyword", "category"})
+})
 @NoArgsConstructor(access = PROTECTED)
 public class ArticleKeyword extends BaseEntity {
 
@@ -32,8 +38,12 @@ public class ArticleKeyword extends BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, length = 50)
     private String keyword;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private KeywordCategory category;
 
     @Column(name = "last_used_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastUsedAt;
@@ -48,8 +58,9 @@ public class ArticleKeyword extends BaseEntity {
     private List<ArticleKeywordUserMap> articleKeywordUserMaps = new ArrayList<>();
 
     @Builder
-    private ArticleKeyword(String keyword, LocalDateTime lastUsedAt, Boolean isFiltered) {
+    private ArticleKeyword(String keyword, KeywordCategory category, LocalDateTime lastUsedAt, Boolean isFiltered) {
         this.keyword = keyword;
+        this.category = category != null ? category : KeywordCategory.KOREATECH;
         this.lastUsedAt = lastUsedAt;
         this.isFiltered = isFiltered != null ? isFiltered : false;
     }

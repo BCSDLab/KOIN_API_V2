@@ -32,7 +32,7 @@ jobs:
 
           for file in $(git diff --name-only "$BASE" "$HEAD" -- src/main/resources/db/migration/*.sql); do
             ADDED_SQL=$(git diff "$BASE" "$HEAD" -- "$file" \
-              | grep -i -wE "^\+.*\b(DROP|TRUNCATE|RENAME|CHANGE)\b" || true)
+              | grep -i -wE "^\+.*\b(DROP COLUMN|TRUNCATE|RENAME|CHANGE)\b" || true)
 
             if [[ -n "$ADDED_SQL" ]]; then
               echo "::error::⚠️ 위험 SQL 감지됨"

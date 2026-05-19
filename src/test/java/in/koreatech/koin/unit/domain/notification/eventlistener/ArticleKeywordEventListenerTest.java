@@ -1,19 +1,14 @@
 package in.koreatech.koin.unit.domain.notification.eventlistener;
 
 import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
+import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +19,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -35,6 +32,7 @@ import in.koreatech.koin.domain.notification.eventlistener.ArticleKeywordEventLi
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import in.koreatech.koin.domain.user.model.User;
@@ -65,6 +63,19 @@ class ArticleKeywordEventListenerTest {
     private ArticleRepository articleRepository;
 
     @Test
+    void 키워드_알림_이벤트_리스너는_전용_executor에서_커밋_이후_비동기로_실행된다() throws NoSuchMethodException {
+        Method method = ArticleKeywordEventListener.class.getMethod("onKeywordRequest", ArticleKeywordEvent.class);
+
+        Async async = method.getAnnotation(Async.class);
+        TransactionalEventListener transactionalEventListener = method.getAnnotation(TransactionalEventListener.class);
+
+        assertThat(async).isNotNull();
+        assertThat(async.value()).isEqualTo("keywordNotificationTaskExecutor");
+        assertThat(transactionalEventListener).isNotNull();
+        assertThat(transactionalEventListener.phase()).isEqualTo(AFTER_COMMIT);
+    }
+
+    @Test
     @DisplayName("중복 구독이 있어도 사용자당 알림은 한 번만 발송된다.")
     void onKeywordRequest_withDuplicateSubscriptions_sendsSingleNotification() {
         Integer articleId = 100;
@@ -75,7 +86,7 @@ class ArticleKeywordEventListenerTest {
 
         NotificationSubscribe subscribeA = createKeywordSubscribe(subscriber);
         NotificationSubscribe subscribeB = createKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "근로장학"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, KOREATECH, Map.of(userId, "근로장학"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -91,7 +102,8 @@ class ArticleKeywordEventListenerTest {
 
         Notification notification = mock(Notification.class);
         when(notification.getUser()).thenReturn(subscriber);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any()))
             .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, true)));
@@ -122,7 +134,7 @@ class ArticleKeywordEventListenerTest {
         subscriber.permitNotification("device-token");
 
         NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, userId, Map.of(userId, "A"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, userId, KOREATECH, Map.of(userId, "A"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -158,7 +170,7 @@ class ArticleKeywordEventListenerTest {
         subscriber.permitNotification("device-token");
 
         NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "C"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, KOREATECH, Map.of(userId, "C"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -195,7 +207,7 @@ class ArticleKeywordEventListenerTest {
         subscriber.permitNotification("device-token");
 
         NotificationSubscribe subscribe = createKeywordSubscribe(subscriber);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(userId, "근로장학"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, KOREATECH, Map.of(userId, "근로장학"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -210,7 +222,8 @@ class ArticleKeywordEventListenerTest {
             .thenReturn(List.of());
 
         Notification notification = mock(Notification.class);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any()))
             .thenReturn(List.of(new NotificationService.NotificationDeliveryResult(notification, false)));
@@ -247,7 +260,7 @@ class ArticleKeywordEventListenerTest {
 
         NotificationSubscribe matchedSubscribe = createKeywordSubscribe(matchedUser);
         NotificationSubscribe unmatchedSubscribe = createKeywordSubscribe(unmatchedUser);
-        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, Map.of(matchedUserId, "근로장학"));
+        ArticleKeywordEvent event = new ArticleKeywordEvent(articleId, 999, KOREATECH, Map.of(matchedUserId, "근로장학"));
 
         Article article = mock(Article.class);
         Board board = mock(Board.class);
@@ -258,11 +271,13 @@ class ArticleKeywordEventListenerTest {
         when(board.getId()).thenReturn(boardId);
         when(notificationSubscribeRepository.findAllBySubscribeTypeAndDetailTypeIsNullWithUser(ARTICLE_KEYWORD))
             .thenReturn(List.of(matchedSubscribe, unmatchedSubscribe));
-        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId, Set.of(matchedUserId)))
+        when(userNotificationStatusRepository.findUserIdsByNotifiedArticleIdAndUserIdIn(articleId,
+            Set.of(matchedUserId)))
             .thenReturn(List.of());
 
         Notification notification = mock(Notification.class);
-        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(), anyString(), any()))
+        when(notificationFactory.generateKeywordNotification(any(), anyInt(), anyString(), anyString(), anyInt(),
+            anyString(), any()))
             .thenReturn(notification);
         when(notificationService.pushNotificationsWithResult(any())).thenReturn(List.of());
 
@@ -273,8 +288,12 @@ class ArticleKeywordEventListenerTest {
     }
 
     private NotificationSubscribe createKeywordSubscribe(User user) {
+        return createSubscribe(user, ARTICLE_KEYWORD);
+    }
+
+    private NotificationSubscribe createSubscribe(User user, NotificationSubscribeType subscribeType) {
         return NotificationSubscribe.builder()
-            .subscribeType(ARTICLE_KEYWORD)
+            .subscribeType(subscribeType)
             .user(user)
             .build();
     }

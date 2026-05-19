@@ -1,10 +1,10 @@
 package in.koreatech.koin.domain.community.article.model.redis;
 
-import in.koreatech.koin.domain.community.article.model.Article;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.redis.core.RedisHash;
 
 @Getter
 @RedisHash(value = "busNoticeArticle")
@@ -21,10 +21,10 @@ public class BusNoticeArticle {
         this.title = title;
     }
 
-    public static BusNoticeArticle from(Article article) {
+    public static BusNoticeArticle of(int id, String title) {
         return BusNoticeArticle.builder()
-                .id(article.getId())
-                .title(article.getTitle())
-                .build();
+            .id(id)
+            .title(title)
+            .build();
     }
 }

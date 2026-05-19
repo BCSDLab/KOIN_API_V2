@@ -1,11 +1,8 @@
 package in.koreatech.koin.unit.domain.community.keyword.service;
 
+import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -25,6 +22,7 @@ import in.koreatech.koin.common.event.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
@@ -76,19 +74,22 @@ class KeywordServiceTest {
         ArticleKeywordEvent event10 = new ArticleKeywordEvent(
             10,
             null,
+            KOREATECH,
             Map.of(1, "A")
         );
         ArticleKeywordEvent event11 = new ArticleKeywordEvent(
             11,
             null,
+            KOREATECH,
             Map.of(2, "B")
         );
-        when(keywordExtractor.matchKeyword(List.of(article10, article11), null)).thenReturn(List.of(event10, event11));
+        when(keywordExtractor.matchKeyword(List.of(article10, article11), null, KOREATECH))
+            .thenReturn(List.of(event10, event11));
 
         keywordService.sendKeywordNotification(request);
 
         verify(articleRepository).findAllByIdIn(List.of(10, 11));
-        verify(keywordExtractor).matchKeyword(List.of(article10, article11), null);
+        verify(keywordExtractor).matchKeyword(List.of(article10, article11), null, KOREATECH);
         verify(eventPublisher).publishEvent(event10);
         verify(eventPublisher).publishEvent(event11);
         verifyNoMoreInteractions(eventPublisher);
@@ -120,5 +121,10 @@ class KeywordServiceTest {
 
         assertThat(transactional).isNotNull();
         assertThat(transactional.propagation()).isEqualTo(Propagation.REQUIRES_NEW);
+    }
+
+    private ArticleKeyword argThatKeywordCategory(
+        in.koreatech.koin.domain.community.keyword.enums.KeywordCategory category) {
+        return org.mockito.ArgumentMatchers.argThat(keyword -> keyword.getCategory() == category);
     }
 }
