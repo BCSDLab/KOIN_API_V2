@@ -10,6 +10,8 @@ import org.springframework.util.StringUtils;
 public class ArticleSummaryPromptBuilder {
 
     private static final int MAX_SOURCE_LENGTH = 16_000;
+    private static final int MAX_BODY_LENGTH = 8_000;
+    private static final int MAX_ATTACHMENT_LENGTH = 8_000;
     private static final int MAX_PREVIOUS_RESULT_ITEMS = 10;
     private static final int MAX_PREVIOUS_ITEM_TEXT_LENGTH = 200;
     private static final int INITIAL_CANDIDATE_MAX_ITEMS = 5;
@@ -126,16 +128,34 @@ public class ArticleSummaryPromptBuilder {
         builder.append("제목: ").append(source.title()).append('\n');
         builder.append("작성자: ").append(source.author()).append('\n');
         builder.append("등록일: ").append(source.registeredAt()).append('\n');
-        builder.append("본문:\n").append(source.contentText()).append('\n');
+        builder.append("본문:\n").append(truncateSection(source.contentText(), MAX_BODY_LENGTH)).append('\n');
         if (!source.attachmentTexts().isEmpty()) {
             builder.append("첨부 문서/이미지 추출 내용(아래 내용은 이미 문서 파싱으로 읽은 결과입니다):\n");
+            int remainingAttachmentBudget = MAX_ATTACHMENT_LENGTH;
+            int perAttachmentBudget = Math.max(1_000, MAX_ATTACHMENT_LENGTH / source.attachmentTexts().size());
             for (int i = 0; i < source.attachmentTexts().size(); i++) {
+                if (remainingAttachmentBudget <= 0) {
+                    builder.append("[첨부 내용은 길이 제한으로 추가 생략됨]\n");
+                    break;
+                }
+                String attachmentText = truncateSection(
+                    source.attachmentTexts().get(i),
+                    Math.min(perAttachmentBudget, remainingAttachmentBudget)
+                );
+                remainingAttachmentBudget -= attachmentText.length();
                 builder.append("[첨부 ").append(i + 1).append("]\n")
-                    .append(source.attachmentTexts().get(i))
+                    .append(attachmentText)
                     .append('\n');
             }
         }
         return truncate(builder.toString());
+    }
+
+    private String truncateSection(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value == null ? "" : value;
+        }
+        return value.substring(0, maxLength) + "\n[이후 내용은 길이 제한으로 생략됨]";
     }
 
     private String truncate(String value) {

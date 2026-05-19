@@ -19,12 +19,14 @@ public class ArticleAiSummaryProperties {
 
     private boolean enabled = true;
     private int batchSize = 5;
-    private int maxRetryCount = 3;
+    private int maxRetryCount = 5;
     private int maxRefinementRetryCount = 1;
     private int lockMinutes = 30;
     private int retryBackoffMinutes = 5;
+    private int maxRetryBackoffMinutes = 60;
     private int maxDocumentsPerArticle = 3;
     private int maxDocumentBytes = 10 * 1024 * 1024;
+    private int documentParseMinIntervalMillis = 1_000;
     private int requestTimeoutSeconds = 20;
     private String model = "solar-pro3";
     private String promptVersion = "v6";

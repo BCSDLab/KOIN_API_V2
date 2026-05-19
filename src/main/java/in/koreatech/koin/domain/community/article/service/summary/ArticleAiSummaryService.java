@@ -3,10 +3,14 @@ package in.koreatech.koin.domain.community.article.service.summary;
 import static in.koreatech.koin.domain.community.article.service.ArticleService.LOST_ITEM_BOARD_ID;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,11 +65,25 @@ public class ArticleAiSummaryService {
         if (!canGenerate()) {
             return;
         }
-        List<Article> articles = articleRepository.findArticlesWithoutAiSummary(
+        int batchLimit = boundedBatchLimit(limit);
+        if (batchLimit <= 0) {
+            return;
+        }
+        List<Integer> articleIds = articleRepository.findArticleIdsWithoutAiSummary(
             LOST_ITEM_BOARD_ID,
-            boundedBatchLimit(limit)
+            batchLimit
         );
-        for (Article article : articles) {
+        if (articleIds.isEmpty()) {
+            return;
+        }
+        Map<Integer, Article> articles = articleRepository.findAllByIdInForAiSummary(articleIds)
+            .stream()
+            .collect(Collectors.toMap(Article::getId, Function.identity(), (first, second) -> first));
+        for (Integer articleId : articleIds) {
+            Article article = articles.get(articleId);
+            if (article == null) {
+                continue;
+            }
             ArticleSummarySourceSeed seed = ArticleSummarySourceSeed.from(article, article.getContent());
             enqueueIfEnabled(article, sourceReader.createFingerprint(seed), article.getUpdatedAt());
         }
@@ -76,11 +94,15 @@ public class ArticleAiSummaryService {
         if (!canGenerate()) {
             return List.of();
         }
+        int batchLimit = boundedBatchLimit(limit);
+        if (batchLimit <= 0) {
+            return List.of();
+        }
         LocalDateTime now = LocalDateTime.now(clock);
         LocalDateTime lockedUntil = now.plusMinutes(properties.getLockMinutes());
         return articleAiSummaryRepository.findProcessableSummariesForUpdate(
                 now,
-                boundedBatchLimit(limit),
+                batchLimit,
                 properties.getMaxRetryCount()
             )
             .stream()
@@ -112,17 +134,28 @@ public class ArticleAiSummaryService {
 
     @Transactional
     public void completeFailure(Integer summaryId, String workerId, String reason) {
+        completeFailure(summaryId, workerId, reason, null);
+    }
+
+    @Transactional
+    public void completeFailure(Integer summaryId, String workerId, String reason, Duration retryAfter) {
         articleAiSummaryRepository.findById(summaryId)
             .filter(summary -> summary.isProcessingBy(workerId))
             .ifPresent(summary -> {
                 int nextRetryCount = summary.getRetryCount() + 1;
                 LocalDateTime nextAttemptAt = null;
                 if (nextRetryCount < properties.getMaxRetryCount()) {
-                    nextAttemptAt = LocalDateTime.now(clock)
-                        .plusMinutes((long)properties.getRetryBackoffMinutes() * nextRetryCount);
+                    nextAttemptAt = LocalDateTime.now(clock).plus(resolveRetryDelay(nextRetryCount, retryAfter));
                 }
                 summary.completeFailure(reason, nextAttemptAt);
             });
+    }
+
+    @Transactional
+    public void completeFailureWithoutRetry(Integer summaryId, String workerId, String reason) {
+        articleAiSummaryRepository.findById(summaryId)
+            .filter(summary -> summary.isProcessingBy(workerId))
+            .ifPresent(summary -> summary.completeFailureWithoutRetry(reason, properties.getMaxRetryCount()));
     }
 
     @Transactional
@@ -157,5 +190,17 @@ public class ArticleAiSummaryService {
 
     private int boundedBatchLimit(int limit) {
         return Math.min(Math.max(limit, 0), properties.getBatchSize());
+    }
+
+    private Duration resolveRetryDelay(int nextRetryCount, Duration retryAfter) {
+        long multiplier = 1L << Math.min(Math.max(nextRetryCount - 1, 0), 10);
+        Duration configuredBackoff = Duration.ofMinutes((long)properties.getRetryBackoffMinutes() * multiplier);
+        Duration maxBackoff = Duration.ofMinutes(properties.getMaxRetryBackoffMinutes());
+        Duration boundedBackoff = configuredBackoff.compareTo(maxBackoff) > 0 ? maxBackoff : configuredBackoff;
+        if (retryAfter == null || retryAfter.isNegative() || retryAfter.isZero()) {
+            return boundedBackoff;
+        }
+        Duration boundedRetryAfter = retryAfter.compareTo(maxBackoff) > 0 ? maxBackoff : retryAfter;
+        return boundedRetryAfter.compareTo(boundedBackoff) > 0 ? boundedRetryAfter : boundedBackoff;
     }
 }

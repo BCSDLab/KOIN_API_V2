@@ -29,6 +29,7 @@ class ArticleSummaryPromptBuilderTest {
             LocalDate.of(2026, 5, 1),
             LocalDateTime.of(2026, 5, 1, 10, 0),
             List.of(),
+            false,
             "fingerprint"
         );
 
@@ -55,6 +56,7 @@ class ArticleSummaryPromptBuilderTest {
             LocalDate.of(2026, 5, 1),
             LocalDateTime.of(2026, 5, 1, 10, 0),
             List.of("파일명: scholarship.pdf\n추출 내용:\n대상: 재학생\n제출 서류: 신청서"),
+            false,
             "fingerprint"
         );
 
@@ -63,6 +65,26 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(prompt.userMessage()).contains("첨부 내용을 반드시 본문과 함께 읽고");
         assertThat(prompt.userMessage()).contains("첨부 문서 확인 필수");
         assertThat(prompt.userMessage()).contains("대상: 재학생");
+    }
+
+    @Test
+    void 긴_본문이_있어도_첨부_문서_내용은_프롬프트에_남긴다() {
+        ArticleSummarySource source = new ArticleSummarySource(
+            1,
+            "장학금 신청 안내",
+            "긴 본문".repeat(3_000),
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of("파일명: scholarship.pdf\n추출 내용:\n중요 첨부 정보: 신청서와 성적증명서를 제출"),
+            false,
+            "fingerprint"
+        );
+
+        ArticleSummaryPrompt prompt = promptBuilder.build(source);
+
+        assertThat(prompt.userMessage()).contains("중요 첨부 정보");
+        assertThat(prompt.userMessage()).contains("이후 내용은 길이 제한으로 생략됨");
     }
 
     @Test
@@ -75,6 +97,7 @@ class ArticleSummaryPromptBuilderTest {
             LocalDate.of(2026, 5, 1),
             LocalDateTime.of(2026, 5, 1, 10, 0),
             List.of(),
+            false,
             "fingerprint"
         );
         ArticleSummaryPrompt originalPrompt = promptBuilder.build(source);
@@ -106,6 +129,7 @@ class ArticleSummaryPromptBuilderTest {
             LocalDate.of(2026, 5, 1),
             LocalDateTime.of(2026, 5, 1, 10, 0),
             List.of(),
+            false,
             "fingerprint"
         );
         ArticleSummaryPrompt originalPrompt = promptBuilder.build(source);
@@ -136,6 +160,7 @@ class ArticleSummaryPromptBuilderTest {
             LocalDate.of(2026, 5, 1),
             LocalDateTime.of(2026, 5, 1, 10, 0),
             List.of(),
+            false,
             "fingerprint"
         );
         ArticleSummaryPrompt originalPrompt = promptBuilder.build(source);

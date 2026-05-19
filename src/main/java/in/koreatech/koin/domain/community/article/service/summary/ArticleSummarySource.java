@@ -12,6 +12,7 @@ public record ArticleSummarySource(
     LocalDate registeredAt,
     LocalDateTime updatedAt,
     List<String> attachmentTexts,
+    boolean hasTemporaryAttachmentFailure,
     String fingerprint
 ) {
 

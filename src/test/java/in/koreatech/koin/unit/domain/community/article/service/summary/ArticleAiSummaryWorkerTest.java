@@ -3,11 +3,13 @@ package in.koreatech.koin.unit.domain.community.article.service.summary;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +25,7 @@ import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSumma
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryService;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryWorker;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryAiClient;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryExternalApiException;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryIcon;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryItem;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPrompt;
@@ -87,7 +90,7 @@ class ArticleAiSummaryWorkerTest {
     }
 
     @Test
-    void 재선별_횟수를_넘어도_4개면_추가_재시도하지_않도록_스킵한다() {
+    void 재선별_횟수를_넘어도_4개면_재시도_대기로_전환한다() {
         ArticleSummarySourceSeed seed = sourceSeed();
         ArticleSummarySource source = source();
         when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
@@ -98,9 +101,9 @@ class ArticleAiSummaryWorkerTest {
         worker.process(1, "worker");
 
         verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
-        verify(articleAiSummaryService).skip(eq(1), eq("worker"), contains("최대 3개"));
+        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("최대 3개"));
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
-        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
+        verify(articleAiSummaryService, never()).skip(any(), any(), any());
     }
 
     @Test
@@ -171,7 +174,7 @@ class ArticleAiSummaryWorkerTest {
     }
 
     @Test
-    void 검증_재작성_후에도_실패하면_재시도하지_않고_스킵한다() {
+    void 검증_재작성_후에도_실패하면_재시도_대기로_전환한다() {
         ArticleSummarySourceSeed seed = sourceSeed();
         ArticleSummarySource source = source();
         when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
@@ -182,8 +185,66 @@ class ArticleAiSummaryWorkerTest {
         worker.process(1, "worker");
 
         verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
-        verify(articleAiSummaryService).skip(eq(1), eq("worker"), contains("200자"));
-        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
+        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("200자"));
+        verify(articleAiSummaryService, never()).skip(any(), any(), any());
+        verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
+    }
+
+    @Test
+    void 첨부_중심_게시글의_문서_파싱이_일시_실패하면_본문만으로_성공시키지_않고_재시도한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = new ArticleSummarySource(
+            1,
+            "장학금 신청 안내",
+            "첨부파일을 확인하세요.",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(),
+            true,
+            "fingerprint"
+        );
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+
+        worker.process(1, "worker");
+
+        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("첨부 중심 게시글"), isNull());
+        verify(articleSummaryAiClient, never()).summarize(any());
+        verify(articleAiSummaryService, never()).skip(any(), any(), any());
+        verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
+    }
+
+    @Test
+    void retry_after가_있는_외부_API_일시_오류는_재시도_시간과_함께_실패_처리한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = source();
+        Duration retryAfter = Duration.ofSeconds(30);
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+        when(articleSummaryAiClient.summarize(any(ArticleSummaryPrompt.class)))
+            .thenThrow(new ArticleSummaryExternalApiException("rate limited", true, retryAfter));
+
+        worker.process(1, "worker");
+
+        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), eq("rate limited"), eq(retryAfter));
+        verify(articleAiSummaryService, never()).skip(any(), any(), any());
+        verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
+    }
+
+    @Test
+    void 재시도_불가능한_외부_API_오류는_즉시_재시도_종료_상태로_처리한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = source();
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+        when(articleSummaryAiClient.summarize(any(ArticleSummaryPrompt.class)))
+            .thenThrow(new ArticleSummaryExternalApiException("bad request", false, null));
+
+        worker.process(1, "worker");
+
+        verify(articleAiSummaryService).completeFailureWithoutRetry(eq(1), eq("worker"), eq("bad request"));
+        verify(articleAiSummaryService, never()).skip(any(), any(), any());
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
     }
 
@@ -209,6 +270,7 @@ class ArticleAiSummaryWorkerTest {
             LocalDate.of(2026, 5, 1),
             LocalDateTime.of(2026, 5, 1, 10, 0),
             List.of(),
+            false,
             "fingerprint"
         );
     }

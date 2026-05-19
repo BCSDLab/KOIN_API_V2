@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAttachmentSeed;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleDocumentParseClient;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryExternalApiException;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySource;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySourceReader;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySourceSeed;
@@ -93,6 +94,41 @@ class ArticleSummarySourceReaderTest {
 
         assertThat(source.contentText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
         assertThat(source.attachmentTexts()).isEmpty();
+        assertThat(source.hasTemporaryAttachmentFailure()).isFalse();
+        assertThat(source.mergedText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+    }
+
+    @Test
+    void 첨부_파싱이_일시_실패하면_본문은_유지하고_일시_실패_여부를_표시한다() {
+        ArticleDocumentParseClient parseClient = request -> {
+            throw new ArticleSummaryExternalApiException("rate limited", true, null);
+        };
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        properties.setMaxDocumentsPerArticle(3);
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "장학금 안내",
+            "<p>신청 기간은 5월 20일까지입니다.</p>",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(new ArticleAttachmentSeed(
+                10,
+                "신청서.docx",
+                "https://static.koreatech.in/files/application.docx",
+                "hash",
+                LocalDateTime.of(2026, 5, 1, 10, 0)
+            ))
+        );
+
+        ArticleSummarySource source = reader.read(seed);
+
+        assertThat(source.contentText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+        assertThat(source.attachmentTexts()).isEmpty();
+        assertThat(source.hasTemporaryAttachmentFailure()).isTrue();
         assertThat(source.mergedText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
     }
 

@@ -130,12 +130,14 @@ article:
     enabled: ${ARTICLE_AI_SUMMARY_ENABLED:true}
     scheduler-fixed-delay-ms: ${ARTICLE_AI_SUMMARY_SCHEDULER_FIXED_DELAY_MS:60000}
     batch-size: ${ARTICLE_AI_SUMMARY_BATCH_SIZE:5}
-    max-retry-count: ${ARTICLE_AI_SUMMARY_MAX_RETRY_COUNT:3}
+    max-retry-count: ${ARTICLE_AI_SUMMARY_MAX_RETRY_COUNT:5}
     max-refinement-retry-count: ${ARTICLE_AI_SUMMARY_MAX_REFINEMENT_RETRY_COUNT:1}
     lock-minutes: ${ARTICLE_AI_SUMMARY_LOCK_MINUTES:30}
     retry-backoff-minutes: ${ARTICLE_AI_SUMMARY_RETRY_BACKOFF_MINUTES:5}
+    max-retry-backoff-minutes: ${ARTICLE_AI_SUMMARY_MAX_RETRY_BACKOFF_MINUTES:60}
     max-documents-per-article: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENTS_PER_ARTICLE:3}
     max-document-bytes: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENT_BYTES:10485760}
+    document-parse-min-interval-millis: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_MIN_INTERVAL_MILLIS:1000}
     request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:20}
     model: ${ARTICLE_AI_SUMMARY_MODEL:solar-pro3}
     prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v6}

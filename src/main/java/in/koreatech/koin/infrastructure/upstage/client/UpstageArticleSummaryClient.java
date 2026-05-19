@@ -1,6 +1,9 @@
 package in.koreatech.koin.infrastructure.upstage.client;
 
 import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,12 +20,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryExternalApiException;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryAiClient;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryIcon;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryItem;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPrompt;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryResult;
-import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 
 @Component
 public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
@@ -48,7 +51,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
     @Override
     public ArticleSummaryResult summarize(ArticleSummaryPrompt prompt) {
         if (!StringUtils.hasText(upstageProperties.getApiKey())) {
-            throw new KoinIllegalStateException("Upstage API key가 설정되지 않았습니다.");
+            throw new ArticleSummaryExternalApiException("Upstage API key가 설정되지 않았습니다.", false, null);
         }
         try {
             ChatCompletionResponse response = webClient.post()
@@ -67,12 +70,14 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
             return new ArticleSummaryResult(items.stream()
                 .map(item -> new ArticleSummaryItem(ArticleSummaryIcon.from(item.iconKey()), item.text()))
                 .toList());
+        } catch (ArticleSummaryExternalApiException e) {
+            throw e;
         } catch (WebClientResponseException e) {
-            throw new KoinIllegalStateException("Upstage 요약 API 호출에 실패했습니다. status=" + e.getStatusCode());
+            throw toExternalApiException("요약", e);
         } catch (JsonProcessingException e) {
-            throw new KoinIllegalStateException("Upstage 요약 응답 파싱에 실패했습니다.");
+            throw new ArticleSummaryExternalApiException("Upstage 요약 응답 JSON 파싱에 실패했습니다.", true, null, e);
         } catch (Exception e) {
-            throw new KoinIllegalStateException("Upstage 요약 처리 중 오류가 발생했습니다.");
+            throw new ArticleSummaryExternalApiException("Upstage 요약 처리 중 오류가 발생했습니다.", true, null, e);
         }
     }
 
@@ -133,13 +138,44 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
 
     private String extractContent(ChatCompletionResponse response) {
         if (response == null || response.choices() == null || response.choices().isEmpty()) {
-            throw new KoinIllegalStateException("Upstage 요약 응답이 비어 있습니다.");
+            throw new ArticleSummaryExternalApiException("Upstage 요약 응답이 비어 있습니다.", true, null);
         }
         String content = response.choices().get(0).message().content();
         if (!StringUtils.hasText(content)) {
-            throw new KoinIllegalStateException("Upstage 요약 본문이 비어 있습니다.");
+            throw new ArticleSummaryExternalApiException("Upstage 요약 본문이 비어 있습니다.", true, null);
         }
         return content;
+    }
+
+    private ArticleSummaryExternalApiException toExternalApiException(String apiName, WebClientResponseException e) {
+        int status = e.getStatusCode().value();
+        boolean retryable = status == 429 || e.getStatusCode().is5xxServerError();
+        Duration retryAfter = retryable ? parseRetryAfter(e.getHeaders().getFirst(HttpHeaders.RETRY_AFTER)) : null;
+        return new ArticleSummaryExternalApiException(
+            "Upstage %s API 호출에 실패했습니다. status=%d".formatted(apiName, status),
+            retryable,
+            retryAfter,
+            e
+        );
+    }
+
+    private Duration parseRetryAfter(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+        String trimmed = value.trim();
+        try {
+            return Duration.ofSeconds(Long.parseLong(trimmed));
+        } catch (NumberFormatException ignored) {
+            try {
+                return Duration.between(
+                    ZonedDateTime.now(),
+                    ZonedDateTime.parse(trimmed, DateTimeFormatter.RFC_1123_DATE_TIME)
+                );
+            } catch (DateTimeParseException ignoredDateFormat) {
+                return null;
+            }
+        }
     }
 
     private String stripCodeFence(String content) {

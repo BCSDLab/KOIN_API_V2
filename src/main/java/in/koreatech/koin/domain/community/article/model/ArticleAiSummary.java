@@ -209,6 +209,15 @@ public class ArticleAiSummary extends BaseEntity {
         this.failureReason = truncate(reason);
     }
 
+    public void completeFailureWithoutRetry(String reason, int maxRetryCount) {
+        this.status = ArticleAiSummaryStatus.FAILED;
+        this.retryCount = Math.max(this.retryCount + 1, maxRetryCount);
+        this.nextAttemptAt = null;
+        this.lockedUntil = null;
+        this.workerId = null;
+        this.failureReason = truncate(reason);
+    }
+
     public void skip(String reason) {
         this.status = ArticleAiSummaryStatus.SKIPPED;
         this.nextAttemptAt = null;

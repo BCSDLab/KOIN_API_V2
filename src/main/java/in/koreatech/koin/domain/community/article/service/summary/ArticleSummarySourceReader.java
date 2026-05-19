@@ -70,7 +70,7 @@ public class ArticleSummarySourceReader {
         );
         String contentText = htmlToText(resolvedContent);
         String fingerprint = createFingerprint(resolvedSeed);
-        List<String> attachmentTexts = readAttachmentTexts(resolvedSeed);
+        AttachmentReadResult attachmentReadResult = readAttachmentTexts(resolvedSeed);
         return new ArticleSummarySource(
             seed.articleId(),
             seed.title(),
@@ -78,7 +78,8 @@ public class ArticleSummarySourceReader {
             seed.author(),
             seed.registeredAt(),
             seed.updatedAt(),
-            attachmentTexts,
+            attachmentReadResult.texts(),
+            attachmentReadResult.hasTemporaryFailure(),
             fingerprint
         );
     }
@@ -103,7 +104,7 @@ public class ArticleSummarySourceReader {
         }
     }
 
-    private List<String> readAttachmentTexts(ArticleSummarySourceSeed seed) {
+    private AttachmentReadResult readAttachmentTexts(ArticleSummarySourceSeed seed) {
         List<DocumentParseRequest> parseRequests = new ArrayList<>();
         Set<String> parseUrls = new LinkedHashSet<>();
         seed.attachments().forEach(attachment -> {
@@ -117,23 +118,38 @@ public class ArticleSummarySourceReader {
             }
         });
 
-        return parseRequests.stream()
+        List<String> texts = new ArrayList<>();
+        boolean hasTemporaryFailure = false;
+        for (DocumentParseRequest request : parseRequests.stream()
             .limit(properties.getMaxDocumentsPerArticle())
-            .map(this::parseDocument)
-            .filter(StringUtils::hasText)
-            .toList();
+            .toList()) {
+            ParsedDocument parsedDocument = parseDocument(request);
+            if (StringUtils.hasText(parsedDocument.text())) {
+                texts.add(parsedDocument.text());
+            }
+            if (parsedDocument.temporaryFailure()) {
+                hasTemporaryFailure = true;
+            }
+        }
+        return new AttachmentReadResult(texts, hasTemporaryFailure);
     }
 
-    private String parseDocument(DocumentParseRequest request) {
+    private ParsedDocument parseDocument(DocumentParseRequest request) {
         try {
             String parsedText = documentParseClient.parse(request);
             if (!StringUtils.hasText(parsedText)) {
-                return "";
+                return ParsedDocument.empty();
             }
-            return "파일명: " + fileNameForPrompt(request) + "\n추출 내용:\n" + parsedText;
+            return new ParsedDocument(
+                "파일명: " + fileNameForPrompt(request) + "\n추출 내용:\n" + parsedText,
+                false
+            );
+        } catch (ArticleSummaryExternalApiException e) {
+            log.warn("게시글 첨부 문서 파싱에 실패했습니다. articleDocument: {}", sanitizeUrl(request.url()), e);
+            return new ParsedDocument("", e.isRetryable());
         } catch (Exception e) {
             log.warn("게시글 첨부 문서 파싱에 실패했습니다. articleDocument: {}", sanitizeUrl(request.url()), e);
-            return "";
+            return ParsedDocument.empty();
         }
     }
 
@@ -252,5 +268,21 @@ public class ArticleSummarySourceReader {
             return url;
         }
         return url.substring(0, queryIndex) + "?<redacted>";
+    }
+
+    private record AttachmentReadResult(
+        List<String> texts,
+        boolean hasTemporaryFailure
+    ) {
+    }
+
+    private record ParsedDocument(
+        String text,
+        boolean temporaryFailure
+    ) {
+
+        private static ParsedDocument empty() {
+            return new ParsedDocument("", false);
+        }
     }
 }

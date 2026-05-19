@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.service.summary;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,14 @@ public class ArticleAiSummaryWorker {
         try {
             articleAiSummaryService.getGenerationSeed(summaryId, workerId)
                 .ifPresent(seed -> generate(summaryId, workerId, seed));
+        } catch (ArticleSummaryExternalApiException e) {
+            if (e.isRetryable()) {
+                log.warn("게시글 AI 요약 외부 API가 일시 실패했습니다. summaryId: {}, reason: {}", summaryId, e.getMessage());
+                articleAiSummaryService.completeFailure(summaryId, workerId, e.getMessage(), e.getRetryAfter());
+                return;
+            }
+            log.error("게시글 AI 요약 외부 API가 재시도 불가능한 오류를 반환했습니다. summaryId: {}", summaryId, e);
+            articleAiSummaryService.completeFailureWithoutRetry(summaryId, workerId, e.getMessage());
         } catch (Exception e) {
             log.error("게시글 AI 요약 생성 중 오류가 발생했습니다. summaryId: {}", summaryId, e);
             articleAiSummaryService.completeFailure(summaryId, workerId, e.getMessage());
@@ -35,8 +44,14 @@ public class ArticleAiSummaryWorker {
     private void generate(Integer summaryId, String workerId, ArticleSummarySourceSeed seed) {
         ArticleSummarySource source = sourceReader.read(seed);
         if (!StringUtils.hasText(source.mergedText())) {
+            if (source.hasTemporaryAttachmentFailure()) {
+                throw new ArticleSummaryExternalApiException("첨부 문서 파싱이 일시 실패해 요약 생성을 보류합니다.", true, null);
+            }
             articleAiSummaryService.skip(summaryId, workerId, "요약에 사용할 본문 또는 첨부 문서 내용이 없습니다.");
             return;
+        }
+        if (shouldWaitForTemporaryAttachment(source)) {
+            throw new ArticleSummaryExternalApiException("첨부 중심 게시글의 문서 파싱이 일시 실패해 요약 생성을 보류합니다.", true, null);
         }
 
         ArticleSummaryPrompt prompt = promptBuilder.build(source);
@@ -55,15 +70,15 @@ public class ArticleAiSummaryWorker {
             return;
         }
         if (validator.hasTooManyItems(result)) {
-            articleAiSummaryService.skip(summaryId, workerId, "요약 항목 재선별 후에도 최대 3개를 초과했습니다.");
+            articleAiSummaryService.completeFailure(summaryId, workerId, "요약 항목 재선별 후에도 최대 3개를 초과했습니다.");
             return;
         }
         List<String> summaryLines;
         try {
             summaryLines = validateOrCorrect(result, prompt);
         } catch (ArticleSummaryValidationException e) {
-            log.warn("게시글 AI 요약이 최종 검증을 통과하지 못해 스킵합니다. summaryId: {}, reason: {}", summaryId, e.getMessage());
-            articleAiSummaryService.skip(summaryId, workerId, e.getMessage());
+            log.warn("게시글 AI 요약이 최종 검증을 통과하지 못해 재시도 대기로 전환합니다. summaryId: {}, reason: {}", summaryId, e.getMessage());
+            articleAiSummaryService.completeFailure(summaryId, workerId, e.getMessage());
             return;
         }
         articleAiSummaryService.completeSuccess(summaryId, workerId, source, summaryLines);
@@ -111,6 +126,30 @@ public class ArticleAiSummaryWorker {
             );
         }
         return new RefinementResult(refinedResult, attempted);
+    }
+
+    private boolean shouldWaitForTemporaryAttachment(ArticleSummarySource source) {
+        if (!source.hasTemporaryAttachmentFailure() || !source.attachmentTexts().isEmpty()) {
+            return false;
+        }
+        String normalizedContent = normalize(source.contentText());
+        if (!StringUtils.hasText(normalizedContent)) {
+            return true;
+        }
+        return normalizedContent.length() <= 120 && (
+            normalizedContent.contains("첨부")
+                || normalizedContent.contains("붙임")
+                || normalizedContent.contains("파일")
+                || normalizedContent.contains("문서")
+                || normalizedContent.contains("이미지")
+        );
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
     }
 
     private record RefinementResult(
