@@ -14,13 +14,18 @@ import org.springframework.util.StringUtils;
 public class ArticleSummaryValidator {
 
     private static final int MAX_ITEMS = 3;
-    private static final int MAX_TEXT_LENGTH = 100;
+    private static final int MAX_TEXT_LENGTH = 120;
     private static final Pattern CRITICAL_TOKEN_PATTERN = Pattern.compile(
-        "(\\d{4}[./-]\\d{1,2}[./-]\\d{1,2})"
+        "(\\d{4}[./-]\\s*\\d{1,2}[./-]\\s*\\d{1,2})"
             + "|(\\d{1,2}\\s*월\\s*\\d{1,2}\\s*일)"
-            + "|(\\d{1,2}\\s*시(?:\\s*\\d{1,2}\\s*분)?)"
-            + "|(\\d[\\d,]*(?:원|만원|명|개|학점))"
+            + "|(\\d{1,2}\\s*(?::\\s*\\d{1,2}|시(?:\\s*\\d{1,2}\\s*분)?))"
+            + "|(\\d[\\d,]*\\s*(?:원|만원|명|개|학점))"
     );
+    private static final Pattern DATE_PATTERN = Pattern.compile("^(\\d{4})[./-](\\d{1,2})[./-](\\d{1,2})$");
+    private static final Pattern MONTH_DAY_PATTERN = Pattern.compile("^(\\d{1,2})월(\\d{1,2})일$");
+    private static final Pattern COLON_TIME_PATTERN = Pattern.compile("^(\\d{1,2}):(\\d{1,2})$");
+    private static final Pattern KOREAN_TIME_PATTERN = Pattern.compile("^(\\d{1,2})시(?:(\\d{1,2})분)?$");
+    private static final Pattern NUMBER_UNIT_PATTERN = Pattern.compile("^(\\d+)(만원|원|명|개|학점)$");
 
     public List<String> validate(ArticleSummaryResult result, String sourceText) {
         if (result == null || result.items() == null || result.items().isEmpty()) {
@@ -32,8 +37,9 @@ public class ArticleSummaryValidator {
 
         Set<String> seen = new HashSet<>();
         String normalizedSource = normalizeForComparison(sourceText);
+        Set<String> sourceCriticalTokens = extractCriticalTokens(sourceText);
         return result.items().stream()
-            .map(item -> validateItem(item, normalizedSource, seen))
+            .map(item -> validateItem(item, normalizedSource, sourceCriticalTokens, seen))
             .toList();
     }
 
@@ -45,7 +51,12 @@ public class ArticleSummaryValidator {
         return MAX_ITEMS;
     }
 
-    private String validateItem(ArticleSummaryItem item, String normalizedSource, Set<String> seen) {
+    private String validateItem(
+        ArticleSummaryItem item,
+        String normalizedSource,
+        Set<String> sourceCriticalTokens,
+        Set<String> seen
+    ) {
         if (item == null) {
             throw new ArticleSummaryValidationException("요약 항목이 비어 있습니다.");
         }
@@ -54,7 +65,7 @@ public class ArticleSummaryValidator {
             throw new ArticleSummaryValidationException("요약 문장이 비어 있습니다.");
         }
         if (text.length() > MAX_TEXT_LENGTH) {
-            throw new ArticleSummaryValidationException("요약 문장이 100자를 초과했습니다.");
+            throw new ArticleSummaryValidationException("요약 문장이 120자를 초과했습니다.");
         }
         if (isMeaningless(text)) {
             throw new ArticleSummaryValidationException("구체 정보가 없는 요약 문장입니다.");
@@ -62,18 +73,81 @@ public class ArticleSummaryValidator {
         if (!seen.add(normalizeForComparison(text))) {
             throw new ArticleSummaryValidationException("요약 문장이 중복되었습니다.");
         }
-        validateCriticalTokens(text, normalizedSource);
+        validateCriticalTokens(text, normalizedSource, sourceCriticalTokens);
         return new ArticleSummaryItem(item.icon(), text).formattedLine();
     }
 
-    private void validateCriticalTokens(String text, String normalizedSource) {
+    private void validateCriticalTokens(String text, String normalizedSource, Set<String> sourceCriticalTokens) {
         Matcher matcher = CRITICAL_TOKEN_PATTERN.matcher(text);
         while (matcher.find()) {
-            String token = normalizeForComparison(matcher.group());
-            if (!normalizedSource.contains(token)) {
+            String rawToken = matcher.group();
+            String token = normalizeForComparison(rawToken);
+            String canonicalToken = normalizeCriticalToken(rawToken);
+            if (!normalizedSource.contains(token) && !sourceCriticalTokens.contains(canonicalToken)) {
                 throw new ArticleSummaryValidationException("출처에 없는 날짜/숫자 정보가 포함되었습니다.");
             }
         }
+    }
+
+    private Set<String> extractCriticalTokens(String sourceText) {
+        Set<String> tokens = new HashSet<>();
+        Matcher matcher = CRITICAL_TOKEN_PATTERN.matcher(sourceText == null ? "" : sourceText);
+        while (matcher.find()) {
+            addCriticalToken(tokens, matcher.group());
+        }
+        return tokens;
+    }
+
+    private void addCriticalToken(Set<String> tokens, String rawToken) {
+        String canonicalToken = normalizeCriticalToken(rawToken);
+        tokens.add(canonicalToken);
+        if (canonicalToken.matches("^time:\\d{1,2}:0$")) {
+            tokens.add(canonicalToken.substring(0, canonicalToken.lastIndexOf(':')));
+        }
+    }
+
+    private String normalizeCriticalToken(String rawToken) {
+        String value = rawToken == null ? "" : rawToken.replaceAll("\\s+", "").replace(",", "");
+        Matcher dateMatcher = DATE_PATTERN.matcher(value);
+        if (dateMatcher.matches()) {
+            return "date:%s-%d-%d".formatted(
+                dateMatcher.group(1),
+                Integer.parseInt(dateMatcher.group(2)),
+                Integer.parseInt(dateMatcher.group(3))
+            );
+        }
+        Matcher monthDayMatcher = MONTH_DAY_PATTERN.matcher(value);
+        if (monthDayMatcher.matches()) {
+            return "month-day:%d-%d".formatted(
+                Integer.parseInt(monthDayMatcher.group(1)),
+                Integer.parseInt(monthDayMatcher.group(2))
+            );
+        }
+        Matcher colonTimeMatcher = COLON_TIME_PATTERN.matcher(value);
+        if (colonTimeMatcher.matches()) {
+            return "time:%d:%d".formatted(
+                Integer.parseInt(colonTimeMatcher.group(1)),
+                Integer.parseInt(colonTimeMatcher.group(2))
+            );
+        }
+        Matcher koreanTimeMatcher = KOREAN_TIME_PATTERN.matcher(value);
+        if (koreanTimeMatcher.matches()) {
+            if (koreanTimeMatcher.group(2) == null) {
+                return "time:%d".formatted(Integer.parseInt(koreanTimeMatcher.group(1)));
+            }
+            return "time:%d:%d".formatted(
+                Integer.parseInt(koreanTimeMatcher.group(1)),
+                Integer.parseInt(koreanTimeMatcher.group(2))
+            );
+        }
+        Matcher numberUnitMatcher = NUMBER_UNIT_PATTERN.matcher(value);
+        if (numberUnitMatcher.matches()) {
+            return "number:%d%s".formatted(
+                Long.parseLong(numberUnitMatcher.group(1)),
+                numberUnitMatcher.group(2)
+            );
+        }
+        return normalizeForComparison(rawToken);
     }
 
     private boolean isMeaningless(String text) {

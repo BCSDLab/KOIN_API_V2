@@ -67,8 +67,8 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
-    void 요약_문장은_100자까지_허용한다() {
-        String text = "가".repeat(100);
+    void 요약_문장은_120자까지_허용한다() {
+        String text = "가".repeat(120);
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
             new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, text)
         ));
@@ -79,13 +79,35 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
-    void 요약_문장이_100자를_초과하면_실패한다() {
+    void 요약_문장이_120자를_초과하면_실패한다() {
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
-            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(101))
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(121))
         ));
 
-        assertThatThrownBy(() -> validator.validate(result, "가".repeat(101)))
+        assertThatThrownBy(() -> validator.validate(result, "가".repeat(121)))
             .isInstanceOf(ArticleSummaryValidationException.class);
+    }
+
+    @Test
+    void 날짜와_시간의_앞자리_0_차이는_같은_출처_정보로_인정한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "모집일정: 2018.12.28~2019.1.20, 9시부터 접수")
+        ));
+
+        List<String> lines = validator.validate(result, "모집일정: 2018. 12. 28. ~ 2019. 01. 20., 09시부터 접수");
+
+        assertThat(lines).containsExactly("📅 모집일정: 2018.12.28~2019.1.20, 9시부터 접수");
+    }
+
+    @Test
+    void 정시_표기는_콜론과_시_표현을_같은_출처_정보로_인정한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "마감시간: 24시까지")
+        ));
+
+        List<String> lines = validator.validate(result, "마감시간: 24:00까지");
+
+        assertThat(lines).containsExactly("📅 마감시간: 24시까지");
     }
 
     @Test

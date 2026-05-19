@@ -57,13 +57,13 @@ public class ArticleAiSummaryService {
     }
 
     @Transactional
-    public void enqueueArticlesWithoutSummary() {
+    public void enqueueArticlesWithoutSummary(int limit) {
         if (!canGenerate()) {
             return;
         }
         List<Article> articles = articleRepository.findArticlesWithoutAiSummary(
             LOST_ITEM_BOARD_ID,
-            properties.getBatchSize()
+            boundedBatchLimit(limit)
         );
         for (Article article : articles) {
             ArticleSummarySourceSeed seed = ArticleSummarySourceSeed.from(article, article.getContent());
@@ -72,7 +72,7 @@ public class ArticleAiSummaryService {
     }
 
     @Transactional
-    public List<Integer> claimProcessableSummaries(String workerId) {
+    public List<Integer> claimProcessableSummaries(String workerId, int limit) {
         if (!canGenerate()) {
             return List.of();
         }
@@ -80,7 +80,7 @@ public class ArticleAiSummaryService {
         LocalDateTime lockedUntil = now.plusMinutes(properties.getLockMinutes());
         return articleAiSummaryRepository.findProcessableSummariesForUpdate(
                 now,
-                properties.getBatchSize(),
+                boundedBatchLimit(limit),
                 properties.getMaxRetryCount()
             )
             .stream()
@@ -153,5 +153,9 @@ public class ArticleAiSummaryService {
 
     private boolean canGenerate() {
         return properties.isEnabled() && StringUtils.hasText(upstageProperties.getApiKey());
+    }
+
+    private int boundedBatchLimit(int limit) {
+        return Math.min(Math.max(limit, 0), properties.getBatchSize());
     }
 }

@@ -58,24 +58,20 @@ public class ArticleAiSummaryWorker {
             articleAiSummaryService.skip(summaryId, workerId, "요약 항목 재선별 후에도 최대 3개를 초과했습니다.");
             return;
         }
-        List<String> summaryLines = validateOrRefine(result, prompt, refinementResult.attempted());
+        List<String> summaryLines = validateOrCorrect(result, prompt);
         articleAiSummaryService.completeSuccess(summaryId, workerId, source, summaryLines);
     }
 
-    private List<String> validateOrRefine(
-        ArticleSummaryResult result,
-        ArticleSummaryPrompt originalPrompt,
-        boolean alreadyRefined
-    ) {
+    private List<String> validateOrCorrect(ArticleSummaryResult result, ArticleSummaryPrompt originalPrompt) {
         try {
             return validator.validate(result, originalPrompt.sourceText());
         } catch (ArticleSummaryValidationException e) {
-            if (alreadyRefined || properties.getBoundedMaxRefinementRetryCount() == 0) {
+            if (properties.getBoundedMaxRefinementRetryCount() == 0) {
                 throw e;
             }
             log.info("게시글 AI 요약 최종 검증에 실패해 한 번 더 재작성합니다. reason: {}", e.getMessage());
             ArticleSummaryResult refinedResult = articleSummaryAiClient.summarize(
-                promptBuilder.buildRefinement(originalPrompt, result)
+                promptBuilder.buildValidationCorrection(originalPrompt, result, e.getMessage())
             );
             if (refinedResult == null || refinedResult.items() == null || refinedResult.items().isEmpty()) {
                 throw new ArticleSummaryValidationException("재작성 결과가 비어 있습니다.");
