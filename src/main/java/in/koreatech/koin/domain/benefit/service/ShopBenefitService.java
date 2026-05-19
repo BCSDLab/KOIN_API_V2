@@ -35,7 +35,8 @@ public class ShopBenefitService {
     }
 
     public BenefitShopsResponse getBenefitShops(Integer benefitId) {
-        List<BenefitCategoryMap> benefitCategoryMaps = benefitCategoryMapRepository.findByBenefitCategoryId(benefitId);
+        List<BenefitCategoryMap> benefitCategoryMaps =
+            benefitCategoryMapRepository.findActiveShopMapsByBenefitCategoryId(benefitId);
         LocalDateTime now = LocalDateTime.now(clock);
 
         List<InnerShopResponse> innerShopResponses = benefitCategoryMaps.stream()
