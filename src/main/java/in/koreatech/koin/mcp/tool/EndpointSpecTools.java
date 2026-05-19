@@ -31,7 +31,7 @@ public class EndpointSpecTools {
         @ToolParam(description = "Optional endpoint group. Exact group names and normalized names like 'business' are supported.", required = false) String group,
         @ToolParam(description = "Deprecated endpoint filter. Use 'exclude' by default, 'include' to include deprecated endpoints, or 'only' to return deprecated endpoints only.", required = false) String deprecated
     ) {
-        return findEndpoints(query, group, deprecated);
+        return endpointSpecService.findEndpoints(query, group, parseDeprecatedFilter(deprecated));
     }
 
     @Tool(description = "Get endpoint description metadata excluding request and response body details. This is read-only and never sends API requests.")
@@ -40,7 +40,7 @@ public class EndpointSpecTools {
         @ToolParam(description = "HTTP method, such as GET, POST, PUT, PATCH, or DELETE.") String method,
         @ToolParam(description = "Endpoint path, such as /v2/shops/{id}.") String path
     ) {
-        return getEndpointDescription(group, method, path);
+        return endpointSpecService.getEndpointDescription(group, method, path);
     }
 
     @Tool(description = "Get endpoint request parameters and request body schema. This is read-only and never sends API requests.")
@@ -49,7 +49,7 @@ public class EndpointSpecTools {
         @ToolParam(description = "HTTP method, such as GET, POST, PUT, PATCH, or DELETE.") String method,
         @ToolParam(description = "Endpoint path, such as /v2/shops/{id}.") String path
     ) {
-        return getEndpointRequestSpec(group, method, path);
+        return endpointSpecService.getEndpointRequestSpec(group, method, path);
     }
 
     @Tool(description = "Get endpoint response status codes and response body schemas paired by status code. This is read-only and never sends API requests.")
@@ -58,34 +58,6 @@ public class EndpointSpecTools {
         @ToolParam(description = "HTTP method, such as GET, POST, PUT, PATCH, or DELETE.") String method,
         @ToolParam(description = "Endpoint path, such as /v2/shops/{id}.") String path
     ) {
-        return getEndpointResponseSpec(group, method, path);
-    }
-
-    /**
-     * Find KOIN API endpoints by keyword, or list all endpoints when query is omitted.
-     */
-    public FindEndpointsResponse findEndpoints(String query, String group, String deprecated) {
-        return endpointSpecService.findEndpoints(query, group, parseDeprecatedFilter(deprecated));
-    }
-
-    /**
-     * Get basic description metadata for one KOIN endpoint.
-     */
-    public EndpointDescription getEndpointDescription(String group, String method, String path) {
-        return endpointSpecService.getEndpointDescription(group, method, path);
-    }
-
-    /**
-     * Get request parameters and request body schema for one KOIN endpoint.
-     */
-    public EndpointRequestSpec getEndpointRequestSpec(String group, String method, String path) {
-        return endpointSpecService.getEndpointRequestSpec(group, method, path);
-    }
-
-    /**
-     * Get response status codes and response body schemas for one KOIN endpoint.
-     */
-    public EndpointResponseSpec getEndpointResponseSpec(String group, String method, String path) {
         return endpointSpecService.getEndpointResponseSpec(group, method, path);
     }
 
