@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.mcp.model;
+package in.koreatech.koin.mcp.model;
 
 import java.lang.reflect.Method;
 import java.util.List;

@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.mcp.tool;
+package in.koreatech.koin.mcp.tool;
 
 import java.util.Locale;
 
@@ -7,13 +7,13 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.global.mcp.dto.EndpointDescription;
-import in.koreatech.koin.global.mcp.dto.EndpointRequestSpec;
-import in.koreatech.koin.global.mcp.dto.EndpointResponseSpec;
-import in.koreatech.koin.global.mcp.dto.FindEndpointsResponse;
-import in.koreatech.koin.global.mcp.exception.EndpointSpecException;
-import in.koreatech.koin.global.mcp.model.DeprecatedFilter;
-import in.koreatech.koin.global.mcp.service.EndpointSpecService;
+import in.koreatech.koin.mcp.dto.EndpointDescription;
+import in.koreatech.koin.mcp.dto.EndpointRequestSpec;
+import in.koreatech.koin.mcp.dto.EndpointResponseSpec;
+import in.koreatech.koin.mcp.dto.FindEndpointsResponse;
+import in.koreatech.koin.mcp.exception.EndpointSpecException;
+import in.koreatech.koin.mcp.model.DeprecatedFilter;
+import in.koreatech.koin.mcp.service.EndpointSpecService;
 
 @Component
 @ConditionalOnProperty(name = "spring.ai.mcp.server.enabled", havingValue = "true")

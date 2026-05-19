@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.mcp.exception;
+package in.koreatech.koin.mcp.exception;
 
 import lombok.Getter;
 

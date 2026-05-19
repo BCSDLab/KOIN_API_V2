@@ -60,7 +60,6 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
             ApiResponseCode code = codes[i];
             String key = String.format("%d) %d", i + 1, code.getHttpStatus().value());
             responses.put(key, createApiResponse(
-                code,
                 code.getMessage(),
                 () -> createResponseBody(code, handler, returnType)
             ));
@@ -80,18 +79,12 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     }
 
     private ApiResponse createApiResponse(
-        ApiResponseCode code,
         String description,
         Supplier<MediaType> supplier
     ) {
-        ApiResponse apiResponse = new ApiResponse().description(description);
-        MediaType mediaType = supplier.get();
-        if (mediaType != null) {
-            apiResponse.content(new Content().addMediaType(APPLICATION_JSON_VALUE, mediaType));
-        }
-        apiResponse.addExtension("x-koin-code", code.getCode());
-        apiResponse.addExtension("x-http-status", code.getHttpStatus().value());
-        return apiResponse;
+        return new ApiResponse()
+            .description(description)
+            .content(new Content().addMediaType(APPLICATION_JSON_VALUE, supplier.get()));
     }
 
     private MediaType createResponseBody(
@@ -99,9 +92,6 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         HandlerMethod handler,
         Type returnType
     ) {
-        if (code.getHttpStatus().value() == 204) {
-            return null;
-        }
         if (code.getHttpStatus().is2xxSuccessful()) {
             return new MediaType().schema(loadSchema(returnType));
         }

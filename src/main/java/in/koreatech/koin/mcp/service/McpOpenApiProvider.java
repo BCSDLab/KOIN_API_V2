@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.mcp.service;
+package in.koreatech.koin.mcp.service;
 
 import java.util.List;
 import java.util.Locale;
@@ -19,7 +19,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.global.mcp.exception.EndpointSpecException;
+import in.koreatech.koin.mcp.exception.EndpointSpecException;
 import io.swagger.v3.oas.models.OpenAPI;
 
 @Component

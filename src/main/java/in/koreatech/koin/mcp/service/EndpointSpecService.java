@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.mcp.service;
+package in.koreatech.koin.mcp.service;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -26,21 +26,23 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import in.koreatech.koin.global.code.Deprecation;
-import in.koreatech.koin.global.mcp.dto.EndpointDescription;
-import in.koreatech.koin.global.mcp.dto.EndpointParameter;
-import in.koreatech.koin.global.mcp.dto.EndpointParameters;
-import in.koreatech.koin.global.mcp.dto.EndpointRequestSpec;
-import in.koreatech.koin.global.mcp.dto.EndpointResponse;
-import in.koreatech.koin.global.mcp.dto.EndpointResponseSpec;
-import in.koreatech.koin.global.mcp.dto.EndpointSchema;
-import in.koreatech.koin.global.mcp.dto.EndpointSummary;
-import in.koreatech.koin.global.mcp.dto.FindEndpointsResponse;
-import in.koreatech.koin.global.mcp.dto.ReplacedBy;
-import in.koreatech.koin.global.mcp.dto.RequestBodySpec;
-import in.koreatech.koin.global.mcp.exception.EndpointSpecException;
-import in.koreatech.koin.global.mcp.model.DeprecatedFilter;
-import in.koreatech.koin.global.mcp.model.EndpointEntry;
+import in.koreatech.koin.mcp.dto.EndpointDescription;
+import in.koreatech.koin.mcp.dto.EndpointParameter;
+import in.koreatech.koin.mcp.dto.EndpointParameters;
+import in.koreatech.koin.mcp.dto.EndpointRequestSpec;
+import in.koreatech.koin.mcp.dto.EndpointResponse;
+import in.koreatech.koin.mcp.dto.EndpointResponseSpec;
+import in.koreatech.koin.mcp.dto.EndpointSchema;
+import in.koreatech.koin.mcp.dto.EndpointSummary;
+import in.koreatech.koin.mcp.dto.FindEndpointsResponse;
+import in.koreatech.koin.mcp.dto.ReplacedBy;
+import in.koreatech.koin.mcp.dto.RequestBodySpec;
+import in.koreatech.koin.mcp.exception.EndpointSpecException;
+import in.koreatech.koin.mcp.model.DeprecatedFilter;
+import in.koreatech.koin.mcp.model.EndpointEntry;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -155,17 +157,23 @@ public class EndpointSpecService {
             entry.method(),
             entry.path(),
             nullToEmpty(operation.getResponses()).entrySet().stream()
-                .map(response -> toEndpointResponse(response.getKey(), response.getValue(), openAPI))
+                .map(response -> toEndpointResponse(response.getKey(), response.getValue(), openAPI, entry.docsMethod()))
                 .toList()
         );
     }
 
-    private EndpointResponse toEndpointResponse(String status, ApiResponse apiResponse, OpenAPI openAPI) {
-        String responseStatus = responseStatus(status, apiResponse);
+    private EndpointResponse toEndpointResponse(
+        String status,
+        ApiResponse apiResponse,
+        OpenAPI openAPI,
+        Method method
+    ) {
+        String responseStatus = responseStatus(status);
+        String responseCode = responseCode(status, method);
         if ("204".equals(responseStatus)) {
             return new EndpointResponse(
                 responseStatus,
-                responseExtension(apiResponse, "x-koin-code"),
+                responseCode,
                 nullToEmpty(apiResponse.getDescription()),
                 List.of(),
                 null
@@ -173,27 +181,38 @@ public class EndpointSpecService {
         }
         return new EndpointResponse(
             responseStatus,
-            responseExtension(apiResponse, "x-koin-code"),
+            responseCode,
             nullToEmpty(apiResponse.getDescription()),
             contentTypes(apiResponse.getContent()),
             firstContentSchema(apiResponse.getContent(), openAPI)
         );
     }
 
-    private String responseStatus(String status, ApiResponse apiResponse) {
-        String extensionStatus = responseExtension(apiResponse, "x-http-status");
-        if (extensionStatus != null) {
-            return extensionStatus;
-        }
+    private String responseStatus(String status) {
         int lastSpace = status.lastIndexOf(' ');
         return lastSpace == -1 ? status : status.substring(lastSpace + 1);
     }
 
-    private String responseExtension(ApiResponse apiResponse, String key) {
-        if (apiResponse.getExtensions() == null || !apiResponse.getExtensions().containsKey(key)) {
+    private String responseCode(String status, Method method) {
+        ApiResponseCodes apiResponseCodes = AnnotatedElementUtils.findMergedAnnotation(method, ApiResponseCodes.class);
+        int responseIndex = responseIndex(status);
+        if (apiResponseCodes == null || responseIndex < 0 || responseIndex >= apiResponseCodes.value().length) {
             return null;
         }
-        return String.valueOf(apiResponse.getExtensions().get(key));
+        ApiResponseCode apiResponseCode = apiResponseCodes.value()[responseIndex];
+        return apiResponseCode.getCode();
+    }
+
+    private int responseIndex(String status) {
+        int delimiterIndex = status.indexOf(')');
+        if (delimiterIndex == -1) {
+            return -1;
+        }
+        try {
+            return Integer.parseInt(status.substring(0, delimiterIndex)) - 1;
+        } catch (NumberFormatException ignored) {
+            return -1;
+        }
     }
 
     private EndpointParameter toEndpointParameter(Parameter parameter, OpenAPI openAPI) {
