@@ -38,7 +38,6 @@ import jakarta.validation.Valid;
 @Component
 public class ApiResponseCodesOperationCustomizer implements OperationCustomizer {
 
-    private static final String MESSAGE_FIELD = "message";
     private static final String TRACE_ID_EXAMPLE = "123e4567-e89b-12d3-a456-426614174000";
 
     // 에러 스키마를 미리 생성하여 최적화
@@ -71,9 +70,10 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     private Type getActualResponseType(HandlerMethod handler) {
         Type returnType = handler.getMethod().getGenericReturnType();
 
-        if (returnType instanceof ParameterizedType parameterizedType
-            && parameterizedType.getRawType().equals(ResponseEntity.class)) {
-            return parameterizedType.getActualTypeArguments()[0];
+        if (returnType instanceof ParameterizedType parameterizedType) {
+            if (parameterizedType.getRawType().equals(ResponseEntity.class)) {
+                return parameterizedType.getActualTypeArguments()[0];
+            }
         }
         return returnType;
     }
@@ -104,7 +104,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     private Map<String,Object> createGenericErrorExample(ApiResponseCode code) {
         return Map.of(
             "code", code.getCode(),
-            MESSAGE_FIELD, code.getMessage(),
+            "message", code.getMessage(),
             "errorTraceId", TRACE_ID_EXAMPLE
         );
     }
@@ -115,13 +115,13 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     ) {
         List<Map<String,Object>> fieldErrors = extractFieldErrors(handler);
         String firstMsg = fieldErrors.stream()
-            .map(e -> (String)e.get(MESSAGE_FIELD))
+            .map(e -> (String)e.get("message"))
             .findFirst()
             .orElse(code.getMessage());
 
         Map<String,Object> example = new LinkedHashMap<>();
         example.put("code", code.getCode());
-        example.put(MESSAGE_FIELD, firstMsg);
+        example.put("message", firstMsg);
         example.put("errorTraceId", TRACE_ID_EXAMPLE);
         example.put("fieldErrors", fieldErrors);
         return example;
@@ -173,7 +173,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         return Map.of(
             "field", name,
             "constraint", constraint,
-            MESSAGE_FIELD, msg
+            "message", msg
         );
     }
 
