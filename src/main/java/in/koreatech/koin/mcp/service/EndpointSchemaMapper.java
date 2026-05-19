@@ -30,6 +30,8 @@ public class EndpointSchemaMapper {
 
     private static final int SCHEMA_MAX_DEPTH = 5;
     private static final String APPLICATION_JSON = "application/json";
+    private static final String TRUNCATED_EXTENSION = "x-truncated";
+    private static final String STRING_TYPE = "string";
 
     public EndpointParameter toEndpointParameter(Parameter parameter, OpenAPI openAPI) {
         Parameter resolvedParameter = resolveParameter(parameter, openAPI);
@@ -114,7 +116,7 @@ public class EndpointSchemaMapper {
         if (schema.getProperties() != null && !schema.getProperties().isEmpty()) {
             Map<String, EndpointSchema> convertedProperties = new LinkedHashMap<>();
             schema.getProperties().forEach((name, property) ->
-                convertedProperties.put(name, toEndpointSchema((Schema<?>)property)));
+                convertedProperties.put(name, toEndpointSchema(property)));
             properties = convertedProperties;
         }
 
@@ -139,35 +141,37 @@ public class EndpointSchemaMapper {
             toEndpointSchemaList(schema.getOneOf()),
             toEndpointSchemaList(schema.getAnyOf()),
             schema.get$ref(),
-            isTruncated(schema)
+            isTruncated(schema) ? true : null
         );
     }
 
-    private List<EndpointSchema> toEndpointSchemaList(List<Schema> schemas) {
+    private List<EndpointSchema> toEndpointSchemaList(List<?> schemas) {
         if (schemas == null || schemas.isEmpty()) {
             return Collections.emptyList();
         }
         return schemas.stream()
+            .filter(Schema.class::isInstance)
+            .map(Schema.class::cast)
             .map(this::toEndpointSchema)
             .toList();
     }
 
-    private Boolean isTruncated(Schema<?> schema) {
+    private boolean isTruncated(Schema<?> schema) {
         if (schema.getExtensions() == null) {
-            return null;
+            return false;
         }
-        Object truncated = schema.getExtensions().get("x-truncated");
-        return Boolean.TRUE.equals(truncated) ? true : null;
+        Object truncated = schema.getExtensions().get(TRUNCATED_EXTENSION);
+        return Boolean.TRUE.equals(truncated);
     }
 
     private Schema<?> resolveRefs(
         Schema<?> schema,
-        Map<String, Schema> referencedSchemas,
+        Map<String, ?> referencedSchemas,
         Set<String> resolvingRefs,
         int depth
     ) {
         if (schema == null) {
-            return schema;
+            return null;
         }
         if (depth > SCHEMA_MAX_DEPTH) {
             return truncatedSchema(schema);
@@ -184,7 +188,7 @@ public class EndpointSchemaMapper {
 
     private Schema<?> resolveRef(
         String ref,
-        Map<String, Schema> referencedSchemas,
+        Map<String, ?> referencedSchemas,
         Set<String> resolvingRefs,
         int depth
     ) {
@@ -194,20 +198,20 @@ public class EndpointSchemaMapper {
         }
         if (!resolvingRefs.add(refName)) {
             Schema<?> truncatedSchema = fallbackSchema(refName);
-            truncatedSchema.addExtension("x-truncated", true);
+            truncatedSchema.addExtension(TRUNCATED_EXTENSION, true);
             return truncatedSchema;
         }
-        Schema<?> referencedSchema = referencedSchemas.get(refName);
+        Object referencedSchema = referencedSchemas.get(refName);
         Schema<?> resolved = referencedSchema == null
             ? fallbackSchema(refName)
-            : resolveRefs(referencedSchema, referencedSchemas, resolvingRefs, depth + 1);
+            : resolveRefs((Schema<?>)referencedSchema, referencedSchemas, resolvingRefs, depth + 1);
         resolvingRefs.remove(refName);
         return resolved;
     }
 
     private void resolveChildSchemas(
         Schema<?> schema,
-        Map<String, Schema> referencedSchemas,
+        Map<String, ?> referencedSchemas,
         Set<String> resolvingRefs,
         int depth
     ) {
@@ -222,54 +226,37 @@ public class EndpointSchemaMapper {
             schema.setAdditionalProperties(
                 resolveRefs(additionalProperties, referencedSchemas, resolvingRefs, depth + 1));
         }
-        schema.setAllOf(resolveSchemaList(schema.getAllOf(), referencedSchemas, resolvingRefs, depth));
-        schema.setOneOf(resolveSchemaList(schema.getOneOf(), referencedSchemas, resolvingRefs, depth));
-        schema.setAnyOf(resolveSchemaList(schema.getAnyOf(), referencedSchemas, resolvingRefs, depth));
     }
 
     private Schema<?> truncatedSchema(Schema<?> schema) {
         String ref = schema.get$ref();
         if (ref != null && !ref.isBlank()) {
             Schema<?> fallback = fallbackSchema(ref.substring(ref.lastIndexOf('/') + 1));
-            fallback.addExtension("x-truncated", true);
+            fallback.addExtension(TRUNCATED_EXTENSION, true);
             return fallback;
         }
         Schema<?> truncated = new Schema<>()
             .type(schema.getType() == null ? "object" : schema.getType())
             .format(schema.getFormat())
             .description(schema.getDescription());
-        truncated.addExtension("x-truncated", true);
+        truncated.addExtension(TRUNCATED_EXTENSION, true);
         return truncated;
-    }
-
-    private List<Schema> resolveSchemaList(
-        List<Schema> schemas,
-        Map<String, Schema> referencedSchemas,
-        Set<String> resolvingRefs,
-        int depth
-    ) {
-        if (schemas == null) {
-            return null;
-        }
-        return schemas.stream()
-            .map(schema -> (Schema)resolveRefs(schema, referencedSchemas, resolvingRefs, depth + 1))
-            .toList();
     }
 
     private Schema<?> fallbackSchema(String refName) {
         if (refName.endsWith("LocalTime")) {
-            return new Schema<>().type("string").format("time");
+            return new Schema<>().type(STRING_TYPE).format("time");
         }
         if (refName.endsWith("LocalDate")) {
-            return new Schema<>().type("string").format("date");
+            return new Schema<>().type(STRING_TYPE).format("date");
         }
         if (refName.endsWith("LocalDateTime")
             || refName.endsWith("OffsetDateTime")
             || refName.endsWith("ZonedDateTime")) {
-            return new Schema<>().type("string").format("date-time");
+            return new Schema<>().type(STRING_TYPE).format("date-time");
         }
         if (refName.endsWith("UUID")) {
-            return new Schema<>().type("string").format("uuid");
+            return new Schema<>().type(STRING_TYPE).format("uuid");
         }
         return new Schema<>().type("object").description("Unresolved schema: " + refName);
     }
