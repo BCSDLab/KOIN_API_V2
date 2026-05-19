@@ -67,6 +67,28 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
+    void 요약_문장은_100자까지_허용한다() {
+        String text = "가".repeat(100);
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, text)
+        ));
+
+        List<String> lines = validator.validate(result, text);
+
+        assertThat(lines).containsExactly("✅ " + text);
+    }
+
+    @Test
+    void 요약_문장이_100자를_초과하면_실패한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(101))
+        ));
+
+        assertThatThrownBy(() -> validator.validate(result, "가".repeat(101)))
+            .isInstanceOf(ArticleSummaryValidationException.class);
+    }
+
+    @Test
     void 빈_문장이_있으면_실패한다() {
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
             new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, " ")
