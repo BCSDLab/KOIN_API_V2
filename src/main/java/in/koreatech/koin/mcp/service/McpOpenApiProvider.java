@@ -19,11 +19,12 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.mcp.McpConstants;
 import in.koreatech.koin.mcp.exception.EndpointSpecException;
 import io.swagger.v3.oas.models.OpenAPI;
 
 @Component
-@ConditionalOnProperty(name = "spring.ai.mcp.server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = McpConstants.SERVER_ENABLED_PROPERTY, havingValue = "true")
 public class McpOpenApiProvider {
 
     private final Map<String, ExposedOpenApiResource> resources;

@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.global.exception.ErrorResponse;
+import in.koreatech.koin.mcp.McpConstants;
 import in.koreatech.koin.mcp.dto.endpoint.request.EndpointParameter;
 import in.koreatech.koin.mcp.dto.endpoint.request.RequestBodySpec;
 import in.koreatech.koin.mcp.dto.schema.EndpointSchema;
@@ -25,11 +26,12 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
 @Component
-@ConditionalOnProperty(name = "spring.ai.mcp.server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = McpConstants.SERVER_ENABLED_PROPERTY, havingValue = "true")
 public class EndpointSchemaMapper {
 
     private static final int SCHEMA_MAX_DEPTH = 5;
     private static final String APPLICATION_JSON = "application/json";
+    private static final String OBJECT_TYPE = "object";
     private static final String TRUNCATED_EXTENSION = "x-truncated";
     private static final String STRING_TYPE = "string";
 
@@ -236,7 +238,7 @@ public class EndpointSchemaMapper {
             return fallback;
         }
         Schema<?> truncated = new Schema<>()
-            .type(schema.getType() == null ? "object" : schema.getType())
+            .type(schema.getType() == null ? OBJECT_TYPE : schema.getType())
             .format(schema.getFormat())
             .description(schema.getDescription());
         truncated.addExtension(TRUNCATED_EXTENSION, true);
@@ -258,6 +260,6 @@ public class EndpointSchemaMapper {
         if (refName.endsWith("UUID")) {
             return new Schema<>().type(STRING_TYPE).format("uuid");
         }
-        return new Schema<>().type("object").description("Unresolved schema: " + refName);
+        return new Schema<>().type(OBJECT_TYPE).description("Unresolved schema: " + refName);
     }
 }

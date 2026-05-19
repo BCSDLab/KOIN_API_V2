@@ -8,13 +8,14 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.mcp.McpConstants;
 import in.koreatech.koin.mcp.dto.error.McpErrorResponse;
 import in.koreatech.koin.mcp.exception.EndpointSpecException;
 import in.koreatech.koin.mcp.model.DeprecatedFilter;
 import in.koreatech.koin.mcp.service.EndpointSpecService;
 
 @Component
-@ConditionalOnProperty(name = "spring.ai.mcp.server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = McpConstants.SERVER_ENABLED_PROPERTY, havingValue = "true")
 public class EndpointSpecTools {
 
     private final EndpointSpecService endpointSpecService;

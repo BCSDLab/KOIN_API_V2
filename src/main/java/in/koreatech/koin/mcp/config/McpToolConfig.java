@@ -6,10 +6,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import in.koreatech.koin.mcp.McpConstants;
 import in.koreatech.koin.mcp.tool.EndpointSpecTools;
 
 @Configuration
-@ConditionalOnProperty(name = "spring.ai.mcp.server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = McpConstants.SERVER_ENABLED_PROPERTY, havingValue = "true")
 public class McpToolConfig {
 
     @Bean

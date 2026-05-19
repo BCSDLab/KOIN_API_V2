@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.Deprecation;
+import in.koreatech.koin.mcp.McpConstants;
 import in.koreatech.koin.mcp.dto.endpoint.EndpointCandidate;
 import in.koreatech.koin.mcp.exception.EndpointSpecException;
 import in.koreatech.koin.mcp.model.DeprecatedFilter;
@@ -35,7 +36,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 
 @Component
-@ConditionalOnProperty(name = "spring.ai.mcp.server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = McpConstants.SERVER_ENABLED_PROPERTY, havingValue = "true")
 public class EndpointCatalog {
 
     private static final String ROOT_PACKAGE = "in.koreatech.koin";

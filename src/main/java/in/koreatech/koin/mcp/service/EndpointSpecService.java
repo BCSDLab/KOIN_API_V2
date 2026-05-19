@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.global.code.Deprecation;
+import in.koreatech.koin.mcp.McpConstants;
 import in.koreatech.koin.mcp.dto.endpoint.EndpointDescription;
 import in.koreatech.koin.mcp.dto.endpoint.EndpointSummary;
 import in.koreatech.koin.mcp.dto.endpoint.FindEndpointsResponse;
@@ -31,7 +32,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
 @Service
-@ConditionalOnProperty(name = "spring.ai.mcp.server.enabled", havingValue = "true")
+@ConditionalOnProperty(name = McpConstants.SERVER_ENABLED_PROPERTY, havingValue = "true")
 public class EndpointSpecService {
 
     private static final String APPLICATION_JSON = "application/json";
