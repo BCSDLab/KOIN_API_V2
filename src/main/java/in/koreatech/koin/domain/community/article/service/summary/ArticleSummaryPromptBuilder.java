@@ -11,7 +11,7 @@ public class ArticleSummaryPromptBuilder {
 
     private static final int MAX_SOURCE_LENGTH = 16_000;
     private static final int MAX_PREVIOUS_RESULT_ITEMS = 10;
-    private static final int MAX_PREVIOUS_ITEM_TEXT_LENGTH = 120;
+    private static final int MAX_PREVIOUS_ITEM_TEXT_LENGTH = 200;
     private static final int INITIAL_CANDIDATE_MAX_ITEMS = 5;
     private static final int FINAL_SUMMARY_MAX_ITEMS = 3;
 
@@ -54,7 +54,7 @@ public class ArticleSummaryPromptBuilder {
             - "자세한 내용은 확인하세요", "첨부 문서 확인 필수"처럼 구체 정보가 없는 문장
 
             icon_key는 CALENDAR, TARGET, LOCATION, ACTION, MONEY, NOTICE, DOCUMENT, DEFAULT 중 하나만 사용하세요.
-            text에는 이모지를 넣지 말고, 한 항목 120자 이내의 개괄식 표현으로 작성하세요.
+            text에는 이모지를 넣지 말고, 한 항목 200자 이내의 개괄식 표현으로 작성하세요.
             문장형 안내보다 "신청 기간: 5월 20일까지, 18시 마감", "대상: 재학생, 직전학기 12학점 이상", "지원 방법: 신청서 작성 후 이메일 제출"처럼 핵심 라벨과 세부값을 함께 정리하세요.
             불필요한 종결어미(합니다, 됩니다, 바랍니다)는 줄이고, 마침표는 생략하세요.
             정보가 부족해 의미 있는 요약을 만들 수 없다면 items를 빈 배열로 반환하세요.
@@ -78,7 +78,7 @@ public class ArticleSummaryPromptBuilder {
             5. 원문과 첨부에 없는 정보는 추가하지 마세요.
 
             icon_key는 CALENDAR, TARGET, LOCATION, ACTION, MONEY, NOTICE, DOCUMENT, DEFAULT 중 하나만 사용하세요.
-            text에는 이모지를 넣지 말고, 한 항목 120자 이내의 개괄식 표현으로 작성하세요.
+            text에는 이모지를 넣지 말고, 한 항목 200자 이내의 개괄식 표현으로 작성하세요.
             반드시 최대 3개만 반환하고, 3개가 필요 없으면 1~2개만 반환하세요.
 
             [게시글]
@@ -104,7 +104,7 @@ public class ArticleSummaryPromptBuilder {
 
             수정 규칙:
             1. 항목은 반드시 최대 3개만 반환하세요.
-            2. 각 text는 120자 이내로 줄이되, 마감일/시간/대상/제출처/제출서류/금액 같은 핵심 세부값은 우선 보존하세요.
+            2. 각 text는 200자 이내로 줄이되, 마감일/시간/대상/제출처/제출서류/금액 같은 핵심 세부값은 우선 보존하세요.
             3. 원문과 첨부에 없는 날짜, 시간, 숫자, 장소, 금액은 절대 추가하지 마세요.
             4. 너무 긴 항목은 낮은 우선순위 수식어를 제거하거나, 같은 항목 안의 세부값을 짧게 압축하세요.
             5. "첨부 확인", "자세한 내용 확인"처럼 행동만 요구하는 문장으로 대체하지 마세요.

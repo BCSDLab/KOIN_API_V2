@@ -182,7 +182,7 @@ class ArticleAiSummaryWorkerTest {
         worker.process(1, "worker");
 
         verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
-        verify(articleAiSummaryService).skip(eq(1), eq("worker"), contains("120자"));
+        verify(articleAiSummaryService).skip(eq(1), eq("worker"), contains("200자"));
         verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
     }
@@ -232,7 +232,7 @@ class ArticleAiSummaryWorkerTest {
 
     private ArticleSummaryResult tooLongResult() {
         return new ArticleSummaryResult(List.of(
-            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(121))
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(201))
         ));
     }
 }
