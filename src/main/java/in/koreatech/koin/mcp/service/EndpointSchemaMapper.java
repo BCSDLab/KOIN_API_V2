@@ -1,6 +1,5 @@
 package in.koreatech.koin.mcp.service;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +31,6 @@ public class EndpointSchemaMapper {
     private static final int SCHEMA_MAX_DEPTH = 5;
     private static final String APPLICATION_JSON = "application/json";
     private static final String OBJECT_TYPE = "object";
-    private static final String TRUNCATED_EXTENSION = "x-truncated";
     private static final String STRING_TYPE = "string";
 
     public EndpointParameter toEndpointParameter(Parameter parameter, OpenAPI openAPI) {
@@ -41,7 +39,7 @@ public class EndpointSchemaMapper {
             resolvedParameter.getName(),
             Boolean.TRUE.equals(resolvedParameter.getRequired()),
             Objects.requireNonNullElse(resolvedParameter.getDescription(), ""),
-            toEndpointSchema(resolveSchema(resolvedParameter.getSchema(), openAPI))
+            toEndpointSchema(resolvedParameter.getSchema(), componentSchemas(openAPI), new HashSet<>(), 0)
         );
     }
 
@@ -73,7 +71,7 @@ public class EndpointSchemaMapper {
             .map(MediaType::getSchema)
             .filter(Objects::nonNull)
             .findFirst()
-            .map(schema -> toEndpointSchema(resolveSchema(schema, openAPI)))
+            .map(schema -> toEndpointSchema(schema, componentSchemas(openAPI), new HashSet<>(), 0))
             .orElse(null);
     }
 
@@ -83,12 +81,12 @@ public class EndpointSchemaMapper {
         if (resolvedSchema == null || resolvedSchema.schema == null) {
             return null;
         }
-        return toEndpointSchema(resolveRefs(
+        return toEndpointSchema(
             resolvedSchema.schema,
             resolvedSchema.referencedSchemas,
             new HashSet<>(),
             0
-        ));
+        );
     }
 
     private Parameter resolveParameter(Parameter parameter, OpenAPI openAPI) {
@@ -102,71 +100,14 @@ public class EndpointSchemaMapper {
         return openAPI.getComponents().getParameters().getOrDefault(name, parameter);
     }
 
-    private Schema<?> resolveSchema(Schema<?> schema, OpenAPI openAPI) {
-        if (openAPI.getComponents() == null) {
-            return schema;
+    private Map<String, ?> componentSchemas(OpenAPI openAPI) {
+        if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
+            return Map.of();
         }
-        return resolveRefs(schema, openAPI.getComponents().getSchemas(), new HashSet<>(), 0);
+        return openAPI.getComponents().getSchemas();
     }
 
-    private EndpointSchema toEndpointSchema(Schema<?> schema) {
-        if (schema == null) {
-            return null;
-        }
-
-        Map<String, EndpointSchema> properties = null;
-        if (schema.getProperties() != null && !schema.getProperties().isEmpty()) {
-            Map<String, EndpointSchema> convertedProperties = new LinkedHashMap<>();
-            schema.getProperties().forEach((name, property) ->
-                convertedProperties.put(name, toEndpointSchema(property)));
-            properties = convertedProperties;
-        }
-
-        EndpointSchema additionalProperties = null;
-        if (schema.getAdditionalProperties() instanceof Schema<?> additionalPropertySchema) {
-            additionalProperties = toEndpointSchema(additionalPropertySchema);
-        }
-
-        return new EndpointSchema(
-            schema.getType(),
-            schema.getFormat(),
-            schema.getDescription(),
-            schema.getExample(),
-            schema.getNullable(),
-            schema.getDeprecated(),
-            schema.getRequired(),
-            schema.getEnum(),
-            properties,
-            toEndpointSchema(schema.getItems()),
-            additionalProperties,
-            toEndpointSchemaList(schema.getAllOf()),
-            toEndpointSchemaList(schema.getOneOf()),
-            toEndpointSchemaList(schema.getAnyOf()),
-            schema.get$ref(),
-            isTruncated(schema) ? true : null
-        );
-    }
-
-    private List<EndpointSchema> toEndpointSchemaList(List<?> schemas) {
-        if (schemas == null || schemas.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return schemas.stream()
-            .filter(Schema.class::isInstance)
-            .map(Schema.class::cast)
-            .map(this::toEndpointSchema)
-            .toList();
-    }
-
-    private boolean isTruncated(Schema<?> schema) {
-        if (schema.getExtensions() == null) {
-            return false;
-        }
-        Object truncated = schema.getExtensions().get(TRUNCATED_EXTENSION);
-        return Boolean.TRUE.equals(truncated);
-    }
-
-    private Schema<?> resolveRefs(
+    private EndpointSchema toEndpointSchema(
         Schema<?> schema,
         Map<String, ?> referencedSchemas,
         Set<String> resolvingRefs,
@@ -184,11 +125,64 @@ public class EndpointSchemaMapper {
             return resolveRef(ref, referencedSchemas, resolvingRefs, depth);
         }
 
-        resolveChildSchemas(schema, referencedSchemas, resolvingRefs, depth);
-        return schema;
+        Map<String, EndpointSchema> properties = null;
+        if (schema.getProperties() != null && !schema.getProperties().isEmpty()) {
+            Map<String, EndpointSchema> convertedProperties = new LinkedHashMap<>();
+            schema.getProperties().forEach((name, property) ->
+                convertedProperties.put(
+                    name,
+                    toEndpointSchema(property, referencedSchemas, resolvingRefs, depth + 1)
+                ));
+            properties = convertedProperties;
+        }
+
+        EndpointSchema additionalProperties = null;
+        if (schema.getAdditionalProperties() instanceof Schema<?> additionalPropertySchema) {
+            additionalProperties = toEndpointSchema(
+                additionalPropertySchema,
+                referencedSchemas,
+                resolvingRefs,
+                depth + 1
+            );
+        }
+
+        return new EndpointSchema(
+            schema.getType(),
+            schema.getFormat(),
+            schema.getDescription(),
+            schema.getExample(),
+            schema.getNullable(),
+            schema.getDeprecated(),
+            schema.getRequired(),
+            schema.getEnum(),
+            properties,
+            toEndpointSchema(schema.getItems(), referencedSchemas, resolvingRefs, depth + 1),
+            additionalProperties,
+            toEndpointSchemaList(schema.getAllOf(), referencedSchemas, resolvingRefs, depth + 1),
+            toEndpointSchemaList(schema.getOneOf(), referencedSchemas, resolvingRefs, depth + 1),
+            toEndpointSchemaList(schema.getAnyOf(), referencedSchemas, resolvingRefs, depth + 1),
+            schema.get$ref(),
+            null
+        );
     }
 
-    private Schema<?> resolveRef(
+    private List<EndpointSchema> toEndpointSchemaList(
+        List<?> schemas,
+        Map<String, ?> referencedSchemas,
+        Set<String> resolvingRefs,
+        int depth
+    ) {
+        if (schemas == null || schemas.isEmpty()) {
+            return List.of();
+        }
+        return schemas.stream()
+            .filter(Schema.class::isInstance)
+            .map(Schema.class::cast)
+            .map(schema -> toEndpointSchema(schema, referencedSchemas, resolvingRefs, depth))
+            .toList();
+    }
+
+    private EndpointSchema resolveRef(
         String ref,
         Map<String, ?> referencedSchemas,
         Set<String> resolvingRefs,
@@ -199,67 +193,118 @@ public class EndpointSchemaMapper {
             return fallbackSchema(refName);
         }
         if (!resolvingRefs.add(refName)) {
-            Schema<?> truncatedSchema = fallbackSchema(refName);
-            truncatedSchema.addExtension(TRUNCATED_EXTENSION, true);
-            return truncatedSchema;
+            return truncatedSchema(fallbackSchema(refName));
         }
         Object referencedSchema = referencedSchemas.get(refName);
-        Schema<?> resolved = referencedSchema == null
-            ? fallbackSchema(refName)
-            : resolveRefs((Schema<?>)referencedSchema, referencedSchemas, resolvingRefs, depth + 1);
-        resolvingRefs.remove(refName);
-        return resolved;
-    }
-
-    private void resolveChildSchemas(
-        Schema<?> schema,
-        Map<String, ?> referencedSchemas,
-        Set<String> resolvingRefs,
-        int depth
-    ) {
-        if (schema.getProperties() != null) {
-            schema.getProperties().replaceAll((name, property) ->
-                resolveRefs(property, referencedSchemas, resolvingRefs, depth + 1));
-        }
-        if (schema.getItems() != null) {
-            schema.setItems(resolveRefs(schema.getItems(), referencedSchemas, resolvingRefs, depth + 1));
-        }
-        if (schema.getAdditionalProperties() instanceof Schema<?> additionalProperties) {
-            schema.setAdditionalProperties(
-                resolveRefs(additionalProperties, referencedSchemas, resolvingRefs, depth + 1));
+        try {
+            if (referencedSchema instanceof Schema<?> schema) {
+                return toEndpointSchema(schema, referencedSchemas, resolvingRefs, depth + 1);
+            }
+            return fallbackSchema(refName);
+        } finally {
+            resolvingRefs.remove(refName);
         }
     }
 
-    private Schema<?> truncatedSchema(Schema<?> schema) {
+    private EndpointSchema truncatedSchema(Schema<?> schema) {
         String ref = schema.get$ref();
         if (ref != null && !ref.isBlank()) {
-            Schema<?> fallback = fallbackSchema(ref.substring(ref.lastIndexOf('/') + 1));
-            fallback.addExtension(TRUNCATED_EXTENSION, true);
-            return fallback;
+            return truncatedSchema(fallbackSchema(ref.substring(ref.lastIndexOf('/') + 1)));
         }
-        Schema<?> truncated = new Schema<>()
-            .type(schema.getType() == null ? OBJECT_TYPE : schema.getType())
-            .format(schema.getFormat())
-            .description(schema.getDescription());
-        truncated.addExtension(TRUNCATED_EXTENSION, true);
-        return truncated;
+        return new EndpointSchema(
+            schema.getType() == null ? OBJECT_TYPE : schema.getType(),
+            schema.getFormat(),
+            schema.getDescription(),
+            schema.getExample(),
+            schema.getNullable(),
+            schema.getDeprecated(),
+            schema.getRequired(),
+            schema.getEnum(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true
+        );
     }
 
-    private Schema<?> fallbackSchema(String refName) {
+    private EndpointSchema truncatedSchema(EndpointSchema schema) {
+        return new EndpointSchema(
+            schema.type(),
+            schema.format(),
+            schema.description(),
+            schema.example(),
+            schema.nullable(),
+            schema.deprecated(),
+            schema.required(),
+            schema.enumValues(),
+            schema.properties(),
+            schema.items(),
+            schema.additionalProperties(),
+            schema.allOf(),
+            schema.oneOf(),
+            schema.anyOf(),
+            schema.ref(),
+            true
+        );
+    }
+
+    private EndpointSchema fallbackSchema(String refName) {
         if (refName.endsWith("LocalTime")) {
-            return new Schema<>().type(STRING_TYPE).format("time");
+            return scalarSchema("time");
         }
         if (refName.endsWith("LocalDate")) {
-            return new Schema<>().type(STRING_TYPE).format("date");
+            return scalarSchema("date");
         }
         if (refName.endsWith("LocalDateTime")
             || refName.endsWith("OffsetDateTime")
             || refName.endsWith("ZonedDateTime")) {
-            return new Schema<>().type(STRING_TYPE).format("date-time");
+            return scalarSchema("date-time");
         }
         if (refName.endsWith("UUID")) {
-            return new Schema<>().type(STRING_TYPE).format("uuid");
+            return scalarSchema("uuid");
         }
-        return new Schema<>().type(OBJECT_TYPE).description("Unresolved schema: " + refName);
+        return new EndpointSchema(
+            OBJECT_TYPE,
+            null,
+            "Unresolved schema: " + refName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+    }
+
+    private EndpointSchema scalarSchema(String format) {
+        return new EndpointSchema(
+            STRING_TYPE,
+            format,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
     }
 }

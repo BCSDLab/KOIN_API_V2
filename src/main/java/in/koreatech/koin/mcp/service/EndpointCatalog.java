@@ -3,6 +3,7 @@ package in.koreatech.koin.mcp.service;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,6 +46,7 @@ public class EndpointCatalog {
     private final List<GroupedOpenApi> groupedOpenApis;
     private final McpOpenApiProvider openApiProvider;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private volatile List<EndpointEntry> cachedEntries;
 
     public EndpointCatalog(
         @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlerMapping,
@@ -109,7 +111,23 @@ public class EndpointCatalog {
     }
 
     private List<EndpointEntry> entries() {
+        List<EndpointEntry> entries = cachedEntries;
+        if (entries == null) {
+            synchronized (this) {
+                entries = cachedEntries;
+                if (entries == null) {
+                    entries = loadEntries();
+                    cachedEntries = entries;
+                }
+            }
+        }
+        return entries;
+    }
+
+    private List<EndpointEntry> loadEntries() {
         List<EndpointEntry> entries = new ArrayList<>();
+        Map<String, OpenAPI> openApis = new LinkedHashMap<>();
+        Set<String> unavailableGroups = new HashSet<>();
         handlerMapping.getHandlerMethods().forEach((info, handlerMethod) -> {
             if (!handlerMethod.getBeanType().getPackageName().startsWith(ROOT_PACKAGE)) {
                 return;
@@ -120,7 +138,7 @@ public class EndpointCatalog {
             for (String path : paths(info)) {
                 for (String group : groupsOf(handlerMethod.getBeanType(), path)) {
                     for (String method : methods(info)) {
-                        Operation operation = openApiOperation(group, method, path);
+                        Operation operation = openApiOperation(openApis, unavailableGroups, group, method, path);
                         entries.add(new EndpointEntry(
                             group,
                             method,
@@ -129,28 +147,68 @@ public class EndpointCatalog {
                             operation,
                             operationTags(operation, handlerMethod.getBeanType(), docsMethod),
                             deprecation,
-                            operation != null && Boolean.TRUE.equals(operation.getDeprecated()) || deprecation != null,
+                            deprecated(operation, deprecation),
                             authRequired(docsMethod, operation)
                         ));
                     }
                 }
             }
         });
-        return entries;
+        return List.copyOf(entries);
     }
 
-    private Operation openApiOperation(String group, String method, String path) {
-        OpenAPI openAPI;
-        try {
-            openAPI = openApiProvider.getOpenApi(group);
-        } catch (EndpointSpecException ignored) {
+    private Operation openApiOperation(
+        Map<String, OpenAPI> openApis,
+        Set<String> unavailableGroups,
+        String group,
+        String method,
+        String path
+    ) {
+        OpenAPI openAPI = openApi(openApis, unavailableGroups, group);
+        if (openAPI == null || openAPI.getPaths() == null) {
             return null;
         }
         PathItem pathItem = openAPI.getPaths().get(path);
         if (pathItem == null) {
             return null;
         }
-        return pathItem.readOperationsMap().get(PathItem.HttpMethod.valueOf(method));
+        PathItem.HttpMethod httpMethod = httpMethod(method);
+        if (httpMethod == null) {
+            return null;
+        }
+        return pathItem.readOperationsMap().get(httpMethod);
+    }
+
+    private OpenAPI openApi(Map<String, OpenAPI> openApis, Set<String> unavailableGroups, String group) {
+        if (unavailableGroups.contains(group)) {
+            return null;
+        }
+        if (openApis.containsKey(group)) {
+            return openApis.get(group);
+        }
+        try {
+            OpenAPI openAPI = openApiProvider.getOpenApi(group);
+            openApis.put(group, openAPI);
+            return openAPI;
+        } catch (EndpointSpecException ignored) {
+            unavailableGroups.add(group);
+            return null;
+        }
+    }
+
+    private PathItem.HttpMethod httpMethod(String method) {
+        try {
+            return PathItem.HttpMethod.valueOf(method);
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
+    }
+
+    private boolean deprecated(Operation operation, Deprecation deprecation) {
+        if (deprecation != null) {
+            return true;
+        }
+        return operation != null && Boolean.TRUE.equals(operation.getDeprecated());
     }
 
     private Method findDocsMethod(HandlerMethod handlerMethod) {

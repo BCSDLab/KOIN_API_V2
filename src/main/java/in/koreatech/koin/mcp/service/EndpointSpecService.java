@@ -79,9 +79,7 @@ public class EndpointSpecService {
             entry.tags(),
             entry.deprecated(),
             deprecation == null ? null : deprecation.reason(),
-            deprecation == null || deprecation.replacedByMethod().isBlank() && deprecation.replacedByPath().isBlank()
-                ? null
-                : new ReplacedBy(deprecation.replacedByMethod(), deprecation.replacedByPath()),
+            replacedBy(deprecation),
             entry.authRequired()
         );
     }
@@ -154,11 +152,35 @@ public class EndpointSpecService {
         if (pathItem == null) {
             throw new EndpointSpecException("OPENAPI_PATH_NOT_FOUND", "No OpenAPI path found.");
         }
-        Operation operation = pathItem.readOperationsMap().get(PathItem.HttpMethod.valueOf(entry.method()));
+        PathItem.HttpMethod httpMethod = httpMethod(entry.method());
+        if (httpMethod == null) {
+            throw new EndpointSpecException("UNSUPPORTED_HTTP_METHOD", "Unsupported HTTP method.");
+        }
+        Operation operation = pathItem.readOperationsMap().get(httpMethod);
         if (operation == null) {
             throw new EndpointSpecException("OPENAPI_OPERATION_NOT_FOUND", "No OpenAPI operation found.");
         }
         return operation;
+    }
+
+    private ReplacedBy replacedBy(Deprecation deprecation) {
+        if (!hasReplacement(deprecation)) {
+            return null;
+        }
+        return new ReplacedBy(deprecation.replacedByMethod(), deprecation.replacedByPath());
+    }
+
+    private boolean hasReplacement(Deprecation deprecation) {
+        return deprecation != null
+            && (!deprecation.replacedByMethod().isBlank() || !deprecation.replacedByPath().isBlank());
+    }
+
+    private PathItem.HttpMethod httpMethod(String method) {
+        try {
+            return PathItem.HttpMethod.valueOf(method);
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
     }
 
     private List<String> responseContentTypes(Content content, String responseStatus) {
