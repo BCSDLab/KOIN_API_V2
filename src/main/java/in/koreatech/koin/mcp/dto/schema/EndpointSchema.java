@@ -1,4 +1,4 @@
-package in.koreatech.koin.mcp.dto;
+package in.koreatech.koin.mcp.dto.schema;
 
 import java.util.List;
 import java.util.Map;

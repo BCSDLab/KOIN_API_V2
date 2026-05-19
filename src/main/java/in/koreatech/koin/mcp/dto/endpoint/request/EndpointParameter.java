@@ -1,4 +1,6 @@
-package in.koreatech.koin.mcp.dto;
+package in.koreatech.koin.mcp.dto.endpoint.request;
+
+import in.koreatech.koin.mcp.dto.schema.EndpointSchema;
 
 public record EndpointParameter(
     String name,

@@ -1,4 +1,4 @@
-package in.koreatech.koin.mcp.dto;
+package in.koreatech.koin.mcp.dto.endpoint;
 
 import java.util.List;
 
@@ -11,10 +11,8 @@ public record EndpointDescription(
     String description,
     List<String> tags,
     boolean deprecated,
-    String deprecatedSince,
     String deprecatedReason,
     ReplacedBy replacedBy,
-    boolean forRemoval,
     boolean authRequired
 ) {
 }

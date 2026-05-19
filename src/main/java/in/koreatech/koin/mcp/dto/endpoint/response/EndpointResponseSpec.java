@@ -1,4 +1,4 @@
-package in.koreatech.koin.mcp.dto;
+package in.koreatech.koin.mcp.dto.endpoint.response;
 
 import java.util.List;
 

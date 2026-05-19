@@ -26,23 +26,25 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.code.ApiResponseCodes;
 import in.koreatech.koin.global.code.Deprecation;
-import in.koreatech.koin.mcp.dto.EndpointDescription;
-import in.koreatech.koin.mcp.dto.EndpointParameter;
-import in.koreatech.koin.mcp.dto.EndpointParameters;
-import in.koreatech.koin.mcp.dto.EndpointRequestSpec;
-import in.koreatech.koin.mcp.dto.EndpointResponse;
-import in.koreatech.koin.mcp.dto.EndpointResponseSpec;
-import in.koreatech.koin.mcp.dto.EndpointSchema;
-import in.koreatech.koin.mcp.dto.EndpointSummary;
-import in.koreatech.koin.mcp.dto.FindEndpointsResponse;
-import in.koreatech.koin.mcp.dto.ReplacedBy;
-import in.koreatech.koin.mcp.dto.RequestBodySpec;
+import in.koreatech.koin.global.exception.ErrorResponse;
+import in.koreatech.koin.mcp.dto.endpoint.EndpointCandidate;
+import in.koreatech.koin.mcp.dto.endpoint.EndpointDescription;
+import in.koreatech.koin.mcp.dto.endpoint.EndpointSummary;
+import in.koreatech.koin.mcp.dto.endpoint.FindEndpointsResponse;
+import in.koreatech.koin.mcp.dto.endpoint.ReplacedBy;
+import in.koreatech.koin.mcp.dto.endpoint.request.EndpointParameter;
+import in.koreatech.koin.mcp.dto.endpoint.request.EndpointParameters;
+import in.koreatech.koin.mcp.dto.endpoint.request.EndpointRequestSpec;
+import in.koreatech.koin.mcp.dto.endpoint.request.RequestBodySpec;
+import in.koreatech.koin.mcp.dto.endpoint.response.EndpointResponse;
+import in.koreatech.koin.mcp.dto.endpoint.response.EndpointResponseSpec;
+import in.koreatech.koin.mcp.dto.schema.EndpointSchema;
 import in.koreatech.koin.mcp.exception.EndpointSpecException;
 import in.koreatech.koin.mcp.model.DeprecatedFilter;
 import in.koreatech.koin.mcp.model.EndpointEntry;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -61,6 +63,7 @@ public class EndpointSpecService {
 
     private static final String ROOT_PACKAGE = "in.koreatech.koin";
     private static final int SCHEMA_MAX_DEPTH = 5;
+    private static final String APPLICATION_JSON = "application/json";
 
     private final RequestMappingHandlerMapping handlerMapping;
     private final List<GroupedOpenApi> groupedOpenApis;
@@ -103,7 +106,7 @@ public class EndpointSpecService {
         Deprecation deprecation = entry.deprecation();
 
         return new EndpointDescription(
-            entry.group(),
+            displayGroup(entry.group()),
             entry.method(),
             entry.path(),
             operationId(operation),
@@ -111,12 +114,10 @@ public class EndpointSpecService {
             operation == null ? "" : nullToEmpty(operation.getDescription()),
             entry.tags(),
             entry.deprecated(),
-            deprecation == null ? "" : deprecation.since(),
-            deprecation == null ? "" : deprecation.reason(),
+            deprecation == null ? null : deprecation.reason(),
             deprecation == null || deprecation.replacedByMethod().isBlank() && deprecation.replacedByPath().isBlank()
                 ? null
                 : new ReplacedBy(deprecation.replacedByMethod(), deprecation.replacedByPath()),
-            deprecation != null && deprecation.forRemoval(),
             entry.authRequired()
         );
     }
@@ -139,7 +140,7 @@ public class EndpointSpecService {
         }
 
         return new EndpointRequestSpec(
-            entry.group(),
+            displayGroup(entry.group()),
             entry.method(),
             entry.path(),
             new EndpointParameters(pathParameters, queryParameters, headerParameters),
@@ -153,11 +154,11 @@ public class EndpointSpecService {
         Operation operation = openApiOperation(openAPI, entry);
 
         return new EndpointResponseSpec(
-            entry.group(),
+            displayGroup(entry.group()),
             entry.method(),
             entry.path(),
             nullToEmpty(operation.getResponses()).entrySet().stream()
-                .map(response -> toEndpointResponse(response.getKey(), response.getValue(), openAPI, entry.docsMethod()))
+                .map(response -> toEndpointResponse(response.getKey(), response.getValue(), openAPI))
                 .toList()
         );
     }
@@ -165,15 +166,12 @@ public class EndpointSpecService {
     private EndpointResponse toEndpointResponse(
         String status,
         ApiResponse apiResponse,
-        OpenAPI openAPI,
-        Method method
+        OpenAPI openAPI
     ) {
         String responseStatus = responseStatus(status);
-        String responseCode = responseCode(status, method);
         if ("204".equals(responseStatus)) {
             return new EndpointResponse(
                 responseStatus,
-                responseCode,
                 nullToEmpty(apiResponse.getDescription()),
                 List.of(),
                 null
@@ -181,10 +179,9 @@ public class EndpointSpecService {
         }
         return new EndpointResponse(
             responseStatus,
-            responseCode,
             nullToEmpty(apiResponse.getDescription()),
-            contentTypes(apiResponse.getContent()),
-            firstContentSchema(apiResponse.getContent(), openAPI)
+            responseContentTypes(apiResponse.getContent(), responseStatus),
+            responseSchema(apiResponse.getContent(), openAPI, responseStatus)
         );
     }
 
@@ -193,26 +190,24 @@ public class EndpointSpecService {
         return lastSpace == -1 ? status : status.substring(lastSpace + 1);
     }
 
-    private String responseCode(String status, Method method) {
-        ApiResponseCodes apiResponseCodes = AnnotatedElementUtils.findMergedAnnotation(method, ApiResponseCodes.class);
-        int responseIndex = responseIndex(status);
-        if (apiResponseCodes == null || responseIndex < 0 || responseIndex >= apiResponseCodes.value().length) {
-            return null;
+    private List<String> responseContentTypes(Content content, String responseStatus) {
+        List<String> contentTypes = contentTypes(content);
+        if (contentTypes.isEmpty() && isErrorStatus(responseStatus)) {
+            return List.of(APPLICATION_JSON);
         }
-        ApiResponseCode apiResponseCode = apiResponseCodes.value()[responseIndex];
-        return apiResponseCode.getCode();
+        return contentTypes;
     }
 
-    private int responseIndex(String status) {
-        int delimiterIndex = status.indexOf(')');
-        if (delimiterIndex == -1) {
-            return -1;
+    private EndpointSchema responseSchema(Content content, OpenAPI openAPI, String responseStatus) {
+        EndpointSchema schema = firstContentSchema(content, openAPI);
+        if (schema == null && isErrorStatus(responseStatus)) {
+            return errorResponseSchema();
         }
-        try {
-            return Integer.parseInt(status.substring(0, delimiterIndex)) - 1;
-        } catch (NumberFormatException ignored) {
-            return -1;
-        }
+        return schema;
+    }
+
+    private boolean isErrorStatus(String status) {
+        return !status.isBlank() && status.charAt(0) != '2';
     }
 
     private EndpointParameter toEndpointParameter(Parameter parameter, OpenAPI openAPI) {
@@ -237,7 +232,12 @@ public class EndpointSpecService {
     }
 
     private List<String> contentTypes(Content content) {
-        return content == null ? List.of() : List.copyOf(content.keySet());
+        if (content == null) {
+            return List.of();
+        }
+        return content.keySet().stream()
+            .map(contentType -> "*/*".equals(contentType) ? APPLICATION_JSON : contentType)
+            .toList();
     }
 
     private EndpointSchema firstContentSchema(Content content, OpenAPI openAPI) {
@@ -299,7 +299,7 @@ public class EndpointSpecService {
     private EndpointSummary toSummary(EndpointEntry entry) {
         Operation operation = entry.operation();
         return new EndpointSummary(
-            entry.group(),
+            displayGroup(entry.group()),
             entry.method(),
             entry.path(),
             operationId(operation),
@@ -328,12 +328,37 @@ public class EndpointSpecService {
             .toList();
 
         if (matches.isEmpty()) {
-            throw new EndpointSpecException("ENDPOINT_NOT_FOUND", "No endpoint found.");
+            throw new EndpointSpecException(
+                "ENDPOINT_NOT_FOUND",
+                "No endpoint found.",
+                endpointDetails(group, normalizedMethod, path)
+            );
         }
         if (matches.size() > 1) {
-            throw new EndpointSpecException("AMBIGUOUS_ENDPOINT", "Multiple endpoints found. Please specify group.");
+            throw new EndpointSpecException(
+                "AMBIGUOUS_ENDPOINT",
+                "Multiple endpoints found. Please specify group.",
+                Map.of(),
+                matches.stream()
+                    .map(this::toCandidate)
+                    .toList()
+            );
         }
         return matches.get(0);
+    }
+
+    private Map<String, String> endpointDetails(String group, String method, String path) {
+        Map<String, String> details = new LinkedHashMap<>();
+        if (group != null && !group.isBlank()) {
+            details.put("group", displayGroup(group));
+        }
+        details.put("method", method);
+        details.put("path", path);
+        return details;
+    }
+
+    private EndpointCandidate toCandidate(EndpointEntry entry) {
+        return new EndpointCandidate(displayGroup(entry.group()), entry.method(), entry.path());
     }
 
     private boolean matchesQuery(EndpointEntry entry, String query) {
@@ -514,6 +539,10 @@ public class EndpointSpecService {
             || actualGroup.equalsIgnoreCase(requestedGroup);
     }
 
+    private String displayGroup(String group) {
+        return normalizeGroup(group);
+    }
+
     private EndpointSchema toEndpointSchema(Schema<?> schema) {
         if (schema == null) {
             return null;
@@ -569,28 +598,33 @@ public class EndpointSpecService {
         return Boolean.TRUE.equals(truncated) ? true : null;
     }
 
-    @SuppressWarnings({"rawtypes"})
     private Schema<?> resolveRefs(
         Schema<?> schema,
         Map<String, Schema> referencedSchemas,
         Set<String> resolvingRefs,
         int depth
     ) {
-        if (schema == null || depth > SCHEMA_MAX_DEPTH) {
+        if (schema == null) {
             return schema;
+        }
+        if (depth > SCHEMA_MAX_DEPTH) {
+            return truncatedSchema(schema);
         }
 
         String ref = schema.get$ref();
-        if (ref != null && !ref.isBlank() && referencedSchemas != null) {
+        if (ref != null && !ref.isBlank()) {
             String refName = ref.substring(ref.lastIndexOf('/') + 1);
+            if (referencedSchemas == null) {
+                return fallbackSchema(refName);
+            }
             if (!resolvingRefs.add(refName)) {
-                Schema<?> truncatedSchema = new Schema<>().$ref(ref);
+                Schema<?> truncatedSchema = fallbackSchema(refName);
                 truncatedSchema.addExtension("x-truncated", true);
                 return truncatedSchema;
             }
             Schema<?> referencedSchema = referencedSchemas.get(refName);
             Schema<?> resolved = referencedSchema == null
-                ? schema
+                ? fallbackSchema(refName)
                 : resolveRefs(referencedSchema, referencedSchemas, resolvingRefs, depth + 1);
             resolvingRefs.remove(refName);
             return resolved;
@@ -613,6 +647,21 @@ public class EndpointSpecService {
         return schema;
     }
 
+    private Schema<?> truncatedSchema(Schema<?> schema) {
+        String ref = schema.get$ref();
+        if (ref != null && !ref.isBlank()) {
+            Schema<?> fallback = fallbackSchema(ref.substring(ref.lastIndexOf('/') + 1));
+            fallback.addExtension("x-truncated", true);
+            return fallback;
+        }
+        Schema<?> truncated = new Schema<>()
+            .type(schema.getType() == null ? "object" : schema.getType())
+            .format(schema.getFormat())
+            .description(schema.getDescription());
+        truncated.addExtension("x-truncated", true);
+        return truncated;
+    }
+
     private List<Schema> resolveSchemaList(
         List<Schema> schemas,
         Map<String, Schema> referencedSchemas,
@@ -625,6 +674,38 @@ public class EndpointSpecService {
         return schemas.stream()
             .map(schema -> (Schema)resolveRefs(schema, referencedSchemas, resolvingRefs, depth + 1))
             .toList();
+    }
+
+    private EndpointSchema errorResponseSchema() {
+        ResolvedSchema resolvedSchema = ModelConverters.getInstance()
+            .readAllAsResolvedSchema(ErrorResponse.class);
+        if (resolvedSchema == null || resolvedSchema.schema == null) {
+            return null;
+        }
+        return toEndpointSchema(resolveRefs(
+            resolvedSchema.schema,
+            resolvedSchema.referencedSchemas,
+            new HashSet<>(),
+            0
+        ));
+    }
+
+    private Schema<?> fallbackSchema(String refName) {
+        if (refName.endsWith("LocalTime")) {
+            return new Schema<>().type("string").format("time");
+        }
+        if (refName.endsWith("LocalDate")) {
+            return new Schema<>().type("string").format("date");
+        }
+        if (refName.endsWith("LocalDateTime")
+            || refName.endsWith("OffsetDateTime")
+            || refName.endsWith("ZonedDateTime")) {
+            return new Schema<>().type("string").format("date-time");
+        }
+        if (refName.endsWith("UUID")) {
+            return new Schema<>().type("string").format("uuid");
+        }
+        return new Schema<>().type("object").description("Unresolved schema: " + refName);
     }
 
     private String operationId(Operation operation) {
