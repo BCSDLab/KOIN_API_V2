@@ -67,7 +67,7 @@ public class ArticleSummaryPromptBuilder {
 
     public ArticleSummaryPrompt buildRefinement(ArticleSummaryPrompt originalPrompt, ArticleSummaryResult previousResult) {
         String userMessage = """
-            이전 요약 응답이 허용 개수보다 많았습니다.
+            이전 요약 응답을 최종 노출 규칙에 맞게 다시 작성해야 합니다.
             아래 게시글과 이전 후보 요약을 다시 비교해 학생이 반드시 알아야 할 핵심만 1~3개로 재선별하세요.
 
             재선별 기준:

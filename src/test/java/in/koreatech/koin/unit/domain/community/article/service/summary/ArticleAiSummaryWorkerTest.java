@@ -120,6 +120,31 @@ class ArticleAiSummaryWorkerTest {
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
     }
 
+    @Test
+    void 최종_검증에_실패하면_한_번_더_재작성해_저장한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = source();
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+        when(articleSummaryAiClient.summarize(any(ArticleSummaryPrompt.class)))
+            .thenReturn(tooLongResult(), refinedResult());
+
+        worker.process(1, "worker");
+
+        verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
+        verify(articleAiSummaryService).completeSuccess(
+            eq(1),
+            eq("worker"),
+            eq(source),
+            eq(List.of(
+                "📅 신청 기간: 5월 20일까지",
+                "🎯 대상: 재학생",
+                "💰 혜택: 50만원 지급"
+            ))
+        );
+        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
+    }
+
     private ArticleSummarySourceSeed sourceSeed() {
         return new ArticleSummarySourceSeed(
             1,
@@ -159,6 +184,12 @@ class ArticleAiSummaryWorkerTest {
             new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "신청 기간: 5월 20일까지"),
             new ArticleSummaryItem(ArticleSummaryIcon.TARGET, "대상: 재학생"),
             new ArticleSummaryItem(ArticleSummaryIcon.MONEY, "혜택: 50만원 지급")
+        ));
+    }
+
+    private ArticleSummaryResult tooLongResult() {
+        return new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(101))
         ));
     }
 }

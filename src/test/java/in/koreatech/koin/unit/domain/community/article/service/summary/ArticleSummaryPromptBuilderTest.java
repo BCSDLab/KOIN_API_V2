@@ -88,6 +88,7 @@ class ArticleSummaryPromptBuilderTest {
         ArticleSummaryPrompt refinementPrompt = promptBuilder.buildRefinement(originalPrompt, previousResult);
 
         assertThat(refinementPrompt.maxItems()).isEqualTo(3);
+        assertThat(refinementPrompt.userMessage()).contains("최종 노출 규칙");
         assertThat(refinementPrompt.userMessage()).contains("반드시 최대 3개만 반환");
         assertThat(refinementPrompt.userMessage()).contains("세부값을 최대한 남기세요");
         assertThat(refinementPrompt.userMessage()).contains("한 항목 100자 이내");
