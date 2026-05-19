@@ -58,7 +58,14 @@ public class ArticleAiSummaryWorker {
             articleAiSummaryService.skip(summaryId, workerId, "요약 항목 재선별 후에도 최대 3개를 초과했습니다.");
             return;
         }
-        List<String> summaryLines = validateOrCorrect(result, prompt);
+        List<String> summaryLines;
+        try {
+            summaryLines = validateOrCorrect(result, prompt);
+        } catch (ArticleSummaryValidationException e) {
+            log.warn("게시글 AI 요약이 최종 검증을 통과하지 못해 스킵합니다. summaryId: {}, reason: {}", summaryId, e.getMessage());
+            articleAiSummaryService.skip(summaryId, workerId, e.getMessage());
+            return;
+        }
         articleAiSummaryService.completeSuccess(summaryId, workerId, source, summaryLines);
     }
 

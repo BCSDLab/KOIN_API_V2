@@ -170,6 +170,23 @@ class ArticleAiSummaryWorkerTest {
         verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
     }
 
+    @Test
+    void 검증_재작성_후에도_실패하면_재시도하지_않고_스킵한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = source();
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+        when(articleSummaryAiClient.summarize(any(ArticleSummaryPrompt.class)))
+            .thenReturn(tooLongResult(), tooLongResult());
+
+        worker.process(1, "worker");
+
+        verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
+        verify(articleAiSummaryService).skip(eq(1), eq("worker"), contains("120자"));
+        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
+        verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
+    }
+
 
     private ArticleSummarySourceSeed sourceSeed() {
         return new ArticleSummarySourceSeed(
