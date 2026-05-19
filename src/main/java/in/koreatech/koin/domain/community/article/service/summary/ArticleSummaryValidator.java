@@ -17,15 +17,20 @@ public class ArticleSummaryValidator {
     private static final int MAX_TEXT_LENGTH = 120;
     private static final Pattern CRITICAL_TOKEN_PATTERN = Pattern.compile(
         "(\\d{4}[./-]\\s*\\d{1,2}[./-]\\s*\\d{1,2})"
+            + "|(\\d{2}[./-]\\s*\\d{1,2}[./-]\\s*\\d{1,2})"
             + "|(\\d{1,2}\\s*월\\s*\\d{1,2}\\s*일)"
+            + "|(\\d{1,2}\\s*[./]\\s*\\d{1,2})"
             + "|(\\d{1,2}\\s*(?::\\s*\\d{1,2}|시(?:\\s*\\d{1,2}\\s*분)?))"
             + "|(\\d[\\d,]*\\s*(?:원|만원|명|개|학점))"
     );
     private static final Pattern DATE_PATTERN = Pattern.compile("^(\\d{4})[./-](\\d{1,2})[./-](\\d{1,2})$");
+    private static final Pattern SHORT_DATE_PATTERN = Pattern.compile("^(\\d{2})[./-](\\d{1,2})[./-](\\d{1,2})$");
     private static final Pattern MONTH_DAY_PATTERN = Pattern.compile("^(\\d{1,2})월(\\d{1,2})일$");
+    private static final Pattern NUMERIC_MONTH_DAY_PATTERN = Pattern.compile("^(\\d{1,2})[./](\\d{1,2})$");
     private static final Pattern COLON_TIME_PATTERN = Pattern.compile("^(\\d{1,2}):(\\d{1,2})$");
     private static final Pattern KOREAN_TIME_PATTERN = Pattern.compile("^(\\d{1,2})시(?:(\\d{1,2})분)?$");
     private static final Pattern NUMBER_UNIT_PATTERN = Pattern.compile("^(\\d+)(만원|원|명|개|학점)$");
+    private static final Pattern CANONICAL_DATE_PATTERN = Pattern.compile("^date:\\d{4}-(\\d{1,2})-(\\d{1,2})$");
 
     public List<String> validate(ArticleSummaryResult result, String sourceText) {
         if (result == null || result.items() == null || result.items().isEmpty()) {
@@ -101,6 +106,13 @@ public class ArticleSummaryValidator {
     private void addCriticalToken(Set<String> tokens, String rawToken) {
         String canonicalToken = normalizeCriticalToken(rawToken);
         tokens.add(canonicalToken);
+        Matcher canonicalDateMatcher = CANONICAL_DATE_PATTERN.matcher(canonicalToken);
+        if (canonicalDateMatcher.matches()) {
+            tokens.add("month-day:%d-%d".formatted(
+                Integer.parseInt(canonicalDateMatcher.group(1)),
+                Integer.parseInt(canonicalDateMatcher.group(2))
+            ));
+        }
         if (canonicalToken.matches("^time:\\d{1,2}:0$")) {
             tokens.add(canonicalToken.substring(0, canonicalToken.lastIndexOf(':')));
         }
@@ -116,11 +128,26 @@ public class ArticleSummaryValidator {
                 Integer.parseInt(dateMatcher.group(3))
             );
         }
+        Matcher shortDateMatcher = SHORT_DATE_PATTERN.matcher(value);
+        if (shortDateMatcher.matches()) {
+            return "date:%d-%d-%d".formatted(
+                2000 + Integer.parseInt(shortDateMatcher.group(1)),
+                Integer.parseInt(shortDateMatcher.group(2)),
+                Integer.parseInt(shortDateMatcher.group(3))
+            );
+        }
         Matcher monthDayMatcher = MONTH_DAY_PATTERN.matcher(value);
         if (monthDayMatcher.matches()) {
             return "month-day:%d-%d".formatted(
                 Integer.parseInt(monthDayMatcher.group(1)),
                 Integer.parseInt(monthDayMatcher.group(2))
+            );
+        }
+        Matcher numericMonthDayMatcher = NUMERIC_MONTH_DAY_PATTERN.matcher(value);
+        if (numericMonthDayMatcher.matches()) {
+            return "month-day:%d-%d".formatted(
+                Integer.parseInt(numericMonthDayMatcher.group(1)),
+                Integer.parseInt(numericMonthDayMatcher.group(2))
             );
         }
         Matcher colonTimeMatcher = COLON_TIME_PATTERN.matcher(value);

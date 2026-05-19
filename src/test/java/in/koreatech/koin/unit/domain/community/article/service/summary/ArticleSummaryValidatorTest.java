@@ -111,6 +111,28 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
+    void 축약_연도_날짜는_4자리_연도_표기와_같은_출처_정보로_인정한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "일정: 2024.09.26 GEC-DAY 진행")
+        ));
+
+        List<String> lines = validator.validate(result, "24.09.26(목) GEC-DAY 안내");
+
+        assertThat(lines).containsExactly("📅 일정: 2024.09.26 GEC-DAY 진행");
+    }
+
+    @Test
+    void 숫자_월일_표기는_한글_월일_표기와_같은_출처_정보로_인정한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "일정: 10월 2일 진행")
+        ));
+
+        List<String> lines = validator.validate(result, "10/2(수) 프로그램 운영");
+
+        assertThat(lines).containsExactly("📅 일정: 10월 2일 진행");
+    }
+
+    @Test
     void 빈_문장이_있으면_실패한다() {
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
             new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, " ")
