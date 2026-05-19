@@ -34,6 +34,8 @@ class ArticleSummaryPromptBuilderTest {
 
         ArticleSummaryPrompt prompt = promptBuilder.build(source);
 
+        assertThat(prompt.maxItems()).isEqualTo(5);
+        assertThat(prompt.userMessage()).contains("핵심 후보를 최대 5개");
         assertThat(prompt.userMessage()).contains("개괄식 표현");
         assertThat(prompt.userMessage()).contains("신청 기간: 5월 20일까지");
         assertThat(prompt.userMessage()).contains("마침표는 생략");
@@ -81,6 +83,7 @@ class ArticleSummaryPromptBuilderTest {
 
         ArticleSummaryPrompt refinementPrompt = promptBuilder.buildRefinement(originalPrompt, previousResult);
 
+        assertThat(refinementPrompt.maxItems()).isEqualTo(3);
         assertThat(refinementPrompt.userMessage()).contains("반드시 최대 3개만 반환");
         assertThat(refinementPrompt.userMessage()).contains("후보끼리 겹치면 합치거나");
         assertThat(refinementPrompt.userMessage()).contains("4. icon_key=ACTION, text=신청 방법: 온라인 제출");

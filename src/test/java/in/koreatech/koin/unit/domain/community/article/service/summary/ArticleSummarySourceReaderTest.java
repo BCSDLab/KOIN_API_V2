@@ -63,6 +63,39 @@ class ArticleSummarySourceReaderTest {
         assertThat(source.attachmentTexts().get(1)).contains("제출 서류: 신청서");
     }
 
+    @Test
+    void 첨부_파싱에_실패해도_본문만으로_요약_입력을_구성한다() {
+        ArticleDocumentParseClient parseClient = request -> {
+            throw new IllegalStateException("parse failed");
+        };
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        properties.setMaxDocumentsPerArticle(3);
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "장학금 안내",
+            "<p>신청 기간은 5월 20일까지입니다.</p>",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(new ArticleAttachmentSeed(
+                10,
+                "신청서.docx",
+                "https://static.koreatech.in/files/application.docx",
+                "hash",
+                LocalDateTime.of(2026, 5, 1, 10, 0)
+            ))
+        );
+
+        ArticleSummarySource source = reader.read(seed);
+
+        assertThat(source.contentText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+        assertThat(source.attachmentTexts()).isEmpty();
+        assertThat(source.mergedText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+    }
+
     private static class FakeDocumentParseClient implements ArticleDocumentParseClient {
 
         private final List<DocumentParseRequest> requests = new ArrayList<>();

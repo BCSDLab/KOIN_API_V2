@@ -12,6 +12,8 @@ public class ArticleSummaryPromptBuilder {
     private static final int MAX_SOURCE_LENGTH = 16_000;
     private static final int MAX_PREVIOUS_RESULT_ITEMS = 10;
     private static final int MAX_PREVIOUS_ITEM_TEXT_LENGTH = 120;
+    private static final int INITIAL_CANDIDATE_MAX_ITEMS = 5;
+    private static final int FINAL_SUMMARY_MAX_ITEMS = 3;
 
     private static final String SYSTEM_MESSAGE = """
         당신은 한국기술교육대학교 학생용 게시글 요약기입니다.
@@ -25,7 +27,8 @@ public class ArticleSummaryPromptBuilder {
     public ArticleSummaryPrompt build(ArticleSummarySource source) {
         String sourceText = buildSourceText(source);
         String userMessage = """
-            아래 게시글을 학생이 빠르게 이해할 수 있도록 핵심만 1~3개로 요약하세요.
+            아래 게시글에서 학생이 빠르게 이해해야 할 핵심 후보를 최대 5개까지 뽑으세요.
+            서버가 최종 노출 전 핵심 1~3개로 다시 줄일 수 있으므로, 애매한 정보로 5개를 채우지 마세요.
 
             핵심 판단 우선순위:
             1. 마감일, 일정, 장소, 대상, 신청/제출 방법
@@ -52,7 +55,7 @@ public class ArticleSummaryPromptBuilder {
             [게시글]
             %s
             """.formatted(sourceText);
-        return new ArticleSummaryPrompt(SYSTEM_MESSAGE, userMessage, sourceText);
+        return new ArticleSummaryPrompt(SYSTEM_MESSAGE, userMessage, sourceText, INITIAL_CANDIDATE_MAX_ITEMS);
     }
 
     public ArticleSummaryPrompt buildRefinement(ArticleSummaryPrompt originalPrompt, ArticleSummaryResult previousResult) {
@@ -76,7 +79,7 @@ public class ArticleSummaryPromptBuilder {
             [이전 후보 요약]
             %s
             """.formatted(originalPrompt.sourceText(), buildPreviousResultText(previousResult));
-        return new ArticleSummaryPrompt(SYSTEM_MESSAGE, userMessage, originalPrompt.sourceText());
+        return new ArticleSummaryPrompt(SYSTEM_MESSAGE, userMessage, originalPrompt.sourceText(), FINAL_SUMMARY_MAX_ITEMS);
     }
 
     private String buildSourceText(ArticleSummarySource source) {

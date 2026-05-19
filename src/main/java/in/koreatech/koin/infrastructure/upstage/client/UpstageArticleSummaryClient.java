@@ -87,11 +87,11 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
             "top_p", 0.9,
             "max_tokens", 500,
             "reasoning_effort", "low",
-            "response_format", responseFormat()
+            "response_format", responseFormat(prompt.maxItems())
         );
     }
 
-    private Map<String, Object> responseFormat() {
+    private Map<String, Object> responseFormat(int maxItems) {
         return Map.of(
             "type", "json_schema",
             "json_schema", Map.of(
@@ -105,7 +105,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
                         "items", Map.of(
                             "type", "array",
                             "minItems", 0,
-                            "maxItems", 3,
+                            "maxItems", maxItems,
                             "items", Map.of(
                                 "type", "object",
                                 "additionalProperties", false,

@@ -138,7 +138,7 @@ article:
     max-document-bytes: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENT_BYTES:10485760}
     request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:20}
     model: ${ARTICLE_AI_SUMMARY_MODEL:solar-pro3}
-    prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v2}
+    prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v3}
     allowed-document-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_DOCUMENT_URL_PREFIXES:}
 
 management:
