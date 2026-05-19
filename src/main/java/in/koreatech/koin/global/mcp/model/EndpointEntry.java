@@ -1,11 +1,10 @@
 package in.koreatech.koin.global.mcp.model;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import in.koreatech.koin.global.code.Deprecation;
-import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.models.Operation;
 
 public record EndpointEntry(
     String group,
@@ -16,7 +15,6 @@ public record EndpointEntry(
     List<String> tags,
     Deprecation deprecation,
     boolean deprecated,
-    boolean authRequired,
-    Type returnType
+    boolean authRequired
 ) {
 }

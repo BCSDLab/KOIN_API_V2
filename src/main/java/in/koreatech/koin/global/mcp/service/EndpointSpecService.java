@@ -1,13 +1,9 @@
 package in.koreatech.koin.global.mcp.service;
 
-import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -22,15 +18,9 @@ import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -51,16 +41,17 @@ import in.koreatech.koin.global.mcp.dto.RequestBodySpec;
 import in.koreatech.koin.global.mcp.exception.EndpointSpecException;
 import in.koreatech.koin.global.mcp.model.DeprecatedFilter;
 import in.koreatech.koin.global.mcp.model.EndpointEntry;
-import io.swagger.v3.core.converter.ModelConverters;
-import io.swagger.v3.core.converter.ResolvedSchema;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 
 @Service
 @ConditionalOnProperty(name = "spring.ai.mcp.server.enabled", havingValue = "true")
@@ -71,14 +62,17 @@ public class EndpointSpecService {
 
     private final RequestMappingHandlerMapping handlerMapping;
     private final List<GroupedOpenApi> groupedOpenApis;
+    private final McpOpenApiProvider openApiProvider;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public EndpointSpecService(
         @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlerMapping,
-        List<GroupedOpenApi> groupedOpenApis
+        List<GroupedOpenApi> groupedOpenApis,
+        McpOpenApiProvider openApiProvider
     ) {
         this.handlerMapping = handlerMapping;
         this.groupedOpenApis = groupedOpenApis;
+        this.openApiProvider = openApiProvider;
     }
 
     public FindEndpointsResponse findEndpoints(String query, String group, DeprecatedFilter deprecated) {
@@ -111,8 +105,8 @@ public class EndpointSpecService {
             entry.method(),
             entry.path(),
             operationId(operation),
-            operation == null ? "" : nullToEmpty(operation.summary()),
-            operation == null ? "" : nullToEmpty(operation.description()),
+            operation == null ? "" : nullToEmpty(operation.getSummary()),
+            operation == null ? "" : nullToEmpty(operation.getDescription()),
             entry.tags(),
             entry.deprecated(),
             deprecation == null ? "" : deprecation.since(),
@@ -127,45 +121,18 @@ public class EndpointSpecService {
 
     public EndpointRequestSpec getEndpointRequestSpec(String group, String method, String path) {
         EndpointEntry entry = findEndpoint(group, method, path);
-        Method docsMethod = entry.docsMethod();
-
         List<EndpointParameter> pathParameters = new ArrayList<>();
         List<EndpointParameter> queryParameters = new ArrayList<>();
         List<EndpointParameter> headerParameters = new ArrayList<>();
-        RequestBodySpec requestBody = null;
+        OpenAPI openAPI = openApiProvider.getOpenApi(entry.group());
+        Operation operation = openApiOperation(openAPI, entry);
 
-        java.lang.reflect.Parameter[] parameters = docsMethod.getParameters();
-        for (java.lang.reflect.Parameter parameter : parameters) {
-            if (parameter.isAnnotationPresent(Auth.class)) {
-                continue;
-            }
-            PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
-            if (pathVariable != null) {
-                pathParameters.add(toParameter(parameter, parameterName(pathVariable.name(), pathVariable.value(), parameter), true));
-                continue;
-            }
-
-            RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
-            if (requestParam != null) {
-                boolean required = requestParam.required() && ValueConstants.DEFAULT_NONE.equals(requestParam.defaultValue());
-                queryParameters.add(toParameter(parameter, parameterName(requestParam.name(), requestParam.value(), parameter), required));
-                continue;
-            }
-
-            RequestHeader requestHeader = parameter.getAnnotation(RequestHeader.class);
-            if (requestHeader != null) {
-                boolean required = requestHeader.required() && ValueConstants.DEFAULT_NONE.equals(requestHeader.defaultValue());
-                headerParameters.add(toParameter(parameter, parameterName(requestHeader.name(), requestHeader.value(), parameter), required));
-                continue;
-            }
-
-            RequestBody body = parameter.getAnnotation(RequestBody.class);
-            if (body != null) {
-                requestBody = new RequestBodySpec(
-                    body.required(),
-                    List.of(APPLICATION_JSON_VALUE),
-                    loadEndpointSchema(parameter.getParameterizedType())
-                );
+        for (Parameter parameter : nullToEmpty(operation.getParameters())) {
+            EndpointParameter endpointParameter = toEndpointParameter(parameter, openAPI);
+            switch (nullToEmpty(parameter.getIn())) {
+                case "path" -> pathParameters.add(endpointParameter);
+                case "header" -> headerParameters.add(endpointParameter);
+                default -> queryParameters.add(endpointParameter);
             }
         }
 
@@ -174,80 +141,140 @@ public class EndpointSpecService {
             entry.method(),
             entry.path(),
             new EndpointParameters(pathParameters, queryParameters, headerParameters),
-            requestBody
+            toRequestBodySpec(operation.getRequestBody(), openAPI)
         );
     }
 
     public EndpointResponseSpec getEndpointResponseSpec(String group, String method, String path) {
         EndpointEntry entry = findEndpoint(group, method, path);
-        ApiResponses apiResponses = entry.docsMethod().getAnnotation(ApiResponses.class);
-        List<EndpointResponse> responses = new ArrayList<>();
-
-        if (apiResponses != null) {
-            for (ApiResponse apiResponse : apiResponses.value()) {
-                responses.add(toEndpointResponse(apiResponse, entry.returnType()));
-            }
-        }
-
-        if (responses.isEmpty()) {
-            responses.add(defaultSuccessResponse(entry.returnType()));
-        }
+        OpenAPI openAPI = openApiProvider.getOpenApi(entry.group());
+        Operation operation = openApiOperation(openAPI, entry);
 
         return new EndpointResponseSpec(
             entry.group(),
             entry.method(),
             entry.path(),
-            responses
+            nullToEmpty(operation.getResponses()).entrySet().stream()
+                .map(response -> toEndpointResponse(response.getKey(), response.getValue(), openAPI))
+                .toList()
         );
     }
 
-    private EndpointResponse toEndpointResponse(ApiResponse apiResponse, Type returnType) {
-        EndpointSchema schema = null;
-        List<String> contentTypes = new ArrayList<>();
-
-        for (Content content : apiResponse.content()) {
-            if (content.schema().hidden()) {
-                continue;
-            }
-            String mediaType = content.mediaType().isBlank() ? APPLICATION_JSON_VALUE : content.mediaType();
-            contentTypes.add(mediaType);
-            if (!Void.class.equals(content.schema().implementation())) {
-                schema = loadEndpointSchema(content.schema().implementation());
-            }
+    private EndpointResponse toEndpointResponse(String status, ApiResponse apiResponse, OpenAPI openAPI) {
+        String responseStatus = responseStatus(status, apiResponse);
+        if ("204".equals(responseStatus)) {
+            return new EndpointResponse(
+                responseStatus,
+                responseExtension(apiResponse, "x-koin-code"),
+                nullToEmpty(apiResponse.getDescription()),
+                List.of(),
+                null
+            );
         }
+        return new EndpointResponse(
+            responseStatus,
+            responseExtension(apiResponse, "x-koin-code"),
+            nullToEmpty(apiResponse.getDescription()),
+            contentTypes(apiResponse.getContent()),
+            firstContentSchema(apiResponse.getContent(), openAPI)
+        );
+    }
 
-        if (schema == null && isSuccess(apiResponse.responseCode())) {
-            schema = loadEndpointSchema(returnType);
-            if (schema != null && contentTypes.isEmpty()) {
-                contentTypes.add(APPLICATION_JSON_VALUE);
-            }
+    private String responseStatus(String status, ApiResponse apiResponse) {
+        String extensionStatus = responseExtension(apiResponse, "x-http-status");
+        if (extensionStatus != null) {
+            return extensionStatus;
         }
-
-        return new EndpointResponse(
-            apiResponse.responseCode(),
-            nullToEmpty(apiResponse.description()),
-            contentTypes,
-            schema
-        );
+        int lastSpace = status.lastIndexOf(' ');
+        return lastSpace == -1 ? status : status.substring(lastSpace + 1);
     }
 
-    private EndpointResponse defaultSuccessResponse(Type returnType) {
-        return new EndpointResponse(
-            Void.class.equals(returnType) || void.class.equals(returnType) ? "204" : "200",
-            "",
-            Void.class.equals(returnType) || void.class.equals(returnType) ? List.of() : List.of(APPLICATION_JSON_VALUE),
-            loadEndpointSchema(returnType)
-        );
+    private String responseExtension(ApiResponse apiResponse, String key) {
+        if (apiResponse.getExtensions() == null || !apiResponse.getExtensions().containsKey(key)) {
+            return null;
+        }
+        return String.valueOf(apiResponse.getExtensions().get(key));
     }
 
-    private EndpointParameter toParameter(java.lang.reflect.Parameter parameter, String name, boolean required) {
-        Parameter swaggerParameter = parameter.getAnnotation(Parameter.class);
+    private EndpointParameter toEndpointParameter(Parameter parameter, OpenAPI openAPI) {
+        Parameter resolvedParameter = resolveParameter(parameter, openAPI);
         return new EndpointParameter(
-            name,
-            required,
-            swaggerParameter == null ? "" : nullToEmpty(swaggerParameter.description()),
-            loadEndpointSchema(parameter.getParameterizedType())
+            resolvedParameter.getName(),
+            Boolean.TRUE.equals(resolvedParameter.getRequired()),
+            nullToEmpty(resolvedParameter.getDescription()),
+            toEndpointSchema(resolveSchema(resolvedParameter.getSchema(), openAPI))
         );
+    }
+
+    private RequestBodySpec toRequestBodySpec(RequestBody requestBody, OpenAPI openAPI) {
+        if (requestBody == null) {
+            return null;
+        }
+        return new RequestBodySpec(
+            Boolean.TRUE.equals(requestBody.getRequired()),
+            contentTypes(requestBody.getContent()),
+            firstContentSchema(requestBody.getContent(), openAPI)
+        );
+    }
+
+    private List<String> contentTypes(Content content) {
+        return content == null ? List.of() : List.copyOf(content.keySet());
+    }
+
+    private EndpointSchema firstContentSchema(Content content, OpenAPI openAPI) {
+        if (content == null || content.isEmpty()) {
+            return null;
+        }
+        return content.values().stream()
+            .map(MediaType::getSchema)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(schema -> toEndpointSchema(resolveSchema(schema, openAPI)))
+            .orElse(null);
+    }
+
+    private Parameter resolveParameter(Parameter parameter, OpenAPI openAPI) {
+        String ref = parameter.get$ref();
+        if (ref == null || ref.isBlank()
+            || openAPI.getComponents() == null
+            || openAPI.getComponents().getParameters() == null) {
+            return parameter;
+        }
+        String name = ref.substring(ref.lastIndexOf('/') + 1);
+        return openAPI.getComponents().getParameters().getOrDefault(name, parameter);
+    }
+
+    private Schema<?> resolveSchema(Schema<?> schema, OpenAPI openAPI) {
+        if (openAPI.getComponents() == null) {
+            return schema;
+        }
+        return resolveRefs(schema, openAPI.getComponents().getSchemas(), new HashSet<>(), 0);
+    }
+
+    private Operation openApiOperation(OpenAPI openAPI, EndpointEntry entry) {
+        PathItem pathItem = openAPI.getPaths().get(entry.path());
+        if (pathItem == null) {
+            throw new EndpointSpecException("OPENAPI_PATH_NOT_FOUND", "No OpenAPI path found.");
+        }
+        Operation operation = pathItem.readOperationsMap().get(PathItem.HttpMethod.valueOf(entry.method()));
+        if (operation == null) {
+            throw new EndpointSpecException("OPENAPI_OPERATION_NOT_FOUND", "No OpenAPI operation found.");
+        }
+        return operation;
+    }
+
+    private Operation openApiOperation(String group, String method, String path) {
+        OpenAPI openAPI;
+        try {
+            openAPI = openApiProvider.getOpenApi(group);
+        } catch (EndpointSpecException ignored) {
+            return null;
+        }
+        PathItem pathItem = openAPI.getPaths().get(path);
+        if (pathItem == null) {
+            return null;
+        }
+        return pathItem.readOperationsMap().get(PathItem.HttpMethod.valueOf(method));
     }
 
     private EndpointSummary toSummary(EndpointEntry entry) {
@@ -257,8 +284,8 @@ public class EndpointSpecService {
             entry.method(),
             entry.path(),
             operationId(operation),
-            operation == null ? "" : nullToEmpty(operation.summary()),
-            operation == null ? "" : nullToEmpty(operation.description()),
+            operation == null ? "" : nullToEmpty(operation.getSummary()),
+            operation == null ? "" : nullToEmpty(operation.getDescription()),
             entry.tags(),
             entry.deprecated(),
             entry.authRequired()
@@ -300,8 +327,8 @@ public class EndpointSpecService {
             entry.method(),
             entry.group(),
             operationId(operation),
-            operation == null ? "" : nullToEmpty(operation.summary()),
-            operation == null ? "" : nullToEmpty(operation.description()),
+            operation == null ? "" : nullToEmpty(operation.getSummary()),
+            operation == null ? "" : nullToEmpty(operation.getDescription()),
             String.join(" ", entry.tags())
         ).toLowerCase(Locale.ROOT);
         return haystack.contains(query.toLowerCase(Locale.ROOT));
@@ -322,24 +349,22 @@ public class EndpointSpecService {
                 return;
             }
             Method docsMethod = findDocsMethod(handlerMethod);
-            Operation operation = findOperation(docsMethod);
             Deprecation deprecation = findDeprecation(docsMethod);
-            List<String> tags = findTags(handlerMethod.getBeanType(), docsMethod);
 
             for (String path : paths(info)) {
                 for (String group : groupsOf(handlerMethod.getBeanType(), path)) {
                     for (String method : methods(info)) {
+                        Operation operation = openApiOperation(group, method, path);
                         entries.add(new EndpointEntry(
                             group,
                             method,
                             path,
                             docsMethod,
                             operation,
-                            tags,
+                            operationTags(operation, handlerMethod.getBeanType(), docsMethod),
                             deprecation,
-                            operation != null && operation.deprecated() || deprecation != null,
-                            authRequired(docsMethod, operation),
-                            actualReturnType(docsMethod)
+                            operation != null && Boolean.TRUE.equals(operation.getDeprecated()) || deprecation != null,
+                            authRequired(docsMethod, operation)
                         ));
                     }
                 }
@@ -360,12 +385,14 @@ public class EndpointSpecService {
         return controllerMethod;
     }
 
-    private Operation findOperation(Method method) {
-        return AnnotatedElementUtils.findMergedAnnotation(method, Operation.class);
-    }
-
     private Deprecation findDeprecation(Method method) {
         return AnnotatedElementUtils.findMergedAnnotation(method, Deprecation.class);
+    }
+
+    private List<String> operationTags(Operation operation, Class<?> beanType, Method method) {
+        return operation != null && operation.getTags() != null
+            ? operation.getTags()
+            : findTags(beanType, method);
     }
 
     private List<String> findTags(Class<?> beanType, Method method) {
@@ -393,7 +420,7 @@ public class EndpointSpecService {
         if (hasAuthParameter) {
             return true;
         }
-        if (operation != null && operation.security().length > 0) {
+        if (operation != null && operation.getSecurity() != null && !operation.getSecurity().isEmpty()) {
             return true;
         }
         return method.isAnnotationPresent(SecurityRequirement.class);
@@ -468,55 +495,6 @@ public class EndpointSpecService {
             || actualGroup.equalsIgnoreCase(requestedGroup);
     }
 
-    private Type actualReturnType(Method method) {
-        Type returnType = method.getGenericReturnType();
-        if (returnType instanceof ParameterizedType parameterizedType
-            && parameterizedType.getRawType().equals(ResponseEntity.class)) {
-            return parameterizedType.getActualTypeArguments()[0];
-        }
-        return returnType;
-    }
-
-    private Schema<?> loadSchema(Type type) {
-        if (type.equals(Void.class) || type.equals(void.class)) {
-            return null;
-        }
-        ResolvedSchema resolvedSchema = ModelConverters.getInstance().readAllAsResolvedSchema(type);
-        if (resolvedSchema == null || resolvedSchema.schema == null) {
-            return scalarSchema(type);
-        }
-        return resolveRefs(resolvedSchema.schema, resolvedSchema.referencedSchemas, new HashSet<>(), 0);
-    }
-
-    private Schema<?> scalarSchema(Type type) {
-        if (!(type instanceof Class<?> clazz)) {
-            return null;
-        }
-        if (String.class.equals(clazz) || Character.class.equals(clazz) || char.class.equals(clazz)) {
-            return new Schema<>().type("string");
-        }
-        if (Boolean.class.equals(clazz) || boolean.class.equals(clazz)) {
-            return new Schema<>().type("boolean");
-        }
-        if (Integer.class.equals(clazz) || int.class.equals(clazz)) {
-            return new Schema<>().type("integer").format("int32");
-        }
-        if (Long.class.equals(clazz) || long.class.equals(clazz)) {
-            return new Schema<>().type("integer").format("int64");
-        }
-        if (Float.class.equals(clazz) || float.class.equals(clazz)) {
-            return new Schema<>().type("number").format("float");
-        }
-        if (Double.class.equals(clazz) || double.class.equals(clazz)) {
-            return new Schema<>().type("number").format("double");
-        }
-        return null;
-    }
-
-    private EndpointSchema loadEndpointSchema(Type type) {
-        return toEndpointSchema(loadSchema(type));
-    }
-
     private EndpointSchema toEndpointSchema(Schema<?> schema) {
         if (schema == null) {
             return null;
@@ -557,7 +535,7 @@ public class EndpointSpecService {
 
     private List<EndpointSchema> toEndpointSchemaList(List<Schema> schemas) {
         if (schemas == null || schemas.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         return schemas.stream()
             .map(this::toEndpointSchema)
@@ -572,7 +550,7 @@ public class EndpointSpecService {
         return Boolean.TRUE.equals(truncated) ? true : null;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"rawtypes"})
     private Schema<?> resolveRefs(
         Schema<?> schema,
         Map<String, Schema> referencedSchemas,
@@ -584,7 +562,7 @@ public class EndpointSpecService {
         }
 
         String ref = schema.get$ref();
-        if (ref != null && !ref.isBlank()) {
+        if (ref != null && !ref.isBlank() && referencedSchemas != null) {
             String refName = ref.substring(ref.lastIndexOf('/') + 1);
             if (!resolvingRefs.add(refName)) {
                 Schema<?> truncatedSchema = new Schema<>().$ref(ref);
@@ -601,13 +579,14 @@ public class EndpointSpecService {
 
         if (schema.getProperties() != null) {
             schema.getProperties().replaceAll((name, property) ->
-                resolveRefs((Schema<?>)property, referencedSchemas, resolvingRefs, depth + 1));
+                resolveRefs(property, referencedSchemas, resolvingRefs, depth + 1));
         }
         if (schema.getItems() != null) {
             schema.setItems(resolveRefs(schema.getItems(), referencedSchemas, resolvingRefs, depth + 1));
         }
         if (schema.getAdditionalProperties() instanceof Schema<?> additionalProperties) {
-            schema.setAdditionalProperties(resolveRefs(additionalProperties, referencedSchemas, resolvingRefs, depth + 1));
+            schema.setAdditionalProperties(
+                resolveRefs(additionalProperties, referencedSchemas, resolvingRefs, depth + 1));
         }
         schema.setAllOf(resolveSchemaList(schema.getAllOf(), referencedSchemas, resolvingRefs, depth));
         schema.setOneOf(resolveSchemaList(schema.getOneOf(), referencedSchemas, resolvingRefs, depth));
@@ -629,22 +608,8 @@ public class EndpointSpecService {
             .toList();
     }
 
-    private String parameterName(String name, String value, java.lang.reflect.Parameter parameter) {
-        if (!name.isBlank()) {
-            return name;
-        }
-        if (!value.isBlank()) {
-            return value;
-        }
-        return parameter.getName();
-    }
-
     private String operationId(Operation operation) {
-        return operation == null ? "" : nullToEmpty(operation.operationId());
-    }
-
-    private boolean isSuccess(String status) {
-        return status != null && !status.isBlank() && status.charAt(0) == '2';
+        return operation == null ? "" : nullToEmpty(operation.getOperationId());
     }
 
     private boolean hasSameSignature(Method left, Method right) {
@@ -660,14 +625,26 @@ public class EndpointSpecService {
     }
 
     private String normalizeGroup(String value) {
-        return normalize(value)
+        String normalized = normalize(value);
+        if (normalized == null) {
+            return "";
+        }
+        return normalized
             .replaceFirst("^\\d+\\.\\s*", "")
             .replaceFirst("\\s+api$", "")
             .replaceAll("[^a-z0-9]+", "-")
-            .replaceAll("(^-|-$)", "");
+            .replaceAll("(^-)|(-$)", "");
     }
 
     private String nullToEmpty(String value) {
         return Objects.requireNonNullElse(value, "");
+    }
+
+    private <T> List<T> nullToEmpty(List<T> values) {
+        return values == null ? List.of() : values;
+    }
+
+    private <K, V> Map<K, V> nullToEmpty(Map<K, V> values) {
+        return values == null ? Map.of() : values;
     }
 }

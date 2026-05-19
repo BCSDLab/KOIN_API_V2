@@ -38,6 +38,7 @@ import jakarta.validation.Valid;
 @Component
 public class ApiResponseCodesOperationCustomizer implements OperationCustomizer {
 
+    private static final String MESSAGE_FIELD = "message";
     private static final String TRACE_ID_EXAMPLE = "123e4567-e89b-12d3-a456-426614174000";
 
     // 에러 스키마를 미리 생성하여 최적화
@@ -59,6 +60,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
             ApiResponseCode code = codes[i];
             String key = String.format("%d) %d", i + 1, code.getHttpStatus().value());
             responses.put(key, createApiResponse(
+                code,
                 code.getMessage(),
                 () -> createResponseBody(code, handler, returnType)
             ));
@@ -70,21 +72,26 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     private Type getActualResponseType(HandlerMethod handler) {
         Type returnType = handler.getMethod().getGenericReturnType();
 
-        if (returnType instanceof ParameterizedType parameterizedType) {
-            if (parameterizedType.getRawType().equals(ResponseEntity.class)) {
-                return parameterizedType.getActualTypeArguments()[0];
-            }
+        if (returnType instanceof ParameterizedType parameterizedType
+            && parameterizedType.getRawType().equals(ResponseEntity.class)) {
+            return parameterizedType.getActualTypeArguments()[0];
         }
         return returnType;
     }
 
     private ApiResponse createApiResponse(
+        ApiResponseCode code,
         String description,
         Supplier<MediaType> supplier
     ) {
-        return new ApiResponse()
-            .description(description)
-            .content(new Content().addMediaType(APPLICATION_JSON_VALUE, supplier.get()));
+        ApiResponse apiResponse = new ApiResponse().description(description);
+        MediaType mediaType = supplier.get();
+        if (mediaType != null) {
+            apiResponse.content(new Content().addMediaType(APPLICATION_JSON_VALUE, mediaType));
+        }
+        apiResponse.addExtension("x-koin-code", code.getCode());
+        apiResponse.addExtension("x-http-status", code.getHttpStatus().value());
+        return apiResponse;
     }
 
     private MediaType createResponseBody(
@@ -92,6 +99,9 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         HandlerMethod handler,
         Type returnType
     ) {
+        if (code.getHttpStatus().value() == 204) {
+            return null;
+        }
         if (code.getHttpStatus().is2xxSuccessful()) {
             return new MediaType().schema(loadSchema(returnType));
         }
@@ -104,7 +114,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     private Map<String,Object> createGenericErrorExample(ApiResponseCode code) {
         return Map.of(
             "code", code.getCode(),
-            "message", code.getMessage(),
+            MESSAGE_FIELD, code.getMessage(),
             "errorTraceId", TRACE_ID_EXAMPLE
         );
     }
@@ -115,13 +125,13 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     ) {
         List<Map<String,Object>> fieldErrors = extractFieldErrors(handler);
         String firstMsg = fieldErrors.stream()
-            .map(e -> (String)e.get("message"))
+            .map(e -> (String)e.get(MESSAGE_FIELD))
             .findFirst()
             .orElse(code.getMessage());
 
         Map<String,Object> example = new LinkedHashMap<>();
         example.put("code", code.getCode());
-        example.put("message", firstMsg);
+        example.put(MESSAGE_FIELD, firstMsg);
         example.put("errorTraceId", TRACE_ID_EXAMPLE);
         example.put("fieldErrors", fieldErrors);
         return example;
@@ -173,7 +183,7 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         return Map.of(
             "field", name,
             "constraint", constraint,
-            "message", msg
+            MESSAGE_FIELD, msg
         );
     }
 
