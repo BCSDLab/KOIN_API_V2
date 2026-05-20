@@ -141,6 +141,7 @@ article:
     request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:20}
     model: ${ARTICLE_AI_SUMMARY_MODEL:solar-pro3}
     prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v6}
+    allowed-content-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_CONTENT_URL_PREFIXES:}
     allowed-document-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_DOCUMENT_URL_PREFIXES:}
 
 management:

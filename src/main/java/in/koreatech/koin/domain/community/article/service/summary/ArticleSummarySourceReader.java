@@ -92,7 +92,7 @@ public class ArticleSummarySourceReader {
         if (!trimmed.startsWith("https")) {
             return content;
         }
-        if (!trimmed.startsWith(s3Client.getDomainUrlPrefix())) {
+        if (!isAllowedContentUrl(trimmed)) {
             log.warn("허용되지 않은 게시글 본문 URL을 요약 입력에서 제외했습니다. url: {}", sanitizeUrl(trimmed));
             return "";
         }
@@ -102,6 +102,19 @@ public class ArticleSummarySourceReader {
             log.warn("게시글 본문 URL 조회에 실패했습니다. url: {}", sanitizeUrl(trimmed), e);
             return "";
         }
+    }
+
+    private boolean isAllowedContentUrl(String url) {
+        if (!StringUtils.hasText(url) || !url.startsWith("https://")) {
+            return false;
+        }
+        if (url.startsWith(s3Client.getDomainUrlPrefix())) {
+            return true;
+        }
+        return properties.getAllowedContentUrlPrefixes().stream()
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .anyMatch(url::startsWith);
     }
 
     private AttachmentReadResult readAttachmentTexts(ArticleSummarySourceSeed seed) {

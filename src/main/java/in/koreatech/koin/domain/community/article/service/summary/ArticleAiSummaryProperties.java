@@ -30,6 +30,7 @@ public class ArticleAiSummaryProperties {
     private int requestTimeoutSeconds = 20;
     private String model = "solar-pro3";
     private String promptVersion = "v6";
+    private List<String> allowedContentUrlPrefixes = new ArrayList<>();
     private List<String> allowedDocumentUrlPrefixes = new ArrayList<>();
 
     public int getBoundedMaxRefinementRetryCount() {

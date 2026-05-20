@@ -132,6 +132,55 @@ class ArticleSummarySourceReaderTest {
         assertThat(source.mergedText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
     }
 
+    @Test
+    void 허용된_본문_URL_prefix면_URL_내용을_조회해_요약_입력으로_사용한다() {
+        FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        properties.setAllowedContentUrlPrefixes(List.of("https://stage-static.koreatech.in/"));
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        when(s3Client.getContentFromUrl("https://stage-static.koreatech.in/articles/content/notice.txt"))
+            .thenReturn("<p>신청 기간은 5월 20일까지입니다.</p>");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "장학금 안내",
+            "https://stage-static.koreatech.in/articles/content/notice.txt",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of()
+        );
+
+        ArticleSummarySource source = reader.read(seed);
+
+        assertThat(source.contentText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+        assertThat(source.mergedText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+    }
+
+    @Test
+    void 허용되지_않은_본문_URL은_요약_입력에서_제외한다() {
+        FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "장학금 안내",
+            "https://stage-static.koreatech.in/articles/content/notice.txt",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of()
+        );
+
+        ArticleSummarySource source = reader.read(seed);
+
+        assertThat(source.contentText()).isEmpty();
+        assertThat(source.mergedText()).isEmpty();
+    }
+
     private static class FakeDocumentParseClient implements ArticleDocumentParseClient {
 
         private final List<DocumentParseRequest> requests = new ArrayList<>();
