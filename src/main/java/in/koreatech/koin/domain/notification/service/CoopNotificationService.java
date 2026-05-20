@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.notification.service;
 
 import static in.koreatech.koin.common.model.MobileAppPath.DINING;
+import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_IMAGE_UPLOAD;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 
 import org.springframework.stereotype.Service;
@@ -21,7 +22,6 @@ public class CoopNotificationService {
     private final NotificationFactory notificationFactory;
     private final NotificationService notificationService;
 
-    @Transactional
     public void sendDiningSoldOutNotifications(Integer dinningId, String place, DiningType diningType) {
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(diningType);
         var notifications = notificationSubscribeRepository.findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, detailType)
@@ -33,6 +33,20 @@ public class CoopNotificationService {
                 subscribe.getUser()
             ))
             .toList();
+        notificationService.pushNotifications(notifications);
+    }
+
+    public void onDiningImageUploadRequest(int id, String imageUrl) {
+        var notifications = notificationSubscribeRepository
+            .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_IMAGE_UPLOAD).stream()
+            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
+            .map(subscribe -> notificationFactory.generateDiningImageUploadNotification(
+                DINING,
+                id,
+                imageUrl,
+                subscribe.getUser()
+            )).toList();
+
         notificationService.pushNotifications(notifications);
     }
 }
