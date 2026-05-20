@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 @Profile("!test")
-public class NotificationEventListener { // TODO : 리팩터링 필요 (비즈니스로직 제거 및 알림 책임만 갖도록)
+public class NotificationEventListener {
 
     private final NotificationService notificationService;
 
