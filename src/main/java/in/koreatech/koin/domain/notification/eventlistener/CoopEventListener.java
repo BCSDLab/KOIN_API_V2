@@ -11,6 +11,7 @@ import in.koreatech.koin.common.event.DiningImageUploadEvent;
 import in.koreatech.koin.common.event.DiningSoldOutEvent;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.domain.notification.service.CoopNotificationService;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 
@@ -19,13 +20,14 @@ import lombok.RequiredArgsConstructor;
 @Profile("!test")
 public class CoopEventListener { // TODO : 리팩터링 필요 (비즈니스로직 제거 및 알림 책임만 갖도록)
 
+    private final CoopNotificationService coopNotificationService;
     private final NotificationService notificationService;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final NotificationFactory notificationFactory;
 
     @TransactionalEventListener
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
-        notificationService.sendDiningSoldOutNotifications(event.id(), event.place(), event.diningType());
+        coopNotificationService.sendDiningSoldOutNotifications(event.id(), event.place(), event.diningType());
     }
 
     @TransactionalEventListener
