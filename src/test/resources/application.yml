@@ -23,6 +23,7 @@ spring:
     suffix: ".html"
   servlet:
     multipart:
+      resolve-lazily: true
       max-file-size: 10MB
       max-request-size: 10MB
   autoconfigure:
