@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 @Profile("!test")
-public class ShopEventListener { // TODO : 리팩터링 필요 (비즈니스로직 제거 및 알림 책임만 갖도록)
+public class ShopEventListener {
 
     private final ShopNotificationService shopNotificationService;
 
