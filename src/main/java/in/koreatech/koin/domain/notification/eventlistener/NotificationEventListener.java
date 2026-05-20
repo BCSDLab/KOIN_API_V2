@@ -18,8 +18,6 @@ public class NotificationEventListener { // TODO : 리팩터링 필요 (비즈�
 
     @TransactionalEventListener
     public void onUserRegisterEvent(UserMarketingAgreementEvent event) {
-        if (event.marketingNotificationAgreement()) {
-            notificationService.permitNotificationSubscribe(event.userId(), NotificationSubscribeType.MARKETING);
-        }
+        notificationService.permitNotificationSubscribe(event.userId(), NotificationSubscribeType.MARKETING);
     }
 }

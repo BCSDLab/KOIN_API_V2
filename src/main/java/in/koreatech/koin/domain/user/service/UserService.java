@@ -74,9 +74,11 @@ public class UserService {
         );
         User user = request.toUser(passwordEncoder);
         userRepository.save(user);
-        eventPublisher.publishEvent(
-            new UserMarketingAgreementEvent(user.getId(), request.marketingNotificationAgreement())
-        );
+        if (request.marketingNotificationAgreement()) {
+            eventPublisher.publishEvent(
+                new UserMarketingAgreementEvent(user.getId(), request.marketingNotificationAgreement())
+            );
+        }
         eventPublisher.publishEvent(new UserRegisterEvent(user.getPhoneNumber()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }

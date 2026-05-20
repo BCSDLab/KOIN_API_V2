@@ -310,9 +310,11 @@ public class StudentService {
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-        eventPublisher.publishEvent(
-            new UserMarketingAgreementEvent(student.getUser().getId(), request.marketingNotificationAgreement())
-        );
+        if (request.marketingNotificationAgreement()) {
+            eventPublisher.publishEvent(
+                new UserMarketingAgreementEvent(student.getUser().getId(), request.marketingNotificationAgreement())
+            );
+        }
         eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getPhoneNumber()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }
