@@ -36,7 +36,7 @@ public class CoopNotificationService {
         notificationService.pushNotifications(notifications);
     }
 
-    public void onDiningImageUploadRequest(int id, String imageUrl) {
+    public void sendDiningImageUploadNotifications(int id, String imageUrl) {
         var notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailTypeIsNull(DINING_IMAGE_UPLOAD).stream()
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)

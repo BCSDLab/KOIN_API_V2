@@ -23,6 +23,6 @@ public class CoopEventListener { // TODO : 리팩터링 필요 (비즈니스로�
 
     @TransactionalEventListener
     public void onDiningImageUploadRequest(DiningImageUploadEvent event) {
-        coopNotificationService.onDiningImageUploadRequest(event.id(), event.imageUrl());
+        coopNotificationService.sendDiningImageUploadNotifications(event.id(), event.imageUrl());
     }
 }
