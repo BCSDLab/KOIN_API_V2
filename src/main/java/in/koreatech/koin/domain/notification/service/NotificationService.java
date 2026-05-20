@@ -14,7 +14,6 @@ import in.koreatech.koin.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
-import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.domain.notification.repository.NotificationRepository;
@@ -39,7 +38,6 @@ public class NotificationService {
     private final NotificationPersistenceService notificationPersistenceService;
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final NotificationFactory notificationFactory;
 
     @Transactional
     public void pushNotifications(List<Notification> notifications) {
