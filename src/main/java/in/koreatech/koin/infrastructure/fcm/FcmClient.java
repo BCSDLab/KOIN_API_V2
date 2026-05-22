@@ -3,6 +3,7 @@ package in.koreatech.koin.infrastructure.fcm;
 import static com.google.firebase.messaging.AndroidConfig.Priority.HIGH;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.scheduling.annotation.Async;
@@ -67,6 +68,36 @@ public class FcmClient {
         } catch (Exception e) {
             log.warn("FCM 알림 전송 실패", e);
             return false;
+        }
+    }
+
+    public void sendMessages(List<FcmSendCommand> commands) {
+        try {
+            List<Message> messages = commands.stream()
+                .map(command -> Message.builder()
+                    .setToken(command.targetDeviceToken())
+                    .setApnsConfig(generateAppleConfig(
+                        command.title(),
+                        command.content(),
+                        command.imageUrl(),
+                        command.path(),
+                        command.type(),
+                        command.schemeUri()
+                    ))
+                    .setAndroidConfig(generateAndroidConfig(
+                        command.title(),
+                        command.content(),
+                        command.imageUrl(),
+                        command.schemeUri(),
+                        command.type()
+                    ))
+                    .build()
+                )
+                .toList();
+
+            FirebaseMessaging.getInstance().sendEach(messages);
+        } catch (Exception e) {
+            log.warn("FCM 알림 전송 실패", e);
         }
     }
 
