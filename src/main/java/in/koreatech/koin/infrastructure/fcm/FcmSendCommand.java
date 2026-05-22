@@ -2,7 +2,7 @@ package in.koreatech.koin.infrastructure.fcm;
 
 import in.koreatech.koin.common.model.MobileAppPath;
 
-public record FcmSendRequest(
+public record FcmSendCommand(
     String targetDeviceToken,
     String title,
     String content,
@@ -11,7 +11,7 @@ public record FcmSendRequest(
     String schemeUri,
     String type
 ) {
-    public static FcmSendRequest of(
+    public static FcmSendCommand of(
         String targetDeviceToken,
         String title,
         String content,
@@ -20,7 +20,7 @@ public record FcmSendRequest(
         String schemeUri,
         String type
     ) {
-        return new FcmSendRequest(
+        return new FcmSendCommand(
             targetDeviceToken,
             title,
             content,
