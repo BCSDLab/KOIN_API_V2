@@ -71,25 +71,25 @@ public class FcmClient {
         }
     }
 
-    public void sendMessages(List<FcmSendCommand> commands) {
+    public void sendMessages(List<FcmSendRequest> requests) {
         try {
-            List<Message> messages = commands.stream()
-                .map(command -> Message.builder()
-                    .setToken(command.targetDeviceToken())
+            List<Message> messages = requests.stream()
+                .map(request -> Message.builder()
+                    .setToken(request.targetDeviceToken())
                     .setApnsConfig(generateAppleConfig(
-                        command.title(),
-                        command.content(),
-                        command.imageUrl(),
-                        command.path(),
-                        command.type(),
-                        command.schemeUri()
+                        request.title(),
+                        request.content(),
+                        request.imageUrl(),
+                        request.path(),
+                        request.type(),
+                        request.schemeUri()
                     ))
                     .setAndroidConfig(generateAndroidConfig(
-                        command.title(),
-                        command.content(),
-                        command.imageUrl(),
-                        command.schemeUri(),
-                        command.type()
+                        request.title(),
+                        request.content(),
+                        request.imageUrl(),
+                        request.schemeUri(),
+                        request.type()
                     ))
                     .build()
                 )
