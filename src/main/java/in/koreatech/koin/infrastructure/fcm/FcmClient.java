@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class FcmClient {
 
+    private static final int FCM_MESSAGE_BATCH_SIZE = 500;
+
     @Async
     public void sendMessage(
         String targetDeviceToken,
@@ -73,6 +75,11 @@ public class FcmClient {
 
     public void sendMessages(List<FcmSendRequest> requests) {
         try {
+            if (requests.size() > FCM_MESSAGE_BATCH_SIZE) {
+                log.warn("FCM 전송 최대 개수를 초과했습니다.");
+                return ;
+            }
+
             List<Message> messages = requests.stream()
                 .map(request -> Message.builder()
                     .setToken(request.targetDeviceToken())
