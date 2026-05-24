@@ -75,34 +75,32 @@ public class FcmClient {
 
     public void sendMessages(List<FcmSendRequest> requests) {
         try {
-            if (requests.size() > FCM_MESSAGE_BATCH_SIZE) {
-                log.warn("FCM 전송 최대 개수를 초과했습니다.");
-                return ;
+            for (int start = 0; start < requests.size(); start += FCM_MESSAGE_BATCH_SIZE) {
+                int end = Math.min(start + FCM_MESSAGE_BATCH_SIZE, requests.size());
+                List<Message> messages = requests.subList(start, end).stream()
+                    .map(request -> Message.builder()
+                        .setToken(request.targetDeviceToken())
+                        .setApnsConfig(generateAppleConfig(
+                            request.title(),
+                            request.content(),
+                            request.imageUrl(),
+                            request.path(),
+                            request.type(),
+                            request.schemeUri()
+                        ))
+                        .setAndroidConfig(generateAndroidConfig(
+                            request.title(),
+                            request.content(),
+                            request.imageUrl(),
+                            request.schemeUri(),
+                            request.type()
+                        ))
+                        .build()
+                    )
+                    .toList();
+
+                FirebaseMessaging.getInstance().sendEach(messages);
             }
-
-            List<Message> messages = requests.stream()
-                .map(request -> Message.builder()
-                    .setToken(request.targetDeviceToken())
-                    .setApnsConfig(generateAppleConfig(
-                        request.title(),
-                        request.content(),
-                        request.imageUrl(),
-                        request.path(),
-                        request.type(),
-                        request.schemeUri()
-                    ))
-                    .setAndroidConfig(generateAndroidConfig(
-                        request.title(),
-                        request.content(),
-                        request.imageUrl(),
-                        request.schemeUri(),
-                        request.type()
-                    ))
-                    .build()
-                )
-                .toList();
-
-            FirebaseMessaging.getInstance().sendEach(messages);
         } catch (Exception e) {
             log.warn("FCM 알림 전송 실패", e);
         }
