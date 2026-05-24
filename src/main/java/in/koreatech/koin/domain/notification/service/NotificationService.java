@@ -16,7 +16,7 @@ import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.domain.notification.repository.NotificationRepository;
+import in.koreatech.koin.domain.notification.repository.NotificationJdbcRepository;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -34,18 +34,26 @@ public class NotificationService {
     public record NotificationDeliveryResult(Notification notification, boolean delivered) {}
 
     private final UserRepository userRepository;
-    private final NotificationRepository notificationRepository;
     private final NotificationPersistenceService notificationPersistenceService;
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
+    private final NotificationJdbcRepository notificationJdbcRepository;
 
     @Transactional
     public void pushNotifications(List<Notification> notifications) {
         if (notifications.isEmpty()) {
             return;
         }
-        notificationRepository.saveAll(notifications);
-        runAfterCommit(() -> notifications.forEach(this::sendNotificationSafely));
+        notificationJdbcRepository.batchInsert(notifications);
+        notifications.forEach(notification -> fcmClient.sendMessage(
+            notification.getUser().getDeviceToken(),
+            notification.getTitle(),
+            notification.getMessage(),
+            notification.getImageUrl(),
+            notification.getMobileAppPath(),
+            notification.getSchemeUri(),
+            notification.getType().toLowerCase()
+        ));
     }
 
     @Transactional
