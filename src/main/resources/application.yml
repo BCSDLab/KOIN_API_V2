@@ -13,6 +13,7 @@ spring:
     timeout-per-shutdown-phase: 5s
   servlet:
     multipart:
+      resolve-lazily: true
       max-request-size: 10MB
       max-file-size: 10MB
 
