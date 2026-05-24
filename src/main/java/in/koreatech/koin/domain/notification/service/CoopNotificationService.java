@@ -22,13 +22,13 @@ public class CoopNotificationService {
     private final NotificationFactory notificationFactory;
     private final NotificationService notificationService;
 
-    public void sendDiningSoldOutNotifications(Integer dinningId, String place, DiningType diningType) {
+    public void sendDiningSoldOutNotifications(Integer diningId, String place, DiningType diningType) {
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(diningType);
         var notifications = notificationSubscribeRepository.findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, detailType)
             .stream()
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
-                dinningId,
+                diningId,
                 place,
                 subscribe.getUser()
             ))
