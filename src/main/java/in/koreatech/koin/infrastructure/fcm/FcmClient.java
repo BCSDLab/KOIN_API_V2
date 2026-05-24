@@ -3,6 +3,7 @@ package in.koreatech.koin.infrastructure.fcm;
 import static com.google.firebase.messaging.AndroidConfig.Priority.HIGH;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.scheduling.annotation.Async;
@@ -23,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class FcmClient {
+
+    private static final int FCM_MESSAGE_BATCH_SIZE = 500;
 
     @Async
     public void sendMessage(
@@ -67,6 +70,39 @@ public class FcmClient {
         } catch (Exception e) {
             log.warn("FCM 알림 전송 실패", e);
             return false;
+        }
+    }
+
+    public void sendMessages(List<FcmSendRequest> requests) {
+        try {
+            for (int start = 0; start < requests.size(); start += FCM_MESSAGE_BATCH_SIZE) {
+                int end = Math.min(start + FCM_MESSAGE_BATCH_SIZE, requests.size());
+                List<Message> messages = requests.subList(start, end).stream()
+                    .map(request -> Message.builder()
+                        .setToken(request.targetDeviceToken())
+                        .setApnsConfig(generateAppleConfig(
+                            request.title(),
+                            request.content(),
+                            request.imageUrl(),
+                            request.path(),
+                            request.type(),
+                            request.schemeUri()
+                        ))
+                        .setAndroidConfig(generateAndroidConfig(
+                            request.title(),
+                            request.content(),
+                            request.imageUrl(),
+                            request.schemeUri(),
+                            request.type()
+                        ))
+                        .build()
+                    )
+                    .toList();
+
+                FirebaseMessaging.getInstance().sendEach(messages);
+            }
+        } catch (Exception e) {
+            log.warn("FCM 알림 전송 실패", e);
         }
     }
 
