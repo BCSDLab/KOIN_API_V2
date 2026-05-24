@@ -36,6 +36,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     @Query("""
         SELECT new in.koreatech.koin.domain.community.article.model.readmodel.ArticleSummary(
             a.id,
+            a.board.id,
             a.title
         )
         FROM Article a
