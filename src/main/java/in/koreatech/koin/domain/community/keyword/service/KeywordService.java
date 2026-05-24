@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
-import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.readmodel.ArticleSummary;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
@@ -153,10 +153,10 @@ public class KeywordService {
 
     public void sendKeywordNotification(KeywordNotificationRequest request) {
         Set<Integer> updateNotificationIds = request.updateNotification();
-        List<Article> articles = articleRepository.findAllByIdIn(updateNotificationIds);
+        List<ArticleSummary> articleSummaries = articleRepository.findAllSummariesByIdIn(updateNotificationIds);
 
-        for (Article article : articles) {
-            List<String> matchedKeywords = keywordExtractor.matchKeywords(article.getTitle(), KeywordCategory.KOREATECH);
+        for (ArticleSummary articleSummary : articleSummaries) {
+            List<String> matchedKeywords = keywordExtractor.matchKeywords(articleSummary.title(), KeywordCategory.KOREATECH);
             if (matchedKeywords.isEmpty()) {
                 continue;
             }
@@ -170,9 +170,9 @@ public class KeywordService {
             }
 
             eventPublisher.publishEvent(KoreatechArticleKeywordEvent.of(
-                article.getId(),
-                article.getBoard().getId(),
-                article.getTitle(),
+                articleSummary.id(),
+                articleSummary.boardId(),
+                articleSummary.title(),
                 userIdsByKeyword
             ));
         }
