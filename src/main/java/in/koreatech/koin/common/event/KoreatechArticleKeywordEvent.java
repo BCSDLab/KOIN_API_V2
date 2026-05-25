@@ -1,6 +1,5 @@
 package in.koreatech.koin.common.event;
 
-import java.util.List;
 import java.util.Map;
 
 public record KoreatechArticleKeywordEvent(
@@ -9,23 +8,18 @@ public record KoreatechArticleKeywordEvent(
     String articleTitle,
     MatchedKeywordUsers matchedKeywordUsers
 ) {
-    public record MatchedKeywordUsers(
-        Map<String, List<Integer>> userIdsByKeyword
-    ) {
-
-    }
 
     public static KoreatechArticleKeywordEvent of(
         Integer articleId,
         Integer boardId,
         String articleTitle,
-        Map<String, List<Integer>> userIdsByKeyword
+        Map<Integer, String> keywordByUserId
     ) {
         return new KoreatechArticleKeywordEvent(
             articleId,
             boardId,
             articleTitle,
-            new MatchedKeywordUsers(userIdsByKeyword)
+            MatchedKeywordUsers.from(keywordByUserId)
         );
     }
 }

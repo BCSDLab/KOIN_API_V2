@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.community.keyword.service;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,7 @@ public class ArticleKeywordUserMatcher {
 
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
-    public Map<String, List<Integer>> findUserIdsByMatchedKeyword(
+    public Map<Integer, String> findKeywordsByUserId(
         KeywordCategory category,
         List<String> matchedKeywords
     ) {
@@ -39,12 +38,12 @@ public class ArticleKeywordUserMatcher {
             }
         }
 
-        Map<String, List<Integer>> userIdsByKeyword = new LinkedHashMap<>();
+        Map<Integer, String> keywordByUserIdResult = new LinkedHashMap<>();
         for (Map.Entry<Integer, ArticleKeyword> entry : keywordByUserId.entrySet()) {
             Integer userId = entry.getKey();
             String keyword = entry.getValue().getKeyword();
-            userIdsByKeyword.computeIfAbsent(keyword, ignored -> new ArrayList<>()).add(userId);
+            keywordByUserIdResult.put(userId, keyword);
         }
-        return userIdsByKeyword;
+        return keywordByUserIdResult;
     }
 }

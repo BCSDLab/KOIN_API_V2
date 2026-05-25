@@ -262,11 +262,11 @@ public class LostItemArticleService {
                 continue;
             }
 
-            Map<String, List<Integer>> userIdsByKeyword = articleKeywordUserMatcher.findUserIdsByMatchedKeyword(
+            Map<Integer, String> keywordByUserId = articleKeywordUserMatcher.findKeywordsByUserId(
                 KeywordCategory.LOST_ITEM,
                 matchedKeywords
             );
-            if (userIdsByKeyword.isEmpty()) {
+            if (keywordByUserId.isEmpty()) {
                 continue;
             }
 
@@ -274,7 +274,7 @@ public class LostItemArticleService {
                 article.getId(),
                 article.getTitle(),
                 authorId,
-                userIdsByKeyword
+                keywordByUserId
             ));
         }
     }

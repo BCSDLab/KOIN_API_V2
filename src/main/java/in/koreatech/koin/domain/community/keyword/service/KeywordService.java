@@ -161,11 +161,11 @@ public class KeywordService {
                 continue;
             }
 
-            Map<String, List<Integer>> userIdsByKeyword = articleKeywordUserMatcher.findUserIdsByMatchedKeyword(
+            Map<Integer, String> keywordByUserId = articleKeywordUserMatcher.findKeywordsByUserId(
                 KeywordCategory.KOREATECH,
                 matchedKeywords
             );
-            if (userIdsByKeyword.isEmpty()) {
+            if (keywordByUserId.isEmpty()) {
                 continue;
             }
 
@@ -173,7 +173,7 @@ public class KeywordService {
                 article.getId(),
                 article.getBoard().getId(),
                 article.getTitle(),
-                userIdsByKeyword
+                keywordByUserId
             ));
         }
     }
