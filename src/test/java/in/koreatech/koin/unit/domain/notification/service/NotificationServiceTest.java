@@ -3,26 +3,21 @@ package in.koreatech.koin.unit.domain.notification.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.InOrder;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.domain.notification.repository.NotificationRepository;
+import in.koreatech.koin.domain.notification.repository.NotificationJdbcRepository;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.domain.notification.service.NotificationPersistenceService;
 import in.koreatech.koin.domain.notification.service.NotificationService;
@@ -41,9 +36,6 @@ class NotificationServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private NotificationRepository notificationRepository;
-
-    @Mock
     private NotificationPersistenceService notificationPersistenceService;
 
     @Mock
@@ -54,6 +46,9 @@ class NotificationServiceTest {
 
     @Mock
     private NotificationFactory notificationFactory;
+
+    @Mock
+    private NotificationJdbcRepository notificationJdbcRepository;
 
     @Test
     @DisplayName("알림 전송 결과 조회는 전송 성공 시에만 알림 레코드를 저장한다.")
@@ -137,12 +132,11 @@ class NotificationServiceTest {
 
         notificationService.pushNotification(notification);
 
-        InOrder inOrder = inOrder(notificationRepository, fcmClient);
-        inOrder.verify(notificationRepository).saveAll(List.of(notification));
+        InOrder inOrder = inOrder(notificationJdbcRepository, fcmClient);
+        inOrder.verify(notificationJdbcRepository).batchInsert(List.of(notification));
         inOrder.verify(fcmClient).sendMessage(
             anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()
         );
-        verify(notificationRepository, never()).save(notification);
     }
 
     private Notification createNotification(String deviceToken) {
