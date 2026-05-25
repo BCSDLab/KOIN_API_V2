@@ -16,7 +16,6 @@ import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
-import in.koreatech.koin.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +25,6 @@ public class ArticleKeywordNotificationService {
 
     private final NotificationFactory notificationFactory;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
 
     public void notifyArticleKeyword(KoreatechArticleKeywordEvent event) {
@@ -37,9 +35,7 @@ public class ArticleKeywordNotificationService {
         }
 
         Map<Integer, NotificationSubscribe> subscribesByUserId = findSubscribesByUserId(matchedUserIds);
-        Set<Integer> alreadyNotifiedUserIds = getAlreadyNotifiedUserIds(event.articleId(), matchedUserIds);
-        List<Notification> notifications = createNotifications(event, userIdsByKeyword, subscribesByUserId,
-            alreadyNotifiedUserIds);
+        List<Notification> notifications = createNotifications(event, userIdsByKeyword, subscribesByUserId);
 
         notificationService.pushNotificationsWithResult(notifications);
     }
@@ -64,25 +60,15 @@ public class ArticleKeywordNotificationService {
         return subscribesByUserId;
     }
 
-    private Set<Integer> getAlreadyNotifiedUserIds(Integer articleId, List<Integer> userIds) {
-        return new HashSet<>(notificationRepository
-            .findUserIdsBySchemeUriLikeAndUserIdIn("%s?id=%d&%%".formatted(KEYWORD.getPath(), articleId), userIds));
-    }
-
     private List<Notification> createNotifications(
         KoreatechArticleKeywordEvent event,
         Map<String, List<Integer>> userIdsByKeyword,
-        Map<Integer, NotificationSubscribe> subscribesByUserId,
-        Set<Integer> alreadyNotifiedUserIds
+        Map<Integer, NotificationSubscribe> subscribesByUserId
     ) {
         List<Notification> notifications = new ArrayList<>();
         for (Map.Entry<String, List<Integer>> entry : userIdsByKeyword.entrySet()) {
             String keyword = entry.getKey();
             for (Integer userId : entry.getValue()) {
-                if (alreadyNotifiedUserIds.contains(userId)) {
-                    continue;
-                }
-
                 NotificationSubscribe subscribe = subscribesByUserId.get(userId);
                 if (subscribe == null) {
                     continue;

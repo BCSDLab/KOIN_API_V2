@@ -17,7 +17,6 @@ import in.koreatech.koin.common.event.LostItemKeywordEvent;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
-import in.koreatech.koin.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +26,6 @@ public class LostItemKeywordNotificationService {
 
     private final NotificationFactory notificationFactory;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
 
     public void notifyLostItemKeyword(LostItemKeywordEvent event) {
@@ -38,9 +36,7 @@ public class LostItemKeywordNotificationService {
         }
 
         Map<Integer, NotificationSubscribe> subscribesByUserId = findSubscribesByUserId(matchedUserIds);
-        Set<Integer> alreadyNotifiedUserIds = getAlreadyNotifiedUserIds(event.articleId(), matchedUserIds);
-        List<Notification> notifications = createNotifications(event, userIdsByKeyword, subscribesByUserId,
-            alreadyNotifiedUserIds);
+        List<Notification> notifications = createNotifications(event, userIdsByKeyword, subscribesByUserId);
 
         notificationService.pushNotificationsWithResult(notifications);
     }
@@ -65,25 +61,15 @@ public class LostItemKeywordNotificationService {
         return subscribesByUserId;
     }
 
-    private Set<Integer> getAlreadyNotifiedUserIds(Integer articleId, List<Integer> userIds) {
-        String schemeUriPattern = "%s?id=%d&%%".formatted(LOST_ITEM.getPath(), articleId);
-        return new HashSet<>(notificationRepository.findUserIdsBySchemeUriLikeAndUserIdIn(schemeUriPattern, userIds));
-    }
-
     private List<Notification> createNotifications(
         LostItemKeywordEvent event,
         Map<String, List<Integer>> userIdsByKeyword,
-        Map<Integer, NotificationSubscribe> subscribesByUserId,
-        Set<Integer> alreadyNotifiedUserIds
+        Map<Integer, NotificationSubscribe> subscribesByUserId
     ) {
         List<Notification> notifications = new ArrayList<>();
         for (Map.Entry<String, List<Integer>> entry : userIdsByKeyword.entrySet()) {
             String keyword = entry.getKey();
             for (Integer userId : entry.getValue()) {
-                if (alreadyNotifiedUserIds.contains(userId)) {
-                    continue;
-                }
-
                 if (isMyArticle(event, userId)) {
                     continue;
                 }
