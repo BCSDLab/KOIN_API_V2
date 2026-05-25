@@ -29,8 +29,6 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
 
     ArticleKeyword save(ArticleKeyword articleKeyword);
 
-    void deleteById(Integer id);
-
     Optional<ArticleKeyword> findById(Integer id);
 
     List<ArticleKeyword> findAllByCategory(KeywordCategory category, Pageable pageable);

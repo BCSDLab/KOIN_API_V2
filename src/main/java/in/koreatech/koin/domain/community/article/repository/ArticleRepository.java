@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.community.article.service.ArticleService.
 import static in.koreatech.koin.domain.community.article.service.ArticleService.NOTICE_BOARD_ID;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Optional<Article> findById(Integer articleId);
 
-    List<Article> findAllByIdIn(List<Integer> articleIds);
+    List<Article> findAllByIdIn(Collection<Integer> articleIds);
 
     Page<Article> findAll(Pageable pageable);
 
