@@ -67,8 +67,8 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
-    void 요약_문장은_200자까지_허용한다() {
-        String text = "가".repeat(200);
+    void 요약_문장은_260자까지_허용한다() {
+        String text = "가".repeat(260);
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
             new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, text)
         ));
@@ -79,12 +79,12 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
-    void 요약_문장이_200자를_초과하면_실패한다() {
+    void 요약_문장이_260자를_초과하면_실패한다() {
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
-            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(201))
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(261))
         ));
 
-        assertThatThrownBy(() -> validator.validate(result, "가".repeat(201)))
+        assertThatThrownBy(() -> validator.validate(result, "가".repeat(261)))
             .isInstanceOf(ArticleSummaryValidationException.class);
     }
 

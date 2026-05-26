@@ -13,7 +13,7 @@ public class ArticleSummaryPromptBuilder {
     private static final int MAX_BODY_LENGTH = 8_000;
     private static final int MAX_ATTACHMENT_LENGTH = 8_000;
     private static final int MAX_PREVIOUS_RESULT_ITEMS = 10;
-    private static final int MAX_PREVIOUS_ITEM_TEXT_LENGTH = 200;
+    private static final int MAX_PREVIOUS_ITEM_TEXT_LENGTH = 260;
     private static final int INITIAL_CANDIDATE_MAX_ITEMS = 5;
     private static final int FINAL_SUMMARY_MAX_ITEMS = 3;
 
@@ -56,9 +56,10 @@ public class ArticleSummaryPromptBuilder {
             - "자세한 내용은 확인하세요", "첨부 문서 확인 필수"처럼 구체 정보가 없는 문장
 
             icon_key는 CALENDAR, TARGET, LOCATION, ACTION, MONEY, NOTICE, DOCUMENT, DEFAULT 중 하나만 사용하세요.
-            text에는 이모지를 넣지 말고, 한 항목 200자 이내의 자연스러운 한국어 문장으로 작성하세요.
+            text에는 이모지를 넣지 말고, 한 항목 260자 이내의 자연스러운 한국어 문장으로 작성하세요.
             "모집기간: 5월 20일까지", "대상: 재학생"처럼 라벨과 값만 나열하지 말고, "재학생은 5월 20일 18시까지 신청서를 이메일로 제출해야 합니다."처럼 완결된 문장으로 쓰세요.
-            각 문장은 하나의 핵심을 설명하되, 마감일/시간/대상/제출처/제출서류/금액 같은 세부값은 가능한 한 문장 안에 함께 담으세요.
+            각 문장은 하나의 핵심을 설명하되, 마감일/시간/대상/제출처/제출서류/금액/혜택/유의사항 같은 세부값은 가능한 한 문장 안에 함께 담으세요.
+            서로 연결된 핵심 정보는 한 문장에 함께 담아도 되지만, 반복 설명이나 낮은 우선순위 배경 설명은 넣지 마세요.
             문장은 정중하고 담백하게 작성하고, 과한 홍보 문구나 불필요한 수식어는 제외하세요.
             정보가 부족해 의미 있는 요약을 만들 수 없다면 items를 빈 배열로 반환하세요.
 
@@ -81,8 +82,9 @@ public class ArticleSummaryPromptBuilder {
             5. 원문과 첨부에 없는 정보는 추가하지 마세요.
 
             icon_key는 CALENDAR, TARGET, LOCATION, ACTION, MONEY, NOTICE, DOCUMENT, DEFAULT 중 하나만 사용하세요.
-            text에는 이모지를 넣지 말고, 한 항목 200자 이내의 자연스러운 한국어 문장으로 작성하세요.
+            text에는 이모지를 넣지 말고, 한 항목 260자 이내의 자연스러운 한국어 문장으로 작성하세요.
             "신청 기간: 5월 20일까지" 같은 라벨형 표현보다 "신청자는 5월 20일까지 신청서를 제출해야 합니다."처럼 완성된 문장을 우선하세요.
+            서로 연결된 기간, 대상, 제출 방법, 혜택, 유의사항은 한 문장에 함께 담아도 되지만, 같은 의미를 반복하지 마세요.
             반드시 최대 3개만 반환하고, 3개가 필요 없으면 1~2개만 반환하세요.
 
             [게시글]
@@ -108,7 +110,7 @@ public class ArticleSummaryPromptBuilder {
 
             수정 규칙:
             1. 항목은 반드시 최대 3개만 반환하세요.
-            2. 각 text는 200자 이내의 자연스러운 문장으로 줄이되, 마감일/시간/대상/제출처/제출서류/금액 같은 핵심 세부값은 우선 보존하세요.
+            2. 각 text는 260자 이내의 자연스러운 문장으로 줄이되, 마감일/시간/대상/제출처/제출서류/금액/혜택/유의사항 같은 핵심 세부값은 우선 보존하세요.
             3. 원문과 첨부에 없는 날짜, 시간, 숫자, 장소, 금액은 절대 추가하지 마세요.
             4. 너무 긴 항목은 낮은 우선순위 수식어를 제거하거나, 같은 항목 안의 세부값을 짧게 압축하세요.
             5. "첨부 확인", "자세한 내용 확인"처럼 행동만 요구하는 문장으로 대체하지 마세요.

@@ -125,7 +125,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
                                     ),
                                     "text", Map.of(
                                         "type", "string",
-                                        "maxLength", 200
+                                        "maxLength", 260
                                     )
                                 )
                             )

@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 public class ArticleSummaryValidator {
 
     private static final int MAX_ITEMS = 3;
-    private static final int MAX_TEXT_LENGTH = 200;
+    private static final int MAX_TEXT_LENGTH = 260;
     private static final Pattern CRITICAL_TOKEN_PATTERN = Pattern.compile(
         "(\\d{4}[./-]\\s*\\d{1,2}[./-]\\s*\\d{1,2})"
             + "|(\\d{2}[./-]\\s*\\d{1,2}[./-]\\s*\\d{1,2})"
@@ -70,7 +70,7 @@ public class ArticleSummaryValidator {
             throw new ArticleSummaryValidationException("요약 문장이 비어 있습니다.");
         }
         if (text.length() > MAX_TEXT_LENGTH) {
-            throw new ArticleSummaryValidationException("요약 문장이 200자를 초과했습니다.");
+            throw new ArticleSummaryValidationException("요약 문장이 260자를 초과했습니다.");
         }
         if (isMeaningless(text)) {
             throw new ArticleSummaryValidationException("구체 정보가 없는 요약 문장입니다.");
