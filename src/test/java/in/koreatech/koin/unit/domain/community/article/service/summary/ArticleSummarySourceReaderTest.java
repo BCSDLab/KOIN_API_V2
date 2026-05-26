@@ -2,6 +2,8 @@ package in.koreatech.koin.unit.domain.community.article.service.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -95,6 +97,39 @@ class ArticleSummarySourceReaderTest {
     }
 
     @Test
+    void koreatech_ac_kr_하위_도메인_첨부_URL도_파싱_대상으로_포함한다() {
+        FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        properties.setMaxDocumentsPerArticle(3);
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "학사 안내",
+            "<p>첨부 문서를 확인하세요.</p>",
+            "학사팀",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(new ArticleAttachmentSeed(
+                10,
+                "notice.pdf",
+                "https://portal.koreatech.ac.kr/files/notice.pdf",
+                "hash",
+                LocalDateTime.of(2026, 5, 1, 10, 0)
+            ))
+        );
+
+        ArticleSummarySource source = reader.read(seed);
+
+        assertThat(parseClient.requests)
+            .extracting(DocumentParseRequest::url)
+            .containsExactly("https://portal.koreatech.ac.kr/files/notice.pdf");
+        assertThat(source.attachmentTexts()).hasSize(1);
+        assertThat(source.attachmentTexts().get(0)).contains("파일명: notice.pdf");
+    }
+
+    @Test
     void 첨부_파싱에_실패해도_본문만으로_요약_입력을_구성한다() {
         ArticleDocumentParseClient parseClient = request -> {
             throw new IllegalStateException("parse failed");
@@ -163,10 +198,9 @@ class ArticleSummarySourceReaderTest {
     }
 
     @Test
-    void 허용된_본문_URL_prefix면_URL_내용을_조회해_요약_입력으로_사용한다() {
+    void 허용된_koreatech_하위_도메인_본문_URL이면_URL_내용을_조회해_요약_입력으로_사용한다() {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
-        properties.setAllowedContentUrlPrefixes(List.of("https://stage-static.koreatech.in/"));
         S3Client s3Client = mock(S3Client.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         when(s3Client.getContentFromUrl("https://stage-static.koreatech.in/articles/content/notice.txt"))
@@ -198,7 +232,7 @@ class ArticleSummarySourceReaderTest {
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
             1,
             "장학금 안내",
-            "https://stage-static.koreatech.in/articles/content/notice.txt",
+            "https://stage-static.koreatech.in.evil.com/articles/content/notice.txt",
             "학생처",
             LocalDate.of(2026, 5, 1),
             LocalDateTime.of(2026, 5, 1, 10, 0),
@@ -209,6 +243,7 @@ class ArticleSummarySourceReaderTest {
 
         assertThat(source.contentText()).isEmpty();
         assertThat(source.mergedText()).isEmpty();
+        verify(s3Client, never()).getContentFromUrl("https://stage-static.koreatech.in.evil.com/articles/content/notice.txt");
     }
 
     private static class FakeDocumentParseClient implements ArticleDocumentParseClient {

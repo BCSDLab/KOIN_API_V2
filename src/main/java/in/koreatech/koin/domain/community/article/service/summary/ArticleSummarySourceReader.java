@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.service.summary;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -36,6 +37,8 @@ public class ArticleSummarySourceReader {
     );
     private static final Pattern INLINE_URL_PATTERN = Pattern.compile("https://[^\\s\"'<>]+");
     private static final String TRAILING_URL_PUNCTUATION = ".,;:!?)]}";
+    private static final String HTTPS_SCHEME_PREFIX = "https://";
+    private static final String WILDCARD_HOST_PREFIX = "*.";
 
     private final ArticleDocumentParseClient documentParseClient;
     private final ArticleAiSummaryProperties properties;
@@ -118,7 +121,7 @@ public class ArticleSummarySourceReader {
         return properties.getAllowedContentUrlPrefixes().stream()
             .filter(StringUtils::hasText)
             .map(String::trim)
-            .anyMatch(url::startsWith);
+            .anyMatch(allowedUrl -> matchesAllowedUrl(url, allowedUrl));
     }
 
     private AttachmentReadResult readAttachmentTexts(ArticleSummarySourceSeed seed) {
@@ -247,7 +250,45 @@ public class ArticleSummarySourceReader {
         return properties.getAllowedDocumentUrlPrefixes().stream()
             .filter(StringUtils::hasText)
             .map(String::trim)
-            .anyMatch(url::startsWith);
+            .anyMatch(allowedUrl -> matchesAllowedUrl(url, allowedUrl));
+    }
+
+    private boolean matchesAllowedUrl(String url, String allowedUrl) {
+        if (!StringUtils.hasText(allowedUrl)) {
+            return false;
+        }
+        if (!allowedUrl.startsWith(HTTPS_SCHEME_PREFIX)) {
+            return false;
+        }
+        if (!allowedUrl.contains(WILDCARD_HOST_PREFIX)) {
+            return url.startsWith(allowedUrl);
+        }
+        return matchesWildcardHost(url, allowedUrl);
+    }
+
+    private boolean matchesWildcardHost(String url, String allowedUrl) {
+        try {
+            URI urlUri = URI.create(url);
+            if (!"https".equalsIgnoreCase(urlUri.getScheme()) || !StringUtils.hasText(urlUri.getHost())) {
+                return false;
+            }
+            String allowedRemainder = allowedUrl.substring(HTTPS_SCHEME_PREFIX.length());
+            int pathStartIndex = allowedRemainder.indexOf('/');
+            String allowedHost = pathStartIndex < 0 ? allowedRemainder : allowedRemainder.substring(0, pathStartIndex);
+            String allowedPath = pathStartIndex < 0 ? "/" : allowedRemainder.substring(pathStartIndex);
+            if (!allowedHost.startsWith(WILDCARD_HOST_PREFIX)) {
+                return false;
+            }
+            String allowedDomain = allowedHost.substring(WILDCARD_HOST_PREFIX.length()).toLowerCase(Locale.ROOT);
+            String requestHost = urlUri.getHost().toLowerCase(Locale.ROOT);
+            if (!requestHost.equals(allowedDomain) && !requestHost.endsWith("." + allowedDomain)) {
+                return false;
+            }
+            String requestPath = StringUtils.hasText(urlUri.getRawPath()) ? urlUri.getRawPath() : "/";
+            return "/".equals(allowedPath) || requestPath.startsWith(allowedPath);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private String extensionOf(String value) {

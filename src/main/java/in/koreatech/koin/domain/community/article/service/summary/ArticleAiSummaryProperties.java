@@ -30,8 +30,12 @@ public class ArticleAiSummaryProperties {
     private int requestTimeoutSeconds = 20;
     private String model = "solar-pro3";
     private String promptVersion = "v9";
-    private List<String> allowedContentUrlPrefixes = new ArrayList<>();
-    private List<String> allowedDocumentUrlPrefixes = new ArrayList<>();
+    private List<String> allowedContentUrlPrefixes = new ArrayList<>(
+        List.of("https://*.koreatech.in/", "https://*.koreatech.ac.kr/")
+    );
+    private List<String> allowedDocumentUrlPrefixes = new ArrayList<>(
+        List.of("https://*.koreatech.in/", "https://*.koreatech.ac.kr/")
+    );
 
     public int getBoundedMaxRefinementRetryCount() {
         return Math.min(Math.max(maxRefinementRetryCount, 0), MAX_REFINEMENT_RETRY_COUNT_LIMIT);
