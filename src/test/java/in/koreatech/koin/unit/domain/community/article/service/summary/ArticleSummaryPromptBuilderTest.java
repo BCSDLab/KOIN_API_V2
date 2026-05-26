@@ -20,7 +20,7 @@ class ArticleSummaryPromptBuilderTest {
     private final ArticleSummaryPromptBuilder promptBuilder = new ArticleSummaryPromptBuilder();
 
     @Test
-    void 개괄식_요약_지침을_포함한다() {
+    void 문장형_요약_지침을_포함한다() {
         ArticleSummarySource source = new ArticleSummarySource(
             1,
             "장학금 신청 안내",
@@ -41,9 +41,9 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(prompt.userMessage()).contains("시작일, 마감일, 시간, 활동기간");
         assertThat(prompt.userMessage()).contains("제출처, 이메일, 링크, 제출서류");
         assertThat(prompt.userMessage()).contains("한 항목 200자 이내");
-        assertThat(prompt.userMessage()).contains("개괄식 표현");
-        assertThat(prompt.userMessage()).contains("신청 기간: 5월 20일까지");
-        assertThat(prompt.userMessage()).contains("마침표는 생략");
+        assertThat(prompt.userMessage()).contains("자연스러운 한국어 문장");
+        assertThat(prompt.userMessage()).contains("라벨과 값만 나열하지 말고");
+        assertThat(prompt.userMessage()).contains("신청서를 이메일로 제출해야 합니다");
     }
 
     @Test
@@ -115,6 +115,7 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(refinementPrompt.userMessage()).contains("반드시 최대 3개만 반환");
         assertThat(refinementPrompt.userMessage()).contains("세부값을 최대한 남기세요");
         assertThat(refinementPrompt.userMessage()).contains("한 항목 200자 이내");
+        assertThat(refinementPrompt.userMessage()).contains("완성된 문장");
         assertThat(refinementPrompt.userMessage()).contains("후보끼리 겹치면 합치거나");
         assertThat(refinementPrompt.userMessage()).contains("4. icon_key=ACTION, text=신청 방법: 온라인 제출");
     }
@@ -146,7 +147,7 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(correctionPrompt.maxItems()).isEqualTo(3);
         assertThat(correctionPrompt.userMessage()).contains("서버 검증을 통과하지 못했습니다");
         assertThat(correctionPrompt.userMessage()).contains("요약 문장이 200자를 초과했습니다");
-        assertThat(correctionPrompt.userMessage()).contains("핵심 세부값은 우선 보존");
+        assertThat(correctionPrompt.userMessage()).contains("자연스러운 문장");
         assertThat(correctionPrompt.userMessage()).contains("원문과 첨부에 없는 날짜");
     }
 
