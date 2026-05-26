@@ -29,7 +29,7 @@ public class ArticleAiSummaryProperties {
     private int documentParseMinIntervalMillis = 1_000;
     private int requestTimeoutSeconds = 20;
     private String model = "solar-pro3";
-    private String promptVersion = "v8";
+    private String promptVersion = "v9";
     private List<String> allowedContentUrlPrefixes = new ArrayList<>();
     private List<String> allowedDocumentUrlPrefixes = new ArrayList<>();
 
