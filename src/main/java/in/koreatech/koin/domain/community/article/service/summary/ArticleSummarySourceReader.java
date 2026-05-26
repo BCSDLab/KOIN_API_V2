@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,6 +34,8 @@ public class ArticleSummarySourceReader {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(
         "jpg", "jpeg", "png", "bmp", "pdf", "tiff", "tif", "heic", "docx", "pptx", "xlsx", "hwp", "hwpx"
     );
+    private static final Pattern INLINE_URL_PATTERN = Pattern.compile("https://[^\\s\"'<>]+");
+    private static final String TRAILING_URL_PUNCTUATION = ".,;:!?)]}";
 
     private final ArticleDocumentParseClient documentParseClient;
     private final ArticleAiSummaryProperties properties;
@@ -177,6 +181,7 @@ public class ArticleSummarySourceReader {
         collectUrls(document, "iframe[src]", element -> element.attr("src"), urls);
         collectUrls(document, "embed[src]", element -> element.attr("src"), urls);
         collectUrls(document, "object[data]", element -> element.attr("data"), urls);
+        collectRawUrls(document.text(), urls);
         return urls.stream()
             .map(String::trim)
             .filter(StringUtils::hasText)
@@ -193,6 +198,28 @@ public class ArticleSummarySourceReader {
             .map(String::trim)
             .filter(StringUtils::hasText)
             .ifPresent(urls::add));
+    }
+
+    private void collectRawUrls(String text, Set<String> urls) {
+        if (!StringUtils.hasText(text)) {
+            return;
+        }
+        Matcher matcher = INLINE_URL_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String url = trimTrailingUrlPunctuation(matcher.group());
+            if (StringUtils.hasText(url)) {
+                urls.add(url);
+            }
+        }
+    }
+
+    private String trimTrailingUrlPunctuation(String url) {
+        String trimmed = url;
+        while (StringUtils.hasText(trimmed)
+            && TRAILING_URL_PUNCTUATION.indexOf(trimmed.charAt(trimmed.length() - 1)) >= 0) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed;
     }
 
     private String htmlToText(String html) {

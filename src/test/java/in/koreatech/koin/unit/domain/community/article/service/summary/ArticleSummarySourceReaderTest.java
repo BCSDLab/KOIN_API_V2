@@ -65,6 +65,36 @@ class ArticleSummarySourceReaderTest {
     }
 
     @Test
+    void 본문에_텍스트로_노출된_이미지_URL도_파싱_대상으로_포함한다() {
+        FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        properties.setMaxDocumentsPerArticle(3);
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "포스터 안내",
+            """
+                <p>자세한 내용은 포스터를 확인하세요.</p>
+                <p>https://static.koreatech.in/images/poster.png.</p>
+                """,
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of()
+        );
+
+        ArticleSummarySource source = reader.read(seed);
+
+        assertThat(parseClient.requests)
+            .extracting(DocumentParseRequest::url)
+            .containsExactly("https://static.koreatech.in/images/poster.png");
+        assertThat(source.attachmentTexts()).hasSize(1);
+        assertThat(source.attachmentTexts().get(0)).contains("파일명: poster.png");
+    }
+
+    @Test
     void 첨부_파싱에_실패해도_본문만으로_요약_입력을_구성한다() {
         ArticleDocumentParseClient parseClient = request -> {
             throw new IllegalStateException("parse failed");
