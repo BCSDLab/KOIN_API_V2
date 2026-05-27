@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
@@ -25,7 +26,6 @@ import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -57,7 +57,7 @@ public interface ShopApi {
             - openTime, closeTime 응답값 추가
         """)
     @ApiResponseCodes({
-        ApiResponseCode.OK
+        OK
     })
     @GetMapping("/v2/shops/{id}")
     ResponseEntity<ShopResponseV2> getShopByIdV2(
@@ -88,14 +88,9 @@ public interface ShopApi {
     @GetMapping("/shops")
     ResponseEntity<ShopsResponse> getShops();
 
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
+    @ApiResponseCodes({
+        OK
+    })
     @Operation(summary = "현재 영업 중인 상점 개수 조회")
     @GetMapping("/shops/open/count")
     ResponseEntity<OpenShopsCountResponse> getOpenShopsCount();
