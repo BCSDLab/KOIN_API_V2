@@ -561,6 +561,26 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 이벤트_진행중인_상점_개수를_조회한다() throws Exception {
+        Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
+        Shop 영업중이_아닌_신전떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(owner);
+        eventArticleFixture.할인_이벤트(마슬랜, LocalDate.now(clock).minusDays(3), LocalDate.now(clock).plusDays(3));
+        eventArticleFixture.참여_이벤트(마슬랜, LocalDate.now(clock).minusDays(3), LocalDate.now(clock).plusDays(3));
+        eventArticleFixture.참여_이벤트(영업중인_티바, LocalDate.now(clock), LocalDate.now(clock).plusDays(10));
+        eventArticleFixture.할인_이벤트(영업중이_아닌_신전떡볶이, LocalDate.now(clock).minusDays(10), LocalDate.now(clock).minusDays(1));
+
+        mockMvc.perform(
+                get("/shops/events/count")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "count": 2
+                }
+                """));
+    }
+
+    @Test
     void 리뷰_평점순으로_정렬하여_모든_상점을_조회한다() throws Exception {
         Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
