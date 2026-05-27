@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
+import in.koreatech.koin.domain.shop.dto.shop.response.OpenShopsCountResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
@@ -66,6 +67,12 @@ public class ShopController implements ShopApi {
     public ResponseEntity<ShopsResponse> getShops() {
         ShopsResponse shopsResponse = shopService.getShops();
         return ResponseEntity.ok(shopsResponse);
+    }
+
+    @GetMapping("/shops/open/count")
+    public ResponseEntity<OpenShopsCountResponse> getOpenShopsCount() {
+        OpenShopsCountResponse response = shopService.getOpenShopsCount();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/shops/categories")
