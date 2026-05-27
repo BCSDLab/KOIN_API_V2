@@ -28,8 +28,8 @@ import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.service.express.client.PublicExpressBusClient;
 import in.koreatech.koin.domain.bus.service.express.client.StaticExpressBusClient;
 import in.koreatech.koin.domain.bus.service.express.client.TmoneyExpressBusClient;
-import in.koreatech.koin.domain.notification.eventlistener.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.notification.eventlistener.CoopEventListener;
+import in.koreatech.koin.domain.notification.eventlistener.KeywordEventListener;
 import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 import in.koreatech.koin.infrastructure.slack.eventlistener.OwnerEventListener;
 import in.koreatech.koin.infrastructure.slack.eventlistener.ReviewEventListener;
@@ -73,7 +73,7 @@ public abstract class AcceptanceTest {
     protected CoopEventListener coopEventListener;
 
     @MockBean
-    protected ArticleKeywordEventListener articleKeywordEventListener;
+    protected KeywordEventListener articleKeywordEventListener;
 
     @MockBean
     protected PublicExpressBusClient publicExpressBusClient;

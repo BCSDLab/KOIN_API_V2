@@ -1,44 +1,27 @@
 package in.koreatech.koin.domain.notification.eventlistener;
 
-import static in.koreatech.koin.common.model.MobileAppPath.SHOP;
-import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
-
-import java.util.List;
-
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.common.event.EventArticleCreateShopEvent;
-import in.koreatech.koin.domain.notification.model.Notification;
-import in.koreatech.koin.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
-import in.koreatech.koin.domain.notification.service.NotificationService;
+import in.koreatech.koin.domain.notification.service.ShopNotificationService;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 @Profile("!test")
-public class ShopEventListener { // TODO : 리팩터링 필요 (비즈니스로직 제거 및 알림 책임만 갖도록)
+public class ShopEventListener {
 
-    private final NotificationService notificationService;
-    private final NotificationFactory notificationFactory;
-    private final NotificationSubscribeRepository notificationSubscribeRepository;
+    private final ShopNotificationService shopNotificationService;
 
     @TransactionalEventListener
     public void onShopEventCreate(EventArticleCreateShopEvent event) {
-        List<Notification> notifications = notificationSubscribeRepository
-            .findAllBySubscribeTypeAndDetailTypeIsNull(SHOP_EVENT)
-            .stream()
-            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
-            .map(subscribe -> notificationFactory.generateShopEventCreateNotification(
-                SHOP,
-                event.shopId(),
-                event.thumbnailImage(),
-                event.shopName(),
-                event.title(),
-                subscribe.getUser()
-            )).toList();
-        notificationService.pushNotifications(notifications);
+        shopNotificationService.sendShopEventCreateNotifications(
+            event.shopId(),
+            event.shopName(),
+            event.title(),
+            event.thumbnailImage()
+        );
     }
 }

@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.notification.service;
 
-import static in.koreatech.koin.common.model.MobileAppPath.DINING;
-import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.getParentType;
 
 import java.util.ArrayList;
@@ -12,15 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
-import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.domain.notification.repository.NotificationRepository;
+import in.koreatech.koin.domain.notification.repository.NotificationJdbcRepository;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -38,19 +34,26 @@ public class NotificationService {
     public record NotificationDeliveryResult(Notification notification, boolean delivered) {}
 
     private final UserRepository userRepository;
-    private final NotificationRepository notificationRepository;
     private final NotificationPersistenceService notificationPersistenceService;
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final NotificationFactory notificationFactory;
+    private final NotificationJdbcRepository notificationJdbcRepository;
 
     @Transactional
     public void pushNotifications(List<Notification> notifications) {
         if (notifications.isEmpty()) {
             return;
         }
-        notificationRepository.saveAll(notifications);
-        runAfterCommit(() -> notifications.forEach(this::sendNotificationSafely));
+        notificationJdbcRepository.batchInsert(notifications);
+        notifications.forEach(notification -> fcmClient.sendMessage(
+            notification.getUser().getDeviceToken(),
+            notification.getTitle(),
+            notification.getMessage(),
+            notification.getImageUrl(),
+            notification.getMobileAppPath(),
+            notification.getSchemeUri(),
+            notification.getType().toLowerCase()
+        ));
     }
 
     @Transactional
@@ -149,21 +152,6 @@ public class NotificationService {
         User user = userRepository.getById(userId);
         ensureUserDeviceToken(user.getDeviceToken());
         notificationSubscribeRepository.deleteByUserIdAndDetailType(userId, detailType);
-    }
-
-    @Transactional
-    public void sendDiningSoldOutNotifications(Integer dinningId, String place, DiningType diningType) {
-        NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(diningType);
-        var notifications = notificationSubscribeRepository.findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, detailType)
-            .stream()
-            .map(subscribe -> notificationFactory.generateSoldOutNotification(
-                DINING,
-                dinningId,
-                place,
-                subscribe.getUser()
-            ))
-            .toList();
-        pushNotifications(notifications);
     }
 
     private void sendNotificationSafely(Notification notification) {
