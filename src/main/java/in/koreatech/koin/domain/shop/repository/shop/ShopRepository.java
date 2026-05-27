@@ -83,6 +83,17 @@ public interface ShopRepository extends Repository<Shop, Integer> {
     List<Shop> findAllWithEventArticles();
 
     @Query("""
+        SELECT COUNT(DISTINCT s.id)
+        FROM Shop s
+        JOIN s.eventArticles e
+        WHERE s.isDeleted = false
+        AND e.isDeleted = false
+        AND e.startDate <= :now
+        AND e.endDate >= :now
+    """)
+    Long countShopsWithOngoingEvent(@Param("now") LocalDate now);
+
+    @Query("""
         SELECT new in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse(
             s.id,
             s.name,
