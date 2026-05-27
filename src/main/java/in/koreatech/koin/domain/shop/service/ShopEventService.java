@@ -1,10 +1,12 @@
 package in.koreatech.koin.domain.shop.service;
 
+import in.koreatech.koin.domain.shop.dto.event.response.ShopEventCountResponse;
 import in.koreatech.koin.domain.shop.dto.event.response.ShopEventsWithBannerUrlResponse;
 import in.koreatech.koin.domain.shop.dto.event.response.ShopEventsWithThumbnailUrlResponse;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,5 +28,11 @@ public class ShopEventService {
     public ShopEventsWithBannerUrlResponse getAllEvents() {
         List<Shop> shops = shopRepository.findAllWithEventArticles();
         return ShopEventsWithBannerUrlResponse.of(shops, clock);
+    }
+
+    public ShopEventCountResponse getEventShopCount() {
+        LocalDate now = LocalDate.now(clock);
+        Long count = shopRepository.countShopsWithOngoingEvent(now);
+        return new ShopEventCountResponse(Math.toIntExact(count));
     }
 }
