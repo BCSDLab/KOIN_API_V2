@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.weather.dto.WeatherApiResponse;
@@ -105,6 +106,13 @@ public class WeatherClient {
             return parseResponse(response.getBody(), requestTime);
         } catch (WeatherOpenApiException e) {
             throw e;
+        } catch (HttpStatusCodeException e) {
+            String responseBody = e.getResponseBodyAsString();
+            if (responseBody != null && !responseBody.isBlank()) {
+                return parseResponse(responseBody, requestTime);
+            }
+            throw WeatherOpenApiException.withDetail("baseDateTime: "
+                + requestTime.baseDate() + requestTime.baseTime() + ", httpStatus: " + e.getStatusCode());
         } catch (Exception e) {
             throw WeatherOpenApiException.withDetail("baseDateTime: "
                 + requestTime.baseDate() + requestTime.baseTime() + ", cause: " + e.getClass().getSimpleName());
