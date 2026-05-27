@@ -35,6 +35,18 @@ class WeatherForecastRequestTimeTest {
     }
 
     @Test
+    void 자정_직후에는_전날_마지막_발표시각을_사용한다() {
+        WeatherForecastRequestTime requestTime = WeatherForecastRequestTime.from(
+            LocalDateTime.of(2024, 1, 15, 0, 5)
+        );
+
+        assertThat(requestTime.baseDate()).isEqualTo("20240114");
+        assertThat(requestTime.baseTime()).isEqualTo("2300");
+        assertThat(requestTime.forecastDate()).isEqualTo("20240115");
+        assertThat(requestTime.forecastTime()).isEqualTo("0000");
+    }
+
+    @Test
     void 직전_발표시각을_계산한다() {
         WeatherForecastRequestTime requestTime = new WeatherForecastRequestTime(
             "20240115",

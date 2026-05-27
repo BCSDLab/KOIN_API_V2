@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.weather.scheduler;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 public class WeatherScheduler {
 
     private final WeatherService weatherService;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void refreshWeatherOnStartup() {
+        refreshWeather();
+    }
 
     @Scheduled(cron = "0 0 * * * *")
     public void refreshWeather() {

@@ -27,8 +27,9 @@ public record WeatherForecastRequestTime(
     );
 
     public static WeatherForecastRequestTime from(LocalDateTime now) {
-        LocalDate baseDate = now.toLocalDate();
-        LocalTime availableTime = now.toLocalTime().minusMinutes(10);
+        LocalDateTime availableDateTime = now.minusMinutes(10);
+        LocalDate baseDate = availableDateTime.toLocalDate();
+        LocalTime availableTime = availableDateTime.toLocalTime();
         LocalTime baseTime = null;
         for (LocalTime time : BASE_TIMES) {
             if (!time.isAfter(availableTime)) {

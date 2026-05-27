@@ -2,11 +2,11 @@ package in.koreatech.koin.domain.weather.model;
 
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import in.koreatech.koin.domain.weather.dto.WeatherResponse;
-import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 

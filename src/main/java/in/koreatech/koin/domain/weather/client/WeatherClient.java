@@ -154,7 +154,7 @@ public class WeatherClient {
             urlBuilder.append("&" + encode("ny", ENCODE_TYPE) + "=" + encode(String.valueOf(BYEONGCHEON_NY), ENCODE_TYPE));
             return urlBuilder.toString();
         } catch (Exception e) {
-            throw new KoinIllegalStateException("기상청 단기예보 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
+            throw new KoinIllegalStateException("기상청 단기예보 API URL 생성중 문제가 발생했습니다.", "uri build failed");
         }
     }
 
@@ -189,7 +189,7 @@ public class WeatherClient {
         }
 
         String resultCode = response.response().header().resultCode();
-        if (!resultCode.equals("00") && !resultCode.equals("0")) {
+        if (!"00".equals(resultCode) && !"0".equals(resultCode)) {
             throw WeatherOpenApiException.withDetail(
                 "resultCode: " + resultCode + ", resultMsg: " + response.response().header().resultMsg()
             );
