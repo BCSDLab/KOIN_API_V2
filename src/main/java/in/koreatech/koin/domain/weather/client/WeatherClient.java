@@ -63,24 +63,44 @@ public class WeatherClient {
         WeatherApiResponse response = getOpenApiResponse(requestTime);
         List<WeatherForecastItem> items = extractForecastItems(response);
         Map<String, String> forecasts = items.stream()
-            .filter(item -> item.fcstDate().equals(requestTime.forecastDate()))
-            .filter(item -> item.fcstTime().equals(requestTime.forecastTime()))
+            .filter(item -> requestTime.forecastDate().equals(item.fcstDate()))
+            .filter(item -> requestTime.forecastTime().equals(item.fcstTime()))
             .collect(Collectors.toMap(
                 WeatherForecastItem::category,
                 WeatherForecastItem::fcstValue,
                 (previous, current) -> current
             ));
 
-        try {
-            return new WeatherForecast(
-                Integer.parseInt(forecasts.get("TMP")),
-                forecasts.get("SKY"),
-                forecasts.get("PTY")
-            );
-        } catch (Exception e) {
+        if (forecasts.isEmpty()) {
             throw WeatherOpenApiException.withDetail("forecastDateTime: "
                 + requestTime.forecastDate() + requestTime.forecastTime());
         }
+
+        String temperature = requireForecastValue(forecasts, "TMP");
+        String sky = requireForecastValue(forecasts, "SKY");
+        String precipitationType = requireForecastValue(forecasts, "PTY");
+
+        try {
+            return new WeatherForecast(
+                Integer.parseInt(temperature),
+                sky,
+                precipitationType
+            );
+        } catch (NumberFormatException e) {
+            throw WeatherOpenApiException.withDetail(
+                "invalid category: TMP, value: " + temperature
+            );
+        }
+    }
+
+    private String requireForecastValue(Map<String, String> forecasts, String category) {
+        String forecastValue = forecasts.get(category);
+        if (forecastValue == null || forecastValue.isBlank()) {
+            throw WeatherOpenApiException.withDetail(
+                "missing category: " + category
+            );
+        }
+        return forecastValue;
     }
 
     private boolean canRetryWithPreviousBaseTime(WeatherOpenApiException e) {
