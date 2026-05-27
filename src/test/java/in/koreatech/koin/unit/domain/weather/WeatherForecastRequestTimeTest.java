@@ -33,4 +33,38 @@ class WeatherForecastRequestTimeTest {
         assertThat(requestTime.forecastDate()).isEqualTo("20240115");
         assertThat(requestTime.forecastTime()).isEqualTo("0200");
     }
+
+    @Test
+    void 직전_발표시각을_계산한다() {
+        WeatherForecastRequestTime requestTime = new WeatherForecastRequestTime(
+            "20240115",
+            "1100",
+            "20240115",
+            "1200"
+        );
+
+        WeatherForecastRequestTime previousBaseTime = requestTime.previousBaseTime();
+
+        assertThat(previousBaseTime.baseDate()).isEqualTo("20240115");
+        assertThat(previousBaseTime.baseTime()).isEqualTo("0800");
+        assertThat(previousBaseTime.forecastDate()).isEqualTo("20240115");
+        assertThat(previousBaseTime.forecastTime()).isEqualTo("1200");
+    }
+
+    @Test
+    void 첫_발표시각의_직전_발표시각은_전날_마지막_발표시각이다() {
+        WeatherForecastRequestTime requestTime = new WeatherForecastRequestTime(
+            "20240115",
+            "0200",
+            "20240115",
+            "0300"
+        );
+
+        WeatherForecastRequestTime previousBaseTime = requestTime.previousBaseTime();
+
+        assertThat(previousBaseTime.baseDate()).isEqualTo("20240114");
+        assertThat(previousBaseTime.baseTime()).isEqualTo("2300");
+        assertThat(previousBaseTime.forecastDate()).isEqualTo("20240115");
+        assertThat(previousBaseTime.forecastTime()).isEqualTo("0300");
+    }
 }

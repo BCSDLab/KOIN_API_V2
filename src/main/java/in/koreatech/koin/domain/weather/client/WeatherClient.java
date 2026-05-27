@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.weather.client;
 
 import static java.net.URLEncoder.encode;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -35,16 +35,30 @@ public class WeatherClient {
 
     private final String openApiKey;
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
     public WeatherClient(
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
-        RestTemplate restTemplate
+        RestTemplate restTemplate,
+        ObjectMapper objectMapper
     ) {
         this.openApiKey = openApiKey;
         this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public WeatherForecast getWeatherForecast(WeatherForecastRequestTime requestTime) {
+        try {
+            return getWeatherForecastWithoutFallback(requestTime);
+        } catch (WeatherOpenApiException e) {
+            if (!canRetryWithPreviousBaseTime(e)) {
+                throw e;
+            }
+            return getWeatherForecastWithoutFallback(requestTime.previousBaseTime());
+        }
+    }
+
+    private WeatherForecast getWeatherForecastWithoutFallback(WeatherForecastRequestTime requestTime) {
         WeatherApiResponse response = getOpenApiResponse(requestTime);
         List<WeatherForecastItem> items = extractForecastItems(response);
         Map<String, String> forecasts = items.stream()
@@ -68,26 +82,51 @@ public class WeatherClient {
         }
     }
 
+    private boolean canRetryWithPreviousBaseTime(WeatherOpenApiException e) {
+        String errorMessage = e.getFullMessage();
+        return errorMessage.contains("NO_DATA")
+            || errorMessage.contains("response body is empty")
+            || errorMessage.contains("forecastDateTime");
+    }
+
     private WeatherApiResponse getOpenApiResponse(WeatherForecastRequestTime requestTime) {
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "*/*");
 
             HttpEntity<?> entity = new HttpEntity<>(headers);
             URL url = new URL(getRequestURL(requestTime));
-            ResponseEntity<WeatherApiResponse> response = restTemplate.exchange(
+            ResponseEntity<String> response = restTemplate.exchange(
                 url.toURI(),
                 HttpMethod.GET,
                 entity,
-                WeatherApiResponse.class
+                String.class
             );
-            return response.getBody();
+            return parseResponse(response.getBody(), requestTime);
         } catch (WeatherOpenApiException e) {
             throw e;
         } catch (Exception e) {
             throw WeatherOpenApiException.withDetail("baseDateTime: "
-                + requestTime.baseDate() + requestTime.baseTime());
+                + requestTime.baseDate() + requestTime.baseTime() + ", cause: " + e.getClass().getSimpleName());
+        }
+    }
+
+    private WeatherApiResponse parseResponse(String responseBody, WeatherForecastRequestTime requestTime) {
+        if (responseBody == null || responseBody.isBlank()) {
+            throw WeatherOpenApiException.withDetail("baseDateTime: "
+                + requestTime.baseDate() + requestTime.baseTime() + ", response body is empty");
+        }
+
+        if (!responseBody.trim().startsWith("{")) {
+            throw WeatherOpenApiException.withDetail("baseDateTime: "
+                + requestTime.baseDate() + requestTime.baseTime() + ", " + extractXmlErrorMessage(responseBody));
+        }
+
+        try {
+            return objectMapper.readValue(responseBody, WeatherApiResponse.class);
+        } catch (Exception e) {
+            throw WeatherOpenApiException.withDetail("baseDateTime: "
+                + requestTime.baseDate() + requestTime.baseTime() + ", invalid JSON response");
         }
     }
 
@@ -111,6 +150,26 @@ public class WeatherClient {
         }
     }
 
+    private String extractXmlErrorMessage(String responseBody) {
+        String returnAuthMsg = extractTagValue(responseBody, "returnAuthMsg");
+        String returnReasonCode = extractTagValue(responseBody, "returnReasonCode");
+        if (returnAuthMsg != null || returnReasonCode != null) {
+            return "returnAuthMsg: " + returnAuthMsg + ", returnReasonCode: " + returnReasonCode;
+        }
+        return "non JSON response";
+    }
+
+    private String extractTagValue(String responseBody, String tagName) {
+        String startTag = "<" + tagName + ">";
+        String endTag = "</" + tagName + ">";
+        int startIndex = responseBody.indexOf(startTag);
+        int endIndex = responseBody.indexOf(endTag);
+        if (startIndex == -1 || endIndex == -1 || startIndex > endIndex) {
+            return null;
+        }
+        return responseBody.substring(startIndex + startTag.length(), endIndex);
+    }
+
     private List<WeatherForecastItem> extractForecastItems(WeatherApiResponse response) {
         if (response == null
             || response.response() == null
@@ -123,7 +182,9 @@ public class WeatherClient {
 
         String resultCode = response.response().header().resultCode();
         if (!resultCode.equals("00") && !resultCode.equals("0")) {
-            throw WeatherOpenApiException.withDetail("resultCode: " + resultCode);
+            throw WeatherOpenApiException.withDetail(
+                "resultCode: " + resultCode + ", resultMsg: " + response.response().header().resultMsg()
+            );
         }
         return response.response().body().items().item();
     }

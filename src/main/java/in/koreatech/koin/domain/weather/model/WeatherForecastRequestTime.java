@@ -49,4 +49,23 @@ public record WeatherForecastRequestTime(
             forecastDateTime.toLocalTime().format(TIME_FORMATTER)
         );
     }
+
+    public WeatherForecastRequestTime previousBaseTime() {
+        LocalDate baseLocalDate = LocalDate.parse(baseDate, DATE_FORMATTER);
+        LocalTime baseLocalTime = LocalTime.parse(baseTime, TIME_FORMATTER);
+        int baseTimeIndex = BASE_TIMES.indexOf(baseLocalTime);
+        if (baseTimeIndex <= 0) {
+            baseLocalDate = baseLocalDate.minusDays(1);
+            baseLocalTime = BASE_TIMES.get(BASE_TIMES.size() - 1);
+        } else {
+            baseLocalTime = BASE_TIMES.get(baseTimeIndex - 1);
+        }
+
+        return new WeatherForecastRequestTime(
+            baseLocalDate.format(DATE_FORMATTER),
+            baseLocalTime.format(TIME_FORMATTER),
+            forecastDate,
+            forecastTime
+        );
+    }
 }
