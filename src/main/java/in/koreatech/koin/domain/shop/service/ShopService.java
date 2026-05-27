@@ -6,9 +6,11 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.data.domain.Sort;
@@ -24,6 +26,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
+import in.koreatech.koin.domain.shop.dto.shop.response.OpenShopsCountResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
@@ -80,6 +83,14 @@ public class ShopService {
         List<Shop> shops = shopRepository.findAll();
         Map<Integer, Boolean> eventDuration = shopRepository.getAllShopEventDuration(now.toLocalDate());
         return ShopsResponse.from(shops, eventDuration, now);
+    }
+
+    public OpenShopsCountResponse getOpenShopsCount() {
+        LocalDateTime now = LocalDateTime.now(clock);
+        String currentDayOfWeek = getDayOfWeek(now);
+        String previousDayOfWeek = getDayOfWeek(now.minusDays(1));
+        Long count = shopRepository.countOpenShops(currentDayOfWeek, previousDayOfWeek, now.toLocalTime());
+        return new OpenShopsCountResponse(Math.toIntExact(count));
     }
 
     public ShopCategoriesResponse getShopsCategories() {
@@ -177,5 +188,9 @@ public class ShopService {
 
     private boolean isSubscribeReviewNotification(Integer studentId) {
         return notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(studentId, REVIEW_PROMPT);
+    }
+
+    private String getDayOfWeek(LocalDateTime dateTime) {
+        return dateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
     }
 }
