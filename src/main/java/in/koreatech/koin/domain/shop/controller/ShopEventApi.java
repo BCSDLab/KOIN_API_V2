@@ -1,7 +1,11 @@
 package in.koreatech.koin.domain.shop.controller;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.OK;
+
+import in.koreatech.koin.domain.shop.dto.event.response.ShopEventCountResponse;
 import in.koreatech.koin.domain.shop.dto.event.response.ShopEventsWithBannerUrlResponse;
 import in.koreatech.koin.domain.shop.dto.event.response.ShopEventsWithThumbnailUrlResponse;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,4 +44,11 @@ public interface ShopEventApi {
     @Operation(summary = "모든 상점의 모든 이벤트 조회")
     @GetMapping("/shops/events")
     ResponseEntity<ShopEventsWithBannerUrlResponse> getShopAllEvent();
+
+    @ApiResponseCodes({
+        OK
+    })
+    @Operation(summary = "이벤트 진행 중인 상점 개수 조회")
+    @GetMapping("/shops/events/count")
+    ResponseEntity<ShopEventCountResponse> getEventShopCount();
 }

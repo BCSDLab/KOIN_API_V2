@@ -4,6 +4,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +38,41 @@ public interface ShopRepository extends Repository<Shop, Integer> {
     List<Shop> findAll();
 
     @Query("""
+        SELECT COUNT(DISTINCT s.id)
+        FROM Shop s
+        JOIN s.shopOpens so
+        WHERE s.isDeleted = false
+        AND so.isDeleted = false
+        AND so.closed = false
+        AND (
+            (
+                so.dayOfWeek = :currentDayOfWeek
+                AND (
+                    (
+                        so.closeTime > so.openTime
+                        AND so.openTime <= :currentTime
+                        AND so.closeTime >= :currentTime
+                    )
+                    OR (
+                        so.closeTime <= so.openTime
+                        AND so.openTime <= :currentTime
+                    )
+                )
+            )
+            OR (
+                so.dayOfWeek = :previousDayOfWeek
+                AND so.closeTime <= so.openTime
+                AND so.closeTime >= :currentTime
+            )
+        )
+    """)
+    Long countOpenShops(
+        @Param("currentDayOfWeek") String currentDayOfWeek,
+        @Param("previousDayOfWeek") String previousDayOfWeek,
+        @Param("currentTime") LocalTime currentTime
+    );
+
+    @Query("""
         SELECT s
         FROM Shop s
         JOIN FETCH s.eventArticles e
@@ -45,6 +81,17 @@ public interface ShopRepository extends Repository<Shop, Integer> {
         WHERE s.isDeleted = false AND e.isDeleted = false
     """)
     List<Shop> findAllWithEventArticles();
+
+    @Query("""
+        SELECT COUNT(DISTINCT s.id)
+        FROM Shop s
+        JOIN s.eventArticles e
+        WHERE s.isDeleted = false
+        AND e.isDeleted = false
+        AND e.startDate <= :now
+        AND e.endDate >= :now
+    """)
+    Long countShopsWithOngoingEvent(@Param("now") LocalDate now);
 
     @Query("""
         SELECT new in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse(

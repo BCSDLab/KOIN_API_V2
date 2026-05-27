@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
+import in.koreatech.koin.domain.shop.dto.shop.response.OpenShopsCountResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
@@ -24,7 +26,6 @@ import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV3;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -56,7 +57,7 @@ public interface ShopApi {
             - openTime, closeTime 응답값 추가
         """)
     @ApiResponseCodes({
-        ApiResponseCode.OK
+        OK
     })
     @GetMapping("/v2/shops/{id}")
     ResponseEntity<ShopResponseV2> getShopByIdV2(
@@ -86,6 +87,13 @@ public interface ShopApi {
     @Operation(summary = "모든 상점 조회")
     @GetMapping("/shops")
     ResponseEntity<ShopsResponse> getShops();
+
+    @ApiResponseCodes({
+        OK
+    })
+    @Operation(summary = "현재 영업 중인 상점 개수 조회")
+    @GetMapping("/shops/open/count")
+    ResponseEntity<OpenShopsCountResponse> getOpenShopsCount();
 
     @ApiResponses(
         value = {

@@ -430,6 +430,22 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 현재_영업중인_상점_개수를_조회한다() throws Exception {
+        shopFixture.영업중이_아닌_신전_떡볶이(owner);
+
+        // 2024-01-15 12:00 월요일 기준
+        mockMvc.perform(
+                get("/shops/open/count")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "count": 1
+                }
+                """));
+    }
+
+    @Test
     void 상점의_정렬된_모든_카테고리_조회() throws Exception {
         shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게); // 카테고리_치킨이 먼저 생성됨
 
@@ -556,6 +572,26 @@ class ShopApiTest extends AcceptanceTest {
                             "end_date": "2024-01-25"
                         }
                     ]
+                }
+                """));
+    }
+
+    @Test
+    void 이벤트_진행중인_상점_개수를_조회한다() throws Exception {
+        Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
+        Shop 영업중이_아닌_신전떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(owner);
+        eventArticleFixture.할인_이벤트(마슬랜, LocalDate.now(clock).minusDays(3), LocalDate.now(clock).plusDays(3));
+        eventArticleFixture.참여_이벤트(마슬랜, LocalDate.now(clock).minusDays(3), LocalDate.now(clock).plusDays(3));
+        eventArticleFixture.참여_이벤트(영업중인_티바, LocalDate.now(clock), LocalDate.now(clock).plusDays(10));
+        eventArticleFixture.할인_이벤트(영업중이_아닌_신전떡볶이, LocalDate.now(clock).minusDays(10), LocalDate.now(clock).minusDays(1));
+
+        mockMvc.perform(
+                get("/shops/events/count")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "count": 2
                 }
                 """));
     }
