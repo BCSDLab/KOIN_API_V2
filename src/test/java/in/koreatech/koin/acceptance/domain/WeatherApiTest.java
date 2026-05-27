@@ -1,29 +1,31 @@
 package in.koreatech.koin.acceptance.domain;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
-import in.koreatech.koin.domain.weather.client.WeatherClient;
-import in.koreatech.koin.domain.weather.model.WeatherForecast;
+import in.koreatech.koin.domain.weather.dto.WeatherResponse;
+import in.koreatech.koin.domain.weather.model.WeatherCache;
 import in.koreatech.koin.domain.weather.model.WeatherForecastRequestTime;
+import in.koreatech.koin.domain.weather.repository.WeatherCacheRepository;
 
 class WeatherApiTest extends AcceptanceTest {
 
-    @MockBean
-    private WeatherClient weatherClient;
+    @Autowired
+    private WeatherCacheRepository weatherCacheRepository;
 
     @Test
     void 병천_날씨를_조회한다() throws Exception {
         clear();
-        when(weatherClient.getWeatherForecast(new WeatherForecastRequestTime("20240115", "1100", "20240115", "1200")))
-            .thenReturn(new WeatherForecast(21, "1", "0"));
+        weatherCacheRepository.save(WeatherCache.of(
+            new WeatherForecastRequestTime("20240115", "1100", "20240115", "1200"),
+            new WeatherResponse(21, "맑음")
+        ));
 
         mockMvc.perform(
                 get("/weather")

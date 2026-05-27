@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.domain.weather.client.WeatherClient;
 import in.koreatech.koin.domain.weather.dto.WeatherResponse;
+import in.koreatech.koin.domain.weather.exception.WeatherOpenApiException;
 import in.koreatech.koin.domain.weather.model.WeatherCache;
 import in.koreatech.koin.domain.weather.model.WeatherForecastRequestTime;
 import in.koreatech.koin.domain.weather.repository.WeatherCacheRepository;
@@ -20,18 +21,16 @@ public class WeatherService {
     private final WeatherClient weatherClient;
     private final WeatherCacheRepository weatherCacheRepository;
 
-    public synchronized WeatherResponse getWeather() {
-        LocalDateTime now = LocalDateTime.now(clock);
-        WeatherForecastRequestTime requestTime = WeatherForecastRequestTime.from(now);
+    public WeatherResponse getWeather() {
         return weatherCacheRepository.findById(WeatherCache.BYEONGCHEON_ID)
-            .filter(cache -> cache.getRequestTime().equals(requestTime))
             .map(WeatherCache::getWeather)
-            .orElseGet(() -> refreshWeather(requestTime));
+            .orElseThrow(() -> WeatherOpenApiException.withDetail("weather cache is empty"));
     }
 
-    private WeatherResponse refreshWeather(WeatherForecastRequestTime requestTime) {
+    public synchronized void refreshWeather() {
+        LocalDateTime now = LocalDateTime.now(clock);
+        WeatherForecastRequestTime requestTime = WeatherForecastRequestTime.from(now);
         WeatherResponse response = weatherClient.getWeatherForecast(requestTime).toResponse();
         weatherCacheRepository.save(WeatherCache.of(requestTime, response));
-        return response;
     }
 }

@@ -15,7 +15,7 @@ import lombok.Getter;
 public class WeatherCache {
 
     public static final String BYEONGCHEON_ID = "byeongcheon";
-    private static final long CACHE_EXPIRE_HOUR = 1L;
+    private static final long CACHE_EXPIRE_HOUR = 2L;
 
     @Id
     private String id;
