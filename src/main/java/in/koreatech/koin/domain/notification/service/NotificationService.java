@@ -40,6 +40,11 @@ public class NotificationService {
     private final NotificationJdbcRepository notificationJdbcRepository;
 
     @Transactional
+    public void pushNotification(Notification notification) {
+        pushNotifications(List.of(notification));
+    }
+
+    @Transactional
     public void pushNotifications(List<Notification> notifications) {
         if (notifications.isEmpty()) {
             return;
@@ -68,11 +73,6 @@ public class NotificationService {
             deliveryResults.add(pushNotificationWithResult(notification))
         ));
         return deliveryResults;
-    }
-
-    @Transactional
-    public void pushNotification(Notification notification) {
-        pushNotifications(List.of(notification));
     }
 
     private NotificationDeliveryResult pushNotificationWithResult(Notification notification) {
