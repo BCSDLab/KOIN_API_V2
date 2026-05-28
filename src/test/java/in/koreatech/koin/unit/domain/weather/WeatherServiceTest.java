@@ -18,11 +18,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.domain.weather.client.WeatherClient;
+import in.koreatech.koin.domain.weather.client.dto.WeatherForecastRequestTime;
 import in.koreatech.koin.domain.weather.dto.WeatherResponse;
 import in.koreatech.koin.domain.weather.exception.WeatherOpenApiException;
 import in.koreatech.koin.domain.weather.model.WeatherCache;
 import in.koreatech.koin.domain.weather.model.WeatherForecast;
-import in.koreatech.koin.domain.weather.model.WeatherForecastRequestTime;
 import in.koreatech.koin.domain.weather.repository.WeatherCacheRepository;
 import in.koreatech.koin.domain.weather.service.WeatherService;
 

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
-import in.koreatech.koin.domain.weather.model.WeatherForecastRequestTime;
+import in.koreatech.koin.domain.weather.client.dto.WeatherForecastRequestTime;
 
 class WeatherForecastRequestTimeTest {
 

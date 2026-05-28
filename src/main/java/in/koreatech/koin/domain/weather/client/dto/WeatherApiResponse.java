@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.weather.dto;
+package in.koreatech.koin.domain.weather.client.dto;
 
 import java.util.List;
 

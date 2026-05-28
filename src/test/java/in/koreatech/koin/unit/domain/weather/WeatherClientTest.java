@@ -15,9 +15,9 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.domain.weather.client.WeatherClient;
+import in.koreatech.koin.domain.weather.client.dto.WeatherForecastRequestTime;
 import in.koreatech.koin.domain.weather.exception.WeatherOpenApiException;
 import in.koreatech.koin.domain.weather.model.WeatherForecast;
-import in.koreatech.koin.domain.weather.model.WeatherForecastRequestTime;
 
 class WeatherClientTest {
 

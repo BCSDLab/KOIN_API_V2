@@ -17,11 +17,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin.domain.weather.dto.WeatherApiResponse;
-import in.koreatech.koin.domain.weather.dto.WeatherApiResponse.WeatherForecastItem;
+import in.koreatech.koin.domain.weather.client.dto.WeatherApiResponse;
+import in.koreatech.koin.domain.weather.client.dto.WeatherApiResponse.WeatherForecastItem;
+import in.koreatech.koin.domain.weather.client.dto.WeatherForecastRequestTime;
 import in.koreatech.koin.domain.weather.exception.WeatherOpenApiException;
 import in.koreatech.koin.domain.weather.model.WeatherForecast;
-import in.koreatech.koin.domain.weather.model.WeatherForecastRequestTime;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 
 @Component

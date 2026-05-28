@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.domain.weather.client.WeatherClient;
+import in.koreatech.koin.domain.weather.client.dto.WeatherForecastRequestTime;
 import in.koreatech.koin.domain.weather.dto.WeatherResponse;
 import in.koreatech.koin.domain.weather.exception.WeatherOpenApiException;
 import in.koreatech.koin.domain.weather.model.WeatherCache;
-import in.koreatech.koin.domain.weather.model.WeatherForecastRequestTime;
 import in.koreatech.koin.domain.weather.repository.WeatherCacheRepository;
 import lombok.RequiredArgsConstructor;
 

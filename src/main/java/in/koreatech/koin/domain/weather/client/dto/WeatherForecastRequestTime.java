@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.weather.model;
+package in.koreatech.koin.domain.weather.client.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
