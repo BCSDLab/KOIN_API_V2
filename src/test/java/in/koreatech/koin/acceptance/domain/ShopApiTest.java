@@ -430,17 +430,18 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 현재_영업중인_상점_개수를_조회한다() throws Exception {
+    void 상점_개수를_조회한다() throws Exception {
         shopFixture.영업중이_아닌_신전_떡볶이(owner);
 
         // 2024-01-15 12:00 월요일 기준
         mockMvc.perform(
-                get("/shops/open/count")
+                get("/shops/count")
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "count": 1
+                    "total_count": 2,
+                    "open_count": 1
                 }
                 """));
     }
