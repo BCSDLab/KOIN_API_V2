@@ -6,11 +6,9 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.data.domain.Sort;
@@ -26,8 +24,8 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
-import in.koreatech.koin.domain.shop.dto.shop.response.OpenShopsCountResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopCountsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
@@ -85,12 +83,13 @@ public class ShopService {
         return ShopsResponse.from(shops, eventDuration, now);
     }
 
-    public OpenShopsCountResponse getOpenShopsCount() {
+    public ShopCountsResponse getShopCounts() {
         LocalDateTime now = LocalDateTime.now(clock);
-        String currentDayOfWeek = getDayOfWeek(now);
-        String previousDayOfWeek = getDayOfWeek(now.minusDays(1));
-        Long count = shopRepository.countOpenShops(currentDayOfWeek, previousDayOfWeek, now.toLocalTime());
-        return new OpenShopsCountResponse(Math.toIntExact(count));
+        List<Shop> shops = shopRepository.findAll();
+        int openCount = Math.toIntExact(shops.stream()
+            .filter(shop -> shop.isOpen(now))
+            .count());
+        return new ShopCountsResponse(shops.size(), openCount);
     }
 
     public ShopCategoriesResponse getShopsCategories() {
@@ -190,7 +189,4 @@ public class ShopService {
         return notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(studentId, REVIEW_PROMPT);
     }
 
-    private String getDayOfWeek(LocalDateTime dateTime) {
-        return dateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
-    }
 }

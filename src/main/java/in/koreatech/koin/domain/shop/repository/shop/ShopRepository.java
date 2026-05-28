@@ -4,7 +4,6 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopNotificationQueryResponse;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,41 +35,6 @@ public interface ShopRepository extends Repository<Shop, Integer> {
         WHERE s.isDeleted = false
     """)
     List<Shop> findAll();
-
-    @Query("""
-        SELECT COUNT(DISTINCT s.id)
-        FROM Shop s
-        JOIN s.shopOpens so
-        WHERE s.isDeleted = false
-        AND so.isDeleted = false
-        AND so.closed = false
-        AND (
-            (
-                so.dayOfWeek = :currentDayOfWeek
-                AND (
-                    (
-                        so.closeTime > so.openTime
-                        AND so.openTime <= :currentTime
-                        AND so.closeTime >= :currentTime
-                    )
-                    OR (
-                        so.closeTime <= so.openTime
-                        AND so.openTime <= :currentTime
-                    )
-                )
-            )
-            OR (
-                so.dayOfWeek = :previousDayOfWeek
-                AND so.closeTime <= so.openTime
-                AND so.closeTime >= :currentTime
-            )
-        )
-    """)
-    Long countOpenShops(
-        @Param("currentDayOfWeek") String currentDayOfWeek,
-        @Param("previousDayOfWeek") String previousDayOfWeek,
-        @Param("currentTime") LocalTime currentTime
-    );
 
     @Query("""
         SELECT s

@@ -17,8 +17,8 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
-import in.koreatech.koin.domain.shop.dto.shop.response.OpenShopsCountResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopCountsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
@@ -91,9 +91,9 @@ public interface ShopApi {
     @ApiResponseCodes({
         OK
     })
-    @Operation(summary = "현재 영업 중인 상점 개수 조회")
-    @GetMapping("/shops/open/count")
-    ResponseEntity<OpenShopsCountResponse> getOpenShopsCount();
+    @Operation(summary = "상점 개수 조회")
+    @GetMapping("/shops/count")
+    ResponseEntity<ShopCountsResponse> getShopCounts();
 
     @ApiResponses(
         value = {

@@ -37,7 +37,7 @@ public class KeywordNotificationService {
             .findArticleKeywordSubscribesByUserIdIn(ARTICLE_KEYWORD, matchedUserIds);
         List<Notification> notifications = createArticleNotifications(event, subscribes);
 
-        notificationService.pushNotificationsWithResult(notifications);
+        notificationService.pushNotifications(notifications);
     }
 
     public void notifyLostItemKeyword(LostItemKeywordEvent event) {
@@ -50,7 +50,7 @@ public class KeywordNotificationService {
             .findArticleKeywordSubscribesByUserIdIn(LOST_ITEM_KEYWORD, matchedUserIds);
         List<Notification> notifications = createLostItemNotifications(event, subscribes);
 
-        notificationService.pushNotificationsWithResult(notifications);
+        notificationService.pushNotifications(notifications);
     }
 
     private List<Notification> createArticleNotifications(
