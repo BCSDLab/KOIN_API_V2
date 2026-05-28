@@ -29,10 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class NotificationService {
 
-    private final UserRepository userRepository;
     private final FcmClient fcmClient;
-    private final NotificationSubscribeRepository notificationSubscribeRepository;
+    private final UserRepository userRepository;
     private final NotificationJdbcRepository notificationJdbcRepository;
+    private final NotificationSubscribeRepository notificationSubscribeRepository;
 
     @Transactional
     public void pushNotification(Notification notification) {
