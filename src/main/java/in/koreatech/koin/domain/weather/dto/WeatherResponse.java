@@ -13,11 +13,46 @@ public record WeatherResponse(
     @Schema(description = "기온(섭씨)", example = "21", requiredMode = REQUIRED)
     Integer temperature,
 
-    @Schema(description = "날씨 상태", example = "맑음", requiredMode = REQUIRED)
-    String weather
+    @Schema(
+        description = "날씨 상태",
+        example = "맑음",
+        requiredMode = REQUIRED
+    )
+    String weather,
+
+    @Schema(
+        description = "날씨 상태 ID",
+        example = "1",
+        requiredMode = REQUIRED
+    )
+    Integer weatherId,
+
+    @Schema(
+        description = "날씨 아이콘 URL",
+        example = "https://static.koreatech.in/weather/sunny.png",
+        requiredMode = REQUIRED
+    )
+    String weatherIconUrl
 ) {
 
+    public WeatherResponse(Integer temperature, String weather) {
+        this(temperature, weather, null, null);
+    }
+
+    public WeatherResponse {
+        WeatherCondition weatherCondition = WeatherCondition.fromValue(weather);
+        weatherId = weatherId == null && weatherCondition != null ? weatherCondition.getId() : weatherId;
+        weatherIconUrl = weatherIconUrl == null && weatherCondition != null
+            ? weatherCondition.getIconUrl()
+            : weatherIconUrl;
+    }
+
     public static WeatherResponse of(Integer temperature, WeatherCondition weatherCondition) {
-        return new WeatherResponse(temperature, weatherCondition.getValue());
+        return new WeatherResponse(
+            temperature,
+            weatherCondition.getValue(),
+            weatherCondition.getId(),
+            weatherCondition.getIconUrl()
+        );
     }
 }
