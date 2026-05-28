@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.weather.dto.WeatherResponse;
 import in.koreatech.koin.domain.weather.model.WeatherCache;
-import in.koreatech.koin.domain.weather.model.WeatherForecastRequestTime;
 import in.koreatech.koin.domain.weather.repository.WeatherCacheRepository;
 
 class WeatherApiTest extends AcceptanceTest {
@@ -23,7 +22,6 @@ class WeatherApiTest extends AcceptanceTest {
     void 병천_날씨를_조회한다() throws Exception {
         clear();
         weatherCacheRepository.save(WeatherCache.of(
-            new WeatherForecastRequestTime("20240115", "1100", "20240115", "1200"),
             new WeatherResponse(21, "맑음")
         ));
 

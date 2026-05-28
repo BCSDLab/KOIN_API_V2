@@ -47,7 +47,7 @@ class WeatherServiceTest {
         );
         WeatherResponse cachedWeather = new WeatherResponse(21, "맑음");
         when(weatherCacheRepository.findById(WeatherCache.BYEONGCHEON_ID))
-            .thenReturn(Optional.of(WeatherCache.of(requestTime, cachedWeather)));
+            .thenReturn(Optional.of(WeatherCache.of(cachedWeather)));
 
         WeatherResponse response = weatherService.getWeather();
 

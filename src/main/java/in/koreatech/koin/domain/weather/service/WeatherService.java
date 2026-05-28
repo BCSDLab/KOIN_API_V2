@@ -31,6 +31,6 @@ public class WeatherService {
         LocalDateTime now = LocalDateTime.now(clock);
         WeatherForecastRequestTime requestTime = WeatherForecastRequestTime.from(now);
         WeatherResponse response = weatherClient.getWeatherForecast(requestTime).toResponse();
-        weatherCacheRepository.save(WeatherCache.of(requestTime, response));
+        weatherCacheRepository.save(WeatherCache.of(response));
     }
 }

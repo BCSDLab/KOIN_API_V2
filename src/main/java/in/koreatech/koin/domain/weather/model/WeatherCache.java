@@ -20,7 +20,6 @@ public class WeatherCache {
     @Id
     private String id;
 
-    private WeatherForecastRequestTime requestTime;
     private WeatherResponse weather;
 
     @TimeToLive(unit = TimeUnit.HOURS)
@@ -29,20 +28,17 @@ public class WeatherCache {
     @Builder
     private WeatherCache(
         String id,
-        WeatherForecastRequestTime requestTime,
         WeatherResponse weather,
         Long expiration
     ) {
         this.id = id;
-        this.requestTime = requestTime;
         this.weather = weather;
         this.expiration = expiration == null ? CACHE_EXPIRE_HOUR : expiration;
     }
 
-    public static WeatherCache of(WeatherForecastRequestTime requestTime, WeatherResponse weather) {
+    public static WeatherCache of(WeatherResponse weather) {
         return WeatherCache.builder()
             .id(BYEONGCHEON_ID)
-            .requestTime(requestTime)
             .weather(weather)
             .build();
     }
