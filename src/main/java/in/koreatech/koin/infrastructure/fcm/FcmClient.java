@@ -37,20 +37,8 @@ public class FcmClient {
         String schemeUri,
         String type
     ) {
-        sendMessageWithResult(targetDeviceToken, title, content, imageUrl, path, schemeUri, type);
-    }
-
-    public boolean sendMessageWithResult(
-        String targetDeviceToken,
-        String title,
-        String content,
-        String imageUrl,
-        MobileAppPath path,
-        String schemeUri,
-        String type
-    ) {
         if (!StringUtils.hasText(targetDeviceToken)) {
-            return false;
+            return;
         }
         try {
             log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
@@ -66,10 +54,8 @@ public class FcmClient {
 
             String result = FirebaseMessaging.getInstance().send(message);
             log.info("FCM 알림 전송 성공: {}", result);
-            return true;
         } catch (Exception e) {
             log.warn("FCM 알림 전송 실패", e);
-            return false;
         }
     }
 
