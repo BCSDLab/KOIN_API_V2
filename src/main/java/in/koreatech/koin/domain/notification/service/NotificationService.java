@@ -44,6 +44,7 @@ public class NotificationService {
         if (notifications.isEmpty()) {
             return;
         }
+
         List<FcmSendRequest> fcmSendRequests = notifications.stream()
             .map(notification -> FcmSendRequest.of(
                 notification.getUser().getDeviceToken(),
@@ -56,7 +57,12 @@ public class NotificationService {
             ))
             .toList();
         fcmClient.sendMessages(fcmSendRequests);
-        notificationJdbcRepository.batchInsert(notifications);
+
+        try {
+            notificationJdbcRepository.batchInsert(notifications);
+        } catch (Exception e) {
+            log.error("알림 이력 저장 실패. size={}", notifications.size(), e);
+        }
     }
 
     public NotificationStatusResponse getNotificationInfo(Integer userId) {
