@@ -14,15 +14,17 @@ public record WeatherResponse(
     Integer temperature,
 
     @Schema(
-        description = "날씨 상태",
+        description = "날씨 상태. 가능한 값: 맑음, 구름많음, 흐림, 비, 비/눈, 눈, 소나기",
         example = "맑음",
+        allowableValues = {"맑음", "구름많음", "흐림", "비", "비/눈", "눈", "소나기"},
         requiredMode = REQUIRED
     )
     String weather,
 
     @Schema(
-        description = "날씨 상태 ID",
+        description = "날씨 상태 ID. 1: 맑음, 2: 구름많음, 3: 흐림, 4: 비, 5: 비/눈, 6: 눈, 7: 소나기",
         example = "1",
+        allowableValues = {"1", "2", "3", "4", "5", "6", "7"},
         requiredMode = REQUIRED
     )
     Integer weatherId,
