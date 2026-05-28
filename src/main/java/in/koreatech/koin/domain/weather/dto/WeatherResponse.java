@@ -43,10 +43,10 @@ public record WeatherResponse(
 
     public WeatherResponse {
         WeatherCondition weatherCondition = WeatherCondition.fromValue(weather);
-        weatherId = weatherId == null && weatherCondition != null ? weatherCondition.getId() : weatherId;
-        weatherIconUrl = weatherIconUrl == null && weatherCondition != null
-            ? weatherCondition.getIconUrl()
-            : weatherIconUrl;
+        if (weatherCondition != null && (weatherId == null || weatherIconUrl == null)) {
+            weatherId = weatherCondition.getId();
+            weatherIconUrl = weatherCondition.getIconUrl();
+        }
     }
 
     public static WeatherResponse of(Integer temperature, WeatherCondition weatherCondition) {
