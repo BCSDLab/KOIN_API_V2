@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRep
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
+import in.koreatech.koin.infrastructure.fcm.FcmSendRequest;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,15 +45,18 @@ public class NotificationService {
             return;
         }
         notificationJdbcRepository.batchInsert(notifications);
-        notifications.forEach(notification -> fcmClient.sendMessage(
-            notification.getUser().getDeviceToken(),
-            notification.getTitle(),
-            notification.getMessage(),
-            notification.getImageUrl(),
-            notification.getMobileAppPath(),
-            notification.getSchemeUri(),
-            notification.getType().toLowerCase()
-        ));
+        List<FcmSendRequest> fcmSendRequests = notifications.stream()
+            .map(notification -> FcmSendRequest.of(
+                notification.getUser().getDeviceToken(),
+                notification.getTitle(),
+                notification.getMessage(),
+                notification.getImageUrl(),
+                notification.getMobileAppPath(),
+                notification.getSchemeUri(),
+                notification.getType().toLowerCase()
+            ))
+            .toList();
+        fcmClient.sendMessages(fcmSendRequests);
     }
 
     public NotificationStatusResponse getNotificationInfo(Integer userId) {

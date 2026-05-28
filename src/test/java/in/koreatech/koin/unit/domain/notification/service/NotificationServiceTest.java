@@ -1,7 +1,6 @@
 package in.koreatech.koin.unit.domain.notification.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -23,6 +23,7 @@ import in.koreatech.koin.domain.notification.service.NotificationService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
+import in.koreatech.koin.infrastructure.fcm.FcmSendRequest;
 import in.koreatech.koin.unit.fixture.UserFixture;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,16 +46,27 @@ class NotificationServiceTest {
 
     @Test
     @DisplayName("단건 알림 전송은 저장 후 FCM 전송을 수행한다.")
+    @SuppressWarnings("unchecked")
     void pushNotification_savesNotificationBeforeSend() {
         Notification notification = createNotification("device-token");
+        ArgumentCaptor<List<FcmSendRequest>> fcmRequestsCaptor = ArgumentCaptor.forClass(List.class);
 
         notificationService.pushNotification(notification);
 
         InOrder inOrder = inOrder(notificationJdbcRepository, fcmClient);
         inOrder.verify(notificationJdbcRepository).batchInsert(List.of(notification));
-        inOrder.verify(fcmClient).sendMessage(
-            anyString(), anyString(), anyString(), any(), any(), anyString(), anyString()
-        );
+        inOrder.verify(fcmClient).sendMessages(fcmRequestsCaptor.capture());
+
+        assertThat(fcmRequestsCaptor.getValue())
+            .containsExactly(FcmSendRequest.of(
+                "device-token",
+                "title",
+                "message",
+                null,
+                null,
+                "scheme-uri",
+                "message"
+            ));
     }
 
     private Notification createNotification(String deviceToken) {
