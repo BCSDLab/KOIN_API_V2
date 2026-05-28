@@ -88,7 +88,9 @@ class WeatherClientTest {
 
         assertThatThrownBy(() -> weatherClient.getWeatherForecast(REQUEST_TIME))
             .isInstanceOf(WeatherOpenApiException.class)
-            .hasMessage("기상청 단기예보 API 응답이 정상적이지 않습니다.");
+            .hasMessage("기상청 단기예보 API 응답이 정상적이지 않습니다.")
+            .satisfies(exception -> assertThat(((WeatherOpenApiException) exception).getFullMessage())
+                .contains("missing category: SKY"));
 
         server.verify();
     }
