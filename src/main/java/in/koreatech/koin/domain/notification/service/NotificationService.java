@@ -44,7 +44,6 @@ public class NotificationService {
         if (notifications.isEmpty()) {
             return;
         }
-        notificationJdbcRepository.batchInsert(notifications);
         List<FcmSendRequest> fcmSendRequests = notifications.stream()
             .map(notification -> FcmSendRequest.of(
                 notification.getUser().getDeviceToken(),
@@ -57,6 +56,7 @@ public class NotificationService {
             ))
             .toList();
         fcmClient.sendMessages(fcmSendRequests);
+        notificationJdbcRepository.batchInsert(notifications);
     }
 
     public NotificationStatusResponse getNotificationInfo(Integer userId) {
