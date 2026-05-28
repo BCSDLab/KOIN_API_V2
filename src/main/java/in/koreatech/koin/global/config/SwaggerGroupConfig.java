@@ -57,7 +57,8 @@ public class SwaggerGroupConfig {
                 "in.koreatech.koin.domain.dining",
                 "in.koreatech.koin.domain.banner",
                 "in.koreatech.koin.domain.club",
-                "in.koreatech.koin.domain.callvan"
+                "in.koreatech.koin.domain.callvan",
+                "in.koreatech.koin.domain.weather"
             });
     }
 
