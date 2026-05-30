@@ -5,7 +5,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.code.ApiResponseCode;
@@ -47,6 +50,15 @@ public interface UserRepository extends Repository<User, Integer> {
     boolean existsById(Integer id);
 
     void delete(User user);
+
+    @Modifying
+    @Query("""
+        UPDATE User u
+        SET u.deviceToken = null
+        WHERE u.id IN :userIds
+        AND u.deviceToken IS NOT NULL
+        """)
+    void clearDeviceTokensByIdIn(@Param("userIds") List<Integer> userIds);
 
     default User getById(Integer userId) {
         return findById(userId)
