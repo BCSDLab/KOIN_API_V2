@@ -18,7 +18,20 @@ public interface WeatherApi {
         OK,
         EXTERNAL_API_ERROR
     })
-    @Operation(summary = "병천 날씨 조회")
+    @Operation(
+        summary = "병천 날씨 조회",
+        description = """
+            반환되는 날씨 종류는 총 7개입니다.
+
+            - 1: 맑음
+            - 2: 구름많음
+            - 3: 흐림
+            - 4: 비
+            - 5: 비/눈
+            - 6: 눈
+            - 7: 소나기
+            """
+    )
     @GetMapping("/weather")
     ResponseEntity<WeatherResponse> getWeather();
 }
