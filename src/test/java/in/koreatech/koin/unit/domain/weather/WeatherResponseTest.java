@@ -13,6 +13,6 @@ class WeatherResponseTest {
         WeatherResponse response = new WeatherResponse(21, "맑음", 3, null);
 
         assertThat(response.weatherId()).isEqualTo(1);
-        assertThat(response.weatherIconUrl()).isEqualTo("https://static.koreatech.in/weather/sunny.png");
+        assertThat(response.weatherIconUrl()).isEqualTo("https://static.koreatech.in/upload/WEATHER/sun-03.webp");
     }
 }

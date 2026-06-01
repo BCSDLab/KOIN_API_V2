@@ -35,7 +35,7 @@ class WeatherApiTest extends AcceptanceTest {
                     "temperature": 21,
                     "weather": "맑음",
                     "weather_id": 1,
-                    "weather_icon_url": "https://static.koreatech.in/weather/sunny.png"
+                    "weather_icon_url": "https://static.koreatech.in/upload/WEATHER/sun-03.webp"
                 }
                 """));
     }

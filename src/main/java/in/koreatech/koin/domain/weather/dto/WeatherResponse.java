@@ -31,7 +31,7 @@ public record WeatherResponse(
 
     @Schema(
         description = "날씨 아이콘 URL",
-        example = "https://static.koreatech.in/weather/sunny.png",
+        example = "https://static.koreatech.in/upload/WEATHER/sun-03.webp",
         requiredMode = REQUIRED
     )
     String weatherIconUrl
