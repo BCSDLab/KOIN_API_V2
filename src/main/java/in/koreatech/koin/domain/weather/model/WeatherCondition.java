@@ -6,13 +6,13 @@ import lombok.Getter;
 
 @Getter
 public enum WeatherCondition {
-    SUNNY(1, "맑음", "https://static.koreatech.in/weather/sunny.png"),
-    CLOUDY(2, "구름많음", "https://static.koreatech.in/weather/cloudy.png"),
-    OVERCAST(3, "흐림", "https://static.koreatech.in/weather/overcast.png"),
-    RAIN(4, "비", "https://static.koreatech.in/weather/rain.png"),
-    RAIN_AND_SNOW(5, "비/눈", "https://static.koreatech.in/weather/rain-and-snow.png"),
-    SNOW(6, "눈", "https://static.koreatech.in/weather/snow.png"),
-    SHOWER(7, "소나기", "https://static.koreatech.in/weather/shower.png");
+    SUNNY(1, "맑음", "https://static.koreatech.in/upload/WEATHER/sun-03.webp"),
+    CLOUDY(2, "구름많음", "https://static.koreatech.in/upload/WEATHER/sun-cloud-02.webp"),
+    OVERCAST(3, "흐림", "https://static.koreatech.in/upload/WEATHER/cloud.webp"),
+    RAIN(4, "비", "https://static.koreatech.in/upload/WEATHER/cloud-angled-rain.webp"),
+    RAIN_AND_SNOW(5, "비/눈", "https://static.koreatech.in/upload/WEATHER/cloud-hail.webp"),
+    SNOW(6, "눈", "https://static.koreatech.in/upload/WEATHER/cloud-mid-snow.webp"),
+    SHOWER(7, "소나기", "https://static.koreatech.in/upload/WEATHER/cloud-rain-wind.webp");
 
     private static final Map<String, WeatherCondition> SKY_CONDITIONS = Map.of(
         "1", SUNNY,
