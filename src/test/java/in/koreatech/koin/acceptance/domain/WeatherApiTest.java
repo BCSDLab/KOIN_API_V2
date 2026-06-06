@@ -33,7 +33,9 @@ class WeatherApiTest extends AcceptanceTest {
             .andExpect(content().json("""
                 {
                     "temperature": 21,
-                    "weather": "맑음"
+                    "weather": "맑음",
+                    "weather_id": 1,
+                    "weather_icon_url": "https://static.koreatech.in/upload/WEATHER/sun-03.webp"
                 }
                 """));
     }

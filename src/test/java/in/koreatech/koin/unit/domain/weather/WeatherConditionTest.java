@@ -29,4 +29,11 @@ class WeatherConditionTest {
         assertThat(WeatherCondition.from("1", "3")).isEqualTo(SNOW);
         assertThat(WeatherCondition.from("1", "4")).isEqualTo(SHOWER);
     }
+
+    @Test
+    void 날씨_종류는_일곱_개이며_응답용_id와_아이콘_url을_가진다() {
+        assertThat(WeatherCondition.values()).hasSize(7);
+        assertThat(SUNNY.getId()).isEqualTo(1);
+        assertThat(SUNNY.getIconUrl()).isEqualTo("https://static.koreatech.in/upload/WEATHER/sun-03.webp");
+    }
 }
