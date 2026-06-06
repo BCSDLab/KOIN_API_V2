@@ -3,13 +3,8 @@ package in.koreatech.koin.unit.domain.notification.service;
 import static in.koreatech.koin.common.model.MobileAppPath.KEYWORD;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +29,6 @@ import in.koreatech.koin.unit.fixture.NotificationFixture;
 import in.koreatech.koin.unit.fixture.UserFixture;
 
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unchecked")
 public class KeywordNotificationServiceTest {
 
     @InjectMocks
