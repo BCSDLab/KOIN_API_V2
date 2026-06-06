@@ -7,7 +7,7 @@ import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.user.model.User;
 
-public final class NotificationFixture {
+public class NotificationFixture {
 
     private NotificationFixture() {}
 

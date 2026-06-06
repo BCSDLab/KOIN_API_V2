@@ -1,21 +1,22 @@
 package in.koreatech.koin.unit.fixture;
 
+import static in.koreatech.koin.domain.community.keyword.enums.KeywordCategory.KOREATECH;
+
 import java.util.Map;
 
 import in.koreatech.koin.common.event.KoreatechArticleKeywordEvent;
-import in.koreatech.koin.domain.community.keyword.enums.KeywordCategory;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.user.model.User;
 
-public final class KeywordFixture {
+public class KeywordFixture {
 
     private KeywordFixture() {}
 
     public static ArticleKeyword 공지_키워드(String keyword) {
         return ArticleKeyword.builder()
             .keyword(keyword)
-            .category(KeywordCategory.KOREATECH)
+            .category(KOREATECH)
             .build();
     }
 
