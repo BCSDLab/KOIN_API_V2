@@ -32,9 +32,12 @@ public class NotificationJdbcRepository {
                 type,
                 users_id,
                 is_read,
+                is_push_success,
+                fcm_error_code,
+                fcm_messaging_error_code,
                 created_at,
                 updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
         LocalDateTime now = LocalDateTime.now();
@@ -52,9 +55,13 @@ public class NotificationJdbcRepository {
                 preparedStatement.setString(6, notification.getType().toUpperCase());
                 preparedStatement.setInt(7, notification.getUser().getId());
                 preparedStatement.setBoolean(8, notification.isRead());
-                preparedStatement.setObject(9, now);
-                preparedStatement.setObject(10, now);
+                preparedStatement.setObject(9, notification.getPushSuccess());
+                preparedStatement.setString(10, notification.getFcmErrorCode());
+                preparedStatement.setString(11, notification.getFcmMessagingErrorCode());
+                preparedStatement.setObject(12, now);
+                preparedStatement.setObject(13, now);
             }
         );
     }
+
 }

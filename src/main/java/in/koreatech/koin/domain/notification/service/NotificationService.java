@@ -19,6 +19,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import in.koreatech.koin.infrastructure.fcm.FcmSendRequest;
+import in.koreatech.koin.infrastructure.fcm.FcmSendResponse;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,12 +57,25 @@ public class NotificationService {
                 notification.getType().toLowerCase()
             ))
             .toList();
-        fcmClient.sendMessages(fcmSendRequests);
+        List<FcmSendResponse> fcmSendResponses = fcmClient.sendMessages(fcmSendRequests);
+        markPushResults(notifications, fcmSendResponses);
 
         try {
             notificationJdbcRepository.batchInsert(notifications);
         } catch (Exception e) {
             log.error("알림 이력 저장 실패. size={}", notifications.size(), e);
+        }
+    }
+
+    private void markPushResults(List<Notification> notifications, List<FcmSendResponse> responses) {
+        for (int index = 0; index < notifications.size(); index++) {
+            Notification notification = notifications.get(index);
+            FcmSendResponse response = responses.get(index);
+            if (response.success()) {
+                notification.markPushSuccess();
+                continue;
+            }
+            notification.markPushFailure(response.errorCode(), response.messagingErrorCode());
         }
     }
 

@@ -2,9 +2,11 @@ package in.koreatech.koin.infrastructure.fcm;
 
 import static com.google.firebase.messaging.AndroidConfig.Priority.HIGH;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -15,8 +17,11 @@ import com.google.firebase.messaging.ApnsConfig;
 import com.google.firebase.messaging.ApnsFcmOptions;
 import com.google.firebase.messaging.Aps;
 import com.google.firebase.messaging.ApsAlert;
+import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.SendResponse;
 
 import in.koreatech.koin.common.model.MobileAppPath;
 import lombok.extern.slf4j.Slf4j;
@@ -59,37 +64,55 @@ public class FcmClient {
         }
     }
 
-    public void sendMessages(List<FcmSendRequest> requests) {
-        try {
-            for (int start = 0; start < requests.size(); start += FCM_MESSAGE_BATCH_SIZE) {
-                int end = Math.min(start + FCM_MESSAGE_BATCH_SIZE, requests.size());
-                List<Message> messages = requests.subList(start, end).stream()
-                    .map(request -> Message.builder()
-                        .setToken(request.targetDeviceToken())
-                        .setApnsConfig(generateAppleConfig(
-                            request.title(),
-                            request.content(),
-                            request.imageUrl(),
-                            request.path(),
-                            request.type(),
-                            request.schemeUri()
-                        ))
-                        .setAndroidConfig(generateAndroidConfig(
-                            request.title(),
-                            request.content(),
-                            request.imageUrl(),
-                            request.schemeUri(),
-                            request.type()
-                        ))
-                        .build()
-                    )
-                    .toList();
+    public List<FcmSendResponse> sendMessages(List<FcmSendRequest> requests) {
+        List<FcmSendResponse> responses = new ArrayList<>(requests.size());
+        for (int start = 0; start < requests.size(); start += FCM_MESSAGE_BATCH_SIZE) {
+            int end = Math.min(start + FCM_MESSAGE_BATCH_SIZE, requests.size());
+            List<Message> messages = requests.subList(start, end).stream()
+                .map(request -> Message.builder()
+                    .setToken(request.targetDeviceToken())
+                    .setApnsConfig(generateAppleConfig(
+                        request.title(),
+                        request.content(),
+                        request.imageUrl(),
+                        request.path(),
+                        request.type(),
+                        request.schemeUri()
+                    ))
+                    .setAndroidConfig(generateAndroidConfig(
+                        request.title(),
+                        request.content(),
+                        request.imageUrl(),
+                        request.schemeUri(),
+                        request.type()
+                    ))
+                    .build()
+                )
+                .toList();
 
-                FirebaseMessaging.getInstance().sendEach(messages);
+            try {
+                BatchResponse batchResponse = FirebaseMessaging.getInstance().sendEach(messages);
+                responses.addAll(batchResponse.getResponses().stream()
+                    .map(this::toFcmSendResponse)
+                    .toList());
+            } catch (Exception e) {
+                log.warn("FCM 알림 전송 실패. batchSize={}", messages.size(), e);
+                for (int i = 0; i < messages.size(); i++) {
+                    responses.add(FcmSendResponse.failed(e.getClass().getSimpleName(), null));
+                }
             }
-        } catch (Exception e) {
-            log.warn("FCM 알림 전송 실패", e);
         }
+        return responses;
+    }
+
+    private FcmSendResponse toFcmSendResponse(SendResponse response) {
+        if (response.isSuccessful()) {
+            return FcmSendResponse.succeeded();
+        }
+        FirebaseMessagingException exception = response.getException();
+        String errorCode = exception.getErrorCode().name();
+        String messagingErrorCode = Objects.toString(exception.getMessagingErrorCode(), null);
+        return FcmSendResponse.failed(errorCode, messagingErrorCode);
     }
 
     private ApnsConfig generateAppleConfig(
