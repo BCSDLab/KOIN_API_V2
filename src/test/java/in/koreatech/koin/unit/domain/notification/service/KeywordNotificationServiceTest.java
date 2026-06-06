@@ -29,6 +29,8 @@ import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRep
 import in.koreatech.koin.domain.notification.service.KeywordNotificationService;
 import in.koreatech.koin.domain.notification.service.NotificationService;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.unit.fixture.KeywordFixture;
+import in.koreatech.koin.unit.fixture.NotificationFixture;
 import in.koreatech.koin.unit.fixture.UserFixture;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,7 +51,7 @@ public class KeywordNotificationServiceTest {
 
     @Test
     void 매칭된_사용자가_없으면_알림을_처리하지_않는다() {
-        KoreatechArticleKeywordEvent event = KoreatechArticleKeywordEvent.of(
+        KoreatechArticleKeywordEvent event = KeywordFixture.공지_키워드_이벤트(
             1,
             4,
             "수강신청 안내",
@@ -63,7 +65,7 @@ public class KeywordNotificationServiceTest {
 
     @Test
     void 매칭된_사용자의_공지_키워드_구독을_조회한다() {
-        KoreatechArticleKeywordEvent event = KoreatechArticleKeywordEvent.of(
+        KoreatechArticleKeywordEvent event = KeywordFixture.공지_키워드_이벤트(
             1,
             4,
             "수강신청 안내",
@@ -89,9 +91,9 @@ public class KeywordNotificationServiceTest {
     void 구독자별로_키워드_알림을_생성하고_푸시한다() {
         User firstUser = UserFixture.id_설정_코인_유저(1);
         User secondUser = UserFixture.id_설정_코인_유저(2);
-        NotificationSubscribe firstSubscribe = createNotificationSubscribe(firstUser);
-        NotificationSubscribe secondSubscribe = createNotificationSubscribe(secondUser);
-        KoreatechArticleKeywordEvent event = KoreatechArticleKeywordEvent.of(
+        NotificationSubscribe firstSubscribe = NotificationFixture.공지_키워드_구독(firstUser);
+        NotificationSubscribe secondSubscribe = NotificationFixture.공지_키워드_구독(secondUser);
+        KoreatechArticleKeywordEvent event = KeywordFixture.공지_키워드_이벤트(
             100,
             4,
             "수강신청 안내",
@@ -100,8 +102,8 @@ public class KeywordNotificationServiceTest {
                 secondUser.getId(), "신청"
             )
         );
-        Notification firstNotification = createNotification(firstUser);
-        Notification secondNotification = createNotification(secondUser);
+        Notification firstNotification = NotificationFixture.키워드_알림(firstUser);
+        Notification secondNotification = NotificationFixture.키워드_알림(secondUser);
         when(notificationSubscribeRepository.findArticleKeywordSubscribesByUserIdIn(
             eq(ARTICLE_KEYWORD),
             anyList()
@@ -133,7 +135,7 @@ public class KeywordNotificationServiceTest {
     @Test
     void 매칭된_사용자라도_구독자가_아니면_알림을_생성하지_않는다() {
         User subscribedUser = UserFixture.id_설정_코인_유저(1);
-        KoreatechArticleKeywordEvent event = KoreatechArticleKeywordEvent.of(
+        KoreatechArticleKeywordEvent event = KeywordFixture.공지_키워드_이벤트(
             100,
             4,
             "수강신청 안내",
@@ -142,8 +144,8 @@ public class KeywordNotificationServiceTest {
                 2, "장학금"
             )
         );
-        NotificationSubscribe subscribe = createNotificationSubscribe(subscribedUser);
-        Notification notification = createNotification(subscribedUser);
+        NotificationSubscribe subscribe = NotificationFixture.공지_키워드_구독(subscribedUser);
+        Notification notification = NotificationFixture.키워드_알림(subscribedUser);
         when(notificationSubscribeRepository.findArticleKeywordSubscribesByUserIdIn(
             eq(ARTICLE_KEYWORD),
             anyList()
@@ -180,21 +182,4 @@ public class KeywordNotificationServiceTest {
         assertThat(notificationsCaptor.getValue()).containsExactly(notification);
     }
 
-    private NotificationSubscribe createNotificationSubscribe(User user) {
-        return NotificationSubscribe.builder()
-            .subscribeType(ARTICLE_KEYWORD)
-            .user(user)
-            .build();
-    }
-
-    private Notification createNotification(User user) {
-        return Notification.of(
-            KEYWORD,
-            "koin://keyword",
-            "수강신청 안내",
-            "방금 등록된 수강신청 공지를 확인해보세요!",
-            null,
-            user
-        );
-    }
 }
