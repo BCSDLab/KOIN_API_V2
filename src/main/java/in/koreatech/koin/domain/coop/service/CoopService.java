@@ -6,6 +6,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -537,7 +539,12 @@ public class CoopService {
     private String extractS3KeyFrom(String imageUrl) {
         // URL format: https://<bucket-name>/<key(경로+파일명)>
         String cdnPath = s3Client.getDomainUrlPrefix();
-        return imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length());
+        String encodedKey = imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length());
+        try {
+            return URLDecoder.decode(encodedKey, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new KoinIllegalStateException("Response to String convert exception: " + e.getMessage());
+        }
     }
 
     private void preprocessPath(File localImageDirectory, File zipFilePath) {
