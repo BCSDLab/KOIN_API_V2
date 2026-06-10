@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.community.article.service.ArticleService.
 import static in.koreatech.koin.domain.community.article.service.ArticleService.NOTICE_BOARD_ID;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundExcep
 import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.model.readmodel.ArticleSummary;
 import jakarta.persistence.EntityNotFoundException;
 
 public interface ArticleRepository extends Repository<Article, Integer> {
@@ -29,7 +31,18 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Optional<Article> findById(Integer articleId);
 
-    List<Article> findAllByIdIn(List<Integer> articleIds);
+    List<Article> findAllByIdIn(Collection<Integer> articleIds);
+
+    @Query("""
+        SELECT new in.koreatech.koin.domain.community.article.model.readmodel.ArticleSummary(
+            a.id,
+            a.board.id,
+            a.title
+        )
+        FROM Article a
+        WHERE a.id IN :articleIds
+        """)
+    List<ArticleSummary> findAllSummariesByIdIn(@Param("articleIds") Collection<Integer> articleIds);
 
     Page<Article> findAll(Pageable pageable);
 

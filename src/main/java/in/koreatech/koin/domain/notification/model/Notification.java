@@ -57,6 +57,15 @@ public class Notification extends BaseEntity {
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
+    @Column(name = "is_push_success")
+    private Boolean pushSuccess;
+
+    @Column(name = "fcm_error_code")
+    private String fcmErrorCode;
+
+    @Column(name = "fcm_messaging_error_code")
+    private String fcmMessagingErrorCode;
+
     public Notification(
         MobileAppPath appPath,
         String schemeUri,
@@ -96,6 +105,18 @@ public class Notification extends BaseEntity {
 
     public void read() {
         this.isRead = true;
+    }
+
+    public void markPushSuccess() {
+        this.pushSuccess = true;
+        this.fcmErrorCode = null;
+        this.fcmMessagingErrorCode = null;
+    }
+
+    public void markPushFailure(String fcmErrorCode, String fcmMessagingErrorCode) {
+        this.pushSuccess = false;
+        this.fcmErrorCode = fcmErrorCode;
+        this.fcmMessagingErrorCode = fcmMessagingErrorCode;
     }
 
     public String getType() {
