@@ -543,7 +543,7 @@ public class CoopService {
         try {
             return URLDecoder.decode(encodedKey, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            throw new KoinIllegalStateException("Response to String convert exception: " + e.getMessage());
+            throw new KoinIllegalStateException("Key 디코딩 중 문제가 발생했습니다. " + e.getMessage());
         }
     }
 
