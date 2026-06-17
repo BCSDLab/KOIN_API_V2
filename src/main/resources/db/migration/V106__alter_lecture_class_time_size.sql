@@ -1,1 +1,0 @@
-ALTER TABLE lectures MODIFY class_time VARCHAR(255) NOT NULL;
