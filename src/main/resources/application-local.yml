@@ -1,0 +1,82 @@
+jwt:
+  secret-key: local-jwt-secret-key-example-32chars!!
+  access-token:
+    expiration-time: 6000000
+
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:13306/koin?characterEncoding=utf8&useUnicode=true&mysqlEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+    username: koin
+    password: koin
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 16379
+      password: koin
+    mongodb:
+      uri: mongodb://koin:koin@127.0.0.1:27018/koin?authSource=admin
+
+swagger:
+  server-url: http://localhost:8080
+
+aws:
+  ses:
+    access-key: test
+    secret-key: test
+
+s3:
+  bucket: test-bucket
+  custom_domain: https://static.example.com/
+
+slack:
+  koin_event_notify_url: https://example.com/slack
+  koin_owner_event_notify_url: https://example.com/slack
+  koin_shop_review_notify_url: https://example.com/slack
+  koin_lost_item_notify_url: https://example.com/slack
+  logging:
+    error: https://example.com/slack
+
+koin:
+  admin:
+    shop:
+      url: http://localhost:3000/store
+    review:
+      url: http://localhost:3000/review
+
+OPEN_API_KEY_PUBLIC: test
+OPEN_API_KEY_TMONEY: test
+
+fcm:
+  koin:
+    url: koin://local
+
+naver:
+  accessKey: test
+  secretKey: test
+  sms:
+    apiUrl: http://localhost:8888
+    serviceId: test
+    fromNumber: "01000000000"
+
+cors:
+  allowedOrigins:
+    - http://localhost:3000
+    - http://localhost:8080
+
+cloudfront:
+  distribution-id: test
+  region: ap-northeast-2
+
+user:
+  verification:
+    max-verification-count: 5
+
+address:
+  api:
+    url: https://business.juso.go.kr/addrlink/addrLinkApi.do
+    key: test
+
+toss-payment:
+  secret-key: test_sk
+  api-base-url: https://api.tosspayments.com/v1/payments

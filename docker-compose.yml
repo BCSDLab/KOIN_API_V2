@@ -1,0 +1,58 @@
+name: koin-local
+
+services:
+  mysql:
+    image: mysql:8.0.29
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: koin
+      MYSQL_USER: koin
+      MYSQL_PASSWORD: koin
+    ports:
+      - "13306:3306"
+    volumes:
+      - koin-local-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7.0.9
+    command: ["redis-server", "--requirepass", "koin"]
+    ports:
+      - "16379:6379"
+    volumes:
+      - koin-local-redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a koin ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  mongo:
+    image: mongo:8.2.3
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: koin
+      MONGO_INITDB_ROOT_PASSWORD: koin
+      MONGO_INITDB_DATABASE: koin
+    ports:
+      - "27018:27017"
+    volumes:
+      - koin-local-mongo:/data/db
+      - koin-local-mongo-config:/data/configdb
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet -u koin -p koin --authenticationDatabase admin --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  koin-local-mysql:
+  koin-local-redis:
+  koin-local-mongo:
+  koin-local-mongo-config:
