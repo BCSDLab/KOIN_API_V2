@@ -6,6 +6,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -537,7 +539,8 @@ public class CoopService {
     private String extractS3KeyFrom(String imageUrl) {
         // URL format: https://<bucket-name>/<key(경로+파일명)>
         String cdnPath = s3Client.getDomainUrlPrefix();
-        return imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length());
+        String encodedKey = imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length());
+        return URLDecoder.decode(encodedKey, StandardCharsets.UTF_8);
     }
 
     private void preprocessPath(File localImageDirectory, File zipFilePath) {
