@@ -4,6 +4,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,9 +23,9 @@ class WeatherApiTest extends AcceptanceTest {
     @Test
     void 병천_날씨를_조회한다() throws Exception {
         clear();
-        weatherCacheRepository.save(WeatherCache.of(
-            new WeatherResponse(21, "맑음")
-        ));
+        weatherCacheRepository.save(WeatherCache.of(Map.of(
+            "202401151200", new WeatherResponse(21, "맑음")
+        )));
 
         mockMvc.perform(
                 get("/weather")
