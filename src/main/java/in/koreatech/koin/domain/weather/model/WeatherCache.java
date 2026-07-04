@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.weather.model;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.annotation.Id;
@@ -15,12 +16,12 @@ import lombok.Getter;
 public class WeatherCache {
 
     public static final String BYEONGCHEON_ID = "byeongcheon";
-    private static final long CACHE_EXPIRE_HOUR = 2L;
+    private static final long CACHE_EXPIRE_HOUR = 24L;
 
     @Id
     private String id;
 
-    private WeatherResponse weather;
+    private Map<String, WeatherResponse> hourlyWeathers;
 
     @TimeToLive(unit = TimeUnit.HOURS)
     private final Long expiration;
@@ -28,18 +29,18 @@ public class WeatherCache {
     @Builder
     private WeatherCache(
         String id,
-        WeatherResponse weather,
+        Map<String, WeatherResponse> hourlyWeathers,
         Long expiration
     ) {
         this.id = id;
-        this.weather = weather;
+        this.hourlyWeathers = hourlyWeathers;
         this.expiration = expiration == null ? CACHE_EXPIRE_HOUR : expiration;
     }
 
-    public static WeatherCache of(WeatherResponse weather) {
+    public static WeatherCache of(Map<String, WeatherResponse> hourlyWeathers) {
         return WeatherCache.builder()
             .id(BYEONGCHEON_ID)
-            .weather(weather)
+            .hourlyWeathers(hourlyWeathers)
             .build();
     }
 }

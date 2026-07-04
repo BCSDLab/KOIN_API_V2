@@ -10,10 +10,12 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -46,13 +48,17 @@ class WeatherServiceTest {
             "1200"
         );
         WeatherResponse cachedWeather = new WeatherResponse(21, "맑음");
+        WeatherResponse nextWeather = new WeatherResponse(22, "구름많음");
         when(weatherCacheRepository.findById(WeatherCache.BYEONGCHEON_ID))
-            .thenReturn(Optional.of(WeatherCache.of(cachedWeather)));
+            .thenReturn(Optional.of(WeatherCache.of(Map.of(
+                "202401151200", cachedWeather,
+                "202401151300", nextWeather
+            ))));
 
         WeatherResponse response = weatherService.getWeather();
 
         assertThat(response).isEqualTo(cachedWeather);
-        verify(weatherClient, never()).getWeatherForecast(requestTime);
+        verify(weatherClient, never()).getWeatherForecasts(requestTime);
     }
 
     @Test
@@ -64,7 +70,19 @@ class WeatherServiceTest {
 
         assertThrows(WeatherOpenApiException.class, weatherService::getWeather);
 
-        verify(weatherClient, never()).getWeatherForecast(any());
+        verify(weatherClient, never()).getWeatherForecasts(any());
+    }
+
+    @Test
+    void 현재_시간대의_예보가_캐시에_없으면_비정상_응답으로_처리한다() {
+        Clock clock = Clock.fixed(Instant.parse("2024-01-15T03:35:00Z"), ZoneId.of("Asia/Seoul"));
+        WeatherService weatherService = new WeatherService(clock, weatherClient, weatherCacheRepository);
+        when(weatherCacheRepository.findById(WeatherCache.BYEONGCHEON_ID))
+            .thenReturn(Optional.of(WeatherCache.builder().build()));
+
+        assertThrows(WeatherOpenApiException.class, weatherService::getWeather);
+
+        verify(weatherClient, never()).getWeatherForecasts(any());
     }
 
     @Test
@@ -77,12 +95,21 @@ class WeatherServiceTest {
             "20240115",
             "1200"
         );
-        when(weatherClient.getWeatherForecast(requestTime))
-            .thenReturn(new WeatherForecast(21, "1", "0"));
+        when(weatherClient.getWeatherForecasts(requestTime))
+            .thenReturn(Map.of(
+                "202401151200", new WeatherForecast(21, "1", "0"),
+                "202401151300", new WeatherForecast(22, "3", "0")
+            ));
 
         weatherService.refreshWeather();
 
-        verify(weatherClient).getWeatherForecast(requestTime);
-        verify(weatherCacheRepository).save(any(WeatherCache.class));
+        ArgumentCaptor<WeatherCache> cacheCaptor = ArgumentCaptor.forClass(WeatherCache.class);
+        verify(weatherClient).getWeatherForecasts(requestTime);
+        verify(weatherCacheRepository).save(cacheCaptor.capture());
+        assertThat(cacheCaptor.getValue().getHourlyWeathers()).containsOnlyKeys(
+            "202401151200",
+            "202401151300"
+        );
+        assertThat(cacheCaptor.getValue().getExpiration()).isEqualTo(24L);
     }
 }
