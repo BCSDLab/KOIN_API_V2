@@ -66,6 +66,7 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
               (
                   status = 'WAIT'
                   AND (locked_until IS NULL OR locked_until < :now)
+                  AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
               )
               OR (
                   status = 'PROCESSING'

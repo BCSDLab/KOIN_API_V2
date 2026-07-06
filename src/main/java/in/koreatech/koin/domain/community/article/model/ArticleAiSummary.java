@@ -209,6 +209,15 @@ public class ArticleAiSummary extends BaseEntity {
         this.failureReason = truncate(reason);
     }
 
+    public void waitForRetry(String reason, LocalDateTime nextAttemptAt) {
+        this.status = ArticleAiSummaryStatus.WAIT;
+        this.retryCount++;
+        this.nextAttemptAt = nextAttemptAt;
+        this.lockedUntil = null;
+        this.workerId = null;
+        this.failureReason = truncate(reason);
+    }
+
     public void completeFailureWithoutRetry(String reason, int maxRetryCount) {
         this.status = ArticleAiSummaryStatus.FAILED;
         this.retryCount = Math.max(this.retryCount + 1, maxRetryCount);

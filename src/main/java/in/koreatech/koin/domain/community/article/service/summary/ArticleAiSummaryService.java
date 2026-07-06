@@ -156,6 +156,10 @@ public class ArticleAiSummaryService {
                 if (nextRetryCount < properties.getMaxRetryCount()) {
                     nextAttemptAt = LocalDateTime.now(clock).plus(resolveRetryDelay(nextRetryCount, retryAfter));
                 }
+                if (retryAfter != null && nextAttemptAt != null) {
+                    summary.waitForRetry(reason, nextAttemptAt);
+                    return;
+                }
                 summary.completeFailure(reason, nextAttemptAt);
             });
     }

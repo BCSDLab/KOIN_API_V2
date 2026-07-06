@@ -46,7 +46,7 @@ class ArticleAiSummaryServiceTest {
     private ArticleSummaryContentRenderer contentRenderer;
 
     @Test
-    void retry_after가_있으면_기본_백오프보다_우선해_다음_시도_시간을_정한다() {
+    void retry_after가_있으면_WAIT_상태로_다음_시도_시간까지_대기한다() {
         Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary summary = processingSummary(clock);
@@ -54,9 +54,10 @@ class ArticleAiSummaryServiceTest {
 
         service.completeFailure(1, "worker", "rate limited", Duration.ofMinutes(1));
 
-        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
         assertThat(summary.getRetryCount()).isEqualTo(1);
         assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusMinutes(1));
+        assertThat(summary.getLockedUntil()).isNull();
     }
 
     @Test
