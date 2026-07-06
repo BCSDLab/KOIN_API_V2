@@ -64,9 +64,7 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         WHERE is_deleted = 0
           AND (
               (
-                  status IN ('WAIT', 'FAILED')
-                  AND retry_count < :maxRetryCount
-                  AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
+                  status = 'WAIT'
                   AND (locked_until IS NULL OR locked_until < :now)
               )
               OR (
@@ -80,9 +78,29 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         LIMIT :limit
         FOR UPDATE SKIP LOCKED
         """, nativeQuery = true)
-    List<ArticleAiSummary> findProcessableSummariesForUpdate(
+    List<ArticleAiSummary> findWaitingSummariesForUpdate(
+        @Param("now") LocalDateTime now,
+        @Param("limit") int limit
+    );
+
+    @Query(value = """
+        SELECT *
+        FROM article_ai_summaries
+        WHERE is_deleted = 0
+          AND status = 'FAILED'
+          AND retry_count < :maxRetryCount
+          AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
+          AND (locked_until IS NULL OR locked_until < :now)
+        ORDER BY
+          next_attempt_at ASC,
+          updated_at ASC
+        LIMIT :limit
+        FOR UPDATE SKIP LOCKED
+        """, nativeQuery = true)
+    List<ArticleAiSummary> findRetryableFailedSummariesForUpdate(
         @Param("now") LocalDateTime now,
         @Param("limit") int limit,
         @Param("maxRetryCount") int maxRetryCount
     );
+
 }

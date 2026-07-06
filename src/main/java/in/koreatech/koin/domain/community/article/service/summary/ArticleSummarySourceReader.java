@@ -36,6 +36,7 @@ public class ArticleSummarySourceReader {
         "jpg", "jpeg", "png", "bmp", "pdf", "tiff", "tif", "heic", "docx", "pptx", "xlsx", "hwp", "hwpx"
     );
     private static final Pattern INLINE_URL_PATTERN = Pattern.compile("https://[^\\s\"'<>]+");
+    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("\\.([a-z0-9]+)(?:\\s*\\([^)]*\\))?$");
     private static final String TRAILING_URL_PUNCTUATION = ".,;:!?)]}";
     private static final String HTTPS_SCHEME_PREFIX = "https://";
     private static final String WILDCARD_HOST_PREFIX = "*.";
@@ -45,10 +46,14 @@ public class ArticleSummarySourceReader {
     private final S3Client s3Client;
 
     public String createFingerprint(ArticleSummarySourceSeed seed) {
+        return createFingerprint(seed, resolveContent(seed.content()));
+    }
+
+    private String createFingerprint(ArticleSummarySourceSeed seed, String contentForFingerprint) {
         StringBuilder builder = new StringBuilder();
         builder.append("articleId=").append(seed.articleId()).append('\n');
         builder.append("title=").append(nullToEmpty(seed.title())).append('\n');
-        builder.append("content=").append(nullToEmpty(seed.content())).append('\n');
+        builder.append("content=").append(nullToEmpty(contentForFingerprint)).append('\n');
         seed.attachments().stream()
             .sorted(Comparator.comparing(ArticleAttachmentSeed::id))
             .forEach(attachment -> builder
@@ -60,7 +65,8 @@ public class ArticleSummarySourceReader {
                 .append(attachment.updatedAt())
                 .append('\n'));
 
-        extractInlineDocumentUrls(seed.content()).forEach(url -> builder.append("inlineDocument=").append(url).append('\n'));
+        extractInlineDocumentUrls(contentForFingerprint)
+            .forEach(url -> builder.append("inlineDocument=").append(url).append('\n'));
         return sha256(builder.toString());
     }
 
@@ -76,7 +82,7 @@ public class ArticleSummarySourceReader {
             seed.attachments()
         );
         String contentText = htmlToText(resolvedContent);
-        String fingerprint = createFingerprint(resolvedSeed);
+        String fingerprint = createFingerprint(resolvedSeed, resolvedContent);
         AttachmentReadResult attachmentReadResult = readAttachmentTexts(resolvedSeed);
         return new ArticleSummarySource(
             seed.articleId(),
@@ -96,7 +102,7 @@ public class ArticleSummarySourceReader {
             return "";
         }
         String trimmed = content.trim();
-        if (!trimmed.startsWith("https")) {
+        if (!isStandaloneHttpsUrl(trimmed)) {
             return content;
         }
         if (!isAllowedContentUrl(trimmed)) {
@@ -108,6 +114,21 @@ public class ArticleSummarySourceReader {
         } catch (Exception e) {
             log.warn("게시글 본문 URL 조회에 실패했습니다. url: {}", sanitizeUrl(trimmed), e);
             return "";
+        }
+    }
+
+    private boolean isStandaloneHttpsUrl(String value) {
+        if (!StringUtils.hasText(value) || !value.startsWith(HTTPS_SCHEME_PREFIX)) {
+            return false;
+        }
+        if (value.chars().anyMatch(Character::isWhitespace)) {
+            return false;
+        }
+        try {
+            URI uri = URI.create(value);
+            return "https".equalsIgnoreCase(uri.getScheme()) && StringUtils.hasText(uri.getHost());
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 
@@ -166,11 +187,18 @@ public class ArticleSummarySourceReader {
             );
         } catch (ArticleSummaryExternalApiException e) {
             log.warn("게시글 첨부 문서 파싱에 실패했습니다. articleDocument: {}", sanitizeUrl(request.url()), e);
+            if (hasRetryAfter(e)) {
+                throw e;
+            }
             return new ParsedDocument("", e.isRetryable());
         } catch (Exception e) {
             log.warn("게시글 첨부 문서 파싱에 실패했습니다. articleDocument: {}", sanitizeUrl(request.url()), e);
             return ParsedDocument.empty();
         }
+    }
+
+    private boolean hasRetryAfter(ArticleSummaryExternalApiException e) {
+        return e.getRetryAfter() != null && !e.getRetryAfter().isNegative() && !e.getRetryAfter().isZero();
     }
 
     private List<String> extractInlineDocumentUrls(String html) {
@@ -300,11 +328,15 @@ public class ArticleSummarySourceReader {
         if (queryIndex >= 0) {
             normalized = normalized.substring(0, queryIndex);
         }
-        int dotIndex = normalized.lastIndexOf('.');
-        if (dotIndex < 0 || dotIndex == normalized.length() - 1) {
+        int fragmentIndex = normalized.indexOf('#');
+        if (fragmentIndex >= 0) {
+            normalized = normalized.substring(0, fragmentIndex);
+        }
+        Matcher matcher = FILE_EXTENSION_PATTERN.matcher(normalized);
+        if (!matcher.find()) {
             return "";
         }
-        return normalized.substring(dotIndex + 1);
+        return matcher.group(1);
     }
 
     private String fileNameFromUrl(String url) {

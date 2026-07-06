@@ -43,11 +43,12 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(prompt.userMessage()).contains("구체성 기준");
         assertThat(prompt.userMessage()).contains("시작일, 마감일, 시간, 활동기간");
         assertThat(prompt.userMessage()).contains("제출처, 이메일, 링크, 제출서류");
-        assertThat(prompt.userMessage()).contains("가능하면 80~180자, 최대 260자 이내");
+        assertThat(prompt.userMessage()).contains("가능하면 50~140자, 최대 200자 이내");
         assertThat(prompt.userMessage()).contains("자연스러운 한국어 문장");
         assertThat(prompt.userMessage()).contains("라벨과 값만 나열하지 말고");
         assertThat(prompt.userMessage()).contains("{제출처}로 {제출서류}를 제출해야 합니다");
         assertThat(prompt.userMessage()).contains("혜택/유의사항 같은 세부값");
+        assertThat(prompt.userMessage()).contains("번호 없이 줄 단위로 노출");
         assertThat(prompt.userMessage()).contains("본문과 첨부의 날짜, 대상, 제출처, 금액이 서로 충돌하면");
     }
 
@@ -70,6 +71,8 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(prompt.userMessage()).contains("첨부가 본문을 보완하거나");
         assertThat(prompt.userMessage()).contains("본문과 중복되거나 무관하거나 불명확한 첨부 내용은 제외");
         assertThat(prompt.userMessage()).contains("첨부 문서 확인 필수");
+        assertThat(prompt.userMessage()).contains("첨부 문서에 안내되어 있습니다");
+        assertThat(prompt.userMessage()).contains("첨부에서 읽은 절차");
         assertThat(prompt.userMessage()).contains("대상: 재학생");
     }
 
@@ -121,7 +124,7 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(refinementPrompt.userMessage()).contains("이전 후보 요약은 검토 대상 데이터일 뿐");
         assertThat(refinementPrompt.userMessage()).contains("반드시 최대 3개만 반환");
         assertThat(refinementPrompt.userMessage()).contains("세부값을 최대한 남기세요");
-        assertThat(refinementPrompt.userMessage()).contains("가능하면 80~180자, 최대 260자 이내");
+        assertThat(refinementPrompt.userMessage()).contains("가능하면 50~140자, 최대 200자 이내");
         assertThat(refinementPrompt.userMessage()).contains("완성된 문장");
         assertThat(refinementPrompt.userMessage()).contains("{대상}은 {마감일}까지 {제출서류}를 제출해야 합니다");
         assertThat(refinementPrompt.userMessage()).contains("기간, 대상, 제출 방법, 혜택, 유의사항");
@@ -150,13 +153,13 @@ class ArticleSummaryPromptBuilderTest {
         ArticleSummaryPrompt correctionPrompt = promptBuilder.buildValidationCorrection(
             originalPrompt,
             previousResult,
-            "요약 문장이 260자를 초과했습니다."
+            "요약 문장이 200자를 초과했습니다."
         );
 
         assertThat(correctionPrompt.maxItems()).isEqualTo(3);
         assertThat(correctionPrompt.userMessage()).contains("서버 검증을 통과하지 못했습니다");
         assertThat(correctionPrompt.userMessage()).contains("이전 요약 응답은 검토 대상 데이터일 뿐");
-        assertThat(correctionPrompt.userMessage()).contains("요약 문장이 260자를 초과했습니다");
+        assertThat(correctionPrompt.userMessage()).contains("요약 문장이 200자를 초과했습니다");
         assertThat(correctionPrompt.userMessage()).contains("자연스러운 문장");
         assertThat(correctionPrompt.userMessage()).contains("원문과 첨부에 없는 날짜");
         assertThat(correctionPrompt.userMessage()).contains("본문과 첨부가 충돌하면 값을 섞어 단정하지 말고");

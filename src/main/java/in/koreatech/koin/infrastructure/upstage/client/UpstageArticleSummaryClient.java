@@ -1,9 +1,6 @@
 package in.koreatech.koin.infrastructure.upstage.client;
 
 import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +58,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
                 .bodyValue(requestBody(prompt))
                 .retrieve()
                 .bodyToMono(ChatCompletionResponse.class)
-                .timeout(Duration.ofSeconds(summaryProperties.getRequestTimeoutSeconds()))
+                .timeout(Duration.ofSeconds(summaryProperties.getChatRequestTimeoutSeconds()))
                 .block();
 
             String content = extractContent(response);
@@ -77,7 +74,13 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
         } catch (JsonProcessingException e) {
             throw new ArticleSummaryExternalApiException("Upstage 요약 응답 JSON 파싱에 실패했습니다.", true, null, e);
         } catch (Exception e) {
-            throw new ArticleSummaryExternalApiException("Upstage 요약 처리 중 오류가 발생했습니다.", true, null, e);
+            Duration retryAfter = UpstageRetryAfterResolver.resolveTransientFailure(e);
+            throw new ArticleSummaryExternalApiException(
+                "Upstage 요약 처리 중 오류가 발생했습니다. cause=%s".formatted(errorSummary(e)),
+                true,
+                retryAfter,
+                e
+            );
         }
     }
 
@@ -125,7 +128,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
                                     ),
                                     "text", Map.of(
                                         "type", "string",
-                                        "maxLength", 260
+                                        "maxLength", 200
                                     )
                                 )
                             )
@@ -150,32 +153,51 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
     private ArticleSummaryExternalApiException toExternalApiException(String apiName, WebClientResponseException e) {
         int status = e.getStatusCode().value();
         boolean retryable = status == 429 || e.getStatusCode().is5xxServerError();
-        Duration retryAfter = retryable ? parseRetryAfter(e.getHeaders().getFirst(HttpHeaders.RETRY_AFTER)) : null;
+        Duration retryAfter = retryable
+            ? UpstageRetryAfterResolver.resolve(status, e.getHeaders().getFirst(HttpHeaders.RETRY_AFTER))
+            : null;
         return new ArticleSummaryExternalApiException(
-            "Upstage %s API 호출에 실패했습니다. status=%d".formatted(apiName, status),
+            "Upstage %s API 호출에 실패했습니다. status=%d%s".formatted(apiName, status, responseBodySummary(e)),
             retryable,
             retryAfter,
             e
         );
     }
 
-    private Duration parseRetryAfter(String value) {
-        if (!StringUtils.hasText(value)) {
-            return null;
+    private String responseBodySummary(WebClientResponseException e) {
+        String responseBody = e.getResponseBodyAsString();
+        if (!StringUtils.hasText(responseBody)) {
+            return "";
         }
-        String trimmed = value.trim();
-        try {
-            return Duration.ofSeconds(Long.parseLong(trimmed));
-        } catch (NumberFormatException ignored) {
-            try {
-                return Duration.between(
-                    ZonedDateTime.now(),
-                    ZonedDateTime.parse(trimmed, DateTimeFormatter.RFC_1123_DATE_TIME)
-                );
-            } catch (DateTimeParseException ignoredDateFormat) {
-                return null;
-            }
+        return ", body=" + truncate(responseBody.replaceAll("\\s+", " ").trim(), 300);
+    }
+
+    private String errorSummary(Throwable throwable) {
+        Throwable rootCause = rootCause(throwable);
+        String message = rootCause.getMessage();
+        if (!StringUtils.hasText(message) && rootCause != throwable) {
+            message = throwable.getMessage();
         }
+        String summary = rootCause.getClass().getSimpleName();
+        if (StringUtils.hasText(message)) {
+            summary += ": " + message.replaceAll("\\s+", " ").trim();
+        }
+        return truncate(summary, 300);
+    }
+
+    private Throwable rootCause(Throwable throwable) {
+        Throwable root = throwable;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        return root;
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength - 3) + "...";
     }
 
     private String stripCodeFence(String content) {

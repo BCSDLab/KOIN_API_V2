@@ -5,6 +5,8 @@ import static in.koreatech.koin.domain.community.article.service.ArticleService.
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -99,13 +101,20 @@ public class ArticleAiSummaryService {
             return List.of();
         }
         LocalDateTime now = LocalDateTime.now(clock);
-        LocalDateTime lockedUntil = now.plusMinutes(properties.getLockMinutes());
-        return articleAiSummaryRepository.findProcessableSummariesForUpdate(
+        List<ArticleAiSummary> summaries = new ArrayList<>();
+        if (isFailedRetryWindow(now.toLocalTime())) {
+            summaries.addAll(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(
                 now,
                 batchLimit,
                 properties.getMaxRetryCount()
-            )
-            .stream()
+            ));
+        }
+        int remainingLimit = batchLimit - summaries.size();
+        if (remainingLimit > 0) {
+            summaries.addAll(articleAiSummaryRepository.findWaitingSummariesForUpdate(now, remainingLimit));
+        }
+        LocalDateTime lockedUntil = now.plusMinutes(properties.getLockMinutes());
+        return summaries.stream()
             .peek(summary -> summary.markProcessing(workerId, lockedUntil))
             .map(ArticleAiSummary::getId)
             .toList();
@@ -192,15 +201,26 @@ public class ArticleAiSummaryService {
         return Math.min(Math.max(limit, 0), properties.getBatchSize());
     }
 
+    private boolean isFailedRetryWindow(LocalTime now) {
+        int startHour = properties.getBoundedFailedRetryWindowStartHour();
+        int endHour = properties.getBoundedFailedRetryWindowEndHour();
+        if (startHour == endHour) {
+            return false;
+        }
+        int currentHour = now.getHour();
+        if (startHour < endHour) {
+            return currentHour >= startHour && currentHour < endHour;
+        }
+        return currentHour >= startHour || currentHour < endHour;
+    }
+
     private Duration resolveRetryDelay(int nextRetryCount, Duration retryAfter) {
+        Duration maxBackoff = Duration.ofMinutes(properties.getMaxRetryBackoffMinutes());
+        if (retryAfter != null && !retryAfter.isNegative() && !retryAfter.isZero()) {
+            return retryAfter.compareTo(maxBackoff) > 0 ? maxBackoff : retryAfter;
+        }
         long multiplier = 1L << Math.min(Math.max(nextRetryCount - 1, 0), 10);
         Duration configuredBackoff = Duration.ofMinutes((long)properties.getRetryBackoffMinutes() * multiplier);
-        Duration maxBackoff = Duration.ofMinutes(properties.getMaxRetryBackoffMinutes());
-        Duration boundedBackoff = configuredBackoff.compareTo(maxBackoff) > 0 ? maxBackoff : configuredBackoff;
-        if (retryAfter == null || retryAfter.isNegative() || retryAfter.isZero()) {
-            return boundedBackoff;
-        }
-        Duration boundedRetryAfter = retryAfter.compareTo(maxBackoff) > 0 ? maxBackoff : retryAfter;
-        return boundedRetryAfter.compareTo(boundedBackoff) > 0 ? boundedRetryAfter : boundedBackoff;
+        return configuredBackoff.compareTo(maxBackoff) > 0 ? maxBackoff : configuredBackoff;
     }
 }

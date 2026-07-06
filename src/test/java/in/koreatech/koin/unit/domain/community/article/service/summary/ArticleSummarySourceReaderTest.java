@@ -1,11 +1,13 @@
 package in.koreatech.koin.unit.domain.community.article.service.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -130,6 +132,40 @@ class ArticleSummarySourceReaderTest {
     }
 
     @Test
+    void 첨부파일명에_용량_표시가_있어도_확장자를_인식한다() {
+        FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        properties.setMaxDocumentsPerArticle(3);
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "홍보대사 모집",
+            "<p>첨부 문서를 확인하세요.</p>",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(new ArticleAttachmentSeed(
+                10,
+                "2025학년도 온라인 홍보대사 한온 2기 모집 공고.pdf(256 KB)",
+                "https://portal.koreatech.ac.kr/ctt/bb/bulletin?b=14&p=33894&a=fd&fs=2",
+                "hash",
+                LocalDateTime.of(2026, 5, 1, 10, 0)
+            ))
+        );
+
+        ArticleSummarySource source = reader.read(seed);
+
+        assertThat(parseClient.requests)
+            .extracting(DocumentParseRequest::url)
+            .containsExactly("https://portal.koreatech.ac.kr/ctt/bb/bulletin?b=14&p=33894&a=fd&fs=2");
+        assertThat(source.attachmentTexts()).hasSize(1);
+        assertThat(source.attachmentTexts().get(0))
+            .contains("파일명: 2025학년도 온라인 홍보대사 한온 2기 모집 공고.pdf(256 KB)");
+    }
+
+    @Test
     void 첨부_파싱에_실패해도_본문만으로_요약_입력을_구성한다() {
         ArticleDocumentParseClient parseClient = request -> {
             throw new IllegalStateException("parse failed");
@@ -198,6 +234,38 @@ class ArticleSummarySourceReaderTest {
     }
 
     @Test
+    void 첨부_파싱이_429로_제한되면_본문만으로_요약하지_않고_재시도_예외를_전파한다() {
+        ArticleDocumentParseClient parseClient = request -> {
+            throw new ArticleSummaryExternalApiException("rate limited", true, Duration.ofMinutes(1));
+        };
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        properties.setMaxDocumentsPerArticle(3);
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "장학금 안내",
+            "<p>신청 기간은 5월 20일까지입니다.</p>",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(new ArticleAttachmentSeed(
+                10,
+                "신청서.docx",
+                "https://static.koreatech.in/files/application.docx",
+                "hash",
+                LocalDateTime.of(2026, 5, 1, 10, 0)
+            ))
+        );
+
+        assertThatThrownBy(() -> reader.read(seed))
+            .isInstanceOf(ArticleSummaryExternalApiException.class)
+            .satisfies(exception -> assertThat(((ArticleSummaryExternalApiException)exception).getRetryAfter())
+                .isEqualTo(Duration.ofMinutes(1)));
+    }
+
+    @Test
     void 허용된_koreatech_하위_도메인_본문_URL이면_URL_내용을_조회해_요약_입력으로_사용한다() {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
@@ -220,6 +288,64 @@ class ArticleSummarySourceReaderTest {
 
         assertThat(source.contentText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
         assertThat(source.mergedText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+    }
+
+    @Test
+    void 본문_URL과_조회된_본문은_같은_fingerprint를_사용한다() {
+        FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        when(s3Client.getContentFromUrl("https://stage-static.koreatech.in/articles/content/notice.txt"))
+            .thenReturn("<p>신청 기간은 5월 20일까지입니다.</p>");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed urlSeed = new ArticleSummarySourceSeed(
+            1,
+            "장학금 안내",
+            "https://stage-static.koreatech.in/articles/content/notice.txt",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of()
+        );
+        ArticleSummarySourceSeed resolvedSeed = new ArticleSummarySourceSeed(
+            1,
+            "장학금 안내",
+            "<p>신청 기간은 5월 20일까지입니다.</p>",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of()
+        );
+
+        String urlFingerprint = reader.createFingerprint(urlSeed);
+        String resolvedFingerprint = reader.createFingerprint(resolvedSeed);
+
+        assertThat(urlFingerprint).isEqualTo(resolvedFingerprint);
+    }
+
+    @Test
+    void 본문이_URL로_시작하는_일반_텍스트이면_URL_본문으로_간주하지_않는다() {
+        FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
+        ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
+        S3Client s3Client = mock(S3Client.class);
+        when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
+        ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
+        ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
+            1,
+            "장학금 안내",
+            "https://portal.koreatech.ac.kr 공지에서 신청 기간은 5월 20일까지입니다.",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of()
+        );
+
+        ArticleSummarySource source = reader.read(seed);
+
+        assertThat(source.contentText()).isEqualTo("https://portal.koreatech.ac.kr 공지에서 신청 기간은 5월 20일까지입니다.");
+        assertThat(source.mergedText()).isEqualTo("https://portal.koreatech.ac.kr 공지에서 신청 기간은 5월 20일까지입니다.");
+        verify(s3Client, never()).getContentFromUrl("https://portal.koreatech.ac.kr 공지에서 신청 기간은 5월 20일까지입니다.");
     }
 
     @Test

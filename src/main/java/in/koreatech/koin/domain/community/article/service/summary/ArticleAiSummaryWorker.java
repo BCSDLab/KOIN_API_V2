@@ -85,24 +85,61 @@ public class ArticleAiSummaryWorker {
     }
 
     private List<String> validateOrCorrect(ArticleSummaryResult result, ArticleSummaryPrompt originalPrompt) {
-        try {
-            return validator.validate(result, originalPrompt.sourceText());
-        } catch (ArticleSummaryValidationException e) {
-            if (properties.getBoundedMaxRefinementRetryCount() == 0) {
-                throw e;
-            }
-            log.info("게시글 AI 요약 최종 검증에 실패해 한 번 더 재작성합니다. reason: {}", e.getMessage());
-            ArticleSummaryResult refinedResult = articleSummaryAiClient.summarize(
-                promptBuilder.buildValidationCorrection(originalPrompt, result, e.getMessage())
-            );
-            if (refinedResult == null || refinedResult.items() == null || refinedResult.items().isEmpty()) {
-                throw new ArticleSummaryValidationException("재작성 결과가 비어 있습니다.");
-            }
-            if (validator.hasTooManyItems(refinedResult)) {
-                throw new ArticleSummaryValidationException("재작성 후에도 요약 항목은 최대 3개까지 허용됩니다.");
-            }
-            return validator.validate(refinedResult, originalPrompt.sourceText());
+        ArticleSummaryValidator.ValidationResult initialValidation = validator.validateFilteringInvalidItems(
+            result,
+            originalPrompt.sourceText()
+        );
+        if (!initialValidation.hasFailures()) {
+            return initialValidation.validLines();
         }
+        if (properties.getBoundedMaxRefinementRetryCount() == 0) {
+            return validLinesOrThrow(initialValidation);
+        }
+
+        log.info("게시글 AI 요약 최종 검증에 실패해 한 번 더 재작성합니다. reason: {}", initialValidation.firstFailureReason());
+        ArticleSummaryResult refinedResult = articleSummaryAiClient.summarize(
+            promptBuilder.buildValidationCorrection(originalPrompt, result, initialValidation.firstFailureReason())
+        );
+        ArticleSummaryValidator.ValidationResult refinedValidation = validateRefinedResult(refinedResult, originalPrompt);
+        if (refinedValidation.hasValidLines()) {
+            logInvalidSummaryItems(refinedValidation);
+            return refinedValidation.validLines();
+        }
+        return validLinesOrThrow(initialValidation);
+    }
+
+    private ArticleSummaryValidator.ValidationResult validateRefinedResult(
+        ArticleSummaryResult refinedResult,
+        ArticleSummaryPrompt originalPrompt
+    ) {
+        if (refinedResult == null || refinedResult.items() == null || refinedResult.items().isEmpty()) {
+            return new ArticleSummaryValidator.ValidationResult(List.of(), List.of("재작성 결과가 비어 있습니다."));
+        }
+        if (validator.hasTooManyItems(refinedResult)) {
+            return new ArticleSummaryValidator.ValidationResult(
+                List.of(),
+                List.of("재작성 후에도 요약 항목은 최대 3개까지 허용됩니다.")
+            );
+        }
+        return validator.validateFilteringInvalidItems(refinedResult, originalPrompt.sourceText());
+    }
+
+    private List<String> validLinesOrThrow(ArticleSummaryValidator.ValidationResult validationResult) {
+        if (validationResult.hasValidLines()) {
+            logInvalidSummaryItems(validationResult);
+            return validationResult.validLines();
+        }
+        throw new ArticleSummaryValidationException(validationResult.firstFailureReason());
+    }
+
+    private void logInvalidSummaryItems(ArticleSummaryValidator.ValidationResult validationResult) {
+        if (!validationResult.hasFailures()) {
+            return;
+        }
+        log.warn(
+            "게시글 AI 요약 일부 항목이 검증 실패로 제외되었습니다. reasons: {}",
+            String.join(" | ", validationResult.failureReasons())
+        );
     }
 
     private RefinementResult refineIfTooManyItems(ArticleSummaryResult result, ArticleSummaryPrompt originalPrompt) {

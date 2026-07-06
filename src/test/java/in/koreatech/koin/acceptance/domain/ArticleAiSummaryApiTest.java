@@ -106,7 +106,7 @@ class ArticleAiSummaryApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").value(containsString("✨ AI 요약")))
-            .andExpect(jsonPath("$.content").value(containsString("1. 📅 신청은 5월 20일까지 접수됩니다.")))
+            .andExpect(jsonPath("$.content").value(containsString("<p>📅 신청은 5월 20일까지 접수됩니다.</p>")))
             .andExpect(jsonPath("$.content").value(containsString("<p>내용</p>")));
     }
 }

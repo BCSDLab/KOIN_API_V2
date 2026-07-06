@@ -149,6 +149,31 @@ class ArticleAiSummaryWorkerTest {
     }
 
     @Test
+    void 검증_재작성_후에도_일부_항목만_실패하면_정상_항목만_저장한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = source();
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+        when(articleSummaryAiClient.summarize(any(ArticleSummaryPrompt.class)))
+            .thenReturn(invalidDateResult(), partiallyInvalidResult());
+
+        worker.process(1, "worker");
+
+        verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
+        verify(articleAiSummaryService).completeSuccess(
+            eq(1),
+            eq("worker"),
+            eq(source),
+            eq(List.of(
+                "🎯 대상: 재학생",
+                "💰 혜택: 50만원 지급"
+            ))
+        );
+        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
+        verify(articleAiSummaryService, never()).skip(any(), any(), any());
+    }
+
+    @Test
     void 재선별_이후_검증에_실패해도_한_번_더_재작성해_저장한다() {
         ArticleSummarySourceSeed seed = sourceSeed();
         ArticleSummarySource source = source();
@@ -185,7 +210,7 @@ class ArticleAiSummaryWorkerTest {
         worker.process(1, "worker");
 
         verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
-        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("260자"));
+        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("200자"));
         verify(articleAiSummaryService, never()).skip(any(), any(), any());
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
     }
@@ -292,9 +317,23 @@ class ArticleAiSummaryWorkerTest {
         ));
     }
 
+    private ArticleSummaryResult invalidDateResult() {
+        return new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "신청 기간: 5월 21일까지")
+        ));
+    }
+
+    private ArticleSummaryResult partiallyInvalidResult() {
+        return new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "신청 기간: 5월 21일까지"),
+            new ArticleSummaryItem(ArticleSummaryIcon.TARGET, "대상: 재학생"),
+            new ArticleSummaryItem(ArticleSummaryIcon.MONEY, "혜택: 50만원 지급")
+        ));
+    }
+
     private ArticleSummaryResult tooLongResult() {
         return new ArticleSummaryResult(List.of(
-            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(261))
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(201))
         ));
     }
 }

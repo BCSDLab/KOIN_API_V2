@@ -136,9 +136,15 @@ article:
     retry-backoff-minutes: ${ARTICLE_AI_SUMMARY_RETRY_BACKOFF_MINUTES:5}
     max-retry-backoff-minutes: ${ARTICLE_AI_SUMMARY_MAX_RETRY_BACKOFF_MINUTES:60}
     max-documents-per-article: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENTS_PER_ARTICLE:3}
-    max-document-bytes: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENT_BYTES:10485760}
+    max-document-bytes: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENT_BYTES:52428800}
+    document-parse-ocr-mode: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_OCR_MODE:auto}
     document-parse-min-interval-millis: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_MIN_INTERVAL_MILLIS:1000}
-    request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:20}
+    failed-retry-window-start-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_START_HOUR:0}
+    failed-retry-window-end-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_END_HOUR:4}
+    request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:120}
+    chat-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_CHAT_REQUEST_TIMEOUT_SECONDS:120}
+    document-parse-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_REQUEST_TIMEOUT_SECONDS:180}
+    document-download-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_DOWNLOAD_TIMEOUT_SECONDS:60}
     model: ${ARTICLE_AI_SUMMARY_MODEL:solar-pro3}
     prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v9}
     allowed-content-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_CONTENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}

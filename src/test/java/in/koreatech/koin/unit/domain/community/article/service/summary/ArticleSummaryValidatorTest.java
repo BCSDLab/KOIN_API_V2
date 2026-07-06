@@ -63,12 +63,13 @@ class ArticleSummaryValidatorTest {
         ));
 
         assertThatThrownBy(() -> validator.validate(result, "신청은 5월 20일까지 접수됩니다."))
-            .isInstanceOf(ArticleSummaryValidationException.class);
+            .isInstanceOf(ArticleSummaryValidationException.class)
+            .hasMessageContaining("token=5월 21일");
     }
 
     @Test
-    void 요약_문장은_260자까지_허용한다() {
-        String text = "가".repeat(260);
+    void 요약_문장은_200자까지_허용한다() {
+        String text = "가".repeat(200);
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
             new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, text)
         ));
@@ -79,12 +80,12 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
-    void 요약_문장이_260자를_초과하면_실패한다() {
+    void 요약_문장이_200자를_초과하면_실패한다() {
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
-            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(261))
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(201))
         ));
 
-        assertThatThrownBy(() -> validator.validate(result, "가".repeat(261)))
+        assertThatThrownBy(() -> validator.validate(result, "가".repeat(201)))
             .isInstanceOf(ArticleSummaryValidationException.class);
     }
 
@@ -133,6 +134,80 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
+    void 축약_연도_날짜_범위의_끝일자는_출처_정보로_인정한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "행사는 2025년 2월 14일까지 진행되었습니다.")
+        ));
+
+        List<String> lines = validator.validate(result, "25.2.10.(월) ~ 14.(금) 5일 간 진행된 행사입니다.");
+
+        assertThat(lines).containsExactly("📅 행사는 2025년 2월 14일까지 진행되었습니다.");
+    }
+
+    @Test
+    void 월일_범위의_끝일자는_한글_월일_표기와_같은_출처_정보로_인정한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "운영 기간은 6월 20일까지입니다.")
+        ));
+
+        List<String> lines = validator.validate(result, "3.4~6.20 운영 예정");
+
+        assertThat(lines).containsExactly("📅 운영 기간은 6월 20일까지입니다.");
+    }
+
+    @Test
+    void 공백과_요일이_포함된_월일과_시간_표기를_출처_정보로_인정한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "신청은 5월 6일 23:59까지 접수됩니다.")
+        ));
+
+        List<String> lines = validator.validate(result, "5. 6.(월) 23:59까지 접수");
+
+        assertThat(lines).containsExactly("📅 신청은 5월 6일 23:59까지 접수됩니다.");
+    }
+
+    @Test
+    void 시간_범위는_콜론과_시_표현을_같은_출처_정보로_인정한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "상담은 9시부터 18시까지 운영됩니다.")
+        ));
+
+        List<String> lines = validator.validate(result, "상담 운영 시간: 09:00~18:00");
+
+        assertThat(lines).containsExactly("📅 상담은 9시부터 18시까지 운영됩니다.");
+    }
+
+    @Test
+    void 날짜_문맥이_없는_버전_숫자는_날짜로_과검출하지_않는다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "라이브러리는 v1.1 버전을 사용합니다.")
+        ));
+
+        List<String> lines = validator.validate(result, "라이브러리는 v1.0 버전을 사용합니다.");
+
+        assertThat(lines).containsExactly("✅ 라이브러리는 v1.1 버전을 사용합니다.");
+    }
+
+    @Test
+    void 일부_항목만_출처_검증에_실패하면_정상_항목은_반환하고_실패_원인을_남긴다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.CALENDAR, "신청은 5월 21일까지 접수됩니다."),
+            new ArticleSummaryItem(ArticleSummaryIcon.TARGET, "대상은 재학생입니다.")
+        ));
+
+        ArticleSummaryValidator.ValidationResult validationResult = validator.validateFilteringInvalidItems(
+            result,
+            "신청은 5월 20일까지 접수됩니다. 대상은 재학생입니다."
+        );
+
+        assertThat(validationResult.validLines()).containsExactly("🎯 대상은 재학생입니다.");
+        assertThat(validationResult.failureReasons()).hasSize(1);
+        assertThat(validationResult.firstFailureReason())
+            .contains("token=5월 21일")
+            .contains("item=신청은 5월 21일까지 접수됩니다.");
+    }
+
+    @Test
     void 빈_문장이_있으면_실패한다() {
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
             new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, " ")
@@ -160,6 +235,26 @@ class ArticleSummaryValidatorTest {
         ));
 
         assertThatThrownBy(() -> validator.validate(result, "첨부 문서/이미지 추출 내용 대상 재학생"))
+            .isInstanceOf(ArticleSummaryValidationException.class);
+    }
+
+    @Test
+    void 첨부_위치만_안내하는_요약은_실패한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.DOCUMENT, "재 로그인 절차는 첨부 문서에 안내되어 있습니다.")
+        ));
+
+        assertThatThrownBy(() -> validator.validate(result, "첨부 문서/이미지 추출 내용 로그아웃 후 재 로그인"))
+            .isInstanceOf(ArticleSummaryValidationException.class);
+    }
+
+    @Test
+    void 첨부_위치와_안내_표현_사이에_단어가_있어도_실패한다() {
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.DOCUMENT, "첨부 문서에 재로그인 절차가 안내되어 있습니다.")
+        ));
+
+        assertThatThrownBy(() -> validator.validate(result, "첨부 문서/이미지 추출 내용 로그아웃 후 재 로그인"))
             .isInstanceOf(ArticleSummaryValidationException.class);
     }
 }
