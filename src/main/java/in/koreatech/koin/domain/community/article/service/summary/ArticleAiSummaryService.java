@@ -24,7 +24,9 @@ import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRep
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.infrastructure.upstage.client.UpstageProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -160,9 +162,11 @@ public class ArticleAiSummaryService {
                 }
                 if (retryAfter != null && nextAttemptAt != null) {
                     summary.waitForRetry(sanitizedReason, nextAttemptAt);
+                    logRetryWaiting(summary, workerId, sanitizedReason, nextAttemptAt);
                     return;
                 }
                 summary.completeFailure(sanitizedReason, nextAttemptAt);
+                logFailure(summary, workerId, sanitizedReason, nextAttemptAt);
             });
     }
 
@@ -170,17 +174,22 @@ public class ArticleAiSummaryService {
     public void completeFailureWithoutRetry(Integer summaryId, String workerId, String reason) {
         articleAiSummaryRepository.findById(summaryId)
             .filter(summary -> summary.isProcessingBy(workerId))
-            .ifPresent(summary -> summary.completeFailureWithoutRetry(
-                failureReasonSanitizer.sanitize(reason),
-                properties.getMaxRetryCount()
-            ));
+            .ifPresent(summary -> {
+                String sanitizedReason = failureReasonSanitizer.sanitize(reason);
+                summary.completeFailureWithoutRetry(sanitizedReason, properties.getMaxRetryCount());
+                logTerminalFailure(summary, workerId, sanitizedReason, "재시도 불가능한 오류입니다.");
+            });
     }
 
     @Transactional
     public void skip(Integer summaryId, String workerId, String reason) {
         articleAiSummaryRepository.findById(summaryId)
             .filter(summary -> summary.isProcessingBy(workerId))
-            .ifPresent(summary -> summary.skip(failureReasonSanitizer.sanitize(reason)));
+            .ifPresent(summary -> {
+                String sanitizedReason = failureReasonSanitizer.sanitize(reason);
+                summary.skip(sanitizedReason);
+                logSkipped(summary, workerId, sanitizedReason);
+            });
     }
 
     private void enqueueIfEnabled(Article article, String fingerprint, LocalDateTime sourceUpdatedAt) {
@@ -231,5 +240,107 @@ public class ArticleAiSummaryService {
         long multiplier = 1L << Math.min(Math.max(nextRetryCount - 1, 0), 10);
         Duration configuredBackoff = Duration.ofMinutes((long)properties.getRetryBackoffMinutes() * multiplier);
         return configuredBackoff.compareTo(maxBackoff) > 0 ? maxBackoff : configuredBackoff;
+    }
+
+    private void logRetryWaiting(
+        ArticleAiSummary summary,
+        String workerId,
+        String reason,
+        LocalDateTime nextAttemptAt
+    ) {
+        log.warn(
+            "게시글 AI 요약 일시 오류로 재시도 대기합니다. summaryId: {}, articleId: {}, boardId: {}, status: {}, "
+                + "failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, workerId: {}, reason: {}, "
+                + "impact: 요약은 아직 노출되지 않고 원문만 반환됩니다.",
+            summary.getId(),
+            articleId(summary),
+            boardId(summary),
+            summary.getStatus(),
+            failureReasonSanitizer.classify(reason),
+            summary.getRetryCount(),
+            properties.getMaxRetryCount(),
+            nextAttemptAt,
+            workerId,
+            reason
+        );
+    }
+
+    private void logFailure(
+        ArticleAiSummary summary,
+        String workerId,
+        String reason,
+        LocalDateTime nextAttemptAt
+    ) {
+        if (nextAttemptAt == null) {
+            logTerminalFailure(summary, workerId, reason, "최대 재시도 횟수에 도달했습니다.");
+            return;
+        }
+        log.warn(
+            "게시글 AI 요약 생성 실패로 FAILED 재처리 큐에 등록했습니다. summaryId: {}, articleId: {}, boardId: {}, "
+                + "status: {}, failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, retryWindow: {}:00-{}:00, "
+                + "workerId: {}, reason: {}, impact: 요약은 아직 노출되지 않고 원문만 반환됩니다.",
+            summary.getId(),
+            articleId(summary),
+            boardId(summary),
+            summary.getStatus(),
+            failureReasonSanitizer.classify(reason),
+            summary.getRetryCount(),
+            properties.getMaxRetryCount(),
+            nextAttemptAt,
+            properties.getBoundedFailedRetryWindowStartHour(),
+            properties.getBoundedFailedRetryWindowEndHour(),
+            workerId,
+            reason
+        );
+    }
+
+    private void logTerminalFailure(
+        ArticleAiSummary summary,
+        String workerId,
+        String reason,
+        String cause
+    ) {
+        log.error(
+            "게시글 AI 요약 생성이 중단되었습니다. summaryId: {}, articleId: {}, boardId: {}, status: {}, "
+                + "failureType: {}, retryCount: {}/{}, workerId: {}, cause: {}, reason: {}, "
+                + "impact: 해당 게시글은 요약 없이 원문만 반환됩니다. action: Admin AI 요약 상세 API로 상태를 확인하고 원문/첨부/Upstage 상태를 점검하세요.",
+            summary.getId(),
+            articleId(summary),
+            boardId(summary),
+            summary.getStatus(),
+            failureReasonSanitizer.classify(reason),
+            summary.getRetryCount(),
+            properties.getMaxRetryCount(),
+            workerId,
+            cause,
+            reason
+        );
+    }
+
+    private void logSkipped(ArticleAiSummary summary, String workerId, String reason) {
+        log.info(
+            "게시글 AI 요약 생성을 스킵했습니다. summaryId: {}, articleId: {}, boardId: {}, status: {}, "
+                + "failureType: {}, workerId: {}, reason: {}, impact: 요약 없이 원문만 반환됩니다.",
+            summary.getId(),
+            articleId(summary),
+            boardId(summary),
+            summary.getStatus(),
+            failureReasonSanitizer.classify(reason),
+            workerId,
+            reason
+        );
+    }
+
+    private Integer articleId(ArticleAiSummary summary) {
+        Article article = summary.getArticle();
+        return article == null ? null : article.getId();
+    }
+
+    private Integer boardId(ArticleAiSummary summary) {
+        Article article = summary.getArticle();
+        if (article == null || article.getBoard() == null) {
+            return null;
+        }
+        return article.getBoard().getId();
     }
 }
