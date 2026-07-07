@@ -60,6 +60,7 @@ public class ArticleAiSummaryScheduler {
         }
     }
 
+    // 기본 FAILED 재처리 창 안의 저트래픽 시간대이며, 정각 배치와 겹치지 않도록 03:20에 실행한다.
     @Scheduled(cron = "0 20 3 * * *")
     public void deleteOldArticleAiSummaryLogs() {
         try {
