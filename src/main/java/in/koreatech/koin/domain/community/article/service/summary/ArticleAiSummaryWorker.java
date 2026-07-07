@@ -53,6 +53,10 @@ public class ArticleAiSummaryWorker {
         if (shouldWaitForTemporaryAttachment(source)) {
             throw new ArticleSummaryExternalApiException("첨부 중심 게시글의 문서 파싱이 일시 실패해 요약 생성을 보류합니다.", true, null);
         }
+        if (isAttachmentOnlyContent(source) && source.attachmentTexts().isEmpty()) {
+            articleAiSummaryService.skip(summaryId, workerId, "첨부 중심 게시글이지만 요약에 사용할 첨부 문서 내용이 없습니다.");
+            return;
+        }
 
         ArticleSummaryPrompt prompt = promptBuilder.build(source);
         ArticleSummaryResult result = articleSummaryAiClient.summarize(prompt);
@@ -169,6 +173,10 @@ public class ArticleAiSummaryWorker {
         if (!source.hasTemporaryAttachmentFailure() || !source.attachmentTexts().isEmpty()) {
             return false;
         }
+        return isAttachmentOnlyContent(source);
+    }
+
+    private boolean isAttachmentOnlyContent(ArticleSummarySource source) {
         String normalizedContent = normalize(source.contentText());
         if (!StringUtils.hasText(normalizedContent)) {
             return true;

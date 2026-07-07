@@ -241,6 +241,31 @@ class ArticleAiSummaryWorkerTest {
     }
 
     @Test
+    void 첨부_중심_게시글인데_첨부_내용이_없으면_Solar를_호출하지_않고_스킵한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = new ArticleSummarySource(
+            1,
+            "장학금 신청 안내",
+            "첨부파일을 확인하세요.",
+            "학생처",
+            LocalDate.of(2026, 5, 1),
+            LocalDateTime.of(2026, 5, 1, 10, 0),
+            List.of(),
+            false,
+            "fingerprint"
+        );
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+
+        worker.process(1, "worker");
+
+        verify(articleAiSummaryService).skip(eq(1), eq("worker"), contains("첨부 중심 게시글"));
+        verify(articleSummaryAiClient, never()).summarize(any());
+        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
+        verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
+    }
+
+    @Test
     void retry_after가_있는_외부_API_일시_오류는_재시도_시간과_함께_실패_처리한다() {
         ArticleSummarySourceSeed seed = sourceSeed();
         ArticleSummarySource source = source();
