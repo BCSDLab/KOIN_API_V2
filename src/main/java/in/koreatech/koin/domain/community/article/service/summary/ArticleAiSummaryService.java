@@ -20,6 +20,9 @@ import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummary;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLog;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLogType;
+import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryLogRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.infrastructure.upstage.client.UpstageProperties;
@@ -32,7 +35,10 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class ArticleAiSummaryService {
 
+    private static final int LOG_RETENTION_DAYS = 90;
+
     private final ArticleAiSummaryRepository articleAiSummaryRepository;
+    private final ArticleAiSummaryLogRepository articleAiSummaryLogRepository;
     private final ArticleRepository articleRepository;
     private final ArticleSummarySourceReader sourceReader;
     private final ArticleSummaryContentRenderer contentRenderer;
@@ -162,11 +168,23 @@ public class ArticleAiSummaryService {
                 }
                 if (retryAfter != null && nextAttemptAt != null) {
                     summary.waitForRetry(sanitizedReason, nextAttemptAt);
-                    logRetryWaiting(summary, workerId, sanitizedReason, nextAttemptAt);
+                    ArticleSummaryFailureType failureType = saveLog(
+                        summary,
+                        ArticleAiSummaryLogType.RETRY_WAITING,
+                        sanitizedReason,
+                        workerId
+                    );
+                    logRetryWaiting(summary, workerId, failureType, sanitizedReason, nextAttemptAt);
                     return;
                 }
                 summary.completeFailure(sanitizedReason, nextAttemptAt);
-                logFailure(summary, workerId, sanitizedReason, nextAttemptAt);
+                ArticleSummaryFailureType failureType = saveLog(
+                    summary,
+                    nextAttemptAt == null ? ArticleAiSummaryLogType.TERMINAL_FAILED : ArticleAiSummaryLogType.FAILED,
+                    sanitizedReason,
+                    workerId
+                );
+                logFailure(summary, workerId, failureType, sanitizedReason, nextAttemptAt);
             });
     }
 
@@ -177,7 +195,13 @@ public class ArticleAiSummaryService {
             .ifPresent(summary -> {
                 String sanitizedReason = failureReasonSanitizer.sanitize(reason);
                 summary.completeFailureWithoutRetry(sanitizedReason, properties.getMaxRetryCount());
-                logTerminalFailure(summary, workerId, sanitizedReason, "재시도 불가능한 오류입니다.");
+                ArticleSummaryFailureType failureType = saveLog(
+                    summary,
+                    ArticleAiSummaryLogType.TERMINAL_FAILED,
+                    sanitizedReason,
+                    workerId
+                );
+                logTerminalFailure(summary, workerId, failureType, sanitizedReason, "재시도 불가능한 오류입니다.");
             });
     }
 
@@ -188,8 +212,19 @@ public class ArticleAiSummaryService {
             .ifPresent(summary -> {
                 String sanitizedReason = failureReasonSanitizer.sanitize(reason);
                 summary.skip(sanitizedReason);
-                logSkipped(summary, workerId, sanitizedReason);
+                ArticleSummaryFailureType failureType = saveLog(
+                    summary,
+                    ArticleAiSummaryLogType.SKIPPED,
+                    sanitizedReason,
+                    workerId
+                );
+                logSkipped(summary, workerId, failureType, sanitizedReason);
             });
+    }
+
+    @Transactional
+    public int deleteOldLogs() {
+        return articleAiSummaryLogRepository.deleteOlderThan(LocalDateTime.now(clock).minusDays(LOG_RETENTION_DAYS));
     }
 
     private void enqueueIfEnabled(Article article, String fingerprint, LocalDateTime sourceUpdatedAt) {
@@ -245,10 +280,11 @@ public class ArticleAiSummaryService {
     private void logRetryWaiting(
         ArticleAiSummary summary,
         String workerId,
+        ArticleSummaryFailureType failureType,
         String reason,
         LocalDateTime nextAttemptAt
     ) {
-        log.warn(
+        log.debug(
             "게시글 AI 요약 일시 오류로 재시도 대기합니다. summaryId: {}, articleId: {}, boardId: {}, status: {}, "
                 + "failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, workerId: {}, reason: {}, "
                 + "impact: 요약은 아직 노출되지 않고 원문만 반환됩니다.",
@@ -256,7 +292,7 @@ public class ArticleAiSummaryService {
             articleId(summary),
             boardId(summary),
             summary.getStatus(),
-            failureReasonSanitizer.classify(reason),
+            failureType,
             summary.getRetryCount(),
             properties.getMaxRetryCount(),
             nextAttemptAt,
@@ -268,14 +304,15 @@ public class ArticleAiSummaryService {
     private void logFailure(
         ArticleAiSummary summary,
         String workerId,
+        ArticleSummaryFailureType failureType,
         String reason,
         LocalDateTime nextAttemptAt
     ) {
         if (nextAttemptAt == null) {
-            logTerminalFailure(summary, workerId, reason, "최대 재시도 횟수에 도달했습니다.");
+            logTerminalFailure(summary, workerId, failureType, reason, "최대 재시도 횟수에 도달했습니다.");
             return;
         }
-        log.warn(
+        log.debug(
             "게시글 AI 요약 생성 실패로 FAILED 재처리 큐에 등록했습니다. summaryId: {}, articleId: {}, boardId: {}, "
                 + "status: {}, failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, retryWindow: {}:00-{}:00, "
                 + "workerId: {}, reason: {}, impact: 요약은 아직 노출되지 않고 원문만 반환됩니다.",
@@ -283,7 +320,7 @@ public class ArticleAiSummaryService {
             articleId(summary),
             boardId(summary),
             summary.getStatus(),
-            failureReasonSanitizer.classify(reason),
+            failureType,
             summary.getRetryCount(),
             properties.getMaxRetryCount(),
             nextAttemptAt,
@@ -297,10 +334,11 @@ public class ArticleAiSummaryService {
     private void logTerminalFailure(
         ArticleAiSummary summary,
         String workerId,
+        ArticleSummaryFailureType failureType,
         String reason,
         String cause
     ) {
-        log.error(
+        log.debug(
             "게시글 AI 요약 생성이 중단되었습니다. summaryId: {}, articleId: {}, boardId: {}, status: {}, "
                 + "failureType: {}, retryCount: {}/{}, workerId: {}, cause: {}, reason: {}, "
                 + "impact: 해당 게시글은 요약 없이 원문만 반환됩니다. action: Admin AI 요약 상세 API로 상태를 확인하고 원문/첨부/Upstage 상태를 점검하세요.",
@@ -308,7 +346,7 @@ public class ArticleAiSummaryService {
             articleId(summary),
             boardId(summary),
             summary.getStatus(),
-            failureReasonSanitizer.classify(reason),
+            failureType,
             summary.getRetryCount(),
             properties.getMaxRetryCount(),
             workerId,
@@ -317,18 +355,34 @@ public class ArticleAiSummaryService {
         );
     }
 
-    private void logSkipped(ArticleAiSummary summary, String workerId, String reason) {
-        log.info(
+    private void logSkipped(
+        ArticleAiSummary summary,
+        String workerId,
+        ArticleSummaryFailureType failureType,
+        String reason
+    ) {
+        log.debug(
             "게시글 AI 요약 생성을 스킵했습니다. summaryId: {}, articleId: {}, boardId: {}, status: {}, "
                 + "failureType: {}, workerId: {}, reason: {}, impact: 요약 없이 원문만 반환됩니다.",
             summary.getId(),
             articleId(summary),
             boardId(summary),
             summary.getStatus(),
-            failureReasonSanitizer.classify(reason),
+            failureType,
             workerId,
             reason
         );
+    }
+
+    private ArticleSummaryFailureType saveLog(
+        ArticleAiSummary summary,
+        ArticleAiSummaryLogType eventType,
+        String reason,
+        String workerId
+    ) {
+        ArticleSummaryFailureType failureType = failureReasonSanitizer.classify(reason);
+        articleAiSummaryLogRepository.save(ArticleAiSummaryLog.of(summary, eventType, failureType, reason, workerId));
+        return failureType;
     }
 
     private Integer articleId(ArticleAiSummary summary) {

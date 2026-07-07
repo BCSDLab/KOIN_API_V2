@@ -60,6 +60,18 @@ public class ArticleAiSummaryScheduler {
         }
     }
 
+    @Scheduled(cron = "0 20 3 * * *")
+    public void deleteOldArticleAiSummaryLogs() {
+        try {
+            int deletedCount = articleAiSummaryService.deleteOldLogs();
+            if (deletedCount > 0) {
+                log.info("90일 지난 게시글 AI 요약 로그를 삭제했습니다. count: {}", deletedCount);
+            }
+        } catch (Exception e) {
+            log.warn("게시글 AI 요약 로그 삭제 중 오류가 발생했습니다.", e);
+        }
+    }
+
     private int resolveClaimLimit() {
         ThreadPoolExecutor executor = articleSummaryTaskExecutor.getThreadPoolExecutor();
         int idleWorkerCount = Math.max(0, articleSummaryTaskExecutor.getMaxPoolSize() - articleSummaryTaskExecutor.getActiveCount());
