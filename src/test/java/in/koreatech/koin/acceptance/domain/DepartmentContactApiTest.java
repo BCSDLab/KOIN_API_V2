@@ -49,11 +49,14 @@ class DepartmentContactApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.categories[0].category").value("ACADEMIC"))
             .andExpect(jsonPath("$.categories[0].category_name").value("학사 / 수업"))
             .andExpect(jsonPath("$.categories[0].departments[0].name").value("Edutech 센터"))
+            .andExpect(jsonPath("$.categories[0].departments[0].is_single_contact").value(true))
             .andExpect(jsonPath("$.categories[1].category").value("STUDENT_SUPPORT"))
             .andExpect(jsonPath("$.categories[2].category").value("EMPLOYMENT"))
             .andExpect(jsonPath("$.categories[2].departments", hasSize(2)))
             .andExpect(jsonPath("$.categories[2].departments[0].name").value("IPP 센터"))
-            .andExpect(jsonPath("$.categories[2].departments[1].name").value("취창업지원팀"));
+            .andExpect(jsonPath("$.categories[2].departments[0].is_single_contact").value(true))
+            .andExpect(jsonPath("$.categories[2].departments[1].name").value("취창업지원팀"))
+            .andExpect(jsonPath("$.categories[2].departments[1].is_single_contact").value(false));
     }
 
     @Test
@@ -90,6 +93,7 @@ class DepartmentContactApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.departments", hasSize(1)))
             .andExpect(jsonPath("$.departments[0].name").value("취창업지원팀"))
+            .andExpect(jsonPath("$.departments[0].is_single_contact").value(false))
             .andExpect(jsonPath("$.departments[0].contacts", hasSize(6)))
             .andExpect(jsonPath("$.departments[0].contacts[0].task").value("취창업지원팀, IPP센터 총괄"))
             .andExpect(jsonPath("$.departments[0].contacts[5].task").value("단기현장실습"));
@@ -109,7 +113,8 @@ class DepartmentContactApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.categories", hasSize(1)))
-            .andExpect(jsonPath("$.categories[0].departments[0].name").value("Edutech 센터"));
+            .andExpect(jsonPath("$.categories[0].departments[0].name").value("Edutech 센터"))
+            .andExpect(jsonPath("$.categories[0].departments[0].is_single_contact").value(true));
     }
 
     @Test

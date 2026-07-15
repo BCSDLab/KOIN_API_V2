@@ -53,16 +53,22 @@ public record DepartmentContactsResponse(
         @Schema(description = "부서명", example = "학사팀", requiredMode = REQUIRED)
         String name,
 
+        @Schema(description = "단일 연락처 여부", example = "false", requiredMode = REQUIRED)
+        boolean isSingleContact,
+
         @Schema(description = "업무별 연락처", requiredMode = REQUIRED)
         List<ContactResponse> contacts
     ) {
 
         public static DepartmentResponse from(DepartmentContactDepartment department) {
+            List<ContactResponse> contacts = department.getContacts().stream()
+                .map(ContactResponse::from)
+                .toList();
+
             return new DepartmentResponse(
                 department.getName(),
-                department.getContacts().stream()
-                    .map(ContactResponse::from)
-                    .toList()
+                contacts.size() == 1,
+                contacts
             );
         }
     }
