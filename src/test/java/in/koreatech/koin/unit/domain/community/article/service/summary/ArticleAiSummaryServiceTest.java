@@ -17,11 +17,15 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummary;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLog;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLogType;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryStatus;
+import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryLogRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
@@ -36,6 +40,9 @@ class ArticleAiSummaryServiceTest {
 
     @Mock
     private ArticleAiSummaryRepository articleAiSummaryRepository;
+
+    @Mock
+    private ArticleAiSummaryLogRepository articleAiSummaryLogRepository;
 
     @Mock
     private ArticleRepository articleRepository;
@@ -59,6 +66,11 @@ class ArticleAiSummaryServiceTest {
         assertThat(summary.getRetryCount()).isEqualTo(1);
         assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusMinutes(1));
         assertThat(summary.getLockedUntil()).isNull();
+
+        ArgumentCaptor<ArticleAiSummaryLog> logCaptor = ArgumentCaptor.forClass(ArticleAiSummaryLog.class);
+        verify(articleAiSummaryLogRepository).save(logCaptor.capture());
+        assertThat(logCaptor.getValue().getEventType()).isEqualTo(ArticleAiSummaryLogType.RETRY_WAITING);
+        assertThat(logCaptor.getValue().getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
     }
 
     @Test
@@ -73,6 +85,16 @@ class ArticleAiSummaryServiceTest {
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
         assertThat(summary.getRetryCount()).isEqualTo(1);
         assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusMinutes(5));
+    }
+
+    @Test
+    void 게시글_AI_요약_로그는_90일_이전_데이터를_삭제한다() {
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+        ArticleAiSummaryService service = service(clock);
+
+        service.deleteOldLogs();
+
+        verify(articleAiSummaryLogRepository).deleteOlderThan(LocalDateTime.now(clock).minusDays(90));
     }
 
     @Test
@@ -121,6 +143,7 @@ class ArticleAiSummaryServiceTest {
         upstageProperties.setApiKey("test-api-key");
         return new ArticleAiSummaryService(
             articleAiSummaryRepository,
+            articleAiSummaryLogRepository,
             articleRepository,
             sourceReader,
             contentRenderer,

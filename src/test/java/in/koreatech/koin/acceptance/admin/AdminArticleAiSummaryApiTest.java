@@ -21,8 +21,12 @@ import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummary;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLog;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLogType;
 import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryLogRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRepository;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryFailureType;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 
@@ -43,10 +47,14 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
     @Autowired
     private ArticleAiSummaryRepository articleAiSummaryRepository;
 
+    @Autowired
+    private ArticleAiSummaryLogRepository articleAiSummaryLogRepository;
+
     private String koinAdminToken;
     private String studentToken;
     private Article failedArticle;
     private ArticleAiSummary failedSummary;
+    private String rawFailureReason;
 
     @BeforeEach
     void setUp() {
@@ -74,12 +82,18 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
             "solar-pro3",
             "v9"
         );
-        failedSummary.completeFailure(
-            "Upstage 요약 API 호출에 실패했습니다. status=429, body={\"url\":\"https://koreatech.in/file.pdf?token=abc\"} "
-                + "Authorization: Bearer abc.def up_TESTKEYDOESNOTEXIST1234567890",
-            LocalDateTime.now(clock).minusMinutes(1)
-        );
+        rawFailureReason = "Upstage 요약 API 호출에 실패했습니다. status=429, "
+            + "body={\"url\":\"https://koreatech.in/file.pdf?token=abc\"} "
+            + "Authorization: Bearer abc.def up_TESTKEYDOESNOTEXIST1234567890";
+        failedSummary.completeFailure(rawFailureReason, LocalDateTime.now(clock).minusMinutes(1));
         articleAiSummaryRepository.save(failedSummary);
+        articleAiSummaryLogRepository.save(ArticleAiSummaryLog.of(
+            failedSummary,
+            ArticleAiSummaryLogType.FAILED,
+            ArticleSummaryFailureType.RATE_LIMIT,
+            rawFailureReason,
+            "worker-test"
+        ));
     }
 
     @Test
@@ -131,6 +145,26 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.content").doesNotExist())
             .andExpect(jsonPath("$.prompt").doesNotExist())
             .andExpect(jsonPath("$.parsed_text").doesNotExist());
+    }
+
+    @Test
+    void 관리자가_게시글_AI_요약_로그를_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/admin/articles/ai-summaries/logs")
+                    .header("Authorization", "Bearer " + koinAdminToken)
+                    .param("failure_type", "RATE_LIMIT")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.total_count").value(1))
+            .andExpect(jsonPath("$.logs[0].summary_id").value(failedSummary.getId()))
+            .andExpect(jsonPath("$.logs[0].article_id").value(failedArticle.getId()))
+            .andExpect(jsonPath("$.logs[0].event_type").value("FAILED"))
+            .andExpect(jsonPath("$.logs[0].failure_type").value("RATE_LIMIT"))
+            .andExpect(jsonPath("$.logs[0].message").value(containsString("body=<redacted>")))
+            .andExpect(jsonPath("$.logs[0].message").value(not(containsString("abc.def"))))
+            .andExpect(jsonPath("$.logs[0].message").value(not(containsString("up_TESTKEY"))))
+            .andExpect(jsonPath("$.logs[0].message").value(not(containsString("token=abc"))));
     }
 
     @Test
