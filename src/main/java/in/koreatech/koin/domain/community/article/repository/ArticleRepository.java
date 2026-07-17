@@ -198,6 +198,36 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     @Query("SELECT a.title FROM Article a WHERE a.id = :id")
     String getTitleById(@Param("id") Integer id);
 
+    @Query(value = """
+        SELECT a.id
+        FROM new_articles a
+        LEFT JOIN article_ai_summaries s ON s.article_id = a.id AND s.is_deleted = false
+        WHERE a.is_deleted = false
+          AND a.board_id <> :excludedBoardId
+          AND s.id IS NULL
+        ORDER BY a.id DESC
+        LIMIT :limit
+        """, nativeQuery = true)
+    List<Integer> findArticleIdsWithoutAiSummary(
+        @Param("excludedBoardId") Integer excludedBoardId,
+        @Param("limit") int limit
+    );
+
+    @Query("""
+        SELECT DISTINCT a
+        FROM Article a
+        LEFT JOIN FETCH a.board
+        LEFT JOIN FETCH a.attachments
+        LEFT JOIN FETCH a.koreatechArticle
+        LEFT JOIN FETCH a.koinArticle k
+        LEFT JOIN FETCH k.user
+        LEFT JOIN FETCH a.lostItemArticle l
+        LEFT JOIN FETCH l.author
+        LEFT JOIN FETCH a.koinNotice
+        WHERE a.id IN :ids
+        """)
+    List<Article> findAllByIdInForAiSummary(@Param("ids") List<Integer> ids);
+
     @Query("""
         SELECT new in.koreatech.koin.domain.community.article.dto.BusArticleProjection(
             a.id, a.title, a.createdAt
