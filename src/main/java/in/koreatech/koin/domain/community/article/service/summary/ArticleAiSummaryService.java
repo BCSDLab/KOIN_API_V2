@@ -34,6 +34,7 @@ public class ArticleAiSummaryService {
     private final ArticleRepository articleRepository;
     private final ArticleSummarySourceReader sourceReader;
     private final ArticleSummaryContentRenderer contentRenderer;
+    private final ArticleSummaryFailureReasonSanitizer failureReasonSanitizer;
     private final ArticleAiSummaryProperties properties;
     private final UpstageProperties upstageProperties;
     private final Clock clock;
@@ -151,16 +152,17 @@ public class ArticleAiSummaryService {
         articleAiSummaryRepository.findById(summaryId)
             .filter(summary -> summary.isProcessingBy(workerId))
             .ifPresent(summary -> {
+                String sanitizedReason = failureReasonSanitizer.sanitize(reason);
                 int nextRetryCount = summary.getRetryCount() + 1;
                 LocalDateTime nextAttemptAt = null;
                 if (nextRetryCount < properties.getMaxRetryCount()) {
                     nextAttemptAt = LocalDateTime.now(clock).plus(resolveRetryDelay(nextRetryCount, retryAfter));
                 }
                 if (retryAfter != null && nextAttemptAt != null) {
-                    summary.waitForRetry(reason, nextAttemptAt);
+                    summary.waitForRetry(sanitizedReason, nextAttemptAt);
                     return;
                 }
-                summary.completeFailure(reason, nextAttemptAt);
+                summary.completeFailure(sanitizedReason, nextAttemptAt);
             });
     }
 
@@ -168,14 +170,17 @@ public class ArticleAiSummaryService {
     public void completeFailureWithoutRetry(Integer summaryId, String workerId, String reason) {
         articleAiSummaryRepository.findById(summaryId)
             .filter(summary -> summary.isProcessingBy(workerId))
-            .ifPresent(summary -> summary.completeFailureWithoutRetry(reason, properties.getMaxRetryCount()));
+            .ifPresent(summary -> summary.completeFailureWithoutRetry(
+                failureReasonSanitizer.sanitize(reason),
+                properties.getMaxRetryCount()
+            ));
     }
 
     @Transactional
     public void skip(Integer summaryId, String workerId, String reason) {
         articleAiSummaryRepository.findById(summaryId)
             .filter(summary -> summary.isProcessingBy(workerId))
-            .ifPresent(summary -> summary.skip(reason));
+            .ifPresent(summary -> summary.skip(failureReasonSanitizer.sanitize(reason)));
     }
 
     private void enqueueIfEnabled(Article article, String fingerprint, LocalDateTime sourceUpdatedAt) {

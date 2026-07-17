@@ -27,6 +27,7 @@ import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryService;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryContentRenderer;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryFailureReasonSanitizer;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySourceReader;
 import in.koreatech.koin.infrastructure.upstage.client.UpstageProperties;
 
@@ -123,6 +124,7 @@ class ArticleAiSummaryServiceTest {
             articleRepository,
             sourceReader,
             contentRenderer,
+            new ArticleSummaryFailureReasonSanitizer(),
             properties,
             upstageProperties,
             clock
