@@ -54,6 +54,7 @@ public class SwaggerGroupConfig {
                 "in.koreatech.koin.domain.community.keyword",
                 "in.koreatech.koin.domain.coop",
                 "in.koreatech.koin.domain.coopshop",
+                "in.koreatech.koin.domain.departmentcontact",
                 "in.koreatech.koin.domain.dining",
                 "in.koreatech.koin.domain.banner",
                 "in.koreatech.koin.domain.club",
