@@ -11,13 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
+import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.common.event.StudentFindPasswordEvent;
 import in.koreatech.koin.common.event.StudentRegisterEvent;
 import in.koreatech.koin.common.event.StudentRegisterRequestEvent;
 import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
-import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
@@ -54,6 +52,8 @@ import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -310,9 +310,9 @@ public class StudentService {
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
-        eventPublisher.publishEvent(
-            new UserMarketingAgreementEvent(student.getUser().getId(), request.marketingNotificationAgreement())
-        );
+        if (request.marketingNotificationAgreement()) {
+            eventPublisher.publishEvent(new UserMarketingAgreementEvent(student.getUser().getId()));
+        }
         eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getPhoneNumber()));
         userVerificationService.consumeVerification(request.phoneNumber());
     }

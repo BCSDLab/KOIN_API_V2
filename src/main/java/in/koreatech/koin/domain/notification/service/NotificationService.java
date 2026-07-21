@@ -1,30 +1,25 @@
 package in.koreatech.koin.domain.notification.service;
 
-import static in.koreatech.koin.common.model.MobileAppPath.DINING;
-import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.getParentType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
-import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.domain.notification.repository.NotificationRepository;
+import in.koreatech.koin.domain.notification.repository.NotificationJdbcRepository;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
+import in.koreatech.koin.infrastructure.fcm.FcmSendRequest;
+import in.koreatech.koin.infrastructure.fcm.FcmSendResponse;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,54 +30,52 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class NotificationService {
 
-    public record NotificationDeliveryResult(Notification notification, boolean delivered) {}
-
-    private final UserRepository userRepository;
-    private final NotificationRepository notificationRepository;
-    private final NotificationPersistenceService notificationPersistenceService;
     private final FcmClient fcmClient;
+    private final UserRepository userRepository;
+    private final NotificationJdbcRepository notificationJdbcRepository;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final NotificationFactory notificationFactory;
-
-    @Transactional
-    public void pushNotifications(List<Notification> notifications) {
-        if (notifications.isEmpty()) {
-            return;
-        }
-        notificationRepository.saveAll(notifications);
-        runAfterCommit(() -> notifications.forEach(this::sendNotificationSafely));
-    }
-
-    @Transactional
-    public List<NotificationDeliveryResult> pushNotificationsWithResult(List<Notification> notifications) {
-        if (notifications.isEmpty()) {
-            return List.of();
-        }
-
-        List<NotificationDeliveryResult> deliveryResults = new ArrayList<>(notifications.size());
-        // afterCommit 콜백은 트랜잭션 프록시가 반환되기 전에 실행되므로 호출자는 채워진 결과를 받는다.
-        runAfterCommit(() -> notifications.forEach(notification ->
-            deliveryResults.add(pushNotificationWithResult(notification))
-        ));
-        return deliveryResults;
-    }
 
     @Transactional
     public void pushNotification(Notification notification) {
         pushNotifications(List.of(notification));
     }
 
-    private NotificationDeliveryResult pushNotificationWithResult(Notification notification) {
+    @Transactional
+    public void pushNotifications(List<Notification> notifications) {
+        if (notifications.isEmpty()) {
+            return;
+        }
+
+        List<FcmSendRequest> fcmSendRequests = notifications.stream()
+            .map(notification -> FcmSendRequest.of(
+                notification.getUser().getDeviceToken(),
+                notification.getTitle(),
+                notification.getMessage(),
+                notification.getImageUrl(),
+                notification.getMobileAppPath(),
+                notification.getSchemeUri(),
+                notification.getType().toLowerCase()
+            ))
+            .toList();
+        List<FcmSendResponse> fcmSendResponses = fcmClient.sendMessages(fcmSendRequests);
+        markPushResults(notifications, fcmSendResponses);
+
         try {
-            boolean delivered = sendNotificationWithResult(notification);
-            if (!delivered) {
-                return new NotificationDeliveryResult(notification, false);
-            }
-            saveNotificationAfterSend(notification);
-            return new NotificationDeliveryResult(notification, true);
+            notificationJdbcRepository.batchInsert(notifications);
         } catch (Exception e) {
-            log.warn("알림 전송 처리 중 예외가 발생했습니다.", e);
-            return new NotificationDeliveryResult(notification, false);
+            log.error("알림 이력 저장 실패. size={}", notifications.size(), e);
+        }
+    }
+
+    private void markPushResults(List<Notification> notifications, List<FcmSendResponse> responses) {
+        for (int index = 0; index < notifications.size(); index++) {
+            Notification notification = notifications.get(index);
+            FcmSendResponse response = responses.get(index);
+            if (response.success()) {
+                notification.markPushSuccess();
+                continue;
+            }
+            notification.markPushFailure(response.errorCode(), response.messagingErrorCode());
         }
     }
 
@@ -149,80 +142,6 @@ public class NotificationService {
         User user = userRepository.getById(userId);
         ensureUserDeviceToken(user.getDeviceToken());
         notificationSubscribeRepository.deleteByUserIdAndDetailType(userId, detailType);
-    }
-
-    @Transactional
-    public void sendDiningSoldOutNotifications(Integer dinningId, String place, DiningType diningType) {
-        NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(diningType);
-        var notifications = notificationSubscribeRepository.findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, detailType)
-            .stream()
-            .map(subscribe -> notificationFactory.generateSoldOutNotification(
-                DINING,
-                dinningId,
-                place,
-                subscribe.getUser()
-            ))
-            .toList();
-        pushNotifications(notifications);
-    }
-
-    private void sendNotificationSafely(Notification notification) {
-        try {
-            sendNotification(notification);
-        } catch (Exception e) {
-            log.warn("알림 전송 처리 중 예외가 발생했습니다.", e);
-        }
-    }
-
-    private void sendNotification(Notification notification) {
-        String deviceToken = notification.getUser().getDeviceToken();
-        fcmClient.sendMessage(
-            deviceToken,
-            notification.getTitle(),
-            notification.getMessage(),
-            notification.getImageUrl(),
-            notification.getMobileAppPath(),
-            notification.getSchemeUri(),
-            notification.getType().toLowerCase()
-        );
-    }
-
-    private boolean sendNotificationWithResult(Notification notification) {
-        String deviceToken = notification.getUser().getDeviceToken();
-        return fcmClient.sendMessageWithResult(
-            deviceToken,
-            notification.getTitle(),
-            notification.getMessage(),
-            notification.getImageUrl(),
-            notification.getMobileAppPath(),
-            notification.getSchemeUri(),
-            notification.getType().toLowerCase()
-        );
-    }
-
-    private void saveNotificationAfterSend(Notification notification) {
-        try {
-            notificationPersistenceService.saveAfterSend(notification);
-        } catch (Exception e) {
-            log.warn("발송된 알림 저장 중 예외가 발생했습니다.", e);
-        }
-    }
-
-    private void runAfterCommit(Runnable task) {
-        if (!TransactionSynchronizationManager.isActualTransactionActive()
-            || !TransactionSynchronizationManager.isSynchronizationActive()) {
-            task.run();
-            return;
-        }
-
-        // Rollback된 데이터에 대한 푸시 전송을 막기 위해 커밋 이후에만 FCM을 호출한다.
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-
-            @Override
-            public void afterCommit() {
-                task.run();
-            }
-        });
     }
 
     private void ensureUserDeviceToken(String deviceToken) {

@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteriaV3;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopCountsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopSummaryResponse;
@@ -80,6 +81,15 @@ public class ShopService {
         List<Shop> shops = shopRepository.findAll();
         Map<Integer, Boolean> eventDuration = shopRepository.getAllShopEventDuration(now.toLocalDate());
         return ShopsResponse.from(shops, eventDuration, now);
+    }
+
+    public ShopCountsResponse getShopCounts() {
+        LocalDateTime now = LocalDateTime.now(clock);
+        List<Shop> shops = shopRepository.findAll();
+        int openCount = Math.toIntExact(shops.stream()
+            .filter(shop -> shop.isOpen(now))
+            .count());
+        return new ShopCountsResponse(shops.size(), openCount);
     }
 
     public ShopCategoriesResponse getShopsCategories() {
@@ -178,4 +188,5 @@ public class ShopService {
     private boolean isSubscribeReviewNotification(Integer studentId) {
         return notificationSubscribeRepository.existsByUserIdAndSubscribeTypeAndDetailTypeIsNull(studentId, REVIEW_PROMPT);
     }
+
 }
