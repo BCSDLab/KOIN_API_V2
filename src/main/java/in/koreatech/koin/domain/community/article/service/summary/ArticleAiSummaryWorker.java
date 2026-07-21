@@ -29,15 +29,19 @@ public class ArticleAiSummaryWorker {
                 .ifPresent(seed -> generate(summaryId, workerId, seed));
         } catch (ArticleSummaryExternalApiException e) {
             if (e.isRetryable()) {
-                log.warn("게시글 AI 요약 외부 API가 일시 실패했습니다. summaryId: {}, reason: {}", summaryId, e.getMessage());
                 articleAiSummaryService.completeFailure(summaryId, workerId, e.getMessage(), e.getRetryAfter());
                 return;
             }
-            log.error("게시글 AI 요약 외부 API가 재시도 불가능한 오류를 반환했습니다. summaryId: {}", summaryId, e);
             articleAiSummaryService.completeFailureWithoutRetry(summaryId, workerId, e.getMessage());
         } catch (Exception e) {
-            log.error("게시글 AI 요약 생성 중 오류가 발생했습니다. summaryId: {}", summaryId, e);
-            articleAiSummaryService.completeFailure(summaryId, workerId, e.getMessage());
+            log.error(
+                "게시글 AI 요약 워커에서 예기치 못한 예외가 발생했습니다. summaryId: {}, workerId: {}, exception: {}",
+                summaryId,
+                workerId,
+                e.getClass().getSimpleName(),
+                e
+            );
+            articleAiSummaryService.completeFailure(summaryId, workerId, exceptionSummary(e));
         }
     }
 
@@ -52,6 +56,10 @@ public class ArticleAiSummaryWorker {
         }
         if (shouldWaitForTemporaryAttachment(source)) {
             throw new ArticleSummaryExternalApiException("첨부 중심 게시글의 문서 파싱이 일시 실패해 요약 생성을 보류합니다.", true, null);
+        }
+        if (isAttachmentOnlyContent(source) && source.attachmentTexts().isEmpty()) {
+            articleAiSummaryService.skip(summaryId, workerId, "첨부 중심 게시글이지만 요약에 사용할 첨부 문서 내용이 없습니다.");
+            return;
         }
 
         ArticleSummaryPrompt prompt = promptBuilder.build(source);
@@ -77,7 +85,6 @@ public class ArticleAiSummaryWorker {
         try {
             summaryLines = validateOrCorrect(result, prompt);
         } catch (ArticleSummaryValidationException e) {
-            log.warn("게시글 AI 요약이 최종 검증을 통과하지 못해 재시도 대기로 전환합니다. summaryId: {}, reason: {}", summaryId, e.getMessage());
             articleAiSummaryService.completeFailure(summaryId, workerId, e.getMessage());
             return;
         }
@@ -169,6 +176,10 @@ public class ArticleAiSummaryWorker {
         if (!source.hasTemporaryAttachmentFailure() || !source.attachmentTexts().isEmpty()) {
             return false;
         }
+        return isAttachmentOnlyContent(source);
+    }
+
+    private boolean isAttachmentOnlyContent(ArticleSummarySource source) {
         String normalizedContent = normalize(source.contentText());
         if (!StringUtils.hasText(normalizedContent)) {
             return true;
@@ -187,6 +198,13 @@ public class ArticleAiSummaryWorker {
             return "";
         }
         return value.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
+    }
+
+    private String exceptionSummary(Exception e) {
+        if (!StringUtils.hasText(e.getMessage())) {
+            return e.getClass().getSimpleName();
+        }
+        return e.getClass().getSimpleName() + ": " + e.getMessage();
     }
 
     private record RefinementResult(
