@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.community.article.service;
 
-import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
@@ -48,7 +46,6 @@ public class ArticleService {
     private static final int HOT_ARTICLE_BEFORE_DAYS = 30;
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
-    private static final String HTTPS_SCHEME_PREFIX = "https://";
     private static final Sort ARTICLES_SORT = Sort.by(
         Sort.Order.desc("id")
     );
@@ -70,8 +67,9 @@ public class ArticleService {
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
         Article article = articleRepository.getById(articleId);
         String content = article.getContent();
-        if (isStandaloneHttpsUrl(content)) {
-            content = s3Client.getContentFromUrl(article.getContent());
+        String contentUrl = content == null ? null : content.trim();
+        if (s3Client.isCustomDomainUrl(contentUrl)) {
+            content = s3Client.getContentFromCustomDomainUrl(contentUrl);
         }
         if (articleHitUserRepository.findByArticleIdAndPublicIp(articleId, publicIp).isEmpty()) {
             article.increaseKoinHit();
@@ -80,22 +78,6 @@ public class ArticleService {
         setPrevNextArticle(boardId, article);
         String contentWithSummary = articleAiSummaryService.prependSummaryIfReady(article, content);
         return ArticleResponse.from(article, contentWithSummary);
-    }
-
-    private boolean isStandaloneHttpsUrl(String value) {
-        if (!StringUtils.hasText(value)) {
-            return false;
-        }
-        String trimmed = value.trim();
-        if (!trimmed.startsWith(HTTPS_SCHEME_PREFIX) || trimmed.chars().anyMatch(Character::isWhitespace)) {
-            return false;
-        }
-        try {
-            URI uri = URI.create(trimmed);
-            return "https".equalsIgnoreCase(uri.getScheme()) && StringUtils.hasText(uri.getHost());
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
