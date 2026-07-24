@@ -67,7 +67,20 @@ jobs:
           username: ${{ secrets.DEVELOP_SERVER_USER }}
           key: ${{ secrets.DEVELOP_SSH_PRIVATE_KEY }}
           port: ${{ secrets.DEVELOP_SERVER_PORT }}
-          script: ${{ secrets.DEVELOP_DEPLOY_SCRIPT_PATH }}
+          script: |
+            for attempt in 1 2; do
+              echo "> Deploy attempt ${attempt}/2"
+              if ${{ secrets.DEVELOP_DEPLOY_SCRIPT_PATH }}; then
+                echo "> Deploy succeeded on attempt ${attempt}"
+                exit 0
+              fi
+              if [ "${attempt}" -lt 2 ]; then
+                echo "> Deploy script failed. Retrying in 30 seconds..."
+                sleep 30
+              fi
+            done
+            echo "> Deploy failed after retries."
+            exit 1
 
       - name: Notify Slack - Deploy Result
         if: always()
