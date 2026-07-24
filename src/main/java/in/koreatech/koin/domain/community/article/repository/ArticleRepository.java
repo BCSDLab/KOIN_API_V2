@@ -201,6 +201,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     @Query(value = """
         SELECT a.id
         FROM new_articles a
+        JOIN boards b ON b.id = a.board_id AND b.is_deleted = false
         LEFT JOIN article_ai_summaries s ON s.article_id = a.id AND s.is_deleted = false
         WHERE a.is_deleted = false
           AND a.board_id <> :excludedBoardId

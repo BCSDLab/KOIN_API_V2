@@ -25,7 +25,9 @@ import in.koreatech.koin.domain.community.article.model.ArticleAiSummary;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryStatus;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRepository;
+import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryService;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySourceReader;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySourceSeed;
 import in.koreatech.koin.domain.student.model.Department;
@@ -58,15 +60,41 @@ class ArticleAiSummaryApiTest extends AcceptanceTest {
     @Autowired
     private ArticleAiSummaryProperties properties;
 
+    @Autowired
+    private ArticleAiSummaryService articleAiSummaryService;
+
+    @Autowired
+    private BoardRepository boardRepository;
+
     private Article article;
+    private Student student;
 
     @BeforeEach
     void setUp() {
         clear();
         Department department = departmentFixture.컴퓨터공학부();
-        Student student = userFixture.준호_학생(department, null);
+        student = userFixture.준호_학생(department, null);
         Board board = boardFixture.자유게시판();
         article = articleFixture.자유글_1(board, student.getUser());
+    }
+
+    @Test
+    void 삭제된_게시판의_게시글은_요약_큐_등록_대상에서_제외된다() {
+        Board deletedBoard = boardRepository.save(
+            Board.builder()
+                .name("삭제된게시판")
+                .isAnonymous(false)
+                .articleCount(0)
+                .isDeleted(true)
+                .isNotice(false)
+                .build()
+        );
+        Article deletedBoardArticle = articleFixture.자유글_2(deletedBoard, student.getUser());
+
+        articleAiSummaryService.enqueueArticlesWithoutSummary(10);
+
+        assertThat(articleAiSummaryRepository.findByArticleId(deletedBoardArticle.getId())).isEmpty();
+        assertThat(articleAiSummaryRepository.findByArticleId(article.getId())).isPresent();
     }
 
     @Test
