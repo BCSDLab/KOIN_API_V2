@@ -35,7 +35,7 @@ public class ArticleAiSummaryProperties {
     private int chatRequestTimeoutSeconds = 120;
     private int documentParseRequestTimeoutSeconds = 180;
     private int documentDownloadTimeoutSeconds = 60;
-    private String model = "solar-pro3";
+    private String model = "solar-open2";
     private String promptVersion = "v9";
     private List<String> allowedContentUrlPrefixes = new ArrayList<>(
         List.of("https://*.koreatech.in/", "https://*.koreatech.ac.kr/")

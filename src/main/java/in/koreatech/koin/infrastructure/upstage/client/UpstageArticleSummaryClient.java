@@ -94,7 +94,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
             "temperature", 0.2,
             "top_p", 0.9,
             "max_tokens", 500,
-            "reasoning_effort", "low",
+            "reasoning_effort", "minimal",
             "response_format", responseFormat(prompt.maxItems())
         );
     }

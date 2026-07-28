@@ -146,7 +146,7 @@ article:
     chat-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_CHAT_REQUEST_TIMEOUT_SECONDS:120}
     document-parse-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_REQUEST_TIMEOUT_SECONDS:180}
     document-download-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_DOWNLOAD_TIMEOUT_SECONDS:60}
-    model: ${ARTICLE_AI_SUMMARY_MODEL:solar-pro3}
+    model: ${ARTICLE_AI_SUMMARY_MODEL:solar-open2}
     prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v9}
     allowed-content-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_CONTENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}
     allowed-document-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_DOCUMENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}
