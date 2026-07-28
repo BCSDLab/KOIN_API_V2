@@ -9,13 +9,14 @@ import org.springframework.util.StringUtils;
 @Component
 public class ArticleSummaryPromptBuilder {
 
-    private static final int MAX_SOURCE_LENGTH = 16_000;
-    private static final int MAX_BODY_LENGTH = 8_000;
-    private static final int MAX_ATTACHMENT_LENGTH = 8_000;
+    private static final int MAX_SOURCE_LENGTH = 100_000;
+    private static final int MAX_BODY_LENGTH = 32_000;
+    private static final int MAX_ATTACHMENT_LENGTH = 64_000;
     private static final int MAX_PREVIOUS_RESULT_ITEMS = 10;
     private static final int MAX_PREVIOUS_ITEM_TEXT_LENGTH = 200;
     private static final int INITIAL_CANDIDATE_MAX_ITEMS = 5;
     private static final int FINAL_SUMMARY_MAX_ITEMS = 3;
+    private static final String TRUNCATION_MARKER = "\n[중간 내용은 길이 제한으로 생략됨]\n";
 
     private static final String SYSTEM_MESSAGE = """
         당신은 한국기술교육대학교 학생용 게시글 요약기입니다.
@@ -153,12 +154,16 @@ public class ArticleSummaryPromptBuilder {
         if (!source.attachmentTexts().isEmpty()) {
             builder.append("첨부 문서/이미지 추출 내용(아래 내용은 이미 문서 파싱으로 읽은 결과입니다):\n");
             int remainingAttachmentBudget = MAX_ATTACHMENT_LENGTH;
-            int perAttachmentBudget = Math.max(1_000, MAX_ATTACHMENT_LENGTH / source.attachmentTexts().size());
             for (int i = 0; i < source.attachmentTexts().size(); i++) {
                 if (remainingAttachmentBudget <= 0) {
                     builder.append("[첨부 내용은 길이 제한으로 추가 생략됨]\n");
                     break;
                 }
+                int remainingAttachmentCount = source.attachmentTexts().size() - i;
+                int perAttachmentBudget = Math.max(
+                    1_000,
+                    remainingAttachmentBudget / remainingAttachmentCount
+                );
                 String attachmentText = truncateSection(
                     source.attachmentTexts().get(i),
                     Math.min(perAttachmentBudget, remainingAttachmentBudget)
@@ -176,14 +181,19 @@ public class ArticleSummaryPromptBuilder {
         if (value == null || value.length() <= maxLength) {
             return value == null ? "" : value;
         }
-        return value.substring(0, maxLength) + "\n[이후 내용은 길이 제한으로 생략됨]";
+        if (maxLength <= TRUNCATION_MARKER.length()) {
+            return value.substring(0, maxLength);
+        }
+        int retainedLength = maxLength - TRUNCATION_MARKER.length();
+        int leadingLength = retainedLength * 3 / 4;
+        int trailingLength = retainedLength - leadingLength;
+        return value.substring(0, leadingLength)
+            + TRUNCATION_MARKER
+            + value.substring(value.length() - trailingLength);
     }
 
     private String truncate(String value) {
-        if (value.length() <= MAX_SOURCE_LENGTH) {
-            return value;
-        }
-        return value.substring(0, MAX_SOURCE_LENGTH) + "\n[이후 내용은 길이 제한으로 생략됨]";
+        return truncateSection(value, MAX_SOURCE_LENGTH);
     }
 
     private String buildPreviousResultText(ArticleSummaryResult result) {

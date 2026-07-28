@@ -15,7 +15,7 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "article.ai-summary")
 public class ArticleAiSummaryProperties {
 
-    private static final int MAX_REFINEMENT_RETRY_COUNT_LIMIT = 2;
+    private static final int MAX_REFINEMENT_RETRY_COUNT_LIMIT = 1;
     private static final int MAX_DOCUMENT_BYTES_LIMIT = 50 * 1024 * 1024;
 
     private boolean enabled = false;
@@ -36,7 +36,7 @@ public class ArticleAiSummaryProperties {
     private int documentParseRequestTimeoutSeconds = 180;
     private int documentDownloadTimeoutSeconds = 60;
     private String model = "solar-open2";
-    private String promptVersion = "v9";
+    private String promptVersion = "v10";
     private List<String> allowedContentUrlPrefixes = new ArrayList<>(
         List.of("https://*.koreatech.in/", "https://*.koreatech.ac.kr/")
     );

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,10 +28,13 @@ import in.koreatech.koin.domain.community.article.service.summary.ArticleSummary
 @Component
 public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
 
+    private static final int MAX_OUTPUT_TOKENS = 2_048;
+
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
     private final UpstageProperties upstageProperties;
     private final ArticleAiSummaryProperties summaryProperties;
+    private final UpstageChatTokenRateLimiter chatTokenRateLimiter;
 
     public UpstageArticleSummaryClient(
         ObjectMapper objectMapper,
@@ -40,6 +44,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
         this.objectMapper = objectMapper;
         this.upstageProperties = upstageProperties;
         this.summaryProperties = summaryProperties;
+        this.chatTokenRateLimiter = new UpstageChatTokenRateLimiter();
         this.webClient = WebClient.builder()
             .baseUrl(upstageProperties.getApiBaseUrl())
             .build();
@@ -51,17 +56,22 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
             throw new ArticleSummaryExternalApiException("Upstage API key가 설정되지 않았습니다.", false, null);
         }
         try {
-            ChatCompletionResponse response = webClient.post()
+            chatTokenRateLimiter.await(prompt, MAX_OUTPUT_TOKENS);
+            ResponseEntity<ChatCompletionResponse> responseEntity = webClient.post()
                 .uri("/chat/completions")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + upstageProperties.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody(prompt))
                 .retrieve()
-                .bodyToMono(ChatCompletionResponse.class)
+                .toEntity(ChatCompletionResponse.class)
                 .timeout(Duration.ofSeconds(summaryProperties.getChatRequestTimeoutSeconds()))
                 .block();
+            if (responseEntity == null) {
+                throw new ArticleSummaryExternalApiException("Upstage 요약 응답이 비어 있습니다.", true, null);
+            }
+            chatTokenRateLimiter.update(responseEntity.getHeaders());
 
-            String content = extractContent(response);
+            String content = extractContent(responseEntity.getBody());
             SummaryJson summaryJson = objectMapper.readValue(stripCodeFence(content), SummaryJson.class);
             List<SummaryItemJson> items = summaryJson.items() == null ? List.of() : summaryJson.items();
             return new ArticleSummaryResult(items.stream()
@@ -70,6 +80,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
         } catch (ArticleSummaryExternalApiException e) {
             throw e;
         } catch (WebClientResponseException e) {
+            chatTokenRateLimiter.update(e.getHeaders());
             throw toExternalApiException("요약", e);
         } catch (JsonProcessingException e) {
             throw new ArticleSummaryExternalApiException("Upstage 요약 응답 JSON 파싱에 실패했습니다.", true, null, e);
@@ -93,7 +104,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
             ),
             "temperature", 0.2,
             "top_p", 0.9,
-            "max_tokens", 500,
+            "max_tokens", MAX_OUTPUT_TOKENS,
             "reasoning_effort", "minimal",
             "response_format", responseFormat(prompt.maxItems())
         );

@@ -35,6 +35,7 @@ class UpstageArticleSummaryClientTest {
         assertThat(requestBody)
             .containsEntry("model", "solar-open2")
             .containsEntry("reasoning_effort", "minimal")
+            .containsEntry("max_tokens", 2_048)
             .containsKey("response_format");
     }
 }
