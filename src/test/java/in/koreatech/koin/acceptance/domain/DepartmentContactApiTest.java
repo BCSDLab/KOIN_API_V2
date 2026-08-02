@@ -34,6 +34,8 @@ class DepartmentContactApiTest extends AcceptanceTest {
         createDepartment(DepartmentCategory.STUDENT_SUPPORT, "학생지원팀", 1,
             new Contact("학생지도", "041-560-2531", 2),
             new Contact("학생지원팀 총괄", "041-560-2530", 1));
+        createDepartment(DepartmentCategory.ACADEMIC, "학사팀", 17,
+            new Contact("학사팀 업무총괄", "041-560-2539", 1));
         createDepartment(DepartmentCategory.ACADEMIC, "Edutech 센터", 1,
             new Contact("", "041-580-4707", 1));
         entityManager.flush();
@@ -48,8 +50,9 @@ class DepartmentContactApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.categories", hasSize(6)))
             .andExpect(jsonPath("$.categories[0].category").value("ACADEMIC"))
             .andExpect(jsonPath("$.categories[0].category_name").value("학사 / 수업"))
-            .andExpect(jsonPath("$.categories[0].departments[0].name").value("Edutech 센터"))
-            .andExpect(jsonPath("$.categories[0].departments[0].is_single_contact").value(true))
+            .andExpect(jsonPath("$.categories[0].departments", hasSize(2)))
+            .andExpect(jsonPath("$.categories[0].departments[0].name").value("학사팀"))
+            .andExpect(jsonPath("$.categories[0].departments[1].name").value("Edutech 센터"))
             .andExpect(jsonPath("$.categories[1].category").value("STUDENT_SUPPORT"))
             .andExpect(jsonPath("$.categories[2].category").value("EMPLOYMENT"))
             .andExpect(jsonPath("$.categories[2].departments", hasSize(2)))
@@ -57,6 +60,10 @@ class DepartmentContactApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.categories[2].departments[0].is_single_contact").value(true))
             .andExpect(jsonPath("$.categories[2].departments[1].name").value("취창업지원팀"))
             .andExpect(jsonPath("$.categories[2].departments[1].is_single_contact").value(false));
+
+        mockMvc.perform(get("/department-contacts/ACADEMIC"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.departments[0].name").value("학사팀"));
     }
 
     @Test
@@ -115,6 +122,15 @@ class DepartmentContactApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.categories", hasSize(1)))
             .andExpect(jsonPath("$.categories[0].departments[0].name").value("Edutech 센터"))
             .andExpect(jsonPath("$.categories[0].departments[0].is_single_contact").value(true));
+
+        mockMvc.perform(
+                get("/department-contacts")
+                    .param("keyword", "IPP센터")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.categories", hasSize(1)))
+            .andExpect(jsonPath("$.categories[0].category").value("EMPLOYMENT"))
+            .andExpect(jsonPath("$.categories[0].departments[0].name").value("IPP 센터"));
     }
 
     @Test
