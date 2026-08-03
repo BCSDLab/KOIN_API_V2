@@ -19,9 +19,14 @@ class ArticleSummaryContentRendererTest {
             List.of("📅 신청은 5월 20일까지 접수됩니다.", "🎯 재학생을 대상으로 모집합니다.")
         );
 
-        assertThat(content).startsWith("<div class=\"ai-summary\">");
-        assertThat(content).contains("✨ AI 요약");
-        assertThat(content).contains("<p>📅 신청은 5월 20일까지 접수됩니다.</p>");
+        assertThat(content).startsWith("<div class=\"ai-summary\" role=\"note\"");
+        assertThat(content).contains("border-bottom:2px solid #0054a6");
+        assertThat(content).contains("margin:24px 0 28px");
+        assertThat(content).contains(">AI 요약</span>");
+        assertThat(content).contains(">📅</span>");
+        assertThat(content).contains(">신청은 5월 20일까지 접수됩니다.</span>");
+        assertThat(content).doesNotContain("✨");
+        assertThat(content).doesNotContain("<hr>");
         assertThat(content).doesNotContain("1. 📅");
         assertThat(content).endsWith("<p>원문</p>");
     }
@@ -38,9 +43,12 @@ class ArticleSummaryContentRendererTest {
             )
         );
 
-        assertThat(content).contains("📅 신청은 5월 20일까지 접수됩니다.");
-        assertThat(content).contains("📝 신청서를 제출해야 합니다.");
-        assertThat(content).doesNotContain("💰 장학금은 50만원입니다.");
+        assertThat(content).contains(">📅</span>");
+        assertThat(content).contains(">신청은 5월 20일까지 접수됩니다.</span>");
+        assertThat(content).contains(">📝</span>");
+        assertThat(content).contains(">신청서를 제출해야 합니다.</span>");
+        assertThat(content).doesNotContain(">💰</span>");
+        assertThat(content).doesNotContain("장학금은 50만원입니다.");
     }
 
     @Test
@@ -63,7 +71,8 @@ class ArticleSummaryContentRendererTest {
             List.of("📌 <script>alert(1)</script>")
         );
 
-        assertThat(content).contains("📌 &lt;script&gt;alert(1)&lt;/script&gt;");
+        assertThat(content).contains(">📌</span>");
+        assertThat(content).contains("&lt;script&gt;alert(1)&lt;/script&gt;");
         assertThat(content).doesNotContain("<script>alert(1)</script>");
     }
 }

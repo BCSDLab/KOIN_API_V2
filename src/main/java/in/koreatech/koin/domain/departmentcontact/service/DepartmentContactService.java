@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.departmentcontact.service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -22,11 +23,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DepartmentContactService {
 
+    private static final String PRIORITY_DEPARTMENT_NAME = "학사팀";
+
     private final DepartmentContactDepartmentRepository departmentRepository;
 
     @Transactional(readOnly = true)
     public DepartmentContactsResponse getDepartmentContacts(String keyword) {
-        List<DepartmentContactDepartment> departments = departmentRepository.findAllByOrderByDisplayOrderAsc();
+        List<DepartmentContactDepartment> departments = prioritizeDepartments(
+            departmentRepository.findAllByOrderByDisplayOrderAsc()
+        );
         LocalDateTime updatedAt = findLatestUpdatedAt(departments);
         String normalizedKeyword = normalizeKeyword(keyword);
 
@@ -46,8 +51,9 @@ public class DepartmentContactService {
         DepartmentCategory category,
         String keyword
     ) {
-        List<DepartmentContactDepartment> departments =
-            departmentRepository.findAllByCategoryOrderByDisplayOrderAsc(category);
+        List<DepartmentContactDepartment> departments = prioritizeDepartments(
+            departmentRepository.findAllByCategoryOrderByDisplayOrderAsc(category)
+        );
         LocalDateTime updatedAt = findLatestUpdatedAt(departments);
         List<DepartmentContactDepartment> filteredDepartments = filterDepartments(
             category,
@@ -80,11 +86,26 @@ public class DepartmentContactService {
     }
 
     private boolean contains(String value, String keyword) {
-        return value.toLowerCase(Locale.ROOT).contains(keyword);
+        return normalizeText(value).contains(keyword);
     }
 
     private String normalizeKeyword(String keyword) {
-        return keyword == null ? "" : keyword.trim().toLowerCase(Locale.ROOT);
+        return normalizeText(keyword == null ? "" : keyword);
+    }
+
+    private String normalizeText(String value) {
+        return value.replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
+    }
+
+    private List<DepartmentContactDepartment> prioritizeDepartments(
+        List<DepartmentContactDepartment> departments
+    ) {
+        return departments.stream()
+            .sorted(Comparator.comparingInt(
+                (DepartmentContactDepartment department) ->
+                    PRIORITY_DEPARTMENT_NAME.equals(department.getName()) ? 0 : 1
+            ).thenComparing(DepartmentContactDepartment::getDisplayOrder))
+            .toList();
     }
 
     private LocalDateTime findLatestUpdatedAt(List<DepartmentContactDepartment> departments) {
