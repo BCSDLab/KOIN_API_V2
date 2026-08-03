@@ -3,8 +3,6 @@ package in.koreatech.koin.unit.domain.community.article.service.summary;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,12 +21,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummary;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLog;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLogType;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryStatus;
-import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryLogRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -89,32 +85,6 @@ class ArticleAiSummaryServiceTest {
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
         assertThat(summary.getRetryCount()).isEqualTo(1);
         assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusMinutes(5));
-    }
-
-    @Test
-    void 모델이_바뀌어도_원문이_같으면_기존_요약을_새_디자인으로_반환하고_재생성을_대기시킨다() {
-        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
-        ArticleAiSummaryService service = service(clock);
-        Article article = mock(Article.class);
-        Board board = mock(Board.class);
-        ArticleAiSummary summary = completedSummary(clock, article, "solar-open2", "v10");
-        when(board.getId()).thenReturn(1);
-        when(article.getBoard()).thenReturn(board);
-        when(article.getId()).thenReturn(1);
-        when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
-        when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
-        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
-        when(contentRenderer.prependSummary(eq("본문"), eq(List.of("기존 요약입니다."))))
-            .thenReturn("새 디자인 요약\n본문");
-
-        String content = service.prependSummaryIfReady(article, "본문");
-
-        assertThat(content).isEqualTo("새 디자인 요약\n본문");
-        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
-        assertThat(summary.getSummaryLines()).containsExactly("기존 요약입니다.");
-        assertThat(summary.getModel()).isEqualTo("solar-pro4");
-        assertThat(summary.getPromptVersion()).isEqualTo("v11");
-        verify(contentRenderer).prependSummary("본문", List.of("기존 요약입니다."));
     }
 
     @Test
@@ -218,31 +188,6 @@ class ArticleAiSummaryServiceTest {
             "v9"
         );
         summary.markProcessing("worker", LocalDateTime.now(clock).plusMinutes(30));
-        return summary;
-    }
-
-    private ArticleAiSummary completedSummary(
-        Clock clock,
-        Article article,
-        String model,
-        String promptVersion
-    ) {
-        ArticleAiSummary summary = ArticleAiSummary.waiting(
-            article,
-            "fingerprint",
-            LocalDateTime.now(clock),
-            model,
-            promptVersion
-        );
-        summary.markProcessing("worker", LocalDateTime.now(clock).plusMinutes(30));
-        summary.completeSuccess(
-            List.of("기존 요약입니다."),
-            "fingerprint",
-            LocalDateTime.now(clock),
-            model,
-            promptVersion,
-            LocalDateTime.now(clock)
-        );
         return summary;
     }
 }

@@ -124,13 +124,9 @@ public class ArticleAiSummary extends BaseEntity {
 
     public boolean isSuccessFor(String fingerprint, String model, String promptVersion) {
         return status == ArticleAiSummaryStatus.SUCCESS
-            && hasSummaryForSource(fingerprint)
+            && Objects.equals(sourceFingerprint, fingerprint)
             && Objects.equals(this.model, model)
-            && Objects.equals(this.promptVersion, promptVersion);
-    }
-
-    public boolean hasSummaryForSource(String fingerprint) {
-        return Objects.equals(sourceFingerprint, fingerprint)
+            && Objects.equals(this.promptVersion, promptVersion)
             && summaryContent != null
             && !summaryContent.isBlank();
     }
@@ -162,12 +158,9 @@ public class ArticleAiSummary extends BaseEntity {
         if (status == ArticleAiSummaryStatus.PROCESSING) {
             return;
         }
-        boolean canReuseExistingSummary = hasSummaryForSource(sourceFingerprint);
         this.status = ArticleAiSummaryStatus.WAIT;
-        if (!canReuseExistingSummary) {
-            this.summaryContent = null;
-            this.summarizedAt = null;
-        }
+        this.summaryContent = null;
+        this.summarizedAt = null;
         this.sourceFingerprint = sourceFingerprint;
         this.sourceUpdatedAt = sourceUpdatedAt;
         this.model = model;
