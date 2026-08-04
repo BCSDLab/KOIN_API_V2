@@ -18,22 +18,19 @@ final class UpstageChatTokenRateLimiter {
     private static final int TOKEN_ESTIMATION_OVERHEAD = 5_000;
     private static final long DEFAULT_RESET_MILLIS = 60_000;
     private static final long RESET_BUFFER_MILLIS = 250;
-    private static final long MAX_WAIT_MILLIS = 61_000;
 
     private final Clock clock;
-    private final Sleeper sleeper;
 
     private long tokenLimit = -1;
     private long remainingTokens = -1;
     private long resetAtMillis = -1;
 
     UpstageChatTokenRateLimiter() {
-        this(Clock.systemUTC(), Thread::sleep);
+        this(Clock.systemUTC());
     }
 
-    UpstageChatTokenRateLimiter(Clock clock, Sleeper sleeper) {
+    UpstageChatTokenRateLimiter(Clock clock) {
         this.clock = clock;
-        this.sleeper = sleeper;
     }
 
     synchronized void await(ArticleSummaryPrompt prompt, int maxOutputTokens) {
@@ -63,30 +60,11 @@ final class UpstageChatTokenRateLimiter {
             remainingTokens -= estimatedTokens;
             return;
         }
-        long waitMillis = Math.min(remainingResetMillis, MAX_WAIT_MILLIS);
-        try {
-            sleeper.sleep(waitMillis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new ArticleSummaryExternalApiException(
-                "Upstage 요약 API 토큰 한도 대기 중 인터럽트가 발생했습니다.",
-                true,
-                null,
-                e
-            );
-        }
-        refreshWindow();
-        if (resetAtMillis >= 0) {
-            Duration retryAfter = Duration.ofMillis(
-                Math.max(resetAtMillis - clock.millis() + RESET_BUFFER_MILLIS, RESET_BUFFER_MILLIS)
-            );
-            throw new ArticleSummaryExternalApiException(
-                "Upstage 요약 API rate limit 토큰 한도 초기화를 기다립니다.",
-                true,
-                retryAfter
-            );
-        }
-        remainingTokens -= estimatedTokens;
+        throw new ArticleSummaryExternalApiException(
+            "Upstage 요약 API rate limit 토큰 한도 초기화를 기다립니다.",
+            true,
+            Duration.ofMillis(remainingResetMillis)
+        );
     }
 
     synchronized void update(HttpHeaders headers) {
@@ -125,11 +103,5 @@ final class UpstageChatTokenRateLimiter {
         } catch (NumberFormatException e) {
             return fallback;
         }
-    }
-
-    @FunctionalInterface
-    interface Sleeper {
-
-        void sleep(long millis) throws InterruptedException;
     }
 }
