@@ -15,7 +15,7 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "article.ai-summary")
 public class ArticleAiSummaryProperties {
 
-    private static final int MAX_REFINEMENT_RETRY_COUNT_LIMIT = 1;
+    private static final int MAX_REFINEMENT_RETRY_COUNT_LIMIT = 2;
     private static final int MAX_DOCUMENT_BYTES_LIMIT = 50 * 1024 * 1024;
 
     private boolean enabled = false;

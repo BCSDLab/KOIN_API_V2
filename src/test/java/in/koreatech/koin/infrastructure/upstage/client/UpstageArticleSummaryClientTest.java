@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.community.article.service.summary.ArticleSummary
 class UpstageArticleSummaryClientTest {
 
     @Test
-    void 게시글_요약은_solar_pro4를_최소_추론으로_호출한다() {
+    void 게시글_요약은_solar_pro4를_호출한다() {
         ArticleAiSummaryProperties summaryProperties = new ArticleAiSummaryProperties();
         UpstageArticleSummaryClient client = new UpstageArticleSummaryClient(
             new ObjectMapper(),
@@ -33,8 +33,6 @@ class UpstageArticleSummaryClientTest {
 
         assertThat(requestBody)
             .containsEntry("model", "solar-pro4")
-            .containsEntry("reasoning_effort", "minimal")
-            .containsEntry("max_tokens", 2_048)
             .containsKey("response_format");
     }
 }

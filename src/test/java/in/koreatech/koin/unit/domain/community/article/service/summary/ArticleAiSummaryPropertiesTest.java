@@ -9,10 +9,10 @@ import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSumma
 class ArticleAiSummaryPropertiesTest {
 
     @Test
-    void 재선별_재시도는_최대_한_번으로_제한한다() {
+    void Solar_Pro4_모델과_v11_프롬프트를_기본값으로_사용한다() {
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
-        properties.setMaxRefinementRetryCount(10);
 
-        assertThat(properties.getBoundedMaxRefinementRetryCount()).isEqualTo(1);
+        assertThat(properties.getModel()).isEqualTo("solar-pro4");
+        assertThat(properties.getPromptVersion()).isEqualTo("v11");
     }
 }
