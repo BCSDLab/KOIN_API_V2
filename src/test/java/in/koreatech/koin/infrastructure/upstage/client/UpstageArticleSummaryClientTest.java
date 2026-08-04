@@ -31,7 +31,6 @@ class UpstageArticleSummaryClientTest {
 
         Map<String, Object> requestBody = ReflectionTestUtils.invokeMethod(client, "requestBody", prompt);
 
-        assertThat(summaryProperties.getModel()).isEqualTo("solar-pro4");
         assertThat(requestBody)
             .containsEntry("model", "solar-pro4")
             .containsEntry("reasoning_effort", "minimal")

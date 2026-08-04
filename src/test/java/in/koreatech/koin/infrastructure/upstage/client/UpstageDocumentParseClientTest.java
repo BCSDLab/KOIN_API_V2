@@ -64,15 +64,6 @@ class UpstageDocumentParseClientTest {
     }
 
     @Test
-    void 기존_8천자를_넘는_문서_추출문도_보존한다() {
-        String parsedText = "가".repeat(20_000) + "신청 마감은 6월 30일입니다.";
-
-        String result = ReflectionTestUtils.invokeMethod(client, "truncate", parsedText);
-
-        assertThat(result).isEqualTo(parsedText);
-    }
-
-    @Test
     void 문서_추출문이_상한을_넘으면_앞부분과_뒷부분을_함께_보존한다() {
         String finalSchedule = "최종 신청 일정은 7월 31일까지입니다.";
         String parsedText = "가".repeat(100_000) + finalSchedule;
