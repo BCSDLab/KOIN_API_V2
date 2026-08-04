@@ -27,9 +27,8 @@ import in.koreatech.koin.domain.community.article.service.summary.DocumentParseR
 @Component
 public class UpstageDocumentParseClient implements ArticleDocumentParseClient {
 
-    private static final int MAX_PARSED_TEXT_LENGTH = 96_000;
+    private static final int MAX_PARSED_TEXT_LENGTH = 8_000;
     private static final int PARSE_RESPONSE_MEMORY_MULTIPLIER = 2;
-    private static final String TRUNCATION_MARKER = "\n[중간 내용은 길이 제한으로 생략됨]\n";
 
     private final WebClient webClient;
     private final WebClient downloadClient;
@@ -269,12 +268,7 @@ public class UpstageDocumentParseClient implements ArticleDocumentParseClient {
         if (value.length() <= MAX_PARSED_TEXT_LENGTH) {
             return value;
         }
-        int retainedLength = MAX_PARSED_TEXT_LENGTH - TRUNCATION_MARKER.length();
-        int leadingLength = retainedLength * 3 / 4;
-        int trailingLength = retainedLength - leadingLength;
-        return value.substring(0, leadingLength)
-            + TRUNCATION_MARKER
-            + value.substring(value.length() - trailingLength);
+        return value.substring(0, MAX_PARSED_TEXT_LENGTH);
     }
 
     private ArticleSummaryExternalApiException toExternalApiException(String apiName, WebClientResponseException e) {

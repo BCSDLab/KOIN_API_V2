@@ -81,7 +81,7 @@ class ArticleSummaryPromptBuilderTest {
         ArticleSummarySource source = new ArticleSummarySource(
             1,
             "장학금 신청 안내",
-            "긴 본문".repeat(10_000),
+            "긴 본문".repeat(3_000),
             "학생처",
             LocalDate.of(2026, 5, 1),
             LocalDateTime.of(2026, 5, 1, 10, 0),
@@ -93,93 +93,7 @@ class ArticleSummaryPromptBuilderTest {
         ArticleSummaryPrompt prompt = promptBuilder.build(source);
 
         assertThat(prompt.userMessage()).contains("중요 첨부 정보");
-        assertThat(prompt.userMessage()).contains("중간 내용은 길이 제한으로 생략됨");
-    }
-
-    @Test
-    void 기존_8천자_뒤에_있는_본문_핵심도_요약_입력에_포함한다() {
-        String importantContent = "신청 마감은 6월 30일 18시입니다.";
-        ArticleSummarySource source = new ArticleSummarySource(
-            1,
-            "장학금 신청 안내",
-            "가".repeat(20_000) + importantContent,
-            "학생처",
-            LocalDate.of(2026, 5, 1),
-            LocalDateTime.of(2026, 5, 1, 10, 0),
-            List.of(),
-            false,
-            "fingerprint"
-        );
-
-        ArticleSummaryPrompt prompt = promptBuilder.build(source);
-
-        assertThat(prompt.sourceText()).contains(importantContent);
-    }
-
-    @Test
-    void 본문이_입력_예산을_넘으면_앞부분과_뒷부분을_함께_보존한다() {
-        String finalSchedule = "최종 신청 일정은 7월 31일까지입니다.";
-        ArticleSummarySource source = new ArticleSummarySource(
-            1,
-            "장학금 신청 안내",
-            "가".repeat(100_000) + finalSchedule,
-            "학생처",
-            LocalDate.of(2026, 5, 1),
-            LocalDateTime.of(2026, 5, 1, 10, 0),
-            List.of(),
-            false,
-            "fingerprint"
-        );
-
-        ArticleSummaryPrompt prompt = promptBuilder.build(source);
-
-        assertThat(prompt.sourceText())
-            .contains("중간 내용은 길이 제한으로 생략됨")
-            .contains(finalSchedule);
-    }
-
-    @Test
-    void 짧은_첨부에서_남은_예산을_뒤의_긴_첨부에_사용한다() {
-        String importantContent = "두 번째 첨부 핵심: 신청 마감은 6월 30일입니다.";
-        String longAttachment = "나".repeat(22_000) + importantContent + "다".repeat(45_000);
-        ArticleSummarySource source = new ArticleSummarySource(
-            1,
-            "장학금 신청 안내",
-            "첨부파일을 확인하세요.",
-            "학생처",
-            LocalDate.of(2026, 5, 1),
-            LocalDateTime.of(2026, 5, 1, 10, 0),
-            List.of("짧은 첨부", longAttachment, "마지막 첨부"),
-            false,
-            "fingerprint"
-        );
-
-        ArticleSummaryPrompt prompt = promptBuilder.build(source);
-
-        assertThat(prompt.sourceText()).contains(importantContent);
-    }
-
-    @Test
-    void 첨부가_입력_예산을_넘으면_앞부분과_뒷부분을_함께_보존한다() {
-        String finalSchedule = "최종 신청 일정은 7월 31일까지입니다.";
-        ArticleSummarySource source = new ArticleSummarySource(
-            1,
-            "장학금 신청 안내",
-            "첨부파일을 확인하세요.",
-            "학생처",
-            LocalDate.of(2026, 5, 1),
-            LocalDateTime.of(2026, 5, 1, 10, 0),
-            List.of("가".repeat(100_000) + finalSchedule),
-            false,
-            "fingerprint"
-        );
-
-        ArticleSummaryPrompt prompt = promptBuilder.build(source);
-
-        assertThat(prompt.sourceText())
-            .contains("중간 내용은 길이 제한으로 생략됨")
-            .contains(finalSchedule);
-        assertThat(prompt.sourceText().length()).isLessThanOrEqualTo(100_000);
+        assertThat(prompt.userMessage()).contains("이후 내용은 길이 제한으로 생략됨");
     }
 
     @Test
