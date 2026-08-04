@@ -62,7 +62,10 @@ public class ArticleAiSummaryService {
         }
 
         ArticleAiSummary summary = optionalSummary.get();
-        if (summary.isSuccessFor(fingerprint, properties.getModel(), properties.getPromptVersion())) {
+        if (summary.hasSummaryForSource(fingerprint)) {
+            if (canGenerate() && !summary.isProcessing() && isStale(summary, fingerprint)) {
+                summary.prepareWait(fingerprint, article.getUpdatedAt(), properties.getModel(), properties.getPromptVersion());
+            }
             return contentRenderer.prependSummary(content, summary.getSummaryLines());
         }
         if (canGenerate() && !summary.isProcessing() && isStale(summary, fingerprint)) {
