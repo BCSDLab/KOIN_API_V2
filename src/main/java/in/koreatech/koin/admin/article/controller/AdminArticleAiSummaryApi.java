@@ -1,0 +1,87 @@
+package in.koreatech.koin.admin.article.controller;
+
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import in.koreatech.koin.admin.article.dto.AdminArticleAiSummariesResponse;
+import in.koreatech.koin.admin.article.dto.AdminArticleAiSummaryLogsResponse;
+import in.koreatech.koin.admin.article.dto.AdminArticleAiSummaryOverviewResponse;
+import in.koreatech.koin.admin.article.dto.AdminArticleAiSummaryResponse;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLogType;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryStatus;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryFailureType;
+import in.koreatech.koin.global.auth.Auth;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(
+    name = "(Admin) ArticleAiSummary: 게시글 AI 요약",
+    description = "super_admin 여부와 관계없이 코인 어드민 로그인이 승인된 모든 관리자 계정이 게시글 AI 요약 작업 상태를 조회한다"
+)
+public interface AdminArticleAiSummaryApi {
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(summary = "게시글 AI 요약 큐 상태 요약 조회")
+    @GetMapping("/admin/articles/ai-summaries/overview")
+    ResponseEntity<AdminArticleAiSummaryOverviewResponse> getOverview(
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(summary = "게시글 AI 요약 작업 목록 조회")
+    @GetMapping("/admin/articles/ai-summaries")
+    ResponseEntity<AdminArticleAiSummariesResponse> getSummaries(
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(name = "status", required = false) ArticleAiSummaryStatus status,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(summary = "게시글 AI 요약 작업 로그 조회")
+    @GetMapping("/admin/articles/ai-summaries/logs")
+    ResponseEntity<AdminArticleAiSummaryLogsResponse> getLogs(
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(name = "summary_id", required = false) Integer summaryId,
+        @RequestParam(name = "article_id", required = false) Integer articleId,
+        @RequestParam(name = "event_type", required = false) ArticleAiSummaryLogType eventType,
+        @RequestParam(name = "failure_type", required = false) ArticleSummaryFailureType failureType,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(summary = "게시글 AI 요약 작업 단건 조회")
+    @GetMapping("/admin/articles/ai-summaries/{summaryId}")
+    ResponseEntity<AdminArticleAiSummaryResponse> getSummary(
+        @Parameter(in = PATH) @PathVariable Integer summaryId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+}

@@ -122,6 +122,35 @@ toss-payment:
   secret-key: ${TOSS_PAYMENT_SECRET_KEY}
   api-base-url: ${TOSS_PAYMENT_API_BASE_URL}
 
+upstage:
+  api-key: ${UPSTAGE_API_KEY:}
+  api-base-url: ${UPSTAGE_API_BASE_URL:https://api.upstage.ai/v1}
+
+article:
+  ai-summary:
+    enabled: ${ARTICLE_AI_SUMMARY_ENABLED:false}
+    scheduler-fixed-delay-ms: ${ARTICLE_AI_SUMMARY_SCHEDULER_FIXED_DELAY_MS:60000}
+    batch-size: ${ARTICLE_AI_SUMMARY_BATCH_SIZE:5}
+    max-retry-count: ${ARTICLE_AI_SUMMARY_MAX_RETRY_COUNT:5}
+    max-refinement-retry-count: ${ARTICLE_AI_SUMMARY_MAX_REFINEMENT_RETRY_COUNT:1}
+    lock-minutes: ${ARTICLE_AI_SUMMARY_LOCK_MINUTES:30}
+    retry-backoff-minutes: ${ARTICLE_AI_SUMMARY_RETRY_BACKOFF_MINUTES:5}
+    max-retry-backoff-minutes: ${ARTICLE_AI_SUMMARY_MAX_RETRY_BACKOFF_MINUTES:60}
+    max-documents-per-article: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENTS_PER_ARTICLE:3}
+    max-document-bytes: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENT_BYTES:52428800}
+    document-parse-ocr-mode: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_OCR_MODE:auto}
+    document-parse-min-interval-millis: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_MIN_INTERVAL_MILLIS:1000}
+    failed-retry-window-start-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_START_HOUR:0}
+    failed-retry-window-end-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_END_HOUR:4}
+    request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:120}
+    chat-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_CHAT_REQUEST_TIMEOUT_SECONDS:120}
+    document-parse-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_REQUEST_TIMEOUT_SECONDS:180}
+    document-download-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_DOWNLOAD_TIMEOUT_SECONDS:60}
+    model: ${ARTICLE_AI_SUMMARY_MODEL:solar-pro4}
+    prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v11}
+    allowed-content-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_CONTENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}
+    allowed-document-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_DOCUMENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}
+
 management:
   endpoint:
     health:

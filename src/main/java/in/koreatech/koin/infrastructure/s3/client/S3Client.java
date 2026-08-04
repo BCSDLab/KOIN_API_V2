@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -15,6 +17,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -39,6 +42,7 @@ public class S3Client {
 
     private final String bucketName;
     private final String domainUrlPrefix;
+    private final URI customDomainUri;
     private final S3Presigner.Builder presignerBuilder;
     private final AmazonS3 amazonS3;
     private final Clock clock;
@@ -53,6 +57,7 @@ public class S3Client {
     ) {
         this.bucketName = bucketName;
         this.domainUrlPrefix = domainUrlPrefix;
+        this.customDomainUri = parseCustomDomainUri(domainUrlPrefix);
         this.presignerBuilder = presignerBuilder;
         this.amazonS3 = amazonS3;
         this.clock = clock;
@@ -79,14 +84,99 @@ public class S3Client {
     }
 
     public String getContentFromUrl(String url) {
+        return fetchContent(url);
+    }
+
+    public boolean isCustomDomainUrl(String url) {
+        if (!StringUtils.hasText(url)) {
+            return false;
+        }
+        String trimmed = url.trim();
+        if (trimmed.chars().anyMatch(Character::isWhitespace)) {
+            return false;
+        }
+        try {
+            URI uri = URI.create(trimmed);
+            return isAllowedCustomDomainUri(uri);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public String getContentFromCustomDomainUrl(String url) {
+        String trimmed = url == null ? null : url.trim();
+        if (!isCustomDomainUrl(trimmed)) {
+            throw new KoinIllegalStateException("허용되지 않은 S3 URL입니다.");
+        }
+        return fetchContent(trimmed);
+    }
+
+    private String fetchContent(String url) {
         try {
             return webClient.get()
                 .uri(url)
                 .retrieve()
                 .bodyToMono(String.class)
+                .timeout(Duration.ofSeconds(5))
                 .block();
         } catch (Exception e) {
             throw new KoinIllegalStateException("URL로 부터 데이터를 불러오던 중 문제가 발생했습니다. " + e.getMessage());
+        }
+    }
+
+    private boolean isAllowedCustomDomainUri(URI uri) {
+        return "https".equalsIgnoreCase(uri.getScheme())
+            && uri.getUserInfo() == null
+            && StringUtils.hasText(uri.getHost())
+            && customDomainUri.getHost().equalsIgnoreCase(uri.getHost())
+            && effectiveHttpsPort(customDomainUri) == effectiveHttpsPort(uri)
+            && isPathWithinCustomDomain(uri);
+    }
+
+    private boolean isPathWithinCustomDomain(URI uri) {
+        String allowedPath = normalizePath(customDomainUri.getPath());
+        String candidatePath = normalizePath(uri.getPath());
+        if (allowedPath == null || candidatePath == null) {
+            return false;
+        }
+        if ("/".equals(allowedPath)) {
+            return candidatePath.startsWith("/");
+        }
+        if (allowedPath.endsWith("/")) {
+            return candidatePath.startsWith(allowedPath);
+        }
+        return candidatePath.equals(allowedPath) || candidatePath.startsWith(allowedPath + "/");
+    }
+
+    private static URI parseCustomDomainUri(String domainUrlPrefix) {
+        try {
+            URI uri = URI.create(domainUrlPrefix).normalize();
+            if (!"https".equalsIgnoreCase(uri.getScheme())
+                || !StringUtils.hasText(uri.getHost())
+                || uri.getUserInfo() != null
+                || uri.getQuery() != null
+                || uri.getFragment() != null) {
+                throw new IllegalArgumentException();
+            }
+            return uri;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("s3.custom_domain은 유효한 HTTPS URL이어야 합니다.", e);
+        }
+    }
+
+    private static int effectiveHttpsPort(URI uri) {
+        return uri.getPort() == -1 ? 443 : uri.getPort();
+    }
+
+    private static String normalizePath(String path) {
+        String value = StringUtils.hasText(path) ? path : "/";
+        if (value.indexOf('\\') >= 0) {
+            return null;
+        }
+        try {
+            return new URI(null, null, value, null).normalize().getPath();
+        } catch (URISyntaxException e) {
+            return null;
         }
     }
 

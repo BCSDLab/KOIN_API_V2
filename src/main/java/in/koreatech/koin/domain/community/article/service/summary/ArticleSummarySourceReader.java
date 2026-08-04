@@ -1,0 +1,401 @@
+package in.koreatech.koin.domain.community.article.service.summary;
+
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HexFormat;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
+import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class ArticleSummarySourceReader {
+
+    private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(
+        "jpg", "jpeg", "png", "bmp", "pdf", "tiff", "tif", "heic", "docx", "pptx", "xlsx", "hwp", "hwpx"
+    );
+    private static final Pattern INLINE_URL_PATTERN = Pattern.compile("https://[^\\s\"'<>]+");
+    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("\\.([a-z0-9]+)(?:\\s*\\([^)]*\\))?$");
+    private static final String TRAILING_URL_PUNCTUATION = ".,;:!?)]}";
+    private static final String HTTPS_SCHEME_PREFIX = "https://";
+    private static final String WILDCARD_HOST_PREFIX = "*.";
+
+    private final ArticleDocumentParseClient documentParseClient;
+    private final ArticleAiSummaryProperties properties;
+    private final S3Client s3Client;
+
+    public String createFingerprint(ArticleSummarySourceSeed seed) {
+        return createFingerprint(seed, resolveContent(seed.content()));
+    }
+
+    private String createFingerprint(ArticleSummarySourceSeed seed, String contentForFingerprint) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("articleId=").append(seed.articleId()).append('\n');
+        builder.append("title=").append(nullToEmpty(seed.title())).append('\n');
+        builder.append("content=").append(nullToEmpty(contentForFingerprint)).append('\n');
+        seed.attachments().stream()
+            .sorted(Comparator.comparing(ArticleAttachmentSeed::id))
+            .forEach(attachment -> builder
+                .append("attachment=")
+                .append(attachment.id()).append('|')
+                .append(nullToEmpty(attachment.name())).append('|')
+                .append(nullToEmpty(attachment.url())).append('|')
+                .append(nullToEmpty(attachment.hash())).append('|')
+                .append(attachment.updatedAt())
+                .append('\n'));
+
+        extractInlineDocumentUrls(contentForFingerprint)
+            .forEach(url -> builder.append("inlineDocument=").append(url).append('\n'));
+        return sha256(builder.toString());
+    }
+
+    public ArticleSummarySource read(ArticleSummarySourceSeed seed) {
+        String resolvedContent = resolveContent(seed.content());
+        ArticleSummarySourceSeed resolvedSeed = new ArticleSummarySourceSeed(
+            seed.articleId(),
+            seed.title(),
+            resolvedContent,
+            seed.author(),
+            seed.registeredAt(),
+            seed.updatedAt(),
+            seed.attachments()
+        );
+        String contentText = htmlToText(resolvedContent);
+        String fingerprint = createFingerprint(resolvedSeed, resolvedContent);
+        AttachmentReadResult attachmentReadResult = readAttachmentTexts(resolvedSeed);
+        return new ArticleSummarySource(
+            seed.articleId(),
+            seed.title(),
+            contentText,
+            seed.author(),
+            seed.registeredAt(),
+            seed.updatedAt(),
+            attachmentReadResult.texts(),
+            attachmentReadResult.hasTemporaryFailure(),
+            fingerprint
+        );
+    }
+
+    private String resolveContent(String content) {
+        if (!StringUtils.hasText(content)) {
+            return "";
+        }
+        String trimmed = content.trim();
+        if (!isStandaloneHttpsUrl(trimmed)) {
+            return content;
+        }
+        if (!isAllowedContentUrl(trimmed)) {
+            log.warn("허용되지 않은 게시글 본문 URL을 요약 입력에서 제외했습니다. url: {}", sanitizeUrl(trimmed));
+            return "";
+        }
+        try {
+            return s3Client.getContentFromUrl(trimmed);
+        } catch (Exception e) {
+            log.warn("게시글 본문 URL 조회에 실패했습니다. url: {}", sanitizeUrl(trimmed), e);
+            return "";
+        }
+    }
+
+    private boolean isStandaloneHttpsUrl(String value) {
+        if (!StringUtils.hasText(value) || !value.startsWith(HTTPS_SCHEME_PREFIX)) {
+            return false;
+        }
+        if (value.chars().anyMatch(Character::isWhitespace)) {
+            return false;
+        }
+        try {
+            URI uri = URI.create(value);
+            return "https".equalsIgnoreCase(uri.getScheme()) && StringUtils.hasText(uri.getHost());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private boolean isAllowedContentUrl(String url) {
+        if (!StringUtils.hasText(url) || !url.startsWith("https://")) {
+            return false;
+        }
+        if (url.startsWith(s3Client.getDomainUrlPrefix())) {
+            return true;
+        }
+        return properties.getAllowedContentUrlPrefixes().stream()
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .anyMatch(allowedUrl -> matchesAllowedUrl(url, allowedUrl));
+    }
+
+    private AttachmentReadResult readAttachmentTexts(ArticleSummarySourceSeed seed) {
+        List<DocumentParseRequest> parseRequests = new ArrayList<>();
+        Set<String> parseUrls = new LinkedHashSet<>();
+        seed.attachments().forEach(attachment -> {
+            if (isSupported(attachment.url(), attachment.name()) && parseUrls.add(attachment.url())) {
+                parseRequests.add(new DocumentParseRequest(attachment.url(), attachment.name()));
+            }
+        });
+        extractInlineDocumentUrls(seed.content()).forEach(url -> {
+            if (isSupported(url, url) && parseUrls.add(url)) {
+                parseRequests.add(new DocumentParseRequest(url, fileNameFromUrl(url)));
+            }
+        });
+
+        List<String> texts = new ArrayList<>();
+        boolean hasTemporaryFailure = false;
+        for (DocumentParseRequest request : parseRequests.stream()
+            .limit(properties.getMaxDocumentsPerArticle())
+            .toList()) {
+            ParsedDocument parsedDocument = parseDocument(request);
+            if (StringUtils.hasText(parsedDocument.text())) {
+                texts.add(parsedDocument.text());
+            }
+            if (parsedDocument.temporaryFailure()) {
+                hasTemporaryFailure = true;
+            }
+        }
+        return new AttachmentReadResult(texts, hasTemporaryFailure);
+    }
+
+    private ParsedDocument parseDocument(DocumentParseRequest request) {
+        try {
+            String parsedText = documentParseClient.parse(request);
+            if (!StringUtils.hasText(parsedText)) {
+                return ParsedDocument.empty();
+            }
+            return new ParsedDocument(
+                "파일명: " + fileNameForPrompt(request) + "\n추출 내용:\n" + parsedText,
+                false
+            );
+        } catch (ArticleSummaryExternalApiException e) {
+            log.warn("게시글 첨부 문서 파싱에 실패했습니다. articleDocument: {}", sanitizeUrl(request.url()), e);
+            if (hasRetryAfter(e)) {
+                throw e;
+            }
+            return new ParsedDocument("", e.isRetryable());
+        } catch (Exception e) {
+            log.warn("게시글 첨부 문서 파싱에 실패했습니다. articleDocument: {}", sanitizeUrl(request.url()), e);
+            return ParsedDocument.empty();
+        }
+    }
+
+    private boolean hasRetryAfter(ArticleSummaryExternalApiException e) {
+        return e.getRetryAfter() != null && !e.getRetryAfter().isNegative() && !e.getRetryAfter().isZero();
+    }
+
+    private List<String> extractInlineDocumentUrls(String html) {
+        if (!StringUtils.hasText(html)) {
+            return List.of();
+        }
+        Document document = Jsoup.parse(html);
+        Set<String> urls = new LinkedHashSet<>();
+        collectUrls(document, "img[src]", element -> element.attr("src"), urls);
+        collectUrls(document, "a[href]", element -> element.attr("href"), urls);
+        collectUrls(document, "iframe[src]", element -> element.attr("src"), urls);
+        collectUrls(document, "embed[src]", element -> element.attr("src"), urls);
+        collectUrls(document, "object[data]", element -> element.attr("data"), urls);
+        collectRawUrls(document.text(), urls);
+        return urls.stream()
+            .map(String::trim)
+            .filter(StringUtils::hasText)
+            .toList();
+    }
+
+    private void collectUrls(
+        Document document,
+        String cssQuery,
+        Function<org.jsoup.nodes.Element, String> urlExtractor,
+        Set<String> urls
+    ) {
+        document.select(cssQuery).forEach(element -> Optional.ofNullable(urlExtractor.apply(element))
+            .map(String::trim)
+            .filter(StringUtils::hasText)
+            .ifPresent(urls::add));
+    }
+
+    private void collectRawUrls(String text, Set<String> urls) {
+        if (!StringUtils.hasText(text)) {
+            return;
+        }
+        Matcher matcher = INLINE_URL_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String url = trimTrailingUrlPunctuation(matcher.group());
+            if (StringUtils.hasText(url)) {
+                urls.add(url);
+            }
+        }
+    }
+
+    private String trimTrailingUrlPunctuation(String url) {
+        String trimmed = url;
+        while (StringUtils.hasText(trimmed)
+            && TRAILING_URL_PUNCTUATION.indexOf(trimmed.charAt(trimmed.length() - 1)) >= 0) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed;
+    }
+
+    private String htmlToText(String html) {
+        if (!StringUtils.hasText(html)) {
+            return "";
+        }
+        return Jsoup.parse(html).text().trim();
+    }
+
+    private boolean isSupported(String url, String fileName) {
+        if (!isAllowedDocumentUrl(url)) {
+            return false;
+        }
+        String extension = extensionOf(StringUtils.hasText(fileName) ? fileName : url);
+        return SUPPORTED_EXTENSIONS.contains(extension);
+    }
+
+    private boolean isAllowedDocumentUrl(String url) {
+        if (!StringUtils.hasText(url) || !url.startsWith("https://")) {
+            return false;
+        }
+        if (url.startsWith(s3Client.getDomainUrlPrefix())) {
+            return true;
+        }
+        return properties.getAllowedDocumentUrlPrefixes().stream()
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .anyMatch(allowedUrl -> matchesAllowedUrl(url, allowedUrl));
+    }
+
+    private boolean matchesAllowedUrl(String url, String allowedUrl) {
+        if (!StringUtils.hasText(allowedUrl)) {
+            return false;
+        }
+        if (!allowedUrl.startsWith(HTTPS_SCHEME_PREFIX)) {
+            return false;
+        }
+        if (!allowedUrl.contains(WILDCARD_HOST_PREFIX)) {
+            return url.startsWith(allowedUrl);
+        }
+        return matchesWildcardHost(url, allowedUrl);
+    }
+
+    private boolean matchesWildcardHost(String url, String allowedUrl) {
+        try {
+            URI urlUri = URI.create(url);
+            if (!"https".equalsIgnoreCase(urlUri.getScheme()) || !StringUtils.hasText(urlUri.getHost())) {
+                return false;
+            }
+            String allowedRemainder = allowedUrl.substring(HTTPS_SCHEME_PREFIX.length());
+            int pathStartIndex = allowedRemainder.indexOf('/');
+            String allowedHost = pathStartIndex < 0 ? allowedRemainder : allowedRemainder.substring(0, pathStartIndex);
+            String allowedPath = pathStartIndex < 0 ? "/" : allowedRemainder.substring(pathStartIndex);
+            if (!allowedHost.startsWith(WILDCARD_HOST_PREFIX)) {
+                return false;
+            }
+            String allowedDomain = allowedHost.substring(WILDCARD_HOST_PREFIX.length()).toLowerCase(Locale.ROOT);
+            String requestHost = urlUri.getHost().toLowerCase(Locale.ROOT);
+            if (!requestHost.equals(allowedDomain) && !requestHost.endsWith("." + allowedDomain)) {
+                return false;
+            }
+            String requestPath = StringUtils.hasText(urlUri.getRawPath()) ? urlUri.getRawPath() : "/";
+            return "/".equals(allowedPath) || requestPath.startsWith(allowedPath);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private String extensionOf(String value) {
+        if (!StringUtils.hasText(value)) {
+            return "";
+        }
+        String normalized = value.toLowerCase(Locale.ROOT);
+        int queryIndex = normalized.indexOf('?');
+        if (queryIndex >= 0) {
+            normalized = normalized.substring(0, queryIndex);
+        }
+        int fragmentIndex = normalized.indexOf('#');
+        if (fragmentIndex >= 0) {
+            normalized = normalized.substring(0, fragmentIndex);
+        }
+        Matcher matcher = FILE_EXTENSION_PATTERN.matcher(normalized);
+        if (!matcher.find()) {
+            return "";
+        }
+        return matcher.group(1);
+    }
+
+    private String fileNameFromUrl(String url) {
+        if (!StringUtils.hasText(url)) {
+            return "document";
+        }
+        String normalized = url;
+        int queryIndex = normalized.indexOf('?');
+        if (queryIndex >= 0) {
+            normalized = normalized.substring(0, queryIndex);
+        }
+        int slashIndex = normalized.lastIndexOf('/');
+        if (slashIndex < 0 || slashIndex == normalized.length() - 1) {
+            return "document";
+        }
+        return normalized.substring(slashIndex + 1);
+    }
+
+    private String fileNameForPrompt(DocumentParseRequest request) {
+        if (StringUtils.hasText(request.fileName())) {
+            return request.fileName();
+        }
+        return fileNameFromUrl(request.url());
+    }
+
+    private String sha256(String value) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(digest.digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new KoinIllegalStateException("요약 원문 해시 생성에 실패했습니다. " + e.getMessage());
+        }
+    }
+
+    private String nullToEmpty(Object value) {
+        return Objects.toString(value, "");
+    }
+
+    private String sanitizeUrl(String url) {
+        int queryIndex = url.indexOf('?');
+        if (queryIndex < 0) {
+            return url;
+        }
+        return url.substring(0, queryIndex) + "?<redacted>";
+    }
+
+    private record AttachmentReadResult(
+        List<String> texts,
+        boolean hasTemporaryFailure
+    ) {
+    }
+
+    private record ParsedDocument(
+        String text,
+        boolean temporaryFailure
+    ) {
+
+        private static ParsedDocument empty() {
+            return new ParsedDocument("", false);
+        }
+    }
+}
