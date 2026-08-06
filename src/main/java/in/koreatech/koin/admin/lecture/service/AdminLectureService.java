@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.lecture.dto.AdminLectureCreateRequest;
 import in.koreatech.koin.admin.lecture.dto.AdminLectureCreateRequest.LectureRequest;
+import in.koreatech.koin.admin.lecture.model.LectureKey;
 import in.koreatech.koin.admin.lecture.repository.AdminLectureRepository;
 import in.koreatech.koin.admin.lecture.repository.AdminSemesterRepository;
 import in.koreatech.koin.domain.timetable.model.Semester;
@@ -43,8 +44,5 @@ public class AdminLectureService {
         }
 
         adminLectureRepository.saveAll(request.toEntities(semester.getSemester()));
-    }
-
-    private record LectureKey(String code, String lectureClass) {
     }
 }
