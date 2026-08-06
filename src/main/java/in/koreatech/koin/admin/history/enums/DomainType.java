@@ -26,6 +26,7 @@ public enum DomainType {
     ABTEST("AB 테스트"),
 
     LANDS("복덕방"),
+    LECTURES("강의"),
     COOP_SHOPS("생협 매장"),
 
     USERS("회원"),
