@@ -3,12 +3,15 @@ package in.koreatech.koin.admin.lecture.service;
 import static in.koreatech.koin.global.code.ApiResponseCode.DUPLICATE_LECTURE;
 import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_SEMESTER;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.lecture.dto.AdminLectureCreateRequest;
+import in.koreatech.koin.admin.lecture.dto.AdminLectureCreateRequest.LectureRequest;
 import in.koreatech.koin.admin.lecture.repository.AdminLectureRepository;
-import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
@@ -24,7 +27,7 @@ public class AdminLectureService {
     private final SemesterRepositoryV3 semesterRepositoryV3;
 
     @Transactional
-    public void createLecture(AdminLectureCreateRequest request) {
+    public void createLectures(AdminLectureCreateRequest request) {
         Term term = Term.fromDescription(request.term());
         Semester semester = semesterRepositoryV3.findByYearAndTerm(request.year(), term)
             .orElseThrow(() -> CustomException.of(
@@ -32,17 +35,23 @@ public class AdminLectureService {
                 "year: " + request.year() + ", term: " + request.term()
             ));
 
-        if (adminLectureRepository.existsBySemesterAndCodeAndLectureClass(
-            semester.getSemester(), request.code(), request.lectureClass()
-        )) {
-            throw CustomException.of(
-                DUPLICATE_LECTURE,
-                "semester: " + semester.getSemester() + ", code: " + request.code()
-                    + ", lectureClass: " + request.lectureClass()
-            );
+        Set<LectureKey> lectureKeys = new HashSet<>();
+        for (LectureRequest lecture : request.lectures()) {
+            LectureKey lectureKey = new LectureKey(lecture.code(), lecture.lectureClass());
+            if (!lectureKeys.add(lectureKey) || adminLectureRepository.existsBySemesterAndCodeAndLectureClass(
+                semester.getSemester(), lecture.code(), lecture.lectureClass()
+            )) {
+                throw CustomException.of(
+                    DUPLICATE_LECTURE,
+                    "semester: " + semester.getSemester() + ", code: " + lecture.code()
+                        + ", lectureClass: " + lecture.lectureClass()
+                );
+            }
         }
 
-        Lecture lecture = request.toEntity(semester.getSemester());
-        adminLectureRepository.save(lecture);
+        adminLectureRepository.saveAll(request.toEntities(semester.getSemester()));
+    }
+
+    private record LectureKey(String code, String lectureClass) {
     }
 }

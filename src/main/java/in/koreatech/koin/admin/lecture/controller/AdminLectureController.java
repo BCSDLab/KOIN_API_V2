@@ -23,11 +23,11 @@ public class AdminLectureController implements AdminLectureApi {
 
     @PostMapping("/admin/lectures")
     @AdminActivityLogging(domain = LECTURES)
-    public ResponseEntity<Void> createLecture(
+    public ResponseEntity<Void> createLectures(
         @RequestBody @Valid AdminLectureCreateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminLectureService.createLecture(request);
+        adminLectureService.createLectures(request);
         return ResponseEntity.ok().build();
     }
 }

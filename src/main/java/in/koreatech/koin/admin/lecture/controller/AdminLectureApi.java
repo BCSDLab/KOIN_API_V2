@@ -36,7 +36,7 @@ public interface AdminLectureApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/lectures")
     @AdminActivityLogging(domain = LECTURES)
-    ResponseEntity<Void> createLecture(
+    ResponseEntity<Void> createLectures(
         @RequestBody @Valid AdminLectureCreateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
