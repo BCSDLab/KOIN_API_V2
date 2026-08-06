@@ -5,8 +5,8 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.global.code.ApiResponseCode.DUPLICATE_LECTURE;
 import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_ADMIN;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
-import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SEMESTER_FORMAT;
 import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_SEMESTER;
+import static in.koreatech.koin.global.code.ApiResponseCode.NOT_READABLE_HTTP_MESSAGE;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
 import static in.koreatech.koin.global.code.ApiResponseCode.UNAUTHORIZED_USER;
 
@@ -31,7 +31,7 @@ public interface AdminLectureApi {
         INVALID_REQUEST_BODY,
         UNAUTHORIZED_USER,
         FORBIDDEN_ADMIN,
-        INVALID_SEMESTER_FORMAT,
+        NOT_READABLE_HTTP_MESSAGE,
         NOT_FOUND_SEMESTER,
         DUPLICATE_LECTURE
     })

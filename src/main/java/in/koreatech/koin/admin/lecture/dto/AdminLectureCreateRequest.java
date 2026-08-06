@@ -9,6 +9,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetableV3.model.Term;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -26,9 +27,9 @@ public record AdminLectureCreateRequest(
     @Positive(message = "연도는 양수여야 합니다.")
     Integer year,
 
-    @Schema(description = "학기", example = "1학기", requiredMode = REQUIRED)
-    @NotBlank(message = "학기는 필수입니다.")
-    String term,
+    @Schema(description = "학기", example = "FIRST", requiredMode = REQUIRED)
+    @NotNull(message = "학기는 필수입니다.")
+    Term term,
 
     @Schema(description = "강의 정보 리스트", requiredMode = REQUIRED)
     @Valid
