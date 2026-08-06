@@ -31,7 +31,7 @@ public class AdminLectureService {
 
         Set<LectureKey> lectureKeys = new HashSet<>();
         for (LectureRequest lecture : request.lectures()) {
-            LectureKey lectureKey = new LectureKey(lecture.code(), lecture.lectureClass());
+            LectureKey lectureKey = LectureKey.of(lecture.code(), lecture.lectureClass());
             if (!lectureKeys.add(lectureKey) || adminLectureRepository.existsBySemesterAndCodeAndLectureClass(
                 semester.getSemester(), lecture.code(), lecture.lectureClass()
             )) {
