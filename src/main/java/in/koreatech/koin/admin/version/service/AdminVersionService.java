@@ -10,11 +10,10 @@ import in.koreatech.koin.admin.version.dto.AdminVersionHistoryResponse;
 import in.koreatech.koin.admin.version.dto.AdminVersionResponse;
 import in.koreatech.koin.admin.version.dto.AdminVersionUpdateRequest;
 import in.koreatech.koin.admin.version.dto.AdminVersionsResponse;
-import in.koreatech.koin.admin.version.exception.VersionNotSupportedException;
 import in.koreatech.koin.admin.version.repository.AdminVersionRepository;
+import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
-import in.koreatech.koin.common.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,15 +43,20 @@ public class AdminVersionService {
     @Transactional
     public void updateVersion(String type, AdminVersionUpdateRequest request) {
         VersionType versionType = VersionType.from(type);
-        if (!versionType.isPlatform()) {
-            throw VersionNotSupportedException.withDetail("type: " + versionType);
+        if (versionType.isPlatform()) {
+            Version currentVersion = adminVersionRepository.getByTypeAndIsPrevious(versionType, false);
+            currentVersion.toPreviousVersion();
+
+            Version newVersion = Version.of(versionType, request);
+            adminVersionRepository.save(newVersion);
+        } else {
+            Version currentVersion = adminVersionRepository.getByTypeAndIsPrevious(versionType, false);
+            currentVersion.update(
+                request.version(),
+                request.title(),
+                request.content()
+            );
         }
-
-        Version currentVersion = adminVersionRepository.getByTypeAndIsPrevious(versionType, false);
-        currentVersion.toPreviousVersion();
-
-        Version newVersion = Version.of(versionType, request);
-        adminVersionRepository.save(newVersion);
     }
 
     public AdminVersionHistoryResponse getHistory(String type, Integer page, Integer limit) {
