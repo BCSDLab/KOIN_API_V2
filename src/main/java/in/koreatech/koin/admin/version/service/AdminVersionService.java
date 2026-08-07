@@ -43,14 +43,13 @@ public class AdminVersionService {
     @Transactional
     public void updateVersion(String type, AdminVersionUpdateRequest request) {
         VersionType versionType = VersionType.from(type);
+        Version currentVersion = adminVersionRepository.getByTypeAndIsPrevious(versionType, false);
         if (versionType.isPlatform()) {
-            Version currentVersion = adminVersionRepository.getByTypeAndIsPrevious(versionType, false);
             currentVersion.toPreviousVersion();
 
             Version newVersion = Version.of(versionType, request);
             adminVersionRepository.save(newVersion);
         } else {
-            Version currentVersion = adminVersionRepository.getByTypeAndIsPrevious(versionType, false);
             currentVersion.update(
                 request.version(),
                 request.title(),
