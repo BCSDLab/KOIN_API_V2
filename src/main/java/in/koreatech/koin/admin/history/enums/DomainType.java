@@ -27,6 +27,7 @@ public enum DomainType {
 
     LANDS("복덕방"),
     LECTURES("강의"),
+    SEMESTER("학기"),
     COOP_SHOPS("생협 매장"),
 
     USERS("회원"),
