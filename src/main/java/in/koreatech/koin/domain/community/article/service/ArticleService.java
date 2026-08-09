@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticleResponseV2;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
@@ -32,6 +33,7 @@ import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryService;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryView;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +67,25 @@ public class ArticleService {
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
+        ArticleDetail articleDetail = getArticleDetail(boardId, articleId, publicIp);
+        String contentWithSummary = articleAiSummaryService.prependSummaryIfReady(
+            articleDetail.article(),
+            articleDetail.content()
+        );
+        return ArticleResponse.from(articleDetail.article(), contentWithSummary);
+    }
+
+    @Transactional
+    public ArticleResponseV2 getArticleV2(Integer boardId, Integer articleId, String publicIp) {
+        ArticleDetail articleDetail = getArticleDetail(boardId, articleId, publicIp);
+        ArticleSummaryView summaryView = articleAiSummaryService.getSummary(
+            articleDetail.article(),
+            articleDetail.content()
+        );
+        return ArticleResponseV2.from(articleDetail.article(), articleDetail.content(), summaryView);
+    }
+
+    private ArticleDetail getArticleDetail(Integer boardId, Integer articleId, String publicIp) {
         Article article = articleRepository.getById(articleId);
         String content = article.getContent();
         String contentUrl = content == null ? null : content.trim();
@@ -76,8 +97,7 @@ public class ArticleService {
             articleHitUserRepository.save(ArticleHitUser.of(articleId, publicIp));
         }
         setPrevNextArticle(boardId, article);
-        String contentWithSummary = articleAiSummaryService.prependSummaryIfReady(article, content);
-        return ArticleResponse.from(article, contentWithSummary);
+        return new ArticleDetail(article, content);
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit, Integer userId) {
@@ -212,5 +232,11 @@ public class ArticleService {
             throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
         }
         return boardRepository.getById(boardId);
+    }
+
+    private record ArticleDetail(
+        Article article,
+        String content
+    ) {
     }
 }
