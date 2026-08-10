@@ -81,7 +81,7 @@ public interface AdminVersionApi {
     @PutMapping("/{type}")
     @AdminActivityLogging(domain = VERSION)
     ResponseEntity<Void> updateVersion(
-        @Parameter(description = "android, ios, android_owner") @PathVariable("type") String type,
+        @Parameter(description = "android, ios, android_owner, timetable, shuttle_bus_timetable, city_bus_timetable, express_bus_timetable") @PathVariable("type") String type,
         @RequestBody @Valid AdminVersionUpdateRequest adminVersionUpdateRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
