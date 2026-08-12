@@ -22,6 +22,7 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummary;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLog;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryLogType;
+import in.koreatech.koin.domain.community.article.model.ArticleAiSummaryStatus;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryLogRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -49,8 +50,21 @@ public class ArticleAiSummaryService {
 
     @Transactional
     public String prependSummaryIfReady(Article article, String content) {
-        if (article.getBoard().getId().equals(LOST_ITEM_BOARD_ID)) {
+        ArticleSummaryView summaryView = resolveSummary(article, content);
+        if (!summaryView.isSuccess()) {
             return content;
+        }
+        return contentRenderer.prependSummary(content, summaryView.summaryLines());
+    }
+
+    @Transactional
+    public ArticleSummaryView getSummary(Article article, String content) {
+        return resolveSummary(article, content);
+    }
+
+    private ArticleSummaryView resolveSummary(Article article, String content) {
+        if (article.getBoard().getId().equals(LOST_ITEM_BOARD_ID)) {
+            return ArticleSummaryView.unavailable();
         }
         ArticleSummarySourceSeed seed = ArticleSummarySourceSeed.from(article, content);
         String fingerprint = sourceReader.createFingerprint(seed);
@@ -58,7 +72,7 @@ public class ArticleAiSummaryService {
         Optional<ArticleAiSummary> optionalSummary = articleAiSummaryRepository.findByArticleId(article.getId());
         if (optionalSummary.isEmpty()) {
             enqueueIfEnabled(article, fingerprint, article.getUpdatedAt());
-            return content;
+            return canGenerate() ? ArticleSummaryView.pending() : ArticleSummaryView.unavailable();
         }
 
         ArticleAiSummary summary = optionalSummary.get();
@@ -66,12 +80,15 @@ public class ArticleAiSummaryService {
             if (canGenerate() && !summary.isProcessing() && isStale(summary, fingerprint)) {
                 summary.prepareWait(fingerprint, article.getUpdatedAt(), properties.getModel(), properties.getPromptVersion());
             }
-            return contentRenderer.prependSummary(content, summary.getSummaryLines());
+            return ArticleSummaryView.success(summary.getSummaryLines());
         }
         if (canGenerate() && !summary.isProcessing() && isStale(summary, fingerprint)) {
             summary.prepareWait(fingerprint, article.getUpdatedAt(), properties.getModel(), properties.getPromptVersion());
         }
-        return content;
+        if (canGenerate() && (summary.getStatus() == ArticleAiSummaryStatus.WAIT || summary.isProcessing())) {
+            return ArticleSummaryView.pending();
+        }
+        return ArticleSummaryView.unavailable();
     }
 
     @Transactional

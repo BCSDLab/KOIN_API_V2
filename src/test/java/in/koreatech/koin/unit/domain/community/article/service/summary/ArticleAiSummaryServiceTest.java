@@ -37,6 +37,7 @@ import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSumma
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryContentRenderer;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryFailureReasonSanitizer;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySourceReader;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryView;
 import in.koreatech.koin.infrastructure.upstage.client.UpstageProperties;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,6 +116,77 @@ class ArticleAiSummaryServiceTest {
         assertThat(summary.getModel()).isEqualTo("solar-pro4");
         assertThat(summary.getPromptVersion()).isEqualTo("v11");
         verify(contentRenderer).prependSummary("본문", List.of("기존 요약입니다."));
+    }
+
+    @Test
+    void V2에서_모델이_바뀌어도_원문이_같으면_기존_요약을_반환한다() {
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+        ArticleAiSummaryService service = service(clock);
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        ArticleAiSummary summary = completedSummary(clock, article, "solar-open2", "v10");
+        when(board.getId()).thenReturn(1);
+        when(article.getBoard()).thenReturn(board);
+        when(article.getId()).thenReturn(1);
+        when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
+        when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
+        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
+
+        ArticleSummaryView summaryView = service.getSummary(article, "본문");
+
+        assertThat(summaryView.status()).isEqualTo(ArticleSummaryView.Status.SUCCESS);
+        assertThat(summaryView.summaryLines()).containsExactly("기존 요약입니다.");
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+        verify(contentRenderer, never()).prependSummary(any(), any());
+    }
+
+    @Test
+    void V2에서_요약이_없으면_PENDING을_반환하고_WAIT으로_등록한다() {
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+        ArticleAiSummaryService service = service(clock);
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        LocalDateTime updatedAt = LocalDateTime.now(clock);
+        when(board.getId()).thenReturn(1);
+        when(article.getBoard()).thenReturn(board);
+        when(article.getId()).thenReturn(1);
+        when(article.getUpdatedAt()).thenReturn(updatedAt);
+        when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
+        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.empty());
+
+        ArticleSummaryView summaryView = service.getSummary(article, "본문");
+
+        assertThat(summaryView.status()).isEqualTo(ArticleSummaryView.Status.PENDING);
+        assertThat(summaryView.summaryLines()).isEmpty();
+        verify(articleAiSummaryRepository).insertWaitIfAbsent(
+            1,
+            "fingerprint",
+            updatedAt,
+            "solar-pro4",
+            "v11"
+        );
+    }
+
+    @Test
+    void V2에서_원문이_바뀌면_기존_요약을_제외하고_PENDING을_반환한다() {
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+        ArticleAiSummaryService service = service(clock);
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        ArticleAiSummary summary = completedSummary(clock, article, "solar-pro4", "v11");
+        when(board.getId()).thenReturn(1);
+        when(article.getBoard()).thenReturn(board);
+        when(article.getId()).thenReturn(1);
+        when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
+        when(sourceReader.createFingerprint(any())).thenReturn("changed-fingerprint");
+        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
+
+        ArticleSummaryView summaryView = service.getSummary(article, "변경된 본문");
+
+        assertThat(summaryView.status()).isEqualTo(ArticleSummaryView.Status.PENDING);
+        assertThat(summaryView.summaryLines()).isEmpty();
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+        assertThat(summary.getSummaryLines()).isEmpty();
     }
 
     @Test
