@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.timetableV3.model;
 
-import in.koreatech.koin.domain.timetableV3.exception.InvalidTermFormatException;
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_SEMESTER_FORMAT;
+
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
 
 @Getter
@@ -24,6 +26,6 @@ public enum Term {
                 return term;
             }
         }
-        throw new InvalidTermFormatException("term : " + description);
+        throw CustomException.of(INVALID_SEMESTER_FORMAT, "term: " + description);
     }
 }

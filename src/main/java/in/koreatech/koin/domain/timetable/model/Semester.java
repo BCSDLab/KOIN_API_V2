@@ -50,4 +50,14 @@ public class Semester {
         this.year = year;
         this.term = term;
     }
+
+    public static Semester of(Integer year, Term term) {
+        String semester = switch (term) {
+            case FIRST -> year + "1";
+            case SECOND -> year + "2";
+            case SUMMER -> year + "-여름";
+            case WINTER -> year + "-겨울";
+        };
+        return new Semester(semester, year, term);
+    }
 }
