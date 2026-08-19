@@ -93,7 +93,6 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
             ),
             "temperature", 0.2,
             "top_p", 0.9,
-            "max_tokens", 500,
             "reasoning_effort", "low",
             "response_format", responseFormat(prompt.maxItems())
         );
@@ -143,9 +142,17 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
         if (response == null || response.choices() == null || response.choices().isEmpty()) {
             throw new ArticleSummaryExternalApiException("Upstage 요약 응답이 비어 있습니다.", true, null);
         }
-        String content = response.choices().get(0).message().content();
+        Choice choice = response.choices().get(0);
+        String content = choice.message() == null ? null : choice.message().content();
         if (!StringUtils.hasText(content)) {
-            throw new ArticleSummaryExternalApiException("Upstage 요약 본문이 비어 있습니다.", true, null);
+            String finishReason = StringUtils.hasText(choice.finishReason())
+                ? " finish_reason=%s".formatted(choice.finishReason())
+                : "";
+            throw new ArticleSummaryExternalApiException(
+                "Upstage 요약 본문이 비어 있습니다." + finishReason,
+                true,
+                null
+            );
         }
         return content;
     }
@@ -219,7 +226,8 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record Choice(
-        Message message
+        Message message,
+        @JsonProperty("finish_reason") String finishReason
     ) {
     }
 

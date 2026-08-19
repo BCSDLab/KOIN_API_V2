@@ -33,6 +33,8 @@ class UpstageArticleSummaryClientTest {
 
         assertThat(requestBody)
             .containsEntry("model", "solar-pro4")
-            .containsKey("response_format");
+            .containsEntry("reasoning_effort", "low")
+            .containsKey("response_format")
+            .doesNotContainKey("max_tokens");
     }
 }
