@@ -143,7 +143,7 @@ article:
     failed-retry-window-start-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_START_HOUR:0}
     failed-retry-window-end-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_END_HOUR:4}
     request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:120}
-    chat-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_CHAT_REQUEST_TIMEOUT_SECONDS:120}
+    chat-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_CHAT_REQUEST_TIMEOUT_SECONDS:600}
     document-parse-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_REQUEST_TIMEOUT_SECONDS:180}
     document-download-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_DOWNLOAD_TIMEOUT_SECONDS:60}
     model: ${ARTICLE_AI_SUMMARY_MODEL:solar-pro4}
