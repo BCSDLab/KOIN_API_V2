@@ -32,7 +32,7 @@ public class ArticleAiSummaryProperties {
     private int failedRetryWindowStartHour = 0;
     private int failedRetryWindowEndHour = 4;
     private int requestTimeoutSeconds = 120;
-    private int chatRequestTimeoutSeconds = 120;
+    private int chatRequestTimeoutSeconds = 600;
     private int documentParseRequestTimeoutSeconds = 180;
     private int documentDownloadTimeoutSeconds = 60;
     private String model = "solar-pro4";

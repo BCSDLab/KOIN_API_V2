@@ -14,5 +14,6 @@ class ArticleAiSummaryPropertiesTest {
 
         assertThat(properties.getModel()).isEqualTo("solar-pro4");
         assertThat(properties.getPromptVersion()).isEqualTo("v11");
+        assertThat(properties.getChatRequestTimeoutSeconds()).isEqualTo(600);
     }
 }
