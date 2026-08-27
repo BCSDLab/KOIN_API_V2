@@ -21,7 +21,8 @@ public enum ImageUploadDomain {
     BANNER,
     CLUB,
     CALLVAN_REPORT,
-    CALLVAN_CHAT
+    CALLVAN_CHAT,
+    TEAM_RECRUITMENT
     ;
 
     public static ImageUploadDomain from(String domain) {

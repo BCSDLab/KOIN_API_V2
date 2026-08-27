@@ -57,6 +57,7 @@ public interface UploadApi {
         - callvan_chat
         - lost_items
         - club
+        - team_recruitment
         """)
     @PostMapping("/{domain}/upload/url")
     ResponseEntity<UploadUrlResponse> getPresignedUrl(
@@ -87,6 +88,7 @@ public interface UploadApi {
         - coop
         - admin
         - banner
+        - team_recruitment
         """)
     @PostMapping(
         value = "/{domain}/upload/file",
@@ -121,6 +123,7 @@ public interface UploadApi {
         - coop
         - admin
         - banner
+        - team_recruitment
         """)
     @PostMapping(
         value = "/{domain}/upload/files",
