@@ -116,6 +116,7 @@ public enum ApiResponseCode {
     FORBIDDEN_PARTICIPANT(HttpStatus.FORBIDDEN, "콜벤 게시글 참여자가 아닙니다."),
     CALLVAN_REPORT_ONLY_PARTICIPANT(HttpStatus.FORBIDDEN, "같은 콜벤팟 참여자만 신고할 수 있습니다."),
     FORBIDDEN_CALLVAN_RESTRICTED_USER(HttpStatus.FORBIDDEN, "콜벤 기능 이용이 제한된 사용자입니다."),
+    TEAM_RECRUITMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "팀원 모집글에 대한 권한이 없습니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -146,6 +147,9 @@ public enum ApiResponseCode {
     NOT_FOUND_CHAT_PARTNER(HttpStatus.NOT_FOUND, "채팅 상대방이 존재하지 않습니다."),
     NOT_FOUND_IMAGE(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다"),
     NOT_FOUND_CALLVAN_REPORT(HttpStatus.NOT_FOUND, "콜벤 신고 내역을 찾을 수 없습니다."),
+    TEAM_RECRUITMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "팀원 모집글이 존재하지 않습니다."),
+    TEAM_RECRUITMENT_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "팀원 모집 프로필이 존재하지 않습니다."),
+    TEAM_RECRUITMENT_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "팀원 모집 지원서가 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
@@ -165,6 +169,12 @@ public enum ApiResponseCode {
     DUPLICATE_FOUND_STATUS(HttpStatus.CONFLICT, "이미 찾음 처리된 분실물 게시글입니다."),
     CALLVAN_ALREADY_JOINED(HttpStatus.CONFLICT, "이미 참여한 게시글입니다."),
     CALLVAN_REPORT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 접수된 신고가 있어 추가 신고할 수 없습니다."),
+    TEAM_RECRUITMENT_CLOSED(HttpStatus.CONFLICT, "마감된 팀원 모집글입니다."),
+    TEAM_RECRUITMENT_ROLE_CLOSED(HttpStatus.CONFLICT, "마감된 모집 역할입니다."),
+    TEAM_RECRUITMENT_CAPACITY_FULL(HttpStatus.CONFLICT, "모집 인원이 가득 찼습니다."),
+    TEAM_RECRUITMENT_PROFILE_REQUIRED(HttpStatus.CONFLICT, "팀원 모집 프로필 작성이 필요합니다."),
+    TEAM_RECRUITMENT_APPLICATION_DUPLICATE(HttpStatus.CONFLICT, "이미 지원한 팀원 모집글입니다."),
+    TEAM_RECRUITMENT_APPLICATION_FINALIZED(HttpStatus.CONFLICT, "이미 처리된 팀원 모집 지원서입니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)
