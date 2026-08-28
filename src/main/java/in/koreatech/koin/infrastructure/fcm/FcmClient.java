@@ -142,13 +142,19 @@ public class FcmClient {
                     .setImage(imageUrl)
                     .build()
             )
-            .putAllCustomData(
-                Map.of(
-                    "type", type,
-                    "schemeUri", schemeUri
-                )
-            )
+            .putAllCustomData(appleCustomData(type, schemeUri))
             .build();
+    }
+
+    private Map<String, Object> appleCustomData(String type, String schemeUri) {
+        Map<String, Object> customData = new HashMap<>();
+        if (type != null) {
+            customData.put("type", type);
+        }
+        if (schemeUri != null) {
+            customData.put("schemeUri", schemeUri);
+        }
+        return customData;
     }
 
     private AndroidConfig generateAndroidConfig(
@@ -162,7 +168,9 @@ public class FcmClient {
         androidNotificationV2.put("title", title != null ? title : "");
         androidNotificationV2.put("content", content != null ? content : "");
         androidNotificationV2.put("imageUrl", imageUrl != null ? imageUrl : "");
-        androidNotificationV2.put("url", "koin://" + (schemeUri != null ? schemeUri : ""));
+        if (schemeUri != null) {
+            androidNotificationV2.put("url", "koin://" + schemeUri);
+        }
         androidNotificationV2.put("type", type != null ? type : "");
 
         return AndroidConfig.builder()
