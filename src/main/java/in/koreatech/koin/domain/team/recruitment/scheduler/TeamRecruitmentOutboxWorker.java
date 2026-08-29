@@ -131,7 +131,10 @@ public class TeamRecruitmentOutboxWorker {
                 null,
                 null,
                 null,
-                outboxPayload.type().name().toLowerCase(Locale.ROOT)
+                outboxPayload.type().name().toLowerCase(Locale.ROOT),
+                outboxPayload.notificationId() == null
+                    ? null
+                    : outboxPayload.notificationId().toString()
             );
             List<FcmSendResponse> responses = fcmClient.sendMessages(List.of(request));
             FcmSendResponse response = responses == null || responses.isEmpty()

@@ -119,6 +119,7 @@ class TeamRecruitmentOutboxWorkerTest {
         assertThat(request.path()).isNull();
         assertThat(request.schemeUri()).isNull();
         assertThat(request.type()).isEqualTo("application_rejected");
+        assertThat(request.notificationId()).isNull();
         verify(leaseService).complete(eq(EVENT_ID), anyString());
     }
 
@@ -152,7 +153,9 @@ class TeamRecruitmentOutboxWorkerTest {
         verify(notificationRepository, never()).findForOutbox(
             any(), any(), any(), any(), any(), any()
         );
-        verify(fcmClient).sendMessages(anyList());
+        ArgumentCaptor<List<FcmSendRequest>> requestCaptor = ArgumentCaptor.forClass(List.class);
+        verify(fcmClient).sendMessages(requestCaptor.capture());
+        assertThat(requestCaptor.getValue().get(0).notificationId()).isEqualTo("90");
         verify(leaseService).complete(eq(EVENT_ID), anyString());
     }
 
