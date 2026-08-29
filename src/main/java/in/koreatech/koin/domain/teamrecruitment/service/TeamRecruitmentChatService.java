@@ -43,6 +43,10 @@ public class TeamRecruitmentChatService {
         TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
 
+        if (!chatRoom.getRecruitment().getId().equals(recruitmentId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
+        }
+
         if (!memberRepository.existsByChatRoom_IdAndUser_Id(chatRoomId, userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "채팅방 멤버가 아닙니다.");
         }
@@ -72,15 +76,19 @@ public class TeamRecruitmentChatService {
         TeamRecruitmentApplication application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
 
+        TeamRecruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "모집글을 찾을 수 없습니다."));
+
+        if (!userId.equals(recruitment.getAuthor().getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+        }
+
         User counterpartUser = application.getApplicant();
 
         return chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(
                         recruitmentId, applicationId, TeamRecruitmentChatRoomType.DIRECT)
                 .map(existing -> DirectChatRoomResponse.of(existing, counterpartUser))
                 .orElseGet(() -> {
-                    TeamRecruitment recruitment = recruitmentRepository.findById(recruitmentId)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "모집글을 찾을 수 없습니다."));
-
                     TeamRecruitmentChatRoom chatRoom = TeamRecruitmentChatRoom.builder()
                             .recruitment(recruitment)
                             .roomScopeKey("DIRECT-" + applicationId)
