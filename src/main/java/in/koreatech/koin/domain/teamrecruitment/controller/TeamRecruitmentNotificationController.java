@@ -24,8 +24,8 @@ public class TeamRecruitmentNotificationController implements TeamRecruitmentNot
     @GetMapping
     public ResponseEntity<TeamRecruitmentNotificationsResponse> getNotifications(
             @Auth Integer userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int limit
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit
     ) {
         return ResponseEntity.ok(notificationService.getNotifications(userId, page, limit));
     }
@@ -36,18 +36,18 @@ public class TeamRecruitmentNotificationController implements TeamRecruitmentNot
             @PathVariable Integer notificationId
     ) {
         notificationService.markAsRead(userId, notificationId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/mark-all-read")
     public ResponseEntity<Void> markAllRead(@Auth Integer userId) {
         notificationService.markAllRead(userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteAll(@Auth Integer userId) {
         notificationService.deleteAll(userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

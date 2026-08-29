@@ -7,26 +7,34 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.teamrecruitment.model.TeamRecruitmentNotification;
+import in.koreatech.koin.domain.teamrecruitment.model.enums.NotificationTargetType;
+import in.koreatech.koin.domain.teamrecruitment.model.enums.TeamRecruitmentNotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record TeamRecruitmentNotificationResponse(
-        @Schema(description = "알림 ID", example = "1")
+        @Schema(description = "알림 ID", example = "101")
         Integer id,
 
         @Schema(description = "알림 타입", example = "NEW_APPLICATION")
-        String notificationType,
+        String type,
 
-        @Schema(description = "모집글 ID", example = "1")
+        @Schema(description = "이동 대상 타입", example = "APPLICANT_MANAGEMENT")
+        String targetType,
+
+        @Schema(description = "모집글 ID", example = "17")
         Integer recruitmentId,
 
-        @Schema(description = "지원서 ID", example = "1")
+        @Schema(description = "지원서 ID", example = "51")
         Integer applicationId,
 
-        @Schema(description = "발신자 닉네임", example = "홍길동")
+        @Schema(description = "채팅방 ID", example = "31")
+        Integer chatRoomId,
+
+        @Schema(description = "발신자 닉네임 (NEW_CHAT_MESSAGE 전용)", example = "홍길동")
         String senderNickname,
 
-        @Schema(description = "메시지 미리보기", example = "안녕하세요!")
+        @Schema(description = "메시지 미리보기", example = "새로운 지원자가 있어요.")
         String messagePreview,
 
         @Schema(description = "읽음 여부", example = "false")
@@ -39,12 +47,25 @@ public record TeamRecruitmentNotificationResponse(
         return new TeamRecruitmentNotificationResponse(
                 notification.getId(),
                 notification.getNotificationType().name(),
+                deriveTargetType(notification).name(),
                 notification.getRecruitmentId(),
                 notification.getApplicationId(),
+                notification.getChatRoomId(),
                 notification.getSenderNickname(),
                 notification.getMessagePreview(),
                 notification.getIsRead(),
                 notification.getCreatedAt()
         );
+    }
+
+    private static NotificationTargetType deriveTargetType(TeamRecruitmentNotification notification) {
+        return switch (notification.getNotificationType()) {
+            case NEW_APPLICATION -> NotificationTargetType.APPLICANT_MANAGEMENT;
+            case APPLICATION_ACCEPTED, NEW_CHAT_MESSAGE -> NotificationTargetType.CHAT_ROOM;
+            case APPLICATION_REJECTED, RECRUITMENT_CLOSED -> NotificationTargetType.MY_APPLICATIONS;
+            case RECRUITMENT_DELETED -> notification.getChatRoomId() != null
+                    ? NotificationTargetType.CHAT_ROOM
+                    : NotificationTargetType.NONE;
+        };
     }
 }

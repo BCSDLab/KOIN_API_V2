@@ -18,17 +18,24 @@ public class TeamRecruitmentNotificationService {
     private final TeamRecruitmentNotificationRepository notificationRepository;
 
     public TeamRecruitmentNotificationsResponse getNotifications(Integer userId, int page, int limit) {
+        int clampedPage = Math.max(1, page);
+        int clampedLimit = Math.min(50, Math.max(1, limit));
+
         Page<TeamRecruitmentNotificationResponse> result = notificationRepository
-                .findAllByRecipientIdOrderByCreatedAtDesc(userId, PageRequest.of(page, limit))
+                .findAllByRecipientIdOrderByCreatedAtDesc(userId, PageRequest.of(clampedPage - 1, clampedLimit))
                 .map(TeamRecruitmentNotificationResponse::from);
+
+        int actualPage = Math.min(clampedPage, Math.max(1, result.getTotalPages()));
 
         long unreadCount = notificationRepository.countByRecipientIdAndIsReadFalseAndIsDeletedFalse(userId);
 
         return new TeamRecruitmentNotificationsResponse(
                 result.getContent(),
-                result.getNumber(),
+                unreadCount,
+                result.getTotalElements(),
+                result.getNumberOfElements(),
                 result.getTotalPages(),
-                unreadCount
+                actualPage
         );
     }
 

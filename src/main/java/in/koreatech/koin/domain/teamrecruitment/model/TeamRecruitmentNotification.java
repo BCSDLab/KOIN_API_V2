@@ -49,6 +49,9 @@ public class TeamRecruitmentNotification extends BaseEntity {
     @Column(name = "sender_nickname", length = 50)
     private String senderNickname;
 
+    @Column(name = "chat_room_id")
+    private Integer chatRoomId;
+
     @Column(name = "message_preview", length = 100)
     private String messagePreview;
 
@@ -64,12 +67,14 @@ public class TeamRecruitmentNotification extends BaseEntity {
             TeamRecruitmentNotificationType notificationType,
             Integer recruitmentId,
             Integer applicationId,
+            Integer chatRoomId,
             String senderNickname,
             String messagePreview) {
         this.recipient = recipient;
         this.notificationType = notificationType;
         this.recruitmentId = recruitmentId;
         this.applicationId = applicationId;
+        this.chatRoomId = chatRoomId;
         this.senderNickname = senderNickname;
         this.messagePreview = messagePreview;
         this.isRead = false;

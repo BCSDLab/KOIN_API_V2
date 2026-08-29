@@ -5,6 +5,7 @@ CREATE TABLE team_recruitment_notification
     notification_type VARCHAR(30)  NOT NULL,
     recruitment_id    INTEGER,
     application_id    INTEGER,
+    chat_room_id      INTEGER,
     sender_nickname   VARCHAR(50),
     message_preview   VARCHAR(100),
     is_read           TINYINT(1)   NOT NULL DEFAULT 0,
