@@ -17,7 +17,19 @@ public interface TeamRecruitmentNotificationRepository extends Repository<TeamRe
 
     TeamRecruitmentNotification save(TeamRecruitmentNotification notification);
 
+    Optional<TeamRecruitmentNotification> findById(Integer id);
+
     Page<TeamRecruitmentNotification> findAllByRecipient_IdOrderByIdDesc(Integer recipientId, Pageable pageable);
+
+    Page<TeamRecruitmentNotification> findAllByRecipient_IdAndIsDeletedFalseOrderByIdDesc(
+        Integer recipientId, Pageable pageable
+    );
+
+    long countByRecipient_IdAndReadAtIsNullAndIsDeletedFalse(Integer recipientId);
+
+    Optional<TeamRecruitmentNotification> findByIdAndRecipient_Id(Integer id, Integer recipientId);
+
+    List<TeamRecruitmentNotification> findAllByRecipient_IdAndIsDeletedFalse(Integer recipientId);
 
     Page<TeamRecruitmentNotification> findAllByRecipient_IdAndTypeInOrderByIdDesc(
         Integer recipientId,
