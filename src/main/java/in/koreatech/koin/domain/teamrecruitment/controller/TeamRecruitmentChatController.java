@@ -43,8 +43,6 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
             @PathVariable Integer recruitmentId,
             @PathVariable Integer applicationId
     ) {
-        // TODO: applicationId로 지원자 userId 조회 (박태진님 Application 엔티티 머지 후 연결)
-        // 임시로 applicationId를 applicantUserId로 사용
         DirectChatRoomResponse response = chatService.getOrCreateDirectChatRoom(userId, recruitmentId, applicationId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
