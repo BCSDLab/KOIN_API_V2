@@ -115,3 +115,7 @@ address:
 toss-payment:
   secret-key: test_sk
   api-base-url: https://api.tosspayments.com/v1/payments
+
+team-recruitment:
+  outbox:
+    enabled: false

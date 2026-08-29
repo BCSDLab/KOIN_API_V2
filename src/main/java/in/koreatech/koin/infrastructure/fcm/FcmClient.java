@@ -48,8 +48,12 @@ public class FcmClient {
         try {
             log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
 
-            ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
-            AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, schemeUri, type);
+            ApnsConfig apnsConfig = generateAppleConfig(
+                title, content, imageUrl, path, type, schemeUri, null
+            );
+            AndroidConfig androidConfig = generateAndroidConfig(
+                title, content, imageUrl, schemeUri, type, null
+            );
 
             Message message = Message.builder()
                 .setToken(targetDeviceToken)
@@ -77,14 +81,16 @@ public class FcmClient {
                         request.imageUrl(),
                         request.path(),
                         request.type(),
-                        request.schemeUri()
+                        request.schemeUri(),
+                        request.notificationId()
                     ))
                     .setAndroidConfig(generateAndroidConfig(
                         request.title(),
                         request.content(),
                         request.imageUrl(),
                         request.schemeUri(),
-                        request.type()
+                        request.type(),
+                        request.notificationId()
                     ))
                     .build()
                 )
@@ -121,7 +127,8 @@ public class FcmClient {
         String imageUrl,
         MobileAppPath path,
         String type,
-        String schemeUri
+        String schemeUri,
+        String notificationId
     ) {
         return ApnsConfig.builder()
             .setAps(
@@ -142,13 +149,26 @@ public class FcmClient {
                     .setImage(imageUrl)
                     .build()
             )
-            .putAllCustomData(
-                Map.of(
-                    "type", type,
-                    "schemeUri", schemeUri
-                )
-            )
+            .putAllCustomData(appleCustomData(type, schemeUri, notificationId))
             .build();
+    }
+
+    private Map<String, Object> appleCustomData(
+        String type,
+        String schemeUri,
+        String notificationId
+    ) {
+        Map<String, Object> customData = new HashMap<>();
+        if (notificationId != null) {
+            customData.put("notification_id", notificationId);
+        }
+        if (type != null) {
+            customData.put("type", type);
+        }
+        if (schemeUri != null) {
+            customData.put("schemeUri", schemeUri);
+        }
+        return customData;
     }
 
     private AndroidConfig generateAndroidConfig(
@@ -156,13 +176,19 @@ public class FcmClient {
         String content,
         String imageUrl,
         String schemeUri,
-        String type
+        String type,
+        String notificationId
     ) {
         Map<String, String> androidNotificationV2 = new HashMap<>();
+        if (notificationId != null) {
+            androidNotificationV2.put("notification_id", notificationId);
+        }
         androidNotificationV2.put("title", title != null ? title : "");
         androidNotificationV2.put("content", content != null ? content : "");
         androidNotificationV2.put("imageUrl", imageUrl != null ? imageUrl : "");
-        androidNotificationV2.put("url", "koin://" + (schemeUri != null ? schemeUri : ""));
+        if (schemeUri != null) {
+            androidNotificationV2.put("url", "koin://" + schemeUri);
+        }
         androidNotificationV2.put("type", type != null ? type : "");
 
         return AndroidConfig.builder()

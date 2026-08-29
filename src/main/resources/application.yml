@@ -151,6 +151,16 @@ article:
     allowed-content-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_CONTENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}
     allowed-document-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_DOCUMENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}
 
+team-recruitment:
+  outbox:
+    enabled: ${TEAM_RECRUITMENT_OUTBOX_ENABLED:true}
+    fixed-delay-ms: ${TEAM_RECRUITMENT_OUTBOX_FIXED_DELAY_MS:10000}
+    batch-size: ${TEAM_RECRUITMENT_OUTBOX_BATCH_SIZE:20}
+    max-attempts: ${TEAM_RECRUITMENT_OUTBOX_MAX_ATTEMPTS:5}
+    lease-seconds: ${TEAM_RECRUITMENT_OUTBOX_LEASE_SECONDS:120}
+    retry-backoff-seconds: ${TEAM_RECRUITMENT_OUTBOX_RETRY_BACKOFF_SECONDS:30}
+    max-retry-backoff-seconds: ${TEAM_RECRUITMENT_OUTBOX_MAX_RETRY_BACKOFF_SECONDS:3600}
+
 management:
   endpoint:
     health:
