@@ -1,0 +1,73 @@
+package in.koreatech.koin.domain.teamrecruitment.controller;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import in.koreatech.koin.domain.teamrecruitment.dto.ChatMessageResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
+import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
+import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentChatService;
+import in.koreatech.koin.global.auth.Auth;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/chatroom/team-recruitment/{recruitmentId}")
+public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
+
+    private final TeamRecruitmentChatService chatService;
+
+    @GetMapping("/{chatRoomId}")
+    public ResponseEntity<ChatRoomResponse> getChatRoom(
+            @Auth Integer userId,
+            @PathVariable Integer recruitmentId,
+            @PathVariable Integer chatRoomId
+    ) {
+        return ResponseEntity.ok(chatService.getChatRoom(userId, recruitmentId, chatRoomId));
+    }
+
+    @PostMapping("/applications/{applicationId}/direct")
+    public ResponseEntity<DirectChatRoomResponse> getOrCreateDirectChatRoom(
+            @Auth Integer userId,
+            @PathVariable Integer recruitmentId,
+            @PathVariable Integer applicationId
+    ) {
+        // TODO: applicationId로 지원자 userId 조회 (박태진님 Application 엔티티 머지 후 연결)
+        // 임시로 applicationId를 applicantUserId로 사용
+        DirectChatRoomResponse response = chatService.getOrCreateDirectChatRoom(userId, recruitmentId, applicationId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/{chatRoomId}/messages")
+    public ResponseEntity<List<ChatMessageResponse>> getMessages(
+            @Auth Integer userId,
+            @PathVariable Integer recruitmentId,
+            @PathVariable Integer chatRoomId,
+            @RequestParam(required = false) Integer afterMessageId,
+            @RequestParam(required = false) Integer beforeMessageId,
+            @RequestParam(defaultValue = "100") int limit
+    ) {
+        return ResponseEntity.ok(chatService.getMessages(userId, chatRoomId, afterMessageId, beforeMessageId, limit));
+    }
+
+    @PostMapping("/{chatRoomId}/messages")
+    public ResponseEntity<ChatMessageResponse> createMessage(
+            @Auth Integer userId,
+            @PathVariable Integer recruitmentId,
+            @PathVariable Integer chatRoomId,
+            @Valid @RequestBody CreateChatMessageRequest request
+    ) {
+        return ResponseEntity.ok(chatService.createMessage(userId, chatRoomId, request));
+    }
+}
