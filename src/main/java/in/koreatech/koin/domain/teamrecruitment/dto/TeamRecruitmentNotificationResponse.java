@@ -6,9 +6,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.teamrecruitment.model.TeamRecruitmentNotification;
-import in.koreatech.koin.domain.teamrecruitment.model.enums.NotificationTargetType;
-import in.koreatech.koin.domain.teamrecruitment.model.enums.TeamRecruitmentNotificationType;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -46,26 +44,15 @@ public record TeamRecruitmentNotificationResponse(
     public static TeamRecruitmentNotificationResponse from(TeamRecruitmentNotification notification) {
         return new TeamRecruitmentNotificationResponse(
                 notification.getId(),
-                notification.getNotificationType().name(),
-                deriveTargetType(notification).name(),
-                notification.getRecruitmentId(),
-                notification.getApplicationId(),
-                notification.getChatRoomId(),
+                notification.getType().name(),
+                notification.getTargetType().name(),
+                notification.getRecruitment().getId(),
+                notification.getApplication() != null ? notification.getApplication().getId() : null,
+                notification.getChatRoom() != null ? notification.getChatRoom().getId() : null,
                 notification.getSenderNickname(),
                 notification.getMessagePreview(),
-                notification.getIsRead(),
+                notification.isRead(),
                 notification.getCreatedAt()
         );
-    }
-
-    private static NotificationTargetType deriveTargetType(TeamRecruitmentNotification notification) {
-        return switch (notification.getNotificationType()) {
-            case NEW_APPLICATION -> NotificationTargetType.APPLICANT_MANAGEMENT;
-            case APPLICATION_ACCEPTED, NEW_CHAT_MESSAGE -> NotificationTargetType.CHAT_ROOM;
-            case APPLICATION_REJECTED, RECRUITMENT_CLOSED -> NotificationTargetType.MY_APPLICATIONS;
-            case RECRUITMENT_DELETED -> notification.getChatRoomId() != null
-                    ? NotificationTargetType.CHAT_ROOM
-                    : NotificationTargetType.NONE;
-        };
     }
 }
