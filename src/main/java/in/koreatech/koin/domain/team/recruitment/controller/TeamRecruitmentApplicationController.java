@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.team.recruitment.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.global.code.ApiResponseCode.ILLEGAL_ARGUMENT;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicatio
 import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentApplicationQueryService;
 import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentApplicationService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,6 +44,7 @@ public class TeamRecruitmentApplicationController implements TeamRecruitmentAppl
         @RequestBody @Valid CreateApplicationRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
+        validatePositiveId(recruitmentId);
         ApplicationCreatedResponse response = applicationService.createApplication(request, recruitmentId, studentId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -68,6 +71,7 @@ public class TeamRecruitmentApplicationController implements TeamRecruitmentAppl
         @RequestParam(name = "limit", defaultValue = "10") Integer limit,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
+        validatePositiveId(recruitmentId);
         ApplicantListResponse response = applicationQueryService.getApplications(
             recruitmentId, statuses, page, limit, studentId
         );
@@ -80,6 +84,8 @@ public class TeamRecruitmentApplicationController implements TeamRecruitmentAppl
         @PathVariable("applicationId") Integer applicationId,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
+        validatePositiveId(recruitmentId);
+        validatePositiveId(applicationId);
         ApplicantDetail response = applicationQueryService.getApplicationDetail(
             recruitmentId, applicationId, studentId
         );
@@ -93,7 +99,15 @@ public class TeamRecruitmentApplicationController implements TeamRecruitmentAppl
         @RequestBody @Valid UpdateApplicationStatusRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
+        validatePositiveId(recruitmentId);
+        validatePositiveId(applicationId);
         applicationService.updateApplicationStatus(request, recruitmentId, applicationId, studentId);
         return ResponseEntity.noContent().build();
+    }
+
+    private void validatePositiveId(Integer id) {
+        if (id == null || id < 1) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
+        }
     }
 }

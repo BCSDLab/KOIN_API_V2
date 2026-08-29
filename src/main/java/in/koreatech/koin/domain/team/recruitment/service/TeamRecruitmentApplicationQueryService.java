@@ -338,11 +338,7 @@ public class TeamRecruitmentApplicationQueryService {
     }
 
     private ApplicantRecruitment toApplicantRecruitment(TeamRecruitment recruitment) {
-        TeamRecruitmentChatRoom teamRoom = findTeamRoom(recruitment.getId()).orElseThrow(() ->
-            new KoinIllegalStateException(
-                "팀원 모집글에 TEAM 채팅방이 없습니다. recruitmentId: " + recruitment.getId()
-            )
-        );
+        Optional<TeamRecruitmentChatRoom> teamRoom = findTeamRoom(recruitment.getId());
         return new ApplicantRecruitment(
             recruitment.getId(),
             recruitment.getCategory(),
@@ -357,8 +353,8 @@ public class TeamRecruitmentApplicationQueryService {
             recruitment.getCurrentParticipants(),
             recruitment.getMaxParticipants(),
             toRecruitmentRoles(recruitment),
-            true,
-            teamRoom.getId()
+            teamRoom.isPresent(),
+            teamRoom.map(TeamRecruitmentChatRoom::getId).orElse(null)
         );
     }
 

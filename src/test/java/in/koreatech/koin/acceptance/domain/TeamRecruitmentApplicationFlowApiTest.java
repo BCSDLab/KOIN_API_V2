@@ -189,11 +189,13 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
 
         mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications",
                 recruitmentContext.recruitment().getId()))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("UNAUTHORIZED_USER"));
 
         mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications/{applicationId}",
                 recruitmentContext.recruitment().getId(), application.getId()))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("UNAUTHORIZED_USER"));
 
         mockMvc.perform(put("/team-recruitments/{recruitmentId}/applications/{applicationId}/status",
                 recruitmentContext.recruitment().getId(), application.getId())
@@ -203,7 +205,8 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
                       "status": "ACCEPTED"
                     }
                     """))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("UNAUTHORIZED_USER"));
     }
 
     @Test
@@ -243,10 +246,77 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
                       "availability": "월수금 20시 이후"
                     }
                     """))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("UNAUTHORIZED_USER"));
 
         mockMvc.perform(get("/team-recruitments/me/applications"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("UNAUTHORIZED_USER"));
+    }
+
+    @Test
+    void 양수가_아닌_경로_ID는_잘못된_요청으로_응답한다() throws Exception {
+        mockMvc.perform(post("/team-recruitments/{recruitmentId}/applications", 0)
+                .header("Authorization", "Bearer " + applicantToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "role_id": null,
+                      "motivation": "지원 동기",
+                      "availability": "월수금 20시 이후"
+                    }
+                    """))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"));
+
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications", -1)
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"));
+
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications/{applicationId}",
+                recruitmentContext.recruitment().getId(), 0)
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"));
+
+        mockMvc.perform(put("/team-recruitments/{recruitmentId}/applications/{applicationId}/status",
+                recruitmentContext.recruitment().getId(), -1)
+                .header("Authorization", "Bearer " + authorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "status": "ACCEPTED"
+                    }
+                    """))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"));
+    }
+
+    @Test
+    void 변환할_수_없는_경로와_query_값은_잘못된_인자로_응답한다() throws Exception {
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications", "invalid")
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"));
+
+        mockMvc.perform(get("/team-recruitments/me/applications")
+                .queryParam("sort", "INVALID")
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"));
+    }
+
+    @Test
+    void TEAM_방이_아직_없는_모집글은_지원자_목록에서_채팅_불가로_응답한다() throws Exception {
+        TeamRecruitment recruitment = saveRecruitment("TEAM 방 생성 전 모집글", 2);
+
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.recruitment.team_chat_available").value(false))
+            .andExpect(jsonPath("$.recruitment.team_chat_room_id").value(nullValue()))
+            .andExpect(jsonPath("$.applications").isEmpty());
     }
 
     @Test
@@ -350,7 +420,22 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
     }
 
     private RecruitmentContext saveRecruitmentAndTeamRoom(String title, int maxParticipants) {
-        TeamRecruitment recruitment = recruitmentRepository.save(TeamRecruitment.builder()
+        TeamRecruitment recruitment = saveRecruitment(title, maxParticipants);
+        TeamRecruitmentChatRoom teamRoom = chatRoomRepository.save(TeamRecruitmentChatRoom.builder()
+            .recruitment(recruitment)
+            .roomScopeKey("TEAM")
+            .roomType(TEAM)
+            .status(ACTIVE)
+            .build());
+        chatMemberRepository.save(TeamRecruitmentChatMember.builder()
+            .chatRoom(teamRoom)
+            .user(author.getUser())
+            .build());
+        return new RecruitmentContext(recruitment, teamRoom);
+    }
+
+    private TeamRecruitment saveRecruitment(String title, int maxParticipants) {
+        return recruitmentRepository.save(TeamRecruitment.builder()
             .author(author.getUser())
             .category(PROJECT)
             .title(title)
@@ -364,17 +449,6 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
             .description("모집 내용")
             .status(RECRUITING)
             .build());
-        TeamRecruitmentChatRoom teamRoom = chatRoomRepository.save(TeamRecruitmentChatRoom.builder()
-            .recruitment(recruitment)
-            .roomScopeKey("TEAM")
-            .roomType(TEAM)
-            .status(ACTIVE)
-            .build());
-        chatMemberRepository.save(TeamRecruitmentChatMember.builder()
-            .chatRoom(teamRoom)
-            .user(author.getUser())
-            .build());
-        return new RecruitmentContext(recruitment, teamRoom);
     }
 
     private TeamRecruitmentApplication savePendingApplication(TeamRecruitment recruitment) {

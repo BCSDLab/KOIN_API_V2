@@ -511,7 +511,7 @@ class TeamRecruitmentApplicationQueryServiceTest {
     }
 
     @Test
-    void 작성자_지원자_목록에_TEAM_room이_없으면_내부_무결성_예외가_발생한다() {
+    void 작성자_지원자_목록에_TEAM_room이_없으면_채팅_불가로_응답한다() {
         TeamRecruitment recruitment = recruitment();
 
         when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
@@ -526,16 +526,16 @@ class TeamRecruitmentApplicationQueryServiceTest {
         when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(RECRUITMENT_ID, "TEAM"))
             .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> queryService.getApplications(
+        ApplicantListResponse response = queryService.getApplications(
             RECRUITMENT_ID,
             null,
             1,
             10,
             AUTHOR_ID
-        ))
-            .isInstanceOf(KoinIllegalStateException.class)
-            .hasMessageContaining("팀원 모집글에 TEAM 채팅방이 없습니다")
-            .hasMessageContaining("recruitmentId: 10");
+        );
+
+        assertThat(response.recruitment().teamChatAvailable()).isFalse();
+        assertThat(response.recruitment().teamChatRoomId()).isNull();
     }
 
     @Test

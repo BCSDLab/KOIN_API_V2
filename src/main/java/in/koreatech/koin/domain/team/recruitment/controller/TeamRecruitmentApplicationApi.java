@@ -34,6 +34,7 @@ import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,7 @@ public interface TeamRecruitmentApplicationApi {
 
     @ApiResponseCodes({
         CREATED,
+        ILLEGAL_ARGUMENT,
         INVALID_REQUEST_BODY,
         NOT_READABLE_HTTP_MESSAGE,
         UNAUTHORIZED_USER,
@@ -66,7 +68,7 @@ public interface TeamRecruitmentApplicationApi {
     @Operation(summary = "지원서 작성")
     @PostMapping("/{recruitmentId}/applications")
     ResponseEntity<ApplicationCreatedResponse> createApplication(
-        @Parameter(description = "모집글 ID", example = "17", required = true)
+        @Parameter(description = "모집글 ID", example = "17", required = true, schema = @Schema(minimum = "1"))
         @PathVariable("recruitmentId") Integer recruitmentId,
         @RequestBody @Valid CreateApplicationRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
@@ -98,7 +100,7 @@ public interface TeamRecruitmentApplicationApi {
     @Operation(summary = "지원자 목록 조회")
     @GetMapping("/{recruitmentId}/applications")
     ResponseEntity<ApplicantListResponse> getApplications(
-        @Parameter(description = "모집글 ID", example = "17", required = true)
+        @Parameter(description = "모집글 ID", example = "17", required = true, schema = @Schema(minimum = "1"))
         @PathVariable("recruitmentId") Integer recruitmentId,
         @RequestParam(name = "statuses", required = false) List<TeamRecruitmentApplicationStatus> statuses,
         @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -117,16 +119,18 @@ public interface TeamRecruitmentApplicationApi {
     @Operation(summary = "지원자 상세 조회")
     @GetMapping("/{recruitmentId}/applications/{applicationId}")
     ResponseEntity<ApplicantDetail> getApplicationDetail(
-        @Parameter(description = "모집글 ID", example = "17", required = true)
+        @Parameter(description = "모집글 ID", example = "17", required = true, schema = @Schema(minimum = "1"))
         @PathVariable("recruitmentId") Integer recruitmentId,
-        @Parameter(description = "지원서 ID", example = "51", required = true)
+        @Parameter(description = "지원서 ID", example = "51", required = true, schema = @Schema(minimum = "1"))
         @PathVariable("applicationId") Integer applicationId,
         @Auth(permit = {STUDENT}) Integer studentId
     );
 
     @ApiResponseCodes({
         NO_CONTENT,
+        ILLEGAL_ARGUMENT,
         INVALID_REQUEST_BODY,
+        NOT_READABLE_HTTP_MESSAGE,
         UNAUTHORIZED_USER,
         TEAM_RECRUITMENT_FORBIDDEN,
         TEAM_RECRUITMENT_NOT_FOUND,
@@ -140,9 +144,9 @@ public interface TeamRecruitmentApplicationApi {
     @Operation(summary = "지원 승인 또는 거절")
     @PutMapping("/{recruitmentId}/applications/{applicationId}/status")
     ResponseEntity<Void> updateApplicationStatus(
-        @Parameter(description = "모집글 ID", example = "17", required = true)
+        @Parameter(description = "모집글 ID", example = "17", required = true, schema = @Schema(minimum = "1"))
         @PathVariable("recruitmentId") Integer recruitmentId,
-        @Parameter(description = "지원서 ID", example = "51", required = true)
+        @Parameter(description = "지원서 ID", example = "51", required = true, schema = @Schema(minimum = "1"))
         @PathVariable("applicationId") Integer applicationId,
         @RequestBody @Valid UpdateApplicationStatusRequest request,
         @Auth(permit = {STUDENT}) Integer studentId
