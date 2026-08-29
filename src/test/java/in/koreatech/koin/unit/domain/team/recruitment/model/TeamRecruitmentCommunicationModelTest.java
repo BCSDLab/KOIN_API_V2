@@ -1,16 +1,34 @@
 package in.koreatech.koin.unit.domain.team.recruitment.model;
 
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
+import static in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom.TEAM_ROOM_SCOPE_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 
 class TeamRecruitmentCommunicationModelTest {
+
+    @Test
+    void 팀_채팅방은_공용_규칙으로_생성한다() {
+        TeamRecruitment recruitment = TeamRecruitment.builder().build();
+
+        TeamRecruitmentChatRoom chatRoom = TeamRecruitmentChatRoom.createTeamRoom(recruitment);
+
+        assertThat(chatRoom.getRecruitment()).isSameAs(recruitment);
+        assertThat(chatRoom.getRoomScopeKey()).isEqualTo(TEAM_ROOM_SCOPE_KEY);
+        assertThat(chatRoom.getRoomType()).isEqualTo(TEAM);
+        assertThat(chatRoom.getStatus()).isEqualTo(ACTIVE);
+        assertThat(chatRoom.getApplication()).isNull();
+    }
 
     @Test
     void 마지막으로_읽은_메시지는_앞으로만_이동한다() {
