@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -126,10 +127,13 @@ class TeamRecruitmentApplicationQueryServiceTest {
             any(),
             any(Pageable.class)
         )).thenReturn(new PageImpl<>(List.of(pending, rejected, accepted)));
-        when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(RECRUITMENT_ID, "TEAM"))
-            .thenReturn(Optional.of(teamRoom));
-        when(chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(any(), any(), any()))
-            .thenReturn(Optional.of(directRoom));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of(teamRoom));
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(22), DIRECT))
+            .thenReturn(List.of(directRoom));
 
         MyApplicationListResponse response = queryService.getMyApplications(
             null,
@@ -152,6 +156,70 @@ class TeamRecruitmentApplicationQueryServiceTest {
         assertThat(acceptedResponse.teamChatAvailable()).isTrue();
         assertThat(acceptedResponse.teamChatRoomId()).isEqualTo(TEAM_ROOM_ID);
         assertThat(acceptedResponse.directChatRoomId()).isEqualTo(DIRECT_ROOM_ID);
+    }
+
+    @Test
+    void 여러_ACCEPTED_지원서의_채팅방을_건별로_조회하지_않는다() {
+        TeamRecruitment firstRecruitment = recruitment();
+        TeamRecruitment secondRecruitment = TeamRecruitment.builder()
+            .id(11)
+            .author(UserFixture.id_설정_코인_유저(AUTHOR_ID))
+            .title("두 번째 팀원 모집")
+            .activityStartDate(LocalDate.of(2026, 9, 1))
+            .activityEndDate(LocalDate.of(2026, 9, 30))
+            .deadlineDate(LocalDate.of(2026, 8, 31))
+            .recruitmentType(GENERAL)
+            .maxParticipants(5)
+            .currentParticipants(0)
+            .description("모집 내용")
+            .build();
+        TeamRecruitmentApplication firstApplication = application(20, firstRecruitment, ACCEPTED);
+        TeamRecruitmentApplication secondApplication = application(21, secondRecruitment, ACCEPTED);
+        TeamRecruitmentChatRoom firstTeamRoom = teamRoom(firstRecruitment);
+        TeamRecruitmentChatRoom secondTeamRoom = TeamRecruitmentChatRoom.builder()
+            .id(42)
+            .recruitment(secondRecruitment)
+            .roomScopeKey("TEAM")
+            .roomType(TEAM)
+            .status(ACTIVE)
+            .build();
+
+        when(studentRepository.getById(APPLICANT_ID)).thenReturn(null);
+        when(applicationRepository.countByApplicant_IdAndStatusIn(eq(APPLICANT_ID), any()))
+            .thenReturn(2L);
+        when(applicationRepository.findAllByApplicant_IdAndStatusIn(
+            eq(APPLICANT_ID),
+            any(),
+            any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of(firstApplication, secondApplication)));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(10, 11),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of(firstTeamRoom, secondTeamRoom));
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20, 21), DIRECT))
+            .thenReturn(List.of());
+
+        MyApplicationListResponse response = queryService.getMyApplications(
+            List.of(ACCEPTED),
+            TeamRecruitmentApplicationSort.LATEST_DESC,
+            1,
+            10,
+            APPLICANT_ID
+        );
+
+        assertThat(response.applications())
+            .extracting(MyApplication::teamChatRoomId)
+            .containsExactly(TEAM_ROOM_ID, 42);
+        verify(chatRoomRepository).findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(10, 11),
+            "TEAM",
+            TEAM
+        );
+        verify(chatRoomRepository).findAllByApplication_IdInAndRoomType(List.of(20, 21), DIRECT);
+        verify(chatRoomRepository, never()).findByRecruitment_IdAndRoomScopeKey(any(), any());
+        verify(chatRoomRepository, never())
+            .findByRecruitment_IdAndApplication_IdAndRoomType(any(), any(), any());
     }
 
     @Test
@@ -421,8 +489,13 @@ class TeamRecruitmentApplicationQueryServiceTest {
             any(),
             any(Pageable.class)
         )).thenReturn(new PageImpl<>(List.of(accepted)));
-        when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(RECRUITMENT_ID, "TEAM"))
-            .thenReturn(Optional.empty());
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of());
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(22), DIRECT))
+            .thenReturn(List.of());
 
         assertThatThrownBy(() -> queryService.getMyApplications(
             List.of(ACCEPTED),

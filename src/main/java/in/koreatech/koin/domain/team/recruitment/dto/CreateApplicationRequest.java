@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.team.recruitment.dto;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +18,7 @@ public record CreateApplicationRequest(
         nullable = true,
         requiredMode = REQUIRED
     )
+    @JsonProperty(value = "role_id", required = true)
     Integer roleId,
 
     @Schema(description = "지원 동기", example = "지원 동기입니다.", requiredMode = REQUIRED)

@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicationCreatedResponse;
@@ -281,6 +282,44 @@ class TeamRecruitmentApplicationServiceTest {
             ))
                 .isInstanceOfSatisfying(CustomException.class, exception ->
                     assertThat(exception.getErrorCode()).isEqualTo(TEAM_RECRUITMENT_PROFILE_REQUIRED));
+        }
+
+        @Test
+        void 지원자의_학과가_없으면_지원을_생성할_수_없다() {
+            TeamRecruitment recruitment = recruitment(GENERAL, 0, 5, TODAY.plusDays(1));
+            Student student = StudentFixture.익명_학생(APPLICANT_ID, null);
+            ReflectionTestUtils.setField(student.getUser(), "id", APPLICANT_ID);
+            stubRecruitment(recruitment);
+            stubNoExistingApplication();
+            stubApplicantAndProfile(student);
+
+            assertThatThrownBy(() -> applicationService.createApplication(
+                new CreateApplicationRequest(null, "지원 동기", "가능"),
+                RECRUITMENT_ID,
+                APPLICANT_ID
+            ))
+                .isInstanceOfSatisfying(CustomException.class, exception ->
+                    assertThat(exception.getErrorCode()).isEqualTo(TEAM_RECRUITMENT_PROFILE_REQUIRED));
+            verify(applicationRepository, never()).save(any());
+        }
+
+        @Test
+        void 지원자의_학번에서_입학_연도를_확인할_수_없으면_지원을_생성할_수_없다() {
+            TeamRecruitment recruitment = recruitment(GENERAL, 0, 5, TODAY.plusDays(1));
+            Student student = applicant();
+            student.updateStudentNumber("학번없음");
+            stubRecruitment(recruitment);
+            stubNoExistingApplication();
+            stubApplicantAndProfile(student);
+
+            assertThatThrownBy(() -> applicationService.createApplication(
+                new CreateApplicationRequest(null, "지원 동기", "가능"),
+                RECRUITMENT_ID,
+                APPLICANT_ID
+            ))
+                .isInstanceOfSatisfying(CustomException.class, exception ->
+                    assertThat(exception.getErrorCode()).isEqualTo(TEAM_RECRUITMENT_PROFILE_REQUIRED));
+            verify(applicationRepository, never()).save(any());
         }
 
         @Test
@@ -718,7 +757,10 @@ class TeamRecruitmentApplicationServiceTest {
     }
 
     private void stubApplicantAndProfile() {
-        Student student = applicant();
+        stubApplicantAndProfile(applicant());
+    }
+
+    private void stubApplicantAndProfile(Student student) {
         TeamRecruitmentProfile profile = TeamRecruitmentProfile.builder()
             .userId(APPLICANT_ID)
             .user(student.getUser())
@@ -751,7 +793,10 @@ class TeamRecruitmentApplicationServiceTest {
     }
 
     private Student applicant() {
-        Student student = StudentFixture.익명_학생(APPLICANT_ID, null);
+        Student student = StudentFixture.익명_학생(
+            APPLICANT_ID,
+            Department.builder().name("컴퓨터공학부").build()
+        );
         ReflectionTestUtils.setField(student.getUser(), "id", APPLICANT_ID);
         return student;
     }

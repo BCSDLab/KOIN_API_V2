@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance.domain;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
@@ -10,6 +11,7 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentSta
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -93,8 +95,11 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
 
         apply(recruitment, applicantToken)
             .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.application_id").isNumber())
             .andExpect(jsonPath("$.recruitment_id").value(recruitment.getId()))
-            .andExpect(jsonPath("$.status").value("PENDING"));
+            .andExpect(jsonPath("$.status").value("PENDING"))
+            .andExpect(jsonPath("$.role").value(nullValue()))
+            .andExpect(jsonPath("$.created_at").isString());
 
         TeamRecruitmentApplication application = applicationRepository
             .findByRecruitment_IdAndApplicant_Id(recruitment.getId(), applicant.getUser().getId())
@@ -224,6 +229,92 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
         entityManager.clear();
         assertThat(applicationRepository.findById(application.getId()).orElseThrow().getStatus())
             .isEqualTo(PENDING);
+    }
+
+    @Test
+    void 로그인하지_않으면_지원하거나_내_지원_목록을_조회할_수_없다() throws Exception {
+        mockMvc.perform(post("/team-recruitments/{recruitmentId}/applications",
+                recruitmentContext.recruitment().getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "role_id": null,
+                      "motivation": "지원 동기",
+                      "availability": "월수금 20시 이후"
+                    }
+                    """))
+            .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(get("/team-recruitments/me/applications"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void 작성자는_지원자_목록과_상세를_조회하고_지원을_거절할_수_있다() throws Exception {
+        TeamRecruitment recruitment = recruitmentContext.recruitment();
+        TeamRecruitmentApplication application = savePendingApplication(recruitment);
+
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.recruitment.id").value(recruitment.getId()))
+            .andExpect(jsonPath("$.recruitment.team_chat_available").value(true))
+            .andExpect(jsonPath("$.recruitment.team_chat_room_id").value(recruitmentContext.teamRoom().getId()))
+            .andExpect(jsonPath("$.applications[0].application_id").value(application.getId()))
+            .andExpect(jsonPath("$.applications[0].nickname").value("지원자"))
+            .andExpect(jsonPath("$.applications[0].department").value("컴퓨터공학부"))
+            .andExpect(jsonPath("$.applications[0].student_year").value(2023))
+            .andExpect(jsonPath("$.applications[0].role").value(nullValue()))
+            .andExpect(jsonPath("$.applications[0].status").value("PENDING"))
+            .andExpect(jsonPath("$.total_count").value(1))
+            .andExpect(jsonPath("$.current_count").value(1))
+            .andExpect(jsonPath("$.total_page").value(1))
+            .andExpect(jsonPath("$.current_page").value(1));
+
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications/{applicationId}",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.application_id").value(application.getId()))
+            .andExpect(jsonPath("$.status").value("PENDING"))
+            .andExpect(jsonPath("$.profile_snapshot.nickname").value("지원자"))
+            .andExpect(jsonPath("$.motivation").value("지원 동기"))
+            .andExpect(jsonPath("$.availability").value("월수금 20시 이후"))
+            .andExpect(jsonPath("$.role").value(nullValue()))
+            .andExpect(jsonPath("$.can_decide").value(true))
+            .andExpect(jsonPath("$.can_open_direct_chat").value(false));
+
+        mockMvc.perform(put("/team-recruitments/{recruitmentId}/applications/{applicationId}/status",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "status": "REJECTED"
+                    }
+                    """))
+            .andExpect(status().isNoContent());
+
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(applicationRepository.findById(application.getId()).orElseThrow().getStatus())
+            .isEqualTo(REJECTED);
+    }
+
+    @Test
+    void GENERAL_지원에서_role_id를_생략하면_잘못된_요청으로_응답한다() throws Exception {
+        mockMvc.perform(post("/team-recruitments/{recruitmentId}/applications",
+                recruitmentContext.recruitment().getId())
+                .header("Authorization", "Bearer " + applicantToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "motivation": "지원 동기",
+                      "availability": "월수금 20시 이후"
+                    }
+                    """))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("NOT_READABLE_HTTP_MESSAGE"));
     }
 
     private ResultActions apply(

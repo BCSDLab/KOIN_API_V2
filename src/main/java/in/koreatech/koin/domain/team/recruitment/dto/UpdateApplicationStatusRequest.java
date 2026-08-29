@@ -11,7 +11,12 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record UpdateApplicationStatusRequest(
-    @Schema(description = "변경할 상태", example = "ACCEPTED", requiredMode = REQUIRED)
+    @Schema(
+        description = "변경할 상태",
+        example = "ACCEPTED",
+        allowableValues = {"ACCEPTED", "REJECTED"},
+        requiredMode = REQUIRED
+    )
     @NotNull(message = "지원 상태는 필수입니다.")
     TeamRecruitmentApplicationStatus status
 ) {

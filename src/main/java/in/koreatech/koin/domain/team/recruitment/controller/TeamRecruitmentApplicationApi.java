@@ -5,6 +5,7 @@ import static in.koreatech.koin.global.code.ApiResponseCode.CREATED;
 import static in.koreatech.koin.global.code.ApiResponseCode.ILLEGAL_ARGUMENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 import static in.koreatech.koin.global.code.ApiResponseCode.NO_CONTENT;
+import static in.koreatech.koin.global.code.ApiResponseCode.NOT_READABLE_HTTP_MESSAGE;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
 import static in.koreatech.koin.global.code.ApiResponseCode.OPTIMISTIC_LOCKING_FAILURE;
 import static in.koreatech.koin.global.code.ApiResponseCode.REQUEST_TOO_FAST;
@@ -51,6 +52,7 @@ public interface TeamRecruitmentApplicationApi {
     @ApiResponseCodes({
         CREATED,
         INVALID_REQUEST_BODY,
+        NOT_READABLE_HTTP_MESSAGE,
         UNAUTHORIZED_USER,
         TEAM_RECRUITMENT_FORBIDDEN,
         TEAM_RECRUITMENT_NOT_FOUND,

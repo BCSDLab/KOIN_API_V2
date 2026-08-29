@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.team.recruitment.service;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
@@ -40,8 +42,11 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -85,8 +90,9 @@ public class TeamRecruitmentApplicationQueryService {
             selectedStatuses,
             pageRequest(criteria, sort, true)
         );
+        AcceptedChatRooms acceptedChatRooms = findAcceptedChatRooms(applications.getContent());
         List<MyApplication> content = applications.getContent().stream()
-            .map(this::toMyApplication)
+            .map(application -> toMyApplication(application, acceptedChatRooms))
             .toList();
         return new MyApplicationListResponse(
             content,
@@ -223,25 +229,28 @@ public class TeamRecruitmentApplicationQueryService {
         return value > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)value;
     }
 
-    private MyApplication toMyApplication(TeamRecruitmentApplication application) {
+    private MyApplication toMyApplication(
+        TeamRecruitmentApplication application,
+        AcceptedChatRooms acceptedChatRooms
+    ) {
         TeamRecruitment recruitment = application.getRecruitment();
         boolean accepted = application.getStatus() == ACCEPTED;
         TeamRecruitmentChatRoom teamRoom = accepted
-            ? requireAcceptedTeamRoom(recruitment, application.getId())
-            : null;
-        Optional<TeamRecruitmentChatRoom> directRoom = !accepted || application.getId() == null
-            ? Optional.empty()
-            : chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(
-                recruitment.getId(),
+            ? requireAcceptedTeamRoom(
+                recruitment,
                 application.getId(),
-                TeamRecruitmentChatRoomType.DIRECT
-            );
+                acceptedChatRooms.teamRoomsByRecruitmentId().get(recruitment.getId())
+            )
+            : null;
+        TeamRecruitmentChatRoom directRoom = accepted
+            ? acceptedChatRooms.directRoomsByApplicationId().get(application.getId())
+            : null;
         return new MyApplication(
             application.getId(),
             application.getStatus(),
             accepted && teamRoom != null,
             accepted && teamRoom != null ? teamRoom.getId() : null,
-            directRoom.map(TeamRecruitmentChatRoom::getId).orElse(null),
+            directRoom == null ? null : directRoom.getId(),
             toApplicationRole(application.getRole()),
             toRecruitmentCard(recruitment)
         );
@@ -249,14 +258,52 @@ public class TeamRecruitmentApplicationQueryService {
 
     private TeamRecruitmentChatRoom requireAcceptedTeamRoom(
         TeamRecruitment recruitment,
-        Integer applicationId
+        Integer applicationId,
+        TeamRecruitmentChatRoom teamRoom
     ) {
-        return findTeamRoom(recruitment.getId()).orElseThrow(() ->
-            new KoinIllegalStateException(
+        if (teamRoom == null) {
+            throw new KoinIllegalStateException(
                 "ACCEPTED 지원서에 TEAM 채팅방이 없습니다. recruitmentId: "
                     + recruitment.getId() + ", applicationId: " + applicationId
-            )
-        );
+            );
+        }
+        return teamRoom;
+    }
+
+    private AcceptedChatRooms findAcceptedChatRooms(List<TeamRecruitmentApplication> applications) {
+        List<TeamRecruitmentApplication> acceptedApplications = applications.stream()
+            .filter(application -> application.getStatus() == ACCEPTED)
+            .toList();
+        if (acceptedApplications.isEmpty()) {
+            return new AcceptedChatRooms(Map.of(), Map.of());
+        }
+
+        List<Integer> recruitmentIds = acceptedApplications.stream()
+            .map(TeamRecruitmentApplication::getRecruitment)
+            .map(TeamRecruitment::getId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+        List<Integer> applicationIds = acceptedApplications.stream()
+            .map(TeamRecruitmentApplication::getId)
+            .filter(Objects::nonNull)
+            .toList();
+
+        Map<Integer, TeamRecruitmentChatRoom> teamRoomsByRecruitmentId = chatRoomRepository
+            .findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(recruitmentIds, TEAM_ROOM_SCOPE_KEY, TEAM)
+            .stream()
+            .collect(Collectors.toMap(
+                room -> room.getRecruitment().getId(),
+                Function.identity()
+            ));
+        Map<Integer, TeamRecruitmentChatRoom> directRoomsByApplicationId = chatRoomRepository
+            .findAllByApplication_IdInAndRoomType(applicationIds, DIRECT)
+            .stream()
+            .collect(Collectors.toMap(
+                room -> room.getApplication().getId(),
+                Function.identity()
+            ));
+        return new AcceptedChatRooms(teamRoomsByRecruitmentId, directRoomsByApplicationId);
     }
 
     private ApplicantSummary toApplicantSummary(TeamRecruitmentApplication application) {
@@ -375,5 +422,11 @@ public class TeamRecruitmentApplicationQueryService {
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("팀 모집 지원 프로필 snapshot을 읽을 수 없습니다.", exception);
         }
+    }
+
+    private record AcceptedChatRooms(
+        Map<Integer, TeamRecruitmentChatRoom> teamRoomsByRecruitmentId,
+        Map<Integer, TeamRecruitmentChatRoom> directRoomsByApplicationId
+    ) {
     }
 }
