@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.teamrecruitment.model.TeamRecruitmentChatMessage;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -36,7 +36,7 @@ public record ChatMessageResponse(
         return new ChatMessageResponse(
                 message.getId(),
                 message.getSender().getId(),
-                message.getSender().getNickname(),
+                message.getSenderNickname(),
                 message.getContent(),
                 message.getCreatedAt(),
                 message.getIsImage(),

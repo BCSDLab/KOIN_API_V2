@@ -10,20 +10,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
-import in.koreatech.koin.domain.teamrecruitment.model.TeamRecruitmentChatMessage;
-import in.koreatech.koin.domain.teamrecruitment.model.TeamRecruitmentChatRoom;
-import in.koreatech.koin.domain.teamrecruitment.model.TeamRecruitmentChatRoomMember;
-import in.koreatech.koin.domain.teamrecruitment.model.enums.ChatRoomStatus;
-import in.koreatech.koin.domain.teamrecruitment.model.enums.ChatRoomType;
-import in.koreatech.koin.domain.teamrecruitment.repository.TeamRecruitmentChatMessageRepository;
-import in.koreatech.koin.domain.teamrecruitment.repository.TeamRecruitmentChatRoomMemberRepository;
-import in.koreatech.koin.domain.teamrecruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,64 +33,68 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class TeamRecruitmentChatService {
 
+    private final TeamRecruitmentRepository recruitmentRepository;
+    private final TeamRecruitmentApplicationRepository applicationRepository;
     private final TeamRecruitmentChatRoomRepository chatRoomRepository;
-    private final TeamRecruitmentChatRoomMemberRepository memberRepository;
+    private final TeamRecruitmentChatMemberRepository memberRepository;
     private final TeamRecruitmentChatMessageRepository messageRepository;
-    private final UserRepository userRepository;
 
     public ChatRoomResponse getChatRoom(Integer userId, Integer recruitmentId, Integer chatRoomId) {
         TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
 
-        if (!memberRepository.existsByChatRoomIdAndUserId(chatRoomId, userId)) {
+        if (!memberRepository.existsByChatRoom_IdAndUser_Id(chatRoomId, userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "채팅방 멤버가 아닙니다.");
         }
 
-        int memberCount = memberRepository.countByChatRoomId(chatRoomId);
+        int memberCount = (int) memberRepository.countByChatRoom_Id(chatRoomId);
 
-        // DIRECT 채팅방이면 상대방 정보 조회
         ChatRoomResponse.Counterpart counterpart = null;
-        if (chatRoom.getRoomType() == ChatRoomType.DIRECT) {
-            counterpart = memberRepository.findAllByChatRoomId(chatRoomId).stream()
+        if (chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT) {
+            counterpart = memberRepository.findAllByChatRoom_Id(chatRoomId).stream()
                     .filter(m -> !m.getUser().getId().equals(userId))
                     .findFirst()
                     .map(m -> new ChatRoomResponse.Counterpart(m.getUser().getId(), m.getUser().getNickname()))
                     .orElse(null);
         }
 
-        return ChatRoomResponse.of(chatRoom, memberCount, counterpart);
+        String roomName = chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT
+                ? (counterpart != null ? counterpart.nickname() : "")
+                : chatRoom.getRecruitment().getTitle();
+
+        int maxMemberCount = chatRoom.getRecruitment().getMaxParticipants();
+
+        return ChatRoomResponse.of(chatRoom, roomName, memberCount, maxMemberCount, counterpart);
     }
 
     @Transactional
-    public DirectChatRoomResponse getOrCreateDirectChatRoom(Integer userId, Integer recruitmentId, Integer applicantUserId) {
-        // 이미 존재하는 DIRECT 채팅방 확인
-        return chatRoomRepository.findDirectChatRoom(recruitmentId, userId, applicantUserId, ChatRoomType.DIRECT)
-                .map(existing -> {
-                    User counterpart = userRepository.findById(applicantUserId)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
-                    return DirectChatRoomResponse.of(existing, counterpart);
-                })
+    public DirectChatRoomResponse getOrCreateDirectChatRoom(Integer userId, Integer recruitmentId, Integer applicationId) {
+        TeamRecruitmentApplication application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
+
+        User counterpartUser = application.getApplicant();
+
+        return chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(
+                        recruitmentId, applicationId, TeamRecruitmentChatRoomType.DIRECT)
+                .map(existing -> DirectChatRoomResponse.of(existing, counterpartUser))
                 .orElseGet(() -> {
-                    // 신규 DIRECT 채팅방 생성
-                    User author = userRepository.findById(userId)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
-                    User applicant = userRepository.findById(applicantUserId)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
+                    TeamRecruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "모집글을 찾을 수 없습니다."));
 
                     TeamRecruitmentChatRoom chatRoom = TeamRecruitmentChatRoom.builder()
-                            .recruitmentId(recruitmentId)
-                            .roomName(applicant.getNickname())
-                            .roomType(ChatRoomType.DIRECT)
-                            .maxMemberCount(2)
+                            .recruitment(recruitment)
+                            .roomScopeKey("DIRECT-" + applicationId)
+                            .roomType(TeamRecruitmentChatRoomType.DIRECT)
+                            .application(application)
                             .build();
                     chatRoomRepository.save(chatRoom);
 
-                    memberRepository.save(TeamRecruitmentChatRoomMember.builder()
-                            .chatRoom(chatRoom).user(author).lastReadMessageId(null).build());
-                    memberRepository.save(TeamRecruitmentChatRoomMember.builder()
-                            .chatRoom(chatRoom).user(applicant).lastReadMessageId(null).build());
+                    memberRepository.save(TeamRecruitmentChatMember.builder()
+                            .chatRoom(chatRoom).user(recruitment.getAuthor()).build());
+                    memberRepository.save(TeamRecruitmentChatMember.builder()
+                            .chatRoom(chatRoom).user(counterpartUser).build());
 
-                    return DirectChatRoomResponse.of(chatRoom, applicant);
+                    return DirectChatRoomResponse.of(chatRoom, counterpartUser);
                 });
     }
 
@@ -97,19 +103,16 @@ public class TeamRecruitmentChatService {
             Integer userId, Integer chatRoomId,
             Integer afterMessageId, Integer beforeMessageId, int limit) {
 
-        TeamRecruitmentChatRoomMember currentMember = memberRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
+        TeamRecruitmentChatMember currentMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "채팅방 멤버가 아닙니다."));
 
         List<TeamRecruitmentChatMessage> messages = fetchMessages(chatRoomId, afterMessageId, beforeMessageId, limit);
 
-        // 메시지 조회 시 마지막 읽은 메시지 ID 갱신
         if (!messages.isEmpty()) {
-            Integer lastMessageId = messages.get(messages.size() - 1).getId();
-            currentMember.updateLastReadMessageId(lastMessageId);
+            currentMember.advanceLastReadMessageId(messages.get(messages.size() - 1).getId());
         }
 
-        // unread_count 계산을 위해 전체 멤버 읽음 위치 조회
-        List<TeamRecruitmentChatRoomMember> allMembers = memberRepository.findAllByChatRoomId(chatRoomId);
+        List<TeamRecruitmentChatMember> allMembers = memberRepository.findAllByChatRoom_Id(chatRoomId);
 
         return messages.stream()
                 .map(msg -> {
@@ -127,20 +130,15 @@ public class TeamRecruitmentChatService {
         PageRequest pageable = PageRequest.of(0, limit);
 
         if (afterMessageId != null) {
-            return messageRepository.findByChatRoomIdAndIdGreaterThanOrderByIdAsc(chatRoomId, afterMessageId, pageable);
+            return messageRepository.findAllByChatRoom_IdAndIdGreaterThanOrderByIdAsc(chatRoomId, afterMessageId, pageable);
         }
         if (beforeMessageId != null) {
-            // 과거 메시지는 DESC로 가져온 뒤 오름차순으로 뒤집기
             List<TeamRecruitmentChatMessage> result = new ArrayList<>(
-                    messageRepository.findByChatRoomIdAndIdLessThanOrderByIdDesc(chatRoomId, beforeMessageId, pageable));
+                    messageRepository.findAllByChatRoom_IdAndIdLessThanOrderByIdDesc(chatRoomId, beforeMessageId, pageable));
             Collections.reverse(result);
             return result;
         }
-        // 초기 조회: 최신 메시지를 DESC로 가져온 뒤 오름차순으로 뒤집기
-        List<TeamRecruitmentChatMessage> result = new ArrayList<>(
-                messageRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable));
-        Collections.reverse(result);
-        return result;
+        return messageRepository.findAllByChatRoom_IdOrderByIdAsc(chatRoomId, pageable);
     }
 
     @Transactional
@@ -148,31 +146,27 @@ public class TeamRecruitmentChatService {
         TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
 
-        if (!memberRepository.existsByChatRoomIdAndUserId(chatRoomId, userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "채팅방 멤버가 아닙니다.");
-        }
+        TeamRecruitmentChatMember senderMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "채팅방 멤버가 아닙니다."));
 
-        if (chatRoom.getStatus() == ChatRoomStatus.READ_ONLY) {
+        if (!chatRoom.isActive()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "읽기 전용 채팅방입니다.");
         }
 
-        User sender = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
+        User sender = senderMember.getUser();
 
         TeamRecruitmentChatMessage message = TeamRecruitmentChatMessage.builder()
                 .chatRoom(chatRoom)
                 .sender(sender)
+                .senderNickname(sender.getNickname())
                 .content(request.content())
                 .isImage(request.isImage())
                 .build();
         messageRepository.save(message);
 
-        // 발신자의 lastReadMessageId 갱신
-        memberRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
-                .ifPresent(m -> m.updateLastReadMessageId(message.getId()));
+        senderMember.advanceLastReadMessageId(message.getId());
 
-        // 발신자 제외 다른 멤버 중 안 읽은 수
-        List<TeamRecruitmentChatRoomMember> allMembers = memberRepository.findAllByChatRoomId(chatRoomId);
+        List<TeamRecruitmentChatMember> allMembers = memberRepository.findAllByChatRoom_Id(chatRoomId);
         int unreadCount = (int) allMembers.stream()
                 .filter(m -> !m.getUser().getId().equals(userId))
                 .filter(m -> m.getLastReadMessageId() == null || m.getLastReadMessageId() < message.getId())

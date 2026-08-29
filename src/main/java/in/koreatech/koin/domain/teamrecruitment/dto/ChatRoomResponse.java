@@ -4,7 +4,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.teamrecruitment.model.TeamRecruitmentChatRoom;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -38,14 +38,20 @@ public record ChatRoomResponse(
             String nickname
     ) {}
 
-    public static ChatRoomResponse of(TeamRecruitmentChatRoom chatRoom, int memberCount, Counterpart counterpart) {
+    public static ChatRoomResponse of(
+            TeamRecruitmentChatRoom chatRoom,
+            String roomName,
+            int memberCount,
+            int maxMemberCount,
+            Counterpart counterpart
+    ) {
         return new ChatRoomResponse(
                 chatRoom.getId(),
-                chatRoom.getRoomName(),
+                roomName,
                 chatRoom.getRoomType().name(),
                 chatRoom.getStatus().name(),
                 memberCount,
-                chatRoom.getMaxMemberCount(),
+                maxMemberCount,
                 counterpart
         );
     }
