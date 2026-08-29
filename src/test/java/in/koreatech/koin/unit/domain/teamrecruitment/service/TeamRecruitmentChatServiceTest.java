@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
@@ -69,9 +70,26 @@ class TeamRecruitmentChatServiceTest {
     }
 
     @Test
+    void 채팅방이_다른_모집글_소속이면_404를_반환한다() {
+        TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
+        TeamRecruitment wrongRecruitment = mock(TeamRecruitment.class);
+        when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
+        when(chatRoom.getRecruitment()).thenReturn(wrongRecruitment);
+        when(wrongRecruitment.getId()).thenReturn(99);
+
+        assertThatThrownBy(() -> chatService.getChatRoom(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
     void 채팅방_멤버가_아니면_403을_반환한다() {
         TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
         when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
+        when(chatRoom.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(memberRepository.existsByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(false);
 
         assertThatThrownBy(() -> chatService.getChatRoom(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID))
@@ -81,13 +99,51 @@ class TeamRecruitmentChatServiceTest {
     }
 
     @Test
+    void 지원서가_다른_모집글_소속이면_404를_반환한다() {
+        TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
+        TeamRecruitment wrongRecruitment = mock(TeamRecruitment.class);
+        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(mock(TeamRecruitment.class)));
+        when(application.getRecruitment()).thenReturn(wrongRecruitment);
+        when(wrongRecruitment.getId()).thenReturn(99);
+
+        assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    void 모집글_작성자가_아니면_403을_반환한다() {
+        User otherAuthor = UserFixture.id_설정_코인_유저(OTHER_USER_ID);
+        TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
+        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(application.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(recruitment.getAuthor()).thenReturn(otherAuthor);
+
+        assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+    }
+
+    @Test
     void 이미_존재하는_DIRECT_채팅방은_새로_생성하지_않고_기존_채팅방을_반환한다() {
+        User author = UserFixture.id_설정_코인_유저(USER_ID);
         User counterpart = UserFixture.id_설정_코인_유저(OTHER_USER_ID);
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
         TeamRecruitmentChatRoom existingRoom = mock(TeamRecruitmentChatRoom.class);
 
-        when(application.getApplicant()).thenReturn(counterpart);
         when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(application.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(recruitment.getAuthor()).thenReturn(author);
+        when(application.getApplicant()).thenReturn(counterpart);
         when(chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(
                 RECRUITMENT_ID, APPLICATION_ID, TeamRecruitmentChatRoomType.DIRECT))
                 .thenReturn(Optional.of(existingRoom));

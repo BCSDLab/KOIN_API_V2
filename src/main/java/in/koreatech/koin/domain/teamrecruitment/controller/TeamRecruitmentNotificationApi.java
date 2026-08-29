@@ -14,8 +14,8 @@ public interface TeamRecruitmentNotificationApi {
     @Operation(summary = "팀원 모집 알림 목록 조회")
     ResponseEntity<TeamRecruitmentNotificationsResponse> getNotifications(
             Integer userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int limit
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit
     );
 
     @Operation(summary = "알림 읽음 처리")
