@@ -51,6 +51,8 @@ import static lombok.AccessLevel.PROTECTED;
 @NoArgsConstructor(access = PROTECTED)
 public class TeamRecruitmentChatRoom extends BaseEntity {
 
+    public static final String TEAM_ROOM_SCOPE_KEY = "TEAM";
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
@@ -98,6 +100,15 @@ public class TeamRecruitmentChatRoom extends BaseEntity {
         this.roomType = roomType;
         this.application = application;
         this.status = status == null ? TeamRecruitmentChatRoomStatus.ACTIVE : status;
+    }
+
+    public static TeamRecruitmentChatRoom createTeamRoom(TeamRecruitment recruitment) {
+        return TeamRecruitmentChatRoom.builder()
+            .recruitment(recruitment)
+            .roomScopeKey(TEAM_ROOM_SCOPE_KEY)
+            .roomType(TeamRecruitmentChatRoomType.TEAM)
+            .status(TeamRecruitmentChatRoomStatus.ACTIVE)
+            .build();
     }
 
     public void addMember(TeamRecruitmentChatMember member) {

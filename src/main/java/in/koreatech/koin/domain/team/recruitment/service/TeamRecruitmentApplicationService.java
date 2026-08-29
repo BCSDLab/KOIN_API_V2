@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.team.recruitment.service;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.APPLICANT_MANAGEMENT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
@@ -14,6 +13,7 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNot
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.RECRUITMENT_CLOSED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
+import static in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom.TEAM_ROOM_SCOPE_KEY;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_DUPLICATE;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_FINALIZED;
@@ -87,7 +87,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class TeamRecruitmentApplicationService {
 
-    private static final String TEAM_ROOM_SCOPE_KEY = "TEAM";
     private static final String RECRUITMENT_CLOSED_REASON = "RECRUITMENT_CLOSED";
     private static final String OUTBOX_EVENT_TYPE = "TEAM_RECRUITMENT_NOTIFICATION";
     private static final String AGGREGATE_TYPE = "TEAM_RECRUITMENT";
@@ -385,12 +384,7 @@ public class TeamRecruitmentApplicationService {
             return existing.get();
         }
 
-        TeamRecruitmentChatRoom created = TeamRecruitmentChatRoom.builder()
-            .recruitment(recruitment)
-            .roomScopeKey(TEAM_ROOM_SCOPE_KEY)
-            .roomType(TEAM)
-            .status(ACTIVE)
-            .build();
+        TeamRecruitmentChatRoom created = TeamRecruitmentChatRoom.createTeamRoom(recruitment);
         TeamRecruitmentChatRoom saved = chatRoomRepository.save(created);
         TeamRecruitmentChatRoom room = saved == null ? created : saved;
         addMemberIfAbsent(room, recruitment.getAuthor());

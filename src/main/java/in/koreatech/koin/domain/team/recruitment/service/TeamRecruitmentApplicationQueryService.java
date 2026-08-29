@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
+import static in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom.TEAM_ROOM_SCOPE_KEY;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOT_FOUND;
@@ -59,7 +60,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class TeamRecruitmentApplicationQueryService {
 
-    private static final String TEAM_ROOM_SCOPE_KEY = "TEAM";
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final List<TeamRecruitmentApplicationStatus> ALL_STATUSES = List.of(
         PENDING,

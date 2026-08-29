@@ -9,6 +9,7 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNot
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.APPLICATION_REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.RECRUITMENT_CLOSED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
+import static in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom.TEAM_ROOM_SCOPE_KEY;
 
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType;
@@ -55,8 +56,6 @@ public class TeamRecruitmentDeadlineCloseProcessor {
     private static final String RECRUITMENT_CLOSED_REASON = "RECRUITMENT_CLOSED";
     private static final String OUTBOX_EVENT_TYPE = "TEAM_RECRUITMENT_NOTIFICATION";
     private static final String AGGREGATE_TYPE = "TEAM_RECRUITMENT";
-    private static final String TEAM_ROOM_SCOPE_KEY = "TEAM";
-
     private final TeamRecruitmentRepository recruitmentRepository;
     private final TeamRecruitmentApplicationRepository applicationRepository;
     private final TeamRecruitmentChatRoomRepository chatRoomRepository;
