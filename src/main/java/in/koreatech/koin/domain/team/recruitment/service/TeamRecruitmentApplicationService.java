@@ -566,6 +566,10 @@ public class TeamRecruitmentApplicationService {
         List<TeamRecruitmentProfileSkill> skills,
         List<TeamRecruitmentProfileActivity> activities
     ) {
+        Integer admissionYear = studentYear(student.getStudentNumber());
+        if (student.getDepartment() == null || admissionYear == null) {
+            throw CustomException.of(TEAM_RECRUITMENT_PROFILE_REQUIRED);
+        }
         List<String> snapshotSkills = skills == null
             ? List.of()
             : skills.stream().map(TeamRecruitmentProfileSkill::getSkill).toList();
@@ -576,8 +580,8 @@ public class TeamRecruitmentApplicationService {
                 .toList();
         ProfileSnapshot snapshot = new ProfileSnapshot(
             profile.getProfileNickname(),
-            student.getDepartment() == null ? null : student.getDepartment().getName(),
-            studentYear(student.getStudentNumber()),
+            student.getDepartment().getName(),
+            admissionYear,
             profile.getPreferredRole(),
             snapshotSkills,
             snapshotActivities,

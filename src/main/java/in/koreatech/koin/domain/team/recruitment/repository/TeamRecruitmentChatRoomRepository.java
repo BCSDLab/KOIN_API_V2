@@ -3,13 +3,13 @@ package in.koreatech.koin.domain.team.recruitment.repository;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import jakarta.persistence.LockModeType;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface TeamRecruitmentChatRoomRepository extends Repository<TeamRecruitmentChatRoom, Integer> {
 
@@ -57,6 +57,17 @@ public interface TeamRecruitmentChatRoomRepository extends Repository<TeamRecrui
     Optional<TeamRecruitmentChatRoom> findByRecruitment_IdAndApplication_IdAndRoomType(
         Integer recruitmentId,
         Integer applicationId,
+        TeamRecruitmentChatRoomType roomType
+    );
+
+    List<TeamRecruitmentChatRoom> findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+        Collection<Integer> recruitmentIds,
+        String roomScopeKey,
+        TeamRecruitmentChatRoomType roomType
+    );
+
+    List<TeamRecruitmentChatRoom> findAllByApplication_IdInAndRoomType(
+        Collection<Integer> applicationIds,
         TeamRecruitmentChatRoomType roomType
     );
 
