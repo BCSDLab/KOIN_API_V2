@@ -79,6 +79,10 @@ public class TeamRecruitmentChatService {
         TeamRecruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "모집글을 찾을 수 없습니다."));
 
+        if (!application.getRecruitment().getId().equals(recruitmentId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다.");
+        }
+
         if (!userId.equals(recruitment.getAuthor().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
@@ -163,14 +167,14 @@ public class TeamRecruitmentChatService {
 
         User sender = senderMember.getUser();
 
-        TeamRecruitmentChatMessage message = TeamRecruitmentChatMessage.builder()
-                .chatRoom(chatRoom)
-                .sender(sender)
-                .senderNickname(sender.getNickname())
-                .content(request.content())
-                .isImage(request.isImage())
-                .build();
-        messageRepository.save(message);
+        TeamRecruitmentChatMessage message = messageRepository.save(
+                TeamRecruitmentChatMessage.builder()
+                        .chatRoom(chatRoom)
+                        .sender(sender)
+                        .senderNickname(sender.getNickname())
+                        .content(request.content())
+                        .isImage(request.isImage())
+                        .build());
 
         senderMember.advanceLastReadMessageId(message.getId());
 
