@@ -87,7 +87,7 @@ public class TeamRecruitmentChatService {
                             .roomType(TeamRecruitmentChatRoomType.DIRECT)
                             .application(application)
                             .build();
-                    chatRoomRepository.save(chatRoom);
+                    chatRoom = chatRoomRepository.save(chatRoom);
 
                     memberRepository.save(TeamRecruitmentChatMember.builder()
                             .chatRoom(chatRoom).user(recruitment.getAuthor()).build());
