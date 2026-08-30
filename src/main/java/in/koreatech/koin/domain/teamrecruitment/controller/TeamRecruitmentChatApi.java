@@ -28,6 +28,8 @@ import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Team Recruitment Chat: 팀원 모집 채팅", description = "팀원 모집 채팅 API")
@@ -78,9 +80,9 @@ public interface TeamRecruitmentChatApi {
             Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId,
-            @RequestParam(required = false) Integer afterMessageId,
-            @RequestParam(required = false) Integer beforeMessageId,
-            @RequestParam(defaultValue = "100") int limit
+            @Parameter(schema = @Schema(minimum = "1")) @RequestParam(required = false) Integer afterMessageId,
+            @Parameter(schema = @Schema(minimum = "1")) @RequestParam(required = false) Integer beforeMessageId,
+            @Parameter(schema = @Schema(minimum = "1", maximum = "200")) @RequestParam(defaultValue = "100") int limit
     );
 
     @ApiResponseCodes({
