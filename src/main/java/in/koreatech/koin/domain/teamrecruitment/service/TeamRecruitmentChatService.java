@@ -104,16 +104,16 @@ public class TeamRecruitmentChatService {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND);
         }
 
+        if (!userId.equals(recruitment.getAuthor().getId())) {
+            throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN);
+        }
+
         if (application.getStatus() != ACCEPTED) {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_ACCEPTED);
         }
 
         if (!recruitment.isRecruiting()) {
             throw CustomException.of(TEAM_RECRUITMENT_CLOSED);
-        }
-
-        if (!userId.equals(recruitment.getAuthor().getId())) {
-            throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN);
         }
 
         User counterpartUser = application.getApplicant();
@@ -145,6 +145,12 @@ public class TeamRecruitmentChatService {
             Integer afterMessageId, Integer beforeMessageId, int limit) {
 
         if (afterMessageId != null && beforeMessageId != null) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
+        }
+        if (afterMessageId != null && afterMessageId < 1) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
+        }
+        if (beforeMessageId != null && beforeMessageId < 1) {
             throw CustomException.of(ILLEGAL_ARGUMENT);
         }
         if (limit < 1 || limit > 200) {
