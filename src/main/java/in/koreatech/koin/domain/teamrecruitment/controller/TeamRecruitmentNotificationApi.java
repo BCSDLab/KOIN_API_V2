@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.teamrecruitment.controller;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_USER_TYPE;
+import static in.koreatech.koin.global.code.ApiResponseCode.NO_CONTENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.UNAUTHORIZED_USER;
@@ -30,7 +31,7 @@ public interface TeamRecruitmentNotificationApi {
     );
 
     @ApiResponseCodes({
-        OK,
+        NO_CONTENT,
         TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
@@ -42,7 +43,7 @@ public interface TeamRecruitmentNotificationApi {
     );
 
     @ApiResponseCodes({
-        OK,
+        NO_CONTENT,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
@@ -50,7 +51,7 @@ public interface TeamRecruitmentNotificationApi {
     ResponseEntity<Void> markAllRead(Integer userId);
 
     @ApiResponseCodes({
-        OK,
+        NO_CONTENT,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
