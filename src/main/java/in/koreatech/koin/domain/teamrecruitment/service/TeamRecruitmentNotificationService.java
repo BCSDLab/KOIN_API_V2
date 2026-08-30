@@ -57,6 +57,14 @@ public class TeamRecruitmentNotificationService {
     }
 
     @Transactional
+    public void delete(Integer userId, Integer notificationId) {
+        TeamRecruitmentNotification notification = notificationRepository
+                .findByIdAndRecipient_Id(notificationId, userId)
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND));
+        notification.delete();
+    }
+
+    @Transactional
     public void markAllRead(Integer userId) {
         LocalDateTime now = LocalDateTime.now();
         List<TeamRecruitmentNotification> notifications =

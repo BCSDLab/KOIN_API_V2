@@ -52,6 +52,22 @@ public interface TeamRecruitmentNotificationApi {
 
     @ApiResponseCodes({
         NO_CONTENT,
+        TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND,
+        UNAUTHORIZED_USER,
+        FORBIDDEN_USER_TYPE,
+    })
+    @Operation(summary = "알림 개별 삭제", description = """
+        ### 알림 개별 삭제
+        - 알림을 삭제 처리하여 목록에서 제외합니다.
+        - 본인에게 온 알림만 삭제할 수 있으며, 그 외에는 404를 반환합니다.
+        """)
+    ResponseEntity<Void> delete(
+            Integer userId,
+            @PathVariable Integer notificationId
+    );
+
+    @ApiResponseCodes({
+        NO_CONTENT,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })

@@ -89,6 +89,28 @@ class TeamRecruitmentNotificationServiceTest {
     }
 
     @Test
+    void 개별_삭제시_해당_알림만_삭제한다() {
+        TeamRecruitmentNotification notification = mock(TeamRecruitmentNotification.class);
+        when(notificationRepository.findByIdAndRecipient_Id(NOTIFICATION_ID, USER_ID))
+                .thenReturn(Optional.of(notification));
+
+        notificationService.delete(USER_ID, NOTIFICATION_ID);
+
+        verify(notification).delete();
+    }
+
+    @Test
+    void 존재하지_않는_알림을_삭제하면_404를_반환한다() {
+        when(notificationRepository.findByIdAndRecipient_Id(NOTIFICATION_ID, USER_ID))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> notificationService.delete(USER_ID, NOTIFICATION_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND));
+    }
+
+    @Test
     void 전체_삭제시_삭제되지_않은_알림을_모두_삭제한다() {
         TeamRecruitmentNotification n1 = mock(TeamRecruitmentNotification.class);
         TeamRecruitmentNotification n2 = mock(TeamRecruitmentNotification.class);
