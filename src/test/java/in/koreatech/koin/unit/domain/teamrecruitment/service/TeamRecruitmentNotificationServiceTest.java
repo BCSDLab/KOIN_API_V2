@@ -18,8 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
@@ -48,6 +49,7 @@ class TeamRecruitmentNotificationServiceTest {
         when(notification.getRecruitment().getId()).thenReturn(1);
         when(notification.isRead()).thenReturn(false);
 
+        when(notificationRepository.countByRecipient_IdAndIsDeletedFalse(USER_ID)).thenReturn(1L);
         when(notificationRepository.findAllByRecipient_IdAndIsDeletedFalseOrderByIdDesc(eq(USER_ID), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(notification)));
         when(notificationRepository.countByRecipient_IdAndReadAtIsNullAndIsDeletedFalse(USER_ID))
@@ -67,9 +69,9 @@ class TeamRecruitmentNotificationServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> notificationService.markAsRead(USER_ID, NOTIFICATION_ID))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND));
     }
 
     @Test

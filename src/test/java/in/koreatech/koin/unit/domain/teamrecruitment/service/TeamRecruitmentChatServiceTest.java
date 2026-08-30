@@ -12,8 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
@@ -62,9 +63,9 @@ class TeamRecruitmentChatServiceTest {
         when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> chatService.getChatRoom(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_NOT_FOUND));
     }
 
     @Test
@@ -76,9 +77,9 @@ class TeamRecruitmentChatServiceTest {
         when(wrongRecruitment.getId()).thenReturn(99);
 
         assertThatThrownBy(() -> chatService.getChatRoom(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_NOT_FOUND));
     }
 
     @Test
@@ -91,9 +92,9 @@ class TeamRecruitmentChatServiceTest {
         when(memberRepository.existsByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(false);
 
         assertThatThrownBy(() -> chatService.getChatRoom(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
-                        .isEqualTo(HttpStatus.FORBIDDEN));
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_FORBIDDEN));
     }
 
     @Test
@@ -106,9 +107,9 @@ class TeamRecruitmentChatServiceTest {
         when(wrongRecruitment.getId()).thenReturn(99);
 
         assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
     }
 
     @Test
@@ -123,9 +124,9 @@ class TeamRecruitmentChatServiceTest {
         when(recruitment.getAuthor()).thenReturn(otherAuthor);
 
         assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
-                        .isEqualTo(HttpStatus.FORBIDDEN));
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN));
     }
 
     @Test
@@ -168,8 +169,8 @@ class TeamRecruitmentChatServiceTest {
         assertThatThrownBy(() -> chatService.createMessage(
                 USER_ID, CHAT_ROOM_ID,
                 new in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest("안녕", false)))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
-                        .isEqualTo(HttpStatus.CONFLICT));
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_READ_ONLY));
     }
 }

@@ -4,18 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
-import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
@@ -26,7 +20,13 @@ import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,14 +41,14 @@ public class TeamRecruitmentChatService {
 
     public ChatRoomResponse getChatRoom(Integer userId, Integer recruitmentId, Integer chatRoomId) {
         TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND));
 
         if (!chatRoom.getRecruitment().getId().equals(recruitmentId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
+            throw CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND);
         }
 
         if (!memberRepository.existsByChatRoom_IdAndUser_Id(chatRoomId, userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "채팅방 멤버가 아닙니다.");
+            throw CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN);
         }
 
         int memberCount = (int) memberRepository.countByChatRoom_Id(chatRoomId);
@@ -74,17 +74,17 @@ public class TeamRecruitmentChatService {
     @Transactional
     public DirectChatRoomResponse getOrCreateDirectChatRoom(Integer userId, Integer recruitmentId, Integer applicationId) {
         TeamRecruitmentApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
 
         TeamRecruitment recruitment = recruitmentRepository.findById(recruitmentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "모집글을 찾을 수 없습니다."));
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_NOT_FOUND));
 
         if (!application.getRecruitment().getId().equals(recruitmentId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다.");
+            throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND);
         }
 
         if (!userId.equals(recruitment.getAuthor().getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+            throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN);
         }
 
         User counterpartUser = application.getApplicant();
@@ -116,7 +116,7 @@ public class TeamRecruitmentChatService {
             Integer afterMessageId, Integer beforeMessageId, int limit) {
 
         TeamRecruitmentChatMember currentMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "채팅방 멤버가 아닙니다."));
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
 
         List<TeamRecruitmentChatMessage> messages = fetchMessages(chatRoomId, afterMessageId, beforeMessageId, limit);
 
@@ -156,13 +156,13 @@ public class TeamRecruitmentChatService {
     @Transactional
     public ChatMessageResponse createMessage(Integer userId, Integer chatRoomId, CreateChatMessageRequest request) {
         TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND));
 
         TeamRecruitmentChatMember senderMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "채팅방 멤버가 아닙니다."));
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
 
         if (!chatRoom.isActive()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "읽기 전용 채팅방입니다.");
+            throw CustomException.of(TEAM_RECRUITMENT_CHAT_READ_ONLY);
         }
 
         User sender = senderMember.getUser();

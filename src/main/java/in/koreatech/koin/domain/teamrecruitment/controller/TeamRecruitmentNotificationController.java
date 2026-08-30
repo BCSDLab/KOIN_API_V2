@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentNotificationsResponse;
 import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentNotificationService;
 import in.koreatech.koin.global.auth.Auth;
+
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,7 +25,7 @@ public class TeamRecruitmentNotificationController implements TeamRecruitmentNot
 
     @GetMapping
     public ResponseEntity<TeamRecruitmentNotificationsResponse> getNotifications(
-            @Auth Integer userId,
+            @Auth(permit = {STUDENT}) Integer userId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit
     ) {
@@ -32,7 +34,7 @@ public class TeamRecruitmentNotificationController implements TeamRecruitmentNot
 
     @PostMapping("/{notificationId}/read")
     public ResponseEntity<Void> markAsRead(
-            @Auth Integer userId,
+            @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer notificationId
     ) {
         notificationService.markAsRead(userId, notificationId);
@@ -40,13 +42,13 @@ public class TeamRecruitmentNotificationController implements TeamRecruitmentNot
     }
 
     @PostMapping("/mark-all-read")
-    public ResponseEntity<Void> markAllRead(@Auth Integer userId) {
+    public ResponseEntity<Void> markAllRead(@Auth(permit = {STUDENT}) Integer userId) {
         notificationService.markAllRead(userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteAll(@Auth Integer userId) {
+    public ResponseEntity<Void> deleteAll(@Auth(permit = {STUDENT}) Integer userId) {
         notificationService.deleteAll(userId);
         return ResponseEntity.noContent().build();
     }

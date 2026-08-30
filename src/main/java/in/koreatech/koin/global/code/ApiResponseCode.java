@@ -121,6 +121,7 @@ public enum ApiResponseCode {
     CALLVAN_REPORT_ONLY_PARTICIPANT(HttpStatus.FORBIDDEN, "같은 콜벤팟 참여자만 신고할 수 있습니다."),
     FORBIDDEN_CALLVAN_RESTRICTED_USER(HttpStatus.FORBIDDEN, "콜벤 기능 이용이 제한된 사용자입니다."),
     TEAM_RECRUITMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "팀원 모집글에 대한 권한이 없습니다."),
+    TEAM_RECRUITMENT_CHAT_FORBIDDEN(HttpStatus.FORBIDDEN, "채팅방에 대한 권한이 없습니다."),
 
     /**
      * 404 Not Found (리소스를 찾을 수 없음)
@@ -155,6 +156,8 @@ public enum ApiResponseCode {
     TEAM_RECRUITMENT_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "팀원 모집 프로필이 존재하지 않습니다."),
     TEAM_RECRUITMENT_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "팀원 모집 지원서가 존재하지 않습니다."),
     TEAM_RECRUITMENT_ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 모집글의 역할이 존재하지 않습니다."),
+    TEAM_RECRUITMENT_CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."),
+    TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림이 존재하지 않습니다."),
 
     /**
      * 409 CONFLICT (중복 혹은 충돌)
@@ -183,6 +186,7 @@ public enum ApiResponseCode {
     TEAM_RECRUITMENT_ROLE_UPDATE_NOT_ALLOWED(HttpStatus.CONFLICT, "지원자가 있는 역할은 삭제, 이름 변경, 정원 축소를 할 수 없습니다."),
     TEAM_RECRUITMENT_MAX_PARTICIPANTS_BELOW_ACCEPTED(HttpStatus.CONFLICT, "승인된 인원보다 적은 정원으로 수정할 수 없습니다."),
     TEAM_RECRUITMENT_TYPE_CHANGE_NOT_ALLOWED(HttpStatus.CONFLICT, "지원자가 있으면 모집 유형을 변경할 수 없습니다."),
+    TEAM_RECRUITMENT_CHAT_READ_ONLY(HttpStatus.CONFLICT, "읽기 전용 채팅방입니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)
