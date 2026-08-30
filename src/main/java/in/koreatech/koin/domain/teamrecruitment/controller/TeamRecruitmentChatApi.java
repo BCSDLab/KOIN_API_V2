@@ -1,12 +1,16 @@
 package in.koreatech.koin.domain.teamrecruitment.controller;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.CREATED;
 import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_USER_TYPE;
+import static in.koreatech.koin.global.code.ApiResponseCode.ILLEGAL_ARGUMENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
+import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_NOT_ACCEPTED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CHAT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CHAT_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CHAT_READ_ONLY;
+import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CLOSED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.UNAUTHORIZED_USER;
@@ -24,6 +28,8 @@ import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Team Recruitment Chat: 팀원 모집 채팅", description = "팀원 모집 채팅 API")
@@ -45,9 +51,12 @@ public interface TeamRecruitmentChatApi {
 
     @ApiResponseCodes({
         OK,
+        CREATED,
         TEAM_RECRUITMENT_NOT_FOUND,
         TEAM_RECRUITMENT_APPLICATION_NOT_FOUND,
         TEAM_RECRUITMENT_FORBIDDEN,
+        TEAM_RECRUITMENT_APPLICATION_NOT_ACCEPTED,
+        TEAM_RECRUITMENT_CLOSED,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
@@ -60,6 +69,8 @@ public interface TeamRecruitmentChatApi {
 
     @ApiResponseCodes({
         OK,
+        ILLEGAL_ARGUMENT,
+        TEAM_RECRUITMENT_CHAT_NOT_FOUND,
         TEAM_RECRUITMENT_CHAT_FORBIDDEN,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
@@ -69,9 +80,9 @@ public interface TeamRecruitmentChatApi {
             Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId,
-            @RequestParam(required = false) Integer afterMessageId,
-            @RequestParam(required = false) Integer beforeMessageId,
-            @RequestParam(defaultValue = "100") int limit
+            @Parameter(schema = @Schema(minimum = "1")) @RequestParam(required = false) Integer afterMessageId,
+            @Parameter(schema = @Schema(minimum = "1")) @RequestParam(required = false) Integer beforeMessageId,
+            @Parameter(schema = @Schema(minimum = "1", maximum = "200")) @RequestParam(defaultValue = "100") int limit
     );
 
     @ApiResponseCodes({

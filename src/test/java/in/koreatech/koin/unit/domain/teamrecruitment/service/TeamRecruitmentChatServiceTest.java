@@ -13,9 +13,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
@@ -25,8 +29,11 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentAppli
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
-import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
+import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomCreationResult;
 import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentChatService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.unit.fixture.UserFixture;
@@ -54,6 +61,15 @@ class TeamRecruitmentChatServiceTest {
 
     @Mock
     private TeamRecruitmentChatMessageRepository messageRepository;
+
+    @Mock
+    private TeamRecruitmentNotificationRepository notificationRepository;
+
+    @Mock
+    private TeamRecruitmentOutboxEventRepository outboxEventRepository;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private TeamRecruitmentChatService chatService;
@@ -113,6 +129,43 @@ class TeamRecruitmentChatServiceTest {
     }
 
     @Test
+    void 지원서가_ACCEPTED_상태가_아니면_409를_반환한다() {
+        User author = UserFixture.id_설정_코인_유저(USER_ID);
+        TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
+        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(application.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(recruitment.getAuthor()).thenReturn(author);
+        when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.PENDING);
+
+        assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_NOT_ACCEPTED));
+    }
+
+    @Test
+    void 모집글이_모집_중이_아니면_409를_반환한다() {
+        User author = UserFixture.id_설정_코인_유저(USER_ID);
+        TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
+        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(application.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(recruitment.getAuthor()).thenReturn(author);
+        when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.ACCEPTED);
+        when(recruitment.isRecruiting()).thenReturn(false);
+
+        assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CLOSED));
+    }
+
+    @Test
     void 모집글_작성자가_아니면_403을_반환한다() {
         User otherAuthor = UserFixture.id_설정_코인_유저(OTHER_USER_ID);
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
@@ -141,6 +194,8 @@ class TeamRecruitmentChatServiceTest {
         when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.ACCEPTED);
+        when(recruitment.isRecruiting()).thenReturn(true);
         when(recruitment.getAuthor()).thenReturn(author);
         when(application.getApplicant()).thenReturn(counterpart);
         when(chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(
@@ -148,27 +203,98 @@ class TeamRecruitmentChatServiceTest {
                 .thenReturn(Optional.of(existingRoom));
         when(existingRoom.getId()).thenReturn(CHAT_ROOM_ID);
         when(existingRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.DIRECT);
-        when(existingRoom.getStatus()).thenReturn(in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE);
+        when(existingRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.ACTIVE);
 
-        DirectChatRoomResponse response = chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID);
+        DirectChatRoomCreationResult result = chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID);
 
-        assertThat(response.chatRoomId()).isEqualTo(CHAT_ROOM_ID);
-        assertThat(response.roomName()).isEqualTo(counterpart.getNickname());
+        assertThat(result.isNew()).isFalse();
+        assertThat(result.response().chatRoomId()).isEqualTo(CHAT_ROOM_ID);
+        assertThat(result.response().roomName()).isEqualTo(counterpart.getNickname());
+    }
+
+    @Test
+    void 메시지_조회시_afterMessageId와_beforeMessageId_동시_사용하면_400을_반환한다() {
+        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, 1, 5, 10))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.ILLEGAL_ARGUMENT));
+    }
+
+    @Test
+    void 메시지_조회시_limit이_범위를_벗어나면_400을_반환한다() {
+        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, null, 0))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.ILLEGAL_ARGUMENT));
+
+        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, null, 201))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.ILLEGAL_ARGUMENT));
+    }
+
+    @Test
+    void 메시지_조회시_afterMessageId가_1_미만이면_400을_반환한다() {
+        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, 0, null, 10))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.ILLEGAL_ARGUMENT));
+    }
+
+    @Test
+    void 메시지_조회시_beforeMessageId가_1_미만이면_400을_반환한다() {
+        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, 0, 10))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.ILLEGAL_ARGUMENT));
+    }
+
+    @Test
+    void 메시지_조회시_채팅방이_다른_모집글_소속이면_404를_반환한다() {
+        TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
+        TeamRecruitment wrongRecruitment = mock(TeamRecruitment.class);
+        when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
+        when(chatRoom.getRecruitment()).thenReturn(wrongRecruitment);
+        when(wrongRecruitment.getId()).thenReturn(99);
+
+        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, null, 10))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_NOT_FOUND));
+    }
+
+    @Test
+    void 메시지_전송시_채팅방이_다른_모집글_소속이면_404를_반환한다() {
+        TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
+        TeamRecruitment wrongRecruitment = mock(TeamRecruitment.class);
+        when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
+        when(chatRoom.getRecruitment()).thenReturn(wrongRecruitment);
+        when(wrongRecruitment.getId()).thenReturn(99);
+
+        assertThatThrownBy(() -> chatService.createMessage(
+                USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID,
+                new CreateChatMessageRequest("안녕", false)))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_NOT_FOUND));
     }
 
     @Test
     void READ_ONLY_채팅방에_메시지_전송시_409를_반환한다() {
         TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
         TeamRecruitmentChatMember member = mock(TeamRecruitmentChatMember.class);
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
 
         when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
+        when(chatRoom.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID))
                 .thenReturn(Optional.of(member));
         when(chatRoom.isActive()).thenReturn(false);
 
         assertThatThrownBy(() -> chatService.createMessage(
-                USER_ID, CHAT_ROOM_ID,
-                new in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest("안녕", false)))
+                USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID,
+                new CreateChatMessageRequest("안녕", false)))
                 .isInstanceOf(CustomException.class)
                 .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
                         .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_READ_ONLY));

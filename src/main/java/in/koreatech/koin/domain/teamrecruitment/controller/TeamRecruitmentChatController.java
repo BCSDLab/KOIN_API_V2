@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
+import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomCreationResult;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentChatService;
 import in.koreatech.koin.global.auth.Auth;
@@ -45,8 +46,9 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
             @PathVariable Integer recruitmentId,
             @PathVariable Integer applicationId
     ) {
-        DirectChatRoomResponse response = chatService.getOrCreateDirectChatRoom(userId, recruitmentId, applicationId);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        DirectChatRoomCreationResult result = chatService.getOrCreateDirectChatRoom(userId, recruitmentId, applicationId);
+        HttpStatus status = result.isNew() ? HttpStatus.CREATED : HttpStatus.OK;
+        return ResponseEntity.status(status).body(result.response());
     }
 
     @GetMapping("/{chatRoomId}/messages")
@@ -58,7 +60,7 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
             @RequestParam(required = false) Integer beforeMessageId,
             @RequestParam(defaultValue = "100") int limit
     ) {
-        return ResponseEntity.ok(chatService.getMessages(userId, chatRoomId, afterMessageId, beforeMessageId, limit));
+        return ResponseEntity.ok(chatService.getMessages(userId, recruitmentId, chatRoomId, afterMessageId, beforeMessageId, limit));
     }
 
     @PostMapping("/{chatRoomId}/messages")
@@ -68,6 +70,6 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
             @PathVariable Integer chatRoomId,
             @Valid @RequestBody CreateChatMessageRequest request
     ) {
-        return ResponseEntity.ok(chatService.createMessage(userId, chatRoomId, request));
+        return ResponseEntity.ok(chatService.createMessage(userId, recruitmentId, chatRoomId, request));
     }
 }

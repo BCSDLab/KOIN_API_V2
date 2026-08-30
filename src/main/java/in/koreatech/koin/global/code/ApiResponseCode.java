@@ -187,6 +187,7 @@ public enum ApiResponseCode {
     TEAM_RECRUITMENT_MAX_PARTICIPANTS_BELOW_ACCEPTED(HttpStatus.CONFLICT, "승인된 인원보다 적은 정원으로 수정할 수 없습니다."),
     TEAM_RECRUITMENT_TYPE_CHANGE_NOT_ALLOWED(HttpStatus.CONFLICT, "지원자가 있으면 모집 유형을 변경할 수 없습니다."),
     TEAM_RECRUITMENT_CHAT_READ_ONLY(HttpStatus.CONFLICT, "읽기 전용 채팅방입니다."),
+    TEAM_RECRUITMENT_APPLICATION_NOT_ACCEPTED(HttpStatus.CONFLICT, "승인된 지원서가 아닙니다."),
 
     /**
      * 429 Too Many Requests (요청량 초과)
