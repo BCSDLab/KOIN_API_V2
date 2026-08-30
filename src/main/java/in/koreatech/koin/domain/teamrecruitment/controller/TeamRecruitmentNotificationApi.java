@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentNotificationsResponse;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Team Recruitment Notification: 팀원 모집 알림", description = "팀원 모집 알림 API")
@@ -26,10 +24,6 @@ public interface TeamRecruitmentNotificationApi {
         FORBIDDEN_USER_TYPE,
     })
     @Operation(summary = "팀원 모집 알림 목록 조회")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "알림 목록 조회 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 페이지 또는 limit 값")
-    })
     ResponseEntity<TeamRecruitmentNotificationsResponse> getNotifications(
             Integer userId,
             @RequestParam(defaultValue = "1") int page,
@@ -43,10 +37,6 @@ public interface TeamRecruitmentNotificationApi {
         FORBIDDEN_USER_TYPE,
     })
     @Operation(summary = "알림 읽음 처리")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "읽음 처리 성공"),
-        @ApiResponse(responseCode = "404", description = "알림을 찾을 수 없음")
-    })
     ResponseEntity<Void> markAsRead(
             Integer userId,
             @PathVariable Integer notificationId
