@@ -18,6 +18,8 @@ import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentChatService;
 import in.koreatech.koin.global.auth.Auth;
+
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +32,7 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
 
     @GetMapping("/{chatRoomId}")
     public ResponseEntity<ChatRoomResponse> getChatRoom(
-            @Auth Integer userId,
+            @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId
     ) {
@@ -39,7 +41,7 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
 
     @PostMapping("/applications/{applicationId}/direct")
     public ResponseEntity<DirectChatRoomResponse> getOrCreateDirectChatRoom(
-            @Auth Integer userId,
+            @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer applicationId
     ) {
@@ -49,7 +51,7 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
 
     @GetMapping("/{chatRoomId}/messages")
     public ResponseEntity<List<ChatMessageResponse>> getMessages(
-            @Auth Integer userId,
+            @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId,
             @RequestParam(required = false) Integer afterMessageId,
@@ -61,7 +63,7 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
 
     @PostMapping("/{chatRoomId}/messages")
     public ResponseEntity<ChatMessageResponse> createMessage(
-            @Auth Integer userId,
+            @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId,
             @Valid @RequestBody CreateChatMessageRequest request
