@@ -83,12 +83,13 @@ public record CreateRecruitmentRequest(
     public CreateRecruitmentRequest {
         RecruitmentRequestValidator.validatePeriod(activityStartDate, activityEndDate, deadlineDate);
         RecruitmentRequestValidator.validateRoleComposition(recruitmentType, roles, maxParticipants);
-        RecruitmentRequestValidator.validateDistinctRoleNames(
-            roles == null ? List.of() : roles.stream().map(RoleInput::name).toList());
-        RecruitmentRequestValidator.validateTotalCapacity(
-            recruitmentType == TeamRecruitmentType.ROLE_BASED && roles != null
-                ? roles.stream().mapToInt(RoleInput::maxParticipants).sum()
-                : (maxParticipants == null ? 0 : maxParticipants));
+        if (RecruitmentRequestValidator.isCompleteRoleList(roles, RoleInput::isComplete)) {
+            RecruitmentRequestValidator.validateDistinctRoleNames(roles.stream().map(RoleInput::name).toList());
+            RecruitmentRequestValidator.validateTotalCapacity(
+                recruitmentType == TeamRecruitmentType.ROLE_BASED
+                    ? roles.stream().mapToInt(RoleInput::maxParticipants).sum()
+                    : (maxParticipants == null ? 0 : maxParticipants));
+        }
     }
 
     /**

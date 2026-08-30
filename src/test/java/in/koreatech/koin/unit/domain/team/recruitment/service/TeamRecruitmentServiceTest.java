@@ -18,6 +18,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -306,7 +308,8 @@ class TeamRecruitmentServiceTest {
         @DisplayName("거절된 지원서만 있어도 모집 유형을 변경할 수 없다")
         void cannotChangeTypeWithRejectedApplication() {
             givenFoundRecruitment();
-            when(applicationRepository.countByRecruitment_IdAndStatusIn(anyInt(), any())).thenReturn(1L);
+            when(applicationRepository.countByRecruitment_IdAndStatusIn(
+                eq(RECRUITMENT_ID), argThat(statuses -> statuses.contains(REJECTED)))).thenReturn(1L);
 
             assertThatThrownBy(() -> teamRecruitmentService.updateRecruitment(
                 AUTHOR_ID, RECRUITMENT_ID, request(GENERAL, 5, List.of())))
@@ -495,6 +498,51 @@ class TeamRecruitmentServiceTest {
             assertThat(recruitment.getRoles())
                 .extracting(TeamRecruitmentRole::getId, TeamRecruitmentRole::getName)
                 .containsExactlyInAnyOrder(tuple(ROLE_ID, "#1"), tuple(5, "#0"));
+        }
+
+        @Test
+        @DisplayName("낮은 순서의 역할이 삭제되어도 새 역할은 기존 역할 뒤에 붙는다")
+        void appendsNewRoleAfterExistingRoles() {
+            recruitment.getRoles().clear();
+            recruitment.addRole(role(ROLE_ID, "A", 1, 1));
+            recruitment.addRole(role(5, "B", 1, 2));
+            recruitment.addRole(role(6, "C", 1, 3));
+            givenFoundRecruitment();
+            givenNoApplicants();
+
+            teamRecruitmentService.updateRecruitment(AUTHOR_ID, RECRUITMENT_ID, request(ROLE_BASED, null, List.of(
+                new UpdateRoleInput(5, "B", 1),
+                new UpdateRoleInput(6, "C", 1),
+                new UpdateRoleInput(null, "D", 1)
+            )));
+
+            assertThat(recruitment.getRoles())
+                .extracting(TeamRecruitmentRole::getName, TeamRecruitmentRole::getDisplayOrder)
+                .containsExactlyInAnyOrder(tuple("B", 2), tuple("C", 3), tuple("D", 4));
+        }
+
+        @Test
+        @DisplayName("뒤에 자리가 없으면 앞쪽 빈 슬롯을 쓴다")
+        void fallsBackToFreeSlotWhenNoRoomAfter() {
+            recruitment.getRoles().clear();
+            recruitment.addRole(role(ROLE_ID, "B", 1, 2));
+            recruitment.addRole(role(5, "C", 1, 3));
+            recruitment.addRole(role(6, "D", 1, 4));
+            recruitment.addRole(role(7, "E", 1, 5));
+            givenFoundRecruitment();
+            givenNoApplicants();
+
+            teamRecruitmentService.updateRecruitment(AUTHOR_ID, RECRUITMENT_ID, request(ROLE_BASED, null, List.of(
+                new UpdateRoleInput(ROLE_ID, "B", 1),
+                new UpdateRoleInput(5, "C", 1),
+                new UpdateRoleInput(6, "D", 1),
+                new UpdateRoleInput(7, "E", 1),
+                new UpdateRoleInput(null, "F", 1)
+            )));
+
+            assertThat(recruitment.getRoles())
+                .extracting(TeamRecruitmentRole::getName, TeamRecruitmentRole::getDisplayOrder)
+                .contains(tuple("F", 1));
         }
 
         @Test

@@ -10,13 +10,14 @@ import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_USER;
 import static in.koreatech.koin.global.code.ApiResponseCode.NO_CONTENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CLOSED;
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_DEADLINE_DATE;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION;
+import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_MAX_PARTICIPANTS_BELOW_ACCEPTED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_ROLE_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_ROLE_UPDATE_NOT_ALLOWED;
+import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_TYPE_CHANGE_NOT_ALLOWED;
 import static in.koreatech.koin.global.code.ApiResponseCode.UNAUTHORIZED_USER;
 
 import java.util.List;
@@ -90,7 +91,6 @@ public interface TeamRecruitmentApi {
         CREATED,
         TEAM_RECRUITMENT_INVALID_DEADLINE_DATE,
         TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION,
-        TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME,
         INVALID_START_DATE_AFTER_END_DATE,
         INVALID_REQUEST_BODY,
         NOT_FOUND_USER,
@@ -139,9 +139,10 @@ public interface TeamRecruitmentApi {
         TEAM_RECRUITMENT_CLOSED,
         TEAM_RECRUITMENT_ROLE_NOT_FOUND,
         TEAM_RECRUITMENT_ROLE_UPDATE_NOT_ALLOWED,
+        TEAM_RECRUITMENT_MAX_PARTICIPANTS_BELOW_ACCEPTED,
+        TEAM_RECRUITMENT_TYPE_CHANGE_NOT_ALLOWED,
         TEAM_RECRUITMENT_INVALID_DEADLINE_DATE,
         TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION,
-        TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME,
         INVALID_START_DATE_AFTER_END_DATE,
         INVALID_REQUEST_BODY,
         UNAUTHORIZED_USER,
@@ -152,7 +153,7 @@ public interface TeamRecruitmentApi {
         - 작성자만 수정할 수 있습니다.
         - 기존 역할은 `id`를 반드시 보내고 새 역할은 `id`를 생략하셔야 합니다.
         - 지원자가 있는 역할은 삭제, 이름 변경, 정원 축소를 할 수 없습니다.
-        - 기존 역할의 표시 순서는 유지되며 새 역할이 비어 있는 순서를 채웁니다.
+        - 기존 역할의 표시 순서는 유지되며, 새 역할은 기존 역할 뒤에 요청 배열 순서대로 추가됩니다.
         - 전체 정원은 10명을 넘을 수 없습니다.
         - 역할명은 앞뒤 공백을 제거해 저장하며, 대소문자와 악센트만 다른 이름도 중복으로 봅니다.
         - 정원을 이미 승인된 인원과 같게 줄이면 그 자리에서 마감됩니다.

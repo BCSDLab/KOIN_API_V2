@@ -261,7 +261,7 @@ public class TeamRecruitmentService {
                 .name(requested.name())
                 .maxParticipants(requested.maxParticipants())
                 .currentParticipants(0)
-                .displayOrder(nextFreeDisplayOrder(usedOrders))
+                .displayOrder(nextDisplayOrder(usedOrders))
                 .build());
         }
     }
@@ -300,7 +300,16 @@ public class TeamRecruitmentService {
         throw CustomException.of(TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION);
     }
 
-    private int nextFreeDisplayOrder(Set<Integer> usedOrders) {
+    /**
+     * 새 역할은 기존 역할 뒤에 요청 배열 순서대로 붙인다.
+     * display_order 는 1~5 만 허용하므로 뒤에 자리가 없으면 앞쪽 빈 슬롯을 쓴다.
+     * 앞쪽 슬롯은 이전 요청에서 낮은 순서의 역할이 삭제된 경우에만 비어 있다.
+     */
+    private int nextDisplayOrder(Set<Integer> usedOrders) {
+        int afterExisting = usedOrders.stream().mapToInt(Integer::intValue).max().orElse(0) + 1;
+        if (afterExisting <= MAX_DISPLAY_ORDER && usedOrders.add(afterExisting)) {
+            return afterExisting;
+        }
         for (int order = FIRST_DISPLAY_ORDER; order <= MAX_DISPLAY_ORDER; order++) {
             if (usedOrders.add(order)) {
                 return order;
