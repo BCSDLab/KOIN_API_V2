@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.team.recruitment.dto;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_START_DATE_AFTER_END_DATE;
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_DEADLINE_DATE;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION;
 
@@ -12,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType;
 import in.koreatech.koin.global.exception.CustomException;
@@ -70,7 +70,7 @@ final class RecruitmentRequestValidator {
         Set<String> normalized = new HashSet<>();
         for (String roleName : roleNames) {
             if (roleName != null && !normalized.add(normalizeRoleName(roleName))) {
-                throw CustomException.of(TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME, "roleName: " + roleName);
+                throw CustomException.of(INVALID_REQUEST_BODY, "duplicated roleName: " + roleName);
             }
         }
     }
@@ -79,6 +79,15 @@ final class RecruitmentRequestValidator {
         String withoutMarks = Normalizer.normalize(roleName, Normalizer.Form.NFD)
             .replaceAll("\\p{M}+", "");
         return withoutMarks.toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * 압축 생성자는 Bean Validation 보다 먼저 실행되므로, 역할 목록에 null 이 섞여 있거나
+     * 필수 값이 비어 있으면 교차 검증에서 NullPointerException 이 날 수 있다.
+     * 그런 요청은 Bean Validation 이 400 으로 처리하므로 교차 검증을 건너뛴다.
+     */
+    static <T> boolean isCompleteRoleList(List<T> roles, Predicate<T> complete) {
+        return roles != null && roles.stream().allMatch(role -> role != null && complete.test(role));
     }
 
     static void validateRoleComposition(

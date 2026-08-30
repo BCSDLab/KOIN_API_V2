@@ -2,7 +2,6 @@ package in.koreatech.koin.unit.domain.team.recruitment.dto;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_START_DATE_AFTER_END_DATE;
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_DEADLINE_DATE;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -168,7 +167,7 @@ class CreateRecruitmentRequestTest {
                 new RoleInput("PM", 1),
                 new RoleInput("PM", 1))))
                 .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_REQUEST_BODY);
         }
 
         @Test
@@ -178,7 +177,7 @@ class CreateRecruitmentRequestTest {
                 new RoleInput("PM", 1),
                 new RoleInput("pm", 1))))
                 .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_REQUEST_BODY);
         }
 
         @Test
@@ -196,7 +195,7 @@ class CreateRecruitmentRequestTest {
                 new RoleInput("PM", 1),
                 new RoleInput("PM ", 1))))
                 .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_REQUEST_BODY);
         }
 
         @Test
@@ -206,7 +205,7 @@ class CreateRecruitmentRequestTest {
                 new RoleInput("Cafe", 1),
                 new RoleInput("Café", 1))))
                 .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_REQUEST_BODY);
         }
     }
 

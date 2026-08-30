@@ -206,7 +206,7 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
                         {"name": "pm", "max_participants": 1}
                         """)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME"));
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST_BODY"));
         }
 
         @Test

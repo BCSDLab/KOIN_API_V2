@@ -96,7 +96,6 @@ public enum ApiResponseCode {
     TEAM_RECRUITMENT_ACTIVITY_END_DATE_MUST_BE_NULL(HttpStatus.BAD_REQUEST, "진행 중인 활동인 경우, 활동 종료일은 입력하면 안 됩니다."),
     TEAM_RECRUITMENT_INVALID_DEADLINE_DATE(HttpStatus.BAD_REQUEST, "지원 마감일은 활동 시작일 이하여야 합니다."),
     TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION(HttpStatus.BAD_REQUEST, "모집 유형에 맞지 않는 역할 또는 정원 구성입니다."),
-    TEAM_RECRUITMENT_DUPLICATE_ROLE_NAME(HttpStatus.BAD_REQUEST, "역할명은 중복될 수 없습니다."),
 
     /**
      * 401 Unauthorized (인증 필요)

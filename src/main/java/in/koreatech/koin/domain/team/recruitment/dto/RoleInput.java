@@ -28,4 +28,12 @@ public record RoleInput(
     public RoleInput {
         name = RecruitmentRequestValidator.canonicalRoleName(name);
     }
+
+    /**
+     * 교차 검증에 필요한 값이 모두 들어왔는지 확인한다.
+     * 비어 있으면 Bean Validation 이 400 을 반환하므로 교차 검증은 건너뛴다.
+     */
+    boolean isComplete() {
+        return name != null && maxParticipants != null;
+    }
 }
