@@ -92,6 +92,10 @@ public enum ApiResponseCode {
     CALLVAN_POST_AUTHOR(HttpStatus.BAD_REQUEST, "콜벤 게시글 작성자는 나갈 수 없습니다"),
     CALLVAN_REPORT_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 신고할 수 없습니다."),
     CALLVAN_REPORT_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "이미 처리된 콜벤 신고입니다."),
+    TEAM_RECRUITMENT_ACTIVITY_END_DATE_REQUIRED(HttpStatus.BAD_REQUEST, "진행 중인 활동이 아닌 경우, 활동 종료일은 필수입니다."),
+    TEAM_RECRUITMENT_ACTIVITY_END_DATE_MUST_BE_NULL(HttpStatus.BAD_REQUEST, "진행 중인 활동인 경우, 활동 종료일은 입력하면 안 됩니다."),
+    TEAM_RECRUITMENT_INVALID_DEADLINE_DATE(HttpStatus.BAD_REQUEST, "지원 마감일은 활동 시작일 이하여야 합니다."),
+    TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION(HttpStatus.BAD_REQUEST, "모집 유형에 맞지 않는 역할 또는 정원 구성입니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -151,6 +155,7 @@ public enum ApiResponseCode {
     TEAM_RECRUITMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "팀원 모집글이 존재하지 않습니다."),
     TEAM_RECRUITMENT_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "팀원 모집 프로필이 존재하지 않습니다."),
     TEAM_RECRUITMENT_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "팀원 모집 지원서가 존재하지 않습니다."),
+    TEAM_RECRUITMENT_ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 모집글의 역할이 존재하지 않습니다."),
     TEAM_RECRUITMENT_CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."),
     TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림이 존재하지 않습니다."),
 
@@ -178,6 +183,9 @@ public enum ApiResponseCode {
     TEAM_RECRUITMENT_PROFILE_REQUIRED(HttpStatus.CONFLICT, "팀원 모집 프로필 작성이 필요합니다."),
     TEAM_RECRUITMENT_APPLICATION_DUPLICATE(HttpStatus.CONFLICT, "이미 지원한 팀원 모집글입니다."),
     TEAM_RECRUITMENT_APPLICATION_FINALIZED(HttpStatus.CONFLICT, "이미 처리된 팀원 모집 지원서입니다."),
+    TEAM_RECRUITMENT_ROLE_UPDATE_NOT_ALLOWED(HttpStatus.CONFLICT, "지원자가 있는 역할은 삭제, 이름 변경, 정원 축소를 할 수 없습니다."),
+    TEAM_RECRUITMENT_MAX_PARTICIPANTS_BELOW_ACCEPTED(HttpStatus.CONFLICT, "승인된 인원보다 적은 정원으로 수정할 수 없습니다."),
+    TEAM_RECRUITMENT_TYPE_CHANGE_NOT_ALLOWED(HttpStatus.CONFLICT, "지원자가 있으면 모집 유형을 변경할 수 없습니다."),
     TEAM_RECRUITMENT_CHAT_READ_ONLY(HttpStatus.CONFLICT, "읽기 전용 채팅방입니다."),
 
     /**
