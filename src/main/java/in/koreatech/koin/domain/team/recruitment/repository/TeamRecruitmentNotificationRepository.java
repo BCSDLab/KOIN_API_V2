@@ -25,6 +25,8 @@ public interface TeamRecruitmentNotificationRepository extends Repository<TeamRe
         Integer recipientId, Pageable pageable
     );
 
+    long countByRecipient_IdAndIsDeletedFalse(Integer recipientId);
+
     long countByRecipient_IdAndReadAtIsNullAndIsDeletedFalse(Integer recipientId);
 
     Optional<TeamRecruitmentNotification> findByIdAndRecipient_Id(Integer id, Integer recipientId);
