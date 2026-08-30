@@ -13,6 +13,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -228,7 +229,7 @@ public class TeamRecruitmentService {
         Map<Integer, TeamRecruitmentRole> existing = recruitment.getRoles().stream()
             .collect(Collectors.toMap(TeamRecruitmentRole::getId, Function.identity(), (a, b) -> a, HashMap::new));
 
-        Set<Integer> usedOrders = new HashSet<>();
+        List<TeamRecruitmentRole> keptRoles = new ArrayList<>();
         List<UpdateRoleInput> newRoles = new ArrayList<>();
         Map<TeamRecruitmentRole, UpdateRoleInput> renamed = new LinkedHashMap<>();
         for (UpdateRoleInput requested : requestedRoles) {
@@ -241,7 +242,7 @@ public class TeamRecruitmentService {
                 throw CustomException.of(TEAM_RECRUITMENT_ROLE_NOT_FOUND, "roleId: " + requested.id());
             }
             validateRoleModifiable(role, requested);
-            usedOrders.add(role.getDisplayOrder());
+            keptRoles.add(role);
             if (role.getName().equals(requested.name())) {
                 role.modify(requested.name(), requested.maxParticipants(), role.getDisplayOrder());
             } else {
@@ -256,12 +257,13 @@ public class TeamRecruitmentService {
 
         renamed.forEach((role, requested) ->
             role.modify(requested.name(), requested.maxParticipants(), role.getDisplayOrder()));
+        int displayOrder = firstOrderForNewRoles(keptRoles, newRoles.size());
         for (UpdateRoleInput requested : newRoles) {
             recruitment.addRole(TeamRecruitmentRole.builder()
                 .name(requested.name())
                 .maxParticipants(requested.maxParticipants())
                 .currentParticipants(0)
-                .displayOrder(nextDisplayOrder(usedOrders))
+                .displayOrder(displayOrder++)
                 .build());
         }
     }
@@ -301,21 +303,37 @@ public class TeamRecruitmentService {
     }
 
     /**
-     * 새 역할은 기존 역할 뒤에 요청 배열 순서대로 붙인다.
-     * display_order 는 1~5 만 허용하므로 뒤에 자리가 없으면 앞쪽 빈 슬롯을 쓴다.
-     * 앞쪽 슬롯은 이전 요청에서 낮은 순서의 역할이 삭제된 경우에만 비어 있다.
+     * 새 역할이 시작할 display_order 를 구한다.
+     * display_order 는 1~5 만 허용하므로 기존 역할 뒤에 자리가 부족하면
+     * 기존 역할을 1..n 으로 압축해 뒤쪽 자리를 만든다.
+     * 요청 단계에서 역할 개수를 5개로 제한하므로 압축 후에는 항상 자리가 남는다.
      */
-    private int nextDisplayOrder(Set<Integer> usedOrders) {
-        int afterExisting = usedOrders.stream().mapToInt(Integer::intValue).max().orElse(0) + 1;
-        if (afterExisting <= MAX_DISPLAY_ORDER && usedOrders.add(afterExisting)) {
-            return afterExisting;
+    private int firstOrderForNewRoles(List<TeamRecruitmentRole> keptRoles, int newRoleCount) {
+        List<TeamRecruitmentRole> sorted = keptRoles.stream()
+            .sorted(Comparator.comparingInt(TeamRecruitmentRole::getDisplayOrder))
+            .toList();
+        int highest = sorted.isEmpty() ? 0 : sorted.get(sorted.size() - 1).getDisplayOrder();
+        if (highest + newRoleCount <= MAX_DISPLAY_ORDER) {
+            return highest + 1;
         }
-        for (int order = FIRST_DISPLAY_ORDER; order <= MAX_DISPLAY_ORDER; order++) {
-            if (usedOrders.add(order)) {
-                return order;
+        compactDisplayOrders(sorted);
+        return sorted.size() + FIRST_DISPLAY_ORDER;
+    }
+
+    /**
+     * 기존 역할의 상대 순서를 유지한 채 display_order 를 1..n 으로 당긴다.
+     * (recruitment_id, display_order) unique 때문에 낮은 순서부터 옮기고 단계마다 flush 한다.
+     * 오름차순으로 옮기면 목표 자리는 비어 있거나 옮길 필요가 없는 자리다.
+     */
+    private void compactDisplayOrders(List<TeamRecruitmentRole> sortedByDisplayOrder) {
+        int order = FIRST_DISPLAY_ORDER;
+        for (TeamRecruitmentRole role : sortedByDisplayOrder) {
+            if (role.getDisplayOrder() != order) {
+                role.modify(role.getName(), role.getMaxParticipants(), order);
+                entityManager.flush();
             }
+            order++;
         }
-        throw CustomException.of(TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION);
     }
 
     private void validateRoleModifiable(TeamRecruitmentRole role, UpdateRoleInput requested) {
