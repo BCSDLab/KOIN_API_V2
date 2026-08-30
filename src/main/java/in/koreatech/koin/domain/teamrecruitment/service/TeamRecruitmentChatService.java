@@ -2,22 +2,31 @@ package in.koreatech.koin.domain.teamrecruitment.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentOutboxEvent;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
+import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomCreationResult;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.exception.CustomException;
@@ -26,6 +35,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentOutboxEventStatus.PENDING;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 @Service
@@ -33,11 +46,17 @@ import static in.koreatech.koin.global.code.ApiResponseCode.*;
 @Transactional(readOnly = true)
 public class TeamRecruitmentChatService {
 
+    private static final String OUTBOX_EVENT_TYPE = "TEAM_RECRUITMENT_NOTIFICATION";
+    private static final String AGGREGATE_TYPE = "TEAM_RECRUITMENT";
+
     private final TeamRecruitmentRepository recruitmentRepository;
     private final TeamRecruitmentApplicationRepository applicationRepository;
     private final TeamRecruitmentChatRoomRepository chatRoomRepository;
     private final TeamRecruitmentChatMemberRepository memberRepository;
     private final TeamRecruitmentChatMessageRepository messageRepository;
+    private final TeamRecruitmentNotificationRepository notificationRepository;
+    private final TeamRecruitmentOutboxEventRepository outboxEventRepository;
+    private final ObjectMapper objectMapper;
 
     public ChatRoomResponse getChatRoom(Integer userId, Integer recruitmentId, Integer chatRoomId) {
         TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
@@ -66,13 +85,15 @@ public class TeamRecruitmentChatService {
                 ? (counterpart != null ? counterpart.nickname() : "")
                 : chatRoom.getRecruitment().getTitle();
 
-        int maxMemberCount = chatRoom.getRecruitment().getMaxParticipants();
+        int maxMemberCount = chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT
+                ? 2
+                : chatRoom.getRecruitment().getMaxParticipants();
 
         return ChatRoomResponse.of(chatRoom, roomName, memberCount, maxMemberCount, counterpart);
     }
 
     @Transactional
-    public DirectChatRoomResponse getOrCreateDirectChatRoom(Integer userId, Integer recruitmentId, Integer applicationId) {
+    public DirectChatRoomCreationResult getOrCreateDirectChatRoom(Integer userId, Integer recruitmentId, Integer applicationId) {
         TeamRecruitmentApplication application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
 
@@ -83,6 +104,14 @@ public class TeamRecruitmentChatService {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND);
         }
 
+        if (application.getStatus() != ACCEPTED) {
+            throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_ACCEPTED);
+        }
+
+        if (!recruitment.isRecruiting()) {
+            throw CustomException.of(TEAM_RECRUITMENT_CLOSED);
+        }
+
         if (!userId.equals(recruitment.getAuthor().getId())) {
             throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN);
         }
@@ -91,7 +120,7 @@ public class TeamRecruitmentChatService {
 
         return chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(
                         recruitmentId, applicationId, TeamRecruitmentChatRoomType.DIRECT)
-                .map(existing -> DirectChatRoomResponse.of(existing, counterpartUser))
+                .map(existing -> new DirectChatRoomCreationResult(DirectChatRoomResponse.of(existing, counterpartUser), false))
                 .orElseGet(() -> {
                     TeamRecruitmentChatRoom chatRoom = TeamRecruitmentChatRoom.builder()
                             .recruitment(recruitment)
@@ -106,14 +135,28 @@ public class TeamRecruitmentChatService {
                     memberRepository.save(TeamRecruitmentChatMember.builder()
                             .chatRoom(chatRoom).user(counterpartUser).build());
 
-                    return DirectChatRoomResponse.of(chatRoom, counterpartUser);
+                    return new DirectChatRoomCreationResult(DirectChatRoomResponse.of(chatRoom, counterpartUser), true);
                 });
     }
 
     @Transactional
     public List<ChatMessageResponse> getMessages(
-            Integer userId, Integer chatRoomId,
+            Integer userId, Integer recruitmentId, Integer chatRoomId,
             Integer afterMessageId, Integer beforeMessageId, int limit) {
+
+        if (afterMessageId != null && beforeMessageId != null) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
+        }
+        if (limit < 1 || limit > 200) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
+        }
+
+        TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND));
+
+        if (!chatRoom.getRecruitment().getId().equals(recruitmentId)) {
+            throw CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND);
+        }
 
         TeamRecruitmentChatMember currentMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
                 .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
@@ -154,9 +197,13 @@ public class TeamRecruitmentChatService {
     }
 
     @Transactional
-    public ChatMessageResponse createMessage(Integer userId, Integer chatRoomId, CreateChatMessageRequest request) {
+    public ChatMessageResponse createMessage(Integer userId, Integer recruitmentId, Integer chatRoomId, CreateChatMessageRequest request) {
         TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND));
+
+        if (!chatRoom.getRecruitment().getId().equals(recruitmentId)) {
+            throw CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND);
+        }
 
         TeamRecruitmentChatMember senderMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
                 .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
@@ -184,6 +231,67 @@ public class TeamRecruitmentChatService {
                 .filter(m -> m.getLastReadMessageId() == null || m.getLastReadMessageId() < message.getId())
                 .count();
 
+        saveChatMessageNotifications(message, chatRoom, allMembers, userId);
+
         return ChatMessageResponse.of(message, unreadCount);
+    }
+
+    private void saveChatMessageNotifications(
+            TeamRecruitmentChatMessage message,
+            TeamRecruitmentChatRoom chatRoom,
+            List<TeamRecruitmentChatMember> allMembers,
+            Integer senderId) {
+
+        String messagePreview = message.getContent().length() <= 255
+                ? message.getContent()
+                : message.getContent().substring(0, 255);
+        TeamRecruitment recruitment = chatRoom.getRecruitment();
+        Integer applicationId = chatRoom.getApplication() == null ? null : chatRoom.getApplication().getId();
+
+        for (TeamRecruitmentChatMember member : allMembers) {
+            User recipient = member.getUser();
+            if (recipient.getId().equals(senderId)) {
+                continue;
+            }
+            String eventKey = "team-recruitment:chat-message:" + message.getId() + ":" + recipient.getId();
+            if (outboxEventRepository.findByEventKey(eventKey).isPresent()) {
+                continue;
+            }
+
+            TeamRecruitmentNotification notification = notificationRepository.save(
+                    TeamRecruitmentNotification.builder()
+                            .recipient(recipient)
+                            .type(NEW_CHAT_MESSAGE)
+                            .targetType(CHAT_ROOM)
+                            .messagePreview(messagePreview)
+                            .senderNickname(message.getSenderNickname())
+                            .recruitment(recruitment)
+                            .application(chatRoom.getApplication())
+                            .chatRoom(chatRoom)
+                            .build());
+
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("type", NEW_CHAT_MESSAGE.name());
+            payload.put("target_type", CHAT_ROOM.name());
+            payload.put("recipient_id", recipient.getId());
+            payload.put("recruitment_id", recruitment.getId());
+            payload.put("application_id", applicationId);
+            payload.put("chat_room_id", chatRoom.getId());
+            payload.put("notification_id", notification.getId());
+            payload.put("message_preview", messagePreview);
+
+            try {
+                outboxEventRepository.save(TeamRecruitmentOutboxEvent.builder()
+                        .eventKey(eventKey)
+                        .eventType(OUTBOX_EVENT_TYPE)
+                        .aggregateType(AGGREGATE_TYPE)
+                        .aggregateId(recruitment.getId())
+                        .payload(objectMapper.writeValueAsString(payload))
+                        .status(PENDING)
+                        .build());
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("채팅 메시지 알림 outbox payload를 직렬화할 수 없습니다.", e);
+            }
+        }
     }
 }
