@@ -204,6 +204,60 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("뒤에 자리가 없으면 기존 역할을 앞으로 당기고 새 역할을 마지막에 붙인다")
+    void 역할_표시_순서_압축() throws Exception {
+        TeamRecruitment recruitment = saveRecruitmentWithRoleOrders(2, 3, 4, 5);
+        List<TeamRecruitmentRole> roles =
+            roleRepository.findAllByRecruitment_IdOrderByDisplayOrderAsc(recruitment.getId());
+
+        mockMvc.perform(put("/team-recruitments/{id}", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(roleBasedBody("""
+                    {"id": %d, "name": "R2", "max_participants": 1},
+                    {"id": %d, "name": "R3", "max_participants": 1},
+                    {"id": %d, "name": "R4", "max_participants": 1},
+                    {"id": %d, "name": "R5", "max_participants": 1},
+                    {"name": "R6", "max_participants": 1}
+                    """.formatted(
+                    roles.get(0).getId(), roles.get(1).getId(),
+                    roles.get(2).getId(), roles.get(3).getId()))))
+            .andExpect(status().isOk());
+
+        assertThat(roleRepository.findAllByRecruitment_IdOrderByDisplayOrderAsc(recruitment.getId()))
+            .extracting(TeamRecruitmentRole::getName, TeamRecruitmentRole::getDisplayOrder)
+            .containsExactly(
+                tuple("R2", 1),
+                tuple("R3", 2),
+                tuple("R4", 3),
+                tuple("R5", 4),
+                tuple("R6", 5));
+    }
+
+    @Test
+    @DisplayName("마지막 순서 역할만 남은 상태에서 역할을 추가하면 새 역할이 뒤에 온다")
+    void 마지막_순서_역할만_남은_상태에서_역할_추가() throws Exception {
+        TeamRecruitment recruitment = saveRecruitmentWithRoleOrders(5);
+        Integer roleId = roleRepository
+            .findAllByRecruitment_IdOrderByDisplayOrderAsc(recruitment.getId()).get(0).getId();
+
+        mockMvc.perform(put("/team-recruitments/{id}", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(roleBasedBody("""
+                    {"id": %d, "name": "R5", "max_participants": 1},
+                    {"name": "R6", "max_participants": 1}
+                    """.formatted(roleId))))
+            .andExpect(status().isOk());
+
+        assertThat(roleRepository.findAllByRecruitment_IdOrderByDisplayOrderAsc(recruitment.getId()))
+            .extracting(TeamRecruitmentRole::getName, TeamRecruitmentRole::getDisplayOrder)
+            .containsExactly(
+                tuple("R5", 1),
+                tuple("R6", 2));
+    }
+
+    @Test
     @DisplayName("거절된 지원서만 남은 역할도 삭제할 수 없다")
     void 거절된_지원서가_있는_역할_삭제_차단() throws Exception {
         TeamRecruitment recruitment = saveRoleBasedRecruitment();
@@ -328,6 +382,29 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
             LocalDate.now(clock).plusDays(10),
             LocalDate.now(clock).plusDays(1),
             maxParticipants);
+    }
+
+    private TeamRecruitment saveRecruitmentWithRoleOrders(int... displayOrders) {
+        TeamRecruitment recruitment = TeamRecruitment.builder()
+            .author(author.getUser())
+            .category(PROJECT)
+            .title("역할 모집")
+            .meetingType(ONLINE)
+            .activityStartDate(LocalDate.now(clock).plusDays(2))
+            .activityEndDate(LocalDate.now(clock).plusDays(10))
+            .deadlineDate(LocalDate.now(clock).plusDays(1))
+            .recruitmentType(ROLE_BASED)
+            .maxParticipants(displayOrders.length)
+            .currentParticipants(0)
+            .description("모집 내용")
+            .status(RECRUITING)
+            .build();
+        for (int displayOrder : displayOrders) {
+            recruitment.addRole(TeamRecruitmentRole.builder()
+                .name("R" + displayOrder).maxParticipants(1).currentParticipants(0)
+                .displayOrder(displayOrder).build());
+        }
+        return recruitmentRepository.save(recruitment);
     }
 
     private String roleBasedBody(String roles) {
