@@ -459,7 +459,7 @@ class TeamRecruitmentServiceTest {
         }
 
         @Test
-        @DisplayName("기존 역할의 순서는 요청 순서와 무관하게 유지되고 새 역할은 빈 슬롯을 받는다")
+        @DisplayName("기존 역할의 순서는 요청 순서와 무관하게 유지되고 새 역할은 뒤에 붙는다")
         void keepsExistingDisplayOrderAndFillsFreeSlot() {
             recruitment.addRole(role(5, "프론트엔드", 2, 2));
             givenFoundRecruitment();
@@ -522,8 +522,8 @@ class TeamRecruitmentServiceTest {
         }
 
         @Test
-        @DisplayName("뒤에 자리가 없으면 앞쪽 빈 슬롯을 쓴다")
-        void fallsBackToFreeSlotWhenNoRoomAfter() {
+        @DisplayName("뒤에 자리가 없으면 기존 역할을 앞으로 당기고 새 역할을 뒤에 붙인다")
+        void compactsExistingOrdersWhenNoRoomAfter() {
             recruitment.getRoles().clear();
             recruitment.addRole(role(ROLE_ID, "B", 1, 2));
             recruitment.addRole(role(5, "C", 1, 3));
@@ -542,12 +542,41 @@ class TeamRecruitmentServiceTest {
 
             assertThat(recruitment.getRoles())
                 .extracting(TeamRecruitmentRole::getName, TeamRecruitmentRole::getDisplayOrder)
-                .contains(tuple("F", 1));
+                .containsExactlyInAnyOrder(
+                    tuple("B", 1),
+                    tuple("C", 2),
+                    tuple("D", 3),
+                    tuple("E", 4),
+                    tuple("F", 5)
+                );
         }
 
         @Test
-        @DisplayName("삭제로 비는 슬롯을 새 역할이 재사용한다")
-        void reusesFreedDisplayOrder() {
+        @DisplayName("마지막 순서만 남은 상태에서도 새 역할이 기존 역할보다 뒤에 온다")
+        void compactsSingleRoleAtLastOrder() {
+            recruitment.getRoles().clear();
+            recruitment.addRole(role(ROLE_ID, "A", 1, 5));
+            givenFoundRecruitment();
+            givenNoApplicants();
+
+            teamRecruitmentService.updateRecruitment(AUTHOR_ID, RECRUITMENT_ID, request(ROLE_BASED, null, List.of(
+                new UpdateRoleInput(ROLE_ID, "A", 1),
+                new UpdateRoleInput(null, "B", 1),
+                new UpdateRoleInput(null, "C", 1)
+            )));
+
+            assertThat(recruitment.getRoles())
+                .extracting(TeamRecruitmentRole::getName, TeamRecruitmentRole::getDisplayOrder)
+                .containsExactlyInAnyOrder(
+                    tuple("A", 1),
+                    tuple("B", 2),
+                    tuple("C", 3)
+                );
+        }
+
+        @Test
+        @DisplayName("역할이 삭제되어도 남은 역할 순서는 그대로이고 새 역할은 뒤에 붙는다")
+        void appendsAfterRemainingRoleWhenRoleRemoved() {
             recruitment.addRole(role(5, "프론트엔드", 2, 2));
             givenFoundRecruitment();
             givenNoApplicants();
