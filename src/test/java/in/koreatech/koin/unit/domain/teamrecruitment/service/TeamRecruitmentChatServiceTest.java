@@ -130,12 +130,14 @@ class TeamRecruitmentChatServiceTest {
 
     @Test
     void 지원서가_ACCEPTED_상태가_아니면_409를_반환한다() {
+        User author = UserFixture.id_설정_코인_유저(USER_ID);
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
         TeamRecruitment recruitment = mock(TeamRecruitment.class);
         when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
         when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(recruitment.getAuthor()).thenReturn(author);
         when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.PENDING);
 
         assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
@@ -146,12 +148,14 @@ class TeamRecruitmentChatServiceTest {
 
     @Test
     void 모집글이_모집_중이_아니면_409를_반환한다() {
+        User author = UserFixture.id_설정_코인_유저(USER_ID);
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
         TeamRecruitment recruitment = mock(TeamRecruitment.class);
         when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
         when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(recruitment.getAuthor()).thenReturn(author);
         when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.ACCEPTED);
         when(recruitment.isRecruiting()).thenReturn(false);
 
@@ -170,8 +174,6 @@ class TeamRecruitmentChatServiceTest {
         when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
-        when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.ACCEPTED);
-        when(recruitment.isRecruiting()).thenReturn(true);
         when(recruitment.getAuthor()).thenReturn(otherAuthor);
 
         assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
