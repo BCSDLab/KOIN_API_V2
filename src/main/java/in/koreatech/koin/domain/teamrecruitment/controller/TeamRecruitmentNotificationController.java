@@ -47,6 +47,15 @@ public class TeamRecruitmentNotificationController implements TeamRecruitmentNot
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<Void> delete(
+            @Auth(permit = {STUDENT}) Integer userId,
+            @PathVariable Integer notificationId
+    ) {
+        notificationService.delete(userId, notificationId);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping
     public ResponseEntity<Void> deleteAll(@Auth(permit = {STUDENT}) Integer userId) {
         notificationService.deleteAll(userId);
