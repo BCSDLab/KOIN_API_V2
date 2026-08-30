@@ -234,6 +234,22 @@ class TeamRecruitmentChatServiceTest {
     }
 
     @Test
+    void 메시지_조회시_afterMessageId가_1_미만이면_400을_반환한다() {
+        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, 0, null, 10))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.ILLEGAL_ARGUMENT));
+    }
+
+    @Test
+    void 메시지_조회시_beforeMessageId가_1_미만이면_400을_반환한다() {
+        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, 0, 10))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ApiResponseCode.ILLEGAL_ARGUMENT));
+    }
+
+    @Test
     void 메시지_조회시_채팅방이_다른_모집글_소속이면_404를_반환한다() {
         TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
         TeamRecruitment wrongRecruitment = mock(TeamRecruitment.class);
