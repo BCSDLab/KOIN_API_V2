@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
@@ -90,6 +92,36 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
             LocalDate.now(clock).plusDays(20),
             LocalDate.now(clock).plusDays(3),
             roles);
+    }
+
+    private ResultActions createRoleBasedRecruitment(String roles) throws Exception {
+        return mockMvc.perform(post("/team-recruitments")
+            .header("Authorization", "Bearer " + authorToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(roleBasedBody(roles)));
+    }
+
+    private void assertNotReadableHttpMessage(ResultActions result) throws Exception {
+        result.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("NOT_READABLE_HTTP_MESSAGE"));
+    }
+
+    private List<Long> recruitmentGraphRowCounts() {
+        return List.of(
+            entityManager.createQuery("select count(recruitment) from TeamRecruitment recruitment", Long.class)
+                .getSingleResult(),
+            entityManager.createQuery("select count(role) from TeamRecruitmentRole role", Long.class)
+                .getSingleResult(),
+            entityManager.createQuery("select count(chatRoom) from TeamRecruitmentChatRoom chatRoom", Long.class)
+                .getSingleResult(),
+            entityManager.createQuery("select count(chatMember) from TeamRecruitmentChatMember chatMember", Long.class)
+                .getSingleResult());
+    }
+
+    private void assertRecruitmentGraphUnchanged(List<Long> before) {
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(recruitmentGraphRowCounts()).containsExactlyElementsOf(before);
     }
 
     private String generalBody(int maxParticipants) {
@@ -207,6 +239,30 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
                         """)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_REQUEST_BODY"));
+        }
+
+        @Test
+        @DisplayName("역할 객체의 name 키가 max_participants 앞에서 중복되면 400 이다")
+        void duplicateRoleNameKeyBeforeMaxParticipantsOnCreate() throws Exception {
+            List<Long> before = recruitmentGraphRowCounts();
+
+            assertNotReadableHttpMessage(createRoleBasedRecruitment("""
+                {"name": "Backend", "name": "Backend2", "max_participants": 1}
+                """));
+
+            assertRecruitmentGraphUnchanged(before);
+        }
+
+        @Test
+        @DisplayName("역할 객체의 name 키가 max_participants 뒤에서 중복되면 400 이다")
+        void duplicateRoleNameKeyAfterMaxParticipantsOnCreate() throws Exception {
+            List<Long> before = recruitmentGraphRowCounts();
+
+            assertNotReadableHttpMessage(createRoleBasedRecruitment("""
+                {"name": "Backend", "max_participants": 1, "name": "Backend2"}
+                """));
+
+            assertRecruitmentGraphUnchanged(before);
         }
 
         @Test
