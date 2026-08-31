@@ -30,6 +30,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
@@ -201,6 +202,50 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
             .containsExactly(
                 tuple(first, "Backend"),
                 tuple(second, "PM"));
+    }
+
+    @Test
+    @DisplayName("수정 시 역할 객체의 name 키가 max_participants 앞에서 중복되면 400 이고 기존 값은 유지된다")
+    void duplicateRoleNameKeyBeforeMaxParticipantsOnUpdate() throws Exception {
+        TeamRecruitment recruitment = saveRoleBasedRecruitment();
+        entityManager.flush();
+        String titleBefore = recruitment.getTitle();
+        List<RoleSnapshot> rolesBefore = roleSnapshots(recruitment.getId());
+        Integer roleId = rolesBefore.get(0).id();
+        RoleSnapshot retainedRole = rolesBefore.get(1);
+
+        assertNotReadableHttpMessage(updateRoleBasedRecruitment(recruitment, """
+            {"id": %d, "name": "PM", "name": "PM2", "max_participants": 1},
+            {"id": %d, "name": "%s", "max_participants": %d}
+            """.formatted(
+            roleId,
+            retainedRole.id(),
+            retainedRole.name(),
+            retainedRole.maxParticipants())));
+
+        assertRecruitmentUnchanged(recruitment.getId(), titleBefore, rolesBefore);
+    }
+
+    @Test
+    @DisplayName("수정 시 역할 객체의 name 키가 max_participants 뒤에서 중복되면 400 이고 기존 값은 유지된다")
+    void duplicateRoleNameKeyAfterMaxParticipantsOnUpdate() throws Exception {
+        TeamRecruitment recruitment = saveRoleBasedRecruitment();
+        entityManager.flush();
+        String titleBefore = recruitment.getTitle();
+        List<RoleSnapshot> rolesBefore = roleSnapshots(recruitment.getId());
+        Integer roleId = rolesBefore.get(0).id();
+        RoleSnapshot retainedRole = rolesBefore.get(1);
+
+        assertNotReadableHttpMessage(updateRoleBasedRecruitment(recruitment, """
+            {"id": %d, "name": "PM", "max_participants": 1, "name": "PM2"},
+            {"id": %d, "name": "%s", "max_participants": %d}
+            """.formatted(
+            roleId,
+            retainedRole.id(),
+            retainedRole.name(),
+            retainedRole.maxParticipants())));
+
+        assertRecruitmentUnchanged(recruitment.getId(), titleBefore, rolesBefore);
     }
 
     @Test
@@ -427,5 +472,50 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
             LocalDate.now(clock).plusDays(10),
             LocalDate.now(clock).plusDays(1),
             roles);
+    }
+
+    private ResultActions updateRoleBasedRecruitment(TeamRecruitment recruitment, String roles) throws Exception {
+        return mockMvc.perform(put("/team-recruitments/{id}", recruitment.getId())
+            .header("Authorization", "Bearer " + authorToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(roleBasedBody(roles)));
+    }
+
+    private void assertNotReadableHttpMessage(ResultActions result) throws Exception {
+        result.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("NOT_READABLE_HTTP_MESSAGE"));
+    }
+
+    private List<RoleSnapshot> roleSnapshots(Integer recruitmentId) {
+        return roleRepository.findAllByRecruitment_IdOrderByDisplayOrderAsc(recruitmentId).stream()
+            .map(role -> new RoleSnapshot(
+                role.getId(),
+                role.getName(),
+                role.getMaxParticipants(),
+                role.getCurrentParticipants(),
+                role.getDisplayOrder()))
+            .toList();
+    }
+
+    private void assertRecruitmentUnchanged(
+        Integer recruitmentId,
+        String titleBefore,
+        List<RoleSnapshot> rolesBefore
+    ) {
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(recruitmentRepository.findById(recruitmentId).orElseThrow().getTitle())
+            .isEqualTo(titleBefore);
+        assertThat(roleSnapshots(recruitmentId)).containsExactlyElementsOf(rolesBefore);
+    }
+
+    private record RoleSnapshot(
+        Integer id,
+        String name,
+        Integer maxParticipants,
+        Integer currentParticipants,
+        Integer displayOrder
+    ) {
     }
 }
