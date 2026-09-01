@@ -106,17 +106,24 @@ public class TeamRecruitmentQueryService {
         if (recruitment.isDeleted()) {
             throw CustomException.of(TEAM_RECRUITMENT_NOT_FOUND, "recruitmentId: " + recruitmentId);
         }
-        return toDetail(recruitment, userId);
+        LocalDate today = today();
+        return toDetail(recruitment, userId, today);
     }
 
-    private RecruitmentDetail toDetail(TeamRecruitment recruitment, Integer userId) {
-        RecruitmentCard card = RecruitmentCards.of(recruitment, today());
+    private RecruitmentDetail toDetail(TeamRecruitment recruitment, Integer userId, LocalDate today) {
+        RecruitmentCard card = RecruitmentCards.of(recruitment, today);
         boolean isAuthor = userId != null && recruitment.getAuthor().getId().equals(userId);
         Optional<TeamRecruitmentApplication> myApplication = userId == null
             ? Optional.empty()
             : applicationRepository.findByRecruitment_IdAndApplicant_Id(recruitment.getId(), userId);
 
-        TeamRecruitmentApplyBlockReason blockReason = applyBlockReasonOf(recruitment, userId, isAuthor, myApplication);
+        TeamRecruitmentApplyBlockReason blockReason = applyBlockReasonOf(
+            recruitment,
+            userId,
+            isAuthor,
+            myApplication,
+            today
+        );
         boolean accepted = myApplication
             .map(application -> application.getStatus() == ACCEPTED)
             .orElse(false);
@@ -162,7 +169,8 @@ public class TeamRecruitmentQueryService {
         TeamRecruitment recruitment,
         Integer userId,
         boolean isAuthor,
-        Optional<TeamRecruitmentApplication> myApplication
+        Optional<TeamRecruitmentApplication> myApplication,
+        LocalDate today
     ) {
         if (recruitment.isDeleted()) {
             return RECRUITMENT_DELETED;
@@ -179,7 +187,7 @@ public class TeamRecruitmentQueryService {
         if (!recruitment.isRecruiting()) {
             return RECRUITMENT_CLOSED;
         }
-        if (today().isAfter(recruitment.getDeadlineDate())) {
+        if (today.isAfter(recruitment.getDeadlineDate())) {
             return DEADLINE_PASSED;
         }
         if (isFullyClosed(recruitment)) {

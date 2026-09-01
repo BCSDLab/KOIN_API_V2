@@ -44,7 +44,8 @@ public record RecruitmentDetail(
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate deadlineDate,
 
-    @Schema(description = "D-day, 모집 마감 후 null", example = "8", nullable = true, requiredMode = REQUIRED)
+    @Schema(description = "D-day. 모집 상태가 RECRUITING이고 마감일이 오늘 또는 미래일 때만 반환되며, CLOSED/DELETED, null 마감일 또는 마감일 경과 시 null입니다.",
+        example = "8", nullable = true, requiredMode = REQUIRED)
     Integer dDay,
 
     @Schema(description = "모집 상태", example = "RECRUITING", requiredMode = REQUIRED)
