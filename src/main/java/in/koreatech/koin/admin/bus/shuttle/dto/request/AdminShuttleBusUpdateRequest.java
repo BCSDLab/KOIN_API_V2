@@ -10,14 +10,17 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminShuttleBusUpdateRequest(
     @Schema(description = "버스 시간표 정보 리스트", requiredMode = REQUIRED)
     @NotEmpty(message = "버스 시간표 정보 리스트가 비어있습니다.")
-    List<InnerAdminShuttleBusUpdateRequest> shuttleBusTimetables
+    List<@NotNull @Valid InnerAdminShuttleBusUpdateRequest> shuttleBusTimetables
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
@@ -39,11 +42,11 @@ public record AdminShuttleBusUpdateRequest(
 
         @Schema(description = "정류소 정보 리스트", requiredMode = REQUIRED)
         @NotEmpty(message = "정류소 정보 리스트가 비어있습니다.")
-        List<InnerNodeInfoRequest> nodeInfo,
+        List<@NotNull @Valid InnerNodeInfoRequest> nodeInfo,
 
         @Schema(description = "회차 정보 리스트", requiredMode = REQUIRED)
         @NotEmpty(message = "회차 정보 리스트가 비어있습니다.")
-        List<InnerRouteInfoRequest> routeInfo
+        List<@NotNull @Valid InnerRouteInfoRequest> routeInfo
     ) {
 
         public List<ShuttleBusRoute.NodeInfo> toNodeInfoEntity() {
@@ -59,6 +62,7 @@ public record AdminShuttleBusUpdateRequest(
                     InnerRouteInfoRequest.toEntity(
                         innerRouteInfoRequest.name,
                         innerRouteInfoRequest.detail,
+                        innerRouteInfoRequest.runningDays,
                         innerRouteInfoRequest.arrivalTime
                     )
                 ).toList();
@@ -92,16 +96,29 @@ public record AdminShuttleBusUpdateRequest(
             @Schema(description = "회차 세부 이름", example = "(청주역→본교)", requiredMode = NOT_REQUIRED)
             String detail,
 
+            @Schema(
+                description = "운행 요일 목록 (기존 시간표는 미전달하거나 빈 배열이면 기존 값이 유지되며, 신규 시간표는 필수)",
+                example = "[\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\"]",
+                requiredMode = NOT_REQUIRED
+            )
+            List<@NotBlank @Pattern(regexp = "MON|TUE|WED|THU|FRI|SAT|SUN") String> runningDays,
+
             @Schema(description = "각 정류소 별 도착 시간", example = "[\"11:10\", null, \"11:35\"]", requiredMode = REQUIRED)
             @NotEmpty(message = "도착 시간 리스트가 비어있습니다.")
             List<String> arrivalTime
         ) {
 
-            public static ShuttleBusRoute.RouteInfo toEntity(String name, String detail, List<String> arrivalTime) {
+            public static ShuttleBusRoute.RouteInfo toEntity(
+                String name,
+                String detail,
+                List<String> runningDays,
+                List<String> arrivalTime
+            ) {
                 return ShuttleBusRoute.RouteInfo
                     .builder()
                     .name(name)
                     .detail(detail)
+                    .runningDays(runningDays)
                     .arrivalTime(arrivalTime)
                     .build();
             }

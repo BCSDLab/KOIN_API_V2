@@ -1,9 +1,15 @@
 package in.koreatech.koin.global.config;
 
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.List;
+import java.util.ListIterator;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -86,5 +92,31 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/static/**")
             .addResourceLocations("classpath:/static/");
+    }
+
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        ListIterator<HttpMessageConverter<?>> iterator = converters.listIterator();
+        while (iterator.hasNext()) {
+            HttpMessageConverter<?> converter = iterator.next();
+            if (!(converter instanceof MappingJackson2HttpMessageConverter jacksonConverter)) {
+                continue;
+            }
+            if (converter.getClass() != MappingJackson2HttpMessageConverter.class) {
+                throw new IllegalStateException(
+                    "Unsupported MappingJackson2HttpMessageConverter subclass: "
+                        + converter.getClass().getName()
+                );
+            }
+
+            ObjectMapper strictObjectMapper = jacksonConverter.getObjectMapper().copy();
+            strictObjectMapper.enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION.mappedFeature());
+
+            MappingJackson2HttpMessageConverter strictConverter =
+                new MappingJackson2HttpMessageConverter(strictObjectMapper);
+            strictConverter.setSupportedMediaTypes(jacksonConverter.getSupportedMediaTypes());
+            strictConverter.setDefaultCharset(jacksonConverter.getDefaultCharset());
+            iterator.set(strictConverter);
+        }
     }
 }

@@ -44,6 +44,7 @@ public interface AdminShuttleBusTimetableApi {
     @ApiResponseCodes({
         OK,
         INVALID_REQUEST_BODY,
+        REQUIRED_SHUTTLE_RUNNING_DAYS,
     })
     @Operation(summary = "셔틀 버스 시간표를 업데이트한다.")
     @AdminActivityLogging(domain = SHUTTLE_BUS)

@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.catalina.connector.ClientAbortException;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -129,6 +131,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(request, ApiResponseCode.NOT_READABLE_HTTP_MESSAGE, e.getMessage());
     }
 
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(
+        TypeMismatchException e,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest webRequest
+    ) {
+        HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
+        return buildErrorResponse(request, ApiResponseCode.ILLEGAL_ARGUMENT, e.getMessage());
+    }
+
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<Object> handleUnsupportedOperationException(
         HttpServletRequest request,
@@ -160,6 +173,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleOptimisticLockException(
         HttpServletRequest request,
         ObjectOptimisticLockingFailureException e
+    ) {
+        return buildErrorResponse(request, ApiResponseCode.OPTIMISTIC_LOCKING_FAILURE, e.getMessage());
+    }
+
+    @ExceptionHandler(PessimisticLockingFailureException.class)
+    public ResponseEntity<Object> handlePessimisticLockException(
+        HttpServletRequest request,
+        PessimisticLockingFailureException e
     ) {
         return buildErrorResponse(request, ApiResponseCode.OPTIMISTIC_LOCKING_FAILURE, e.getMessage());
     }
@@ -347,7 +368,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthenticationException e
     ) {
-        return buildErrorResponse(request, HttpStatus.UNAUTHORIZED, e.getFullMessage());
+        return buildErrorResponse(request, ApiResponseCode.UNAUTHORIZED_USER, e.getFullMessage());
     }
 
     @ExceptionHandler(DataNotFoundException.class)
