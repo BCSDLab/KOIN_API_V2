@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.util.CollectionUtils;
 
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
@@ -115,6 +116,9 @@ public class ShuttleBusRoute {
             for (RouteInfo updatedRouteInfo : routeInfos) {
                 if (updatedRouteInfo.getName().equals(routeInfo.getName())) {
                     routeInfo.arrivalTime = updatedRouteInfo.getArrivalTime();
+                    if (!CollectionUtils.isEmpty(updatedRouteInfo.getRunningDays())) {
+                        routeInfo.runningDays = updatedRouteInfo.getRunningDays();
+                    }
                     break;
                 }
             }

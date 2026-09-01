@@ -52,6 +52,7 @@ public record AdminShuttleBusTimetableResponse(
                 .map(r -> new InnerRouteInfoResponse(
                     r.getName(),
                     r.getDetail(),
+                    r.getRunningDays(),
                     r.getArrivalTime()
                 ))
                 .toList();
@@ -83,6 +84,13 @@ public record AdminShuttleBusTimetableResponse(
 
             @Schema(description = "회차 세부 이름", example = "(청주역→본교)", requiredMode = NOT_REQUIRED)
             String detail,
+
+            @Schema(
+                description = "운행 요일 목록",
+                example = "[\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\"]",
+                requiredMode = REQUIRED
+            )
+            List<String> runningDays,
 
             @Schema(
                 description = "각 정류소 별 도착 시간 (미정차인 경우 null)",
