@@ -31,6 +31,7 @@ import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentDirectChatPolicy;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentRole;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
@@ -125,8 +126,10 @@ public class TeamRecruitmentApplicationQueryService {
             selectedStatuses,
             pageRequest(criteria, TeamRecruitmentApplicationSort.LATEST_DESC, false)
         );
+        LocalDate today = today();
+        AcceptedChatRooms acceptedChatRooms = findAcceptedChatRooms(applications.getContent());
         List<ApplicantSummary> content = applications.getContent().stream()
-            .map(this::toApplicantSummary)
+            .map(application -> toApplicantSummary(application, acceptedChatRooms, today))
             .toList();
         return new ApplicantListResponse(
             toApplicantRecruitment(recruitment),
@@ -156,6 +159,9 @@ public class TeamRecruitmentApplicationQueryService {
         boolean canDecide = application.getStatus() == PENDING
             && recruitment.getStatus() == RECRUITING
             && !isPastDeadline(recruitment);
+        LocalDate today = today();
+        boolean canOpenDirectChat = application.getStatus() == ACCEPTED
+            && canOpenDirectChat(application, findAcceptedChatRooms(List.of(application)), today);
         return new ApplicantDetail(
             application.getId(),
             application.getStatus(),
@@ -164,7 +170,7 @@ public class TeamRecruitmentApplicationQueryService {
             application.getAvailability(),
             toApplicationRole(application.getRole()),
             canDecide,
-            application.getStatus() == ACCEPTED
+            canOpenDirectChat
         );
     }
 
@@ -306,7 +312,11 @@ public class TeamRecruitmentApplicationQueryService {
         return new AcceptedChatRooms(teamRoomsByRecruitmentId, directRoomsByApplicationId);
     }
 
-    private ApplicantSummary toApplicantSummary(TeamRecruitmentApplication application) {
+    private ApplicantSummary toApplicantSummary(
+        TeamRecruitmentApplication application,
+        AcceptedChatRooms acceptedChatRooms,
+        LocalDate today
+    ) {
         ProfileSnapshot snapshot = readProfileSnapshot(application.getProfileSnapshot());
         return new ApplicantSummary(
             application.getId(),
@@ -315,8 +325,23 @@ public class TeamRecruitmentApplicationQueryService {
             snapshot.studentYear(),
             toApplicationRole(application.getRole()),
             application.getStatus(),
-            application.getStatus() == ACCEPTED
+            canOpenDirectChat(application, acceptedChatRooms, today)
         );
+    }
+
+    private boolean canOpenDirectChat(
+        TeamRecruitmentApplication application,
+        AcceptedChatRooms acceptedChatRooms,
+        LocalDate today
+    ) {
+        TeamRecruitment recruitment = application.getRecruitment();
+        boolean hasExistingDirectChat = application.getId() != null
+            && acceptedChatRooms.directRoomsByApplicationId().containsKey(application.getId());
+        TeamRecruitmentChatRoom teamChatRoom = recruitment.getId() == null
+            ? null
+            : acceptedChatRooms.teamRoomsByRecruitmentId().get(recruitment.getId());
+        return TeamRecruitmentDirectChatPolicy.canOpenDirectChat(
+            application.getStatus(), hasExistingDirectChat, recruitment, teamChatRoom, today);
     }
 
     private RecruitmentCard toRecruitmentCard(TeamRecruitment recruitment) {
@@ -407,6 +432,10 @@ public class TeamRecruitmentApplicationQueryService {
     private boolean isPastDeadline(TeamRecruitment recruitment) {
         return recruitment.getDeadlineDate() != null
             && LocalDate.now(clock.withZone(KST)).isAfter(recruitment.getDeadlineDate());
+    }
+
+    private LocalDate today() {
+        return LocalDate.now(clock.withZone(KST));
     }
 
     private ProfileSnapshot readProfileSnapshot(String profileSnapshot) {

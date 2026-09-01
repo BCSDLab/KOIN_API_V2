@@ -2,12 +2,18 @@ package in.koreatech.koin.unit.domain.teamrecruitment.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +29,7 @@ import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
@@ -48,6 +55,9 @@ class TeamRecruitmentChatServiceTest {
     private static final Integer RECRUITMENT_ID = 10;
     private static final Integer CHAT_ROOM_ID = 20;
     private static final Integer APPLICATION_ID = 30;
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
+    private static final Clock FIXED_CLOCK = Clock.fixed(
+            Instant.parse("2026-08-28T03:00:00Z"), KST);
 
     @Mock
     private TeamRecruitmentRepository recruitmentRepository;
@@ -73,8 +83,16 @@ class TeamRecruitmentChatServiceTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private Clock clock;
+
     @InjectMocks
     private TeamRecruitmentChatService chatService;
+
+    @BeforeEach
+    void setUpClock() {
+        lenient().when(clock.withZone(KST)).thenReturn(FIXED_CLOCK);
+    }
 
     @Test
     void 존재하지_않는_채팅방_조회시_404를_반환한다() {
@@ -163,6 +181,7 @@ class TeamRecruitmentChatServiceTest {
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(recruitment.getAuthor()).thenReturn(author);
         when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.ACCEPTED);
+        when(recruitment.getStatus()).thenReturn(TeamRecruitmentStatus.CLOSED);
         when(recruitment.isRecruiting()).thenReturn(false);
 
         assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
@@ -203,7 +222,6 @@ class TeamRecruitmentChatServiceTest {
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.ACCEPTED);
-        when(recruitment.isRecruiting()).thenReturn(true);
         when(recruitment.getAuthor()).thenReturn(author);
         when(application.getApplicant()).thenReturn(counterpart);
         when(chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(
