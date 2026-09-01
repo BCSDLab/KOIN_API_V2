@@ -80,6 +80,7 @@ public enum ApiResponseCode {
     INVALID_EXCEL_ROW(HttpStatus.BAD_REQUEST, "존재하지 않는 엑셀 행이 있습니다."),
     INVALID_EXCEL_COL(HttpStatus.BAD_REQUEST, "존재하지 않는 엑셀 열이 있습니다."),
     INVALID_SHUTTLE_ROUTE_TYPE(HttpStatus.BAD_REQUEST, "등하교 버스 타입이 아닙니다."),
+    REQUIRED_SHUTTLE_RUNNING_DAYS(HttpStatus.BAD_REQUEST, "신규 셔틀버스 시간표에는 운행 요일이 필요합니다."),
     INVALID_NODE_INFO_START_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 시작 위치가 아닙니다."),
     INVALID_NODE_INFO_END_POINT(HttpStatus.BAD_REQUEST, "올바른 정거장 끝 위치가 아닙니다."),
     INVALID_SEMESTER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 학기 형식입니다."),
