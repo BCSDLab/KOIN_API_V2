@@ -75,10 +75,16 @@ public record AdminCommutingBusUpdateRequest(
             @NotEmpty(message = "도착 시간 목록은 필수 입력값입니다.")
             List<String> arrivalTime
         ) {
-            public static ShuttleBusRoute.RouteInfo toEntity(String name, String detail, List<String> arrivalTime) {
+            public static ShuttleBusRoute.RouteInfo toEntity(
+                String name,
+                String detail,
+                List<String> runningDays,
+                List<String> arrivalTime
+            ) {
                 return ShuttleBusRoute.RouteInfo.builder()
                     .name(name)
                     .detail(detail)
+                    .runningDays(runningDays)
                     .arrivalTime(arrivalTime)
                     .build();
             }
@@ -91,11 +97,11 @@ public record AdminCommutingBusUpdateRequest(
                 .toList();
         }
 
-        public List<ShuttleBusRoute.RouteInfo> toRouteInfoEntity() {
+        public List<ShuttleBusRoute.RouteInfo> toRouteInfoEntity(List<String> runningDays) {
             return routeInfo.stream()
                 .map(innerRouteInfoRequest ->
                     InnerRouteInfo.toEntity(innerRouteInfoRequest.name, innerRouteInfoRequest.detail,
-                        innerRouteInfoRequest.arrivalTime)
+                        runningDays, innerRouteInfoRequest.arrivalTime)
                 )
                 .toList();
         }
