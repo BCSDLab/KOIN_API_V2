@@ -3,8 +3,10 @@ package in.koreatech.koin.domain.team.recruitment.repository;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
+import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -29,7 +31,33 @@ public interface TeamRecruitmentNotificationRepository extends Repository<TeamRe
 
     long countByRecipient_IdAndReadAtIsNullAndIsDeletedFalse(Integer recipientId);
 
-    Optional<TeamRecruitmentNotification> findByIdAndRecipient_Id(Integer id, Integer recipientId);
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        UPDATE TeamRecruitmentNotification notification
+        SET notification.readAt = :readAt
+        WHERE notification.recipient.id = :recipientId
+          AND notification.id = :notificationId
+          AND notification.readAt IS NULL
+          AND notification.isDeleted = false
+        """)
+    void updateReadAtByRecipientIdAndNotificationId(
+        @Param("recipientId") Integer recipientId,
+        @Param("notificationId") Integer notificationId,
+        @Param("readAt") LocalDateTime readAt
+    );
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        UPDATE TeamRecruitmentNotification notification
+        SET notification.isDeleted = true
+        WHERE notification.recipient.id = :recipientId
+          AND notification.id = :notificationId
+          AND notification.isDeleted = false
+        """)
+    void updateIsDeletedByRecipientIdAndNotificationId(
+        @Param("recipientId") Integer recipientId,
+        @Param("notificationId") Integer notificationId
+    );
 
     List<TeamRecruitmentNotification> findAllByRecipient_IdAndIsDeletedFalse(Integer recipientId);
 
