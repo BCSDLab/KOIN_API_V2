@@ -94,11 +94,12 @@ public class TeamRecruitmentChatService {
 
     @Transactional
     public DirectChatRoomCreationResult getOrCreateDirectChatRoom(Integer userId, Integer recruitmentId, Integer applicationId) {
-        TeamRecruitmentApplication application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
-
-        TeamRecruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        TeamRecruitment recruitment = recruitmentRepository.findByIdWithLock(recruitmentId)
                 .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_NOT_FOUND));
+
+        TeamRecruitmentApplication application = applicationRepository
+                .findByIdAndRecruitmentIdWithLock(applicationId, recruitmentId)
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
 
         if (!application.getRecruitment().getId().equals(recruitmentId)) {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND);
