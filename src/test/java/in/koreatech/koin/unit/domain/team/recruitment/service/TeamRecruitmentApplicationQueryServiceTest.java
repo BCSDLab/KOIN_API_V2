@@ -286,6 +286,56 @@ class TeamRecruitmentApplicationQueryServiceTest {
     }
 
     @Test
+    void CLOSED_모집글은_미래_마감일이어도_두_목록에서_dDay가_null이다() {
+        TeamRecruitment recruitment = recruitment();
+        recruitment.close();
+        TeamRecruitmentApplication application = applicationWithSnapshot(20, recruitment, PENDING);
+
+        when(studentRepository.getById(APPLICANT_ID)).thenReturn(null);
+        when(applicationRepository.countByApplicant_IdAndStatusIn(eq(APPLICANT_ID), any()))
+            .thenReturn(1L);
+        when(applicationRepository.findAllByApplicant_IdAndStatusIn(
+            eq(APPLICANT_ID),
+            any(),
+            any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of(application)));
+
+        MyApplicationListResponse myResponse = queryService.getMyApplications(
+            List.of(PENDING),
+            TeamRecruitmentApplicationSort.LATEST_DESC,
+            1,
+            10,
+            APPLICANT_ID
+        );
+
+        assertThat(myResponse.applications().get(0).recruitment().status()).isEqualTo(CLOSED);
+        assertThat(myResponse.applications().get(0).recruitment().dDay()).isNull();
+
+        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.countByRecruitment_IdAndStatusIn(eq(RECRUITMENT_ID), any()))
+            .thenReturn(1L);
+        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
+            eq(RECRUITMENT_ID),
+            any(),
+            any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of(application)));
+        when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(RECRUITMENT_ID, "TEAM"))
+            .thenReturn(Optional.empty());
+
+        ApplicantListResponse authorResponse = queryService.getApplications(
+            RECRUITMENT_ID,
+            List.of(PENDING),
+            1,
+            10,
+            AUTHOR_ID
+        );
+
+        assertThat(authorResponse.recruitment().status()).isEqualTo(CLOSED);
+        assertThat(authorResponse.recruitment().dDay()).isNull();
+    }
+
+    @Test
     void 역할_하나가_정원에_도달해도_마감_전_모집글은_RECRUITING이고_해당_역할만_닫힌다() {
         TeamRecruitment recruitment = recruitment();
         recruitment.addRole(role(50, "백엔드", 1, 1, 1));

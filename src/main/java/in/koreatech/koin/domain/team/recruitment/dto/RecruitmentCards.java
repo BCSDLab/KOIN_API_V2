@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.team.recruitment.dto;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentRole;
 
@@ -24,7 +25,7 @@ public final class RecruitmentCards {
             recruitment.getActivityStartDate(),
             recruitment.getActivityEndDate(),
             recruitment.getDeadlineDate(),
-            dDayOf(recruitment.getDeadlineDate(), today),
+            dDayOf(recruitment.getStatus(), recruitment.getDeadlineDate(), today),
             recruitment.getStatus(),
             recruitment.getRecruitmentType(),
             recruitment.getCurrentParticipants(),
@@ -47,10 +48,17 @@ public final class RecruitmentCards {
     }
 
     /**
-     * 지원 마감일이 지나면 null 이다.
+     * 모집 상태가 RECRUITING이고 지원 마감일이 지나지 않았을 때만 D-day를 반환한다.
      */
-    public static Integer dDayOf(LocalDate deadlineDate, LocalDate today) {
-        if (deadlineDate == null || today == null || today.isAfter(deadlineDate)) {
+    public static Integer dDayOf(
+        TeamRecruitmentStatus status,
+        LocalDate deadlineDate,
+        LocalDate today
+    ) {
+        if (status != TeamRecruitmentStatus.RECRUITING
+            || deadlineDate == null
+            || today == null
+            || today.isAfter(deadlineDate)) {
             return null;
         }
         return (int) ChronoUnit.DAYS.between(today, deadlineDate);

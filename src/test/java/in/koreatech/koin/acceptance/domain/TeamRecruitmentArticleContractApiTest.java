@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance.domain;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -372,6 +373,19 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
                 .andExpect(jsonPath("$.apply_block_reason").value("LOGIN_REQUIRED"))
                 .andExpect(jsonPath("$.application").doesNotExist())
                 .andExpect(jsonPath("$.team_chat_available").value(false));
+        }
+
+        @Test
+        @DisplayName("CLOSED 모집글은 미래 마감일이어도 d_day가 없다")
+        void closedFutureDeadlineHasNoDday() throws Exception {
+            TeamRecruitment recruitment = saveRecruitment(author, "마감된 상세");
+            recruitment.close();
+            entityManager.flush();
+
+            mockMvc.perform(get("/team-recruitments/{id}", recruitment.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(CLOSED.name()))
+                .andExpect(jsonPath("$.d_day").doesNotExist());
         }
 
         @Test

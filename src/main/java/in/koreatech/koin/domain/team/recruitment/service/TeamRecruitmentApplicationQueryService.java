@@ -23,6 +23,7 @@ import in.koreatech.koin.domain.team.recruitment.dto.MyApplication;
 import in.koreatech.koin.domain.team.recruitment.dto.MyApplicationListResponse;
 import in.koreatech.koin.domain.team.recruitment.dto.ProfileSnapshot;
 import in.koreatech.koin.domain.team.recruitment.dto.RecruitmentCard;
+import in.koreatech.koin.domain.team.recruitment.dto.RecruitmentCards;
 import in.koreatech.koin.domain.team.recruitment.dto.RecruitmentRole;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationSort;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
@@ -41,7 +42,6 @@ import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -92,8 +92,9 @@ public class TeamRecruitmentApplicationQueryService {
             pageRequest(criteria, sort, true)
         );
         AcceptedChatRooms acceptedChatRooms = findAcceptedChatRooms(applications.getContent());
+        LocalDate today = today();
         List<MyApplication> content = applications.getContent().stream()
-            .map(application -> toMyApplication(application, acceptedChatRooms))
+            .map(application -> toMyApplication(application, acceptedChatRooms, today))
             .toList();
         return new MyApplicationListResponse(
             content,
@@ -132,7 +133,7 @@ public class TeamRecruitmentApplicationQueryService {
             .map(application -> toApplicantSummary(application, acceptedChatRooms, today))
             .toList();
         return new ApplicantListResponse(
-            toApplicantRecruitment(recruitment),
+            toApplicantRecruitment(recruitment, today),
             content,
             totalCount,
             content.size(),
@@ -156,10 +157,10 @@ public class TeamRecruitmentApplicationQueryService {
             .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
         validateApplicationBelongsToRecruitment(application, recruitmentId);
 
+        LocalDate today = today();
         boolean canDecide = application.getStatus() == PENDING
             && recruitment.getStatus() == RECRUITING
-            && !isPastDeadline(recruitment);
-        LocalDate today = today();
+            && !isPastDeadline(recruitment, today);
         boolean canOpenDirectChat = application.getStatus() == ACCEPTED
             && canOpenDirectChat(application, findAcceptedChatRooms(List.of(application)), today);
         return new ApplicantDetail(
@@ -237,7 +238,8 @@ public class TeamRecruitmentApplicationQueryService {
 
     private MyApplication toMyApplication(
         TeamRecruitmentApplication application,
-        AcceptedChatRooms acceptedChatRooms
+        AcceptedChatRooms acceptedChatRooms,
+        LocalDate today
     ) {
         TeamRecruitment recruitment = application.getRecruitment();
         boolean accepted = application.getStatus() == ACCEPTED;
@@ -258,7 +260,7 @@ public class TeamRecruitmentApplicationQueryService {
             accepted && teamRoom != null ? teamRoom.getId() : null,
             directRoom == null ? null : directRoom.getId(),
             toApplicationRole(application.getRole()),
-            toRecruitmentCard(recruitment)
+            toRecruitmentCard(recruitment, today)
         );
     }
 
@@ -344,7 +346,8 @@ public class TeamRecruitmentApplicationQueryService {
             application.getStatus(), hasExistingDirectChat, recruitment, teamChatRoom, today);
     }
 
-    private RecruitmentCard toRecruitmentCard(TeamRecruitment recruitment) {
+    private RecruitmentCard toRecruitmentCard(TeamRecruitment recruitment, LocalDate today) {
+        TeamRecruitmentStatus status = effectiveStatus(recruitment, today);
         return new RecruitmentCard(
             recruitment.getId(),
             recruitment.getCategory(),
@@ -353,17 +356,18 @@ public class TeamRecruitmentApplicationQueryService {
             recruitment.getActivityStartDate(),
             recruitment.getActivityEndDate(),
             recruitment.getDeadlineDate(),
-            dDay(recruitment),
-            effectiveStatus(recruitment),
+            RecruitmentCards.dDayOf(status, recruitment.getDeadlineDate(), today),
+            status,
             recruitment.getRecruitmentType(),
             recruitment.getCurrentParticipants(),
             recruitment.getMaxParticipants(),
-            toRecruitmentRoles(recruitment)
+            toRecruitmentRoles(recruitment, today)
         );
     }
 
-    private ApplicantRecruitment toApplicantRecruitment(TeamRecruitment recruitment) {
+    private ApplicantRecruitment toApplicantRecruitment(TeamRecruitment recruitment, LocalDate today) {
         Optional<TeamRecruitmentChatRoom> teamRoom = findTeamRoom(recruitment.getId());
+        TeamRecruitmentStatus status = effectiveStatus(recruitment, today);
         return new ApplicantRecruitment(
             recruitment.getId(),
             recruitment.getCategory(),
@@ -372,22 +376,22 @@ public class TeamRecruitmentApplicationQueryService {
             recruitment.getActivityStartDate(),
             recruitment.getActivityEndDate(),
             recruitment.getDeadlineDate(),
-            dDay(recruitment),
-            effectiveStatus(recruitment),
+            RecruitmentCards.dDayOf(status, recruitment.getDeadlineDate(), today),
+            status,
             recruitment.getRecruitmentType(),
             recruitment.getCurrentParticipants(),
             recruitment.getMaxParticipants(),
-            toRecruitmentRoles(recruitment),
+            toRecruitmentRoles(recruitment, today),
             teamRoom.isPresent(),
             teamRoom.map(TeamRecruitmentChatRoom::getId).orElse(null)
         );
     }
 
-    private List<RecruitmentRole> toRecruitmentRoles(TeamRecruitment recruitment) {
+    private List<RecruitmentRole> toRecruitmentRoles(TeamRecruitment recruitment, LocalDate today) {
         if (recruitment.getRoles() == null) {
             return List.of();
         }
-        boolean recruitmentClosed = recruitment.getStatus() != RECRUITING || isPastDeadline(recruitment);
+        boolean recruitmentClosed = recruitment.getStatus() != RECRUITING || isPastDeadline(recruitment, today);
         return recruitment.getRoles().stream()
             .map(role -> new RecruitmentRole(
                 role.getId(),
@@ -399,8 +403,8 @@ public class TeamRecruitmentApplicationQueryService {
             .toList();
     }
 
-    private TeamRecruitmentStatus effectiveStatus(TeamRecruitment recruitment) {
-        if (recruitment.getStatus() == RECRUITING && isPastDeadline(recruitment)) {
+    private TeamRecruitmentStatus effectiveStatus(TeamRecruitment recruitment, LocalDate today) {
+        if (recruitment.getStatus() == RECRUITING && isPastDeadline(recruitment, today)) {
             return TeamRecruitmentStatus.CLOSED;
         }
         return recruitment.getStatus();
@@ -418,20 +422,9 @@ public class TeamRecruitmentApplicationQueryService {
             .filter(room -> room.getRoomType() == TeamRecruitmentChatRoomType.TEAM);
     }
 
-    private Integer dDay(TeamRecruitment recruitment) {
-        if (recruitment.getStatus() != RECRUITING || recruitment.getDeadlineDate() == null) {
-            return null;
-        }
-        LocalDate today = LocalDate.now(clock.withZone(KST));
-        if (today.isAfter(recruitment.getDeadlineDate())) {
-            return null;
-        }
-        return Math.toIntExact(ChronoUnit.DAYS.between(today, recruitment.getDeadlineDate()));
-    }
-
-    private boolean isPastDeadline(TeamRecruitment recruitment) {
+    private boolean isPastDeadline(TeamRecruitment recruitment, LocalDate today) {
         return recruitment.getDeadlineDate() != null
-            && LocalDate.now(clock.withZone(KST)).isAfter(recruitment.getDeadlineDate());
+            && today.isAfter(recruitment.getDeadlineDate());
     }
 
     private LocalDate today() {

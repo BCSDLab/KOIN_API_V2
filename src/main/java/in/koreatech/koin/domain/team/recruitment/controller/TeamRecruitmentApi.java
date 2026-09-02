@@ -126,7 +126,8 @@ public interface TeamRecruitmentApi {
         - 비로그인 조회가 가능합니다.
         - 로그인한 경우 `is_author`, `can_apply`, `apply_block_reason`, `application`,
           `can_manage_applicants`, 팀 채팅방 정보를 함께 반환합니다.
-        - `d_day`는 지원 마감일 기준이며 마감일이 지나면 null입니다.
+        - `d_day`는 KST 기준 현재 날짜와 지원 마감일의 차이입니다.
+        - 유효 모집 상태가 `RECRUITING`이고 마감일이 오늘 또는 미래일 때만 반환하며, `CLOSED`/`DELETED`, null 마감일 또는 마감일 경과 시 `null`입니다.
         - 삭제된 모집글은 404를 반환합니다.
         """)
     @GetMapping("/{recruitmentId}")

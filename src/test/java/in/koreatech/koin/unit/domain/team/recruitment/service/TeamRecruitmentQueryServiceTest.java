@@ -18,7 +18,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -64,6 +67,7 @@ class TeamRecruitmentQueryServiceTest {
     private static final Integer RECRUITMENT_ID = 17;
     private static final Integer ROLE_ID = 4;
     private static final Integer TEAM_ROOM_ID = 31;
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final LocalDate TODAY = LocalDate.of(2026, 8, 30);
 
     @InjectMocks
@@ -216,6 +220,41 @@ class TeamRecruitmentQueryServiceTest {
             givenNoApplication();
 
             assertThat(detail(VIEWER_ID).applyBlockReason()).isEqualTo(RECRUITMENT_CLOSED);
+        }
+
+        @Test
+        @DisplayName("마감 상태이면 미래 마감일이어도 d_day는 null 이다")
+        void dDayIsNullForClosedRecruitmentWithFutureDeadline() {
+            ReflectionTestUtils.setField(recruitment, "status", CLOSED);
+            givenFound();
+
+            assertThat(detail(VIEWER_ID).dDay()).isNull();
+        }
+
+        @Test
+        @DisplayName("상세 응답은 카드와 지원 가능 여부 계산에 같은 KST 기준일을 사용한다")
+        void detailUsesOneKstDateForCardAndApplyEligibility() {
+            recruitment = recruitment(ROLE_BASED, 3, 0, TODAY);
+            givenFound();
+            givenNoApplication();
+            givenHasProfile(true);
+
+            Clock beforeMidnight = Clock.fixed(
+                Instant.parse("2026-08-30T14:59:00Z"),
+                KST
+            );
+            Clock afterMidnight = Clock.fixed(
+                Instant.parse("2026-08-30T15:01:00Z"),
+                KST
+            );
+            doReturn(beforeMidnight, afterMidnight).when(clock).withZone(KST);
+
+            RecruitmentDetail response = detail(VIEWER_ID);
+
+            assertThat(response.dDay()).isZero();
+            assertThat(response.applyBlockReason()).isNull();
+            assertThat(response.canApply()).isTrue();
+            verify(clock, times(1)).withZone(KST);
         }
 
         @Test
