@@ -2,6 +2,7 @@ package in.koreatech.koin.unit.domain.teamrecruitment.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -117,8 +119,10 @@ class TeamRecruitmentChatServiceTest {
     void 지원서가_다른_모집글_소속이면_404를_반환한다() {
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
         TeamRecruitment wrongRecruitment = mock(TeamRecruitment.class);
-        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
-        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(mock(TeamRecruitment.class)));
+        when(recruitmentRepository.findByIdWithLock(RECRUITMENT_ID))
+                .thenReturn(Optional.of(mock(TeamRecruitment.class)));
+        when(applicationRepository.findByIdAndRecruitmentIdWithLock(APPLICATION_ID, RECRUITMENT_ID))
+                .thenReturn(Optional.of(application));
         when(application.getRecruitment()).thenReturn(wrongRecruitment);
         when(wrongRecruitment.getId()).thenReturn(99);
 
@@ -133,8 +137,9 @@ class TeamRecruitmentChatServiceTest {
         User author = UserFixture.id_설정_코인_유저(USER_ID);
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
         TeamRecruitment recruitment = mock(TeamRecruitment.class);
-        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
-        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(recruitmentRepository.findByIdWithLock(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findByIdAndRecruitmentIdWithLock(APPLICATION_ID, RECRUITMENT_ID))
+                .thenReturn(Optional.of(application));
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(recruitment.getAuthor()).thenReturn(author);
@@ -151,8 +156,9 @@ class TeamRecruitmentChatServiceTest {
         User author = UserFixture.id_설정_코인_유저(USER_ID);
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
         TeamRecruitment recruitment = mock(TeamRecruitment.class);
-        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
-        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(recruitmentRepository.findByIdWithLock(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findByIdAndRecruitmentIdWithLock(APPLICATION_ID, RECRUITMENT_ID))
+                .thenReturn(Optional.of(application));
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(recruitment.getAuthor()).thenReturn(author);
@@ -170,8 +176,9 @@ class TeamRecruitmentChatServiceTest {
         User otherAuthor = UserFixture.id_설정_코인_유저(OTHER_USER_ID);
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
         TeamRecruitment recruitment = mock(TeamRecruitment.class);
-        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
-        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(recruitmentRepository.findByIdWithLock(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findByIdAndRecruitmentIdWithLock(APPLICATION_ID, RECRUITMENT_ID))
+                .thenReturn(Optional.of(application));
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(recruitment.getAuthor()).thenReturn(otherAuthor);
@@ -190,8 +197,9 @@ class TeamRecruitmentChatServiceTest {
         TeamRecruitment recruitment = mock(TeamRecruitment.class);
         TeamRecruitmentChatRoom existingRoom = mock(TeamRecruitmentChatRoom.class);
 
-        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
-        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(recruitmentRepository.findByIdWithLock(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findByIdAndRecruitmentIdWithLock(APPLICATION_ID, RECRUITMENT_ID))
+                .thenReturn(Optional.of(application));
         when(application.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.ACCEPTED);
@@ -210,6 +218,13 @@ class TeamRecruitmentChatServiceTest {
         assertThat(result.isNew()).isFalse();
         assertThat(result.response().chatRoomId()).isEqualTo(CHAT_ROOM_ID);
         assertThat(result.response().roomName()).isEqualTo(counterpart.getNickname());
+
+        InOrder lockOrder = inOrder(recruitmentRepository, applicationRepository, chatRoomRepository);
+        lockOrder.verify(recruitmentRepository).findByIdWithLock(RECRUITMENT_ID);
+        lockOrder.verify(applicationRepository)
+                .findByIdAndRecruitmentIdWithLock(APPLICATION_ID, RECRUITMENT_ID);
+        lockOrder.verify(chatRoomRepository).findByRecruitment_IdAndApplication_IdAndRoomType(
+                RECRUITMENT_ID, APPLICATION_ID, TeamRecruitmentChatRoomType.DIRECT);
     }
 
     @Test
