@@ -54,6 +54,8 @@ public class TeamRecruitmentChatService {
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final String OUTBOX_EVENT_TYPE = "TEAM_RECRUITMENT_NOTIFICATION";
     private static final String AGGREGATE_TYPE = "TEAM_RECRUITMENT";
+    private static final int DIRECT_MEMBER_COUNT = 2;
+    private static final int TEAM_AUTHOR_COUNT = 1;
 
     private final TeamRecruitmentRepository recruitmentRepository;
     private final TeamRecruitmentApplicationRepository applicationRepository;
@@ -93,8 +95,8 @@ public class TeamRecruitmentChatService {
                 : chatRoom.getRecruitment().getTitle();
 
         int maxMemberCount = chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT
-                ? 2
-                : chatRoom.getRecruitment().getMaxParticipants();
+                ? DIRECT_MEMBER_COUNT
+                : chatRoom.getRecruitment().getMaxParticipants() + TEAM_AUTHOR_COUNT;
 
         return ChatRoomResponse.of(chatRoom, roomName, memberCount, maxMemberCount, counterpart);
     }

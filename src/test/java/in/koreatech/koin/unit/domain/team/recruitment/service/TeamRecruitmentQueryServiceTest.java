@@ -171,6 +171,19 @@ class TeamRecruitmentQueryServiceTest {
         return teamRecruitmentQueryService.getRecruitment(RECRUITMENT_ID, userId);
     }
 
+    @Test
+    @DisplayName("모집글 인원은 작성자를 제외한 승인 지원자 1명 중 1명이다")
+    void recruitmentParticipantCountExcludesAuthor() {
+        recruitment = recruitment(GENERAL, 1, 1, TODAY.plusDays(3));
+        givenFound();
+
+        RecruitmentDetail response = detail(null);
+
+        assertThat(response)
+            .extracting(RecruitmentDetail::currentParticipants, RecruitmentDetail::maxParticipants)
+            .containsExactly(1, 1);
+    }
+
     @Nested
     @DisplayName("지원 불가 사유")
     class ApplyBlockReason {

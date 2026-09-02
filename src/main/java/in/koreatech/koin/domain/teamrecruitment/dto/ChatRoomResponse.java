@@ -21,10 +21,16 @@ public record ChatRoomResponse(
         @Schema(description = "채팅방 상태", example = "ACTIVE")
         String status,
 
-        @Schema(description = "현재 멤버 수", example = "3")
+        @Schema(
+                description = "현재 채팅방 멤버 수. TEAM은 작성자와 승인된 지원자를 포함하고, DIRECT는 항상 2",
+                example = "3"
+        )
         int memberCount,
 
-        @Schema(description = "최대 멤버 수", example = "6")
+        @Schema(
+                description = "최대 채팅방 멤버 수. TEAM은 모집 정원에 작성자 1명을 더한 값이고, DIRECT는 항상 2",
+                example = "6"
+        )
         int maxMemberCount,
 
         @Schema(description = "상대방 정보 (DIRECT만 non-null)")
