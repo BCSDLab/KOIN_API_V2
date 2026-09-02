@@ -56,9 +56,9 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
             @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId,
-            @RequestParam(required = false) Integer afterMessageId,
-            @RequestParam(required = false) Integer beforeMessageId,
-            @RequestParam(defaultValue = "100") int limit
+            @RequestParam(name = "afterMessageId", required = false) Integer afterMessageId,
+            @RequestParam(name = "beforeMessageId", required = false) Integer beforeMessageId,
+            @RequestParam(name = "limit", defaultValue = "100") int limit
     ) {
         return ResponseEntity.ok(chatService.getMessages(userId, recruitmentId, chatRoomId, afterMessageId, beforeMessageId, limit));
     }

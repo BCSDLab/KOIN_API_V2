@@ -85,7 +85,9 @@ public record RecruitmentDetail(
     @Schema(description = "지원 가능 여부", example = "true", requiredMode = REQUIRED)
     Boolean canApply,
 
-    @Schema(description = "지원 불가 사유. 지원 가능하면 null입니다.", nullable = true, requiredMode = REQUIRED)
+    @Schema(description = "지원 불가 사유. 지원 가능하면 null입니다. 여러 사유가 겹치면 "
+        + "LOGIN_REQUIRED > OWN_RECRUITMENT > ALREADY_APPLIED > RECRUITMENT_CLOSED > DEADLINE_PASSED > "
+        + "ROLE_CLOSED > PROFILE_REQUIRED 순으로 반환합니다.", nullable = true, requiredMode = REQUIRED)
     TeamRecruitmentApplyBlockReason applyBlockReason,
 
     @Schema(description = "내 지원 정보. 미지원자는 null입니다.", nullable = true, requiredMode = REQUIRED)
@@ -102,6 +104,7 @@ public record RecruitmentDetail(
     Integer teamChatRoomId
 ) {
     @JsonNaming(SnakeCaseStrategy.class)
+    @Schema(description = "현재 사용자의 지원 정보")
     public record AppliedApplication(
         @Schema(description = "지원서 ID", example = "51", requiredMode = REQUIRED)
         Integer applicationId,
