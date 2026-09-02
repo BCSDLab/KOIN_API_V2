@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.team.recruitment.dto.ApplicantDetail;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicantListResponse;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicantSummary;
 import in.koreatech.koin.domain.team.recruitment.dto.MyApplication;
@@ -31,6 +33,8 @@ import in.koreatech.koin.domain.team.recruitment.dto.RecruitmentCard;
 import in.koreatech.koin.domain.team.recruitment.dto.RecruitmentRole;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationSort;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus;
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
@@ -477,6 +481,191 @@ class TeamRecruitmentApplicationQueryServiceTest {
     }
 
     @Test
+    void 수동_마감된_모집글의_ACCEPTED_지원자는_기존방이_없으면_DIRECT_CTA가_닫힌다() {
+        TeamRecruitment recruitment = recruitment();
+        recruitment.close();
+        TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
+
+        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.countByRecruitment_IdAndStatusIn(eq(RECRUITMENT_ID), any()))
+            .thenReturn(1L);
+        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
+            eq(RECRUITMENT_ID),
+            any(),
+            any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of(accepted)));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of(teamRoom(recruitment, READ_ONLY)));
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
+            .thenReturn(List.of());
+
+        ApplicantListResponse response = queryService.getApplications(
+            RECRUITMENT_ID,
+            List.of(ACCEPTED),
+            1,
+            10,
+            AUTHOR_ID
+        );
+
+        assertThat(response.applications().get(0).canOpenDirectChat()).isFalse();
+    }
+
+    @Test
+    void 정원충족으로_자동_마감된_모집글은_ACTIVE_TEAM_방이_있으면_DIRECT_CTA가_열린다() {
+        TeamRecruitment recruitment = recruitment(1, 1, CLOSED);
+        TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
+
+        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.countByRecruitment_IdAndStatusIn(eq(RECRUITMENT_ID), any()))
+            .thenReturn(1L);
+        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
+            eq(RECRUITMENT_ID),
+            any(),
+            any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of(accepted)));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of(teamRoom(recruitment, ACTIVE)));
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
+            .thenReturn(List.of());
+
+        ApplicantListResponse response = queryService.getApplications(
+            RECRUITMENT_ID,
+            List.of(ACCEPTED),
+            1,
+            10,
+            AUTHOR_ID
+        );
+
+        assertThat(response.applications().get(0).canOpenDirectChat()).isTrue();
+    }
+
+    @Test
+    void 마감일이_지난_RECRUITING_모집글은_ACTIVE_TEAM_방이_있어도_DIRECT_CTA가_닫힌다() {
+        TeamRecruitment recruitment = recruitment(LocalDate.of(2026, 8, 27));
+        TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
+
+        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.countByRecruitment_IdAndStatusIn(eq(RECRUITMENT_ID), any()))
+            .thenReturn(1L);
+        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
+            eq(RECRUITMENT_ID),
+            any(),
+            any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of(accepted)));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of(teamRoom(recruitment, ACTIVE)));
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
+            .thenReturn(List.of());
+
+        ApplicantListResponse response = queryService.getApplications(
+            RECRUITMENT_ID,
+            List.of(ACCEPTED),
+            1,
+            10,
+            AUTHOR_ID
+        );
+
+        assertThat(response.applications().get(0).canOpenDirectChat()).isFalse();
+    }
+
+    @Test
+    void 마감된_모집글의_기존_DIRECT_방은_DIRECT_CTA를_계속_연다() {
+        TeamRecruitment recruitment = recruitment();
+        recruitment.close();
+        TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
+        TeamRecruitmentChatRoom existingDirect = TeamRecruitmentChatRoom.builder()
+            .id(DIRECT_ROOM_ID)
+            .recruitment(recruitment)
+            .roomScopeKey("DIRECT-20")
+            .roomType(DIRECT)
+            .application(accepted)
+            .status(READ_ONLY)
+            .build();
+
+        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.countByRecruitment_IdAndStatusIn(eq(RECRUITMENT_ID), any()))
+            .thenReturn(1L);
+        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
+            eq(RECRUITMENT_ID),
+            any(),
+            any(Pageable.class)
+        )).thenReturn(new PageImpl<>(List.of(accepted)));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of(teamRoom(recruitment, READ_ONLY)));
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
+            .thenReturn(List.of(existingDirect));
+
+        ApplicantListResponse response = queryService.getApplications(
+            RECRUITMENT_ID,
+            List.of(ACCEPTED),
+            1,
+            10,
+            AUTHOR_ID
+        );
+
+        assertThat(response.applications().get(0).canOpenDirectChat()).isTrue();
+    }
+
+    @Test
+    void 지원서_상세도_마감된_모집글에서_기존방이_없으면_DIRECT_CTA가_닫힌다() {
+        TeamRecruitment recruitment = recruitment();
+        recruitment.close();
+        TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
+
+        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findById(20)).thenReturn(Optional.of(accepted));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of(teamRoom(recruitment, READ_ONLY)));
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
+            .thenReturn(List.of());
+
+        ApplicantDetail response = queryService.getApplicationDetail(RECRUITMENT_ID, 20, AUTHOR_ID);
+
+        assertThat(response.canOpenDirectChat()).isFalse();
+    }
+
+    @Test
+    void 지원서_상세도_마감일이_지난_RECRUITING_모집글은_ACTIVE_TEAM_방이_있어도_DIRECT_CTA가_닫힌다() {
+        TeamRecruitment recruitment = recruitment(LocalDate.of(2026, 8, 27));
+        TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
+
+        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findById(20)).thenReturn(Optional.of(accepted));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID),
+            "TEAM",
+            TEAM
+        )).thenReturn(List.of(teamRoom(recruitment, ACTIVE)));
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
+            .thenReturn(List.of());
+
+        ApplicantDetail response = queryService.getApplicationDetail(RECRUITMENT_ID, 20, AUTHOR_ID);
+
+        assertThat(response.canOpenDirectChat()).isFalse();
+    }
+
+    @Test
     void ACCEPTED인데_TEAM_room이_없으면_내부_무결성_예외가_발생한다() {
         TeamRecruitment recruitment = recruitment();
         TeamRecruitmentApplication accepted = application(22, recruitment, ACCEPTED);
@@ -557,12 +746,19 @@ class TeamRecruitmentApplicationQueryServiceTest {
     }
 
     private TeamRecruitmentChatRoom teamRoom(TeamRecruitment recruitment) {
+        return teamRoom(recruitment, ACTIVE);
+    }
+
+    private TeamRecruitmentChatRoom teamRoom(
+        TeamRecruitment recruitment,
+        TeamRecruitmentChatRoomStatus status
+    ) {
         return TeamRecruitmentChatRoom.builder()
             .id(TEAM_ROOM_ID)
             .recruitment(recruitment)
             .roomScopeKey("TEAM")
             .roomType(TEAM)
-            .status(ACTIVE)
+            .status(status)
             .build();
     }
 
@@ -571,6 +767,23 @@ class TeamRecruitmentApplicationQueryServiceTest {
     }
 
     private TeamRecruitment recruitment(LocalDate deadlineDate) {
+        return recruitment(5, 0, RECRUITING, deadlineDate);
+    }
+
+    private TeamRecruitment recruitment(
+        Integer maxParticipants,
+        Integer currentParticipants,
+        TeamRecruitmentStatus status
+    ) {
+        return recruitment(maxParticipants, currentParticipants, status, LocalDate.of(2026, 8, 31));
+    }
+
+    private TeamRecruitment recruitment(
+        Integer maxParticipants,
+        Integer currentParticipants,
+        TeamRecruitmentStatus status,
+        LocalDate deadlineDate
+    ) {
         return TeamRecruitment.builder()
             .id(RECRUITMENT_ID)
             .author(UserFixture.id_설정_코인_유저(1))
@@ -579,9 +792,10 @@ class TeamRecruitmentApplicationQueryServiceTest {
             .activityEndDate(LocalDate.of(2026, 9, 30))
             .deadlineDate(deadlineDate)
             .recruitmentType(GENERAL)
-            .maxParticipants(5)
-            .currentParticipants(0)
+            .maxParticipants(maxParticipants)
+            .currentParticipants(currentParticipants)
             .description("모집 내용")
+            .status(status)
             .build();
     }
 

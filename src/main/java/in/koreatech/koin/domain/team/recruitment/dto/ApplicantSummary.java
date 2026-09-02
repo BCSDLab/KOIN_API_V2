@@ -28,7 +28,12 @@ public record ApplicantSummary(
     @Schema(description = "지원 상태", example = "PENDING", requiredMode = REQUIRED)
     TeamRecruitmentApplicationStatus status,
 
-    @Schema(description = "개인 채팅 시작 가능 여부", example = "false", requiredMode = REQUIRED)
+    @Schema(
+        description = "기존 DIRECT 방이 있거나, 마감일이 지나지 않은 RECRUITING 상태이거나, "
+            + "정원 충족으로 마감되어 ACTIVE TEAM 방이 있을 때 개인 채팅 시작 가능 여부",
+        example = "false",
+        requiredMode = REQUIRED
+    )
     Boolean canOpenDirectChat
 ) {
 }
