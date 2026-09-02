@@ -53,10 +53,10 @@ public record RecruitmentDetail(
     @Schema(description = "모집 유형", example = "ROLE_BASED", requiredMode = REQUIRED)
     TeamRecruitmentType recruitmentType,
 
-    @Schema(description = "승인된 전체 지원자 수", example = "2", requiredMode = REQUIRED)
+    @Schema(description = "작성자를 제외한 승인된 전체 지원자 수", example = "2", requiredMode = REQUIRED)
     Integer currentParticipants,
 
-    @Schema(description = "전체 모집 정원", example = "5", requiredMode = REQUIRED)
+    @Schema(description = "작성자를 제외한 전체 모집 정원", example = "5", requiredMode = REQUIRED)
     Integer maxParticipants,
 
     @Schema(description = "역할 목록", requiredMode = REQUIRED)

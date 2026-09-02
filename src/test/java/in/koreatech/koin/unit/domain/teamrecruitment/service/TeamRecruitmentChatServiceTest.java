@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,10 +31,12 @@ import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicatio
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus;
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentRole;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
@@ -41,6 +44,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatR
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
+import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomCreationResult;
 import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentChatService;
@@ -131,6 +135,48 @@ class TeamRecruitmentChatServiceTest {
                 .isInstanceOf(CustomException.class)
                 .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
                         .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_FORBIDDEN));
+    }
+
+    @Test
+    void GENERAL_TEAM_채팅방에_작성자만_있으면_인원은_2명_중_1명이다() {
+        ChatRoomResponse response = getChatRoom(
+                TeamRecruitmentType.GENERAL,
+                TeamRecruitmentChatRoomType.TEAM,
+                1,
+                1
+        );
+
+        assertThat(response)
+                .extracting(ChatRoomResponse::memberCount, ChatRoomResponse::maxMemberCount)
+                .containsExactly(1, 2);
+    }
+
+    @Test
+    void ROLE_BASED_TEAM_채팅방에_마지막_지원자가_참여하면_인원은_2명_중_2명이다() {
+        ChatRoomResponse response = getChatRoom(
+                TeamRecruitmentType.ROLE_BASED,
+                TeamRecruitmentChatRoomType.TEAM,
+                1,
+                2
+        );
+
+        assertThat(response)
+                .extracting(ChatRoomResponse::memberCount, ChatRoomResponse::maxMemberCount)
+                .containsExactly(2, 2);
+    }
+
+    @Test
+    void DIRECT_채팅방_인원은_항상_2명_중_2명이다() {
+        ChatRoomResponse response = getChatRoom(
+                TeamRecruitmentType.GENERAL,
+                TeamRecruitmentChatRoomType.DIRECT,
+                1,
+                2
+        );
+
+        assertThat(response)
+                .extracting(ChatRoomResponse::memberCount, ChatRoomResponse::maxMemberCount)
+                .containsExactly(2, 2);
     }
 
     @Test
@@ -331,5 +377,50 @@ class TeamRecruitmentChatServiceTest {
                 .isInstanceOf(CustomException.class)
                 .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
                         .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_READ_ONLY));
+    }
+
+    private ChatRoomResponse getChatRoom(
+            TeamRecruitmentType recruitmentType,
+            TeamRecruitmentChatRoomType roomType,
+            int maxParticipants,
+            long memberCount
+    ) {
+        User currentUser = UserFixture.id_설정_코인_유저(USER_ID);
+        User counterpart = UserFixture.id_설정_코인_유저(OTHER_USER_ID);
+        int approvedParticipants = Math.toIntExact(memberCount) - 1;
+        TeamRecruitment recruitment = TeamRecruitment.builder()
+                .id(RECRUITMENT_ID)
+                .author(currentUser)
+                .title("팀원 모집")
+                .recruitmentType(recruitmentType)
+                .maxParticipants(maxParticipants)
+                .currentParticipants(approvedParticipants)
+                .build();
+        if (recruitmentType == TeamRecruitmentType.ROLE_BASED) {
+            recruitment.addRole(TeamRecruitmentRole.builder()
+                    .name("백엔드")
+                    .maxParticipants(maxParticipants)
+                    .currentParticipants(approvedParticipants)
+                    .displayOrder(1)
+                    .build());
+        }
+        TeamRecruitmentChatRoom chatRoom = TeamRecruitmentChatRoom.builder()
+                .id(CHAT_ROOM_ID)
+                .recruitment(recruitment)
+                .roomScopeKey(roomType.name())
+                .roomType(roomType)
+                .build();
+
+        when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
+        when(memberRepository.existsByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(true);
+        when(memberRepository.countByChatRoom_Id(CHAT_ROOM_ID)).thenReturn(memberCount);
+        if (roomType == TeamRecruitmentChatRoomType.DIRECT) {
+            when(memberRepository.findAllByChatRoom_Id(CHAT_ROOM_ID)).thenReturn(List.of(
+                    TeamRecruitmentChatMember.builder().chatRoom(chatRoom).user(currentUser).build(),
+                    TeamRecruitmentChatMember.builder().chatRoom(chatRoom).user(counterpart).build()
+            ));
+        }
+
+        return chatService.getChatRoom(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID);
     }
 }
