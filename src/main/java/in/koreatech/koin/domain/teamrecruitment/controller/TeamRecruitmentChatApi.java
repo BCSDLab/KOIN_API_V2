@@ -85,9 +85,12 @@ public interface TeamRecruitmentChatApi {
             Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId,
-            @Parameter(schema = @Schema(minimum = "1")) @RequestParam(required = false) Integer afterMessageId,
-            @Parameter(schema = @Schema(minimum = "1")) @RequestParam(required = false) Integer beforeMessageId,
-            @Parameter(schema = @Schema(minimum = "1", maximum = "200")) @RequestParam(defaultValue = "100") int limit
+            @Parameter(schema = @Schema(minimum = "1"))
+            @RequestParam(name = "afterMessageId", required = false) Integer afterMessageId,
+            @Parameter(schema = @Schema(minimum = "1"))
+            @RequestParam(name = "beforeMessageId", required = false) Integer beforeMessageId,
+            @Parameter(schema = @Schema(minimum = "1", maximum = "200"))
+            @RequestParam(name = "limit", defaultValue = "100") int limit
     );
 
     @ApiResponseCodes({
