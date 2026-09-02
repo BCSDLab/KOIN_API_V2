@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TeamRecruitmentDeadlineScheduler {
 
-    private final TeamRecruitmentDeadlineCloseProcessor deadlineCloseProcessor;
+    private final TeamRecruitmentDeadlineCloseCoordinator deadlineCloseCoordinator;
 
     @Scheduled(fixedDelayString = "${team-recruitment.deadline-scheduler.fixed-delay-ms:60000}")
     public void closeExpiredRecruitments() {
         try {
-            deadlineCloseProcessor.closeExpiredRecruitments();
+            deadlineCloseCoordinator.closeExpiredRecruitments();
         } catch (Exception exception) {
             log.error("팀원 모집 마감 스케줄러 처리 중 오류가 발생했습니다.", exception);
         }
