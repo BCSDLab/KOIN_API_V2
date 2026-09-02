@@ -12,7 +12,6 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentSta
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
@@ -32,13 +31,9 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutbo
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.team.recruitment.scheduler.TeamRecruitmentDeadlineCloseProcessor;
 import in.koreatech.koin.unit.fixture.UserFixture;
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,7 +48,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class TeamRecruitmentDeadlineCloseProcessorTest {
 
-    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final LocalDate TODAY = LocalDate.of(2026, 8, 28);
 
     @Mock
@@ -71,19 +65,8 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
     @Mock
     private TeamRecruitmentOutboxEventRepository outboxEventRepository;
 
-    @Mock
-    private Clock clock;
-
     @InjectMocks
     private TeamRecruitmentDeadlineCloseProcessor processor;
-
-    private Clock fixedClock;
-
-    @BeforeEach
-    void setUpClock() {
-        fixedClock = Clock.fixed(Instant.parse("2026-08-28T03:00:00Z"), KST);
-        when(clock.withZone(KST)).thenReturn(fixedClock);
-    }
 
     @Nested
     class CloseExpiredRecruitments {
@@ -95,7 +78,7 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             TeamRecruitmentApplication accepted = application(12, recruitment, ACCEPTED);
             TeamRecruitmentChatRoom teamRoom = chatRoom(21, recruitment, TEAM, ACTIVE);
             TeamRecruitmentChatRoom directRoom = chatRoom(22, recruitment, DIRECT, ACTIVE);
-            stubCandidates(recruitment);
+            stubLockedRecruitment(recruitment);
             stubApplications(pending, accepted);
             when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(1, "TEAM"))
                 .thenReturn(Optional.of(teamRoom));
@@ -111,7 +94,7 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
                 return notification;
             });
 
-            processor.closeExpiredRecruitments();
+            processor.closeIfExpired(1, TODAY);
 
             assertThat(recruitment.getStatus()).isEqualTo(CLOSED);
             assertThat(pending.getStatus()).isEqualTo(REJECTED);
@@ -137,13 +120,12 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
         void 이미_마감된_모집은_다시_처리하지_않는다() {
             TeamRecruitment recruitment = recruitment(1, TODAY.minusDays(1));
             TeamRecruitmentApplication pending = application(11, recruitment, PENDING);
-            stubCandidates(recruitment);
-            when(recruitmentRepository.findByIdWithLock(1)).thenReturn(Optional.of(recruitment));
+            stubLockedRecruitment(recruitment);
 
-            processor.closeExpiredRecruitments();
+            processor.closeIfExpired(1, TODAY);
             clearInvocations(applicationRepository, chatRoomRepository, notificationRepository, outboxEventRepository);
 
-            processor.closeExpiredRecruitments();
+            processor.closeIfExpired(1, TODAY);
 
             assertThat(recruitment.getStatus()).isEqualTo(CLOSED);
             assertThat(pending.getStatus()).isEqualTo(PENDING);
@@ -157,7 +139,7 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
         void 승인된_지원자가_있는데_TEAM_채팅방이_없으면_내부_무결성_예외를_던진다() {
             TeamRecruitment recruitment = recruitment(1, TODAY.minusDays(1));
             TeamRecruitmentApplication accepted = application(12, recruitment, ACCEPTED);
-            stubCandidates(recruitment);
+            stubLockedRecruitment(recruitment);
             when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
                 1,
                 List.of(PENDING),
@@ -174,7 +156,7 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
 
             IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
-                () -> processor.closeExpiredRecruitments()
+                () -> processor.closeIfExpired(1, TODAY)
             );
 
             assertThat(exception).hasMessageContaining("TEAM 채팅방");
@@ -185,7 +167,7 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
         @Test
         void 승인된_지원자가_없으면_TEAM_채팅방이_없어도_정상_마감한다() {
             TeamRecruitment recruitment = recruitment(1, TODAY.minusDays(1));
-            stubCandidates(recruitment);
+            stubLockedRecruitment(recruitment);
             when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
                 1,
                 List.of(PENDING),
@@ -200,7 +182,7 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
                 .thenReturn(Optional.empty());
             when(chatRoomRepository.findAllByRecruitment_Id(1)).thenReturn(List.of());
 
-            processor.closeExpiredRecruitments();
+            processor.closeIfExpired(1, TODAY);
 
             assertThat(recruitment.getStatus()).isEqualTo(CLOSED);
             verify(notificationRepository, never()).save(any());
@@ -214,9 +196,9 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
         @Test
         void 오늘이_마감일이면_모집을_닫지_않는다() {
             TeamRecruitment recruitment = recruitment(1, TODAY);
-            stubCandidates(recruitment);
+            stubLockedRecruitment(recruitment);
 
-            processor.closeExpiredRecruitments();
+            processor.closeIfExpired(1, TODAY);
 
             assertThat(recruitment.getStatus()).isEqualTo(RECRUITING);
             verify(applicationRepository, never()).findAllByRecruitment_IdAndStatusIn(any(), anyList(), any(Pageable.class));
@@ -224,28 +206,7 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
         }
     }
 
-    @Test
-    void DB에서_마감일_조건을_적용해_앞선_미만료_모집이_많아도_만료_모집을_조회한다() {
-        TeamRecruitment expiredRecruitment = recruitment(101, TODAY.minusDays(1));
-        stubCandidates(expiredRecruitment);
-
-        processor.closeExpiredRecruitments();
-
-        assertThat(expiredRecruitment.getStatus()).isEqualTo(CLOSED);
-        verify(recruitmentRepository).findAllByStatusAndDeadlineDateBefore(
-            eq(RECRUITING),
-            eq(TODAY),
-            any(Pageable.class)
-        );
-    }
-
-    private void stubCandidates(TeamRecruitment recruitment) {
-        when(recruitmentRepository.findAllByStatusAndDeadlineDateBefore(
-            eq(RECRUITING),
-            eq(TODAY),
-            any(Pageable.class)
-        ))
-            .thenReturn(new PageImpl<>(List.of(recruitment)));
+    private void stubLockedRecruitment(TeamRecruitment recruitment) {
         when(recruitmentRepository.findByIdWithLock(recruitment.getId()))
             .thenReturn(Optional.of(recruitment));
     }
