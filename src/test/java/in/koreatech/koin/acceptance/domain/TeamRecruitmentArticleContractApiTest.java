@@ -206,6 +206,73 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
         }
 
         @Test
+        @DisplayName("같은 사용자의 동일한 모집글 생성 요청이 연속되면 두 번째 요청은 409이고 side effect는 한 번만 발생한다")
+        void rejectsImmediateDuplicateRequestWithoutDuplicateSideEffects() throws Exception {
+            String body = generalBody(5);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REQUEST_TOO_FAST"));
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(1L, 0L, 1L, 1L);
+        }
+
+        @Test
+        @DisplayName("같은 사용자의 서로 다른 모집글 생성 요청은 연속되어도 허용한다")
+        void allowsImmediateRequestWithDifferentPayload() throws Exception {
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(generalBody(4)))
+                .andExpect(status().isCreated());
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(generalBody(5)))
+                .andExpect(status().isCreated());
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(2L, 0L, 2L, 2L);
+        }
+
+        @Test
+        @DisplayName("동일한 모집글 생성 요청도 300ms가 지나면 허용한다")
+        void allowsSameRequestAfterDuplicateGuardWindow() throws Exception {
+            String body = generalBody(5);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            Thread.sleep(350);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(2L, 0L, 2L, 2L);
+        }
+
+        @Test
         @DisplayName("미인증 요청은 401 이다")
         void unauthenticated() throws Exception {
             mockMvc.perform(post("/team-recruitments")

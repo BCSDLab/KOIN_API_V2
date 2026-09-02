@@ -9,6 +9,7 @@ import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_START_DATE_A
 import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_USER;
 import static in.koreatech.koin.global.code.ApiResponseCode.NO_CONTENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
+import static in.koreatech.koin.global.code.ApiResponseCode.REQUEST_TOO_FAST;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CLOSED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_DEADLINE_DATE;
@@ -96,6 +97,7 @@ public interface TeamRecruitmentApi {
         NOT_FOUND_USER,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
+        REQUEST_TOO_FAST,
     })
     @Operation(summary = "모집글 작성", description = """
         ### 모집글 작성
@@ -109,6 +111,7 @@ public interface TeamRecruitmentApi {
         - 지원 마감일은 활동 시작일 이하, 활동 시작일은 활동 종료일 이하여야 합니다.
         - 모집글과 TEAM 채팅방을 같은 트랜잭션에서 생성하고 작성자를 최초 채팅방 멤버로 추가합니다.
         - 별도의 팀 채팅방 생성 API는 없습니다.
+        - 같은 사용자가 동일한 요청을 300ms 안에 반복하면 두 번째 요청은 `409 REQUEST_TOO_FAST`를 반환합니다.
         - 생성된 모집글 id만 반환합니다.
         """)
     @PostMapping
