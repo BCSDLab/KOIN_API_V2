@@ -5,14 +5,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import in.koreatech.koin.global.code.ApiResponseCodesOperationCustomizer;
+import in.koreatech.koin.global.code.DeprecationOperationCustomizer;
 
 @Configuration
 public class SwaggerGroupConfig {
 
-    private final ApiResponseCodesOperationCustomizer customizer;
+    private final ApiResponseCodesOperationCustomizer apiResponseCodesOperationCustomizer;
+    private final DeprecationOperationCustomizer deprecationOperationCustomizer;
 
-    public SwaggerGroupConfig(ApiResponseCodesOperationCustomizer customizer) {
-        this.customizer = customizer;
+    public SwaggerGroupConfig(
+        ApiResponseCodesOperationCustomizer apiResponseCodesOperationCustomizer,
+        DeprecationOperationCustomizer deprecationOperationCustomizer
+    ) {
+        this.apiResponseCodesOperationCustomizer = apiResponseCodesOperationCustomizer;
+        this.deprecationOperationCustomizer = deprecationOperationCustomizer;
     }
 
     @Bean
@@ -20,7 +26,8 @@ public class SwaggerGroupConfig {
         return GroupedOpenApi.builder()
             .group("0. Login API")
             .pathsToMatch("/**/login")
-            .addOperationCustomizer(customizer)
+            .addOperationCustomizer(deprecationOperationCustomizer)
+            .addOperationCustomizer(apiResponseCodesOperationCustomizer)
             .build();
     }
 
@@ -140,7 +147,8 @@ public class SwaggerGroupConfig {
         return GroupedOpenApi.builder()
             .group(groupName)
             .packagesToScan(packagesPath)
-            .addOperationCustomizer(customizer)
+            .addOperationCustomizer(deprecationOperationCustomizer)
+            .addOperationCustomizer(apiResponseCodesOperationCustomizer)
             .build();
     }
 }

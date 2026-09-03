@@ -4,6 +4,23 @@ jwt:
     expiration-time: ${JWT_ACCESS_TOKEN_EXPIRATION_TIME}
 
 spring:
+  ai:
+    mcp:
+      server:
+        enabled: ${KOIN_MCP_ENABLED:false}
+        name: koin-api-mcp-server
+        version: 1.0.0
+        type: SYNC
+        protocol: STREAMABLE
+        instructions: "Read-only tools for discovering KOIN API endpoint descriptions, request specs, and response specs."
+        streamable-http:
+          mcp-endpoint: /mcp
+        capabilities:
+          tool: true
+          resource: false
+          prompt: false
+          completion: false
+
   mvc:
     throw-exception-if-no-handler-found: true
   web:
