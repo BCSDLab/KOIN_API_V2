@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.teamrecruitment.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentChatRoomListItemResponse;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +35,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Team Recruitment Chat: 팀원 모집 채팅", description = "팀원 모집 채팅 API")
 public interface TeamRecruitmentChatApi {
+
+    @ApiResponseCodes({
+        OK,
+        UNAUTHORIZED_USER,
+        FORBIDDEN_USER_TYPE,
+    })
+    @Operation(
+        summary = "내 팀원 모집 채팅방 목록 조회",
+        description = "현재 사용자가 멤버인 TEAM/DIRECT 채팅방을 최근 메시지순으로 반환합니다. "
+            + "메시지가 없는 방과 READ_ONLY 방도 포함합니다."
+    )
+    ResponseEntity<List<TeamRecruitmentChatRoomListItemResponse>> getChatRooms(Integer userId);
 
     @ApiResponseCodes({
         OK,

@@ -44,6 +44,12 @@ public class TeamRecruitmentOpenApiCustomizer implements OpenApiCustomizer {
         );
         configureDateTime(schemas, "ApplicationCreatedResponse", "created_at", SPACE_LOCAL_DATE_TIME_PATTERN);
         configureDateTime(schemas, "RecruitmentDetail", "created_at", SPACE_LOCAL_DATE_TIME_PATTERN);
+        configureDateTime(
+            schemas,
+            "TeamRecruitmentChatRoomListItemResponse",
+            "last_message_at",
+            ISO_LOCAL_DATE_TIME_PATTERN
+        );
         configureChatMessageTimestamp(openApi, schemas);
     }
 

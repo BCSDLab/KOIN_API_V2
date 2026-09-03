@@ -6,10 +6,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -35,11 +37,13 @@ import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentRole;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository.ChatRoomUnreadCount;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
@@ -47,6 +51,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepos
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomCreationResult;
+import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentChatRoomListItemResponse;
 import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentChatService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.unit.fixture.UserFixture;
@@ -135,6 +140,90 @@ class TeamRecruitmentChatServiceTest {
                 .isInstanceOf(CustomException.class)
                 .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
                         .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_FORBIDDEN));
+    }
+
+    @Test
+    void 내_채팅방_목록은_최근_메시지순으로_TEAM과_DIRECT_정보를_반환한다() {
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
+        TeamRecruitmentChatRoom teamRoom = mock(TeamRecruitmentChatRoom.class);
+        TeamRecruitmentChatRoom directRoom = mock(TeamRecruitmentChatRoom.class);
+        TeamRecruitmentChatMember currentTeamMember = mock(TeamRecruitmentChatMember.class);
+        TeamRecruitmentChatMember currentDirectMember = mock(TeamRecruitmentChatMember.class);
+        TeamRecruitmentChatMember counterpartMember = mock(TeamRecruitmentChatMember.class);
+        TeamRecruitmentChatMessage teamMessage = mock(TeamRecruitmentChatMessage.class);
+        TeamRecruitmentChatMessage directMessage = mock(TeamRecruitmentChatMessage.class);
+        ChatRoomUnreadCount unreadCount = mock(ChatRoomUnreadCount.class);
+        User currentUser = UserFixture.id_설정_코인_유저(USER_ID);
+        User counterpart = UserFixture.id_설정_코인_유저(OTHER_USER_ID);
+        LocalDateTime teamMessageAt = LocalDateTime.of(2026, 8, 28, 12, 0);
+        LocalDateTime directMessageAt = teamMessageAt.plusMinutes(1);
+
+        when(currentTeamMember.getChatRoom()).thenReturn(teamRoom);
+        when(currentDirectMember.getChatRoom()).thenReturn(directRoom);
+        when(currentDirectMember.getUser()).thenReturn(currentUser);
+        when(teamRoom.getId()).thenReturn(20);
+        when(directRoom.getId()).thenReturn(21);
+        when(teamRoom.getRecruitment()).thenReturn(recruitment);
+        when(directRoom.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(recruitment.getTitle()).thenReturn("팀원 모집");
+        when(teamRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.TEAM);
+        when(directRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.DIRECT);
+        when(teamRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.ACTIVE);
+        when(directRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.READ_ONLY);
+        when(counterpartMember.getChatRoom()).thenReturn(directRoom);
+        when(counterpartMember.getUser()).thenReturn(counterpart);
+        when(teamMessage.getChatRoom()).thenReturn(teamRoom);
+        when(teamMessage.getId()).thenReturn(100);
+        when(teamMessage.getContent()).thenReturn("팀 메시지");
+        when(teamMessage.getCreatedAt()).thenReturn(teamMessageAt);
+        when(teamMessage.getIsImage()).thenReturn(false);
+        when(directMessage.getChatRoom()).thenReturn(directRoom);
+        when(directMessage.getId()).thenReturn(101);
+        when(directMessage.getContent()).thenReturn("개인 메시지");
+        when(directMessage.getCreatedAt()).thenReturn(directMessageAt);
+        when(directMessage.getIsImage()).thenReturn(false);
+        when(unreadCount.getChatRoomId()).thenReturn(20);
+        when(unreadCount.getUnreadMessageCount()).thenReturn(2L);
+        when(memberRepository.findAllByUserIdWithChatRoomAndRecruitment(USER_ID))
+            .thenReturn(List.of(currentTeamMember, currentDirectMember));
+        when(memberRepository.findAllWithUsersByChatRoomIds(List.of(21)))
+            .thenReturn(List.of(currentDirectMember, counterpartMember));
+        when(messageRepository.findLatestByChatRoomIds(List.of(20, 21)))
+            .thenReturn(List.of(teamMessage, directMessage));
+        when(messageRepository.countUnreadMessagesByUserId(USER_ID)).thenReturn(List.of(unreadCount));
+
+        List<TeamRecruitmentChatRoomListItemResponse> responses = chatService.getChatRooms(USER_ID);
+
+        assertThat(responses).extracting(TeamRecruitmentChatRoomListItemResponse::chatRoomId)
+            .containsExactly(directRoom.getId(), teamRoom.getId());
+        assertThat(responses.get(0))
+            .extracting(
+                TeamRecruitmentChatRoomListItemResponse::roomName,
+                TeamRecruitmentChatRoomListItemResponse::counterpartId,
+                TeamRecruitmentChatRoomListItemResponse::counterpartNickname,
+                TeamRecruitmentChatRoomListItemResponse::lastMessageId,
+                TeamRecruitmentChatRoomListItemResponse::unreadMessageCount
+            )
+            .containsExactly(counterpart.getNickname(), OTHER_USER_ID, counterpart.getNickname(), 101, 0);
+        assertThat(responses.get(1))
+            .extracting(
+                TeamRecruitmentChatRoomListItemResponse::roomName,
+                TeamRecruitmentChatRoomListItemResponse::counterpartId,
+                TeamRecruitmentChatRoomListItemResponse::counterpartNickname,
+                TeamRecruitmentChatRoomListItemResponse::lastMessageId,
+                TeamRecruitmentChatRoomListItemResponse::unreadMessageCount
+            )
+            .containsExactly("팀원 모집", null, null, 100, 2);
+    }
+
+    @Test
+    void 내_채팅방이_없으면_빈_목록을_반환한다() {
+        when(memberRepository.findAllByUserIdWithChatRoomAndRecruitment(USER_ID)).thenReturn(List.of());
+
+        assertThat(chatService.getChatRooms(USER_ID)).isEmpty();
+
+        verifyNoInteractions(messageRepository);
     }
 
     @Test
