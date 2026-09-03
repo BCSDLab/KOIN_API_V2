@@ -5,10 +5,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +36,7 @@ import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomCreationResult;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentChatRoomListItemResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +70,64 @@ public class TeamRecruitmentChatService {
     private final TeamRecruitmentOutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+
+    public List<TeamRecruitmentChatRoomListItemResponse> getChatRooms(Integer userId) {
+        List<TeamRecruitmentChatMember> memberships =
+            memberRepository.findAllByUserIdWithChatRoomAndRecruitment(userId);
+        if (memberships.isEmpty()) {
+            return List.of();
+        }
+
+        List<TeamRecruitmentChatRoom> chatRooms = memberships.stream()
+            .map(TeamRecruitmentChatMember::getChatRoom)
+            .toList();
+        List<Integer> chatRoomIds = chatRooms.stream()
+            .map(TeamRecruitmentChatRoom::getId)
+            .toList();
+        List<Integer> directChatRoomIds = chatRooms.stream()
+            .filter(room -> room.getRoomType() == TeamRecruitmentChatRoomType.DIRECT)
+            .map(TeamRecruitmentChatRoom::getId)
+            .toList();
+
+        Map<Integer, User> counterpartsByChatRoomId = directChatRoomIds.isEmpty()
+            ? Map.of()
+            : memberRepository.findAllWithUsersByChatRoomIds(directChatRoomIds).stream()
+                .filter(member -> !member.getUser().getId().equals(userId))
+                .collect(Collectors.toMap(
+                    member -> member.getChatRoom().getId(),
+                    TeamRecruitmentChatMember::getUser,
+                    (first, ignored) -> first
+                ));
+        Map<Integer, TeamRecruitmentChatMessage> latestMessagesByChatRoomId = messageRepository
+            .findLatestByChatRoomIds(chatRoomIds).stream()
+            .collect(Collectors.toMap(
+                message -> message.getChatRoom().getId(),
+                Function.identity()
+            ));
+        Map<Integer, Long> unreadCountsByChatRoomId = messageRepository.countUnreadMessagesByUserId(userId).stream()
+            .collect(Collectors.toMap(
+                TeamRecruitmentChatMessageRepository.ChatRoomUnreadCount::getChatRoomId,
+                TeamRecruitmentChatMessageRepository.ChatRoomUnreadCount::getUnreadMessageCount
+            ));
+
+        return chatRooms.stream()
+            .map(chatRoom -> TeamRecruitmentChatRoomListItemResponse.of(
+                chatRoom,
+                counterpartsByChatRoomId.get(chatRoom.getId()),
+                latestMessagesByChatRoomId.get(chatRoom.getId()),
+                Math.toIntExact(unreadCountsByChatRoomId.getOrDefault(chatRoom.getId(), 0L))
+            ))
+            .sorted(Comparator
+                .comparing(
+                    TeamRecruitmentChatRoomListItemResponse::lastMessageAt,
+                    Comparator.nullsLast(Comparator.reverseOrder())
+                )
+                .thenComparing(
+                    TeamRecruitmentChatRoomListItemResponse::chatRoomId,
+                    Comparator.reverseOrder()
+                ))
+            .toList();
+    }
 
     public ChatRoomResponse getChatRoom(Integer userId, Integer recruitmentId, Integer chatRoomId) {
         TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)

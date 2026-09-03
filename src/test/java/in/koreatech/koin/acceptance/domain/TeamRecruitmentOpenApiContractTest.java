@@ -22,6 +22,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicationCreatedResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentChatRoomListItemResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentNotificationResponse;
 
 class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
@@ -51,6 +52,7 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
         "PUT /team-recruitments/{recruitmentId}/applications/{applicationId}/status",
         "GET /team-recruitment-profiles/me",
         "PUT /team-recruitment-profiles/me",
+        "GET /chatroom/team-recruitment",
         "GET /chatroom/team-recruitment/{recruitmentId}/{chatRoomId}",
         "POST /chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
         "GET /chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages",
@@ -79,6 +81,18 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
             "max_member_count", "counterpart");
         assertNullable(chatRoom, "counterpart");
         assertInlineObject(chatRoom, "counterpart", "id", "nickname");
+
+        JsonNode chatRoomListItem = schema(openApi, "TeamRecruitmentChatRoomListItemResponse");
+        assertRequired(chatRoomListItem, "recruitment_id", "chat_room_id", "room_name", "room_type", "status",
+            "counterpart_id", "counterpart_nickname", "last_message_id", "last_message_content", "last_message_at",
+            "last_message_is_image", "unread_message_count");
+        assertNullable(chatRoomListItem, "counterpart_id");
+        assertNullable(chatRoomListItem, "counterpart_nickname");
+        assertNullable(chatRoomListItem, "last_message_id");
+        assertNullable(chatRoomListItem, "last_message_content");
+        assertNullable(chatRoomListItem, "last_message_at");
+        assertNullable(chatRoomListItem, "last_message_is_image");
+        assertDateTime(chatRoomListItem, "last_message_at", ISO_LOCAL_DATE_TIME_PATTERN);
 
         assertRequiredNullable(schema(openApi, "ApplicationCreatedResponse"), "role");
         assertInlineObject(schema(openApi, "ApplicationCreatedResponse"), "role", "id", "name");
@@ -150,6 +164,9 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
             new ApplicationCreatedResponse(51, 17, PENDING, null, timestamp));
         JsonNode chatRoom = objectMapper.valueToTree(
             new ChatRoomResponse(31, "팀 채팅방", "TEAM", "ACTIVE", 1, 2, null));
+        JsonNode chatRoomListItem = objectMapper.valueToTree(new TeamRecruitmentChatRoomListItemResponse(
+            17, 31, "팀 채팅방", "TEAM", "ACTIVE", null, null,
+            null, null, null, null, 0));
         JsonNode notification = objectMapper.valueToTree(new TeamRecruitmentNotificationResponse(
             101, "NEW_APPLICATION", "APPLICANT_MANAGEMENT", 17, null, null, null,
             "새로운 지원자가 있어요.", false, timestamp));
@@ -159,6 +176,12 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
         assertThat(application.path("role").isNull()).isTrue();
         assertThat(application.path("created_at").asText()).isEqualTo("2026-08-26 11:20:30");
         assertThat(chatRoom.path("counterpart").isNull()).isTrue();
+        assertThat(chatRoomListItem.path("counterpart_id").isNull()).isTrue();
+        assertThat(chatRoomListItem.path("counterpart_nickname").isNull()).isTrue();
+        assertThat(chatRoomListItem.path("last_message_id").isNull()).isTrue();
+        assertThat(chatRoomListItem.path("last_message_content").isNull()).isTrue();
+        assertThat(chatRoomListItem.path("last_message_at").isNull()).isTrue();
+        assertThat(chatRoomListItem.path("last_message_is_image").isNull()).isTrue();
         assertThat(notification.path("application_id").isNull()).isTrue();
         assertThat(notification.path("chat_room_id").isNull()).isTrue();
         assertThat(notification.path("sender_nickname").isNull()).isTrue();

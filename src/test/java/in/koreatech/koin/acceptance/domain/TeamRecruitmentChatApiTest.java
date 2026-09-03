@@ -1,8 +1,10 @@
 package in.koreatech.koin.acceptance.domain;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
@@ -11,6 +13,7 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentOut
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,11 +37,13 @@ import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentOutboxEvent;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
@@ -59,6 +64,9 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
 
     @Autowired
     private TeamRecruitmentRepository recruitmentRepository;
+
+    @Autowired
+    private TeamRecruitmentApplicationRepository applicationRepository;
 
     @Autowired
     private TeamRecruitmentChatRoomRepository chatRoomRepository;
@@ -138,6 +146,73 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + applicantToken))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("TEAM_RECRUITMENT_CHAT_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("내 팀원 모집 채팅방 목록은 TEAM과 DIRECT를 최근 메시지순으로 반환한다")
+    void listMyTeamRecruitmentChatRooms() throws Exception {
+        TeamRecruitment recruitment = saveRecruitment("목록에서 보이는 팀 모집");
+        TeamRecruitmentChatRoom teamRoom = saveTeamRoom(recruitment, ACTIVE);
+        TeamRecruitmentApplication application = saveAcceptedApplication(recruitment);
+        TeamRecruitmentChatRoom directRoom = saveDirectRoom(recruitment, application, READ_ONLY);
+
+        TeamRecruitmentChatMessage readTeamMessage = saveMessage(teamRoom, author.getUser(), "이미 읽은 팀 메시지", false);
+        TeamRecruitmentChatMember applicantTeamMember = chatMemberRepository
+            .findByChatRoom_IdAndUser_Id(teamRoom.getId(), applicant.getUser().getId())
+            .orElseThrow();
+        applicantTeamMember.advanceLastReadMessageId(readTeamMessage.getId());
+        TeamRecruitmentChatMessage unreadTeamMessage = saveMessage(
+            teamRoom, author.getUser(), "새로운 팀 메시지", false);
+        TeamRecruitmentChatMessage latestDirectMessage = saveMessage(
+            directRoom, applicant.getUser(), "https://static.koreatech.in/team-chat/image.png", true);
+
+        TeamRecruitment emptyRecruitment = saveRecruitment("아직 대화가 없는 팀 모집");
+        TeamRecruitmentChatRoom emptyRoom = saveTeamRoom(emptyRecruitment, ACTIVE);
+        entityManager.flush();
+
+        mockMvc.perform(get("/chatroom/team-recruitment")
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(3))
+            .andExpect(jsonPath("$[0].recruitment_id").value(recruitment.getId()))
+            .andExpect(jsonPath("$[0].chat_room_id").value(directRoom.getId()))
+            .andExpect(jsonPath("$[0].room_name").value(author.getUser().getNickname()))
+            .andExpect(jsonPath("$[0].room_type").value("DIRECT"))
+            .andExpect(jsonPath("$[0].status").value("READ_ONLY"))
+            .andExpect(jsonPath("$[0].counterpart_id").value(author.getUser().getId()))
+            .andExpect(jsonPath("$[0].counterpart_nickname").value(author.getUser().getNickname()))
+            .andExpect(jsonPath("$[0].last_message_id").value(latestDirectMessage.getId()))
+            .andExpect(jsonPath("$[0].last_message_content")
+                .value("https://static.koreatech.in/team-chat/image.png"))
+            .andExpect(jsonPath("$[0].last_message_at").isString())
+            .andExpect(jsonPath("$[0].last_message_is_image").value(true))
+            .andExpect(jsonPath("$[0].unread_message_count").value(0))
+            .andExpect(jsonPath("$[1].recruitment_id").value(recruitment.getId()))
+            .andExpect(jsonPath("$[1].chat_room_id").value(teamRoom.getId()))
+            .andExpect(jsonPath("$[1].room_name").value(recruitment.getTitle()))
+            .andExpect(jsonPath("$[1].room_type").value("TEAM"))
+            .andExpect(jsonPath("$[1].counterpart_id").value(nullValue()))
+            .andExpect(jsonPath("$[1].counterpart_nickname").value(nullValue()))
+            .andExpect(jsonPath("$[1].last_message_id").value(unreadTeamMessage.getId()))
+            .andExpect(jsonPath("$[1].last_message_content").value("새로운 팀 메시지"))
+            .andExpect(jsonPath("$[1].last_message_is_image").value(false))
+            .andExpect(jsonPath("$[1].unread_message_count").value(1))
+            .andExpect(jsonPath("$[2].recruitment_id").value(emptyRecruitment.getId()))
+            .andExpect(jsonPath("$[2].chat_room_id").value(emptyRoom.getId()))
+            .andExpect(jsonPath("$[2].last_message_id").value(nullValue()))
+            .andExpect(jsonPath("$[2].last_message_content").value(nullValue()))
+            .andExpect(jsonPath("$[2].last_message_at").value(nullValue()))
+            .andExpect(jsonPath("$[2].last_message_is_image").value(nullValue()))
+            .andExpect(jsonPath("$[2].unread_message_count").value(0));
+
+        mockMvc.perform(get("/chatroom/team-recruitment")
+                .header("Authorization", "Bearer " + outsiderToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(0));
+
+        mockMvc.perform(get("/chatroom/team-recruitment"))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("UNAUTHORIZED_USER"));
     }
 
     @Test
@@ -411,6 +486,58 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
             .user(applicant.getUser())
             .build());
         return room;
+    }
+
+    private TeamRecruitmentApplication saveAcceptedApplication(TeamRecruitment recruitment) {
+        return applicationRepository.save(TeamRecruitmentApplication.builder()
+            .recruitment(recruitment)
+            .applicant(applicant.getUser())
+            .motivation("지원 동기")
+            .availability("월수금 20시 이후")
+            .status(ACCEPTED)
+            .profileSnapshot("{}")
+            .snapshotVersion(1)
+            .build());
+    }
+
+    private TeamRecruitmentChatRoom saveDirectRoom(
+        TeamRecruitment recruitment,
+        TeamRecruitmentApplication application,
+        in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus status
+    ) {
+        TeamRecruitmentChatRoom room = chatRoomRepository.save(TeamRecruitmentChatRoom.builder()
+            .recruitment(recruitment)
+            .roomScopeKey("DIRECT-" + application.getId())
+            .roomType(DIRECT)
+            .application(application)
+            .status(status)
+            .build());
+        chatMemberRepository.save(TeamRecruitmentChatMember.builder()
+            .chatRoom(room)
+            .user(author.getUser())
+            .build());
+        chatMemberRepository.save(TeamRecruitmentChatMember.builder()
+            .chatRoom(room)
+            .user(applicant.getUser())
+            .build());
+        return room;
+    }
+
+    private TeamRecruitmentChatMessage saveMessage(
+        TeamRecruitmentChatRoom room,
+        User sender,
+        String content,
+        boolean isImage
+    ) {
+        TeamRecruitmentChatMessage message = chatMessageRepository.save(TeamRecruitmentChatMessage.builder()
+            .chatRoom(room)
+            .sender(sender)
+            .senderNickname(sender.getNickname())
+            .content(content)
+            .isImage(isImage)
+            .build());
+        entityManager.flush();
+        return message;
     }
 
     private org.springframework.test.web.servlet.ResultActions sendMessage(
