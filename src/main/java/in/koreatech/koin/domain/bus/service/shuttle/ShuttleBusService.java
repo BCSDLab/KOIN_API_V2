@@ -68,12 +68,12 @@ public class ShuttleBusService {
     public List<BusRemainTime> getShuttleBusRemainTimes(BusType busType, BusStation depart, BusStation arrival) {
         List<Route> routes = getShuttleRoutesByBusType(busType);
 
+        // 시간 정렬은 BusService에서 계산할 수 없는 항목을 제외한 뒤 수행한다.
         return routes.stream()
             .filter(route -> route.isRunning(clock))
             .filter(route -> route.isCorrectRoute(depart, arrival, clock))
             .map(route -> route.getRemainTime(depart))
             .distinct()
-            .sorted()
             .toList();
     }
 
