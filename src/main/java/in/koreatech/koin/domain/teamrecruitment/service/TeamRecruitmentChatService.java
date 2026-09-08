@@ -77,7 +77,7 @@ public class TeamRecruitmentChatService {
             counterpart = memberRepository.findAllByChatRoom_Id(chatRoomId).stream()
                     .filter(m -> !m.getUser().getId().equals(userId))
                     .findFirst()
-                    .map(m -> new ChatRoomResponse.Counterpart(m.getUser().getId(), m.getUser().getNickname()))
+                    .map(m -> new ChatRoomResponse.Counterpart(m.getUser().getId(), m.getUser().getDisplayNickname()))
                     .orElse(null);
         }
 
@@ -224,7 +224,7 @@ public class TeamRecruitmentChatService {
                 TeamRecruitmentChatMessage.builder()
                         .chatRoom(chatRoom)
                         .sender(sender)
-                        .senderNickname(sender.getNickname())
+                        .senderNickname(sender.getDisplayNickname())
                         .content(request.content())
                         .isImage(request.isImage())
                         .build());
