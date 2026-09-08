@@ -2,10 +2,16 @@ package in.koreatech.koin.unit.domain.teamrecruitment.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+
+import org.mockito.ArgumentCaptor;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +30,7 @@ import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomTy
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
@@ -277,6 +284,65 @@ class TeamRecruitmentChatServiceTest {
                 .isInstanceOf(CustomException.class)
                 .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
                         .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_NOT_FOUND));
+    }
+
+    @Test
+    void 닉네임_미설정_사용자가_포함된_DIRECT_채팅방_조회시_nickname이_익명_사용자로_응답된다() {
+        User author = UserFixture.id_설정_코인_유저(USER_ID);
+        User anonymousCounterpart = UserFixture.닉네임_없는_코인_유저(OTHER_USER_ID);
+        TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
+        TeamRecruitmentChatRoom existingRoom = mock(TeamRecruitmentChatRoom.class);
+
+        when(applicationRepository.findById(APPLICATION_ID)).thenReturn(Optional.of(application));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(application.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(application.getStatus()).thenReturn(TeamRecruitmentApplicationStatus.ACCEPTED);
+        when(recruitment.isRecruiting()).thenReturn(true);
+        when(recruitment.getAuthor()).thenReturn(author);
+        when(application.getApplicant()).thenReturn(anonymousCounterpart);
+        when(chatRoomRepository.findByRecruitment_IdAndApplication_IdAndRoomType(
+                RECRUITMENT_ID, APPLICATION_ID, TeamRecruitmentChatRoomType.DIRECT))
+                .thenReturn(Optional.of(existingRoom));
+        when(existingRoom.getId()).thenReturn(CHAT_ROOM_ID);
+        when(existingRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.DIRECT);
+        when(existingRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.ACTIVE);
+
+        DirectChatRoomCreationResult result = chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID);
+
+        assertThat(result.response().roomName()).isEqualTo(anonymousCounterpart.getDisplayNickname());
+        assertThat(result.response().counterpart().nickname()).isEqualTo(anonymousCounterpart.getDisplayNickname());
+    }
+
+    @Test
+    void 닉네임_미설정_사용자의_메시지_전송시_senderNickname이_익명_사용자로_저장된다() {
+        User anonymousSender = UserFixture.닉네임_없는_코인_유저(USER_ID);
+        TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
+        TeamRecruitmentChatMember senderMember = mock(TeamRecruitmentChatMember.class);
+        TeamRecruitmentChatMessage savedMessage = mock(TeamRecruitmentChatMessage.class);
+
+        when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
+        when(chatRoom.getRecruitment()).thenReturn(recruitment);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(Optional.of(senderMember));
+        when(chatRoom.isActive()).thenReturn(true);
+        when(senderMember.getUser()).thenReturn(anonymousSender);
+        when(messageRepository.save(any(TeamRecruitmentChatMessage.class))).thenReturn(savedMessage);
+        when(savedMessage.getId()).thenReturn(100);
+        when(memberRepository.findAllByChatRoom_Id(CHAT_ROOM_ID)).thenReturn(List.of());
+        when(savedMessage.getContent()).thenReturn("안녕");
+        when(savedMessage.getSender()).thenReturn(anonymousSender);
+        when(savedMessage.getSenderNickname()).thenReturn(anonymousSender.getDisplayNickname());
+        when(savedMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+        when(savedMessage.getIsImage()).thenReturn(false);
+
+        ArgumentCaptor<TeamRecruitmentChatMessage> captor = ArgumentCaptor.forClass(TeamRecruitmentChatMessage.class);
+        chatService.createMessage(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, new CreateChatMessageRequest("안녕", false));
+        verify(messageRepository).save(captor.capture());
+
+        assertThat(captor.getValue().getSenderNickname()).isEqualTo(anonymousSender.getDisplayNickname());
     }
 
     @Test
