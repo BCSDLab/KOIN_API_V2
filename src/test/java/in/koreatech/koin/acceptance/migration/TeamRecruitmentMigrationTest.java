@@ -92,6 +92,13 @@ class TeamRecruitmentMigrationTest {
                 .contains("deleted")
                 .contains("deleted_at");
             assertThat(queryString(connection, checkConstraintQuery(
+                "team_recruitment",
+                "chk_team_recruitment_dates"
+            )).toLowerCase(Locale.ROOT))
+                .contains("activity_start_date")
+                .contains("activity_end_date")
+                .doesNotContain("deadline_date");
+            assertThat(queryString(connection, checkConstraintQuery(
                 "team_recruitment_chat_room",
                 "chk_team_recruitment_chat_room_application_scope"
             )).toLowerCase(Locale.ROOT))
