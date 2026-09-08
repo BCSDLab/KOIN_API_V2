@@ -334,12 +334,12 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
         }
 
         @Test
-        @DisplayName("지원 마감일이 활동 시작일보다 이후면 400 이다")
+        @DisplayName("지원 마감일이 활동 시작일보다 이후여도 201 이다")
         void deadlineAfterActivityStart() throws Exception {
             String body = """
                 {
                   "category": "STUDY",
-                  "title": "잘못된 기간",
+                  "title": "활동 시작 이후 마감",
                   "meeting_type": "ONLINE",
                   "activity_start_date": "%s",
                   "activity_end_date": "%s",
@@ -360,8 +360,38 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + authorToken)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(body))
+                .andExpect(status().isCreated());
+        }
+
+        @Test
+        @DisplayName("활동 종료일이 활동 시작일보다 이전이면 400 이다")
+        void activityEndBeforeActivityStart() throws Exception {
+            String body = """
+                {
+                  "category": "STUDY",
+                  "title": "잘못된 기간",
+                  "meeting_type": "ONLINE",
+                  "activity_start_date": "%s",
+                  "activity_end_date": "%s",
+                  "deadline_date": "%s",
+                  "recruitment_type": "GENERAL",
+                  "max_participants": 3,
+                  "roles": [],
+                  "description": "설명",
+                  "related_url": null,
+                  "qualification": null
+                }
+                """.formatted(
+                LocalDate.now(clock).plusDays(20),
+                LocalDate.now(clock).plusDays(10),
+                LocalDate.now(clock).plusDays(5));
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("TEAM_RECRUITMENT_INVALID_DEADLINE_DATE"));
+                .andExpect(jsonPath("$.code").value("INVALID_START_DATE_AFTER_END_DATE"));
         }
     }
 

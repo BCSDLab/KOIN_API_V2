@@ -45,7 +45,7 @@ public record UpdateRecruitmentRequest(
     @NotNull
     LocalDate activityEndDate,
 
-    @Schema(description = "지원 마감일. 활동 시작일 이하여야 합니다.", example = "2026-09-03", requiredMode = REQUIRED)
+    @Schema(description = "지원 마감일", example = "2026-09-03", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull
     LocalDate deadlineDate,
@@ -80,7 +80,7 @@ public record UpdateRecruitmentRequest(
     String qualification
 ) {
     public UpdateRecruitmentRequest {
-        RecruitmentRequestValidator.validatePeriod(activityStartDate, activityEndDate, deadlineDate);
+        RecruitmentRequestValidator.validateActivityPeriod(activityStartDate, activityEndDate);
         RecruitmentRequestValidator.validateRoleComposition(recruitmentType, roles, maxParticipants);
         if (RecruitmentRequestValidator.isCompleteRoleList(roles, UpdateRoleInput::isComplete)) {
             RecruitmentRequestValidator.validateDistinctRoleNames(roles.stream().map(UpdateRoleInput::name).toList());

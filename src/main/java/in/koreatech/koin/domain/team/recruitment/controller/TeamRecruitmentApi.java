@@ -12,7 +12,6 @@ import static in.koreatech.koin.global.code.ApiResponseCode.OK;
 import static in.koreatech.koin.global.code.ApiResponseCode.REQUEST_TOO_FAST;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CLOSED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_DEADLINE_DATE;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_MAX_PARTICIPANTS_BELOW_ACCEPTED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOT_FOUND;
@@ -90,7 +89,6 @@ public interface TeamRecruitmentApi {
 
     @ApiResponseCodes({
         CREATED,
-        TEAM_RECRUITMENT_INVALID_DEADLINE_DATE,
         TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION,
         INVALID_START_DATE_AFTER_END_DATE,
         INVALID_REQUEST_BODY,
@@ -108,7 +106,7 @@ public interface TeamRecruitmentApi {
         - 역할명은 앞뒤 공백을 제거해 저장하며, 대소문자와 악센트만 다른 이름도 중복으로 봅니다.
         - `recruitment_type=GENERAL`은 작성자를 제외한 지원자 모집 정원인 `max_participants`를 보내고
           `roles`는 빈 배열로 보내셔야 합니다.
-        - 지원 마감일은 활동 시작일 이하, 활동 시작일은 활동 종료일 이하여야 합니다.
+        - 활동 시작일은 활동 종료일 이하여야 합니다. 지원 마감일은 활동 기간과의 순서 제한이 없습니다.
         - 모집글과 TEAM 채팅방을 같은 트랜잭션에서 생성하고 작성자를 최초 채팅방 멤버로 추가합니다.
         - 별도의 팀 채팅방 생성 API는 없습니다.
         - 같은 사용자가 동일한 요청을 300ms 안에 반복하면 두 번째 요청은 `409 REQUEST_TOO_FAST`를 반환합니다.
@@ -148,7 +146,6 @@ public interface TeamRecruitmentApi {
         TEAM_RECRUITMENT_ROLE_UPDATE_NOT_ALLOWED,
         TEAM_RECRUITMENT_MAX_PARTICIPANTS_BELOW_ACCEPTED,
         TEAM_RECRUITMENT_TYPE_CHANGE_NOT_ALLOWED,
-        TEAM_RECRUITMENT_INVALID_DEADLINE_DATE,
         TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION,
         INVALID_START_DATE_AFTER_END_DATE,
         INVALID_REQUEST_BODY,
