@@ -8,6 +8,7 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCha
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.MY_APPLICATIONS;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.APPLICATION_REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.DELETED;
@@ -18,11 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +40,7 @@ import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
@@ -101,6 +105,7 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
     private Student author;
     private Student applicant;
     private String authorToken;
+    private String applicantToken;
 
     @BeforeEach
     void setUp() {
@@ -109,6 +114,7 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
         author = userFixture.준호_학생(department, null);
         applicant = userFixture.성빈_학생(department);
         authorToken = userFixture.getToken(author.getUser());
+        applicantToken = userFixture.getToken(applicant.getUser());
         profileRepository.save(TeamRecruitmentProfile.builder()
             .user(applicant.getUser())
             .profileNickname("지원자")
@@ -159,6 +165,96 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
         assertThat(notificationRepository.findAllByRecipient_IdAndIsDeletedFalse(applicant.getUser().getId()))
             .extracting(TeamRecruitmentNotification::getMessagePreview)
             .anyMatch(message -> message.contains("삭제되어"));
+    }
+
+    @Test
+    @DisplayName("알림 단건 읽음 처리는 수신자와 미삭제 최초 읽음만 변경하고 반복 호출에도 읽은 시각을 보존한다")
+    void 알림_단건_읽음_처리_멱등성() throws Exception {
+        TeamRecruitment recruitment = saveGeneralRecruitment("알림 읽음", 3, 0);
+        TeamRecruitmentNotification unread = saveNotification(recruitment, applicant.getUser(), null, false);
+        TeamRecruitmentNotification deletedUnread = saveNotification(recruitment, applicant.getUser(), null, true);
+        TeamRecruitmentNotification otherUserUnread = saveNotification(recruitment, author.getUser(), null, false);
+        entityManager.flush();
+
+        mockMvc.perform(post("/team-recruitments/notifications/{notificationId}/read", unread.getId())
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+
+        entityManager.clear();
+        LocalDateTime firstReadAt = notificationRepository.findById(unread.getId()).orElseThrow().getReadAt();
+        assertThat(firstReadAt).isNotNull();
+
+        mockMvc.perform(post("/team-recruitments/notifications/{notificationId}/read", unread.getId())
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(post("/team-recruitments/notifications/{notificationId}/read", deletedUnread.getId())
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(post("/team-recruitments/notifications/{notificationId}/read", otherUserUnread.getId())
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(post("/team-recruitments/notifications/{notificationId}/read", 999999)
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+
+        entityManager.clear();
+        assertThat(notificationRepository.findById(unread.getId()).orElseThrow().getReadAt())
+            .isEqualTo(firstReadAt);
+        assertThat(notificationRepository.findById(deletedUnread.getId()).orElseThrow().getReadAt())
+            .isNull();
+        assertThat(notificationRepository.findById(otherUserUnread.getId()).orElseThrow().getReadAt())
+            .isNull();
+        assertThat(notificationRepository.countByRecipient_IdAndIsDeletedFalse(applicant.getUser().getId()))
+            .isEqualTo(1L);
+        mockMvc.perform(get("/team-recruitments/notifications")
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.total_count").value(1))
+            .andExpect(jsonPath("$.unread_count").value(0))
+            .andExpect(jsonPath("$.notifications.length()").value(1))
+            .andExpect(jsonPath("$.notifications[0].id").value(unread.getId()));
+    }
+
+    @Test
+    @DisplayName("알림 단건 삭제는 수신자와 미삭제 알림만 변경하고 반복·대상 없음에도 204를 반환한다")
+    void 알림_단건_삭제_멱등성() throws Exception {
+        TeamRecruitment recruitment = saveGeneralRecruitment("알림 삭제", 3, 0);
+        TeamRecruitmentNotification unread = saveNotification(recruitment, applicant.getUser(), null, false);
+        TeamRecruitmentNotification deleted = saveNotification(recruitment, applicant.getUser(), null, true);
+        TeamRecruitmentNotification otherUser = saveNotification(recruitment, author.getUser(), null, false);
+        entityManager.flush();
+
+        mockMvc.perform(delete("/team-recruitments/notifications/{notificationId}", unread.getId())
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/team-recruitments/notifications/{notificationId}", unread.getId())
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/team-recruitments/notifications/{notificationId}", deleted.getId())
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/team-recruitments/notifications/{notificationId}", otherUser.getId())
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/team-recruitments/notifications/{notificationId}", 999999)
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isNoContent());
+
+        entityManager.clear();
+        assertThat(notificationRepository.findById(unread.getId()).orElseThrow().getIsDeleted())
+            .isTrue();
+        assertThat(notificationRepository.findById(deleted.getId()).orElseThrow().getIsDeleted())
+            .isTrue();
+        assertThat(notificationRepository.findById(otherUser.getId()).orElseThrow().getIsDeleted())
+            .isFalse();
+        assertThat(notificationRepository.countByRecipient_IdAndIsDeletedFalse(applicant.getUser().getId()))
+            .isZero();
+        mockMvc.perform(get("/team-recruitments/notifications")
+                .header("Authorization", "Bearer " + applicantToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.total_count").value(0))
+            .andExpect(jsonPath("$.unread_count").value(0))
+            .andExpect(jsonPath("$.notifications.length()").value(0));
     }
 
     @Test
@@ -403,6 +499,23 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
             .status(status)
             .profileSnapshot(PROFILE_SNAPSHOT)
             .snapshotVersion(1)
+            .build());
+    }
+
+    private TeamRecruitmentNotification saveNotification(
+        TeamRecruitment recruitment,
+        User recipient,
+        LocalDateTime readAt,
+        boolean isDeleted
+    ) {
+        return notificationRepository.save(TeamRecruitmentNotification.builder()
+            .recipient(recipient)
+            .type(APPLICATION_REJECTED)
+            .targetType(MY_APPLICATIONS)
+            .messagePreview("알림")
+            .recruitment(recruitment)
+            .readAt(readAt)
+            .isDeleted(isDeleted)
             .build());
     }
 

@@ -9,6 +9,7 @@ import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_START_DATE_A
 import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_USER;
 import static in.koreatech.koin.global.code.ApiResponseCode.NO_CONTENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
+import static in.koreatech.koin.global.code.ApiResponseCode.REQUEST_TOO_FAST;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CLOSED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_DEADLINE_DATE;
@@ -96,16 +97,21 @@ public interface TeamRecruitmentApi {
         NOT_FOUND_USER,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
+        REQUEST_TOO_FAST,
     })
     @Operation(summary = "모집글 작성", description = """
         ### 모집글 작성
-        - `recruitment_type=ROLE_BASED`은 `roles`를 1~5개 보내며 전체 정원은 역할 정원의 합으로 계산됩니다.
-        - 전체 정원은 10명을 넘을 수 없습니다. 역할별 정원의 합도 같은 상한을 지켜야 합니다.
+        - `recruitment_type=ROLE_BASED`은 `roles`를 1~5개 보내며 작성자를 제외한 지원자 모집 정원은
+          역할별 지원자 모집 정원의 합으로 계산됩니다.
+        - 작성자를 제외한 지원자 모집 정원은 10명을 넘을 수 없습니다.
+          역할별 지원자 모집 정원의 합도 같은 상한을 지켜야 합니다.
         - 역할명은 앞뒤 공백을 제거해 저장하며, 대소문자와 악센트만 다른 이름도 중복으로 봅니다.
-        - `recruitment_type=GENERAL`은 `max_participants`를 보내고 `roles`는 빈 배열로 보내셔야 합니다.
+        - `recruitment_type=GENERAL`은 작성자를 제외한 지원자 모집 정원인 `max_participants`를 보내고
+          `roles`는 빈 배열로 보내셔야 합니다.
         - 지원 마감일은 활동 시작일 이하, 활동 시작일은 활동 종료일 이하여야 합니다.
         - 모집글과 TEAM 채팅방을 같은 트랜잭션에서 생성하고 작성자를 최초 채팅방 멤버로 추가합니다.
         - 별도의 팀 채팅방 생성 API는 없습니다.
+        - 같은 사용자가 동일한 요청을 300ms 안에 반복하면 두 번째 요청은 `409 REQUEST_TOO_FAST`를 반환합니다.
         - 생성된 모집글 id만 반환합니다.
         """)
     @PostMapping
@@ -123,7 +129,8 @@ public interface TeamRecruitmentApi {
         - 비로그인 조회가 가능합니다.
         - 로그인한 경우 `is_author`, `can_apply`, `apply_block_reason`, `application`,
           `can_manage_applicants`, 팀 채팅방 정보를 함께 반환합니다.
-        - `d_day`는 지원 마감일 기준이며 마감일이 지나면 null입니다.
+        - `d_day`는 KST 기준 현재 날짜와 지원 마감일의 차이입니다.
+        - 유효 모집 상태가 `RECRUITING`이고 마감일이 오늘 또는 미래일 때만 반환하며, `CLOSED`/`DELETED`, null 마감일 또는 마감일 경과 시 `null`입니다.
         - 삭제된 모집글은 404를 반환합니다.
         """)
     @GetMapping("/{recruitmentId}")
@@ -152,11 +159,13 @@ public interface TeamRecruitmentApi {
         ### 모집글 수정
         - 작성자만 수정할 수 있습니다.
         - 기존 역할은 `id`를 반드시 보내고 새 역할은 `id`를 생략하셔야 합니다.
-        - 지원자가 있는 역할은 삭제, 이름 변경, 정원 축소를 할 수 없습니다.
+        - 지원자가 있는 역할은 삭제, 이름 변경, 지원자 정원 축소를 할 수 없습니다.
         - 기존 역할의 표시 순서는 유지되며, 새 역할은 기존 역할 뒤에 요청 배열 순서대로 추가됩니다.
-        - 전체 정원은 10명을 넘을 수 없습니다.
+        - `recruitment_type=GENERAL`의 `max_participants`는 작성자를 제외한 지원자 모집 정원입니다.
+        - `recruitment_type=ROLE_BASED`의 지원자 모집 정원은 역할별 지원자 모집 정원의 합으로 계산됩니다.
+        - 작성자를 제외한 지원자 모집 정원은 10명을 넘을 수 없습니다.
         - 역할명은 앞뒤 공백을 제거해 저장하며, 대소문자와 악센트만 다른 이름도 중복으로 봅니다.
-        - 정원을 이미 승인된 인원과 같게 줄이면 그 자리에서 마감됩니다.
+        - 지원자 정원을 이미 승인된 인원과 같게 줄이면 그 자리에서 마감됩니다.
         - 마감된 모집글은 수정할 수 없습니다.
         """)
     @PutMapping("/{recruitmentId}")

@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomCreationResult;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentChatRoomListItemResponse;
 import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentChatService;
 import in.koreatech.koin.global.auth.Auth;
 
@@ -26,12 +27,19 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/chatroom/team-recruitment/{recruitmentId}")
+@RequestMapping("/chatroom/team-recruitment")
 public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
 
     private final TeamRecruitmentChatService chatService;
 
-    @GetMapping("/{chatRoomId}")
+    @GetMapping
+    public ResponseEntity<List<TeamRecruitmentChatRoomListItemResponse>> getChatRooms(
+            @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        return ResponseEntity.ok(chatService.getChatRooms(userId));
+    }
+
+    @GetMapping("/{recruitmentId}/{chatRoomId}")
     public ResponseEntity<ChatRoomResponse> getChatRoom(
             @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,
@@ -40,7 +48,7 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
         return ResponseEntity.ok(chatService.getChatRoom(userId, recruitmentId, chatRoomId));
     }
 
-    @PostMapping("/applications/{applicationId}/direct")
+    @PostMapping("/{recruitmentId}/applications/{applicationId}/direct")
     public ResponseEntity<DirectChatRoomResponse> getOrCreateDirectChatRoom(
             @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,
@@ -51,19 +59,19 @@ public class TeamRecruitmentChatController implements TeamRecruitmentChatApi {
         return ResponseEntity.status(status).body(result.response());
     }
 
-    @GetMapping("/{chatRoomId}/messages")
+    @GetMapping("/{recruitmentId}/{chatRoomId}/messages")
     public ResponseEntity<List<ChatMessageResponse>> getMessages(
             @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId,
-            @RequestParam(required = false) Integer afterMessageId,
-            @RequestParam(required = false) Integer beforeMessageId,
-            @RequestParam(defaultValue = "100") int limit
+            @RequestParam(name = "afterMessageId", required = false) Integer afterMessageId,
+            @RequestParam(name = "beforeMessageId", required = false) Integer beforeMessageId,
+            @RequestParam(name = "limit", defaultValue = "100") int limit
     ) {
         return ResponseEntity.ok(chatService.getMessages(userId, recruitmentId, chatRoomId, afterMessageId, beforeMessageId, limit));
     }
 
-    @PostMapping("/{chatRoomId}/messages")
+    @PostMapping("/{recruitmentId}/{chatRoomId}/messages")
     public ResponseEntity<ChatMessageResponse> createMessage(
             @Auth(permit = {STUDENT}) Integer userId,
             @PathVariable Integer recruitmentId,

@@ -13,10 +13,7 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotificati
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentNotificationResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentNotificationsResponse;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -50,18 +47,12 @@ public class TeamRecruitmentNotificationService {
 
     @Transactional
     public void markAsRead(Integer userId, Integer notificationId) {
-        TeamRecruitmentNotification notification = notificationRepository
-                .findByIdAndRecipient_Id(notificationId, userId)
-                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND));
-        notification.markAsRead(LocalDateTime.now());
+        notificationRepository.updateReadAtByRecipientIdAndNotificationId(userId, notificationId, LocalDateTime.now());
     }
 
     @Transactional
     public void delete(Integer userId, Integer notificationId) {
-        TeamRecruitmentNotification notification = notificationRepository
-                .findByIdAndRecipient_Id(notificationId, userId)
-                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND));
-        notification.delete();
+        notificationRepository.updateIsDeletedByRecipientIdAndNotificationId(userId, notificationId);
     }
 
     @Transactional

@@ -44,7 +44,8 @@ public record RecruitmentDetail(
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate deadlineDate,
 
-    @Schema(description = "D-day, 모집 마감 후 null", example = "8", nullable = true, requiredMode = REQUIRED)
+    @Schema(description = "D-day. 모집 상태가 RECRUITING이고 마감일이 오늘 또는 미래일 때만 반환되며, CLOSED/DELETED, null 마감일 또는 마감일 경과 시 null입니다.",
+        example = "8", nullable = true, requiredMode = REQUIRED)
     Integer dDay,
 
     @Schema(description = "모집 상태", example = "RECRUITING", requiredMode = REQUIRED)
@@ -53,10 +54,10 @@ public record RecruitmentDetail(
     @Schema(description = "모집 유형", example = "ROLE_BASED", requiredMode = REQUIRED)
     TeamRecruitmentType recruitmentType,
 
-    @Schema(description = "승인된 전체 지원자 수", example = "2", requiredMode = REQUIRED)
+    @Schema(description = "작성자를 제외한 승인된 전체 지원자 수", example = "2", requiredMode = REQUIRED)
     Integer currentParticipants,
 
-    @Schema(description = "전체 모집 정원", example = "5", requiredMode = REQUIRED)
+    @Schema(description = "작성자를 제외한 전체 모집 정원", example = "5", requiredMode = REQUIRED)
     Integer maxParticipants,
 
     @Schema(description = "역할 목록", requiredMode = REQUIRED)
@@ -84,7 +85,9 @@ public record RecruitmentDetail(
     @Schema(description = "지원 가능 여부", example = "true", requiredMode = REQUIRED)
     Boolean canApply,
 
-    @Schema(description = "지원 불가 사유. 지원 가능하면 null입니다.", nullable = true, requiredMode = REQUIRED)
+    @Schema(description = "지원 불가 사유. 지원 가능하면 null입니다. 여러 사유가 겹치면 "
+        + "LOGIN_REQUIRED > OWN_RECRUITMENT > ALREADY_APPLIED > RECRUITMENT_CLOSED > DEADLINE_PASSED > "
+        + "ROLE_CLOSED > PROFILE_REQUIRED 순으로 반환합니다.", nullable = true, requiredMode = REQUIRED)
     TeamRecruitmentApplyBlockReason applyBlockReason,
 
     @Schema(description = "내 지원 정보. 미지원자는 null입니다.", nullable = true, requiredMode = REQUIRED)
@@ -101,6 +104,7 @@ public record RecruitmentDetail(
     Integer teamChatRoomId
 ) {
     @JsonNaming(SnakeCaseStrategy.class)
+    @Schema(description = "현재 사용자의 지원 정보")
     public record AppliedApplication(
         @Schema(description = "지원서 ID", example = "51", requiredMode = REQUIRED)
         Integer applicationId,

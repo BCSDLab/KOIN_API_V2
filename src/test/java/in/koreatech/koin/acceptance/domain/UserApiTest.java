@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
@@ -37,6 +38,9 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -70,6 +74,37 @@ class UserApiTest extends AcceptanceTest {
                           "password" : "%s"
                         }
                         """.formatted(email, password))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("User-Agent", userFixture.맥북userAgent헤더())
+            )
+            .andExpect(status().isCreated());
+    }
+
+    @Test
+    void 하이픈이_포함된_아이디로_로그인한다() throws Exception {
+        String loginId = "user-1";
+        String password = "1234";
+        userRepository.save(User.builder()
+            .loginPw(passwordEncoder.encode(password))
+            .nickname("하이픈")
+            .name("하이픈사용자")
+            .phoneNumber("01098765432")
+            .userType(UserType.GENERAL)
+            .email("hyphen@koreatech.ac.kr")
+            .loginId(loginId)
+            .isAuthed(true)
+            .isDeleted(false)
+            .build()
+        );
+
+        mockMvc.perform(
+                post("/v2/users/login")
+                    .content("""
+                        {
+                          "login_id" : "%s",
+                          "login_pw" : "%s"
+                        }
+                        """.formatted(loginId, password))
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("User-Agent", userFixture.맥북userAgent헤더())
             )

@@ -5,13 +5,18 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
+import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -19,11 +24,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.StreamSupport;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
@@ -31,16 +41,20 @@ import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentProfile;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentRole;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRoleRepository;
+import in.koreatech.koin.domain.user.model.User;
 
 class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
 
@@ -57,6 +71,12 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
     private TeamRecruitmentProfileRepository profileRepository;
 
     @Autowired
+    private TeamRecruitmentRoleRepository roleRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
+
+    @Autowired
     private TeamRecruitmentApplicationRepository applicationRepository;
 
     @Autowired
@@ -65,16 +85,20 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
     @Autowired
     private TeamRecruitmentChatMemberRepository chatMemberRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private Student author;
     private Student applicant;
     private String authorToken;
     private String applicantToken;
+    private Department department;
     private RecruitmentContext recruitmentContext;
 
     @BeforeEach
     void setUp() {
         clear();
-        Department department = departmentFixture.컴퓨터공학부();
+        department = departmentFixture.컴퓨터공학부();
         author = userFixture.준호_학생(department, null);
         applicant = userFixture.성빈_학생(department);
         authorToken = userFixture.getToken(author.getUser());
@@ -86,6 +110,135 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
             .selfIntroduction("소개")
             .build());
         recruitmentContext = saveRecruitmentAndTeamRoom("팀원 모집", 2);
+    }
+
+    @Test
+    void ROLE_BASED_모집은_지원한_역할만_정원에_따라_마감한다() throws Exception {
+        MvcResult creationResult = mockMvc.perform(post("/team-recruitments")
+                .header("Authorization", "Bearer " + authorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "category": "PROJECT",
+                      "title": "ROLE_BASED 지원 여정",
+                      "meeting_type": "ONLINE",
+                      "activity_start_date": "%s",
+                      "activity_end_date": "%s",
+                      "deadline_date": "%s",
+                      "recruitment_type": "ROLE_BASED",
+                      "roles": [
+                        {"name": "백엔드", "max_participants": 1},
+                        {"name": "프론트엔드", "max_participants": 1}
+                      ],
+                      "description": "역할 기반 모집"
+                    }
+                    """.formatted(
+                    LocalDate.now(clock).plusDays(2),
+                    LocalDate.now(clock).plusDays(10),
+                    LocalDate.now(clock).plusDays(1)
+                )))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isNumber())
+            .andReturn();
+
+        Integer recruitmentId = objectMapper
+            .readTree(creationResult.getResponse().getContentAsString())
+            .path("id")
+            .asInt();
+        assertThat(recruitmentId).isPositive();
+
+        TeamRecruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
+        assertThat(recruitment.getRecruitmentType()).isEqualTo(
+            in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.ROLE_BASED
+        );
+        List<TeamRecruitmentRole> roles = roleRepository
+            .findAllByRecruitment_IdOrderByDisplayOrderAsc(recruitmentId);
+        assertThat(roles).hasSize(2);
+        TeamRecruitmentRole role = roles.stream()
+            .filter(candidate -> candidate.getName().equals("백엔드"))
+            .findFirst()
+            .orElseThrow();
+        TeamRecruitmentRole frontendRole = roles.stream()
+            .filter(candidate -> candidate.getName().equals("프론트엔드"))
+            .findFirst()
+            .orElseThrow();
+        assertThat(role.getId()).isNotEqualTo(frontendRole.getId());
+
+        List<TeamRecruitmentChatRoom> chatRooms = chatRoomRepository.findAllByRecruitment_Id(recruitmentId);
+        assertThat(chatRooms).filteredOn(chatRoom -> chatRoom.getRoomType() == TEAM).hasSize(1);
+        TeamRecruitmentChatRoom teamRoom = chatRooms.stream()
+            .filter(chatRoom -> chatRoom.getRoomType() == TEAM)
+            .findFirst()
+            .orElseThrow();
+        assertThat(teamRoom.getRecruitment().getId()).isEqualTo(recruitmentId);
+
+        applyForRole(recruitment, role, applicantToken, "첫 지원자")
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.role.id").value(role.getId()))
+            .andExpect(jsonPath("$.role.name").value("백엔드"));
+        TeamRecruitmentApplication rejectedApplication = applicationRepository
+            .findByRecruitment_IdAndApplicant_Id(recruitment.getId(), applicant.getUser().getId())
+            .orElseThrow();
+        reject(recruitment, rejectedApplication, authorToken)
+            .andExpect(status().isNoContent());
+
+        Student acceptedApplicant = saveSecondApplicant();
+        String acceptedApplicantToken = userFixture.getToken(acceptedApplicant.getUser());
+        saveProfile(acceptedApplicant, "승인 지원자");
+        applyForRole(recruitment, role, acceptedApplicantToken, "두 번째 지원자")
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.role.id").value(role.getId()))
+            .andExpect(jsonPath("$.role.name").value("백엔드"));
+        TeamRecruitmentApplication acceptedApplication = applicationRepository
+            .findByRecruitment_IdAndApplicant_Id(recruitment.getId(), acceptedApplicant.getUser().getId())
+            .orElseThrow();
+        accept(recruitment, acceptedApplication, authorToken)
+            .andExpect(status().isNoContent());
+
+        entityManager.flush();
+        entityManager.clear();
+
+        MvcResult detailResult = mockMvc.perform(get("/team-recruitments/{id}", recruitmentId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(recruitmentId))
+            .andExpect(jsonPath("$.recruitment_type").value("ROLE_BASED"))
+            .andExpect(jsonPath("$.status").value("RECRUITING"))
+            .andExpect(jsonPath("$.current_participants").value(1))
+            .andExpect(jsonPath("$.max_participants").value(2))
+            .andReturn();
+
+        JsonNode detail = objectMapper.readTree(detailResult.getResponse().getContentAsString());
+        assertThat(detail.path("roles").size()).isEqualTo(2);
+        assertRole(detail, role.getId(), "백엔드", 1, 1, true);
+        assertRole(detail, frontendRole.getId(), "프론트엔드", 0, 1, false);
+
+        assertThat(applicationRepository.findById(rejectedApplication.getId()).orElseThrow().getStatus())
+            .isEqualTo(REJECTED);
+        assertThat(applicationRepository.findById(acceptedApplication.getId()).orElseThrow().getStatus())
+            .isEqualTo(ACCEPTED);
+        assertThat(chatRoomRepository.findById(teamRoom.getId()).orElseThrow().getStatus()).isEqualTo(ACTIVE);
+        assertThat(chatMemberRepository.findAllByChatRoom_Id(teamRoom.getId()))
+            .extracting(member -> member.getUser().getId())
+            .containsExactlyInAnyOrder(author.getUser().getId(), acceptedApplicant.getUser().getId());
+    }
+
+    private void assertRole(
+        JsonNode recruitmentDetail,
+        Integer roleId,
+        String roleName,
+        int currentParticipants,
+        int maxParticipants,
+        boolean closed
+    ) {
+        JsonNode role = StreamSupport.stream(recruitmentDetail.path("roles").spliterator(), false)
+            .filter(candidate -> candidate.path("id").asInt() == roleId)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("응답에서 role id를 찾을 수 없습니다: " + roleId));
+        assertThat(role.path("id").asInt()).isEqualTo(roleId);
+        assertThat(role.path("name").asText()).isEqualTo(roleName);
+        assertThat(role.path("current_participants").asInt()).isEqualTo(currentParticipants);
+        assertThat(role.path("max_participants").asInt()).isEqualTo(maxParticipants);
+        assertThat(role.path("is_closed").asBoolean()).isEqualTo(closed);
     }
 
     @Test
@@ -160,6 +313,152 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.applications[0].recruitment.status").value("CLOSED"))
             .andExpect(jsonPath("$.applications[0].team_chat_available").value(true))
             .andExpect(jsonPath("$.applications[0].team_chat_room_id").value(teamRoom.getId()));
+    }
+
+    @Test
+    void 수동_마감된_ACCEPTED_지원서는_DIRECT_CTA와_생성_조건이_모두_닫힌다() throws Exception {
+        TeamRecruitment recruitment = recruitmentContext.recruitment();
+        TeamRecruitmentApplication application = savePendingApplication(recruitment);
+
+        accept(recruitment, application, authorToken)
+            .andExpect(status().isNoContent());
+
+        mockMvc.perform(put("/team-recruitments/{id}/close", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.applications[0].status").value("ACCEPTED"))
+            .andExpect(jsonPath("$.applications[0].can_open_direct_chat").value(false));
+
+        mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("TEAM_RECRUITMENT_CLOSED"));
+    }
+
+    @Test
+    void 정원충족으로_자동_마감된_ACCEPTED_지원서는_ACTIVE_TEAM_방이_있어_DIRECT를_생성할_수_있다() throws Exception {
+        RecruitmentContext lastSeatContext = saveRecruitmentAndTeamRoom("한 명 모집 개인 채팅", 1);
+        TeamRecruitment recruitment = lastSeatContext.recruitment();
+        TeamRecruitmentApplication application = savePendingApplication(recruitment);
+
+        accept(recruitment, application, authorToken)
+            .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.applications[0].status").value("ACCEPTED"))
+            .andExpect(jsonPath("$.applications[0].can_open_direct_chat").value(true));
+
+        mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.chat_room_id").isNumber())
+            .andExpect(jsonPath("$.room_type").value("DIRECT"))
+            .andExpect(jsonPath("$.status").value("ACTIVE"));
+    }
+
+    @Test
+    void 마감일이_지난_RECRUITING_모집글은_스케줄러_전에도_DIRECT_CTA와_생성이_차단된다() throws Exception {
+        TeamRecruitment recruitment = recruitmentContext.recruitment();
+        TeamRecruitmentApplication application = savePendingApplication(recruitment);
+
+        accept(recruitment, application, authorToken)
+            .andExpect(status().isNoContent());
+        expireRecruitment(recruitment);
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(get("/team-recruitments/{recruitmentId}/applications", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.applications[0].status").value("ACCEPTED"))
+            .andExpect(jsonPath("$.applications[0].can_open_direct_chat").value(false));
+
+        mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("TEAM_RECRUITMENT_CLOSED"));
+    }
+
+    @Test
+    void 마감일이_지난_RECRUITING_모집글의_기존_DIRECT_방은_계속_반환된다() throws Exception {
+        TeamRecruitment recruitment = recruitmentContext.recruitment();
+        TeamRecruitmentApplication application = savePendingApplication(recruitment);
+
+        accept(recruitment, application, authorToken)
+            .andExpect(status().isNoContent());
+        mockMvc.perform(post(
+                "/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.room_type").value("DIRECT"));
+        entityManager.flush();
+        Integer directRoomId = chatRoomRepository
+            .findByRecruitment_IdAndApplication_IdAndRoomType(recruitment.getId(), application.getId(), DIRECT)
+            .orElseThrow()
+            .getId();
+        expireRecruitment(recruitment);
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.chat_room_id").value(directRoomId));
+
+        mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}",
+                recruitment.getId(), directRoomId)
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void 삭제된_모집글의_기존_DIRECT_방은_재요청과_조회가_가능하다() throws Exception {
+        TeamRecruitment recruitment = recruitmentContext.recruitment();
+        TeamRecruitmentApplication application = savePendingApplication(recruitment);
+
+        accept(recruitment, application, authorToken)
+            .andExpect(status().isNoContent());
+        mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isCreated());
+
+        entityManager.flush();
+        entityManager.clear();
+        TeamRecruitmentChatRoom directRoom = chatRoomRepository
+            .findByRecruitment_IdAndApplication_IdAndRoomType(recruitment.getId(), application.getId(), DIRECT)
+            .orElseThrow();
+
+        mockMvc.perform(delete("/team-recruitments/{id}", recruitment.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isNoContent());
+
+        assertThat(chatRoomRepository.findById(directRoom.getId()).orElseThrow().getStatus())
+            .isEqualTo(READ_ONLY);
+
+        mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.chat_room_id").value(directRoom.getId()))
+            .andExpect(jsonPath("$.status").value("READ_ONLY"));
+
+        mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}",
+                recruitment.getId(), directRoom.getId())
+                .header("Authorization", "Bearer " + authorToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("READ_ONLY"));
     }
 
     @Test
@@ -403,6 +702,24 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
                 """));
     }
 
+    private ResultActions applyForRole(
+        TeamRecruitment recruitment,
+        TeamRecruitmentRole role,
+        String token,
+        String motivation
+    ) throws Exception {
+        return mockMvc.perform(post("/team-recruitments/{recruitmentId}/applications", recruitment.getId())
+            .header("Authorization", "Bearer " + token)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                  "role_id": %d,
+                  "motivation": "%s",
+                  "availability": "평일 저녁"
+                }
+                """.formatted(role.getId(), motivation)));
+    }
+
     private ResultActions accept(
         TeamRecruitment recruitment,
         TeamRecruitmentApplication application,
@@ -417,6 +734,48 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
                   "status": "ACCEPTED"
                 }
                 """));
+    }
+
+    private ResultActions reject(
+        TeamRecruitment recruitment,
+        TeamRecruitmentApplication application,
+        String token
+    ) throws Exception {
+        return mockMvc.perform(put("/team-recruitments/{recruitmentId}/applications/{applicationId}/status",
+                recruitment.getId(), application.getId())
+            .header("Authorization", "Bearer " + token)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                  "status": "REJECTED"
+                }
+                """));
+    }
+
+    private Student saveSecondApplicant() {
+        return studentRepository.save(Student.builder()
+            .studentNumber("2023999999")
+            .department(department)
+            .userIdentity(UNDERGRADUATE)
+            .isGraduated(false)
+            .user(User.builder()
+                .loginPw("test-password")
+                .name("ROLE_BASED 승인 지원자")
+                .anonymousNickname("익명_역할지원자")
+                .userType(STUDENT)
+                .isAuthed(true)
+                .isDeleted(false)
+                .build())
+            .build());
+    }
+
+    private void saveProfile(Student student, String nickname) {
+        profileRepository.save(TeamRecruitmentProfile.builder()
+            .user(student.getUser())
+            .profileNickname(nickname)
+            .preferredRole("백엔드")
+            .selfIntroduction("ROLE_BASED 지원자")
+            .build());
     }
 
     private RecruitmentContext saveRecruitmentAndTeamRoom(String title, int maxParticipants) {
@@ -449,6 +808,23 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
             .description("모집 내용")
             .status(RECRUITING)
             .build());
+    }
+
+    private void expireRecruitment(TeamRecruitment recruitment) {
+        recruitment.modify(
+            recruitment.getCategory(),
+            recruitment.getTitle(),
+            recruitment.getMeetingType(),
+            recruitment.getActivityStartDate(),
+            recruitment.getActivityEndDate(),
+            LocalDate.now(clock).minusDays(1),
+            recruitment.getRecruitmentType(),
+            recruitment.getMaxParticipants(),
+            recruitment.getDescription(),
+            recruitment.getRelatedUrl(),
+            recruitment.getQualification()
+        );
+        recruitmentRepository.save(recruitment);
     }
 
     private TeamRecruitmentApplication savePendingApplication(TeamRecruitment recruitment) {

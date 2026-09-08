@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.teamrecruitment.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentChatRoomListItemResponse;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +35,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Team Recruitment Chat: 팀원 모집 채팅", description = "팀원 모집 채팅 API")
 public interface TeamRecruitmentChatApi {
+
+    @ApiResponseCodes({
+        OK,
+        UNAUTHORIZED_USER,
+        FORBIDDEN_USER_TYPE,
+    })
+    @Operation(
+        summary = "내 팀원 모집 채팅방 목록 조회",
+        description = "현재 사용자가 멤버인 TEAM/DIRECT 채팅방을 최근 메시지순으로 반환합니다. "
+            + "메시지가 없는 방과 READ_ONLY 방도 포함합니다."
+    )
+    ResponseEntity<List<TeamRecruitmentChatRoomListItemResponse>> getChatRooms(Integer userId);
 
     @ApiResponseCodes({
         OK,
@@ -60,7 +73,12 @@ public interface TeamRecruitmentChatApi {
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
-    @Operation(summary = "지원자와 개인 채팅방 생성 또는 조회")
+    @Operation(
+        summary = "지원자와 개인 채팅방 생성 또는 조회",
+        description = "ACCEPTED 지원서만 대상입니다. 기존 DIRECT 채팅방이 있으면 모집 상태와 관계없이 기존 방을 반환합니다. "
+            + "기존 방이 없을 때는 마감일이 지나지 않은 RECRUITING 상태이거나 "
+            + "정원 충족으로 마감되어 ACTIVE 상태인 TEAM 채팅방이 있는 경우에만 새 방을 생성합니다."
+    )
     ResponseEntity<DirectChatRoomResponse> getOrCreateDirectChatRoom(
             Integer userId,
             @PathVariable Integer recruitmentId,
@@ -80,9 +98,12 @@ public interface TeamRecruitmentChatApi {
             Integer userId,
             @PathVariable Integer recruitmentId,
             @PathVariable Integer chatRoomId,
-            @Parameter(schema = @Schema(minimum = "1")) @RequestParam(required = false) Integer afterMessageId,
-            @Parameter(schema = @Schema(minimum = "1")) @RequestParam(required = false) Integer beforeMessageId,
-            @Parameter(schema = @Schema(minimum = "1", maximum = "200")) @RequestParam(defaultValue = "100") int limit
+            @Parameter(schema = @Schema(minimum = "1"))
+            @RequestParam(name = "afterMessageId", required = false) Integer afterMessageId,
+            @Parameter(schema = @Schema(minimum = "1"))
+            @RequestParam(name = "beforeMessageId", required = false) Integer beforeMessageId,
+            @Parameter(schema = @Schema(minimum = "1", maximum = "200"))
+            @RequestParam(name = "limit", defaultValue = "100") int limit
     );
 
     @ApiResponseCodes({

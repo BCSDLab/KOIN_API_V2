@@ -54,13 +54,14 @@ public record UpdateRecruitmentRequest(
     @NotNull
     TeamRecruitmentType recruitmentType,
 
-    @Schema(description = "전체 모집 정원. GENERAL 모집만 사용하며 ROLE_BASED 모집은 역할 정원의 합으로 계산됩니다.",
+    @Schema(description = "작성자를 제외한 지원자 모집 정원. GENERAL 모집만 사용하며 "
+        + "ROLE_BASED 모집은 역할별 지원자 모집 정원의 합으로 계산됩니다.",
         example = "5", nullable = true, requiredMode = NOT_REQUIRED)
     Integer maxParticipants,
 
     @Schema(description = "역할 목록. 기존 역할은 id를 반드시 보내고 새 역할은 id를 생략합니다. "
-        + "ROLE_BASED 모집은 1~5개이며 역할별 정원의 합은 최대 10명입니다. "
-        + "GENERAL 모집은 빈 배열입니다.", requiredMode = REQUIRED)
+        + "ROLE_BASED 모집은 1~5개이며 역할별 지원자 모집 정원의 합은 최대 10명입니다. "
+        + "작성자는 지원자 모집 정원에 포함되지 않습니다. GENERAL 모집은 빈 배열입니다.", requiredMode = REQUIRED)
     @NotNull
     List<@NotNull @Valid UpdateRoleInput> roles,
 

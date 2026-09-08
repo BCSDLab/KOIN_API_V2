@@ -2,10 +2,14 @@ package in.koreatech.koin.global.config;
 
 import java.time.LocalDate;
 
+import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import in.koreatech.koin.global.exception.ErrorResponse;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -38,11 +42,26 @@ public class SwaggerConfig {
         Server server = new Server();
         server.setUrl(serverUrl);
         return new OpenAPI()
-            .openapi("3.1.0")
+            .openapi("3.0.3")
             .info(apiInfo())
             .addSecurityItem(securityRequirement)
             .components(components)
             .addServersItem(server);
+    }
+
+    @Bean
+    public GlobalOpenApiCustomizer errorResponseSchemaCustomizer() {
+        ResolvedSchema errorResponseSchema = ModelConverters.getInstance()
+            .readAllAsResolvedSchema(ErrorResponse.class);
+        return openApi -> {
+            Components components = openApi.getComponents();
+            if (components == null) {
+                components = new Components();
+                openApi.setComponents(components);
+            }
+            components.addSchemas(ErrorResponse.class.getSimpleName(), errorResponseSchema.schema);
+            errorResponseSchema.referencedSchemas.forEach(components::addSchemas);
+        };
     }
 
     private Info apiInfo() {

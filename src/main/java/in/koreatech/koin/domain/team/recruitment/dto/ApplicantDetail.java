@@ -31,7 +31,12 @@ public record ApplicantDetail(
     @Schema(description = "현재 사용자가 승인/거절할 수 있는지", example = "true", requiredMode = REQUIRED)
     Boolean canDecide,
 
-    @Schema(description = "개인 채팅을 시작할 수 있는지", example = "false", requiredMode = REQUIRED)
+    @Schema(
+        description = "기존 DIRECT 방이 있거나, 마감일이 지나지 않은 RECRUITING 상태이거나, "
+            + "정원 충족으로 마감되어 ACTIVE TEAM 방이 있을 때 개인 채팅을 시작할 수 있는지",
+        example = "false",
+        requiredMode = REQUIRED
+    )
     Boolean canOpenDirectChat
 ) {
 }

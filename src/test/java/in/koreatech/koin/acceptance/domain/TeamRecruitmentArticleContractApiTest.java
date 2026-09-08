@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance.domain;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -205,6 +206,73 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
         }
 
         @Test
+        @DisplayName("같은 사용자의 동일한 모집글 생성 요청이 연속되면 두 번째 요청은 409이고 side effect는 한 번만 발생한다")
+        void rejectsImmediateDuplicateRequestWithoutDuplicateSideEffects() throws Exception {
+            String body = generalBody(5);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REQUEST_TOO_FAST"));
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(1L, 0L, 1L, 1L);
+        }
+
+        @Test
+        @DisplayName("같은 사용자의 서로 다른 모집글 생성 요청은 연속되어도 허용한다")
+        void allowsImmediateRequestWithDifferentPayload() throws Exception {
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(generalBody(4)))
+                .andExpect(status().isCreated());
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(generalBody(5)))
+                .andExpect(status().isCreated());
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(2L, 0L, 2L, 2L);
+        }
+
+        @Test
+        @DisplayName("동일한 모집글 생성 요청도 300ms가 지나면 허용한다")
+        void allowsSameRequestAfterDuplicateGuardWindow() throws Exception {
+            String body = generalBody(5);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            Thread.sleep(350);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(2L, 0L, 2L, 2L);
+        }
+
+        @Test
         @DisplayName("미인증 요청은 401 이다")
         void unauthenticated() throws Exception {
             mockMvc.perform(post("/team-recruitments")
@@ -372,6 +440,19 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
                 .andExpect(jsonPath("$.apply_block_reason").value("LOGIN_REQUIRED"))
                 .andExpect(jsonPath("$.application").doesNotExist())
                 .andExpect(jsonPath("$.team_chat_available").value(false));
+        }
+
+        @Test
+        @DisplayName("CLOSED 모집글은 미래 마감일이어도 d_day가 없다")
+        void closedFutureDeadlineHasNoDday() throws Exception {
+            TeamRecruitment recruitment = saveRecruitment(author, "마감된 상세");
+            recruitment.close();
+            entityManager.flush();
+
+            mockMvc.perform(get("/team-recruitments/{id}", recruitment.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(CLOSED.name()))
+                .andExpect(jsonPath("$.d_day").doesNotExist());
         }
 
         @Test

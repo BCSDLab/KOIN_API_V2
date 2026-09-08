@@ -1,15 +1,14 @@
 package in.koreatech.koin.unit.domain.teamrecruitment.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
@@ -64,14 +60,20 @@ class TeamRecruitmentNotificationServiceTest {
     }
 
     @Test
-    void 존재하지_않는_알림을_읽음_처리하면_404를_반환한다() {
-        when(notificationRepository.findByIdAndRecipient_Id(NOTIFICATION_ID, USER_ID))
-                .thenReturn(Optional.empty());
+    void 개별_읽음_처리는_수신자_범위의_원자적_업데이트를_호출한다() {
+        notificationService.markAsRead(USER_ID, NOTIFICATION_ID);
 
-        assertThatThrownBy(() -> notificationService.markAsRead(USER_ID, NOTIFICATION_ID))
-                .isInstanceOf(CustomException.class)
-                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
-                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND));
+        verify(notificationRepository).updateReadAtByRecipientIdAndNotificationId(
+                eq(USER_ID), eq(NOTIFICATION_ID), any());
+    }
+
+    @Test
+    void 개별_읽음_처리를_반복해도_예외가_발생하지_않는다() {
+        notificationService.markAsRead(USER_ID, NOTIFICATION_ID);
+        notificationService.markAsRead(USER_ID, NOTIFICATION_ID);
+
+        verify(notificationRepository, times(2)).updateReadAtByRecipientIdAndNotificationId(
+                eq(USER_ID), eq(NOTIFICATION_ID), any());
     }
 
     @Test
@@ -89,25 +91,53 @@ class TeamRecruitmentNotificationServiceTest {
     }
 
     @Test
-    void 개별_삭제시_해당_알림만_삭제한다() {
-        TeamRecruitmentNotification notification = mock(TeamRecruitmentNotification.class);
-        when(notificationRepository.findByIdAndRecipient_Id(NOTIFICATION_ID, USER_ID))
-                .thenReturn(Optional.of(notification));
-
+    void 개별_삭제는_수신자_범위의_원자적_업데이트를_호출한다() {
         notificationService.delete(USER_ID, NOTIFICATION_ID);
 
-        verify(notification).delete();
+        verify(notificationRepository).updateIsDeletedByRecipientIdAndNotificationId(USER_ID, NOTIFICATION_ID);
     }
 
     @Test
-    void 존재하지_않는_알림을_삭제하면_404를_반환한다() {
-        when(notificationRepository.findByIdAndRecipient_Id(NOTIFICATION_ID, USER_ID))
-                .thenReturn(Optional.empty());
+    void 개별_삭제를_반복해도_예외가_발생하지_않는다() {
+        notificationService.delete(USER_ID, NOTIFICATION_ID);
+        notificationService.delete(USER_ID, NOTIFICATION_ID);
 
-        assertThatThrownBy(() -> notificationService.delete(USER_ID, NOTIFICATION_ID))
-                .isInstanceOf(CustomException.class)
-                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
-                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND));
+        verify(notificationRepository, times(2))
+            .updateIsDeletedByRecipientIdAndNotificationId(USER_ID, NOTIFICATION_ID);
+    }
+
+    @Test
+    void 존재하지_않는_알림을_읽음_처리해도_예외가_발생하지_않는다() {
+        notificationService.markAsRead(USER_ID, NOTIFICATION_ID);
+
+        verify(notificationRepository).updateReadAtByRecipientIdAndNotificationId(
+                eq(USER_ID), eq(NOTIFICATION_ID), any());
+    }
+
+    @Test
+    void 타_사용자_알림을_읽음_처리해도_예외가_발생하지_않는다() {
+        Integer otherUserId = 2;
+
+        notificationService.markAsRead(otherUserId, NOTIFICATION_ID);
+
+        verify(notificationRepository).updateReadAtByRecipientIdAndNotificationId(
+                eq(otherUserId), eq(NOTIFICATION_ID), any());
+    }
+
+    @Test
+    void 존재하지_않는_알림을_삭제해도_예외가_발생하지_않는다() {
+        notificationService.delete(USER_ID, NOTIFICATION_ID);
+
+        verify(notificationRepository).updateIsDeletedByRecipientIdAndNotificationId(USER_ID, NOTIFICATION_ID);
+    }
+
+    @Test
+    void 타_사용자_알림을_삭제해도_예외가_발생하지_않는다() {
+        Integer otherUserId = 2;
+
+        notificationService.delete(otherUserId, NOTIFICATION_ID);
+
+        verify(notificationRepository).updateIsDeletedByRecipientIdAndNotificationId(otherUserId, NOTIFICATION_ID);
     }
 
     @Test

@@ -43,6 +43,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatR
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +79,10 @@ public class TeamRecruitmentService {
      * 모집글과 TEAM 채팅방, 작성자 멤버를 같은 트랜잭션에서 생성한다.
      */
     @Transactional
+    @DuplicateGuard(
+        key = "'team-recruitment:create:' + #userId + ':' + #request.toString()",
+        timeoutSeconds = 300
+    )
     public IdResponse createRecruitment(Integer userId, CreateRecruitmentRequest request) {
         User author = userRepository.getById(userId);
         TeamRecruitment recruitment = request.toEntity(author);
