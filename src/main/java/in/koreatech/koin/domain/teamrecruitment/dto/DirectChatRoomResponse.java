@@ -37,10 +37,10 @@ public record DirectChatRoomResponse(
     public static DirectChatRoomResponse of(TeamRecruitmentChatRoom chatRoom, User counterpartUser) {
         return new DirectChatRoomResponse(
                 chatRoom.getId(),
-                counterpartUser.getNickname(),
+                counterpartUser.getDisplayNickname(),
                 chatRoom.getRoomType().name(),
                 chatRoom.getStatus().name(),
-                new Counterpart(counterpartUser.getId(), counterpartUser.getNickname())
+                new Counterpart(counterpartUser.getId(), counterpartUser.getDisplayNickname())
         );
     }
 }
