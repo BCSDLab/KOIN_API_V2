@@ -44,7 +44,7 @@ class TeamRecruitmentDirectChatPolicyTest {
     }
 
     @Test
-    void 수동_기한_마감된_ACCEPTED_지원서는_READ_ONLY_TEAM_방이면_DIRECT를_열수없다() {
+    void READ_ONLY_TEAM_방이면_신규_DIRECT를_열수없다() {
         TeamRecruitment recruitment = recruitment(CLOSED);
 
         assertThat(canOpen(ACCEPTED, false, recruitment, teamRoom(recruitment, READ_ONLY))).isFalse();

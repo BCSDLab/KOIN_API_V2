@@ -102,6 +102,7 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             assertThat(teamRoom.getStatus()).isEqualTo(ACTIVE);
             assertThat(directRoom.getStatus()).isEqualTo(ACTIVE);
             verify(applicationRepository).save(pending);
+            verify(chatRoomRepository, never()).save(any());
             verify(notificationRepository, org.mockito.Mockito.times(2)).save(any());
             verify(outboxEventRepository, org.mockito.Mockito.times(2)).save(any());
             ArgumentCaptor<TeamRecruitmentOutboxEvent> outboxCaptor =
