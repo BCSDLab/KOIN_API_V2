@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
@@ -100,11 +99,9 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             assertThat(pending.getStatus()).isEqualTo(REJECTED);
             assertThat(pending.getDecisionReason()).isEqualTo("RECRUITMENT_CLOSED");
             assertThat(accepted.getStatus()).isEqualTo(ACCEPTED);
-            assertThat(teamRoom.getStatus()).isEqualTo(READ_ONLY);
-            assertThat(directRoom.getStatus()).isEqualTo(READ_ONLY);
+            assertThat(teamRoom.getStatus()).isEqualTo(ACTIVE);
+            assertThat(directRoom.getStatus()).isEqualTo(ACTIVE);
             verify(applicationRepository).save(pending);
-            verify(chatRoomRepository).save(teamRoom);
-            verify(chatRoomRepository).save(directRoom);
             verify(notificationRepository, org.mockito.Mockito.times(2)).save(any());
             verify(outboxEventRepository, org.mockito.Mockito.times(2)).save(any());
             ArgumentCaptor<TeamRecruitmentOutboxEvent> outboxCaptor =

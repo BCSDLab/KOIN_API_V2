@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.MY_APPLICATIONS;
@@ -124,7 +123,7 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("수동 마감하면 대기 지원서가 거절되고 채팅방이 READ_ONLY 로 바뀌며 알림이 남는다")
+    @DisplayName("수동 마감하면 대기 지원서가 거절되고 채팅방은 ACTIVE 유지되며 알림이 남는다")
     void 수동_마감_후속_처리() throws Exception {
         TeamRecruitment recruitment = saveGeneralRecruitment("수동 마감", 3, 0);
         TeamRecruitmentChatRoom teamRoom = saveTeamRoom(recruitment);
@@ -139,7 +138,7 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
         assertThat(applicationRepository.findById(application.getId()).orElseThrow().getStatus())
             .isEqualTo(REJECTED);
         assertThat(chatRoomRepository.findById(teamRoom.getId()).orElseThrow().getStatus())
-            .isEqualTo(READ_ONLY);
+            .isEqualTo(ACTIVE);
         assertThat(notificationRepository.findAllByRecipient_IdAndIsDeletedFalse(applicant.getUser().getId()))
             .extracting(TeamRecruitmentNotification::getType)
             .contains(APPLICATION_REJECTED);
@@ -161,7 +160,7 @@ class TeamRecruitmentArticleFlowApiTest extends AcceptanceTest {
         assertThat(applicationRepository.findById(application.getId()).orElseThrow().getDecisionReason())
             .isEqualTo("RECRUITMENT_DELETED");
         assertThat(chatRoomRepository.findById(teamRoom.getId()).orElseThrow().getStatus())
-            .isEqualTo(READ_ONLY);
+            .isEqualTo(ACTIVE);
         assertThat(notificationRepository.findAllByRecipient_IdAndIsDeletedFalse(applicant.getUser().getId()))
             .extracting(TeamRecruitmentNotification::getMessagePreview)
             .anyMatch(message -> message.contains("삭제되어"));

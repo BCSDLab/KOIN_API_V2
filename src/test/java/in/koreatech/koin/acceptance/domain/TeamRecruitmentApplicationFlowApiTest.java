@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
@@ -445,20 +444,20 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
             .andExpect(status().isNoContent());
 
         assertThat(chatRoomRepository.findById(directRoom.getId()).orElseThrow().getStatus())
-            .isEqualTo(READ_ONLY);
+            .isEqualTo(ACTIVE);
 
         mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
                 recruitment.getId(), application.getId())
                 .header("Authorization", "Bearer " + authorToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.chat_room_id").value(directRoom.getId()))
-            .andExpect(jsonPath("$.status").value("READ_ONLY"));
+            .andExpect(jsonPath("$.status").value("ACTIVE"));
 
         mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}",
                 recruitment.getId(), directRoom.getId())
                 .header("Authorization", "Bearer " + authorToken))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("READ_ONLY"));
+            .andExpect(jsonPath("$.status").value("ACTIVE"));
     }
 
     @Test
