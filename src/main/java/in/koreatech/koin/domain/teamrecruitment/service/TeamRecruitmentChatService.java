@@ -376,7 +376,7 @@ public class TeamRecruitmentChatService {
                         .status(PENDING)
                         .build());
             } catch (JsonProcessingException e) {
-                throw new IllegalStateException("채팅 메시지 알림 outbox payload를 직렬화할 수 없습니다.", e);
+                throw CustomException.of(INTERNAL_SERVER_ERROR);
             }
         }
     }
