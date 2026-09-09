@@ -81,7 +81,6 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             stubApplications(pending, accepted);
             when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(1, "TEAM"))
                 .thenReturn(Optional.of(teamRoom));
-            when(chatRoomRepository.findAllByRecruitment_Id(1)).thenReturn(List.of(teamRoom, directRoom));
             when(outboxEventRepository.findByEventKey(any())).thenReturn(Optional.empty());
             when(notificationRepository.save(any())).thenAnswer(invocation -> {
                 TeamRecruitmentNotification notification = invocation.getArgument(0);
@@ -150,7 +149,6 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             )).thenReturn(new PageImpl<>(List.of(accepted)));
             when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(1, "TEAM"))
                 .thenReturn(Optional.empty());
-            when(chatRoomRepository.findAllByRecruitment_Id(1)).thenReturn(List.of());
 
             IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
@@ -178,7 +176,6 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             )).thenReturn(new PageImpl<>(List.of()));
             when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(1, "TEAM"))
                 .thenReturn(Optional.empty());
-            when(chatRoomRepository.findAllByRecruitment_Id(1)).thenReturn(List.of());
 
             processor.closeIfExpired(1, TODAY);
 
