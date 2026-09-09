@@ -207,7 +207,7 @@ class TeamRecruitmentChatServiceTest {
                 TeamRecruitmentChatRoomListItemResponse::lastMessageId,
                 TeamRecruitmentChatRoomListItemResponse::unreadMessageCount
             )
-            .containsExactly(counterpart.getNickname(), OTHER_USER_ID, counterpart.getNickname(), 101, 0);
+            .containsExactly(counterpart.getDisplayNickname(), OTHER_USER_ID, counterpart.getDisplayNickname(), 101, 0);
         assertThat(responses.get(1))
             .extracting(
                 TeamRecruitmentChatRoomListItemResponse::roomName,
@@ -226,6 +226,39 @@ class TeamRecruitmentChatServiceTest {
         assertThat(chatService.getChatRooms(USER_ID)).isEmpty();
 
         verifyNoInteractions(messageRepository);
+    }
+
+    @Test
+    void 닉네임_미설정_사용자가_상대방인_DIRECT_채팅방_목록_조회시_counterpartNickname이_null이_아니다() {
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
+        TeamRecruitmentChatRoom directRoom = mock(TeamRecruitmentChatRoom.class);
+        TeamRecruitmentChatMember currentMember = mock(TeamRecruitmentChatMember.class);
+        TeamRecruitmentChatMember counterpartMember = mock(TeamRecruitmentChatMember.class);
+        User currentUser = UserFixture.id_설정_코인_유저(USER_ID);
+        User anonymousCounterpart = UserFixture.닉네임_없는_코인_유저(OTHER_USER_ID);
+
+        when(currentMember.getChatRoom()).thenReturn(directRoom);
+        when(currentMember.getUser()).thenReturn(currentUser);
+        when(directRoom.getId()).thenReturn(21);
+        when(directRoom.getRecruitment()).thenReturn(recruitment);
+        when(directRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.DIRECT);
+        when(directRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.ACTIVE);
+        when(counterpartMember.getChatRoom()).thenReturn(directRoom);
+        when(counterpartMember.getUser()).thenReturn(anonymousCounterpart);
+        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
+        when(memberRepository.findAllByUserIdWithChatRoomAndRecruitment(USER_ID))
+            .thenReturn(List.of(currentMember));
+        when(memberRepository.findAllWithUsersByChatRoomIds(List.of(21)))
+            .thenReturn(List.of(currentMember, counterpartMember));
+        when(messageRepository.findLatestByChatRoomIds(List.of(21))).thenReturn(List.of());
+        when(messageRepository.countUnreadMessagesByUserId(USER_ID)).thenReturn(List.of());
+
+        List<TeamRecruitmentChatRoomListItemResponse> responses = chatService.getChatRooms(USER_ID);
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).roomName()).isEqualTo(anonymousCounterpart.getDisplayNickname());
+        assertThat(responses.get(0).counterpartNickname()).isEqualTo(anonymousCounterpart.getDisplayNickname());
+        assertThat(responses.get(0).counterpartNickname()).isNotNull();
     }
 
     @Test
