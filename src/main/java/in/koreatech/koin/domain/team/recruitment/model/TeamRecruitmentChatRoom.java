@@ -125,10 +125,6 @@ public class TeamRecruitmentChatRoom extends BaseEntity {
         }
     }
 
-    public void markReadOnly() {
-        this.status = TeamRecruitmentChatRoomStatus.READ_ONLY;
-    }
-
     @Transient
     public boolean isActive() {
         return status == TeamRecruitmentChatRoomStatus.ACTIVE;

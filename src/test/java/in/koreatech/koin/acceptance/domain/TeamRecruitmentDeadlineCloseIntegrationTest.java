@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
@@ -188,7 +187,7 @@ class TeamRecruitmentDeadlineCloseIntegrationTest extends AcceptanceTest {
         assertThat(successfulRecruitment.getStatus()).isEqualTo(CLOSED);
         assertThat(successfulPending.getStatus()).isEqualTo(REJECTED);
         assertThat(successfulPending.getDecisionReason()).isEqualTo("RECRUITMENT_CLOSED");
-        assertThat(successfulTeamRoom.getStatus()).isEqualTo(READ_ONLY);
+        assertThat(successfulTeamRoom.getStatus()).isEqualTo(ACTIVE);
         assertThat(notificationRepository.findForOutbox(
             scenario.successfulApplicantId(),
             APPLICATION_REJECTED,
