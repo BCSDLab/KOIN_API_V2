@@ -315,7 +315,7 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 수동_마감된_ACCEPTED_지원서는_DIRECT_CTA와_생성_조건이_모두_닫힌다() throws Exception {
+    void 수동_마감된_ACCEPTED_지원서는_ACTIVE_TEAM_방이_있어_DIRECT를_생성할_수_있다() throws Exception {
         TeamRecruitment recruitment = recruitmentContext.recruitment();
         TeamRecruitmentApplication application = savePendingApplication(recruitment);
 
@@ -330,13 +330,15 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + authorToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.applications[0].status").value("ACCEPTED"))
-            .andExpect(jsonPath("$.applications[0].can_open_direct_chat").value(false));
+            .andExpect(jsonPath("$.applications[0].can_open_direct_chat").value(true));
 
         mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
                 recruitment.getId(), application.getId())
                 .header("Authorization", "Bearer " + authorToken))
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.code").value("TEAM_RECRUITMENT_CLOSED"));
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.chat_room_id").isNumber())
+            .andExpect(jsonPath("$.room_type").value("DIRECT"))
+            .andExpect(jsonPath("$.status").value("ACTIVE"));
     }
 
     @Test
