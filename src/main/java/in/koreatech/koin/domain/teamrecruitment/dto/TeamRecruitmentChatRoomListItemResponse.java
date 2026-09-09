@@ -69,11 +69,11 @@ public record TeamRecruitmentChatRoomListItemResponse(
         return new TeamRecruitmentChatRoomListItemResponse(
             chatRoom.getRecruitment().getId(),
             chatRoom.getId(),
-            direct && counterpart != null ? counterpart.getNickname() : chatRoom.getRecruitment().getTitle(),
+            direct && counterpart != null ? counterpart.getDisplayNickname() : chatRoom.getRecruitment().getTitle(),
             chatRoom.getRoomType().name(),
             chatRoom.getStatus().name(),
             direct && counterpart != null ? counterpart.getId() : null,
-            direct && counterpart != null ? counterpart.getNickname() : null,
+            direct && counterpart != null ? counterpart.getDisplayNickname() : null,
             lastMessage == null ? null : lastMessage.getId(),
             lastMessage == null ? null : lastMessage.getContent(),
             lastMessage == null ? null : lastMessage.getCreatedAt(),
