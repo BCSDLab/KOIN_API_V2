@@ -319,6 +319,21 @@ class WebAuthApiTest extends AcceptanceTest {
     }
 
     @Test
+    void refresh가_없는_로그아웃은_쿠키만_정리하고_서버_세션을_폐기하지_않는다() throws Exception {
+        WebLogin login = login(true);
+
+        MvcResult result = mockMvc.perform(post(AUTH_PATH + "/logout").header("Origin", ORIGIN)
+                .cookie(login.access()))
+            .andExpect(status().isNoContent()).andReturn();
+
+        assertThat(result.getResponse().getCookie(properties.accessCookieName()).getMaxAge()).isZero();
+        assertThat(result.getResponse().getCookie(properties.refreshCookieName()).getMaxAge()).isZero();
+        mockMvc.perform(get("/user/auth").header("Origin", ORIGIN).cookie(login.access()))
+            .andExpect(status().isOk());
+        refresh(login).andExpect(status().isCreated());
+    }
+
+    @Test
     void csrf가_없는_로그아웃은_쿠키나_세션을_삭제하지_않는다() throws Exception {
         WebLogin login = login(true);
 
