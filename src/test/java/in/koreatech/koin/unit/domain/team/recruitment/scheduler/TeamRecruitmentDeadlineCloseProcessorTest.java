@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
@@ -82,7 +81,6 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             stubApplications(pending, accepted);
             when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(1, "TEAM"))
                 .thenReturn(Optional.of(teamRoom));
-            when(chatRoomRepository.findAllByRecruitment_Id(1)).thenReturn(List.of(teamRoom, directRoom));
             when(outboxEventRepository.findByEventKey(any())).thenReturn(Optional.empty());
             when(notificationRepository.save(any())).thenAnswer(invocation -> {
                 TeamRecruitmentNotification notification = invocation.getArgument(0);
@@ -100,11 +98,10 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             assertThat(pending.getStatus()).isEqualTo(REJECTED);
             assertThat(pending.getDecisionReason()).isEqualTo("RECRUITMENT_CLOSED");
             assertThat(accepted.getStatus()).isEqualTo(ACCEPTED);
-            assertThat(teamRoom.getStatus()).isEqualTo(READ_ONLY);
-            assertThat(directRoom.getStatus()).isEqualTo(READ_ONLY);
+            assertThat(teamRoom.getStatus()).isEqualTo(ACTIVE);
+            assertThat(directRoom.getStatus()).isEqualTo(ACTIVE);
             verify(applicationRepository).save(pending);
-            verify(chatRoomRepository).save(teamRoom);
-            verify(chatRoomRepository).save(directRoom);
+            verify(chatRoomRepository, never()).save(any());
             verify(notificationRepository, org.mockito.Mockito.times(2)).save(any());
             verify(outboxEventRepository, org.mockito.Mockito.times(2)).save(any());
             ArgumentCaptor<TeamRecruitmentOutboxEvent> outboxCaptor =
@@ -152,7 +149,6 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             )).thenReturn(new PageImpl<>(List.of(accepted)));
             when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(1, "TEAM"))
                 .thenReturn(Optional.empty());
-            when(chatRoomRepository.findAllByRecruitment_Id(1)).thenReturn(List.of());
 
             IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
@@ -180,7 +176,6 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
             )).thenReturn(new PageImpl<>(List.of()));
             when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(1, "TEAM"))
                 .thenReturn(Optional.empty());
-            when(chatRoomRepository.findAllByRecruitment_Id(1)).thenReturn(List.of());
 
             processor.closeIfExpired(1, TODAY);
 

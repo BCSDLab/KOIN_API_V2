@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.team.recruitment.scheduler;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.MY_APPLICATIONS;
@@ -69,7 +68,6 @@ public class TeamRecruitmentDeadlineCloseProcessor {
         recruitment.close();
         recruitmentRepository.save(recruitment);
         rejectPendingApplications(recruitment, pendingApplications);
-        markRoomsReadOnly(recruitmentId);
         notifyRejectedApplications(recruitment, pendingApplications);
         notifyAcceptedMembers(recruitment, teamRoom, acceptedApplications);
     }
@@ -102,19 +100,6 @@ public class TeamRecruitmentDeadlineCloseProcessor {
         for (TeamRecruitmentApplication application : pendingApplications) {
             application.reject(RECRUITMENT_CLOSED_REASON);
             applicationRepository.save(application);
-        }
-    }
-
-    private void markRoomsReadOnly(Integer recruitmentId) {
-        List<TeamRecruitmentChatRoom> chatRooms = chatRoomRepository.findAllByRecruitment_Id(recruitmentId);
-        if (chatRooms == null) {
-            return;
-        }
-        for (TeamRecruitmentChatRoom chatRoom : chatRooms) {
-            if (chatRoom.getStatus() == ACTIVE) {
-                chatRoom.markReadOnly();
-                chatRoomRepository.save(chatRoom);
-            }
         }
     }
 

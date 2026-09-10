@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.team.recruitment.service;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.MY_APPLICATIONS;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.APPLICATION_REJECTED;
@@ -55,15 +54,13 @@ public class TeamRecruitmentClosureService {
     private final TeamRecruitmentOutboxEventRepository outboxEventRepository;
 
     /**
-     * 대기 중인 지원서를 거절하고, 모든 채팅방을 읽기 전용으로 바꾸고,
-     * 대기 중이던 지원자와 승인된 팀원에게 알림을 남긴다.
+     * 대기 중인 지원서를 거절하고, 대기 중이던 지원자와 승인된 팀원에게 알림을 남긴다.
      */
     public void onClosed(TeamRecruitment recruitment) {
         List<TeamRecruitmentApplication> pending = findApplications(recruitment.getId(), PENDING);
         List<TeamRecruitmentApplication> accepted = findApplications(recruitment.getId(), ACCEPTED);
 
         rejectAll(pending, RECRUITMENT_CLOSED_REASON);
-        markRoomsReadOnly(recruitment.getId());
         notifyRejected(recruitment, pending, closedRejectedMessage(recruitment));
         notifyAccepted(recruitment, accepted, RECRUITMENT_CLOSED, closedMessage(recruitment));
     }
@@ -76,7 +73,6 @@ public class TeamRecruitmentClosureService {
         List<TeamRecruitmentApplication> accepted = findApplications(recruitment.getId(), ACCEPTED);
 
         rejectAll(pending, RECRUITMENT_DELETED_REASON);
-        markRoomsReadOnly(recruitment.getId());
         notifyRejected(recruitment, pending, deletedRejectedMessage(recruitment));
         notifyAccepted(recruitment, accepted, RECRUITMENT_DELETED, deletedMessage(recruitment));
     }
@@ -104,16 +100,6 @@ public class TeamRecruitmentClosureService {
 
     private void rejectAll(List<TeamRecruitmentApplication> applications, String reason) {
         applications.forEach(application -> application.reject(reason));
-    }
-
-    private void markRoomsReadOnly(Integer recruitmentId) {
-        List<TeamRecruitmentChatRoom> chatRooms = chatRoomRepository.findAllByRecruitment_Id(recruitmentId);
-        if (chatRooms == null) {
-            return;
-        }
-        chatRooms.stream()
-            .filter(chatRoom -> chatRoom.getStatus() == ACTIVE)
-            .forEach(TeamRecruitmentChatRoom::markReadOnly);
     }
 
     private void notifyRejected(

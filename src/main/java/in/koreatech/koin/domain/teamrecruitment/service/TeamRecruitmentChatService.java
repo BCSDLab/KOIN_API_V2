@@ -148,7 +148,7 @@ public class TeamRecruitmentChatService {
             counterpart = memberRepository.findAllByChatRoom_Id(chatRoomId).stream()
                     .filter(m -> !m.getUser().getId().equals(userId))
                     .findFirst()
-                    .map(m -> new ChatRoomResponse.Counterpart(m.getUser().getId(), m.getUser().getNickname()))
+                    .map(m -> new ChatRoomResponse.Counterpart(m.getUser().getId(), m.getUser().getDisplayNickname()))
                     .orElse(null);
         }
 
@@ -304,7 +304,7 @@ public class TeamRecruitmentChatService {
                 TeamRecruitmentChatMessage.builder()
                         .chatRoom(chatRoom)
                         .sender(sender)
-                        .senderNickname(sender.getNickname())
+                        .senderNickname(sender.getDisplayNickname())
                         .content(request.content())
                         .isImage(request.isImage())
                         .build());
@@ -376,7 +376,7 @@ public class TeamRecruitmentChatService {
                         .status(PENDING)
                         .build());
             } catch (JsonProcessingException e) {
-                throw new IllegalStateException("채팅 메시지 알림 outbox payload를 직렬화할 수 없습니다.", e);
+                throw CustomException.of(INTERNAL_SERVER_ERROR);
             }
         }
     }
