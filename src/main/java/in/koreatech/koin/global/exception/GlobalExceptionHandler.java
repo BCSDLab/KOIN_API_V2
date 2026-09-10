@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -194,7 +195,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         Exception e
     ) {
-        String errorMessage = e.getMessage();
+        String errorMessage = isWebAuthRequest(request) ? "[REDACTED]" : e.getMessage();
         String errorFile = e.getStackTrace()[0].getFileName();
         int errorLine = e.getStackTrace()[0].getLineNumber();
         String errorName = e.getClass().getSimpleName();
@@ -231,7 +232,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorMessage,
         String errorTraceId
     ) {
-        log.warn("[{}] {} | errorTraceId={}", httpStatus, errorMessage, errorTraceId);
+        // 파싱/검증 예외의 메시지에도 로그인 본문 일부가 포함될 수 있다.
+        String safeMessage = isWebAuthRequest(request) ? "[REDACTED]" : errorMessage;
+        log.warn("[{}] {} | errorTraceId={}", httpStatus, safeMessage, errorTraceId);
         log.debug("Request: {} {}", request.getMethod(), request.getRequestURI());
         log.debug("Headers: {}", getHeaders(request));
         log.debug("Query String: {}", getQueryString(request));
@@ -284,6 +287,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private String getQueryString(HttpServletRequest httpRequest) {
+        if (isWebAuthRequest(httpRequest)) {
+            return "[REDACTED]";
+        }
         String queryString = httpRequest.getQueryString();
         if (queryString == null) {
             return " - ";
@@ -291,8 +297,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return queryString;
     }
 
+    private boolean isWebAuthRequest(HttpServletRequest request) {
+        Object pattern = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        String path = pattern == null ? request.getRequestURI() : pattern.toString();
+        return path.endsWith("/v2/web/auth") || path.contains("/v2/web/auth/");
+    }
+
     private String getRequestBody(HttpServletRequest request) {
-        if (request.getRequestURI().contains("/v2/web/auth/")) {
+        if (isWebAuthRequest(request)) {
             return "[REDACTED]";
         }
         var wrapper = WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);

@@ -23,8 +23,9 @@ public class WebAuthRequestValidator {
     private final CorsProperties corsProperties;
 
     public void validate(HttpServletRequest request, WebAuthSession session) {
+        // 기존 조회 API 중 읽음 상태를 갱신하는 요청도 있으므로 GET도 출처를 확인한다.
+        requireTrustedOrigin(request);
         if (!SAFE_METHODS.contains(request.getMethod())) {
-            requireTrustedOrigin(request);
             session.requireCsrfToken(request.getHeader(CSRF_HEADER));
         }
     }

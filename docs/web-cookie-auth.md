@@ -28,7 +28,7 @@ access·refresh 값은 JSON 응답에 포함하지 않는다. `csrf_token`은 �
 1. 모든 웹 API 요청에 `credentials: 'include'` 또는 Axios의 `withCredentials: true`를 설정한다.
 2. 로그인 성공 시 `user_type`과 `csrf_token`만 메모리에 보관한다.
 3. 기존 `document.cookie`, localStorage, Zustand의 access·refresh 저장 및 Bearer 헤더 주입을 제거한다.
-4. 쿠키 인증의 상태 변경 요청에는 CSRF 헤더를 추가한다. 조회 요청은 쿠키만으로 인증한다.
+4. 쿠키 인증의 상태 변경 요청에는 CSRF 헤더를 추가한다. 조회 요청은 CSRF 헤더가 필요하지 않지만 허용된 출처여야 한다.
 5. access 만료 시 `/refresh`를 한 번 호출한 뒤 원래 요청을 재시도한다.
 6. 로그아웃은 서버 `/logout`의 성공을 확인한 뒤 화면의 로그인 상태를 비운다.
 
@@ -38,6 +38,15 @@ access·refresh 값은 JSON 응답에 포함하지 않는다. `csrf_token`은 �
 기존 앱 토큰을 웹 쿠키로 넣거나 웹 토큰을 기존 앱 인증 경로로 전달하는 것은 허용하지 않는다.
 일반 API의 쿠키 인증은 기존 `@Auth`·`@UserId` 파라미터가 있는 메서드에 적용한다.
 회원가입·비밀번호 재설정 등 비인증 API는 남아 있는 쿠키 때문에 인증이나 CSRF 헤더를 요구하지 않는다.
+
+쿠키로 인증하는 일반 API도 GET/HEAD를 포함해 허용된 `Origin` 또는 `Referer`가 필요하다.
+기존 채팅 조회 API에는 읽음 상태 변경이 포함되어 있어, 외부 링크 이동만으로 해당 동작이 실행되지 않도록 출처를 확인한다.
+브라우저의 정상 fetch/XHR은 Origin 또는 Referer를 전송하지만, `no-referrer` 정책을 적용한 동일 출처 GET이나
+API 주소 직접 입력은 403이 될 수 있다. SSR/프록시도 모든 쿠키 인증 요청에 설정된 웹 Origin을 전달해야 한다.
+이 조건은 기존 앱 Bearer 요청이나 쿠키 없는 공개 조회에는 적용하지 않는다.
+
+`/user/check/login`처럼 토큰을 query로 받는 기존 전용 API는 쿠키 인증으로 전환하지 않는다.
+웹의 로그인 상태 확인은 쿠키와 함께 `/user/auth`를 사용한다.
 
 ## 쿠키와 만료 설정
 
@@ -59,7 +68,9 @@ access·refresh 값은 JSON 응답에 포함하지 않는다. `csrf_token`은 �
 웹은 로그인마다 `webAuthSession:<랜덤 세션 ID>`를 생성한다. 앱의 기존 Redis 키와 독립적이며 DB 마이그레이션은 없다.
 refresh 원문은 저장하지 않고 SHA-256 해시를 저장한다. 재발급 시 refresh를 교체하되 로그인 시 정한 절대 만료 시간은 연장하지 않는다.
 웹 access JWT에도 세션 ID를 넣고 요청마다 Redis 세션을 확인하므로 웹 로그아웃 후 남은 access도 사용할 수 없다.
-이 때문에 쿠키 인증은 Redis 가용성에 의존하며, Redis 조회 실패 시 인증을 허용하지 않는다.
+웹 인증 시 DB에서도 계정의 존재 여부를 확인하므로 `@UserId` API도 탈퇴 계정의 쿠키를 받지 않는다.
+이 때문에 쿠키 인증은 Redis와 사용자 DB 가용성에 의존하며, 조회 실패 시 인증을 허용하지 않는다.
+Redis 전용 CSRF 조회·로그아웃에는 SQL 트랜잭션을 만들지 않고, access 인증도 Redis 대기 전에 SQL 트랜잭션을 시작하지 않는다.
 
 Redis의 원자적 비교·교체로 같은 refresh의 동시 갱신은 하나만 성공한다. 먼저 읽은 상태가 다른 요청에 의해 변경되면 409,
 이미 교체된 refresh를 새로 제출하면 401이다. 실패 응답은 쿠키를 삭제하거나 덮어쓰지 않는다.
@@ -94,16 +105,27 @@ Java 17과 Docker를 사용한다.
 권한 검사, 만료·재발급·로그아웃, CSRF·CORS, 토큰 전달 경로 분리를 검증한다.
 `WebAuthSessionRedisRepositoryTest`는 실제 Redis에서 동시 갱신과 로그아웃 후 세션 복구 방지를 검증한다.
 단위 테스트는 출처 검사, JWT 경로 분리, 세션 검증, 로컬 쿠키 설정과 로그 마스킹을 확인한다.
+`WebAuthCompatibilityTest`는 기존 이메일 로그인, 관리자 접근 거부, 선택 인증의 개인화·익명 응답,
+학생 쿠키 로그인과 학생 정보 조회를 확인한다.
+
+Redis 장애는 서비스 mock 예외 주입과 컨트롤러의 500/409·Set-Cookie 미발급으로 검증한다.
+실제 Redis 중단·복구나 네트워크 지연, 동시 HTTP 응답 순서, SQL 연결 풀 부하 시험은 수행하지 않았다.
+탈퇴 계정 검증은 테스트 DB의 사용자 삭제·flush·clear 후 쿠키 접근과 재발급 거부를 확인한 것이며,
+실제 탈퇴 API의 커밋·이벤트까지 포함한 E2E는 아니다.
 
 ### 로컬 검증 결과 (2026-09-10)
 
+- 이슈: [KOIN_API_V2 #2424](https://github.com/BCSDLab/KOIN_API_V2/issues/2424)
+- 로컬 브랜치: `feat/2424-web-httponly-auth`
 - 기준 브랜치: `origin/develop`의 `3d14db39`
 - Java 17, 실제 테스트 MySQL·Redis·MongoDB를 사용한 전체 `build` 성공
-- 전체 1,216개 중 1,213개 통과, 기존 비활성 테스트 3개 건너뜀, 실패 0개
-- 이번에 추가한 인증 테스트 67개 모두 통과
+- 전체 1,243개 중 1,240개 통과, 기존 비활성 테스트 3개 건너뜀, 실패 0개
+- 이번에 추가한 웹 인증 테스트 94개 모두 통과
+- GET/HEAD 출처 검사와 잘못된 JSON 로그 마스킹 회귀 테스트 3개는 수정 전 실패, 수정 후 통과 확인
+- 보안·세션·호환성 에이전트의 1차 검토를 반영하고 수정 후 재검토 완료. 추가 차단 결함 없음
 - 로컬 `build/`에 중복된 `Test 2.class` 산출물이 발견되어, 검증에서는 임시 Gradle init script로
-  buildDirectory만 `/tmp/koin-web-auth-build-20260910`으로 분리했다. 프로젝트의 Gradle 빌드 설정은 변경하지 않았다.
-- 실제 웹 화면·SSR·앱 웹뷰 연동과 운영/stage 검증은 수행하지 않았다.
+  buildDirectory만 `/tmp/koin-backend-2424-build`로 분리했다. 프로젝트의 Gradle 빌드 설정은 변경하지 않았다.
+- 이번 작업에서는 프론트·앱 코드를 변경하지 않았고 실제 웹 화면·SSR·앱 웹뷰 연동과 운영/stage 검증은 수행하지 않았다.
 
 쿠키 동작은 [MDN Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie),
 요청 위조 방어는 [OWASP CSRF 방어 지침](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)을 참고했다.

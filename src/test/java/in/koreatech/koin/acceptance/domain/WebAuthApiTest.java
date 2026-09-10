@@ -128,11 +128,40 @@ class WebAuthApiTest extends AcceptanceTest {
     void 기존_일반_API를_쿠키로_인증하고_권한_검사를_재사용한다() throws Exception {
         WebLogin login = login(true);
 
-        mockMvc.perform(get("/v2/users/me").cookie(login.access()))
+        mockMvc.perform(get("/v2/users/me").header("Origin", ORIGIN).cookie(login.access()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.login_id").value("web-test"));
-        mockMvc.perform(get("/user/student/me").cookie(login.access()))
+        mockMvc.perform(get("/user/student/me").header("Origin", ORIGIN).cookie(login.access()))
             .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void 쿠키_조회는_외부_사이트_이동을_거부하고_허용된_referer는_통과한다() throws Exception {
+        WebLogin login = login(true);
+
+        mockMvc.perform(get("/user/auth").cookie(login.access()))
+            .andExpect(status().isForbidden())
+            .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
+        mockMvc.perform(get("/user/auth").header("Referer", "https://evil.example/").cookie(login.access()))
+            .andExpect(status().isForbidden());
+        mockMvc.perform(get("/user/auth").header("Referer", ORIGIN + "/profile").cookie(login.access()))
+            .andExpect(status().isOk())
+            .andExpect(header().string(HttpHeaders.CACHE_CONTROL, "private, no-store"));
+    }
+
+    @Test
+    void 탈퇴한_계정은_UserId_API와_재발급에서도_웹_쿠키를_사용하지_못한다() throws Exception {
+        WebLogin login = login(true);
+        userRepository.delete(user);
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(put("/callvan/posts/999999/reopen")
+                .header("Origin", ORIGIN).header("X-CSRF-Token", login.csrfToken()).cookie(login.access()))
+            .andExpect(status().isUnauthorized())
+            .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
+        refresh(login).andExpect(status().isUnauthorized())
+            .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
     }
 
     @Test
@@ -163,7 +192,7 @@ class WebAuthApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + nativeLogin.get("token").asText())
                 .header("User-Agent", MOBILE_USER_AGENT))
             .andExpect(status().isOk());
-        mockMvc.perform(get("/user/auth").cookie(webLogin.access())).andExpect(status().isOk());
+        mockMvc.perform(get("/user/auth").header("Origin", ORIGIN).cookie(webLogin.access())).andExpect(status().isOk());
     }
 
     @Test
@@ -173,7 +202,7 @@ class WebAuthApiTest extends AcceptanceTest {
 
         logout(first).andExpect(status().isNoContent());
         mockMvc.perform(get("/user/auth").cookie(first.access())).andExpect(status().isUnauthorized());
-        mockMvc.perform(get("/user/auth").cookie(second.access())).andExpect(status().isOk());
+        mockMvc.perform(get("/user/auth").header("Origin", ORIGIN).cookie(second.access())).andExpect(status().isOk());
     }
 
     @Test
@@ -295,7 +324,7 @@ class WebAuthApiTest extends AcceptanceTest {
 
         mockMvc.perform(post(AUTH_PATH + "/logout").header("Origin", ORIGIN).cookie(login.refresh()))
             .andExpect(status().isForbidden()).andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
-        mockMvc.perform(get("/user/auth").cookie(login.access())).andExpect(status().isOk());
+        mockMvc.perform(get("/user/auth").header("Origin", ORIGIN).cookie(login.access())).andExpect(status().isOk());
     }
 
     @Test

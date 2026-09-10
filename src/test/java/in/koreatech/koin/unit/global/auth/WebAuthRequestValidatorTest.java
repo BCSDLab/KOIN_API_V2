@@ -90,7 +90,25 @@ class WebAuthRequestValidatorTest {
 
     @Test
     void 조회는_csrf_헤더_없이_허용한다() {
-        assertThatCode(() -> validator.validate(new MockHttpServletRequest("GET", "/user/auth"), session))
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/user/auth");
+        request.addHeader("Referer", ORIGIN + "/");
+
+        assertThatCode(() -> validator.validate(request, session))
             .doesNotThrowAnyException();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"GET", "HEAD"})
+    void 조회여도_출처가_없거나_외부_사이트이면_거부한다(String method) {
+        MockHttpServletRequest request = new MockHttpServletRequest(method, "/user/auth");
+
+        assertThatThrownBy(() -> validator.validate(request, session))
+            .isInstanceOf(CustomException.class)
+            .hasMessage(ApiResponseCode.FORBIDDEN_WEB_ORIGIN.getMessage());
+
+        request.addHeader("Referer", "https://evil.example/");
+        assertThatThrownBy(() -> validator.validate(request, session))
+            .isInstanceOf(CustomException.class)
+            .hasMessage(ApiResponseCode.FORBIDDEN_WEB_ORIGIN.getMessage());
     }
 }

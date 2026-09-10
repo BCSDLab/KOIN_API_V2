@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class WebAuthService {
 
     private final UserService userService;
@@ -47,6 +46,7 @@ public class WebAuthService {
         return tokens;
     }
 
+    @Transactional(readOnly = true)
     public WebAuthTokens refresh(String value, String csrfToken) {
         WebRefreshToken refreshToken = WebRefreshToken.parse(value);
         WebAuthSession session = getSession(refreshToken.sessionId());
@@ -97,6 +97,10 @@ public class WebAuthService {
         WebAuthSession session = getSession(claims.sessionId());
         if (!session.userId().equals(claims.userId())) {
             throw AuthenticationException.withDetail("웹 로그인 사용자 정보가 일치하지 않습니다.");
+        }
+        // @UserId만 사용하는 API에서도 탈퇴한 계정의 쿠키를 인증하지 않는다.
+        if (!userRepository.existsById(session.userId())) {
+            throw AuthenticationException.withDetail("웹 로그인 사용자가 존재하지 않습니다.");
         }
         return session;
     }
