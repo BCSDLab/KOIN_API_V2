@@ -1,3 +1,10 @@
+auth:
+  web:
+    access-token-ttl: ${WEB_AUTH_ACCESS_TOKEN_TTL:15m}
+    refresh-token-ttl: ${WEB_AUTH_REFRESH_TOKEN_TTL:90d}
+    secure: ${WEB_AUTH_COOKIE_SECURE:true}
+    same-site: ${WEB_AUTH_COOKIE_SAME_SITE:Lax}
+
 jwt:
   secret-key: ${JWT_SECRET_KEY}
   access-token:

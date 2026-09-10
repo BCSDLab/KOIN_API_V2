@@ -4,8 +4,10 @@ import java.time.DateTimeException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.catalina.connector.ClientAbortException;
@@ -46,6 +48,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Set<String> SENSITIVE_HEADERS = Set.of("authorization", "cookie", "x-csrf-token");
 
     // 커스텀 예외
 
@@ -273,7 +277,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Enumeration<String> headerArray = request.getHeaderNames();
         while (headerArray.hasMoreElements()) {
             String headerName = headerArray.nextElement();
-            headerMap.put(headerName, request.getHeader(headerName));
+            headerMap.put(headerName, SENSITIVE_HEADERS.contains(headerName.toLowerCase(Locale.ROOT))
+                ? "[REDACTED]" : request.getHeader(headerName));
         }
         return headerMap;
     }
@@ -287,6 +292,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private String getRequestBody(HttpServletRequest request) {
+        if (request.getRequestURI().contains("/v2/web/auth/")) {
+            return "[REDACTED]";
+        }
         var wrapper = WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
         if (wrapper == null) {
             return " - ";
