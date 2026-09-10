@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,11 +11,28 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.flywaydb.core.Flyway;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.service.RefreshTokenService;
+import in.koreatech.koin.domain.user.service.UserService;
+import in.koreatech.koin.domain.user.service.UserValidationService;
+import in.koreatech.koin.domain.user.verification.service.UserVerificationService;
+import in.koreatech.koin.global.auth.JwtProvider;
 
 @Testcontainers
 class UserWithdrawalMigrationTest {
@@ -162,6 +180,78 @@ class UserWithdrawalMigrationTest {
 
         try (Connection connection = getConnection()) {
             assertThat(queryInt(connection, "SELECT COUNT(*) FROM users WHERE id = 104")).isZero();
+        }
+    }
+
+    @Test
+    void 탈퇴_서비스가_회원을_물리_삭제하고_같은_정보로_재등록해도_이전_주문이_연결되지_않는다() throws SQLException {
+        String insertUser = """
+            INSERT INTO users
+                (password, user_type, anonymous_nickname, nickname, phone_number, email, user_id)
+            VALUES ('test', 'GENERAL', '재등록익명', '재등록회원', '01000000106',
+                    'withdrawal@example.com', 'withdrawal-test')
+            """;
+        int withdrawnUserId;
+        try (Connection connection = getConnection()) {
+            execute(connection, insertUser);
+            withdrawnUserId = queryInt(connection,
+                "SELECT id FROM users WHERE email = 'withdrawal@example.com'");
+            execute(connection,
+                """
+                    INSERT INTO `order` (id, order_type, phone_number, user_id)
+                    VALUES ('reregister-order', 'TAKEOUT', '01000000106', %d)
+                    """.formatted(withdrawnUserId),
+                """
+                    INSERT INTO payment_idempotency_key (user_id, idempotency_key)
+                    VALUES (%d, 'reregister-key')
+                    """.formatted(withdrawnUserId)
+            );
+        }
+
+        // Flyway 스키마에서 실제 UserService와 JPA 저장소를 사용하고 커밋 시점의 DELETE까지 검증한다.
+        try (SessionFactory sessionFactory = new Configuration()
+            .addAnnotatedClass(User.class)
+            .setProperty("hibernate.connection.url", MYSQL.getJdbcUrl())
+            .setProperty("hibernate.connection.username", MYSQL.getUsername())
+            .setProperty("hibernate.connection.password", MYSQL.getPassword())
+            .setProperty("hibernate.hbm2ddl.auto", "none")
+            .buildSessionFactory();
+            Session session = sessionFactory.openSession()) {
+            UserRepository userRepository = new JpaRepositoryFactory(session).getRepository(UserRepository.class);
+            UserService userService = new UserService(
+                userRepository,
+                mock(StudentRepository.class),
+                mock(OwnerRepository.class),
+                mock(UserVerificationService.class),
+                mock(TimetableFrameRepositoryV2.class),
+                mock(ApplicationEventPublisher.class),
+                mock(UserValidationService.class),
+                mock(RefreshTokenService.class),
+                mock(JwtProvider.class),
+                mock(PasswordEncoder.class)
+            );
+            session.beginTransaction();
+            try {
+                userService.withdraw(withdrawnUserId);
+                session.getTransaction().commit();
+            } catch (RuntimeException exception) {
+                if (session.getTransaction().isActive()) {
+                    session.getTransaction().rollback();
+                }
+                throw exception;
+            }
+        }
+
+        try (Connection connection = getConnection()) {
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM users WHERE id = " + withdrawnUserId)).isZero();
+            assertThat(queryInt(connection,
+                "SELECT COUNT(*) FROM payment_idempotency_key WHERE user_id = " + withdrawnUserId)).isZero();
+            execute(connection, insertUser);
+            assertThat(queryInt(connection,
+                "SELECT id FROM users WHERE email = 'withdrawal@example.com'")).isNotEqualTo(withdrawnUserId);
+            assertThat(queryInt(connection, """
+                SELECT COUNT(*) FROM `order` WHERE id = 'reregister-order' AND user_id IS NULL
+                """)).isOne();
         }
     }
 
