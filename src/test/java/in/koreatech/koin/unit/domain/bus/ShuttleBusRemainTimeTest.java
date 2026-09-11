@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import in.koreatech.koin.domain.bus.service.BusNoticeRepository;
 import in.koreatech.koin.domain.bus.service.BusService;
 import in.koreatech.koin.domain.bus.service.city.CityBusService;
 import in.koreatech.koin.domain.bus.service.express.ExpressBusService;
+import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.service.shuttle.ShuttleBusRepository;
 import in.koreatech.koin.domain.bus.service.shuttle.ShuttleBusService;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ArrivalNode;
@@ -59,12 +61,13 @@ class ShuttleBusRemainTimeTest {
     private CityBusService cityBusService;
 
     private BusService busService;
+    private ShuttleBusService shuttleBusService;
 
     @BeforeEach
     void setUp() {
         when(versionService.getVersionEntity(VersionType.SHUTTLE))
             .thenReturn(Version.builder().title(SEMESTER).build());
-        ShuttleBusService shuttleBusService = new ShuttleBusService(versionService, shuttleBusRepository, CLOCK);
+        shuttleBusService = new ShuttleBusService(versionService, shuttleBusRepository, CLOCK);
         busService = new BusService(
             CLOCK, busNoticeRepository, versionService, List.of(), expressBusService, cityBusService, shuttleBusService);
     }
@@ -107,6 +110,39 @@ class ShuttleBusRemainTimeTest {
 
         assertThat(response).isEqualTo(new BusRemainTimeResponse(
             busType.getName(), new InnerBusResponse(null, 10800L), new InnerBusResponse(null, 12900L)));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BusType.class, names = {"SHUTTLE", "COMMUTING"})
+    void 셔틀_서비스는_null_시각을_제외하고_중복없는_시간순_목록을_반환한다(BusType busType) {
+        ShuttleRouteType type = routeType(busType);
+        givenRoutes(busType, List.of(
+            departure(type, "15:00"),
+            duplicateDeparture(type, null),
+            departure(type, "14:25"),
+            duplicateDeparture(type, "정차"),
+            departure(type, "14:25"),
+            departure(type, "16:00")
+        ));
+
+        List<BusRemainTime> remainTimes = shuttleBusService.getShuttleBusRemainTimes(
+            busType, BusStation.TERMINAL, BusStation.KOREATECH);
+
+        assertThat(remainTimes)
+            .extracting(BusRemainTime::getBusArrivalTime)
+            .containsExactly(LocalTime.of(14, 25), LocalTime.of(15, 0), LocalTime.of(16, 0));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BusType.class, names = {"SHUTTLE", "COMMUTING"})
+    void 셔틀_서비스는_null_시각만_있으면_빈_목록을_반환한다(BusType busType) {
+        ShuttleRouteType type = routeType(busType);
+        givenRoutes(busType, List.of(duplicateDeparture(type, null), duplicateDeparture(type, "정차")));
+
+        List<BusRemainTime> remainTimes = shuttleBusService.getShuttleBusRemainTimes(
+            busType, BusStation.TERMINAL, BusStation.KOREATECH);
+
+        assertThat(remainTimes).isEmpty();
     }
 
     @ParameterizedTest
