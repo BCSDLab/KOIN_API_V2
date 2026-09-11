@@ -72,6 +72,7 @@ public class ShuttleBusService {
             .filter(route -> route.isRunning(clock))
             .filter(route -> route.isCorrectRoute(depart, arrival, clock))
             .map(route -> route.getRemainTime(depart))
+            .filter(remainTime -> remainTime.getBusArrivalTime() != null)
             .distinct()
             .sorted()
             .toList();
