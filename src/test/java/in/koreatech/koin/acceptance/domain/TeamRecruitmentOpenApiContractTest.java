@@ -143,6 +143,12 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
             "RECRUITMENT_CLOSED", "DEADLINE_PASSED", "ROLE_CLOSED", "PROFILE_REQUIRED");
         assertRequiredNullable(schema(openApi, "RecruitmentDetail"), "application");
         assertInlineObject(schema(openApi, "RecruitmentDetail"), "application", "application_id", "status");
+
+        assertThat(schema(openApi, "ProfileActivityInput")
+            .path("properties")
+            .path("description")
+            .path("maxLength")
+            .asInt()).isEqualTo(1000);
     }
 
     @Test
