@@ -294,10 +294,6 @@ public class TeamRecruitmentChatService {
         TeamRecruitmentChatMember senderMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
                 .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
 
-        if (!chatRoom.isActive()) {
-            throw CustomException.of(TEAM_RECRUITMENT_CHAT_READ_ONLY);
-        }
-
         User sender = senderMember.getUser();
 
         TeamRecruitmentChatMessage message = messageRepository.save(

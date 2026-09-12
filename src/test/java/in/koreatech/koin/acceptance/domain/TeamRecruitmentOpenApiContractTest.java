@@ -77,13 +77,13 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
         );
 
         JsonNode chatRoom = schema(openApi, "ChatRoomResponse");
-        assertRequired(chatRoom, "chat_room_id", "room_name", "room_type", "status", "member_count",
+        assertRequired(chatRoom, "chat_room_id", "room_name", "room_type", "member_count",
             "max_member_count", "counterpart");
         assertNullable(chatRoom, "counterpart");
         assertInlineObject(chatRoom, "counterpart", "id", "nickname");
 
         JsonNode chatRoomListItem = schema(openApi, "TeamRecruitmentChatRoomListItemResponse");
-        assertRequired(chatRoomListItem, "recruitment_id", "chat_room_id", "room_name", "room_type", "status",
+        assertRequired(chatRoomListItem, "recruitment_id", "chat_room_id", "room_name", "room_type",
             "counterpart_id", "counterpart_nickname", "last_message_id", "last_message_content", "last_message_at",
             "last_message_is_image", "unread_message_count");
         assertNullable(chatRoomListItem, "counterpart_id");
@@ -101,7 +101,7 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
         assertRequiredNullable(schema(openApi, "MyApplication"), "role");
 
         JsonNode directChatRoom = schema(openApi, "DirectChatRoomResponse");
-        assertRequired(directChatRoom, "chat_room_id", "room_name", "room_type", "status", "counterpart");
+        assertRequired(directChatRoom, "chat_room_id", "room_name", "room_type", "counterpart");
         assertNonNullableObject(openApi, directChatRoom, "counterpart", "id", "nickname");
 
         JsonNode chatMessage = responseSchema(openApi,
@@ -163,9 +163,9 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
         JsonNode application = objectMapper.valueToTree(
             new ApplicationCreatedResponse(51, 17, PENDING, null, timestamp));
         JsonNode chatRoom = objectMapper.valueToTree(
-            new ChatRoomResponse(31, "팀 채팅방", "TEAM", "ACTIVE", 1, 2, null));
+            new ChatRoomResponse(31, "팀 채팅방", "TEAM", 1, 2, null));
         JsonNode chatRoomListItem = objectMapper.valueToTree(new TeamRecruitmentChatRoomListItemResponse(
-            17, 31, "팀 채팅방", "TEAM", "ACTIVE", null, null,
+            17, 31, "팀 채팅방", "TEAM", null, null,
             null, null, null, null, 0));
         JsonNode notification = objectMapper.valueToTree(new TeamRecruitmentNotificationResponse(
             101, "NEW_APPLICATION", "APPLICANT_MANAGEMENT", 17, null, null, null,

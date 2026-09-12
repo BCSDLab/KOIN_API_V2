@@ -32,7 +32,6 @@ import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
 
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
-import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType;
@@ -171,8 +170,6 @@ class TeamRecruitmentChatServiceTest {
         when(recruitment.getTitle()).thenReturn("팀원 모집");
         when(teamRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.TEAM);
         when(directRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.DIRECT);
-        when(teamRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.ACTIVE);
-        when(directRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.READ_ONLY);
         when(counterpartMember.getChatRoom()).thenReturn(directRoom);
         when(counterpartMember.getUser()).thenReturn(counterpart);
         when(teamMessage.getChatRoom()).thenReturn(teamRoom);
@@ -242,7 +239,6 @@ class TeamRecruitmentChatServiceTest {
         when(directRoom.getId()).thenReturn(21);
         when(directRoom.getRecruitment()).thenReturn(recruitment);
         when(directRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.DIRECT);
-        when(directRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.ACTIVE);
         when(counterpartMember.getChatRoom()).thenReturn(directRoom);
         when(counterpartMember.getUser()).thenReturn(anonymousCounterpart);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
@@ -399,7 +395,6 @@ class TeamRecruitmentChatServiceTest {
                 .thenReturn(Optional.of(existingRoom));
         when(existingRoom.getId()).thenReturn(CHAT_ROOM_ID);
         when(existingRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.DIRECT);
-        when(existingRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.ACTIVE);
 
         DirectChatRoomCreationResult result = chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID);
 
@@ -503,7 +498,6 @@ class TeamRecruitmentChatServiceTest {
                 .thenReturn(Optional.of(existingRoom));
         when(existingRoom.getId()).thenReturn(CHAT_ROOM_ID);
         when(existingRoom.getRoomType()).thenReturn(TeamRecruitmentChatRoomType.DIRECT);
-        when(existingRoom.getStatus()).thenReturn(TeamRecruitmentChatRoomStatus.ACTIVE);
 
         DirectChatRoomCreationResult result = chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID);
 
@@ -523,7 +517,6 @@ class TeamRecruitmentChatServiceTest {
         when(chatRoom.getRecruitment()).thenReturn(recruitment);
         when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
         when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(Optional.of(senderMember));
-        when(chatRoom.isActive()).thenReturn(true);
         when(senderMember.getUser()).thenReturn(anonymousSender);
         when(messageRepository.save(any(TeamRecruitmentChatMessage.class))).thenReturn(savedMessage);
         when(savedMessage.getId()).thenReturn(100);
@@ -539,27 +532,6 @@ class TeamRecruitmentChatServiceTest {
         verify(messageRepository).save(captor.capture());
 
         assertThat(captor.getValue().getSenderNickname()).isEqualTo(anonymousSender.getDisplayNickname());
-    }
-
-    @Test
-    void READ_ONLY_채팅방에_메시지_전송시_409를_반환한다() {
-        TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
-        TeamRecruitmentChatMember member = mock(TeamRecruitmentChatMember.class);
-        TeamRecruitment recruitment = mock(TeamRecruitment.class);
-
-        when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
-        when(chatRoom.getRecruitment()).thenReturn(recruitment);
-        when(recruitment.getId()).thenReturn(RECRUITMENT_ID);
-        when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID))
-                .thenReturn(Optional.of(member));
-        when(chatRoom.isActive()).thenReturn(false);
-
-        assertThatThrownBy(() -> chatService.createMessage(
-                USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID,
-                new CreateChatMessageRequest("안녕", false)))
-                .isInstanceOf(CustomException.class)
-                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
-                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_READ_ONLY));
     }
 
     private ChatRoomResponse getChatRoom(

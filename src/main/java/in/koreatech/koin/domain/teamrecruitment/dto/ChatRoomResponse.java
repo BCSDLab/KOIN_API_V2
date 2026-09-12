@@ -19,9 +19,6 @@ public record ChatRoomResponse(
         @Schema(description = "채팅방 타입", example = "TEAM", requiredMode = REQUIRED)
         String roomType,
 
-        @Schema(description = "채팅방 상태", example = "ACTIVE", requiredMode = REQUIRED)
-        String status,
-
         @Schema(
                 description = "현재 채팅방 멤버 수. TEAM은 작성자와 승인된 지원자를 포함하고, DIRECT는 항상 2",
                 example = "3",
@@ -60,7 +57,6 @@ public record ChatRoomResponse(
                 chatRoom.getId(),
                 roomName,
                 chatRoom.getRoomType().name(),
-                chatRoom.getStatus().name(),
                 memberCount,
                 maxMemberCount,
                 counterpart
