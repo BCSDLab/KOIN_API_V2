@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance.domain;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -205,6 +206,73 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
         }
 
         @Test
+        @DisplayName("같은 사용자의 동일한 모집글 생성 요청이 연속되면 두 번째 요청은 409이고 side effect는 한 번만 발생한다")
+        void rejectsImmediateDuplicateRequestWithoutDuplicateSideEffects() throws Exception {
+            String body = generalBody(5);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REQUEST_TOO_FAST"));
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(1L, 0L, 1L, 1L);
+        }
+
+        @Test
+        @DisplayName("같은 사용자의 서로 다른 모집글 생성 요청은 연속되어도 허용한다")
+        void allowsImmediateRequestWithDifferentPayload() throws Exception {
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(generalBody(4)))
+                .andExpect(status().isCreated());
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(generalBody(5)))
+                .andExpect(status().isCreated());
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(2L, 0L, 2L, 2L);
+        }
+
+        @Test
+        @DisplayName("동일한 모집글 생성 요청도 300ms가 지나면 허용한다")
+        void allowsSameRequestAfterDuplicateGuardWindow() throws Exception {
+            String body = generalBody(5);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            Thread.sleep(350);
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isCreated());
+
+            entityManager.flush();
+            entityManager.clear();
+            assertThat(recruitmentGraphRowCounts()).containsExactly(2L, 0L, 2L, 2L);
+        }
+
+        @Test
         @DisplayName("미인증 요청은 401 이다")
         void unauthenticated() throws Exception {
             mockMvc.perform(post("/team-recruitments")
@@ -266,12 +334,12 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
         }
 
         @Test
-        @DisplayName("지원 마감일이 활동 시작일보다 이후면 400 이다")
+        @DisplayName("지원 마감일이 활동 시작일보다 이후여도 201 이다")
         void deadlineAfterActivityStart() throws Exception {
             String body = """
                 {
                   "category": "STUDY",
-                  "title": "잘못된 기간",
+                  "title": "활동 시작 이후 마감",
                   "meeting_type": "ONLINE",
                   "activity_start_date": "%s",
                   "activity_end_date": "%s",
@@ -292,8 +360,38 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + authorToken)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(body))
+                .andExpect(status().isCreated());
+        }
+
+        @Test
+        @DisplayName("활동 종료일이 활동 시작일보다 이전이면 400 이다")
+        void activityEndBeforeActivityStart() throws Exception {
+            String body = """
+                {
+                  "category": "STUDY",
+                  "title": "잘못된 기간",
+                  "meeting_type": "ONLINE",
+                  "activity_start_date": "%s",
+                  "activity_end_date": "%s",
+                  "deadline_date": "%s",
+                  "recruitment_type": "GENERAL",
+                  "max_participants": 3,
+                  "roles": [],
+                  "description": "설명",
+                  "related_url": null,
+                  "qualification": null
+                }
+                """.formatted(
+                LocalDate.now(clock).plusDays(20),
+                LocalDate.now(clock).plusDays(10),
+                LocalDate.now(clock).plusDays(5));
+
+            mockMvc.perform(post("/team-recruitments")
+                    .header("Authorization", "Bearer " + authorToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("TEAM_RECRUITMENT_INVALID_DEADLINE_DATE"));
+                .andExpect(jsonPath("$.code").value("INVALID_START_DATE_AFTER_END_DATE"));
         }
     }
 
@@ -372,6 +470,19 @@ class TeamRecruitmentArticleContractApiTest extends AcceptanceTest {
                 .andExpect(jsonPath("$.apply_block_reason").value("LOGIN_REQUIRED"))
                 .andExpect(jsonPath("$.application").doesNotExist())
                 .andExpect(jsonPath("$.team_chat_available").value(false));
+        }
+
+        @Test
+        @DisplayName("CLOSED 모집글은 미래 마감일이어도 d_day가 없다")
+        void closedFutureDeadlineHasNoDday() throws Exception {
+            TeamRecruitment recruitment = saveRecruitment(author, "마감된 상세");
+            recruitment.close();
+            entityManager.flush();
+
+            mockMvc.perform(get("/team-recruitments/{id}", recruitment.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(CLOSED.name()))
+                .andExpect(jsonPath("$.d_day").doesNotExist());
         }
 
         @Test

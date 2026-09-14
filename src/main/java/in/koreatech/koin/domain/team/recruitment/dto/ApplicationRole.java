@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
+@Schema(description = "지원자가 선택한 역할")
 public record ApplicationRole(
     @Schema(description = "역할 ID", example = "1", requiredMode = REQUIRED)
     Integer id,

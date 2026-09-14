@@ -59,8 +59,8 @@ public class TeamRecruitmentProfileActivity extends BaseEntity {
     private Boolean isOngoing;
 
     @NotNull
-    @Size(max = 500)
-    @Column(name = "description", nullable = false, length = 500)
+    @Size(max = 1000)
+    @Column(name = "description", nullable = false, length = 1000)
     private String description;
 
     @NotNull

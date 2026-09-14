@@ -70,4 +70,19 @@ public final class UserFixture {
             .isDeleted(false)
             .build();
     }
+
+    public static User 닉네임_없는_코인_유저(Integer id) {
+        return User.builder()
+            .id(id)
+            .name("이름")
+            .phoneNumber("01012345678")
+            .email("test2@koreatech.ac.kr")
+            .loginId("test_id2")
+            .loginPw("test_pw2")
+            .gender(MAN)
+            .userType(GENERAL)
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+    }
 }

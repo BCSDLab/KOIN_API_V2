@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.team.recruitment.dto;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_START_DATE_AFTER_END_DATE;
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_DEADLINE_DATE;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION;
 
 import java.text.Normalizer;
@@ -30,15 +29,15 @@ final class RecruitmentRequestValidator {
     private RecruitmentRequestValidator() {
     }
 
-    static void validatePeriod(LocalDate activityStartDate, LocalDate activityEndDate, LocalDate deadlineDate) {
-        if (activityStartDate == null) {
+    /**
+     * 지원 마감일은 활동 기간과 무관하게 받는다. 활동 시작 이후까지 지원을 받는 모집글이 있어 순서를 제한하지 않는다.
+     */
+    static void validateActivityPeriod(LocalDate activityStartDate, LocalDate activityEndDate) {
+        if (activityStartDate == null || activityEndDate == null) {
             return;
         }
-        if (activityEndDate != null && activityEndDate.isBefore(activityStartDate)) {
+        if (activityEndDate.isBefore(activityStartDate)) {
             throw CustomException.of(INVALID_START_DATE_AFTER_END_DATE);
-        }
-        if (deadlineDate != null && deadlineDate.isAfter(activityStartDate)) {
-            throw CustomException.of(TEAM_RECRUITMENT_INVALID_DEADLINE_DATE);
         }
     }
 

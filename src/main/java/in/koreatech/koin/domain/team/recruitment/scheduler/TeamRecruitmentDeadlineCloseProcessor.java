@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.team.recruitment.scheduler;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.MY_APPLICATIONS;
@@ -24,34 +23,20 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatR
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
-import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TeamRecruitmentDeadlineCloseProcessor {
-
-    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
-    private static final int CANDIDATE_BATCH_SIZE = 100;
-    private static final Pageable CANDIDATE_PAGE = PageRequest.of(
-        0,
-        CANDIDATE_BATCH_SIZE,
-        Sort.by(Sort.Direction.ASC, "id")
-    );
 
     private static final String RECRUITMENT_CLOSED_REASON = "RECRUITMENT_CLOSED";
     private static final String OUTBOX_EVENT_TYPE = "TEAM_RECRUITMENT_NOTIFICATION";
@@ -61,30 +46,9 @@ public class TeamRecruitmentDeadlineCloseProcessor {
     private final TeamRecruitmentChatRoomRepository chatRoomRepository;
     private final TeamRecruitmentNotificationRepository notificationRepository;
     private final TeamRecruitmentOutboxEventRepository outboxEventRepository;
-    private final Clock clock;
 
-    @Transactional
-    public void closeExpiredRecruitments() {
-        LocalDate today = LocalDate.now(clock.withZone(KST));
-        Page<TeamRecruitment> candidatePage = recruitmentRepository
-            .findAllByStatusAndDeadlineDateBefore(RECRUITING, today, CANDIDATE_PAGE);
-        if (candidatePage == null) {
-            return;
-        }
-
-        List<Integer> candidateIds = candidatePage
-            .getContent()
-            .stream()
-            .map(TeamRecruitment::getId)
-            .filter(Objects::nonNull)
-            .toList();
-
-        for (Integer recruitmentId : candidateIds) {
-            closeIfExpired(recruitmentId, today);
-        }
-    }
-
-    private void closeIfExpired(Integer recruitmentId, LocalDate today) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void closeIfExpired(Integer recruitmentId, LocalDate today) {
         Optional<TeamRecruitment> lockedRecruitment = recruitmentRepository.findByIdWithLock(recruitmentId);
         if (lockedRecruitment.isEmpty()) {
             return;
@@ -104,7 +68,6 @@ public class TeamRecruitmentDeadlineCloseProcessor {
         recruitment.close();
         recruitmentRepository.save(recruitment);
         rejectPendingApplications(recruitment, pendingApplications);
-        markRoomsReadOnly(recruitmentId);
         notifyRejectedApplications(recruitment, pendingApplications);
         notifyAcceptedMembers(recruitment, teamRoom, acceptedApplications);
     }
@@ -137,19 +100,6 @@ public class TeamRecruitmentDeadlineCloseProcessor {
         for (TeamRecruitmentApplication application : pendingApplications) {
             application.reject(RECRUITMENT_CLOSED_REASON);
             applicationRepository.save(application);
-        }
-    }
-
-    private void markRoomsReadOnly(Integer recruitmentId) {
-        List<TeamRecruitmentChatRoom> chatRooms = chatRoomRepository.findAllByRecruitment_Id(recruitmentId);
-        if (chatRooms == null) {
-            return;
-        }
-        for (TeamRecruitmentChatRoom chatRoom : chatRooms) {
-            if (chatRoom.getStatus() == ACTIVE) {
-                chatRoom.markReadOnly();
-                chatRoomRepository.save(chatRoom);
-            }
         }
     }
 

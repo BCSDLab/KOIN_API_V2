@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.teamrecruitment.controller;
 import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_USER_TYPE;
 import static in.koreatech.koin.global.code.ApiResponseCode.NO_CONTENT;
 import static in.koreatech.koin.global.code.ApiResponseCode.OK;
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.UNAUTHORIZED_USER;
 
 import org.springframework.http.ResponseEntity;
@@ -32,11 +31,14 @@ public interface TeamRecruitmentNotificationApi {
 
     @ApiResponseCodes({
         NO_CONTENT,
-        TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
-    @Operation(summary = "알림 읽음 처리")
+    @Operation(summary = "알림 읽음 처리", description = """
+        ### 알림 읽음 처리
+        - 본인에게 온 삭제되지 않은 알림만 읽음 처리하며, 타 사용자 알림은 변경하지 않습니다.
+        - 이미 읽었거나 삭제되었거나 대상이 없어도 204를 반환합니다.
+        """)
     ResponseEntity<Void> markAsRead(
             Integer userId,
             @PathVariable Integer notificationId
@@ -52,14 +54,14 @@ public interface TeamRecruitmentNotificationApi {
 
     @ApiResponseCodes({
         NO_CONTENT,
-        TEAM_RECRUITMENT_NOTIFICATION_NOT_FOUND,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
     @Operation(summary = "알림 개별 삭제", description = """
         ### 알림 개별 삭제
         - 알림을 삭제 처리하여 목록에서 제외합니다.
-        - 본인에게 온 알림만 삭제할 수 있으며, 그 외에는 404를 반환합니다.
+        - 본인에게 온 삭제되지 않은 알림만 삭제 처리하며, 타 사용자 알림은 변경하지 않습니다.
+        - 이미 삭제되었거나 대상이 없어도 204를 반환합니다.
         """)
     ResponseEntity<Void> delete(
             Integer userId,

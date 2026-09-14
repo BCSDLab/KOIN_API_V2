@@ -2,7 +2,6 @@ package in.koreatech.koin.unit.domain.team.recruitment.dto;
 
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_START_DATE_AFTER_END_DATE;
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_DEADLINE_DATE;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -232,12 +231,19 @@ class CreateRecruitmentRequestTest {
         }
 
         @Test
-        @DisplayName("지원 마감일이 활동 시작일보다 이후이면 예외가 발생한다")
-        void deadlineAfterActivityStartDateFails() {
-            assertThatThrownBy(() -> create(
+        @DisplayName("지원 마감일이 활동 시작일보다 이후여도 된다")
+        void deadlineCanBeAfterActivityStartDate() {
+            assertThatCode(() -> create(
                 TeamRecruitmentType.ROLE_BASED, null, ROLES, ACTIVITY_START, ACTIVITY_END, ACTIVITY_START.plusDays(1)))
-                .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_INVALID_DEADLINE_DATE);
+                .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("지원 마감일이 활동 종료일보다 이후여도 된다")
+        void deadlineCanBeAfterActivityEndDate() {
+            assertThatCode(() -> create(
+                TeamRecruitmentType.ROLE_BASED, null, ROLES, ACTIVITY_START, ACTIVITY_END, ACTIVITY_END.plusDays(1)))
+                .doesNotThrowAnyException();
         }
 
         @Test

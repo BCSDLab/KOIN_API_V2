@@ -104,6 +104,8 @@ cors:
 
 springdoc:
   use-fqn: true
+  api-docs:
+    version: OPENAPI_3_0
 
 cloudfront:
   distribution-id: ${CLOUDFRONT_DISTRIBUTION_ID}

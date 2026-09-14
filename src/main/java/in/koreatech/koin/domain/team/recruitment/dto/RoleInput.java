@@ -19,7 +19,7 @@ public record RoleInput(
     @Size(min = 1, max = 10)
     String name,
 
-    @Schema(description = "역할 정원", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "해당 역할로 모집할 지원자 정원", example = "1", requiredMode = REQUIRED)
     @NotNull
     @Min(1)
     @Max(10)

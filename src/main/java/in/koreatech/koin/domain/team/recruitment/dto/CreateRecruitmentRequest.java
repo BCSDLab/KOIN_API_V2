@@ -48,7 +48,7 @@ public record CreateRecruitmentRequest(
     @NotNull
     LocalDate activityEndDate,
 
-    @Schema(description = "지원 마감일. 활동 시작일 이하여야 합니다.", example = "2026-09-03", requiredMode = REQUIRED)
+    @Schema(description = "지원 마감일", example = "2026-09-03", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull
     LocalDate deadlineDate,
@@ -57,12 +57,13 @@ public record CreateRecruitmentRequest(
     @NotNull
     TeamRecruitmentType recruitmentType,
 
-    @Schema(description = "전체 모집 정원. GENERAL 모집만 사용하며 ROLE_BASED 모집은 역할 정원의 합으로 계산됩니다.",
+    @Schema(description = "작성자를 제외한 지원자 모집 정원. GENERAL 모집만 사용하며 "
+        + "ROLE_BASED 모집은 역할별 지원자 모집 정원의 합으로 계산됩니다.",
         example = "5", nullable = true, requiredMode = NOT_REQUIRED)
     Integer maxParticipants,
 
-    @Schema(description = "역할 목록. ROLE_BASED 모집은 1~5개이며 역할별 정원의 합은 최대 10명입니다. "
-        + "GENERAL 모집은 빈 배열입니다.", requiredMode = REQUIRED)
+    @Schema(description = "역할 목록. ROLE_BASED 모집은 1~5개이며 역할별 지원자 모집 정원의 합은 최대 10명입니다. "
+        + "작성자는 지원자 모집 정원에 포함되지 않습니다. GENERAL 모집은 빈 배열입니다.", requiredMode = REQUIRED)
     @NotNull
     List<@NotNull @Valid RoleInput> roles,
 
@@ -81,7 +82,7 @@ public record CreateRecruitmentRequest(
     String qualification
 ) {
     public CreateRecruitmentRequest {
-        RecruitmentRequestValidator.validatePeriod(activityStartDate, activityEndDate, deadlineDate);
+        RecruitmentRequestValidator.validateActivityPeriod(activityStartDate, activityEndDate);
         RecruitmentRequestValidator.validateRoleComposition(recruitmentType, roles, maxParticipants);
         if (RecruitmentRequestValidator.isCompleteRoleList(roles, RoleInput::isComplete)) {
             RecruitmentRequestValidator.validateDistinctRoleNames(roles.stream().map(RoleInput::name).toList());

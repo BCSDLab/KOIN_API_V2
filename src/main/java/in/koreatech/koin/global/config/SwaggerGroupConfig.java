@@ -46,9 +46,9 @@ public class SwaggerGroupConfig {
 
     @Bean
     public GroupedOpenApi campusApi() {
-        return createGroupedOpenApi(
-            "3. Campus API",
-            new String[] {
+        return GroupedOpenApi.builder()
+            .group("3. Campus API")
+            .packagesToScan(
                 "in.koreatech.koin.domain.bus",
                 "in.koreatech.koin.domain.community.article",
                 "in.koreatech.koin.domain.community.keyword",
@@ -62,7 +62,10 @@ public class SwaggerGroupConfig {
                 "in.koreatech.koin.domain.team",
                 "in.koreatech.koin.domain.teamrecruitment",
                 "in.koreatech.koin.domain.weather"
-            });
+            )
+            .addOperationCustomizer(customizer)
+            .addOpenApiCustomizer(new TeamRecruitmentOpenApiCustomizer())
+            .build();
     }
 
     @Bean

@@ -120,6 +120,26 @@ class TeamRecruitmentProfileApiTest extends AcceptanceTest {
             """.formatted(endedAt, isOngoing);
     }
 
+    private static String activityDescriptionBody(String description) {
+        return """
+            {
+              "profile_nickname": "홍길동",
+              "preferred_role": "기획",
+              "skills": [],
+              "activities": [
+                {
+                  "title": "활동",
+                  "started_at": "2025-03-03",
+                  "ended_at": "2025-05-05",
+                  "is_ongoing": false,
+                  "description": "%s"
+                }
+              ],
+              "self_introduction": "소개"
+            }
+            """.formatted(description);
+    }
+
     @Nested
     @DisplayName("GET /team-recruitment-profiles/me")
     class GetProfile {
@@ -273,6 +293,33 @@ class TeamRecruitmentProfileApiTest extends AcceptanceTest {
                     .content(activityBody("\"2025-03-02\"", false)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_START_DATE_AFTER_END_DATE"));
+        }
+
+        @Test
+        @DisplayName("활동 설명이 1000자이면 저장된다")
+        void activityDescriptionAtMaxLengthSucceeds() throws Exception {
+            String description = "가".repeat(1000);
+
+            mockMvc.perform(put(URL)
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(activityDescriptionBody(description)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activities[0].description").value(description));
+        }
+
+        @Test
+        @DisplayName("활동 설명이 1000자를 넘으면 400 이다")
+        void activityDescriptionOverMaxLengthFails() throws Exception {
+            String description = "가".repeat(1001);
+
+            mockMvc.perform(put(URL)
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(activityDescriptionBody(description)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST_BODY"))
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("activities[0].description"));
         }
 
         @Test

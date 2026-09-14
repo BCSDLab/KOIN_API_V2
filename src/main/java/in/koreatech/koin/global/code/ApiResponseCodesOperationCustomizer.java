@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springdoc.core.customizers.OperationCustomizer;
@@ -27,6 +27,7 @@ import in.koreatech.koin.global.exception.ErrorResponse;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
@@ -52,17 +53,35 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         }
 
         ApiResponses responses = operation.getResponses();
+        if (responses == null) {
+            responses = new ApiResponses();
+            operation.setResponses(responses);
+        }
+        ApiResponses targetResponses = responses;
 
         Type returnType = getActualResponseType(handler);
-        ApiResponseCode[] codes = ann.value();
-        for (int i = 0; i < codes.length; i++) {
-            ApiResponseCode code = codes[i];
-            String key = String.format("%d) %d", i + 1, code.getHttpStatus().value());
-            responses.put(key, createApiResponse(
-                code.getMessage(),
-                () -> createResponseBody(code, handler, returnType)
+        Map<Integer, List<ApiResponseCode>> codesByStatus = Arrays.stream(ann.value())
+            .collect(Collectors.groupingBy(
+                code -> code.getHttpStatus().value(),
+                LinkedHashMap::new,
+                Collectors.toList()
             ));
+
+        ApiResponse springdocSuccessResponse = responses.get("200");
+        boolean hasExplicitSuccessResponse = codesByStatus.keySet().stream()
+            .anyMatch(status -> status >= 200 && status < 300);
+        if (hasExplicitSuccessResponse && !codesByStatus.containsKey(200)) {
+            responses.remove("200");
         }
+
+        codesByStatus.forEach((status, codes) -> {
+            String statusKey = String.valueOf(status);
+            ApiResponse existingResponse = targetResponses.get(statusKey);
+            targetResponses.put(
+                statusKey,
+                createApiResponse(codes, handler, returnType, existingResponse, springdocSuccessResponse)
+            );
+        });
 
         return operation;
     }
@@ -79,29 +98,78 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
     }
 
     private ApiResponse createApiResponse(
-        String description,
-        Supplier<MediaType> supplier
-    ) {
-        return new ApiResponse()
-            .description(description)
-            .content(new Content().addMediaType(APPLICATION_JSON_VALUE, supplier.get()));
-    }
-
-    private MediaType createResponseBody(
-        ApiResponseCode code,
+        List<ApiResponseCode> codes,
         HandlerMethod handler,
-        Type returnType
+        Type returnType,
+        ApiResponse existingResponse,
+        ApiResponse springdocSuccessResponse
     ) {
-        if (code.getHttpStatus().is2xxSuccessful()) {
-            return new MediaType().schema(loadSchema(returnType));
+        ApiResponse apiResponse = existingResponse == null ? new ApiResponse() : existingResponse;
+        String description = codes.stream()
+            .map(code -> code.getCode() + ": " + code.getMessage())
+            .collect(Collectors.joining("\n"));
+        apiResponse.setDescription(mergeDescriptions(apiResponse.getDescription(), description));
+
+        ApiResponseCode firstCode = codes.get(0);
+        if (firstCode.getHttpStatus().is2xxSuccessful()) {
+            mergeSuccessResponse(apiResponse, springdocSuccessResponse, returnType, firstCode);
+        } else {
+            mergeErrorResponse(apiResponse, codes, handler);
         }
-        if (code == ApiResponseCode.INVALID_REQUEST_BODY) {
-            return createErrorMediaType(createInvalidRequestBodyErrorExample(code, handler));
-        }
-        return createErrorMediaType(createGenericErrorExample(code));
+        return apiResponse;
     }
 
-    private Map<String,Object> createGenericErrorExample(ApiResponseCode code) {
+    private String mergeDescriptions(String existingDescription, String generatedDescription) {
+        if (existingDescription == null || existingDescription.isBlank()) {
+            return generatedDescription;
+        }
+        if (generatedDescription == null || generatedDescription.isBlank()
+            || existingDescription.equals(generatedDescription)
+            || existingDescription.endsWith("\n" + generatedDescription)) {
+            return existingDescription;
+        }
+        return existingDescription + "\n" + generatedDescription;
+    }
+
+    private void mergeSuccessResponse(
+        ApiResponse response,
+        ApiResponse springdocSuccessResponse,
+        Type returnType,
+        ApiResponseCode code
+    ) {
+        if (isNoContentResponse(returnType) || code.getHttpStatus().value() == 204) {
+            response.setContent(null);
+            return;
+        }
+        if (hasSchema(response.getContent())) {
+            return;
+        }
+        if (springdocSuccessResponse != null && hasSchema(springdocSuccessResponse.getContent())) {
+            response.setContent(springdocSuccessResponse.getContent());
+            return;
+        }
+        response.setContent(new Content().addMediaType(
+            APPLICATION_JSON_VALUE,
+            new MediaType().schema(loadSchema(returnType))
+        ));
+    }
+
+    private boolean hasSchema(Content content) {
+        return content != null && content.values().stream()
+            .anyMatch(mediaType -> mediaType != null && mediaType.getSchema() != null);
+    }
+
+    private boolean isNoContentResponse(Type returnType) {
+        return returnType.equals(Void.class) || returnType.equals(void.class);
+    }
+
+    private Map<String,Object> createErrorExample(
+        ApiResponseCode code,
+        HandlerMethod handler
+    ) {
+        if (code == ApiResponseCode.INVALID_REQUEST_BODY) {
+            return createInvalidRequestBodyErrorExample(code, handler);
+        }
         return Map.of(
             "code", code.getCode(),
             "message", code.getMessage(),
@@ -202,9 +270,52 @@ public class ApiResponseCodesOperationCustomizer implements OperationCustomizer 
         return resolvedSchema.schema;
     }
 
-    private MediaType createErrorMediaType(Map<String,Object> example) {
-        MediaType mt = new MediaType().schema(errorSchema);
-        mt.example(example);
-        return mt;
+    private void mergeErrorResponse(
+        ApiResponse response,
+        List<ApiResponseCode> codes,
+        HandlerMethod handler
+    ) {
+        Content content = response.getContent();
+        if (content == null) {
+            content = new Content();
+            response.setContent(content);
+        }
+
+        MediaType mediaType = content.get(APPLICATION_JSON_VALUE);
+        if (mediaType == null) {
+            mediaType = new MediaType();
+            content.addMediaType(APPLICATION_JSON_VALUE, mediaType);
+        }
+        if (mediaType.getSchema() == null) {
+            mediaType.setSchema(errorSchema);
+        }
+
+        Map<String, Example> examples = mediaType.getExamples() == null
+            ? new LinkedHashMap<>()
+            : new LinkedHashMap<>(mediaType.getExamples());
+        moveSingleExampleToNamedExamples(mediaType, examples);
+        for (ApiResponseCode code : codes) {
+            examples.putIfAbsent(
+                code.getCode(),
+                new Example()
+                    .summary(code.getCode())
+                    .description(code.getMessage())
+                    .value(createErrorExample(code, handler))
+            );
+        }
+        mediaType.setExamples(examples);
+    }
+
+    private void moveSingleExampleToNamedExamples(MediaType mediaType, Map<String, Example> examples) {
+        if (mediaType.getExample() == null) {
+            return;
+        }
+        String exampleName = "default";
+        int suffix = 2;
+        while (examples.containsKey(exampleName)) {
+            exampleName = "default-" + suffix++;
+        }
+        examples.put(exampleName, new Example().value(mediaType.getExample()));
+        mediaType.setExample(null);
     }
 }
