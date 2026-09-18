@@ -72,7 +72,7 @@ class CoopShopServiceTest {
     @Test
     @DisplayName("학기 시작일 당일에도 유효한 학기로 판단한다")
     void 학기_시작일_당일에도_유효하다() {
-        CoopSemester currentSemester = 학기("26-2학기", LocalDate.of(2026, 3, 3), LocalDate.of(2026, 6, 19), true);
+        CoopSemester currentSemester = 학기("26-1학기", LocalDate.of(2026, 3, 3), LocalDate.of(2026, 6, 19), true);
         CoopSemester todayStartSemester = 학기("26-2학기", LocalDate.of(2026, 9, 18), LocalDate.of(2026, 12, 18), true);
         when(coopSemesterRepository.getByIsApplied(true)).thenReturn(currentSemester);
         when(coopSemesterRepository.getTopByOrderByToDateDesc()).thenReturn(todayStartSemester);
