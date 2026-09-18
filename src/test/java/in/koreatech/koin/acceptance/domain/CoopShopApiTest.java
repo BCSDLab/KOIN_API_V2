@@ -1,5 +1,6 @@
 package in.koreatech.koin.acceptance.domain;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
+import in.koreatech.koin.global.exception.custom.DataNotFoundException;
 
 class CoopShopApiTest extends AcceptanceTest {
 
@@ -128,6 +130,27 @@ class CoopShopApiTest extends AcceptanceTest {
                                 "remarks": "연중무휴"
                             }
                         ]
+                    }
+                """));
+    }
+
+    @Test
+    void 다음_학기에_매장_데이터가_없으면_전환하지_않고_기존_학기를_유지한다() throws Exception {
+        coopShopFixture._23_겨울학기_매장없음();
+
+        assertThatThrownBy(() -> coopShopService.updateSemester())
+            .isInstanceOf(DataNotFoundException.class);
+
+        mockMvc.perform(
+                get("/coopshop")
+                    .contentType(MediaType.ALL.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                    {
+                        "semester": "23-2학기",
+                        "from_date": "2023-09-02",
+                        "to_date": "2023-12-20"
                     }
                 """));
     }
