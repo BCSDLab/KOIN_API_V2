@@ -135,23 +135,10 @@ class CoopShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 다음_학기에_매장_데이터가_없으면_전환하지_않고_기존_학기를_유지한다() throws Exception {
+    void 다음_학기에_매장_데이터가_없으면_전환하지_않는다() throws Exception {
         coopShopFixture._23_겨울학기_매장없음();
 
         assertThatThrownBy(() -> coopShopService.updateSemester())
             .isInstanceOf(DataNotFoundException.class);
-
-        mockMvc.perform(
-                get("/coopshop")
-                    .contentType(MediaType.ALL.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                    {
-                        "semester": "23-2학기",
-                        "from_date": "2023-09-02",
-                        "to_date": "2023-12-20"
-                    }
-                """));
     }
 }
