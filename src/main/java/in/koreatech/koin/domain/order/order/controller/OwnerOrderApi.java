@@ -45,7 +45,7 @@ public interface OwnerOrderApi {
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/owner/shops/{orderableShopId}/orders")
+    @GetMapping("/owner/order/shop/{orderableShopId}/orders")
     ResponseEntity<OwnerOrdersResponse> getOrders(
         @PathVariable Integer orderableShopId,
         @RequestParam(name = "status") OwnerOrderStatusCriteria status,
@@ -68,7 +68,7 @@ public interface OwnerOrderApi {
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/owner/shops/{orderableShopId}/orders/counts")
+    @GetMapping("/owner/order/shop/{orderableShopId}/orders/counts")
     ResponseEntity<OwnerOrderCountsResponse> getOrderCounts(
         @PathVariable Integer orderableShopId,
         @Auth(permit = {OWNER}) Integer ownerId
@@ -93,7 +93,7 @@ public interface OwnerOrderApi {
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/owner/shops/{orderableShopId}/orders/{orderId}")
+    @GetMapping("/owner/order/shop/{orderableShopId}/orders/{orderId}")
     ResponseEntity<OwnerOrderResponse> getOrder(
         @PathVariable Integer orderableShopId,
         @PathVariable Integer orderId,
@@ -131,7 +131,7 @@ public interface OwnerOrderApi {
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @PatchMapping("/owner/shops/{orderableShopId}/orders/{orderId}/status")
+    @PatchMapping("/owner/order/shop/{orderableShopId}/orders/{orderId}/status")
     ResponseEntity<Void> changeOrderStatus(
         @PathVariable Integer orderableShopId,
         @PathVariable Integer orderId,

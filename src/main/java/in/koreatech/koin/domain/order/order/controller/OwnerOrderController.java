@@ -26,7 +26,7 @@ public class OwnerOrderController implements OwnerOrderApi {
 
     private final OwnerOrderService ownerOrderService;
 
-    @GetMapping("/owner/shops/{orderableShopId}/orders")
+    @GetMapping("/owner/order/shop/{orderableShopId}/orders")
     public ResponseEntity<OwnerOrdersResponse> getOrders(
         @PathVariable Integer orderableShopId,
         @RequestParam(name = "status") OwnerOrderStatusCriteria status,
@@ -36,7 +36,7 @@ public class OwnerOrderController implements OwnerOrderApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/owner/shops/{orderableShopId}/orders/counts")
+    @GetMapping("/owner/order/shop/{orderableShopId}/orders/counts")
     public ResponseEntity<OwnerOrderCountsResponse> getOrderCounts(
         @PathVariable Integer orderableShopId,
         @Auth(permit = {OWNER}) Integer ownerId
@@ -45,7 +45,7 @@ public class OwnerOrderController implements OwnerOrderApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/owner/shops/{orderableShopId}/orders/{orderId}")
+    @GetMapping("/owner/order/shop/{orderableShopId}/orders/{orderId}")
     public ResponseEntity<OwnerOrderResponse> getOrder(
         @PathVariable Integer orderableShopId,
         @PathVariable Integer orderId,
@@ -55,7 +55,7 @@ public class OwnerOrderController implements OwnerOrderApi {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/owner/shops/{orderableShopId}/orders/{orderId}/status")
+    @PatchMapping("/owner/order/shop/{orderableShopId}/orders/{orderId}/status")
     public ResponseEntity<Void> changeOrderStatus(
         @PathVariable Integer orderableShopId,
         @PathVariable Integer orderId,

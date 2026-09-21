@@ -36,7 +36,7 @@ public interface OwnerOrderableShopApi {
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @PatchMapping("/owner/shops/{orderableShopId}/open")
+    @PatchMapping("/owner/order/shop/{orderableShopId}/open")
     ResponseEntity<Void> changeOpenStatus(
         @PathVariable Integer orderableShopId,
         @RequestBody @Valid OwnerOrderableShopOpenStatusRequest request,

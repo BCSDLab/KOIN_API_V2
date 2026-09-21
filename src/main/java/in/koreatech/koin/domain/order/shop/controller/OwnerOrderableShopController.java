@@ -20,7 +20,7 @@ public class OwnerOrderableShopController implements OwnerOrderableShopApi {
 
     private final OwnerOrderableShopService ownerOrderableShopService;
 
-    @PatchMapping("/owner/shops/{orderableShopId}/open")
+    @PatchMapping("/owner/order/shop/{orderableShopId}/open")
     public ResponseEntity<Void> changeOpenStatus(
         @PathVariable Integer orderableShopId,
         @RequestBody @Valid OwnerOrderableShopOpenStatusRequest request,
