@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import in.koreatech.koin.domain.order.shop.dto.OwnerOrderableShopsResponse;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
 import in.koreatech.koin.domain.order.shop.service.OwnerOrderableShopService;
@@ -101,6 +104,35 @@ class OwnerOrderableShopServiceTest {
             .isEqualTo(ApiResponseCode.FORBIDDEN_SHOP_OWNER);
 
         assertThat(orderableShop.getShop().getShopOperation().isOpen()).isTrue();
+    }
+
+    @Test
+    @DisplayName("사장님이 가진 주문 가능 상점을 반환한다")
+    void 사장님이_가진_주문_가능_상점을_반환한다() {
+        when(orderableShopRepository.findAllByOwnerId(OWNER_ID)).thenReturn(List.of(orderableShop));
+
+        OwnerOrderableShopsResponse response = ownerOrderableShopService.getOrderableShops(OWNER_ID);
+
+        assertThat(response.totalCount()).isEqualTo(1);
+        assertThat(response.shops()).singleElement()
+            .satisfies(it -> {
+                assertThat(it.orderableShopId()).isEqualTo(orderableShop.getId());
+                assertThat(it.shopId()).isEqualTo(orderableShop.getShop().getId());
+                assertThat(it.name()).isEqualTo("김밥천국");
+                assertThat(it.address()).isEqualTo("천안시 동남구 병천면 1600");
+                assertThat(it.isOpen()).isTrue();
+            });
+    }
+
+    @Test
+    @DisplayName("주문 가능 상점이 없으면 빈 목록을 반환한다")
+    void 주문_가능_상점이_없으면_빈_목록을_반환한다() {
+        when(orderableShopRepository.findAllByOwnerId(OWNER_ID)).thenReturn(List.of());
+
+        OwnerOrderableShopsResponse response = ownerOrderableShopService.getOrderableShops(OWNER_ID);
+
+        assertThat(response.totalCount()).isZero();
+        assertThat(response.shops()).isEmpty();
     }
 
     private OrderableShop 영업_종료된_상점() {
