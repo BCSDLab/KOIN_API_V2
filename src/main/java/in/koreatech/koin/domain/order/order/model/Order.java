@@ -190,10 +190,6 @@ public class Order extends BaseEntity {
         return null;
     }
 
-    public boolean isOrderedAt(Integer orderableShopId) {
-        return this.orderableShop != null && this.orderableShop.getId().equals(orderableShopId);
-    }
-
     public void cancel(String cancelReason) {
         this.status = CANCELED;
         this.canceledReason = cancelReason;

@@ -57,9 +57,8 @@ public class OwnerOrderService {
     public OwnerOrderResponse getOrder(Integer ownerId, Integer orderableShopId, Integer orderId) {
         validateShopOwner(ownerId, orderableShopId);
 
-        Order order = orderRepository.findDetailById(orderId)
+        Order order = orderRepository.findByIdAndOrderableShopId(orderId, orderableShopId)
             .orElseThrow(() -> CustomException.of(NOT_FOUND_ORDER));
-        validateOrderBelongsToShop(order, orderableShopId);
 
         Payment payment = paymentRepository.getByOrderId(order.getId());
         return OwnerOrderResponse.of(order, payment);
@@ -68,11 +67,5 @@ public class OwnerOrderService {
     private void validateShopOwner(Integer ownerId, Integer orderableShopId) {
         OrderableShop orderableShop = orderableShopRepository.getById(orderableShopId);
         orderableShop.requireOwner(ownerId);
-    }
-
-    private void validateOrderBelongsToShop(Order order, Integer orderableShopId) {
-        if (!order.isOrderedAt(orderableShopId)) {
-            throw CustomException.of(NOT_FOUND_ORDER);
-        }
     }
 }

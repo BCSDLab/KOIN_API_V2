@@ -61,6 +61,10 @@ public interface OrderRepository extends Repository<Order, Integer> {
         LEFT JOIN FETCH o.orderDelivery od
         LEFT JOIN FETCH o.orderMenus om
         WHERE o.id = :orderId
+          AND o.orderableShop.id = :orderableShopId
     """)
-    Optional<Order> findDetailById(@Param("orderId") Integer orderId);
+    Optional<Order> findByIdAndOrderableShopId(
+        @Param("orderId") Integer orderId,
+        @Param("orderableShopId") Integer orderableShopId
+    );
 }

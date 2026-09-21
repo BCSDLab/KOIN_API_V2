@@ -244,7 +244,7 @@ class OwnerOrderServiceTest {
             order.addOrderMenu(orderMenu);
 
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
-            when(orderRepository.findDetailById(1)).thenReturn(Optional.of(order));
+            when(orderRepository.findByIdAndOrderableShopId(1, ORDERABLE_SHOP_ID)).thenReturn(Optional.of(order));
             when(paymentRepository.getByOrderId(1)).thenReturn(payment());
 
             OwnerOrderResponse response = ownerOrderService.getOrder(OWNER_ID, ORDERABLE_SHOP_ID, 1);
@@ -286,7 +286,7 @@ class OwnerOrderServiceTest {
             order.cancel("재료 소진");
 
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
-            when(orderRepository.findDetailById(1)).thenReturn(Optional.of(order));
+            when(orderRepository.findByIdAndOrderableShopId(1, ORDERABLE_SHOP_ID)).thenReturn(Optional.of(order));
             when(paymentRepository.getByOrderId(1)).thenReturn(payment());
 
             OwnerOrderResponse response = ownerOrderService.getOrder(OWNER_ID, ORDERABLE_SHOP_ID, 1);
@@ -298,25 +298,11 @@ class OwnerOrderServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 주문이면 조회할 수 없다")
-        void 존재하지_않는_주문이면_조회할_수_없다() {
+        @DisplayName("상점에 속한 주문이 없으면 조회할 수 없다")
+        void 상점에_속한_주문이_없으면_조회할_수_없다() {
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
-            when(orderRepository.findDetailById(1)).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> ownerOrderService.getOrder(OWNER_ID, ORDERABLE_SHOP_ID, 1))
-                .isInstanceOf(CustomException.class)
-                .extracting("errorCode")
-                .isEqualTo(ApiResponseCode.NOT_FOUND_ORDER);
-        }
-
-        @Test
-        @DisplayName("다른 상점의 주문이면 존재하지 않는 것으로 처리한다")
-        void 다른_상점의_주문이면_존재하지_않는_것으로_처리한다() {
-            OrderableShop otherShop = OrderableShopFixture.마슬랜();
-            Order order = OrderFixture.배달_주문(1, "A1B2C3D4E5", OrderStatus.CONFIRMING, otherShop, customer);
-
-            when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
-            when(orderRepository.findDetailById(1)).thenReturn(Optional.of(order));
+            when(orderRepository.findByIdAndOrderableShopId(1, ORDERABLE_SHOP_ID))
+                .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> ownerOrderService.getOrder(OWNER_ID, ORDERABLE_SHOP_ID, 1))
                 .isInstanceOf(CustomException.class)
@@ -324,6 +310,21 @@ class OwnerOrderServiceTest {
                 .isEqualTo(ApiResponseCode.NOT_FOUND_ORDER);
 
             verify(paymentRepository, never()).getByOrderId(any());
+        }
+
+        @Test
+        @DisplayName("상점 식별자로 범위를 좁혀 조회한다")
+        void 상점_식별자로_범위를_좁혀_조회한다() {
+            Order order = OrderFixture.배달_주문(1, "A1B2C3D4E5", OrderStatus.CONFIRMING, orderableShop, customer);
+
+            when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
+            when(orderRepository.findByIdAndOrderableShopId(1, ORDERABLE_SHOP_ID))
+                .thenReturn(Optional.of(order));
+            when(paymentRepository.getByOrderId(1)).thenReturn(payment());
+
+            ownerOrderService.getOrder(OWNER_ID, ORDERABLE_SHOP_ID, 1);
+
+            verify(orderRepository).findByIdAndOrderableShopId(1, ORDERABLE_SHOP_ID);
         }
 
         @Test
@@ -336,7 +337,7 @@ class OwnerOrderServiceTest {
                 .extracting("errorCode")
                 .isEqualTo(ApiResponseCode.FORBIDDEN_SHOP_OWNER);
 
-            verify(orderRepository, never()).findDetailById(any());
+            verify(orderRepository, never()).findByIdAndOrderableShopId(any(), any());
         }
 
         private Payment payment() {
