@@ -5,9 +5,12 @@ import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.order.order.dto.request.OwnerOrderStatusChangeRequest;
 import in.koreatech.koin.domain.order.order.dto.request.OwnerOrderStatusCriteria;
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrderCountsResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrderResponse;
@@ -17,6 +20,7 @@ import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Owner Order: 주문 (점주 전용)", description = "사장님이 주문을 조회한다.")
 public interface OwnerOrderApi {
@@ -93,6 +97,45 @@ public interface OwnerOrderApi {
     ResponseEntity<OwnerOrderResponse> getOrder(
         @PathVariable Integer orderableShopId,
         @PathVariable Integer orderId,
+        @Auth(permit = {OWNER}) Integer ownerId
+    );
+
+    @ApiResponseCodes({
+        OK,
+        INVALID_ORDER_STATUS_CHANGE,
+        REQUIRED_ESTIMATED_MINUTES,
+        REQUIRED_ORDER_CANCEL_REASON,
+        PAYMENT_ALREADY_CANCELED,
+        PAYMENT_CANCEL_ERROR,
+        NOT_FOUND_ORDERABLE_SHOP,
+        NOT_FOUND_ORDER,
+        NOT_FOUND_PAYMENT,
+        FORBIDDEN_SHOP_OWNER,
+        UNAUTHORIZED_USER,
+        FORBIDDEN_USER_TYPE,
+    })
+    @Operation(
+        summary = "주문 상태를 변경한다.",
+        description = """
+            ## 주문 상태 변경
+            변경할 상태를 요청 바디로 받는다. 현재 상태에서 갈 수 없는 상태면 400을 반환한다.
+            - COOKING : 승인. estimated_minutes 필수이며, 현재 시각에 더해 도착 예정 시각을 정한다.
+            - CANCELED : 반려. canceled_reason 필수이며, 결제를 전액 취소한다.
+            - DELIVERING : 조리 완료
+            - DELIVERED : 배달 완료
+
+            ## 허용되는 전이
+            - 주문 확인중 → 조리중, 취소
+            - 조리중 → 배달중
+            - 배달중 → 배달 완료
+            """
+    )
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PatchMapping("/owner/shops/{orderableShopId}/orders/{orderId}/status")
+    ResponseEntity<Void> changeOrderStatus(
+        @PathVariable Integer orderableShopId,
+        @PathVariable Integer orderId,
+        @RequestBody @Valid OwnerOrderStatusChangeRequest request,
         @Auth(permit = {OWNER}) Integer ownerId
     );
 }

@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.order.order.model;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,13 @@ public enum OrderStatus {
     CANCELED("취소", false),
     ;
 
+    private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_NEXT_STATUSES = Map.of(
+        CONFIRMING, Set.of(COOKING, CANCELED),
+        COOKING, Set.of(DELIVERING, PACKAGED),
+        PACKAGED, Set.of(PICKED_UP),
+        DELIVERING, Set.of(DELIVERED)
+    );
+
     private final String description;
     private final boolean inProgress;
 
@@ -25,5 +34,9 @@ public enum OrderStatus {
         return Arrays.stream(values())
             .filter(OrderStatus::isInProgress)
             .toList();
+    }
+
+    public boolean canChangeTo(OrderStatus nextStatus) {
+        return ALLOWED_NEXT_STATUSES.getOrDefault(this, Set.of()).contains(nextStatus);
     }
 }

@@ -55,10 +55,10 @@ public class OrderTestService {
         if (orderStatus.equals(COOKING)) {
             if (order.getOrderType().equals(TAKE_OUT)) {
                 OrderTakeout orderTakeout = order.getOrderTakeout();
-                orderTakeout.cooking();
+                orderTakeout.cooking(LocalDateTime.now());
             } else if (order.getOrderType().equals(DELIVERY)) {
                 OrderDelivery orderDelivery = order.getOrderDelivery();
-                orderDelivery.cooking();
+                orderDelivery.cooking(LocalDateTime.now());
             }
         } else if (orderStatus.equals(PACKAGED) && order.getOrderType().equals(TAKE_OUT)) {
             OrderTakeout orderTakeout = order.getOrderTakeout();

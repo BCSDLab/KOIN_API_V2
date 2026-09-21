@@ -17,6 +17,8 @@ import org.hibernate.annotations.Where;
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -178,6 +180,12 @@ public class Order extends BaseEntity {
             orderMenus = new ArrayList<>();
         }
         this.orderMenus.add(orderMenu);
+    }
+
+    public void requireStatusChangeableTo(OrderStatus nextStatus) {
+        if (!this.status.canChangeTo(nextStatus)) {
+            throw CustomException.of(ApiResponseCode.INVALID_ORDER_STATUS_CHANGE);
+        }
     }
 
     public LocalDateTime getEstimatedAt() {
