@@ -337,8 +337,7 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + authorToken))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.chat_room_id").isNumber())
-            .andExpect(jsonPath("$.room_type").value("DIRECT"))
-            .andExpect(jsonPath("$.status").value("ACTIVE"));
+            .andExpect(jsonPath("$.room_type").value("DIRECT"));
     }
 
     @Test
@@ -361,8 +360,7 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
                 .header("Authorization", "Bearer " + authorToken))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.chat_room_id").isNumber())
-            .andExpect(jsonPath("$.room_type").value("DIRECT"))
-            .andExpect(jsonPath("$.status").value("ACTIVE"));
+            .andExpect(jsonPath("$.room_type").value("DIRECT"));
     }
 
     @Test
@@ -452,14 +450,12 @@ class TeamRecruitmentApplicationFlowApiTest extends AcceptanceTest {
                 recruitment.getId(), application.getId())
                 .header("Authorization", "Bearer " + authorToken))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.chat_room_id").value(directRoom.getId()))
-            .andExpect(jsonPath("$.status").value("ACTIVE"));
+            .andExpect(jsonPath("$.chat_room_id").value(directRoom.getId()));
 
         mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}",
                 recruitment.getId(), directRoom.getId())
                 .header("Authorization", "Bearer " + authorToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("ACTIVE"));
+            .andExpect(status().isOk());
     }
 
     @Test

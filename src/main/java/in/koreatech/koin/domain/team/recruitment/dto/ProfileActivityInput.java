@@ -42,7 +42,7 @@ public record ProfileActivityInput(
 
     @Schema(description = "활동 설명", example = "기획 담당", requiredMode = REQUIRED)
     @NotBlank
-    @Size(min = 1, max = 500)
+    @Size(min = 1, max = 1000)
     String description
 ) {
     public ProfileActivityInput {

@@ -20,9 +20,6 @@ public record DirectChatRoomResponse(
         @Schema(description = "채팅방 타입", example = "DIRECT", requiredMode = REQUIRED)
         String roomType,
 
-        @Schema(description = "채팅방 상태", example = "ACTIVE", requiredMode = REQUIRED)
-        String status,
-
         @Schema(description = "상대방 정보", requiredMode = REQUIRED)
         Counterpart counterpart
 ) {
@@ -39,7 +36,6 @@ public record DirectChatRoomResponse(
                 chatRoom.getId(),
                 counterpartUser.getDisplayNickname(),
                 chatRoom.getRoomType().name(),
-                chatRoom.getStatus().name(),
                 new Counterpart(counterpartUser.getId(), counterpartUser.getDisplayNickname())
         );
     }

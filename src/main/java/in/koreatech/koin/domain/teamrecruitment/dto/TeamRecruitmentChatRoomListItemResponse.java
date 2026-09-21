@@ -28,9 +28,6 @@ public record TeamRecruitmentChatRoomListItemResponse(
     @Schema(description = "채팅방 타입", example = "TEAM", requiredMode = REQUIRED)
     String roomType,
 
-    @Schema(description = "채팅방 상태", example = "ACTIVE", requiredMode = REQUIRED)
-    String status,
-
     @Schema(description = "DIRECT 상대방 유저 ID. TEAM은 null입니다.", example = "22",
         nullable = true, requiredMode = REQUIRED)
     Integer counterpartId,
@@ -71,7 +68,6 @@ public record TeamRecruitmentChatRoomListItemResponse(
             chatRoom.getId(),
             direct && counterpart != null ? counterpart.getDisplayNickname() : chatRoom.getRecruitment().getTitle(),
             chatRoom.getRoomType().name(),
-            chatRoom.getStatus().name(),
             direct && counterpart != null ? counterpart.getId() : null,
             direct && counterpart != null ? counterpart.getDisplayNickname() : null,
             lastMessage == null ? null : lastMessage.getId(),

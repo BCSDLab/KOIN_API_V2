@@ -36,7 +36,6 @@ public final class TeamRecruitmentDirectChatPolicy {
         }
         return recruitment.getStatus() == CLOSED
             && teamChatRoom != null
-            && teamChatRoom.getRoomType() == TEAM
-            && teamChatRoom.isActive();
+            && teamChatRoom.getRoomType() == TEAM;
     }
 }

@@ -14,7 +14,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -125,8 +124,4 @@ public class TeamRecruitmentChatRoom extends BaseEntity {
         }
     }
 
-    @Transient
-    public boolean isActive() {
-        return status == TeamRecruitmentChatRoomStatus.ACTIVE;
-    }
 }

@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
@@ -531,40 +530,6 @@ class TeamRecruitmentApplicationQueryServiceTest {
     }
 
     @Test
-    void 수동_마감된_모집글의_ACCEPTED_지원자는_기존방이_없으면_DIRECT_CTA가_닫힌다() {
-        TeamRecruitment recruitment = recruitment();
-        recruitment.close();
-        TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
-
-        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
-        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
-        when(applicationRepository.countByRecruitment_IdAndStatusIn(eq(RECRUITMENT_ID), any()))
-            .thenReturn(1L);
-        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
-            eq(RECRUITMENT_ID),
-            any(),
-            any(Pageable.class)
-        )).thenReturn(new PageImpl<>(List.of(accepted)));
-        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
-            List.of(RECRUITMENT_ID),
-            "TEAM",
-            TEAM
-        )).thenReturn(List.of(teamRoom(recruitment, READ_ONLY)));
-        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
-            .thenReturn(List.of());
-
-        ApplicantListResponse response = queryService.getApplications(
-            RECRUITMENT_ID,
-            List.of(ACCEPTED),
-            1,
-            10,
-            AUTHOR_ID
-        );
-
-        assertThat(response.applications().get(0).canOpenDirectChat()).isFalse();
-    }
-
-    @Test
     void 정원충족으로_자동_마감된_모집글은_ACTIVE_TEAM_방이_있으면_DIRECT_CTA가_열린다() {
         TeamRecruitment recruitment = recruitment(1, 1, CLOSED);
         TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
@@ -641,7 +606,7 @@ class TeamRecruitmentApplicationQueryServiceTest {
             .roomScopeKey("DIRECT-20")
             .roomType(DIRECT)
             .application(accepted)
-            .status(READ_ONLY)
+            .status(ACTIVE)
             .build();
 
         when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
@@ -657,7 +622,7 @@ class TeamRecruitmentApplicationQueryServiceTest {
             List.of(RECRUITMENT_ID),
             "TEAM",
             TEAM
-        )).thenReturn(List.of(teamRoom(recruitment, READ_ONLY)));
+        )).thenReturn(List.of(teamRoom(recruitment, ACTIVE)));
         when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
             .thenReturn(List.of(existingDirect));
 
@@ -670,28 +635,6 @@ class TeamRecruitmentApplicationQueryServiceTest {
         );
 
         assertThat(response.applications().get(0).canOpenDirectChat()).isTrue();
-    }
-
-    @Test
-    void 지원서_상세도_마감된_모집글에서_기존방이_없으면_DIRECT_CTA가_닫힌다() {
-        TeamRecruitment recruitment = recruitment();
-        recruitment.close();
-        TeamRecruitmentApplication accepted = applicationWithSnapshot(20, recruitment, ACCEPTED);
-
-        when(studentRepository.getById(AUTHOR_ID)).thenReturn(null);
-        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
-        when(applicationRepository.findById(20)).thenReturn(Optional.of(accepted));
-        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
-            List.of(RECRUITMENT_ID),
-            "TEAM",
-            TEAM
-        )).thenReturn(List.of(teamRoom(recruitment, READ_ONLY)));
-        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
-            .thenReturn(List.of());
-
-        ApplicantDetail response = queryService.getApplicationDetail(RECRUITMENT_ID, 20, AUTHOR_ID);
-
-        assertThat(response.canOpenDirectChat()).isFalse();
     }
 
     @Test

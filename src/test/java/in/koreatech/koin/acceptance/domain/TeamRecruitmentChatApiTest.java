@@ -3,7 +3,6 @@ package in.koreatech.koin.acceptance.domain;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
@@ -130,7 +129,6 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.chat_room_id").value(room.getId()))
             .andExpect(jsonPath("$.room_name").value(recruitment.getTitle()))
             .andExpect(jsonPath("$.room_type").value("TEAM"))
-            .andExpect(jsonPath("$.status").value("ACTIVE"))
             .andExpect(jsonPath("$.member_count").value(2));
 
         mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}", recruitment.getId(), room.getId()))
@@ -154,7 +152,7 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
         TeamRecruitment recruitment = saveRecruitment("목록에서 보이는 팀 모집");
         TeamRecruitmentChatRoom teamRoom = saveTeamRoom(recruitment, ACTIVE);
         TeamRecruitmentApplication application = saveAcceptedApplication(recruitment);
-        TeamRecruitmentChatRoom directRoom = saveDirectRoom(recruitment, application, READ_ONLY);
+        TeamRecruitmentChatRoom directRoom = saveDirectRoom(recruitment, application, ACTIVE);
 
         TeamRecruitmentChatMessage readTeamMessage = saveMessage(teamRoom, author.getUser(), "이미 읽은 팀 메시지", false);
         TeamRecruitmentChatMember applicantTeamMember = chatMemberRepository
@@ -178,7 +176,6 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$[0].chat_room_id").value(directRoom.getId()))
             .andExpect(jsonPath("$[0].room_name").value(author.getUser().getNickname()))
             .andExpect(jsonPath("$[0].room_type").value("DIRECT"))
-            .andExpect(jsonPath("$[0].status").value("READ_ONLY"))
             .andExpect(jsonPath("$[0].counterpart_id").value(author.getUser().getId()))
             .andExpect(jsonPath("$[0].counterpart_nickname").value(author.getUser().getNickname()))
             .andExpect(jsonPath("$[0].last_message_id").value(latestDirectMessage.getId()))
@@ -380,33 +377,6 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$[0].message_id").value(fourthMessageId));
         assertThat(chatMemberRepository.findByChatRoom_IdAndUser_Id(room.getId(), applicant.getUser().getId())
             .orElseThrow().getLastReadMessageId()).isEqualTo(fourthMessageId);
-    }
-
-    @Test
-    @DisplayName("READ_ONLY TEAM 채팅방은 메시지 전송만 차단하고 기존 메시지 조회는 허용한다")
-    void readOnlyTeamChatIsReadableButNotWritable() throws Exception {
-        TeamRecruitment recruitment = saveRecruitment("읽기 전용 채팅");
-        TeamRecruitmentChatRoom room = saveTeamRoom(recruitment, READ_ONLY);
-        TeamRecruitmentChatMessage existingMessage = chatMessageRepository.save(TeamRecruitmentChatMessage.builder()
-            .chatRoom(room)
-            .sender(author.getUser())
-            .senderNickname(author.getUser().getNickname())
-            .content("마감 전 메시지")
-            .isImage(false)
-            .build());
-        entityManager.flush();
-
-        sendMessage(room, recruitment, authorToken, "마감 후 메시지")
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.code").value("TEAM_RECRUITMENT_CHAT_READ_ONLY"));
-
-        mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages",
-                recruitment.getId(), room.getId())
-                .header("Authorization", "Bearer " + applicantToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].message_id").value(existingMessage.getId()))
-            .andExpect(jsonPath("$[0].content").value("마감 전 메시지"));
     }
 
     private void assertChatNotificationOutbox(

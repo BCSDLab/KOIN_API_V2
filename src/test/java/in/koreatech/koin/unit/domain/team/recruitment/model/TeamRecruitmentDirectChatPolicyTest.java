@@ -3,7 +3,6 @@ package in.koreatech.koin.unit.domain.team.recruitment.model;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.READ_ONLY;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.TEAM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.CLOSED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
@@ -44,13 +43,6 @@ class TeamRecruitmentDirectChatPolicyTest {
     }
 
     @Test
-    void READ_ONLY_TEAM_방이면_신규_DIRECT를_열수없다() {
-        TeamRecruitment recruitment = recruitment(CLOSED);
-
-        assertThat(canOpen(ACCEPTED, false, recruitment, teamRoom(recruitment, READ_ONLY))).isFalse();
-    }
-
-    @Test
     void 삭제된_모집글은_ACTIVE_TEAM_방이_남아도_신규_DIRECT를_열수없다() {
         TeamRecruitment deleted = recruitment(CLOSED);
         deleted.markDeleted(LocalDate.of(2026, 8, 28).atStartOfDay());
@@ -62,7 +54,7 @@ class TeamRecruitmentDirectChatPolicyTest {
     void 기존_DIRECT_방은_모집글_상태와_관계없이_열수있다() {
         TeamRecruitment recruitment = recruitment(CLOSED);
 
-        assertThat(canOpen(ACCEPTED, true, recruitment, teamRoom(recruitment, READ_ONLY))).isTrue();
+        assertThat(canOpen(ACCEPTED, true, recruitment, teamRoom(recruitment, ACTIVE))).isTrue();
     }
 
     @Test

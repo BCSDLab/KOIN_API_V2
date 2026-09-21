@@ -9,7 +9,6 @@ import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_APP
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_APPLICATION_NOT_FOUND;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CHAT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CHAT_NOT_FOUND;
-import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CHAT_READ_ONLY;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CLOSED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOT_FOUND;
@@ -44,7 +43,7 @@ public interface TeamRecruitmentChatApi {
     @Operation(
         summary = "내 팀원 모집 채팅방 목록 조회",
         description = "현재 사용자가 멤버인 TEAM/DIRECT 채팅방을 최근 메시지순으로 반환합니다. "
-            + "메시지가 없는 방과 READ_ONLY 방도 포함합니다."
+            + "메시지가 없는 방도 포함합니다."
     )
     ResponseEntity<List<TeamRecruitmentChatRoomListItemResponse>> getChatRooms(Integer userId);
 
@@ -111,7 +110,6 @@ public interface TeamRecruitmentChatApi {
         INVALID_REQUEST_BODY,
         TEAM_RECRUITMENT_CHAT_NOT_FOUND,
         TEAM_RECRUITMENT_CHAT_FORBIDDEN,
-        TEAM_RECRUITMENT_CHAT_READ_ONLY,
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
