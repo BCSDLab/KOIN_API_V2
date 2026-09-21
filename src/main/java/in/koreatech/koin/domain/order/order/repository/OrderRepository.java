@@ -31,14 +31,13 @@ public interface OrderRepository extends Repository<Order, Integer> {
         LEFT JOIN FETCH o.orderDelivery od
         LEFT JOIN FETCH o.orderTakeout ot
         WHERE o.user.id = :userId
-          AND o.status NOT IN (
-            in.koreatech.koin.domain.order.order.model.OrderStatus.DELIVERED,
-            in.koreatech.koin.domain.order.order.model.OrderStatus.PICKED_UP,
-            in.koreatech.koin.domain.order.order.model.OrderStatus.CANCELED
-          )
+          AND o.status IN :statuses
         ORDER BY o.createdAt DESC
     """)
-    List<Order> findOrderWithStatus(@Param("userId") Integer userId);
+    List<Order> findAllByUserIdAndStatuses(
+        @Param("userId") Integer userId,
+        @Param("statuses") List<OrderStatus> statuses
+    );
 
     @Query("""
         SELECT o
