@@ -43,6 +43,7 @@ public interface OrderRepository extends Repository<Order, Integer> {
         SELECT o
         FROM Order o
         LEFT JOIN FETCH o.orderDelivery od
+        LEFT JOIN FETCH o.orderTakeout ot
         WHERE o.orderableShop.id = :orderableShopId
           AND o.status IN :statuses
         ORDER BY o.createdAt DESC
@@ -59,6 +60,7 @@ public interface OrderRepository extends Repository<Order, Integer> {
         FROM Order o
         JOIN FETCH o.orderableShop os
         LEFT JOIN FETCH o.orderDelivery od
+        LEFT JOIN FETCH o.orderTakeout ot
         LEFT JOIN FETCH o.orderMenus om
         WHERE o.id = :orderId
           AND o.orderableShop.id = :orderableShopId
