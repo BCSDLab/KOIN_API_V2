@@ -10,6 +10,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.order.order.model.Order;
+import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import in.koreatech.koin.global.exception.CustomException;
 
 public interface OrderRepository extends Repository<Order, Integer> {
@@ -38,4 +39,46 @@ public interface OrderRepository extends Repository<Order, Integer> {
         ORDER BY o.createdAt DESC
     """)
     List<Order> findOrderWithStatus(@Param("userId") Integer userId);
+
+    @Query("""
+        SELECT o
+        FROM Order o
+        LEFT JOIN FETCH o.orderDelivery od
+        WHERE o.orderableShop.id = :orderableShopId
+          AND o.status IN :statuses
+        ORDER BY o.createdAt DESC
+    """)
+    List<Order> findAllByOrderableShopIdAndStatuses(
+        @Param("orderableShopId") Integer orderableShopId,
+        @Param("statuses") List<OrderStatus> statuses
+    );
+
+    @Query("""
+        SELECT o.status AS status, COUNT(o) AS count
+        FROM Order o
+        WHERE o.orderableShop.id = :orderableShopId
+          AND o.status IN :statuses
+        GROUP BY o.status
+    """)
+    List<OrderStatusCount> countByOrderableShopIdGroupByStatus(
+        @Param("orderableShopId") Integer orderableShopId,
+        @Param("statuses") List<OrderStatus> statuses
+    );
+
+    @Query("""
+        SELECT DISTINCT o
+        FROM Order o
+        JOIN FETCH o.orderableShop os
+        LEFT JOIN FETCH o.orderDelivery od
+        LEFT JOIN FETCH o.orderMenus om
+        WHERE o.id = :orderId
+    """)
+    Optional<Order> findDetailById(@Param("orderId") Integer orderId);
+
+    interface OrderStatusCount {
+
+        OrderStatus getStatus();
+
+        long getCount();
+    }
 }
