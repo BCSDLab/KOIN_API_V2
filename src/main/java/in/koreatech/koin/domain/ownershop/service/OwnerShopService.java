@@ -8,11 +8,14 @@ import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopRespon
 import in.koreatech.koin.domain.shop.cache.aop.RefreshShopsCache;
 import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
+import in.koreatech.koin.domain.order.shop.model.entity.shop.ShopOperation;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -56,6 +59,16 @@ public class OwnerShopService {
         savedShop.addShopImages(ownerShopsRequest.imageUrls());
         savedShop.addOpens(ownerShopsRequest.toShopOpens(savedShop));
         savedShop.addShopCategories(shopCategories);
+    }
+
+    @Transactional
+    public void changeShopOpenStatus(Integer ownerId, Integer shopId, boolean isOpen) {
+        Shop shop = ownerShopUtilService.getOwnerShopById(shopId, ownerId);
+        ShopOperation shopOperation = shop.getShopOperation();
+        if (shopOperation == null) {
+            throw CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP);
+        }
+        shopOperation.changeOpenStatus(isOpen);
     }
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
