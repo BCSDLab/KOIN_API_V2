@@ -6,13 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.ownershop.dto.OwnerShopOpenStatusRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.service.OwnerShopService;
@@ -62,15 +60,5 @@ public class OwnerShopController implements OwnerShopApi {
     ) {
         ownerShopService.modifyShop(ownerId, shopId, modifyShopRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @PatchMapping("/owner/shops/{shopId}/open")
-    public ResponseEntity<Void> changeShopOpenStatus(
-        @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable Integer shopId,
-        @RequestBody @Valid OwnerShopOpenStatusRequest request
-    ) {
-        ownerShopService.changeShopOpenStatus(ownerId, shopId, request.isOpen());
-        return ResponseEntity.ok().build();
     }
 }
