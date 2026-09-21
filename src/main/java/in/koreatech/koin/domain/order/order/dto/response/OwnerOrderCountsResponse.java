@@ -8,7 +8,6 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.order.dto.request.OwnerOrderStatusCriteria;
-import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -25,12 +24,12 @@ public record OwnerOrderCountsResponse(
     @Schema(description = "완료 주문 수 (배달 완료, 반려 합계)", example = "12", requiredMode = REQUIRED)
     Long completedCount
 ) {
-    public static OwnerOrderCountsResponse from(Map<OrderStatus, Long> countByStatus) {
+    public static OwnerOrderCountsResponse from(Map<OwnerOrderStatusCriteria, Long> countByCriteria) {
         return new OwnerOrderCountsResponse(
-            OwnerOrderStatusCriteria.NEW.sumCount(countByStatus),
-            OwnerOrderStatusCriteria.COOKING.sumCount(countByStatus),
-            OwnerOrderStatusCriteria.DELIVERING.sumCount(countByStatus),
-            OwnerOrderStatusCriteria.COMPLETED.sumCount(countByStatus)
+            countByCriteria.getOrDefault(OwnerOrderStatusCriteria.NEW, 0L),
+            countByCriteria.getOrDefault(OwnerOrderStatusCriteria.COOKING, 0L),
+            countByCriteria.getOrDefault(OwnerOrderStatusCriteria.DELIVERING, 0L),
+            countByCriteria.getOrDefault(OwnerOrderStatusCriteria.COMPLETED, 0L)
         );
     }
 }

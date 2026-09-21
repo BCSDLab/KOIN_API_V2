@@ -52,17 +52,7 @@ public interface OrderRepository extends Repository<Order, Integer> {
         @Param("statuses") List<OrderStatus> statuses
     );
 
-    @Query("""
-        SELECT o.status AS status, COUNT(o) AS count
-        FROM Order o
-        WHERE o.orderableShop.id = :orderableShopId
-          AND o.status IN :statuses
-        GROUP BY o.status
-    """)
-    List<OrderStatusCount> countByOrderableShopIdGroupByStatus(
-        @Param("orderableShopId") Integer orderableShopId,
-        @Param("statuses") List<OrderStatus> statuses
-    );
+    long countByOrderableShop_IdAndStatusIn(Integer orderableShopId, List<OrderStatus> statuses);
 
     @Query("""
         SELECT DISTINCT o
@@ -73,11 +63,4 @@ public interface OrderRepository extends Repository<Order, Integer> {
         WHERE o.id = :orderId
     """)
     Optional<Order> findDetailById(@Param("orderId") Integer orderId);
-
-    interface OrderStatusCount {
-
-        OrderStatus getStatus();
-
-        long getCount();
-    }
 }

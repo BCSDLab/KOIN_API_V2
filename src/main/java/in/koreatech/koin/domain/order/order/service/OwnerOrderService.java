@@ -14,7 +14,6 @@ import in.koreatech.koin.domain.order.order.dto.response.OwnerOrderCountsRespons
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrderResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrdersResponse;
 import in.koreatech.koin.domain.order.order.model.Order;
-import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import in.koreatech.koin.domain.order.order.repository.OrderRepository;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
@@ -46,12 +45,13 @@ public class OwnerOrderService {
     public OwnerOrderCountsResponse getOrderCounts(Integer ownerId, Integer orderableShopId) {
         validateShopOwner(ownerId, orderableShopId);
 
-        Map<OrderStatus, Long> countByStatus = new EnumMap<>(OrderStatus.class);
-        orderRepository
-            .countByOrderableShopIdGroupByStatus(orderableShopId, OwnerOrderStatusCriteria.allOrderStatuses())
-            .forEach(count -> countByStatus.put(count.getStatus(), count.getCount()));
+        Map<OwnerOrderStatusCriteria, Long> countByCriteria = new EnumMap<>(OwnerOrderStatusCriteria.class);
+        for (OwnerOrderStatusCriteria criteria : OwnerOrderStatusCriteria.values()) {
+            countByCriteria.put(criteria,
+                orderRepository.countByOrderableShop_IdAndStatusIn(orderableShopId, criteria.getOrderStatuses()));
+        }
 
-        return OwnerOrderCountsResponse.from(countByStatus);
+        return OwnerOrderCountsResponse.from(countByCriteria);
     }
 
     public OwnerOrderResponse getOrder(Integer ownerId, Integer orderableShopId, Integer orderId) {
