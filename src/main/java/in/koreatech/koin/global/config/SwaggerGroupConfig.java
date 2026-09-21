@@ -19,7 +19,7 @@ public class SwaggerGroupConfig {
     public GroupedOpenApi loginApi() {
         return GroupedOpenApi.builder()
             .group("0. Login API")
-            .pathsToMatch("/**/login")
+            .pathsToMatch("/**/login", "/v2/web/auth/**")
             .addOperationCustomizer(customizer)
             .build();
     }
@@ -70,9 +70,9 @@ public class SwaggerGroupConfig {
 
     @Bean
     public GroupedOpenApi userApi() {
-        return createGroupedOpenApi(
-            "4. User API",
-            new String[] {
+        return GroupedOpenApi.builder()
+            .group("4. User API")
+            .packagesToScan(
                 "in.koreatech.koin.domain.user",
                 "in.koreatech.koin.domain.student",
                 "in.koreatech.koin.domain.timetable",
@@ -80,8 +80,11 @@ public class SwaggerGroupConfig {
                 "in.koreatech.koin.domain.timetableV3",
                 "in.koreatech.koin.domain.course_registration",
                 "in.koreatech.koin.domain.dept",
-                "in.koreatech.koin.domain.graduation",
-            });
+                "in.koreatech.koin.domain.graduation"
+            )
+            .pathsToExclude("/v2/web/auth/**")
+            .addOperationCustomizer(customizer)
+            .build();
     }
 
     @Bean

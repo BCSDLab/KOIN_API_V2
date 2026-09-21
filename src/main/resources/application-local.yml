@@ -1,3 +1,7 @@
+auth:
+  web:
+    secure: false
+
 jwt:
   secret-key: local-jwt-secret-key-example-32chars!!
   access-token:

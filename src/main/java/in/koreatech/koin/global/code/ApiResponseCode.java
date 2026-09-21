@@ -107,6 +107,8 @@ public enum ApiResponseCode {
      * 403 Forbidden (인가 필요)
      */
     FORBIDDEN_USER_TYPE(HttpStatus.FORBIDDEN, "인가되지 않은 유저 타입입니다."),
+    INVALID_CSRF_TOKEN(HttpStatus.FORBIDDEN, "올바르지 않은 CSRF 토큰입니다."),
+    FORBIDDEN_WEB_ORIGIN(HttpStatus.FORBIDDEN, "허용되지 않은 웹 요청입니다."),
     FORBIDDEN_OWNER(HttpStatus.FORBIDDEN, "관리자 인증 대기중입니다."),
     FORBIDDEN_STUDENT(HttpStatus.FORBIDDEN, "아우누리에서 인증메일을 확인해주세요."),
     FORBIDDEN_ADMIN(HttpStatus.FORBIDDEN, "PL 인증 대기중입니다."),
@@ -163,6 +165,7 @@ public enum ApiResponseCode {
      * 409 CONFLICT (중복 혹은 충돌)
      */
     DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "이미 존재하는 로그인 아이디입니다."),
+    WEB_AUTH_SESSION_CONFLICT(HttpStatus.CONFLICT, "다른 요청에서 로그인 정보가 변경되었습니다. 다시 시도해주세요."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다."),

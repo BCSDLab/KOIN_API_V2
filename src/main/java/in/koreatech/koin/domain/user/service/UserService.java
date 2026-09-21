@@ -103,6 +103,12 @@ public class UserService {
 
     @Transactional
     public UserLoginResponse loginV2(UserLoginRequestV2 request, UserAgentInfo userAgentInfo) {
+        User user = authenticate(request);
+        return createLoginResponse(user, userAgentInfo);
+    }
+
+    @Transactional
+    public User authenticate(UserLoginRequestV2 request) {
         User user;
         String loginId = request.loginId();
         if (loginId.matches("^\\d{11}$")) {
@@ -112,7 +118,7 @@ public class UserService {
         }
         user.requireSameLoginPw(passwordEncoder, request.loginPw());
         user.updateLastLoggedTime(LocalDateTime.now());
-        return createLoginResponse(user, userAgentInfo);
+        return user;
     }
 
     @Transactional
