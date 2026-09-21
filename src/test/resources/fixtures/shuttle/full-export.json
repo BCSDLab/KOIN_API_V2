@@ -1,0 +1,3392 @@
+[{
+  "_id": {
+    "$oid": "676502b22b4dbd8b33edf249"
+  },
+  "semester_type": "계절학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "SHUTTLE",
+  "route_name": "천안 계절학기 순환셔틀",
+  "sub_name": null,
+  "node_info": [
+    {
+      "name": "한기대",
+      "detail": null
+    },
+    {
+      "name": "터미널",
+      "detail": null
+    },
+    {
+      "name": "천안역",
+      "detail": null
+    },
+    {
+      "name": "삼룡교",
+      "detail": "유니클로, 구 한방병원"
+    },
+    {
+      "name": "바로약국 앞",
+      "detail": null
+    },
+    {
+      "name": "한기대",
+      "detail": null
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "14:10",
+        "14:35",
+        "14:40",
+        "14:45",
+        "14:48",
+        "15:30"
+      ]
+    },
+    {
+      "name": "2회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "20:30",
+        "20:55",
+        "21:00",
+        "미정차",
+        "미정차",
+        "21:30"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502bb2b4dbd8b33edf24a"
+  },
+  "semester_type": "계절학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "터미널/천안역",
+  "sub_name": null,
+  "node_info": [
+    {
+      "name": "천안 터미널",
+      "detail": "신세계앞 횡단보도"
+    },
+    {
+      "name": "천안역",
+      "detail": null
+    },
+    {
+      "name": "남부오거리",
+      "detail": "귀뚜라미보일러"
+    },
+    {
+      "name": "삼룡교",
+      "detail": "유니클로, 구 한방병원"
+    },
+    {
+      "name": "바로약국 앞",
+      "detail": null
+    },
+    {
+      "name": "동우@",
+      "detail": null
+    },
+    {
+      "name": "신계초",
+      "detail": null
+    },
+    {
+      "name": "운전리",
+      "detail": null
+    },
+    {
+      "name": "연춘리",
+      "detail": null
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "08:05",
+        "08:10",
+        "08:12",
+        "08:13",
+        "08:15",
+        "승하차",
+        "승하차",
+        "승하차",
+        "승하차",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "18:55",
+        "18:50",
+        "18:48",
+        "18:47",
+        "18:45",
+        "승하차",
+        "승하차",
+        "승하차",
+        "승하차",
+        "18:10"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502c02b4dbd8b33edf24b"
+  },
+  "semester_type": "계절학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "두정역/KTX",
+  "sub_name": null,
+  "node_info": [
+    {
+      "name": "두정역",
+      "detail": null
+    },
+    {
+      "name": "노동부",
+      "detail": "천안지방사무소"
+    },
+    {
+      "name": "늘푸른극동아파트",
+      "detail": null
+    },
+    {
+      "name": "성정지하도",
+      "detail": "6단지"
+    },
+    {
+      "name": "전자랜드",
+      "detail": null
+    },
+    {
+      "name": "광혜당약국",
+      "detail": null
+    },
+    {
+      "name": "충무병원",
+      "detail": "백년돌침대"
+    },
+    {
+      "name": "용암마을",
+      "detail": "하나은행 앞"
+    },
+    {
+      "name": "Y-CITY",
+      "detail": "상공회의소 앞"
+    },
+    {
+      "name": "천안아산 KTX",
+      "detail": "3번 출구, 6번 승강장"
+    },
+    {
+      "name": "청당동",
+      "detail": "벽산블루밍"
+    },
+    {
+      "name": "중앙@",
+      "detail": null
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:41",
+        "07:43",
+        "07:44",
+        "07:46",
+        "07:47",
+        "07:48",
+        "07:51",
+        "07:54",
+        "07:56",
+        "08:01",
+        "08:20",
+        "08:40",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:19",
+        "19:17",
+        "19:16",
+        "19:14",
+        "19:13",
+        "19:12",
+        "19:09",
+        "19:06",
+        "19:04",
+        "18:59",
+        "18:40",
+        "18:20",
+        "18:10"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502c52b4dbd8b33edf24c"
+  },
+  "semester_type": "계절학기",
+  "region": "CHEONGJU",
+  "route_type": "WEEKDAYS",
+  "route_name": "동남지구",
+  "sub_name": null,
+  "node_info": [
+    {
+      "name": "동남지구",
+      "detail": "대원칸타빌 BS"
+    },
+    {
+      "name": "프라우 삼성산부인과",
+      "detail": null
+    },
+    {
+      "name": "청주혜원학교",
+      "detail": null
+    },
+    {
+      "name": "금천광장",
+      "detail": "농협 앞"
+    },
+    {
+      "name": "용담동베이징",
+      "detail": "초양교회 앞"
+    },
+    {
+      "name": "상당공원B",
+      "detail": "안경매니저 성안점 앞"
+    },
+    {
+      "name": "체육관",
+      "detail": "NEPA"
+    },
+    {
+      "name": "사창사거리",
+      "detail": "청주고용센터 맞은편 BS"
+    },
+    {
+      "name": "HS포레",
+      "detail": "봉명우체국 BS"
+    },
+    {
+      "name": "솔밭공원",
+      "detail": null
+    },
+    {
+      "name": "청주역",
+      "detail": "옥산방면"
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:20",
+        "07:22",
+        "07:24",
+        "07:25",
+        "07:28",
+        "07:37",
+        "07:40",
+        "07:42",
+        "07:46",
+        "07:50",
+        "07:55",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:40",
+        "19:38",
+        "19:36",
+        "19:35",
+        "19:32",
+        "19:23",
+        "19:20",
+        "19:18",
+        "19:14",
+        "19:10",
+        "19:05",
+        "18:10"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502c92b4dbd8b33edf24d"
+  },
+  "semester_type": "계절학기",
+  "region": "CHEONGJU",
+  "route_type": "WEEKDAYS",
+  "route_name": "용암동",
+  "sub_name": null,
+  "node_info": [
+    {
+      "name": "방서동",
+      "detail": "다이소"
+    },
+    {
+      "name": "용암동현대@",
+      "detail": null
+    },
+    {
+      "name": "GS대청주유소 맞은편",
+      "detail": "용암동"
+    },
+    {
+      "name": "석교동 육거리",
+      "detail": null
+    },
+    {
+      "name": "상당공원A",
+      "detail": "상공회의소"
+    },
+    {
+      "name": "문화 산업단지",
+      "detail": "구 제조창"
+    },
+    {
+      "name": "성모병원",
+      "detail": "율량 맥도널드"
+    },
+    {
+      "name": "과학단지",
+      "detail": "오창프라자"
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:28",
+        "07:30",
+        "07:31",
+        "07:33",
+        "07:36",
+        "07:40",
+        "07:45",
+        "08:00",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:32",
+        "19:30",
+        "19:29",
+        "19:27",
+        "19:24",
+        "19:20",
+        "19:15",
+        "19:00",
+        "18:10"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502cc2b4dbd8b33edf24e"
+  },
+  "semester_type": "계절학기",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "세종",
+  "sub_name": null,
+  "node_info": [
+    {
+      "name": "9단지중흥S클래스",
+      "detail": "달콤제작소 앞"
+    },
+    {
+      "name": "세종시청",
+      "detail": "자율주행서비스정류장"
+    },
+    {
+      "name": "세종 순복음더사랑교회",
+      "detail": null
+    },
+    {
+      "name": "소방청",
+      "detail": null
+    },
+    {
+      "name": "LG전자 세종본점",
+      "detail": null
+    },
+    {
+      "name": "정부세종청사정류장",
+      "detail": "남측 BS"
+    },
+    {
+      "name": "도담풍경채도서관",
+      "detail": "도담마을6,9단지 BS"
+    },
+    {
+      "name": "범지기마을10단지 BS",
+      "detail": null
+    },
+    {
+      "name": "조치원 자이아파트BS",
+      "detail": "노브랜드"
+    },
+    {
+      "name": "신봉초등학교BS",
+      "detail": null
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:20",
+        "07:25",
+        "07:28",
+        "07:34",
+        "07:36",
+        "07:41",
+        "07:43",
+        "07:48",
+        "08:00",
+        "08:03",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:40",
+        "19:35",
+        "19:32",
+        "19:26",
+        "19:24",
+        "19:19",
+        "19:17",
+        "19:12",
+        "19:00",
+        "18:57",
+        "18:10"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502d12b4dbd8b33edf24f"
+  },
+  "semester_type": "계절학기",
+  "region": "SEOUL",
+  "route_type": "WEEKDAYS",
+  "route_name": "서울 교대역",
+  "sub_name": null,
+  "node_info": [
+    {
+      "name": "교대",
+      "detail": null
+    },
+    {
+      "name": "동천역 환승정류장",
+      "detail": "하교 시 미하차"
+    },
+    {
+      "name": "죽전간이정류장",
+      "detail": null
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:20",
+        "07:37",
+        "07:40",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:30",
+        "미정차",
+        "19:05",
+        "18:10"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502d62b4dbd8b33edf250"
+  },
+  "semester_type": "계절학기",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "대전 등교",
+  "sub_name": "일요일",
+  "node_info": [
+    {
+      "name": "대전역",
+      "detail": null
+    },
+    {
+      "name": "터미널",
+      "detail": null
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "SUN"
+      ],
+      "arrival_time": [
+        "18:20",
+        "18:25",
+        "도착"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502dc2b4dbd8b33edf251"
+  },
+  "semester_type": "계절학기",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "대전 하교",
+  "sub_name": "금요일",
+  "node_info": [
+    {
+      "name": "한기대",
+      "detail": null
+    },
+    {
+      "name": "터미널",
+      "detail": null
+    },
+    {
+      "name": "대전역",
+      "detail": null
+    }
+  ],
+  "route_info": [
+    {
+      "name": "하교",
+      "running_days": [
+        "FRI"
+      ],
+      "arrival_time": [
+        "18:20",
+        "하차",
+        "도착"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502e62b4dbd8b33edf252"
+  },
+  "semester_type": "계절학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKEND",
+  "route_name": "일학습병행대학 천안시내",
+  "sub_name": "토요일",
+  "node_info": [
+    {
+      "name": "두정캠퍼스",
+      "detail": "2캠"
+    },
+    {
+      "name": "두정역",
+      "detail": null
+    },
+    {
+      "name": "천안터미널",
+      "detail": "신세계 앞 횡단보도"
+    },
+    {
+      "name": "천안역 A",
+      "detail": "학화 호두과자 앞"
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    },
+    {
+      "name": "천안역 B",
+      "detail": "태극당 건너 BS"
+    },
+    {
+      "name": "천안터미널",
+      "detail": "신세계 반대 횡단보도"
+    },
+    {
+      "name": "두정역",
+      "detail": null
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "detail": "등교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        "08:00",
+        "08:05",
+        "08:10",
+        "도착",
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "2회",
+      "detail": "등교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "08:05",
+        "08:10",
+        "08:15",
+        "08:20",
+        "도착",
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "3회",
+      "detail": "하교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        null,
+        null,
+        "16:15",
+        "16:45",
+        "16:55",
+        "하차"
+      ]
+    },
+    {
+      "name": "4회",
+      "detail": "하교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        null,
+        null,
+        "18:15",
+        "18:45",
+        "18:55",
+        "하차"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "676502e92b4dbd8b33edf253"
+  },
+  "semester_type": "계절학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKEND",
+  "route_name": "일학습병행대학 천안아산역",
+  "sub_name": "토요일",
+  "node_info": [
+    {
+      "name": "천안아산역",
+      "detail": "3번출구 6번승강장"
+    },
+    {
+      "name": "한기대",
+      "detail": "본교"
+    },
+    {
+      "name": "천안아산역",
+      "detail": "3번출구 6번승강장"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "detail": "등교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "08:15",
+        "도착",
+        null
+      ]
+    },
+    {
+      "name": "2회",
+      "detail": "하교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        "16:15",
+        "하차"
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "678519cacc5d10514c0dd781"
+  },
+  "semester_type": "방학기간",
+  "region": "SEOUL",
+  "route_type": "WEEKDAYS",
+  "route_name": "서울",
+  "node_info": [
+    {
+      "name": "교대"
+    },
+    {
+      "name": "동천역 환승정류장"
+    },
+    {
+      "name": "죽전간이정류장"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:20",
+        "07:40",
+        "07:42",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:40",
+        "미정차",
+        "19:15",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "678519cecc5d10514c0dd782"
+  },
+  "semester_type": "방학기간",
+  "region": "CHEONGJU",
+  "route_type": "WEEKDAYS",
+  "route_name": "동남/용암동",
+  "node_info": [
+    {
+      "name": "방서동",
+      "detail": "다이소"
+    },
+    {
+      "name": "용암동 현대아파트"
+    },
+    {
+      "name": "GS 대청주유소 맞은편",
+      "detail": "용암동"
+    },
+    {
+      "name": "석교동육거리"
+    },
+    {
+      "name": "상당공원 B",
+      "detail": "안경매니져 성안점 앞"
+    },
+    {
+      "name": "체육관",
+      "detail": "NEPA"
+    },
+    {
+      "name": "사창사거리",
+      "detail": "청주고용센터맞은편BS"
+    },
+    {
+      "name": "HS포레",
+      "detail": "봉명우체국BS, 원산냉면 앞"
+    },
+    {
+      "name": "솔밭공원 사거리",
+      "detail": "청주산업단지 비즈니스센터 앞"
+    },
+    {
+      "name": "과학단지",
+      "detail": "오창프라자"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:28",
+        "07:30",
+        "07:31",
+        "07:33",
+        "07:36",
+        "07:40",
+        "07:42",
+        "07:46",
+        "07:50",
+        "08:10",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:32",
+        "19:30",
+        "19:29",
+        "19:27",
+        "19:24",
+        "19:20",
+        "19:18",
+        "19:14",
+        "19:10",
+        "18:50",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "678519d1cc5d10514c0dd783"
+  },
+  "semester_type": "방학기간",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "두정역/KTX",
+  "node_info": [
+    {
+      "name": "두정역"
+    },
+    {
+      "name": "노동부",
+      "detail": "천안지방사무소"
+    },
+    {
+      "name": "늘푸른극동아파트"
+    },
+    {
+      "name": "성정지하도",
+      "detail": "6단지"
+    },
+    {
+      "name": "전자랜드"
+    },
+    {
+      "name": "광혜당약국"
+    },
+    {
+      "name": "충무병원",
+      "detail": "백년돌침대"
+    },
+    {
+      "name": "용암마을",
+      "detail": "하나은행 앞"
+    },
+    {
+      "name": "Y-CITY",
+      "detail": "상공회의소 앞"
+    },
+    {
+      "name": "천안아산 KTX",
+      "detail": "3번출구 6번 승강장"
+    },
+    {
+      "name": "청당동",
+      "detail": "벽산블루밍"
+    },
+    {
+      "name": "중앙아파트"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:41",
+        "07:43",
+        "07:44",
+        "07:46",
+        "07:47",
+        "07:48",
+        "07:51",
+        "07:54",
+        "07:56",
+        "08:01",
+        "08:20",
+        "08:40",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:19",
+        "19:17",
+        "19:16",
+        "19:14",
+        "19:13",
+        "19:12",
+        "19:09",
+        "19:06",
+        "19:04",
+        "18:40",
+        "18:20",
+        "18:10",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "678519d5cc5d10514c0dd784"
+  },
+  "semester_type": "방학기간",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "세종",
+  "node_info": [
+    {
+      "name": "9단지중흥S클래스",
+      "detail": "달콤제작소 앞"
+    },
+    {
+      "name": "세종시청",
+      "detail": "자율주행서비스정류장 앞"
+    },
+    {
+      "name": "세종 순복음더사랑교회"
+    },
+    {
+      "name": "소방청앞"
+    },
+    {
+      "name": "LG전자 세종본점"
+    },
+    {
+      "name": "정부세종청사정류장(남측)BS"
+    },
+    {
+      "name": "도담풍경채도서관",
+      "detail": "도담마을 6,9단지 BS"
+    },
+    {
+      "name": "범지기마을10단지 교회앞BS"
+    },
+    {
+      "name": "조치원 자이아파트",
+      "detail": "노브랜드앞BS"
+    },
+    {
+      "name": "신봉초등학교BS",
+      "detail": "구 조치원 버거킹 사거리"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:20",
+        "07:24",
+        "07:26",
+        "07:33",
+        "07:36",
+        "07:39",
+        "07:41",
+        "07:45",
+        "07:57",
+        "08:00",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:40",
+        "19:35",
+        "19:32",
+        "19:26",
+        "19:24",
+        "19:19",
+        "19:17",
+        "19:12",
+        "19:00",
+        "18:57",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "678519dbcc5d10514c0dd786"
+  },
+  "semester_type": "방학기간",
+  "region": "CHEONAN_ASAN",
+  "route_type": "SHUTTLE",
+  "route_name": "천안 셔틀",
+  "node_info": [
+    {
+      "name": "대학"
+    },
+    {
+      "name": "터미널"
+    },
+    {
+      "name": "천안역"
+    },
+    {
+      "name": "삼룡교",
+      "detail": "유니클로,구 한방병원"
+    },
+    {
+      "name": "바로약국 앞"
+    },
+    {
+      "name": "대학"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "14:10",
+        "14:35",
+        "14:40",
+        "14:45",
+        "14:48",
+        "15:30"
+      ]
+    },
+    {
+      "name": "2회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "20:30",
+        "20:55",
+        "21:00",
+        "미정차",
+        "미정차",
+        "21:30"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "696e16e2304a18193d7b6bdf"
+  },
+  "semester_type": "방학기간",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "천안역/터미널",
+  "node_info": [
+    {
+      "name": "터미널"
+    },
+    {
+      "name": "천안역"
+    },
+    {
+      "name": "남부오거리",
+      "detail": "귀뚜라미보일러"
+    },
+    {
+      "name": "삼룡교",
+      "detail": "유니클로, 구 한방병원"
+    },
+    {
+      "name": "바로약국 앞"
+    },
+    {
+      "name": "동우"
+    },
+    {
+      "name": "신계초"
+    },
+    {
+      "name": "운전리"
+    },
+    {
+      "name": "연춘리"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "arrival_time": [
+        "08:05",
+        "08:10",
+        "08:12",
+        "08:13",
+        "08:15",
+        "정차",
+        "정차",
+        "정차",
+        "정차",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "arrival_time": [
+        "18:55",
+        "18:50",
+        "18:48",
+        "18:47",
+        "18:45",
+        "정차",
+        "정차",
+        "정차",
+        "정차",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269854"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "천안역",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "천안역",
+      "detail": "학화호두과자 앞"
+    },
+    {
+      "name": "한양 수자인BS"
+    },
+    {
+      "name": "청당동",
+      "detail": "벽산블루밍"
+    },
+    {
+      "name": "부영@"
+    },
+    {
+      "name": "동우@"
+    },
+    {
+      "name": "신계초"
+    },
+    {
+      "name": "운전리"
+    },
+    {
+      "name": "연춘리"
+    },
+    {
+      "name": "중앙@"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "08:10",
+        "08:18",
+        "08:21",
+        "08:26",
+        "승하차",
+        "승하차",
+        "승하차",
+        "승하차",
+        "승하차",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "18:50",
+        "18:42",
+        "18:39",
+        "18:34",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269855"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "터미널",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "동일하이빌@"
+    },
+    {
+      "name": "주공11단지@"
+    },
+    {
+      "name": "터미널",
+      "detail": "신세계앞 횡단보도"
+    },
+    {
+      "name": "제일고 맞은편",
+      "detail": "구 교육청"
+    },
+    {
+      "name": "원성동",
+      "detail": "GS슈퍼"
+    },
+    {
+      "name": "삼룡교",
+      "detail": "유니클로, 구 한방병원"
+    },
+    {
+      "name": "바로약국 앞"
+    },
+    {
+      "name": "중앙@"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:40",
+        "07:43",
+        "08:05",
+        "08:11",
+        "08:13",
+        "08:14",
+        "08:15",
+        "승하차",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:20",
+        "19:17",
+        "18:55",
+        "18:49",
+        "18:47",
+        "18:46",
+        "18:45",
+        "하차",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269856"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "두정역",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "두정역"
+    },
+    {
+      "name": "노동부천안지청",
+      "detail": "건너"
+    },
+    {
+      "name": "늘푸른@"
+    },
+    {
+      "name": "성정지하도",
+      "detail": "6단지"
+    },
+    {
+      "name": "전자랜드"
+    },
+    {
+      "name": "광혜당약국"
+    },
+    {
+      "name": "충무병원"
+    },
+    {
+      "name": "세종아트빌라BS",
+      "detail": "구 일봉회관"
+    },
+    {
+      "name": "남부오거리",
+      "detail": "귀뚜라미 보일러"
+    },
+    {
+      "name": "삼룡교",
+      "detail": "유니클로, 구 한방병원"
+    },
+    {
+      "name": "삼거리공원",
+      "detail": "빵미당 맞은편"
+    },
+    {
+      "name": "동우@"
+    },
+    {
+      "name": "신계초"
+    },
+    {
+      "name": "운전리"
+    },
+    {
+      "name": "연춘리"
+    },
+    {
+      "name": "중앙@"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:40",
+        "07:45",
+        "07:46",
+        "07:48",
+        "07:49",
+        "07:50",
+        "07:53",
+        "07:55",
+        "07:56",
+        "07:58",
+        "08:00",
+        "승하차",
+        "승하차",
+        "승하차",
+        "승하차",
+        "승하차",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:20",
+        "19:15",
+        "19:14",
+        "19:12",
+        "19:11",
+        "19:10",
+        "19:07",
+        "19:05",
+        "19:04",
+        "19:02",
+        "19:00",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269857"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "신방/천안아산",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "Y-City"
+    },
+    {
+      "name": "한화 꿈에그린@ BS"
+    },
+    {
+      "name": "용암마을"
+    },
+    {
+      "name": "신방동 리차드"
+    },
+    {
+      "name": "신방동 GS주유소"
+    },
+    {
+      "name": "청당동",
+      "detail": "벽산블루밍"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:55",
+        "07:57",
+        "08:01",
+        "08:05",
+        "08:08",
+        "08:18",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:05",
+        "19:03",
+        "18:59",
+        "18:55",
+        "18:52",
+        "18:42",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269858"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKDAYS",
+  "route_name": "KTX/아산",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "온양온천역1번출구BS"
+    },
+    {
+      "name": "이마트 아산점"
+    },
+    {
+      "name": "배방읍행정복지센터BS"
+    },
+    {
+      "name": "호서웨딩홀BS"
+    },
+    {
+      "name": "천안아산 KTX",
+      "detail": "3번출구 6번 승강장"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:25",
+        "07:30",
+        "07:35",
+        "07:45",
+        "07:52",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:35",
+        "19:30",
+        "19:25",
+        "19:15",
+        "19:08",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269859"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONGJU",
+  "route_type": "WEEKDAYS",
+  "route_name": "동남지구",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "동남지구",
+      "detail": "대원칸타빌 BS"
+    },
+    {
+      "name": "프라우 삼성산부인과"
+    },
+    {
+      "name": "청주혜원학교"
+    },
+    {
+      "name": "금천광장",
+      "detail": "농협앞"
+    },
+    {
+      "name": "용담동베이징",
+      "detail": "초양교회 앞"
+    },
+    {
+      "name": "상당공원 B",
+      "detail": "안경매니져 성안점 앞"
+    },
+    {
+      "name": "체육관",
+      "detail": "NEPA"
+    },
+    {
+      "name": "사창사거리",
+      "detail": "청주고용센터맞은편BS"
+    },
+    {
+      "name": "HS포레",
+      "detail": "봉명우체국BS"
+    },
+    {
+      "name": "솔밭공원"
+    },
+    {
+      "name": "과학단지",
+      "detail": "오창프라자"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:20",
+        "07:22",
+        "07:24",
+        "07:25",
+        "07:28",
+        "07:36",
+        "07:40",
+        "07:42",
+        "07:46",
+        "07:50",
+        "08:05",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:40",
+        "19:38",
+        "19:36",
+        "19:35",
+        "19:32",
+        "19:24",
+        "19:20",
+        "19:18",
+        "19:14",
+        "19:10",
+        "18:55",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a26985a"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONGJU",
+  "route_type": "WEEKDAYS",
+  "route_name": "산남분평동",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "스타벅스 청주용암DT점"
+    },
+    {
+      "name": "분평동 전자랜드"
+    },
+    {
+      "name": "남성초등학교"
+    },
+    {
+      "name": "산남동수곡교회"
+    },
+    {
+      "name": "충북 원예농협",
+      "detail": "GS 마트"
+    },
+    {
+      "name": "충북대병원BS"
+    },
+    {
+      "name": "KBS 맞은편"
+    },
+    {
+      "name": "개신동 푸르지오@ BS"
+    },
+    {
+      "name": "삼일아파트BS"
+    },
+    {
+      "name": "시외버스TM건너",
+      "detail": "롯데마트 앞"
+    },
+    {
+      "name": "흥덕고교 BS"
+    },
+    {
+      "name": "두연푸드 맞은편"
+    },
+    {
+      "name": "옥산",
+      "detail": "가락3리 BS"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:10",
+        "07:15",
+        "07:17",
+        "07:20",
+        "07:22",
+        "07:26",
+        "07:27",
+        "07:31",
+        "07:32",
+        "07:37",
+        "07:42",
+        "07:46",
+        "07:49",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:50",
+        "19:45",
+        "19:43",
+        "19:40",
+        "19:38",
+        "19:34",
+        "19:33",
+        "19:29",
+        "19:28",
+        "19:23",
+        "19:18",
+        "19:14",
+        "19:11",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a26985b"
+  },
+  "semester_type": "정규학기",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "세종",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "9단지중흥S클래스",
+      "detail": "달콤제작소 앞"
+    },
+    {
+      "name": "세종시청",
+      "detail": "자율주행서비스정류장"
+    },
+    {
+      "name": "세종 순복음더사랑교회"
+    },
+    {
+      "name": "소방청"
+    },
+    {
+      "name": "LG전자 세종본점"
+    },
+    {
+      "name": "정부세종청사정류장(남측)BS"
+    },
+    {
+      "name": "도담풍경채도서관",
+      "detail": "도담마을 6,9단지 BS"
+    },
+    {
+      "name": "범지기마을10단지 BS"
+    },
+    {
+      "name": "조치원 자이아파트BS",
+      "detail": "노브랜드"
+    },
+    {
+      "name": "신봉초등학교BS"
+    },
+    {
+      "name": "대학",
+      "detail": "본교"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:20",
+        "07:24",
+        "07:26",
+        "07:31",
+        "07:34",
+        "07:37",
+        "07:41",
+        "07:45",
+        "07:57",
+        "08:00",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "19:40",
+        "19:36",
+        "19:34",
+        "19:29",
+        "19:26",
+        "19:23",
+        "19:19",
+        "19:15",
+        "19:03",
+        "19:00",
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a26985c"
+  },
+  "semester_type": "정규학기",
+  "region": "SEOUL",
+  "route_type": "WEEKDAYS",
+  "route_name": "서울 등교 추가 교대역",
+  "sub_name": "월요일",
+  "node_info": [
+    {
+      "name": "3호선 교대역 14번 출구",
+      "detail": "메가커피앞"
+    },
+    {
+      "name": "동천역 환승정류장"
+    },
+    {
+      "name": "죽전 정류장",
+      "detail": "간이"
+    },
+    {
+      "name": "신갈 정류장",
+      "detail": "간이"
+    },
+    {
+      "name": "대학"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:10",
+        null,
+        null,
+        null,
+        "08:40"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a26985d"
+  },
+  "semester_type": "정규학기",
+  "region": "SEOUL",
+  "route_type": "WEEKDAYS",
+  "route_name": "서울 교대역",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "3호선 교대역 14번 출구",
+      "detail": "메가커피앞"
+    },
+    {
+      "name": "남부터미널"
+    },
+    {
+      "name": "동천역 환승정류장"
+    },
+    {
+      "name": "죽전 정류장",
+      "detail": "간이"
+    },
+    {
+      "name": "신갈 정류장",
+      "detail": "간이"
+    },
+    {
+      "name": "대학"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:20",
+        null,
+        "07:40",
+        "07:42",
+        "07:45",
+        "08:50"
+      ]
+    },
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "하차",
+        "하차",
+        null,
+        "하차",
+        null,
+        "18:10"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a26985e"
+  },
+  "semester_type": "정규학기",
+  "region": "SEOUL",
+  "route_type": "WEEKDAYS",
+  "route_name": "서울 등교 추가 동천역",
+  "sub_name": "월요일",
+  "node_info": [
+    {
+      "name": "동천역 환승정류장"
+    },
+    {
+      "name": "죽전 정류장",
+      "detail": "간이"
+    },
+    {
+      "name": "대학"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "07:30",
+        "07:33",
+        "08:40"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a26985f"
+  },
+  "semester_type": "정규학기",
+  "region": "SEOUL",
+  "route_type": "WEEKDAYS",
+  "route_name": "서울 하교 추가 1",
+  "sub_name": "금요일",
+  "node_info": [
+    {
+      "name": "대학"
+    },
+    {
+      "name": "죽전 정류장",
+      "detail": "간이"
+    },
+    {
+      "name": "남부터미널"
+    },
+    {
+      "name": "교대"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "14:10",
+        "하차",
+        "하차",
+        "하차"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269860"
+  },
+  "semester_type": "정규학기",
+  "region": "SEOUL",
+  "route_type": "WEEKDAYS",
+  "route_name": "서울 하교 추가 2",
+  "sub_name": "금요일",
+  "node_info": [
+    {
+      "name": "대학"
+    },
+    {
+      "name": "죽전 정류장",
+      "detail": "간이"
+    },
+    {
+      "name": "남부터미널"
+    },
+    {
+      "name": "교대"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "16:10",
+        "하차",
+        "하차",
+        "하차"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269861"
+  },
+  "semester_type": "정규학기",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "대전 하교 1",
+  "sub_name": "금요일",
+  "node_info": [
+    {
+      "name": "대학"
+    },
+    {
+      "name": "대전복합터미널"
+    },
+    {
+      "name": "대전역"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "14:00",
+        null,
+        null
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269862"
+  },
+  "semester_type": "정규학기",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "대전 하교 2",
+  "sub_name": "금요일",
+  "node_info": [
+    {
+      "name": "대학"
+    },
+    {
+      "name": "대전복합터미널"
+    },
+    {
+      "name": "대전역"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "하교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "18:20",
+        null,
+        null
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269863"
+  },
+  "semester_type": "정규학기",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "대전 등교 1",
+  "sub_name": "일요일",
+  "node_info": [
+    {
+      "name": "대전역"
+    },
+    {
+      "name": "대전복합터미널"
+    },
+    {
+      "name": "대학"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "18:10",
+        "18:15",
+        null
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269864"
+  },
+  "semester_type": "정규학기",
+  "region": "DAEJEON_SEJONG",
+  "route_type": "WEEKDAYS",
+  "route_name": "대전 등교 2",
+  "sub_name": "일요일",
+  "node_info": [
+    {
+      "name": "대전역"
+    },
+    {
+      "name": "대전복합터미널"
+    },
+    {
+      "name": "대학"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "등교",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "18:20",
+        "18:25",
+        null
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269865"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "SHUTTLE",
+  "route_name": "천안 셔틀",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "한기대"
+    },
+    {
+      "name": "2캠퍼스",
+      "detail": "두정캠퍼스"
+    },
+    {
+      "name": "터미널",
+      "detail": "신세계앞 횡단보도"
+    },
+    {
+      "name": "천안역",
+      "detail": "학화호두과자 앞"
+    },
+    {
+      "name": "한기대"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "11:10",
+        null,
+        "11:35",
+        "11:40",
+        "12:10"
+      ]
+    },
+    {
+      "name": "2회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "13:10",
+        null,
+        "13:35",
+        "13:40",
+        "14:10"
+      ]
+    },
+    {
+      "name": "3회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "14:10",
+        "14:35",
+        "14:42",
+        "14:47",
+        "15:15"
+      ]
+    },
+    {
+      "name": "4회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "15:10",
+        null,
+        "15:35",
+        "15:40",
+        "16:10"
+      ]
+    },
+    {
+      "name": "5회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "16:10",
+        null,
+        "16:35",
+        "16:40",
+        "17:10"
+      ]
+    },
+    {
+      "name": "6회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "20:00",
+        null,
+        "20:25",
+        "20:30",
+        "21:00"
+      ]
+    },
+    {
+      "name": "7회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "21:00",
+        null,
+        "21:25",
+        "21:30",
+        "22:00"
+      ]
+    },
+    {
+      "name": "목·금 추가1",
+      "running_days": [
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "14:10",
+        null,
+        "14:35",
+        "14:40",
+        "15:10"
+      ]
+    },
+    {
+      "name": "목·금 추가2",
+      "running_days": [
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "16:10",
+        null,
+        "16:35",
+        "16:40",
+        "17:30"
+      ]
+    },
+    {
+      "name": "목·금 추가3",
+      "running_days": [
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "16:30",
+        null,
+        "16:55",
+        "17:00",
+        null
+      ]
+    },
+    {
+      "name": "토요일 오후",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "14:00",
+        null,
+        "14:25",
+        "14:30",
+        "15:00"
+      ]
+    },
+    {
+      "name": "토요일 오후",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "14:00",
+        null,
+        "14:25",
+        "14:30",
+        "15:00"
+      ]
+    },
+    {
+      "name": "일요일 오후",
+      "running_days": [
+        "SUN"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        "15:30",
+        "15:35",
+        "16:10"
+      ]
+    },
+    {
+      "name": "일요일 오후",
+      "running_days": [
+        "SUN"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        "15:30",
+        "15:35",
+        "16:10"
+      ]
+    },
+    {
+      "name": "일요일 야간 1회",
+      "running_days": [
+        "SUN"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        "21:15",
+        "21:20",
+        "21:50"
+      ]
+    },
+    {
+      "name": "일요일 야간 2회",
+      "running_days": [
+        "SUN"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        "21:30",
+        "21:35",
+        "22:00"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269866"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONGJU",
+  "route_type": "SHUTTLE",
+  "route_name": "청주 셔틀",
+  "sub_name": "주중",
+  "node_info": [
+    {
+      "name": "한기대"
+    },
+    {
+      "name": "옥산",
+      "detail": "가락3리"
+    },
+    {
+      "name": "청주역 B"
+    },
+    {
+      "name": "G-WELL CITY"
+    },
+    {
+      "name": "솔밭공원"
+    },
+    {
+      "name": "HS포레",
+      "detail": "봉명우체국BS"
+    },
+    {
+      "name": "오창과학단지"
+    },
+    {
+      "name": "성모병원"
+    },
+    {
+      "name": "신봉사거리",
+      "detail": "LPG충전소"
+    },
+    {
+      "name": "봉명사거리"
+    },
+    {
+      "name": "사창사거리"
+    },
+    {
+      "name": "체육관"
+    },
+    {
+      "name": "상당공원 C",
+      "detail": "지하상가BS"
+    },
+    {
+      "name": "석교동 육거리"
+    },
+    {
+      "name": "삼영가스"
+    },
+    {
+      "name": "용암동현대@"
+    },
+    {
+      "name": "방서동",
+      "detail": "하교"
+    },
+    {
+      "name": "상당공원 A",
+      "detail": "상공회의소"
+    },
+    {
+      "name": "문화 산업단지",
+      "detail": "화생방한약방"
+    },
+    {
+      "name": "성모병원",
+      "detail": "율량 맥도널드"
+    },
+    {
+      "name": "과학단지",
+      "detail": "오창프라자"
+    },
+    {
+      "name": "한기대"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "detail": "금",
+      "running_days": [
+        "FRI"
+      ],
+      "arrival_time": [
+        "13:30",
+        "13:55",
+        "14:05",
+        "14:09",
+        "14:10",
+        "14:17",
+        null,
+        null,
+        null,
+        null,
+        "14:22",
+        "14:25",
+        "14:30",
+        "14:33",
+        "14:36",
+        "14:40",
+        null,
+        "14:52",
+        "14:57",
+        "15:01",
+        "15:13",
+        "15:50"
+      ]
+    },
+    {
+      "name": "2회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "15:30",
+        null,
+        null,
+        null,
+        null,
+        null,
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "하차",
+        "종점",
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "3회",
+      "running_days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+      ],
+      "arrival_time": [
+        "20:00",
+        "20:25",
+        "20:32",
+        "20:39",
+        "20:41",
+        "20:45",
+        null,
+        null,
+        null,
+        null,
+        "20:48",
+        "20:50",
+        "20:53",
+        "20:56",
+        "21:00",
+        "21:02",
+        null,
+        "21:15",
+        "21:20",
+        "21:25",
+        "21:35",
+        "21:50"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269867"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKEND",
+  "route_name": "일학습병행대학 천안시내",
+  "sub_name": "토요일",
+  "node_info": [
+    {
+      "name": "한기대"
+    },
+    {
+      "name": "천안역B",
+      "detail": "태극당건너BS"
+    },
+    {
+      "name": "터미널",
+      "detail": "신세계 반대 횡단보도"
+    },
+    {
+      "name": "두정역"
+    },
+    {
+      "name": "터미널",
+      "detail": "신세계 앞 횡단보도"
+    },
+    {
+      "name": "천안역A",
+      "detail": "학화호두과자 앞"
+    },
+    {
+      "name": "한기대"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "detail": "등교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        null,
+        "08:00",
+        "08:05",
+        "08:10",
+        "도착"
+      ]
+    },
+    {
+      "name": "2회",
+      "detail": "등교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        null,
+        "10:10",
+        "10:15",
+        "10:20",
+        "도착"
+      ]
+    },
+    {
+      "name": "3회",
+      "detail": "하교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "19:10",
+        "19:40",
+        "19:50",
+        "하차",
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "4회",
+      "detail": "하교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "19:20",
+        "19:50",
+        "20:00",
+        "하차",
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269868"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKEND",
+  "route_name": "일학습병행대학 천안아산역",
+  "sub_name": "토요일",
+  "node_info": [
+    {
+      "name": "한기대"
+    },
+    {
+      "name": "천안아산KTX",
+      "detail": "3번출구 6번승강장"
+    },
+    {
+      "name": "한기대"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "detail": "등교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        "08:15",
+        "도착"
+      ]
+    },
+    {
+      "name": "2회",
+      "detail": "하교",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "19:20",
+        "도착",
+        null
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a269869"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKEND",
+  "route_name": "전문대학원",
+  "sub_name": "토요일",
+  "node_info": [
+    {
+      "name": "천안아산KTX",
+      "detail": "3번출구"
+    },
+    {
+      "name": "천안역B",
+      "detail": "태극당건너BS"
+    },
+    {
+      "name": "터미널",
+      "detail": "신세계 앞 횡단보도"
+    },
+    {
+      "name": "두정역"
+    },
+    {
+      "name": "두정캠퍼스",
+      "detail": "2캠"
+    },
+    {
+      "name": "두정역"
+    },
+    {
+      "name": "터미널",
+      "detail": "신세계 앞 횡단보도"
+    },
+    {
+      "name": "천안역A",
+      "detail": "학화호두과자 앞"
+    },
+    {
+      "name": "천안아산KTX",
+      "detail": "3번출구"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "08:30",
+        "08:45",
+        "08:55",
+        "09:00",
+        "09:05",
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "2회",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "12:20",
+        "13:00",
+        "13:10",
+        "13:15",
+        "13:20",
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "3회",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        null,
+        null,
+        "16:40",
+        "하차",
+        "하차",
+        "하차",
+        "하차"
+      ]
+    },
+    {
+      "name": "4회",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        null,
+        null,
+        "19:35",
+        "하차",
+        "하차",
+        "하차",
+        "하차"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+},
+{
+  "_id": {
+    "$oid": "6a941f37c9bf31464a26986a"
+  },
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "WEEKEND",
+  "route_name": "대학원",
+  "sub_name": "토요일",
+  "node_info": [
+    {
+      "name": "두정역"
+    },
+    {
+      "name": "터미널",
+      "detail": "신세계 앞 횡단보도"
+    },
+    {
+      "name": "천안역A",
+      "detail": "학화호두과자 앞"
+    },
+    {
+      "name": "한기대"
+    },
+    {
+      "name": "천안역A",
+      "detail": "학화호두과자 앞"
+    },
+    {
+      "name": "터미널",
+      "detail": "신세계 반대 횡단보도"
+    }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        "07:50",
+        "08:00",
+        "08:05",
+        "하차",
+        null,
+        null
+      ]
+    },
+    {
+      "name": "2회",
+      "running_days": [
+        "SAT"
+      ],
+      "arrival_time": [
+        null,
+        null,
+        null,
+        "18:10",
+        "하차",
+        "하차"
+      ]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+}]

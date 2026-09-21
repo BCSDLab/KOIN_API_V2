@@ -2,7 +2,9 @@ package in.koreatech.koin.admin.bus.commuting.service;
 
 import static in.koreatech.koin.admin.bus.commuting.dto.AdminCommutingBusUpdateRequest.InnerAdminCommutingBusUpdateRequest;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class AdminCommutingBusService {
         SemesterType semesterType,
         AdminCommutingBusUpdateRequest request
     ) {
+        Map<TimetableKey, ShuttleBusRoute> preparedTimetables = new LinkedHashMap<>();
         for (InnerAdminCommutingBusUpdateRequest commutingBusUpdateRequest : request.commutingBusTimetables()) {
             ShuttleBusRegion region = ShuttleBusRegion.convertFrom(commutingBusUpdateRequest.region());
             ShuttleRouteType routeType = ShuttleRouteType.convertFrom(commutingBusUpdateRequest.routeType());
@@ -35,9 +38,12 @@ public class AdminCommutingBusService {
 
             // 등하교 버스는 validateCommuting() 으로 주중 노선만 허용되므로 운행 요일이 주중으로 결정된다.
             List<String> runningDays = RunningDays.WEEKDAYS.getDays();
+            TimetableKey key = new TimetableKey(region, routeType,
+                commutingBusUpdateRequest.routeName(), commutingBusUpdateRequest.subName());
 
-            Optional<ShuttleBusRoute> shuttleBusRoute = adminCommutingBusRepository
-                .findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
+            Optional<ShuttleBusRoute> shuttleBusRoute = preparedTimetables.containsKey(key)
+                ? Optional.of(preparedTimetables.get(key))
+                : adminCommutingBusRepository.findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
                     semesterType.getDescription(),
                     region,
                     routeType,
@@ -45,15 +51,15 @@ public class AdminCommutingBusService {
                     commutingBusUpdateRequest.subName()
                 );
 
+            ShuttleBusRoute route;
             if (shuttleBusRoute.isPresent()) {
-                ShuttleBusRoute route = shuttleBusRoute.get();
+                route = shuttleBusRoute.get();
                 route.updateCommutingBusRoute(
                     commutingBusUpdateRequest.toNodeInfoEntity(),
                     commutingBusUpdateRequest.toRouteInfoEntity(runningDays)
                 );
-                adminCommutingBusRepository.save(route);
             } else {
-                adminCommutingBusRepository.save(ShuttleBusRoute.builder()
+                route = ShuttleBusRoute.builder()
                     .semesterType(semesterType.getDescription())
                     .region(region)
                     .routeType(routeType)
@@ -61,8 +67,15 @@ public class AdminCommutingBusService {
                     .subName(commutingBusUpdateRequest.subName())
                     .nodeInfo(commutingBusUpdateRequest.toNodeInfoEntity())
                     .routeInfo(commutingBusUpdateRequest.toRouteInfoEntity(runningDays))
-                    .build());
+                    .build();
             }
+            preparedTimetables.put(key, route);
         }
+
+        // 동일 노선 요청을 누적하고 전체 입력 검증이 성공한 경우에만 저장한다.
+        preparedTimetables.values().forEach(adminCommutingBusRepository::save);
+    }
+
+    private record TimetableKey(ShuttleBusRegion region, ShuttleRouteType routeType, String routeName, String subName) {
     }
 }

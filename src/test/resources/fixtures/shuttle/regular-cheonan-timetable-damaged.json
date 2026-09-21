@@ -1,0 +1,98 @@
+{
+  "_id": "6a941f37c9bf31464a269865",
+  "semester_type": "정규학기",
+  "region": "CHEONAN_ASAN",
+  "route_type": "SHUTTLE",
+  "route_name": "천안 셔틀",
+  "sub_name": "주중",
+  "node_info": [
+    { "name": "한기대" },
+    { "name": "2캠퍼스", "detail": "두정캠퍼스" },
+    { "name": "터미널", "detail": "신세계앞 횡단보도" },
+    { "name": "천안역", "detail": "학화호두과자 앞" },
+    { "name": "한기대" }
+  ],
+  "route_info": [
+    {
+      "name": "1회",
+      "running_days": ["MON", "TUE", "WED", "THU", "FRI"],
+      "arrival_time": ["11:10", null, "11:35", "11:40", "12:10"]
+    },
+    {
+      "name": "2회",
+      "running_days": ["MON", "TUE", "WED", "THU", "FRI"],
+      "arrival_time": ["13:10", null, "13:35", "13:40", "14:10"]
+    },
+    {
+      "name": "3회",
+      "running_days": ["MON", "TUE", "WED", "THU", "FRI"],
+      "arrival_time": ["14:10", "14:35", "14:42", "14:47", "15:15"]
+    },
+    {
+      "name": "4회",
+      "running_days": ["MON", "TUE", "WED", "THU", "FRI"],
+      "arrival_time": ["15:10", null, "15:35", "15:40", "16:10"]
+    },
+    {
+      "name": "5회",
+      "running_days": ["MON", "TUE", "WED", "THU", "FRI"],
+      "arrival_time": ["16:10", null, "16:35", "16:40", "17:10"]
+    },
+    {
+      "name": "6회",
+      "running_days": ["MON", "TUE", "WED", "THU", "FRI"],
+      "arrival_time": ["20:00", null, "20:25", "20:30", "21:00"]
+    },
+    {
+      "name": "7회",
+      "running_days": ["MON", "TUE", "WED", "THU", "FRI"],
+      "arrival_time": ["21:00", null, "21:25", "21:30", "22:00"]
+    },
+    {
+      "name": "목·금 추가1",
+      "running_days": ["THU", "FRI"],
+      "arrival_time": ["14:10", null, "14:35", "14:40", "15:10"]
+    },
+    {
+      "name": "목·금 추가2",
+      "running_days": ["THU", "FRI"],
+      "arrival_time": ["16:10", null, "16:35", "16:40", "17:30"]
+    },
+    {
+      "name": "목·금 추가3",
+      "running_days": ["THU", "FRI"],
+      "arrival_time": ["16:30", null, "16:55", "17:00", null]
+    },
+    {
+      "name": "토요일 오후",
+      "running_days": ["SAT"],
+      "arrival_time": ["14:00", null, "14:25", "14:30", "15:00"]
+    },
+    {
+      "name": "토요일 오후",
+      "running_days": ["SAT"],
+      "arrival_time": ["14:00", null, "14:25", "14:30", "15:00"]
+    },
+    {
+      "name": "일요일 오후",
+      "running_days": ["SUN"],
+      "arrival_time": [null, null, "15:30", "15:35", "16:10"]
+    },
+    {
+      "name": "일요일 오후",
+      "running_days": ["SUN"],
+      "arrival_time": [null, null, "15:30", "15:35", "16:10"]
+    },
+    {
+      "name": "일요일 야간 1회",
+      "running_days": ["SUN"],
+      "arrival_time": [null, null, "21:15", "21:20", "21:50"]
+    },
+    {
+      "name": "일요일 야간 2회",
+      "running_days": ["SUN"],
+      "arrival_time": [null, null, "21:30", "21:35", "22:00"]
+    }
+  ],
+  "_class": "in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute"
+}
