@@ -87,6 +87,12 @@ public class OrderableShop extends BaseEntity {
         this.menuGroups = menuGroups;
     }
 
+    public void requireOwner(Integer ownerId) {
+        if (shop == null || !shop.isOwner(ownerId)) {
+            throw CustomException.of(ApiResponseCode.FORBIDDEN_SHOP_OWNER);
+        }
+    }
+
     public void requireShopOpen() {
         if (shop == null || shop.getShopOperation() == null || !shop.getShopOperation().isOpen()) {
             throw CustomException.of(ApiResponseCode.SHOP_CLOSED);

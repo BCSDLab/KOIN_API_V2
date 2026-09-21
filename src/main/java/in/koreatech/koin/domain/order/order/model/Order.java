@@ -180,6 +180,10 @@ public class Order extends BaseEntity {
         this.orderMenus.add(orderMenu);
     }
 
+    public boolean isOrderedAt(Integer orderableShopId) {
+        return this.orderableShop != null && this.orderableShop.getId().equals(orderableShopId);
+    }
+
     public void cancel(String cancelReason) {
         this.status = CANCELED;
         this.canceledReason = cancelReason;

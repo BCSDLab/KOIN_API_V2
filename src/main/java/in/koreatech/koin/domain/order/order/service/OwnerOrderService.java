@@ -1,12 +1,10 @@
 package in.koreatech.koin.domain.order.order.service;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_SHOP_OWNER;
 import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_ORDER;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,13 +74,11 @@ public class OwnerOrderService {
 
     private void validateShopOwner(Integer ownerId, Integer orderableShopId) {
         OrderableShop orderableShop = orderableShopRepository.getById(orderableShopId);
-        if (!Objects.equals(orderableShop.getShop().getOwner().getId(), ownerId)) {
-            throw CustomException.of(FORBIDDEN_SHOP_OWNER);
-        }
+        orderableShop.requireOwner(ownerId);
     }
 
     private void validateOrderBelongsToShop(Order order, Integer orderableShopId) {
-        if (!Objects.equals(order.getOrderableShop().getId(), orderableShopId)) {
+        if (!order.isOrderedAt(orderableShopId)) {
             throw CustomException.of(NOT_FOUND_ORDER);
         }
     }
