@@ -52,6 +52,11 @@ public class Order extends BaseEntity {
     private String pgOrderId;
 
     @NotBlank
+    @Size(min = 10, max = 10)
+    @Column(name = "order_number", length = 10, nullable = false, updatable = false, unique = true)
+    private String orderNumber;
+
+    @NotBlank
     @Size(max = 255)
     @Column(name = "orderable_shop_name", length = 255, nullable = false, updatable = false)
     private String orderableShopName;
@@ -120,6 +125,7 @@ public class Order extends BaseEntity {
     @Builder
     public Order(
         String pgOrderId,
+        String orderNumber,
         String orderableShopName,
         String orderableShopAddress,
         String orderableShopAddressDetail,
@@ -139,6 +145,7 @@ public class Order extends BaseEntity {
         List<OrderMenu> orderMenus
     ) {
         this.pgOrderId = pgOrderId;
+        this.orderNumber = orderNumber;
         this.orderableShopName = orderableShopName;
         this.orderableShopAddress = orderableShopAddress;
         this.orderableShopAddressDetail = orderableShopAddressDetail;
