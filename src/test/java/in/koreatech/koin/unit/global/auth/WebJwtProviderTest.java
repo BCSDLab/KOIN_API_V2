@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -16,6 +18,19 @@ class WebJwtProviderTest {
 
     private final JwtProvider jwtProvider = new JwtProvider("web-auth-unit-test-key-32-characters", 600_000L);
     private final User user = UserFixture.id_설정_코인_유저(1);
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void 서명_키가_다른_환경의_웹_토큰은_검증을_통과하지_못한다(boolean fromProd) {
+        JwtProvider prod = new JwtProvider("prod-web-auth-test-signing-key-32-chars", 600_000L);
+        JwtProvider stage = new JwtProvider("stage-web-auth-test-signing-key-32-chars", 600_000L);
+        JwtProvider issuer = fromProd ? prod : stage;
+        JwtProvider receiver = fromProd ? stage : prod;
+        String token = issuer.createWebToken(user, "same-session-id", Instant.now().plusSeconds(600));
+
+        assertThat(issuer.getWebTokenClaims(token).userId()).isEqualTo(user.getId());
+        assertThatThrownBy(() -> receiver.getWebTokenClaims(token)).isInstanceOf(AuthenticationException.class);
+    }
 
     @Test
     void 기존_앱_토큰은_기존_검증을_통과하고_웹_토큰으로는_인정하지_않는다() {

@@ -1,0 +1,4 @@
+auth:
+  web:
+    shared-cookie-domain: ${WEB_AUTH_SHARED_COOKIE_DOMAIN:koreatech.in}
+    cookie-name-prefix: ${WEB_AUTH_COOKIE_NAME_PREFIX:koin-web}

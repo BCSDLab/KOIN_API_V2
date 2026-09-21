@@ -54,36 +54,49 @@ API 주소 직접 입력은 403이 될 수 있다. SSR/프록시도 모든 쿠�
 
 ## 쿠키와 만료 설정
 
-| 항목 | 운영 기본값 |
+| 항목 | 운영(`prod`) 기본값 |
 | --- | --- |
-| access 쿠키 | `__Host-koin-web-access`, Path `/`, 기본 15분 |
+| access 쿠키 | `__Secure-koin-web-access`, Domain `koreatech.in`, Path `/`, 기본 15분 |
 | refresh 쿠키 | `__Secure-koin-web-refresh`, Path `/v2/web/auth`, 기본 90일 |
-| CSRF 쿠키 | `__Host-koin-web-csrf`, Path `/`, HttpOnly=false, refresh와 동일한 만료 시각 |
+| CSRF 쿠키 | `__Secure-koin-web-csrf`, Domain `koreatech.in`, Path `/`, HttpOnly=false, refresh와 동일한 만료 시각 |
 | 인증 쿠키 속성 | access·refresh 모두 HttpOnly |
-| 공통 기본 속성 | Secure, SameSite=Lax, Domain 미지정(host-only) |
+| 공통 기본 속성 | Secure, SameSite=Lax. refresh만 Domain 미지정(host-only) |
 | 자동 로그인 false | Max-Age 없는 세션 쿠키. 서버의 만료 시간은 그대로 적용 |
 
 `WEB_AUTH_ACCESS_TOKEN_TTL`, `WEB_AUTH_REFRESH_TOKEN_TTL`, `WEB_AUTH_COOKIE_SECURE`,
 `WEB_AUTH_COOKIE_SAME_SITE` 환경변수로 설정한다. 기존 앱의 JWT 만료 설정은 바꾸지 않는다.
 `WEB_AUTH_CSRF_SECRET_KEY`는 새로 필요한 서버 전용 서명 키다. 충분한 난수로 생성한 32바이트 이상의 문자열을
 로컬·stage·운영 실행 환경에 주입한다. 누락되거나 짧으면 서버가 시작되지 않는다. 소스나 클라이언트에 키를 넣지 않는다.
-같은 환경의 서버 인스턴스들은 동일한 키를 사용하고 운영·stage 키는 분리한다. 키를 교체하면 기존 웹 세션은 재로그인이 필요하다.
+같은 환경의 서버 인스턴스들은 동일한 키를 사용한다. 운영·stage의 `JWT_SECRET_KEY`와 `WEB_AUTH_CSRF_SECRET_KEY`는
+각 서버에 서로 다른 값으로 주입하고 세션 저장소도 환경별로 구분한다. 변수명이 같아도 키 값을 공유하지 않는다.
+실제 배포 서버의 키 값은 이 작업에서 변경하거나 확인하지 않았다. 키를 교체하면 기존 웹 세션은 재로그인이 필요하다.
 `local` 프로필에서는 HTTP 개발을 위해 Secure=false와 `koin-web-access`·`koin-web-refresh`·`koin-web-csrf` 이름을 사용한다.
 운영에서는 Secure를 유지해야 하며 SameSite=None은 Secure 없이 설정할 수 없다.
 `CORS_ALLOWED_ORIGINS`에는 실제 웹의 정확한 origin을 넣는다. `*`나 도메인 접미사 비교로 웹 요청을 허용하지 않는다.
 
-서로 다른 웹/API 호스트에서 쿠키를 읽어야 하는 경우 `WEB_AUTH_SHARED_COOKIE_DOMAIN`으로 access·CSRF에만
-공유 Domain을 지정할 수 있다. refresh는 설정과 관계없이 API 호스트와 `/v2/web/auth` 경로에만 보낸다.
-공유 Domain을 지정하면 access·CSRF 이름의 `__Host-` 접두어는 `__Secure-`로 바뀐다.
-`WEB_AUTH_COOKIE_NAME_PREFIX`의 기본값은 `koin-web`이며 환경마다 다른 값을 사용하면 쿠키 이름 충돌을 피할 수 있다.
-발급·조회·삭제·Swagger에 같은 설정을 적용한다. 쿠키 이름이나 범위를 변경할 때는 프론트 설정도 함께 전환한다.
+프로필별 기본 공유 범위와 쿠키 이름은 다음과 같다. stage는 프로젝트의 기존 `dev` 프로필을 사용한다.
 
-공유 Domain의 기본값은 비어 있다. 운영 주소를 코드에 하드코딩하거나 공유 범위를 자동 확대하지 않는다.
-부모 Domain 쿠키는 그 아래 모든 서브도메인에 전송된다. 예를 들어 `koreatech.in`을 지정하면 stage에도
-전송되므로 관련 호스트의 운영 주체와 로그·프록시 설정까지 신뢰할 수 있는지 확인한 후에만 활성화해야 한다.
-환경별 쿠키 이름·서명 키 분리는 오인증/충돌 방지이며 쿠키가 다른 호스트에 전달되는 것 자체를 막지는 못한다.
-HMAC 역시 유효한 토큰의 탈취나 XSS를 해결하지 않는다. 이 조건을 수용할 수 없으면 공유 Domain을 사용하지 않고
-별도의 제한된 인증 전달 방식을 프론트와 합의해야 한다. 실제 공유 Domain 설정과 운영 배포는 이 코드 변경에 포함하지 않는다.
+| 환경 | 프로필 | access·CSRF Domain | 쿠키 이름 접두어 |
+| --- | --- | --- | --- |
+| 운영 웹·order | `prod` | `koreatech.in` | `koin-web` |
+| stage 웹 | `dev` | `stage.koreatech.in` | `koin-stage-web` |
+| 로컬·테스트 | `local` / `test` | 미지정 | `koin-web` |
+
+프론트가 읽는 CSRF 쿠키 이름은 운영 `__Secure-koin-web-csrf`, stage `__Secure-koin-stage-web-csrf`다.
+SSR에서 전달할 access 쿠키도 각각 `__Secure-koin-web-access`, `__Secure-koin-stage-web-access`를 사용한다.
+refresh는 환경과 관계없이 해당 API 호스트와 `/v2/web/auth` 경로에만 보낸다.
+두 환경의 쿠키가 함께 전달되어도 각 API는 자기 이름의 쿠키만 읽는다.
+쿠키 이름을 바꿔 제출하더라도 서로 다른 JWT·HMAC 서명 키와 해당 환경의 세션으로 검증한다.
+
+`WEB_AUTH_SHARED_COOKIE_DOMAIN`, `WEB_AUTH_COOKIE_NAME_PREFIX`로 프로필 기본값을 덮어쓸 수 있다.
+이름을 재정의하더라도 운영·stage의 쿠키 이름 접두어는 서로 다르게 유지한다.
+공유 Domain을 명시적으로 빈 값으로 설정하면 host-only로 돌아가며, Secure access·CSRF 이름도 `__Host-`로 바뀐다.
+발급·조회·삭제·Swagger에 같은 설정을 적용하므로 프론트는 실제 서버 설정과 동일한 쿠키 이름을 사용해야 한다.
+
+운영의 Domain `koreatech.in`은 stage를 포함한 모든 하위 주소에도 쿠키를 전달한다. 이 범위는 합의한 공유 정책이며,
+쿠키 이름·키 분리는 다른 환경에서의 오인증/충돌을 막는 것이지 전송 자체를 막는 것은 아니다.
+하위 서버의 Cookie 로그·프록시 처리를 보호해야 하며 HMAC은 유효한 토큰 탈취나 XSS를 해결하지 않는다.
+실제 서버 환경변수 변경과 운영·stage 배포는 이 코드 변경에 포함하지 않는다.
 
 ## 세션과 동시 요청
 
@@ -108,8 +121,8 @@ Redis의 원자적 비교·교체로 같은 refresh의 동시 갱신은 하나�
 
 전체 요청을 Next.js로 중계하는 BFF로 전환하지 않는다. SSR은 Next.js 서버에서 백엔드를 호출하고,
 브라우저에서 발생하는 조회·생성·수정·삭제 요청은 기존처럼 백엔드를 직접 호출한다.
-서로 다른 호스트의 SSR에 access 쿠키를 전달하려면 위 공유 범위를 합의·설정하고 프론트의 쿠키 이름을 맞춰야 한다.
-기본 host-only 설정만으로는 프론트 서버가 API 쿠키를 받을 수 없다.
+운영·stage의 SSR은 위 프로필별 공유 범위와 쿠키 이름을 사용한다. 프론트는 환경에 맞는 쿠키를 읽어야 한다.
+공유 범위를 빈 값으로 덮어써 host-only를 사용하면 다른 호스트의 프론트 서버는 API 쿠키를 받을 수 없다.
 SSR 서버는 받은 access 쿠키를 백엔드 `Cookie` 헤더로 전달하고 설정된 웹 `Origin`도 함께 전달한다.
 웹 access 토큰을 기존 Bearer 경로로 변환하지 않는다. SSR 중 자동 재발급하는 새 흐름은 추가하지 않으며,
 브라우저의 기존 재발급·재시도 처리를 `/v2/web/auth/refresh`와 CSRF 헤더에 연결한다.
