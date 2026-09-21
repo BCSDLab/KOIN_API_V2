@@ -28,14 +28,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class OwnerOrderService {
 
-    private static final List<OrderStatus> COUNTED_STATUSES = List.of(
-        OrderStatus.CONFIRMING,
-        OrderStatus.COOKING,
-        OrderStatus.DELIVERING,
-        OrderStatus.DELIVERED,
-        OrderStatus.CANCELED
-    );
-
     private final OrderRepository orderRepository;
     private final OrderableShopRepository orderableShopRepository;
     private final PaymentRepository paymentRepository;
@@ -55,7 +47,8 @@ public class OwnerOrderService {
         validateShopOwner(ownerId, orderableShopId);
 
         Map<OrderStatus, Long> countByStatus = new EnumMap<>(OrderStatus.class);
-        orderRepository.countByOrderableShopIdGroupByStatus(orderableShopId, COUNTED_STATUSES)
+        orderRepository
+            .countByOrderableShopIdGroupByStatus(orderableShopId, OwnerOrderStatusCriteria.allOrderStatuses())
             .forEach(count -> countByStatus.put(count.getStatus(), count.getCount()));
 
         return OwnerOrderCountsResponse.from(countByStatus);

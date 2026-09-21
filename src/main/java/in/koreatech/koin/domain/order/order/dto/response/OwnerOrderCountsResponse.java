@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.order.order.dto.request.OwnerOrderStatusCriteria;
 import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -26,11 +27,10 @@ public record OwnerOrderCountsResponse(
 ) {
     public static OwnerOrderCountsResponse from(Map<OrderStatus, Long> countByStatus) {
         return new OwnerOrderCountsResponse(
-            countByStatus.getOrDefault(OrderStatus.CONFIRMING, 0L),
-            countByStatus.getOrDefault(OrderStatus.COOKING, 0L),
-            countByStatus.getOrDefault(OrderStatus.DELIVERING, 0L),
-            countByStatus.getOrDefault(OrderStatus.DELIVERED, 0L)
-                + countByStatus.getOrDefault(OrderStatus.CANCELED, 0L)
+            OwnerOrderStatusCriteria.NEW.sumCount(countByStatus),
+            OwnerOrderStatusCriteria.COOKING.sumCount(countByStatus),
+            OwnerOrderStatusCriteria.DELIVERING.sumCount(countByStatus),
+            OwnerOrderStatusCriteria.COMPLETED.sumCount(countByStatus)
         );
     }
 }
