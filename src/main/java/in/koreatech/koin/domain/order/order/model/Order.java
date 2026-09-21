@@ -180,6 +180,16 @@ public class Order extends BaseEntity {
         this.orderMenus.add(orderMenu);
     }
 
+    public LocalDateTime getEstimatedAt() {
+        if (orderType == OrderType.DELIVERY && orderDelivery != null) {
+            return orderDelivery.getEstimatedArrivalAt();
+        }
+        if (orderType == OrderType.TAKE_OUT && orderTakeout != null) {
+            return orderTakeout.getEstimatedPackagedAt();
+        }
+        return null;
+    }
+
     public boolean isOrderedAt(Integer orderableShopId) {
         return this.orderableShop != null && this.orderableShop.getId().equals(orderableShopId);
     }

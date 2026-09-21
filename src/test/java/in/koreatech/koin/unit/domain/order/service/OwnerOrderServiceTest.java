@@ -106,6 +106,26 @@ class OwnerOrderServiceTest {
         }
 
         @Test
+        @DisplayName("조리가 시작된 주문은 도착 예정 일시를 함께 반환한다")
+        void 조리가_시작된_주문은_도착_예정_일시를_반환한다() {
+            Order order = OrderFixture.배달_주문(1, "A1B2C3D4E5", OrderStatus.CONFIRMING, orderableShop, customer);
+            order.getOrderDelivery().cooking();
+
+            when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
+            when(orderRepository.findAllByOrderableShopIdAndStatuses(
+                ORDERABLE_SHOP_ID, List.of(OrderStatus.COOKING))).thenReturn(List.of(order));
+
+            OwnerOrdersResponse response = ownerOrderService.getOrders(
+                OWNER_ID, ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.COOKING);
+
+            assertThat(response.orders()).singleElement()
+                .satisfies(it -> {
+                    assertThat(it.orderStatus()).isEqualTo(OrderStatus.COOKING.name());
+                    assertThat(it.estimatedArrivalAt()).isNotNull();
+                });
+        }
+
+        @Test
         @DisplayName("완료 탭은 배달 완료와 반려 상태를 함께 조회한다")
         void 완료_탭은_배달_완료와_반려를_함께_조회한다() {
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);

@@ -44,16 +44,12 @@ public record OwnerOrdersResponse(
         Integer totalPrice
     ) {
         public static InnerOwnerOrderResponse from(Order order) {
-            LocalDateTime estimatedArrivalAt = order.getOrderDelivery() == null
-                ? null
-                : order.getOrderDelivery().getEstimatedArrivalAt();
-
             return new InnerOwnerOrderResponse(
                 order.getId(),
                 order.getOrderNumber(),
                 order.getStatus().name(),
                 order.getCreatedAt(),
-                estimatedArrivalAt,
+                order.getEstimatedAt(),
                 order.getTotalPrice()
             );
         }
