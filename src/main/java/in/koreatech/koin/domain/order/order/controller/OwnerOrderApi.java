@@ -1,13 +1,7 @@
 package in.koreatech.koin.domain.order.order.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_SHOP_OWNER;
-import static in.koreatech.koin.global.code.ApiResponseCode.FORBIDDEN_USER_TYPE;
-import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_ORDER;
-import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP;
-import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_PAYMENT;
-import static in.koreatech.koin.global.code.ApiResponseCode.OK;
-import static in.koreatech.koin.global.code.ApiResponseCode.UNAUTHORIZED_USER;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
