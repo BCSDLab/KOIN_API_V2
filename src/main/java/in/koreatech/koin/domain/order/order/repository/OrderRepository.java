@@ -52,7 +52,7 @@ public interface OrderRepository extends Repository<Order, Integer> {
         @Param("statuses") List<OrderStatus> statuses
     );
 
-    long countByOrderableShop_IdAndStatusIn(Integer orderableShopId, List<OrderStatus> statuses);
+    long countByOrderableShopIdAndStatusIn(Integer orderableShopId, List<OrderStatus> statuses);
 
     @Query("""
         SELECT DISTINCT o

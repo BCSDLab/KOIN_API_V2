@@ -175,13 +175,13 @@ class OwnerOrderServiceTest {
         @DisplayName("탭별로 해당 상태의 주문 수를 센다")
         void 탭별로_해당_상태의_주문_수를_센다() {
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
-            when(orderRepository.countByOrderableShop_IdAndStatusIn(
+            when(orderRepository.countByOrderableShopIdAndStatusIn(
                 ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.NEW.getOrderStatuses())).thenReturn(3L);
-            when(orderRepository.countByOrderableShop_IdAndStatusIn(
+            when(orderRepository.countByOrderableShopIdAndStatusIn(
                 ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.COOKING.getOrderStatuses())).thenReturn(2L);
-            when(orderRepository.countByOrderableShop_IdAndStatusIn(
+            when(orderRepository.countByOrderableShopIdAndStatusIn(
                 ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.DELIVERING.getOrderStatuses())).thenReturn(1L);
-            when(orderRepository.countByOrderableShop_IdAndStatusIn(
+            when(orderRepository.countByOrderableShopIdAndStatusIn(
                 ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.COMPLETED.getOrderStatuses())).thenReturn(14L);
 
             OwnerOrderCountsResponse response = ownerOrderService.getOrderCounts(OWNER_ID, ORDERABLE_SHOP_ID);
@@ -196,11 +196,11 @@ class OwnerOrderServiceTest {
         @DisplayName("완료 수는 배달 완료와 반려를 함께 센다")
         void 완료_수는_배달_완료와_반려를_함께_센다() {
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
-            when(orderRepository.countByOrderableShop_IdAndStatusIn(eq(ORDERABLE_SHOP_ID), any())).thenReturn(0L);
+            when(orderRepository.countByOrderableShopIdAndStatusIn(eq(ORDERABLE_SHOP_ID), any())).thenReturn(0L);
 
             ownerOrderService.getOrderCounts(OWNER_ID, ORDERABLE_SHOP_ID);
 
-            verify(orderRepository).countByOrderableShop_IdAndStatusIn(
+            verify(orderRepository).countByOrderableShopIdAndStatusIn(
                 ORDERABLE_SHOP_ID, List.of(OrderStatus.DELIVERED, OrderStatus.CANCELED));
         }
 
@@ -208,7 +208,7 @@ class OwnerOrderServiceTest {
         @DisplayName("주문이 없으면 모든 탭이 0이다")
         void 주문이_없으면_모든_탭이_0이다() {
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
-            when(orderRepository.countByOrderableShop_IdAndStatusIn(eq(ORDERABLE_SHOP_ID), any())).thenReturn(0L);
+            when(orderRepository.countByOrderableShopIdAndStatusIn(eq(ORDERABLE_SHOP_ID), any())).thenReturn(0L);
 
             OwnerOrderCountsResponse response = ownerOrderService.getOrderCounts(OWNER_ID, ORDERABLE_SHOP_ID);
 
@@ -228,7 +228,7 @@ class OwnerOrderServiceTest {
                 .extracting("errorCode")
                 .isEqualTo(ApiResponseCode.FORBIDDEN_SHOP_OWNER);
 
-            verify(orderRepository, never()).countByOrderableShop_IdAndStatusIn(any(), any());
+            verify(orderRepository, never()).countByOrderableShopIdAndStatusIn(any(), any());
         }
     }
 

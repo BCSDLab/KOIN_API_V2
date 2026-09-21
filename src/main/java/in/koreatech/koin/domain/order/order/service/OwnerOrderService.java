@@ -48,7 +48,7 @@ public class OwnerOrderService {
         Map<OwnerOrderStatusCriteria, Long> countByCriteria = new EnumMap<>(OwnerOrderStatusCriteria.class);
         for (OwnerOrderStatusCriteria criteria : OwnerOrderStatusCriteria.values()) {
             countByCriteria.put(criteria,
-                orderRepository.countByOrderableShop_IdAndStatusIn(orderableShopId, criteria.getOrderStatuses()));
+                orderRepository.countByOrderableShopIdAndStatusIn(orderableShopId, criteria.getOrderStatuses()));
         }
 
         return OwnerOrderCountsResponse.from(countByCriteria);
