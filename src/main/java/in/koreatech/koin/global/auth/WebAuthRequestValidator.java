@@ -21,12 +21,13 @@ public class WebAuthRequestValidator {
     private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS");
 
     private final CorsProperties corsProperties;
+    private final WebCsrfTokenProvider csrfTokenProvider;
 
     public void validate(HttpServletRequest request, WebAuthSession session) {
         // 기존 조회 API 중 읽음 상태를 갱신하는 요청도 있으므로 GET도 출처를 확인한다.
         requireTrustedOrigin(request);
         if (!SAFE_METHODS.contains(request.getMethod())) {
-            session.requireCsrfToken(request.getHeader(CSRF_HEADER));
+            csrfTokenProvider.validate(session, request.getHeader(CSRF_HEADER));
         }
     }
 

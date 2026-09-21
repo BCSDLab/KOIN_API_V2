@@ -95,9 +95,8 @@ public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer {
         if (success != null) {
             success.addHeaderObject(HttpHeaders.CACHE_CONTROL,
                 new Header().description("인증 응답 캐시 방지").schema(new StringSchema()).example("no-store"));
-            if (successStatus.equals("201") || successStatus.equals("204")) {
-                success.addHeaderObject(HttpHeaders.SET_COOKIE, cookieHeader(successStatus.equals("204")));
-            }
+            success.addHeaderObject(HttpHeaders.SET_COOKIE,
+                cookieHeader(successStatus.equals("204"), successStatus.equals("200")));
         }
         ApiResponse forbidden = operation.getResponses().get("403");
         if (forbidden != null) {
@@ -114,19 +113,23 @@ public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer {
         }
     }
 
-    private Header cookieHeader(boolean clear) {
-        String description = clear ? "access·refresh 쿠키 만료 (Max-Age=0)"
-            : "access·refresh HttpOnly 쿠키 발급. auto_login=true이면 Max-Age를 설정합니다.";
-        return new Header().description(description + " Domain 미지정. 쿠키 이름과 Secure·SameSite는 서버 설정에 따릅니다.")
+    private Header cookieHeader(boolean clear, boolean csrfOnly) {
+        String description = clear ? "access·refresh·CSRF 쿠키 만료 (Max-Age=0)"
+            : "access·refresh는 HttpOnly, CSRF는 일반 쿠키로 발급합니다. auto_login=true이면 Max-Age를 설정합니다.";
+        String csrf = cookie(properties.csrfCookieName(), clear ? "" : "SIGNED_CSRF_TOKEN_PLACEHOLDER", "/", clear, false);
+        return new Header().description((csrfOnly ? "기존 세션의 CSRF 쿠키만 복구합니다." : description)
+                + " refresh는 API 호스트 전용이며 access·CSRF의 Domain과 쿠키 이름·Secure·SameSite는 서버 설정에 따릅니다.")
             .schema(new ArraySchema().items(new StringSchema()))
-            .example(List.of(
-                cookie(properties.accessCookieName(), clear ? "" : "ACCESS_TOKEN_PLACEHOLDER", "/", clear),
-                cookie(properties.refreshCookieName(), clear ? "" : "REFRESH_TOKEN_PLACEHOLDER", AUTH_PATH, clear)
+            .example(csrfOnly ? List.of(csrf) : List.of(
+                cookie(properties.accessCookieName(), clear ? "" : "ACCESS_TOKEN_PLACEHOLDER", "/", clear, true),
+                cookie(properties.refreshCookieName(), clear ? "" : "REFRESH_TOKEN_PLACEHOLDER", AUTH_PATH, clear, true),
+                csrf
             ));
     }
 
-    private String cookie(String name, String value, String path, boolean clear) {
-        return ResponseCookie.from(name, value).path(path).httpOnly(true)
+    private String cookie(String name, String value, String path, boolean clear, boolean httpOnly) {
+        return ResponseCookie.from(name, value).path(path).httpOnly(httpOnly)
+            .domain(AUTH_PATH.equals(path) ? null : properties.sharedCookieDomain())
             .secure(properties.secure()).sameSite(properties.sameSite()).maxAge(clear ? 0 : -1).build().toString();
     }
 

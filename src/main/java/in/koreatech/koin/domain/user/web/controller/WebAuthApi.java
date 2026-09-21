@@ -34,6 +34,7 @@ public interface WebAuthApi {
         description = """
             일반인/학생/총학생회 사용자의 웹 로그인을 처리합니다.
             access 토큰과 refresh 토큰은 HttpOnly 쿠키로 발급하고, 회원 유형과 CSRF 토큰을 반환합니다.
+            CSRF 토큰은 일반 쿠키로도 발급하며, 요청 헤더로 전달하면 현재 세션에 연결된 HMAC 서명을 검증합니다.
             """
     )
     @ApiResponse(responseCode = "201", description = "쿠키 발급 성공",
@@ -56,6 +57,7 @@ public interface WebAuthApi {
         description = """
             refresh 쿠키와 CSRF 토큰으로 access 토큰과 refresh 토큰을 재발급합니다.
             refresh 토큰의 최초 만료 시각과 CSRF 토큰은 유지됩니다.
+            CSRF 일반 쿠키도 함께 발급합니다.
             """
     )
     @ApiResponse(responseCode = "201", description = "쿠키 재발급 성공",
@@ -68,14 +70,14 @@ public interface WebAuthApi {
     ResponseEntity<WebAuthResponse> refresh(
         HttpServletRequest request,
         HttpServletResponse response,
-        @Parameter(description = "로그인 또는 CSRF 토큰 조회 응답으로 받은 CSRF 토큰", required = true)
+        @Parameter(description = "CSRF 일반 쿠키에서 읽은 토큰. 로그인·CSRF 조회 응답의 csrf_token도 사용 가능합니다.", required = true)
         @RequestHeader(value = WebAuthRequestValidator.CSRF_HEADER, required = false) String csrfToken
     );
 
     @Operation(
         summary = "웹 로그아웃",
         description = """
-            현재 웹 세션을 삭제하고 인증 쿠키를 만료시킵니다. 삭제된 세션의 access 토큰은 사용할 수 없습니다.
+            현재 웹 세션을 삭제하고 access·refresh·CSRF 쿠키를 만료시킵니다. 삭제된 세션의 access 토큰은 사용할 수 없습니다.
             refresh 쿠키가 없으면 쿠키만 만료시키며 서버 세션은 삭제하지 않습니다.
             """
     )
@@ -95,6 +97,7 @@ public interface WebAuthApi {
         summary = "웹 CSRF 토큰 조회",
         description = """
             refresh 쿠키로 현재 웹 세션의 CSRF 토큰을 조회합니다.
+            동일한 CSRF 토큰을 일반 쿠키로 다시 발급합니다.
             access 토큰과 refresh 토큰은 재발급하지 않습니다.
             """
     )
@@ -104,5 +107,5 @@ public interface WebAuthApi {
     @ApiResponseCodes({ApiResponseCode.UNAUTHORIZED_USER, ApiResponseCode.FORBIDDEN_WEB_ORIGIN,
         ApiResponseCode.INTERNAL_SERVER_ERROR})
     @GetMapping("/csrf")
-    ResponseEntity<WebCsrfTokenResponse> getCsrfToken(HttpServletRequest request);
+    ResponseEntity<WebCsrfTokenResponse> getCsrfToken(HttpServletRequest request, HttpServletResponse response);
 }

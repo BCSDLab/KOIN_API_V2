@@ -1,5 +1,8 @@
 auth:
   web:
+    csrf-secret-key: ${WEB_AUTH_CSRF_SECRET_KEY}
+    shared-cookie-domain: ${WEB_AUTH_SHARED_COOKIE_DOMAIN:}
+    cookie-name-prefix: ${WEB_AUTH_COOKIE_NAME_PREFIX:koin-web}
     access-token-ttl: ${WEB_AUTH_ACCESS_TOKEN_TTL:15m}
     refresh-token-ttl: ${WEB_AUTH_REFRESH_TOKEN_TTL:90d}
     secure: ${WEB_AUTH_COOKIE_SECURE:true}

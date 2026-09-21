@@ -42,8 +42,7 @@ class WebAuthControllerFailureTest {
 
     private MockMvc mockMvc;
     private final WebAuthProperties properties = new WebAuthProperties(
-        Duration.ofMinutes(15), Duration.ofDays(90), true, "Lax"
-    );
+        Duration.ofMinutes(15), Duration.ofDays(90), true, "Lax", null, "koin-web");
 
     @BeforeEach
     void setUp() {

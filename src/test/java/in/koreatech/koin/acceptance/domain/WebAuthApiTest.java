@@ -92,7 +92,14 @@ class WebAuthApiTest extends AcceptanceTest {
         assertThat(login.access().getMaxAge()).isBetween(1, 900);
         assertThat(login.refresh().getMaxAge()).isBetween(7_775_900, 7_776_000);
         assertThat(login.result().getResponse().getHeaders(HttpHeaders.SET_COOKIE))
-            .hasSize(2).allSatisfy(value -> assertThat(value).contains("SameSite=Lax"));
+            .hasSize(3).allSatisfy(value -> assertThat(value).contains("SameSite=Lax"));
+        Cookie csrf = login.result().getResponse().getCookie(properties.csrfCookieName());
+        assertThat(csrf.getValue()).isEqualTo(login.csrfToken());
+        assertThat(csrf.getValue()).matches("[A-Za-z0-9_-]{43}\\.[A-Za-z0-9_-]{43}");
+        assertThat(csrf.isHttpOnly()).isFalse();
+        assertThat(csrf.getSecure()).isTrue();
+        assertThat(csrf.getPath()).isEqualTo("/");
+        assertThat(csrf.getMaxAge()).isBetween(7_775_900, 7_776_000);
         assertThat(objectMapper.readTree(login.result().getResponse().getContentAsString()).size()).isEqualTo(2);
     }
 
@@ -102,6 +109,65 @@ class WebAuthApiTest extends AcceptanceTest {
 
         assertThat(login.access().getMaxAge()).isEqualTo(-1);
         assertThat(login.refresh().getMaxAge()).isEqualTo(-1);
+        assertThat(login.result().getResponse().getCookie(properties.csrfCookieName()).getMaxAge()).isEqualTo(-1);
+    }
+
+    @Test
+    void csrf_쿠키가_자동_전송되어도_헤더가_없으면_변경_요청을_거부한다() throws Exception {
+        WebLogin login = login(true);
+        Cookie csrf = login.result().getResponse().getCookie(properties.csrfCookieName());
+
+        mockMvc.perform(post(AUTH_PATH + "/refresh").header("Origin", ORIGIN).cookie(login.refresh(), csrf))
+            .andExpect(status().isForbidden()).andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
+        mockMvc.perform(put("/callvan/posts/999999/reopen").header("Origin", ORIGIN).cookie(login.access(), csrf))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void 쿠키와_헤더에_같은_위조값을_넣어도_거부한다() throws Exception {
+        WebLogin login = login(true);
+        String tampered = "A".repeat(43) + "." + "B".repeat(43);
+        Cookie csrf = new Cookie(properties.csrfCookieName(), tampered);
+
+        mockMvc.perform(post(AUTH_PATH + "/refresh").header("Origin", ORIGIN)
+                .header("X-CSRF-Token", tampered).cookie(login.refresh(), csrf))
+            .andExpect(status().isForbidden()).andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
+        mockMvc.perform(put("/callvan/posts/999999/reopen").header("Origin", ORIGIN)
+                .header("X-CSRF-Token", tampered).cookie(login.access(), csrf))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void 다른_세션의_서명된_csrf는_일반_API에서도_거부한다() throws Exception {
+        WebLogin first = login(true);
+        WebLogin second = login(true);
+
+        mockMvc.perform(put("/callvan/posts/999999/reopen").header("Origin", ORIGIN)
+                .header("X-CSRF-Token", second.csrfToken()).cookie(first.access()))
+            .andExpect(status().isForbidden());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void csrf_조회는_기존_세션의_쿠키만_복구하고_refresh를_회전하지_않는다(boolean autoLogin) throws Exception {
+        WebLogin login = login(autoLogin);
+
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/csrf").header("Origin", ORIGIN).cookie(login.refresh()))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.csrf_token").value(login.csrfToken())).andReturn();
+
+        assertThat(result.getResponse().getHeaders(HttpHeaders.SET_COOKIE)).hasSize(1);
+        Cookie restored = result.getResponse().getCookie(properties.csrfCookieName());
+        assertThat(restored.getValue()).isEqualTo(login.csrfToken());
+        assertThat(restored.isHttpOnly()).isFalse();
+        assertThat(restored.getSecure()).isTrue();
+        assertThat(restored.getPath()).isEqualTo("/");
+        if (autoLogin) {
+            assertThat(restored.getMaxAge()).isBetween(7_775_900, 7_776_000);
+        } else {
+            assertThat(restored.getMaxAge()).isEqualTo(-1);
+        }
+        MvcResult refreshed = refresh(login).andExpect(status().isCreated()).andReturn();
+        assertThat(refreshed.getResponse().getCookie(properties.csrfCookieName()).getValue()).isEqualTo(login.csrfToken());
     }
 
     @Test
@@ -309,6 +375,7 @@ class WebAuthApiTest extends AcceptanceTest {
         Cookie refresh = result.getResponse().getCookie(properties.refreshCookieName());
         assertThat(access.getMaxAge()).isZero();
         assertThat(refresh.getMaxAge()).isZero();
+        assertThat(result.getResponse().getCookie(properties.csrfCookieName()).getMaxAge()).isZero();
         assertThat(access.getPath()).isEqualTo(login.access().getPath());
         assertThat(refresh.getPath()).isEqualTo(login.refresh().getPath());
         assertThat(access.isHttpOnly()).isTrue();

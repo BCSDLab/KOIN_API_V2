@@ -8,6 +8,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.web.service.WebAuthTokens;
+import in.koreatech.koin.domain.user.web.service.WebCsrfToken;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.config.WebAuthProperties;
 import jakarta.servlet.http.Cookie;
@@ -33,14 +34,20 @@ public class WebAuthCookieManager {
 
     public void write(HttpServletResponse response, WebAuthTokens tokens) {
         addCookie(response, properties.accessCookieName(), tokens.accessToken(), "/",
-            maxAge(tokens.accessExpiresAt(), tokens.autoLogin()));
+            maxAge(tokens.accessExpiresAt(), tokens.autoLogin()), true);
         addCookie(response, properties.refreshCookieName(), tokens.refreshToken(), AUTH_PATH,
-            maxAge(tokens.refreshExpiresAt(), tokens.autoLogin()));
+            maxAge(tokens.refreshExpiresAt(), tokens.autoLogin()), true);
+        writeCsrfToken(response, new WebCsrfToken(tokens.response().csrfToken(), tokens.refreshExpiresAt(), tokens.autoLogin()));
+    }
+
+    public void writeCsrfToken(HttpServletResponse response, WebCsrfToken token) {
+        addCookie(response, properties.csrfCookieName(), token.value(), "/", maxAge(token.expiresAt(), token.autoLogin()), false);
     }
 
     public void clear(HttpServletResponse response) {
-        addCookie(response, properties.accessCookieName(), "", "/", 0);
-        addCookie(response, properties.refreshCookieName(), "", AUTH_PATH, 0);
+        addCookie(response, properties.accessCookieName(), "", "/", 0, true);
+        addCookie(response, properties.refreshCookieName(), "", AUTH_PATH, 0, true);
+        addCookie(response, properties.csrfCookieName(), "", "/", 0, false);
     }
 
     private String getCookie(HttpServletRequest request, String name) {
@@ -67,11 +74,12 @@ public class WebAuthCookieManager {
         return autoLogin ? Math.max(0, Duration.between(Instant.now(), expiresAt).toSeconds()) : -1;
     }
 
-    private void addCookie(HttpServletResponse response, String name, String value, String path, long maxAge) {
+    private void addCookie(HttpServletResponse response, String name, String value, String path, long maxAge, boolean httpOnly) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
-            .httpOnly(true)
+            .httpOnly(httpOnly)
             .secure(properties.secure())
             .sameSite(properties.sameSite())
+            .domain(AUTH_PATH.equals(path) ? null : properties.sharedCookieDomain())
             .path(path)
             .maxAge(maxAge)
             .build();

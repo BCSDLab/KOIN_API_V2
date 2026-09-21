@@ -14,6 +14,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import in.koreatech.koin.domain.user.web.model.WebAuthSession;
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
+import in.koreatech.koin.global.auth.WebCsrfTokenProvider;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.config.CorsProperties;
 import in.koreatech.koin.global.exception.CustomException;
@@ -21,9 +22,11 @@ import in.koreatech.koin.global.exception.CustomException;
 class WebAuthRequestValidatorTest {
 
     private static final String ORIGIN = "https://koreatech.in";
-    private final WebAuthRequestValidator validator = new WebAuthRequestValidator(new CorsProperties(List.of(ORIGIN)));
+    private final WebCsrfTokenProvider csrfTokenProvider = new WebCsrfTokenProvider("csrf-test-signing-key-at-least-32-bytes");
+    private final WebAuthRequestValidator validator = new WebAuthRequestValidator(
+        new CorsProperties(List.of(ORIGIN)), csrfTokenProvider);
     private final WebAuthSession session = new WebAuthSession(
-        "session", 1, "refresh-hash", "csrf-secret", "credential-hash", Instant.now().plusSeconds(3600), true
+        "session", 1, "refresh-hash", csrfTokenProvider.createToken("session"), "credential-hash", Instant.now().plusSeconds(3600), true
     );
 
     @ParameterizedTest

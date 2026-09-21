@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.user.web.dto.WebCsrfTokenResponse;
 import in.koreatech.koin.domain.user.web.dto.WebLoginRequest;
 import in.koreatech.koin.domain.user.web.service.WebAuthService;
 import in.koreatech.koin.domain.user.web.service.WebAuthTokens;
+import in.koreatech.koin.domain.user.web.service.WebCsrfToken;
 import in.koreatech.koin.global.auth.WebAuthCookieManager;
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -64,8 +65,9 @@ public class WebAuthController implements WebAuthApi {
     }
 
     @GetMapping("/csrf")
-    public ResponseEntity<WebCsrfTokenResponse> getCsrfToken(HttpServletRequest request) {
-        String csrfToken = webAuthService.getCsrfToken(cookieManager.getRefreshToken(request));
-        return ResponseEntity.ok(new WebCsrfTokenResponse(csrfToken));
+    public ResponseEntity<WebCsrfTokenResponse> getCsrfToken(HttpServletRequest request, HttpServletResponse response) {
+        WebCsrfToken csrfToken = webAuthService.getCsrfToken(cookieManager.getRefreshToken(request));
+        cookieManager.writeCsrfToken(response, csrfToken);
+        return ResponseEntity.ok(new WebCsrfTokenResponse(csrfToken.value()));
     }
 }

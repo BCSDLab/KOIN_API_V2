@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.user.web.repository.WebAuthSessionRedisRepositor
 import in.koreatech.koin.domain.user.web.service.WebAuthService;
 import in.koreatech.koin.domain.user.web.service.WebAuthTokens;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.WebCsrfTokenProvider;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.config.WebAuthProperties;
@@ -49,6 +50,7 @@ class WebAuthServiceTest {
 
     private final User user = UserFixture.id_설정_코인_유저(1);
     private final JwtProvider jwtProvider = new JwtProvider("web-auth-unit-test-key-32-characters", 600_000L);
+    private final WebCsrfTokenProvider csrfTokenProvider = new WebCsrfTokenProvider("csrf-test-signing-key-at-least-32-bytes");
     private WebAuthService service;
     private WebRefreshToken token;
     private WebAuthSession session;
@@ -56,9 +58,9 @@ class WebAuthServiceTest {
     @BeforeEach
     void setUp() {
         service = new WebAuthService(userService, userRepository, sessionRepository, jwtProvider,
-            new WebAuthProperties(Duration.ofMinutes(15), Duration.ofDays(90), true, "Lax"));
+            new WebAuthProperties(Duration.ofMinutes(15), Duration.ofDays(90), true, "Lax", null, "koin-web"), csrfTokenProvider);
         token = WebRefreshToken.create();
-        session = new WebAuthSession(token.sessionId(), 1, token.hash(), "csrf-token",
+        session = new WebAuthSession(token.sessionId(), 1, token.hash(), csrfTokenProvider.createToken(token.sessionId()),
             WebRefreshToken.hash(user.getLoginPw()), Instant.now().plusSeconds(3600), true);
     }
 

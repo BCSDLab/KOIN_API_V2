@@ -92,11 +92,13 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
             JsonNode response = operation(openApi, endpoint).at("/responses/201");
             JsonNode cookie = response.at("/headers/Set-Cookie");
             assertThat(cookie.path("schema").path("type").asText()).isEqualTo("array");
-            assertThat(cookie.path("example")).hasSize(2);
+            assertThat(cookie.path("example")).hasSize(3);
             assertThat(cookie.path("example").get(0).asText())
                 .contains("__Host-koin-web-access", "Path=/", "HttpOnly", "Secure", "SameSite=Lax");
             assertThat(cookie.path("example").get(1).asText())
                 .contains("__Secure-koin-web-refresh", "Path=/v2/web/auth", "HttpOnly");
+            assertThat(cookie.path("example").get(2).asText())
+                .contains("__Host-koin-web-csrf", "Path=/", "Secure").doesNotContain("HttpOnly");
             assertThat(response.at("/content/application~1json/schema/$ref").asText()).endsWith("WebAuthResponse");
         }
         JsonNode logout = operation(openApi, "logout").at("/responses/204");
@@ -109,6 +111,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
         assertThat(properties).hasSize(2);
         assertThat(properties.has("user_type")).isTrue();
         assertThat(properties.has("csrf_token")).isTrue();
+        assertThat(operation(openApi, "csrf").at("/responses/200/headers/Set-Cookie/example")).hasSize(1);
     }
 
     @Test

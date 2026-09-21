@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.user.web.model.WebAuthSession;
 import in.koreatech.koin.domain.user.web.model.WebRefreshToken;
 import in.koreatech.koin.domain.user.web.repository.WebAuthSessionRedisRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.WebCsrfTokenProvider;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.config.WebAuthProperties;
@@ -31,13 +32,14 @@ public class WebAuthService {
     private final WebAuthSessionRedisRepository sessionRepository;
     private final JwtProvider jwtProvider;
     private final WebAuthProperties properties;
+    private final WebCsrfTokenProvider csrfTokenProvider;
 
     @Transactional
     public WebAuthTokens login(WebLoginRequest request) {
         User user = userService.authenticate(request.toLoginRequest());
         WebRefreshToken refreshToken = WebRefreshToken.create();
         WebAuthSession session = new WebAuthSession(
-            refreshToken.sessionId(), user.getId(), refreshToken.hash(), WebRefreshToken.createSecret(),
+            refreshToken.sessionId(), user.getId(), refreshToken.hash(), csrfTokenProvider.createToken(refreshToken.sessionId()),
             WebRefreshToken.hash(user.getLoginPw()),
             Instant.now().plus(properties.refreshTokenTtl()).truncatedTo(ChronoUnit.SECONDS), request.autoLogin()
         );
@@ -51,7 +53,7 @@ public class WebAuthService {
         WebRefreshToken refreshToken = WebRefreshToken.parse(value);
         WebAuthSession session = getSession(refreshToken.sessionId());
         session.requireRefreshToken(refreshToken);
-        session.requireCsrfToken(csrfToken);
+        csrfTokenProvider.validate(session, csrfToken);
 
         User user = userRepository.findById(session.userId())
             .orElseThrow(() -> AuthenticationException.withDetail("웹 로그인 사용자가 존재하지 않습니다."));
@@ -79,17 +81,17 @@ public class WebAuthService {
             return;
         }
         session.requireRefreshToken(refreshToken);
-        session.requireCsrfToken(csrfToken);
+        csrfTokenProvider.validate(session, csrfToken);
         if (!sessionRepository.delete(session)) {
             throw CustomException.of(ApiResponseCode.WEB_AUTH_SESSION_CONFLICT);
         }
     }
 
-    public String getCsrfToken(String value) {
+    public WebCsrfToken getCsrfToken(String value) {
         WebRefreshToken refreshToken = WebRefreshToken.parse(value);
         WebAuthSession session = getSession(refreshToken.sessionId());
         session.requireRefreshToken(refreshToken);
-        return session.csrfToken();
+        return new WebCsrfToken(session.csrfToken(), session.expiresAt(), session.autoLogin());
     }
 
     public WebAuthSession authenticate(String accessToken) {

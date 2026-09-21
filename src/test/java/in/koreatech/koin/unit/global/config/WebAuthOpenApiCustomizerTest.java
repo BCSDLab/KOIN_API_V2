@@ -20,8 +20,30 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 class WebAuthOpenApiCustomizerTest {
 
+    @Test
+    void 공유_쿠키_설정과_CSRF_조회_복구를_문서에_반영한다() {
+        WebAuthProperties properties = new WebAuthProperties(Duration.ofMinutes(15), Duration.ofDays(90),
+            true, "Lax", "example.test", "koin-stage-web");
+        Operation login = operation();
+        Operation csrf = new Operation().responses(new ApiResponses().addApiResponse("200", new ApiResponse()));
+        OpenAPI openApi = new OpenAPI().paths(new Paths()
+            .addPathItem("/v2/web/auth/login", new PathItem().post(login))
+            .addPathItem("/v2/web/auth/csrf", new PathItem().get(csrf)));
+
+        new WebAuthOpenApiCustomizer(properties).customise(openApi);
+
+        List<?> cookies = (List<?>) login.getResponses().get("201").getHeaders().get("Set-Cookie").getExample();
+        assertThat(cookies).hasSize(3);
+        assertThat(cookies.get(0).toString()).contains("__Secure-koin-stage-web-access", "Domain=example.test", "HttpOnly");
+        assertThat(cookies.get(1).toString()).contains("__Secure-koin-stage-web-refresh", "HttpOnly").doesNotContain("Domain=");
+        assertThat(cookies.get(2).toString()).contains("__Secure-koin-stage-web-csrf", "Domain=example.test").doesNotContain("HttpOnly");
+        List<?> restored = (List<?>) csrf.getResponses().get("200").getHeaders().get("Set-Cookie").getExample();
+        assertThat(restored).hasSize(1);
+        assertThat(restored.get(0)).isEqualTo(cookies.get(2));
+    }
+
     private final WebAuthOpenApiCustomizer customizer = new WebAuthOpenApiCustomizer(
-        new WebAuthProperties(Duration.ofMinutes(15), Duration.ofDays(90), false, "Strict"));
+        new WebAuthProperties(Duration.ofMinutes(15), Duration.ofDays(90), false, "Strict", null, "koin-web"));
 
     @Test
     void 실행_환경의_쿠키_이름과_속성을_문서에_반영한다() {
