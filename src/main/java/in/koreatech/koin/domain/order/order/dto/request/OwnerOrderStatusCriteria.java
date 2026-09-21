@@ -4,8 +4,10 @@ import java.util.List;
 
 import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum OwnerOrderStatusCriteria {
 
     NEW(List.of(OrderStatus.CONFIRMING)),
@@ -15,8 +17,4 @@ public enum OwnerOrderStatusCriteria {
     ;
 
     private final List<OrderStatus> orderStatuses;
-
-    OwnerOrderStatusCriteria(List<OrderStatus> orderStatuses) {
-        this.orderStatuses = orderStatuses;
-    }
 }
