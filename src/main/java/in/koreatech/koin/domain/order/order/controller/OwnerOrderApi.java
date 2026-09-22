@@ -41,7 +41,7 @@ public interface OwnerOrderApi {
                 - NEW : 신규 (주문 확인중)
                 - COOKING : 조리중
                 - DELIVERING : 배달중
-                - COMPLETED : 완료 (배달 완료, 반려)
+                - COMPLETED : 완료 (배달 완료, 포장 완료, 포장 수령, 반려)
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
@@ -64,7 +64,7 @@ public interface OwnerOrderApi {
         description = """
             ## 상태별 주문 수 조회
             POS 화면의 탭 뱃지에 표시할 숫자를 한 번에 반환한다.
-            완료 수는 배달 완료와 반려를 합산한 값이다.
+            완료 수는 배달 완료, 포장 완료, 포장 수령, 반려를 합산한 값이다.
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
@@ -88,7 +88,9 @@ public interface OwnerOrderApi {
         description = """
             ## 주문 상세 조회
             주문 상품과 옵션, 받는 사람 정보, 결제 정보를 함께 반환한다.
-            배달 완료 일시는 배달이 끝난 주문에만, 반려 일시와 반려 사유는 반려된 주문에만 존재한다.
+            order_type으로 배달과 포장을 구분한다.
+            포장 주문은 받는 주소와 배달기사 요청사항이 없고 배달비가 0이다.
+            완료 일시는 배달이 끝나거나 포장이 끝난 주문에만, 반려 일시와 사유는 반려된 주문에만 존재한다.
             요청한 상점의 주문이 아니면 404를 반환한다.
             """
     )
@@ -119,15 +121,18 @@ public interface OwnerOrderApi {
         description = """
             ## 주문 상태 변경
             변경할 상태를 요청 바디로 받는다. 현재 상태에서 갈 수 없는 상태면 400을 반환한다.
-            - COOKING : 승인. estimated_minutes 필수이며, 현재 시각에 더해 도착 예정 시각을 정한다.
+            - COOKING : 승인. estimated_minutes 필수이며, 현재 시각에 더해 완료 예정 시각을 정한다.
             - CANCELED : 반려. canceled_reason 필수이며, 결제를 전액 취소한다.
-            - DELIVERING : 조리 완료
-            - DELIVERED : 배달 완료
+            - DELIVERING : 조리 완료 (배달 주문)
+            - DELIVERED : 배달 완료 (배달 주문)
+            - PACKAGED : 포장 완료 (포장 주문)
+            - PICKED_UP : 포장 수령 (포장 주문)
 
             ## 허용되는 전이
-            - 주문 확인중 → 조리중, 취소
-            - 조리중 → 배달중
-            - 배달중 → 배달 완료
+            - 배달 : 주문 확인중 → 조리중 → 배달중 → 배달 완료
+            - 포장 : 주문 확인중 → 조리중 → 포장 완료 → 포장 수령
+            - 주문 확인중에서 취소로 갈 수 있다.
+            - 주문 유형에 맞지 않는 상태로는 변경할 수 없다.
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
