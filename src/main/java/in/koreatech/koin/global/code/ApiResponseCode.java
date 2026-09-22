@@ -90,6 +90,7 @@ public enum ApiResponseCode {
     CALLVAN_POST_FULL(HttpStatus.BAD_REQUEST, "참여 인원이 가득 찼습니다."),
     CALLVAN_POST_REOPEN_FAILED_FULL(HttpStatus.BAD_REQUEST, "인원이 가득 차서 모집을 다시 열 수 없습니다."),
     CALLVAN_POST_REOPEN_FAILED_TIME(HttpStatus.BAD_REQUEST, "출발 시간이 지나서 모집을 다시 열 수 없습니다."),
+    CALLVAN_POST_JOIN_FAILED_TIME(HttpStatus.BAD_REQUEST, "출발 시간이 지나서 참여할 수 없습니다."),
     CALLVAN_POST_AUTHOR(HttpStatus.BAD_REQUEST, "콜벤 게시글 작성자는 나갈 수 없습니다"),
     CALLVAN_REPORT_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 신고할 수 없습니다."),
     CALLVAN_REPORT_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "이미 처리된 콜벤 신고입니다."),
