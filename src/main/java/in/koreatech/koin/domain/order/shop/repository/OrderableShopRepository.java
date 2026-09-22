@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.order.shop.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -81,4 +82,15 @@ public interface OrderableShopRepository extends JpaRepository<OrderableShop, In
             () -> CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP, "해당 상점이 존재하지 않습니다 : " + orderableShopId)
         );
     }
+
+    @Query("""
+            SELECT os
+            FROM OrderableShop os
+            JOIN FETCH os.shop s
+            LEFT JOIN FETCH s.shopOperation
+            WHERE s.owner.id = :ownerId
+              AND s.isDeleted = false
+            ORDER BY s.name ASC
+        """)
+    List<OrderableShop> findAllByOwnerId(@Param("ownerId") Integer ownerId);
 }

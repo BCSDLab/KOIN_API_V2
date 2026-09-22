@@ -93,6 +93,17 @@ public class OrderableShop extends BaseEntity {
         }
     }
 
+    public boolean isOpen() {
+        return shop != null && shop.getShopOperation() != null && shop.getShopOperation().isOpen();
+    }
+
+    public void changeOpenStatus(boolean isOpen) {
+        if (shop == null || shop.getShopOperation() == null) {
+            throw CustomException.of(ApiResponseCode.NOT_FOUND_ORDERABLE_SHOP);
+        }
+        shop.getShopOperation().changeOpenStatus(isOpen);
+    }
+
     public void requireShopOpen() {
         if (shop == null || shop.getShopOperation() == null || !shop.getShopOperation().isOpen()) {
             throw CustomException.of(ApiResponseCode.SHOP_CLOSED);

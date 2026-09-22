@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.order.order.model.OrderDelivery;
 import in.koreatech.koin.domain.order.order.model.OrderMenu;
 import in.koreatech.koin.domain.order.order.model.OrderMenuOption;
 import in.koreatech.koin.domain.order.order.model.OrderStatus;
+import in.koreatech.koin.domain.order.order.model.OrderTakeout;
 import in.koreatech.koin.domain.order.order.model.OrderType;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.user.model.User;
@@ -57,6 +58,43 @@ public class OrderFixture {
             .toOwner("문 앞에 두고 벨 눌러주세요.")
             .toRider("빠르게 부탁드려요.")
             .deliveryTip(3000)
+            .provideCutlery(true)
+            .build());
+
+        return order;
+    }
+
+    public static Order 포장_주문(
+        Integer id,
+        String orderNumber,
+        OrderStatus status,
+        OrderableShop orderableShop,
+        User user
+    ) {
+        Order order = Order.builder()
+            .pgOrderId("pg-order-" + id)
+            .orderNumber(orderNumber)
+            .orderType(OrderType.TAKE_OUT)
+            .status(status)
+            .orderableShopName(orderableShop.getShop().getName())
+            .orderableShopAddress(orderableShop.getShop().getAddress())
+            .orderableShopAddressDetail("1층")
+            .phoneNumber("01012341234")
+            .totalProductPrice(32000)
+            .discountAmount(0)
+            .totalPrice(32000)
+            .orderableShop(orderableShop)
+            .user(user)
+            .isDeleted(false)
+            .orderMenus(new ArrayList<>())
+            .build();
+
+        ReflectionTestUtils.setField(order, "id", id);
+        ReflectionTestUtils.setField(order, "createdAt", LocalDateTime.of(2026, 9, 20, 18, 40));
+
+        order.setOrderTakeout(OrderTakeout.builder()
+            .order(order)
+            .toOwner("젓가락 2개 부탁드립니다")
             .provideCutlery(true)
             .build());
 
