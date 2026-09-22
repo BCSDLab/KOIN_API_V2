@@ -18,10 +18,10 @@ public record OwnerOrderCountsResponse(
     @Schema(description = "조리중 주문 수", example = "2", requiredMode = REQUIRED)
     Long cookingCount,
 
-    @Schema(description = "배달중 주문 수", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "배달중 주문 수 (배달 중, 포장 완료 합계)", example = "1", requiredMode = REQUIRED)
     Long deliveringCount,
 
-    @Schema(description = "완료 주문 수 (배달 완료, 반려 합계)", example = "12", requiredMode = REQUIRED)
+    @Schema(description = "완료 주문 수 (배달 완료, 포장 수령, 반려 합계)", example = "12", requiredMode = REQUIRED)
     Long completedCount
 ) {
     public static OwnerOrderCountsResponse from(Map<OwnerOrderStatusCriteria, Long> countByCriteria) {

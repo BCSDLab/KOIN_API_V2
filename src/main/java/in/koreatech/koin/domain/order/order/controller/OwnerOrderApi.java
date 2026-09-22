@@ -40,8 +40,8 @@ public interface OwnerOrderApi {
             - status
                 - NEW : 신규 (주문 확인중)
                 - COOKING : 조리중
-                - DELIVERING : 배달중
-                - COMPLETED : 완료 (배달 완료, 포장 완료, 포장 수령, 반려)
+                - DELIVERING : 배달중 (배달 중, 포장 완료)
+                - COMPLETED : 완료 (배달 완료, 포장 수령, 반려)
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
@@ -64,7 +64,8 @@ public interface OwnerOrderApi {
         description = """
             ## 상태별 주문 수 조회
             POS 화면의 탭 뱃지에 표시할 숫자를 한 번에 반환한다.
-            완료 수는 배달 완료, 포장 완료, 포장 수령, 반려를 합산한 값이다.
+            배달중 수는 배달 중, 포장 완료를 합산한 값이다.
+            완료 수는 배달 완료, 포장 수령, 반려를 합산한 값이다.
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")

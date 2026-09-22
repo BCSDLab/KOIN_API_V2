@@ -149,10 +149,10 @@ class OwnerOrderServiceTest {
         }
 
         @Test
-        @DisplayName("완료 탭은 배달 완료, 포장 완료, 포장 수령, 반려를 함께 조회한다")
+        @DisplayName("완료 탭은 배달 완료, 포장 수령, 반려를 함께 조회한다")
         void 완료_탭은_배달과_포장의_완료_상태를_함께_조회한다() {
             List<OrderStatus> completedStatuses = List.of(
-                OrderStatus.DELIVERED, OrderStatus.PACKAGED, OrderStatus.PICKED_UP, OrderStatus.CANCELED);
+                OrderStatus.DELIVERED, OrderStatus.PICKED_UP, OrderStatus.CANCELED);
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
             when(orderRepository.findAllByOrderableShopIdAndStatuses(ORDERABLE_SHOP_ID, completedStatuses))
                 .thenReturn(List.of());
@@ -160,6 +160,19 @@ class OwnerOrderServiceTest {
             ownerOrderService.getOrders(OWNER_ID, ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.COMPLETED);
 
             verify(orderRepository).findAllByOrderableShopIdAndStatuses(ORDERABLE_SHOP_ID, completedStatuses);
+        }
+
+        @Test
+        @DisplayName("배달중 탭은 배달 중과 포장 완료를 함께 조회한다")
+        void 배달중_탭은_배달_중과_포장_완료를_함께_조회한다() {
+            List<OrderStatus> deliveringStatuses = List.of(OrderStatus.DELIVERING, OrderStatus.PACKAGED);
+            when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
+            when(orderRepository.findAllByOrderableShopIdAndStatuses(ORDERABLE_SHOP_ID, deliveringStatuses))
+                .thenReturn(List.of());
+
+            ownerOrderService.getOrders(OWNER_ID, ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.DELIVERING);
+
+            verify(orderRepository).findAllByOrderableShopIdAndStatuses(ORDERABLE_SHOP_ID, deliveringStatuses);
         }
 
         @Test
@@ -225,7 +238,10 @@ class OwnerOrderServiceTest {
 
             verify(orderRepository).countByOrderableShopIdAndStatusIn(
                 ORDERABLE_SHOP_ID,
-                List.of(OrderStatus.DELIVERED, OrderStatus.PACKAGED, OrderStatus.PICKED_UP, OrderStatus.CANCELED));
+                List.of(OrderStatus.DELIVERED, OrderStatus.PICKED_UP, OrderStatus.CANCELED));
+            verify(orderRepository).countByOrderableShopIdAndStatusIn(
+                ORDERABLE_SHOP_ID,
+                List.of(OrderStatus.DELIVERING, OrderStatus.PACKAGED));
         }
 
         @Test

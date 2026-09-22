@@ -12,10 +12,9 @@ public enum OwnerOrderStatusCriteria {
 
     NEW(List.of(OrderStatus.CONFIRMING)),
     COOKING(List.of(OrderStatus.COOKING)),
-    DELIVERING(List.of(OrderStatus.DELIVERING)),
+    DELIVERING(List.of(OrderStatus.DELIVERING, OrderStatus.PACKAGED)),
     COMPLETED(List.of(
         OrderStatus.DELIVERED,
-        OrderStatus.PACKAGED,
         OrderStatus.PICKED_UP,
         OrderStatus.CANCELED
     )),
