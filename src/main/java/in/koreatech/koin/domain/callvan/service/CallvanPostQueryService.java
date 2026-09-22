@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.callvan.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -61,15 +62,16 @@ public class CallvanPostQueryService {
         Integer authorId = authorFilter.getRequiredAuthorId(userId);
         Integer joinedMemberId = getJoinedMemberId(isJoined, userId);
         List<CallvanStatus> statuses = CallvanPostStatusFilter.toStatuses(statusFilters);
+        LocalDateTime now = LocalDateTime.now();
 
         Long totalCount = callvanPostQueryRepository.countCallvanPosts(
-            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, joinedMemberId);
+            authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, joinedMemberId, now);
 
         Criteria criteria = Criteria.of(page, limit, totalCount.intValue());
 
         List<CallvanPost> posts = callvanPostQueryRepository.findCallvanPosts(
             authorId, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, joinedMemberId, sort,
-            criteria);
+            criteria, now);
 
         int totalPage = (int)Math.ceil((double)totalCount / criteria.getLimit());
         if (totalPage == 0)
@@ -129,6 +131,12 @@ public class CallvanPostQueryService {
         CallvanPost callvanPost = callvanPostRepository.getById(postId);
         boolean isJoined =
             userId != null && callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId);
+
+        // 작성자는 게시글 생성 시 AUTHOR 역할로 참여자에 등록되어 항상 isJoined=true이므로 별도 체크가 필요 없다.
+        if (!isJoined && callvanPost.isStaleRecruiting()) {
+            throw CustomException.of(ApiResponseCode.NOT_FOUND_ARTICLE);
+        }
+
         return CallvanPostSearchResponse.CallvanPostResponse.from(callvanPost, isJoined, userId);
     }
 }
