@@ -133,9 +133,22 @@ public class CallvanPost extends BaseEntity {
         if (this.status != CallvanStatus.RECRUITING) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_NOT_RECRUITING);
         }
+        if (isExpired()) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_POST_JOIN_FAILED_TIME);
+        }
         if (this.currentParticipants >= this.maxParticipants) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_FULL);
         }
+    }
+
+    public boolean isExpired() {
+        return !LocalDateTime.of(this.departureDate, this.departureTime).isAfter(LocalDateTime.now());
+    }
+
+    // 마감/완료 처리 없이 모집 중 상태로 출발 시간만 지나버린, 방치된 게시글인지 여부.
+    // 이미 마감(CLOSED)되었거나 완료(COMPLETED)된 게시글은 출발 시간이 지나도 정착된 기록으로 취급한다.
+    public boolean isStaleRecruiting() {
+        return this.status == CallvanStatus.RECRUITING && isExpired();
     }
 
     public void increaseParticipantCount() {
@@ -164,7 +177,7 @@ public class CallvanPost extends BaseEntity {
         if (this.currentParticipants >= this.maxParticipants) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_REOPEN_FAILED_FULL);
         }
-        if (LocalDateTime.of(this.departureDate, this.departureTime).isBefore(LocalDateTime.now())) {
+        if (isExpired()) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_REOPEN_FAILED_TIME);
         }
         this.status = CallvanStatus.RECRUITING;
