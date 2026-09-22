@@ -89,6 +89,11 @@ public class CallvanAcceptanceFixture {
         return callvanPost;
     }
 
+    public CallvanPost 마감_처리(CallvanPost callvanPost) {
+        callvanPost.closeRecruitment();
+        return callvanPostRepository.save(callvanPost);
+    }
+
     public CallvanPost 완료_처리(CallvanPost callvanPost) {
         callvanPost.closeRecruitment();
         callvanPost.completeRecruitment();

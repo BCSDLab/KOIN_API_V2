@@ -8,11 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.CallvanAcceptanceFixture;
@@ -141,6 +143,19 @@ class CallvanApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 작성자_본인은_만료된_콜벤팟도_요약_조회할_수_있다() throws Exception {
+        String token = userFixture.getToken(author);
+
+        mockMvc.perform(
+                get("/callvan/posts/{postId}/summary", expiredPost.getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(expiredPost.getId()));
+    }
+
+    @Test
     void 일반_사용자는_목록에_노출된_완료된_콜벤팟을_요약_조회할_수_있다() throws Exception {
         mockMvc.perform(
                 get("/callvan/posts/{postId}/summary", completedExpiredPost.getId())
@@ -148,5 +163,28 @@ class CallvanApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(completedExpiredPost.getId()));
+    }
+
+    @Test
+    void 일반_사용자의_목록_노출_여부는_게시글의_isStaleRecruiting_판정과_항상_일치한다() throws Exception {
+        CallvanPost recruitingFuture = callvanFixture.콜벤팟(author, LocalDateTime.now().plusDays(2));
+        CallvanPost recruitingPast = callvanFixture.콜벤팟(author, LocalDateTime.now().minusMinutes(10));
+        CallvanPost closedPast = callvanFixture.콜벤팟(author, LocalDateTime.now().minusMinutes(20));
+        callvanFixture.마감_처리(closedPast);
+
+        ResultActions result = mockMvc.perform(
+                get("/callvan")
+                    .param("limit", "50")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        for (CallvanPost post : List.of(recruitingFuture, recruitingPast, closedPast)) {
+            if (post.isStaleRecruiting()) {
+                result.andExpect(jsonPath("$.posts[*].id").value(not(hasItem(post.getId()))));
+            } else {
+                result.andExpect(jsonPath("$.posts[*].id").value(hasItem(post.getId())));
+            }
+        }
     }
 }

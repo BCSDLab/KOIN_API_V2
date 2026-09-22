@@ -158,7 +158,7 @@ public interface CallvanApi {
 
         #### 비즈니스 로직
         1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
-        2. 모집 중(`RECRUITING`) 상태인데 출발 시간이 이미 지난 게시글을 작성자 또는 참여자가 아닌 사용자가 조회하면 `NOT_FOUND_ARTICLE` 예외가 발생합니다. 마감/완료된 게시글은 이 조건과 무관하게 조회됩니다.
+        2. 모집 중(`RECRUITING`) 상태인데 출발 시간이 이미 지난 게시글을 참여자(작성자 포함)가 아닌 사용자가 조회하면 `NOT_FOUND_ARTICLE` 예외가 발생합니다. 마감/완료된 게시글은 이 조건과 무관하게 조회됩니다.
         3. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
         """)
     @GetMapping("/posts/{postId}/summary")
@@ -209,9 +209,9 @@ public interface CallvanApi {
 
         #### 비즈니스 로직
         1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
-        2. 모집 중인 상태(`RECRUITING`)가 아니면(`CALLVAN_POST_NOT_RECRUITING`) 예외가 발생합니다.
-        3. 출발 시간이 이미 지났으면(`CALLVAN_POST_JOIN_FAILED_TIME`) 예외가 발생합니다.
-        4. 이미 참여한 사용자이거나 작성자인 경우(`CALLVAN_ALREADY_JOINED`) 예외가 발생합니다.
+        2. 이미 참여한 사용자이거나 작성자인 경우(`CALLVAN_ALREADY_JOINED`) 예외가 발생합니다.
+        3. 모집 중인 상태(`RECRUITING`)가 아니면(`CALLVAN_POST_NOT_RECRUITING`) 예외가 발생합니다.
+        4. 출발 시간이 이미 지났으면(`CALLVAN_POST_JOIN_FAILED_TIME`) 예외가 발생합니다.
         5. 모집 인원이 꽉 찬 경우(`CALLVAN_POST_FULL`) 예외가 발생합니다.
         6. 성공 시 참여자로 등록되고, 현재 모집 인원이 1 증가합니다.
         7. 참여로 인해 모집 인원이 가득 차면, 게시글 상태가 자동으로 `CLOSED`로 변경됩니다.
