@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.order.model.Order;
-import in.koreatech.koin.domain.order.order.model.OrderDelivery;
 import in.koreatech.koin.domain.order.order.model.OrderMenu;
 import in.koreatech.koin.domain.order.order.model.OrderMenuOption;
 import in.koreatech.koin.domain.payment.model.entity.Payment;
@@ -25,6 +24,9 @@ public record OwnerOrderResponse(
 
     @Schema(description = "주문 번호", example = "A1B2C3D4E5", requiredMode = REQUIRED)
     String orderNumber,
+
+    @Schema(description = "주문 유형", example = "DELIVERY", requiredMode = REQUIRED)
+    String orderType,
 
     @Schema(description = "주문 상태", example = "CONFIRMING", requiredMode = REQUIRED)
     String orderStatus,
@@ -42,9 +44,9 @@ public record OwnerOrderResponse(
     @Schema(description = "결제 정보", requiredMode = REQUIRED)
     InnerPaymentResponse payment,
 
-    @Schema(description = "배달 완료 일시", example = "2026-09-20 19:21:00", requiredMode = NOT_REQUIRED)
+    @Schema(description = "배달 완료 또는 포장 완료 일시", example = "2026-09-20 19:21:00", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime deliveredAt,
+    LocalDateTime completedAt,
 
     @Schema(description = "반려 일시", example = "2026-09-20 18:33:00", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -119,28 +121,32 @@ public record OwnerOrderResponse(
         @Schema(description = "받는 사람 연락처", example = "01012341234", requiredMode = REQUIRED)
         String phoneNumber,
 
-        @Schema(description = "받는 주소", example = "충청남도 천안시 동남구 병천면 충절로 1600", requiredMode = REQUIRED)
+        @Schema(description = "받는 주소. 포장 주문이면 없다.", example = "충청남도 천안시 동남구 병천면 충절로 1600",
+            requiredMode = NOT_REQUIRED)
         String address,
 
         @Schema(description = "받는 상세 주소", example = "2공학관 201호", requiredMode = NOT_REQUIRED)
         String addressDetail,
 
-        @Schema(description = "사장님에게 남긴 요청사항", example = "문 앞에 두고 벨 눌러주세요.", requiredMode = NOT_REQUIRED)
+        @Schema(description = "사장님에게 남긴 요청사항", example = "젓가락 2개 부탁드립니다", requiredMode = NOT_REQUIRED)
         String toOwner,
+
+        @Schema(description = "배달기사님에게 남긴 요청사항. 포장 주문이면 없다.", example = "문 앞에 놔주세요",
+            requiredMode = NOT_REQUIRED)
+        String toRider,
 
         @Schema(description = "수저 제공 여부", example = "true", requiredMode = REQUIRED)
         Boolean provideCutlery
     ) {
         public static InnerReceiverResponse of(Order order, User user) {
-            OrderDelivery orderDelivery = order.getOrderDelivery();
-
             return new InnerReceiverResponse(
                 user.getName(),
                 order.getPhoneNumber(),
-                orderDelivery.getAddress(),
-                orderDelivery.getAddressDetail(),
-                orderDelivery.getToOwner(),
-                orderDelivery.getProvideCutlery()
+                order.getDeliveryAddress(),
+                order.getDeliveryAddressDetail(),
+                order.getToOwner(),
+                order.getToRider(),
+                order.getProvideCutlery()
             );
         }
     }
@@ -157,7 +163,7 @@ public record OwnerOrderResponse(
         @Schema(description = "상품 금액", example = "32000", requiredMode = REQUIRED)
         Integer totalProductPrice,
 
-        @Schema(description = "배달비", example = "3000", requiredMode = REQUIRED)
+        @Schema(description = "배달비. 포장 주문이면 0이다.", example = "3000", requiredMode = REQUIRED)
         Integer deliveryTip,
 
         @Schema(description = "할인 금액", example = "0", requiredMode = REQUIRED)
@@ -171,7 +177,7 @@ public record OwnerOrderResponse(
                 payment.getPaymentMethod().name(),
                 payment.getApprovedAt(),
                 order.getTotalProductPrice(),
-                order.getOrderDelivery().getDeliveryTip(),
+                order.getDeliveryTip(),
                 order.getDiscountAmount(),
                 order.getTotalPrice()
             );
@@ -182,6 +188,7 @@ public record OwnerOrderResponse(
         return new OwnerOrderResponse(
             order.getId(),
             order.getOrderNumber(),
+            order.getOrderType().name(),
             order.getStatus().name(),
             order.getCreatedAt(),
             order.getOrderMenus().stream()
@@ -189,7 +196,7 @@ public record OwnerOrderResponse(
                 .toList(),
             InnerReceiverResponse.of(order, order.getUser()),
             InnerPaymentResponse.of(order, payment),
-            order.getOrderDelivery().getCompletedAt(),
+            order.getCompletedAt(),
             order.getCanceledAt(),
             order.getCanceledReason()
         );

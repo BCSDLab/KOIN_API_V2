@@ -87,8 +87,10 @@ public class OwnerOrderService {
 
         switch (request.status()) {
             case COOKING -> accept(order, request.estimatedMinutes());
-            case DELIVERING -> order.getOrderDelivery().delivering();
-            case DELIVERED -> order.getOrderDelivery().delivered();
+            case DELIVERING -> order.startDelivering();
+            case DELIVERED -> order.completeDelivery();
+            case PACKAGED -> order.completePackaging();
+            case PICKED_UP -> order.completePickup();
             case CANCELED -> reject(order, request.canceledReason());
             default -> throw CustomException.of(INVALID_ORDER_STATUS_CHANGE);
         }
@@ -98,7 +100,7 @@ public class OwnerOrderService {
         if (estimatedMinutes == null) {
             throw CustomException.of(REQUIRED_ESTIMATED_MINUTES);
         }
-        order.getOrderDelivery().cooking(LocalDateTime.now().plusMinutes(estimatedMinutes));
+        order.startCooking(LocalDateTime.now().plusMinutes(estimatedMinutes));
     }
 
     private void reject(Order order, String canceledReason) {

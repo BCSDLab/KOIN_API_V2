@@ -4,11 +4,13 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.order.shop.dto.OwnerOrderableShopOpenStatusRequest;
+import in.koreatech.koin.domain.order.shop.dto.OwnerOrderableShopsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +20,25 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Owner OrderableShop: 주문 가능 상점 (점주 전용)", description = "사장님이 주문 가능 상점을 관리한다.")
 public interface OwnerOrderableShopApi {
+
+    @ApiResponseCodes({
+        OK,
+        UNAUTHORIZED_USER,
+        FORBIDDEN_USER_TYPE,
+    })
+    @Operation(
+        summary = "사장님이 가진 주문 가능 상점 목록을 조회한다.",
+        description = """
+            ## 주문 가능 상점 목록 조회
+            POS 로그인 후 매장 선택 화면에 대응한다.
+            주문 기능이 켜진 상점만 반환하며, 이후 POS API에 사용할 orderable_shop_id를 함께 내려준다.
+            """
+    )
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/owner/order/shops")
+    ResponseEntity<OwnerOrderableShopsResponse> getOrderableShops(
+        @Auth(permit = {OWNER}) Integer ownerId
+    );
 
     @ApiResponseCodes({
         OK,
@@ -36,7 +57,7 @@ public interface OwnerOrderableShopApi {
             """
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @PatchMapping("/owner/shops/{orderableShopId}/open")
+    @PatchMapping("/owner/order/shop/{orderableShopId}/open")
     ResponseEntity<Void> changeOpenStatus(
         @PathVariable Integer orderableShopId,
         @RequestBody @Valid OwnerOrderableShopOpenStatusRequest request,

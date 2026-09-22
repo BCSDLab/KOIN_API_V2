@@ -29,6 +29,9 @@ public record OwnerOrdersResponse(
         @Schema(description = "주문 번호", example = "A1B2C3D4E5", requiredMode = REQUIRED)
         String orderNumber,
 
+        @Schema(description = "주문 유형", example = "DELIVERY", requiredMode = REQUIRED)
+        String orderType,
+
         @Schema(description = "주문 상태", example = "CONFIRMING", requiredMode = REQUIRED)
         String orderStatus,
 
@@ -36,9 +39,10 @@ public record OwnerOrdersResponse(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime orderedAt,
 
-        @Schema(description = "고객 안내 도착 예정 일시", example = "2026-09-20 19:02:00", requiredMode = NOT_REQUIRED)
+        @Schema(description = "배달은 도착 예정, 포장은 포장 완료 예정 일시", example = "2026-09-20 19:02:00",
+            requiredMode = NOT_REQUIRED)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime estimatedArrivalAt,
+        LocalDateTime estimatedAt,
 
         @Schema(description = "총 결제 금액", example = "35000", requiredMode = REQUIRED)
         Integer totalPrice
@@ -47,6 +51,7 @@ public record OwnerOrdersResponse(
             return new InnerOwnerOrderResponse(
                 order.getId(),
                 order.getOrderNumber(),
+                order.getOrderType().name(),
                 order.getStatus().name(),
                 order.getCreatedAt(),
                 order.getEstimatedAt(),

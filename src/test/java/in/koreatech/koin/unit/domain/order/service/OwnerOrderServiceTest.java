@@ -30,6 +30,7 @@ import in.koreatech.koin.domain.order.order.dto.response.OwnerOrdersResponse;
 import in.koreatech.koin.domain.order.order.model.Order;
 import in.koreatech.koin.domain.order.order.model.OrderMenu;
 import in.koreatech.koin.domain.order.order.model.OrderStatus;
+import in.koreatech.koin.domain.order.order.model.OrderType;
 import in.koreatech.koin.domain.order.order.repository.OrderRepository;
 import in.koreatech.koin.domain.order.order.service.OwnerOrderService;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
@@ -106,8 +107,25 @@ class OwnerOrderServiceTest {
                     assertThat(it.orderNumber()).isEqualTo("A1B2C3D4E5");
                     assertThat(it.orderStatus()).isEqualTo(OrderStatus.CONFIRMING.name());
                     assertThat(it.totalPrice()).isEqualTo(35000);
-                    assertThat(it.estimatedArrivalAt()).isNull();
+                    assertThat(it.estimatedAt()).isNull();
                 });
+        }
+
+        @Test
+        @DisplayName("배달과 포장 주문을 한 목록에서 유형과 함께 반환한다")
+        void 배달과_포장_주문을_유형과_함께_반환한다() {
+            Order delivery = OrderFixture.배달_주문(1, "A1B2C3D4E5", OrderStatus.CONFIRMING, orderableShop, customer);
+            Order takeout = OrderFixture.포장_주문(2, "F6G7H8I9J0", OrderStatus.CONFIRMING, orderableShop, customer);
+            when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
+            when(orderRepository.findAllByOrderableShopIdAndStatuses(
+                ORDERABLE_SHOP_ID, List.of(OrderStatus.CONFIRMING))).thenReturn(List.of(delivery, takeout));
+
+            OwnerOrdersResponse response = ownerOrderService.getOrders(
+                OWNER_ID, ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.NEW);
+
+            assertThat(response.orders())
+                .extracting(it -> it.orderType())
+                .containsExactly(OrderType.DELIVERY.name(), OrderType.TAKE_OUT.name());
         }
 
         @Test
@@ -126,22 +144,22 @@ class OwnerOrderServiceTest {
             assertThat(response.orders()).singleElement()
                 .satisfies(it -> {
                     assertThat(it.orderStatus()).isEqualTo(OrderStatus.COOKING.name());
-                    assertThat(it.estimatedArrivalAt()).isNotNull();
+                    assertThat(it.estimatedAt()).isNotNull();
                 });
         }
 
         @Test
-        @DisplayName("완료 탭은 배달 완료와 반려 상태를 함께 조회한다")
-        void 완료_탭은_배달_완료와_반려를_함께_조회한다() {
+        @DisplayName("완료 탭은 배달 완료, 포장 완료, 포장 수령, 반려를 함께 조회한다")
+        void 완료_탭은_배달과_포장의_완료_상태를_함께_조회한다() {
+            List<OrderStatus> completedStatuses = List.of(
+                OrderStatus.DELIVERED, OrderStatus.PACKAGED, OrderStatus.PICKED_UP, OrderStatus.CANCELED);
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
-            when(orderRepository.findAllByOrderableShopIdAndStatuses(
-                ORDERABLE_SHOP_ID, List.of(OrderStatus.DELIVERED, OrderStatus.CANCELED)))
+            when(orderRepository.findAllByOrderableShopIdAndStatuses(ORDERABLE_SHOP_ID, completedStatuses))
                 .thenReturn(List.of());
 
             ownerOrderService.getOrders(OWNER_ID, ORDERABLE_SHOP_ID, OwnerOrderStatusCriteria.COMPLETED);
 
-            verify(orderRepository).findAllByOrderableShopIdAndStatuses(
-                ORDERABLE_SHOP_ID, List.of(OrderStatus.DELIVERED, OrderStatus.CANCELED));
+            verify(orderRepository).findAllByOrderableShopIdAndStatuses(ORDERABLE_SHOP_ID, completedStatuses);
         }
 
         @Test
@@ -198,15 +216,16 @@ class OwnerOrderServiceTest {
         }
 
         @Test
-        @DisplayName("완료 수는 배달 완료와 반려를 함께 센다")
-        void 완료_수는_배달_완료와_반려를_함께_센다() {
+        @DisplayName("완료 수는 배달과 포장의 완료 상태를 함께 센다")
+        void 완료_수는_배달과_포장의_완료_상태를_함께_센다() {
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
             when(orderRepository.countByOrderableShopIdAndStatusIn(eq(ORDERABLE_SHOP_ID), any())).thenReturn(0L);
 
             ownerOrderService.getOrderCounts(OWNER_ID, ORDERABLE_SHOP_ID);
 
             verify(orderRepository).countByOrderableShopIdAndStatusIn(
-                ORDERABLE_SHOP_ID, List.of(OrderStatus.DELIVERED, OrderStatus.CANCELED));
+                ORDERABLE_SHOP_ID,
+                List.of(OrderStatus.DELIVERED, OrderStatus.PACKAGED, OrderStatus.PICKED_UP, OrderStatus.CANCELED));
         }
 
         @Test
@@ -285,6 +304,41 @@ class OwnerOrderServiceTest {
         }
 
         @Test
+        @DisplayName("포장 주문은 주소와 배달 요청사항 없이 배달비 0으로 반환한다")
+        void 포장_주문은_주소와_배달비_없이_반환한다() {
+            Order order = OrderFixture.포장_주문(1, "F6G7H8I9J0", OrderStatus.CONFIRMING, orderableShop, customer);
+
+            when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
+            when(orderRepository.findByIdAndOrderableShopId(1, ORDERABLE_SHOP_ID)).thenReturn(Optional.of(order));
+            when(paymentRepository.getByOrderId(1)).thenReturn(payment());
+
+            OwnerOrderResponse response = ownerOrderService.getOrder(OWNER_ID, ORDERABLE_SHOP_ID, 1);
+
+            assertThat(response.orderType()).isEqualTo(OrderType.TAKE_OUT.name());
+            assertThat(response.receiver().address()).isNull();
+            assertThat(response.receiver().toRider()).isNull();
+            assertThat(response.receiver().toOwner()).isEqualTo("젓가락 2개 부탁드립니다");
+            assertThat(response.receiver().provideCutlery()).isTrue();
+            assertThat(response.payment().deliveryTip()).isZero();
+        }
+
+        @Test
+        @DisplayName("배달 주문은 주소와 배달기사 요청사항을 반환한다")
+        void 배달_주문은_주소와_배달기사_요청사항을_반환한다() {
+            Order order = OrderFixture.배달_주문(1, "A1B2C3D4E5", OrderStatus.CONFIRMING, orderableShop, customer);
+
+            when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
+            when(orderRepository.findByIdAndOrderableShopId(1, ORDERABLE_SHOP_ID)).thenReturn(Optional.of(order));
+            when(paymentRepository.getByOrderId(1)).thenReturn(payment());
+
+            OwnerOrderResponse response = ownerOrderService.getOrder(OWNER_ID, ORDERABLE_SHOP_ID, 1);
+
+            assertThat(response.orderType()).isEqualTo(OrderType.DELIVERY.name());
+            assertThat(response.receiver().toRider()).isEqualTo("빠르게 부탁드려요.");
+            assertThat(response.payment().deliveryTip()).isEqualTo(3000);
+        }
+
+        @Test
         @DisplayName("반려된 주문은 반려 일시와 사유를 반환한다")
         void 반려된_주문은_반려_일시와_사유를_반환한다() {
             Order order = OrderFixture.배달_주문(1, "A1B2C3D4E5", OrderStatus.CONFIRMING, orderableShop, customer);
@@ -299,7 +353,7 @@ class OwnerOrderServiceTest {
             assertThat(response.orderStatus()).isEqualTo(OrderStatus.CANCELED.name());
             assertThat(response.canceledReason()).isEqualTo("재료 소진");
             assertThat(response.canceledAt()).isNotNull();
-            assertThat(response.deliveredAt()).isNull();
+            assertThat(response.completedAt()).isNull();
         }
 
         @Test
@@ -445,6 +499,62 @@ class OwnerOrderServiceTest {
 
             assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERED);
             assertThat(order.getOrderDelivery().getCompletedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("포장 주문을 승인하면 포장 완료 예정 시각이 정해진다")
+        void 포장_주문을_승인하면_포장_완료_예정_시각이_정해진다() {
+            Order order = OrderFixture.포장_주문(1, "F6G7H8I9J0", OrderStatus.CONFIRMING, orderableShop, customer);
+            stubOrder(order);
+
+            ownerOrderService.changeOrderStatus(OWNER_ID, ORDERABLE_SHOP_ID, 1,
+                new OwnerOrderStatusChangeRequest(OrderStatus.COOKING, 20, null));
+
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.COOKING);
+            assertThat(order.getOrderTakeout().getEstimatedPackagedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("포장 주문은 조리 후 포장 완료로 바뀐다")
+        void 포장_주문은_조리_후_포장_완료로_바뀐다() {
+            Order order = OrderFixture.포장_주문(1, "F6G7H8I9J0", OrderStatus.COOKING, orderableShop, customer);
+            stubOrder(order);
+
+            ownerOrderService.changeOrderStatus(OWNER_ID, ORDERABLE_SHOP_ID, 1,
+                new OwnerOrderStatusChangeRequest(OrderStatus.PACKAGED, null, null));
+
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.PACKAGED);
+            assertThat(order.getOrderTakeout().getPackagedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("포장 주문을 배달중으로 바꿀 수 없다")
+        void 포장_주문을_배달중으로_바꿀_수_없다() {
+            Order order = OrderFixture.포장_주문(1, "F6G7H8I9J0", OrderStatus.COOKING, orderableShop, customer);
+            stubOrder(order);
+
+            assertThatThrownBy(() -> ownerOrderService.changeOrderStatus(OWNER_ID, ORDERABLE_SHOP_ID, 1,
+                new OwnerOrderStatusChangeRequest(OrderStatus.DELIVERING, null, null)))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(ApiResponseCode.INVALID_ORDER_STATUS_CHANGE);
+
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.COOKING);
+        }
+
+        @Test
+        @DisplayName("배달 주문을 포장 완료로 바꿀 수 없다")
+        void 배달_주문을_포장_완료로_바꿀_수_없다() {
+            Order order = 주문(OrderStatus.COOKING);
+            stubOrder(order);
+
+            assertThatThrownBy(() -> ownerOrderService.changeOrderStatus(OWNER_ID, ORDERABLE_SHOP_ID, 1,
+                new OwnerOrderStatusChangeRequest(OrderStatus.PACKAGED, null, null)))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(ApiResponseCode.INVALID_ORDER_STATUS_CHANGE);
+
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.COOKING);
         }
 
         @Test
