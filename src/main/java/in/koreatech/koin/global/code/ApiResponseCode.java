@@ -97,6 +97,9 @@ public enum ApiResponseCode {
     TEAM_RECRUITMENT_ACTIVITY_END_DATE_REQUIRED(HttpStatus.BAD_REQUEST, "진행 중인 활동이 아닌 경우, 활동 종료일은 필수입니다."),
     TEAM_RECRUITMENT_ACTIVITY_END_DATE_MUST_BE_NULL(HttpStatus.BAD_REQUEST, "진행 중인 활동인 경우, 활동 종료일은 입력하면 안 됩니다."),
     TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION(HttpStatus.BAD_REQUEST, "모집 유형에 맞지 않는 역할 또는 정원 구성입니다."),
+    INVALID_ORDER_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "현재 주문 상태에서 요청한 상태로 변경할 수 없습니다."),
+    REQUIRED_ORDER_CANCEL_REASON(HttpStatus.BAD_REQUEST, "주문을 반려하려면 반려 사유가 필요합니다."),
+    REQUIRED_ESTIMATED_MINUTES(HttpStatus.BAD_REQUEST, "주문을 승인하려면 예상 소요 시간이 필요합니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
