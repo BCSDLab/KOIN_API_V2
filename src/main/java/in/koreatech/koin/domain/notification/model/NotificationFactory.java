@@ -235,10 +235,6 @@ public class NotificationFactory {
     }
 
     private String appendEstimatedTime(String message, String estimatedTimeLabel, LocalDateTime estimatedAt) {
-        if (estimatedAt == null || !estimatedAt.isAfter(LocalDateTime.now())) {
-            return message;
-        }
-
         String estimatedTime = estimatedAt.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
         return "%s\n%s: %s".formatted(message, estimatedTimeLabel, estimatedTime);
     }
