@@ -20,7 +20,6 @@ import in.koreatech.koin.domain.order.order.dto.response.OwnerOrderCountsRespons
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrderResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrdersResponse;
 import in.koreatech.koin.domain.order.order.model.Order;
-import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import in.koreatech.koin.domain.order.order.repository.OrderRepository;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
@@ -93,13 +92,14 @@ public class OwnerOrderService {
             case DELIVERED -> order.completeDelivery();
             case PACKAGED -> order.completePackaging();
             case PICKED_UP -> order.completePickup();
-            case CANCELED -> reject(order, request.canceledReason());
+            case CANCELED -> {
+                reject(order, request.canceledReason());
+                return;
+            }
             default -> throw CustomException.of(INVALID_ORDER_STATUS_CHANGE);
         }
 
-        if (request.status() != OrderStatus.CANCELED) {
-            orderNotificationPublisher.publish(order);
-        }
+        orderNotificationPublisher.publish(order);
     }
 
     private void accept(Order order, Integer estimatedMinutes) {
