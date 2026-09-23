@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import in.koreatech.koin.domain.order.order.dto.request.OwnerOrderStatusChangeRequest;
@@ -69,6 +70,9 @@ class OwnerOrderServiceTest {
 
     @Mock
     private PaymentCancelService paymentCancelService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private OrderableShop orderableShop;
     private User customer;
