@@ -114,7 +114,9 @@ public class ArticleService {
             Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
             return ArticlesResponse.of(articles, criteria, userId);
         }
-        Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
+        // 정렬 기준이 쿼리에 이미 포함되어 있으므로(등록일 우선) Sort 없는 Pageable을 전달한다.
+        PageRequest unsortedPageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
+        Page<Article> articles = articleRepository.findAllByBoardId(boardId, unsortedPageRequest);
         return ArticlesResponse.of(articles, criteria, userId);
     }
 
