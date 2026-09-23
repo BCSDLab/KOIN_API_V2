@@ -92,10 +92,7 @@ public class OwnerOrderService {
             case DELIVERED -> order.completeDelivery();
             case PACKAGED -> order.completePackaging();
             case PICKED_UP -> order.completePickup();
-            case CANCELED -> {
-                reject(order, request.canceledReason());
-                return;
-            }
+            case CANCELED -> reject(order, request.canceledReason());
             default -> throw CustomException.of(INVALID_ORDER_STATUS_CHANGE);
         }
 

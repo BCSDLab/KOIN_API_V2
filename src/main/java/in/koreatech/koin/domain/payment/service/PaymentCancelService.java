@@ -8,8 +8,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.order.order.model.OrderStatus;
-import in.koreatech.koin.domain.order.order.service.OrderNotificationPublisher;
 import in.koreatech.koin.domain.payment.dto.response.PaymentCancelResponse;
 import in.koreatech.koin.domain.payment.gateway.pg.PaymentGatewayService;
 import in.koreatech.koin.domain.payment.gateway.pg.dto.PaymentGatewayCancelResponse;
@@ -33,7 +31,6 @@ public class PaymentCancelService {
     private final PaymentGatewayService paymentGatewayService;
     private final PaymentIdempotencyKeyService paymentIdempotencyKeyService;
     private final PaymentCancelMapper paymentCancelMapper;
-    private final OrderNotificationPublisher orderNotificationPublisher;
 
     @Transactional
     public PaymentCancelResponse cancelPayment(User user, Integer paymentId, PaymentCancelInfo paymentCancelInfo) {
@@ -58,14 +55,9 @@ public class PaymentCancelService {
             cancelReason, paymentIdempotencyKey);
         validatePaymentIsCanceled(pgResponse.status());
 
-        OrderStatus previousStatus = payment.getOrder().getStatus();
         payment.cancel(cancelReason);
         List<PaymentCancel> paymentCancels = paymentCancelMapper.toEntity(payment, pgResponse);
         paymentCancelRepository.saveAll(paymentCancels);
-
-        if (previousStatus != payment.getOrder().getStatus()) {
-            orderNotificationPublisher.publish(payment.getOrder());
-        }
 
         return paymentCancels;
     }
