@@ -6,8 +6,17 @@ public record OrderNotificationEvent(
     Integer orderId,
     Integer userId,
     String shopName,
-    String message,
-    String estimatedTimeLabel,
+    OrderNotificationType type,
     LocalDateTime estimatedAt
 ) {
+
+    public static OrderNotificationEvent of(
+        Integer orderId,
+        Integer userId,
+        String shopName,
+        OrderNotificationType type,
+        LocalDateTime estimatedAt
+    ) {
+        return new OrderNotificationEvent(orderId, userId, shopName, type, estimatedAt);
+    }
 }
