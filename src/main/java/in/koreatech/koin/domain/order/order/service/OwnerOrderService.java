@@ -10,7 +10,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -20,7 +19,6 @@ import in.koreatech.koin.domain.order.order.dto.request.OwnerOrderStatusCriteria
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrderCountsResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrderResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OwnerOrdersResponse;
-import in.koreatech.koin.domain.order.order.event.OrderStatusChangedEvent;
 import in.koreatech.koin.domain.order.order.model.Order;
 import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import in.koreatech.koin.domain.order.order.repository.OrderRepository;
@@ -41,7 +39,7 @@ public class OwnerOrderService {
     private final OrderableShopRepository orderableShopRepository;
     private final PaymentRepository paymentRepository;
     private final PaymentCancelService paymentCancelService;
-    private final ApplicationEventPublisher eventPublisher;
+    private final OrderNotificationPublisher orderNotificationPublisher;
 
     public OwnerOrdersResponse getOrders(
         Integer ownerId,
@@ -88,7 +86,6 @@ public class OwnerOrderService {
         Order order = orderRepository.findByIdAndOrderableShopId(orderId, orderableShopId)
             .orElseThrow(() -> CustomException.of(NOT_FOUND_ORDER));
         order.requireStatusChangeableTo(request.status());
-        OrderStatus previousStatus = order.getStatus();
 
         switch (request.status()) {
             case COOKING -> accept(order, request.estimatedMinutes());
@@ -101,7 +98,7 @@ public class OwnerOrderService {
         }
 
         if (request.status() != OrderStatus.CANCELED) {
-            eventPublisher.publishEvent(OrderStatusChangedEvent.of(order, previousStatus));
+            orderNotificationPublisher.publish(order);
         }
     }
 

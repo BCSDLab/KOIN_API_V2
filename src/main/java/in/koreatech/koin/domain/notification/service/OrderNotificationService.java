@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import in.koreatech.koin.common.event.OrderNotificationEvent;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.domain.order.order.event.OrderStatusChangedEvent;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +22,18 @@ public class OrderNotificationService {
     private final NotificationService notificationService;
 
     @Transactional
-    public void pushNotification(OrderStatusChangedEvent event) {
+    public void pushNotification(OrderNotificationEvent event) {
         User user = userRepository.findById(event.userId()).orElse(null);
         if (user == null || !StringUtils.hasText(user.getDeviceToken())) {
             return;
         }
 
-        Notification notification = notificationFactory.generateOrderStatusChangedNotification(
+        Notification notification = notificationFactory.generateOrderNotification(
             ORDER,
             event.orderId(),
             event.shopName(),
-            event.status(),
-            event.orderType(),
+            event.message(),
+            event.estimatedTimeLabel(),
             event.estimatedAt(),
             user
         );

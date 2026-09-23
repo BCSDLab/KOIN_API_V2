@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import in.koreatech.koin.common.event.OrderNotificationEvent;
 import in.koreatech.koin.domain.notification.service.OrderNotificationService;
-import in.koreatech.koin.domain.order.order.event.OrderStatusChangedEvent;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -17,7 +17,7 @@ public class OrderNotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onOrderStatusChanged(OrderStatusChangedEvent event) {
+    public void onOrderNotification(OrderNotificationEvent event) {
         orderNotificationService.pushNotification(event);
     }
 }

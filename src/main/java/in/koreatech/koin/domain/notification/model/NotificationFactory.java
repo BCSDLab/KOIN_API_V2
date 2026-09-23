@@ -5,20 +5,18 @@ import java.time.format.DateTimeFormatter;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.order.order.model.OrderStatus;
-import in.koreatech.koin.domain.order.order.model.OrderType;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.common.model.MobileAppPath;
 
 @Component
 public class NotificationFactory {
 
-    public Notification generateOrderStatusChangedNotification(
+    public Notification generateOrderNotification(
         MobileAppPath path,
         Integer orderId,
         String shopName,
-        OrderStatus status,
-        OrderType orderType,
+        String message,
+        String estimatedTimeLabel,
         LocalDateTime estimatedAt,
         User target
     ) {
@@ -26,7 +24,7 @@ public class NotificationFactory {
             path,
             generateSchemeUri(path, orderId),
             "%s 주문 안내".formatted(shopName),
-            generateOrderStatusMessage(status, orderType, estimatedAt),
+            appendEstimatedTime(message, estimatedTimeLabel, estimatedAt),
             null,
             NotificationType.MESSAGE,
             target
@@ -218,25 +216,13 @@ public class NotificationFactory {
         );
     }
 
-    private String generateOrderStatusMessage(OrderStatus status, OrderType orderType, LocalDateTime estimatedAt) {
-        String message = switch (status) {
-            case COOKING -> "주문이 접수되어 조리를 시작했어요.";
-            case DELIVERING -> "주문하신 음식의 배달이 시작됐어요.";
-            case PACKAGED -> "포장이 완료됐어요. 매장에서 주문을 수령해 주세요.";
-            case PICKED_UP -> "주문 수령이 완료됐어요. 맛있게 드세요!";
-            case DELIVERED -> "배달이 완료됐어요. 맛있게 드세요!";
-            case CANCELED -> "주문이 취소됐어요. 자세한 내용은 주문 내역을 확인해 주세요.";
-            case CONFIRMING -> throw new IllegalArgumentException("주문 확인중 상태는 알림 대상이 아닙니다.");
-        };
-
-        if ((status != OrderStatus.COOKING && status != OrderStatus.DELIVERING)
-            || estimatedAt == null || !estimatedAt.isAfter(LocalDateTime.now())) {
+    private String appendEstimatedTime(String message, String estimatedTimeLabel, LocalDateTime estimatedAt) {
+        if (estimatedTimeLabel == null || estimatedAt == null || !estimatedAt.isAfter(LocalDateTime.now())) {
             return message;
         }
 
-        String estimatedLabel = orderType == OrderType.DELIVERY ? "예상 도착" : "포장 완료 예정";
         String estimatedTime = estimatedAt.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
-        return "%s\n%s: %s".formatted(message, estimatedLabel, estimatedTime);
+        return "%s\n%s: %s".formatted(message, estimatedTimeLabel, estimatedTime);
     }
 
     private String formatEventDateTime(LocalDateTime dateTime) {
