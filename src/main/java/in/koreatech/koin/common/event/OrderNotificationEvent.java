@@ -6,7 +6,8 @@ public record OrderNotificationEvent(
     Integer orderId,
     Integer userId,
     String shopName,
-    OrderNotificationType type,
+    String status,
+    boolean delivery,
     LocalDateTime estimatedAt
 ) {
 
@@ -14,9 +15,10 @@ public record OrderNotificationEvent(
         Integer orderId,
         Integer userId,
         String shopName,
-        OrderNotificationType type,
+        String status,
+        boolean delivery,
         LocalDateTime estimatedAt
     ) {
-        return new OrderNotificationEvent(orderId, userId, shopName, type, estimatedAt);
+        return new OrderNotificationEvent(orderId, userId, shopName, status, delivery, estimatedAt);
     }
 }

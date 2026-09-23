@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.common.event.OrderNotificationEvent;
-import in.koreatech.koin.common.event.OrderNotificationType;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.common.model.MobileAppPath;
 
@@ -215,19 +214,20 @@ public class NotificationFactory {
     }
 
     private String generateOrderMessage(OrderNotificationEvent event) {
-        OrderNotificationType type = event.type();
-        String message = switch (type) {
-            case ACCEPTED_DELIVERY, ACCEPTED_TAKEOUT -> "주문이 접수되어 조리를 시작했어요.";
-            case DELIVERY_STARTED -> "주문하신 음식의 배달이 시작됐어요.";
-            case PACKAGING_COMPLETED -> "포장이 완료됐어요. 매장에서 주문을 수령해 주세요.";
-            case PICKED_UP -> "주문 수령이 완료됐어요. 맛있게 드세요!";
-            case DELIVERED -> "배달이 완료됐어요. 맛있게 드세요!";
-            case CANCELED -> "주문이 취소됐어요. 자세한 내용은 주문 내역을 확인해 주세요.";
+        String status = event.status();
+        String message = switch (status) {
+            case "COOKING" -> "주문이 접수되어 조리를 시작했어요.";
+            case "DELIVERING" -> "주문하신 음식의 배달이 시작됐어요.";
+            case "PACKAGED" -> "포장이 완료됐어요. 매장에서 주문을 수령해 주세요.";
+            case "PICKED_UP" -> "주문 수령이 완료됐어요. 맛있게 드세요!";
+            case "DELIVERED" -> "배달이 완료됐어요. 맛있게 드세요!";
+            case "CANCELED" -> "주문이 취소됐어요. 자세한 내용은 주문 내역을 확인해 주세요.";
+            default -> throw new IllegalArgumentException("알림 대상이 아닌 주문 상태: " + status);
         };
 
-        String estimatedTimeLabel = switch (type) {
-            case ACCEPTED_DELIVERY, DELIVERY_STARTED -> "예상 도착";
-            case ACCEPTED_TAKEOUT -> "포장 완료 예정";
+        String estimatedTimeLabel = switch (status) {
+            case "COOKING" -> event.delivery() ? "예상 도착" : "포장 완료 예정";
+            case "DELIVERING" -> "예상 도착";
             default -> null;
         };
         LocalDateTime estimatedAt = event.estimatedAt();
