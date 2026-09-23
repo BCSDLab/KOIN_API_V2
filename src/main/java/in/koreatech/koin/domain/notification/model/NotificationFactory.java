@@ -11,6 +11,26 @@ import in.koreatech.koin.common.model.MobileAppPath;
 @Component
 public class NotificationFactory {
 
+    public Notification generateOrderNotification(
+        MobileAppPath path,
+        Integer orderId,
+        String shopName,
+        String status,
+        boolean delivery,
+        LocalDateTime estimatedAt,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateSchemeUri(path, orderId),
+            "%s 주문 안내".formatted(shopName),
+            generateOrderMessage(status, delivery, estimatedAt),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
     public Notification generateClubRecruitmentNotification(
         MobileAppPath path,
         Integer clubId,
@@ -194,6 +214,29 @@ public class NotificationFactory {
             NotificationType.MESSAGE,
             target
         );
+    }
+
+    private String generateOrderMessage(String status, boolean delivery, LocalDateTime estimatedAt) {
+        return switch (status) {
+            case "COOKING" -> appendEstimatedTime(
+                "주문이 접수되어 조리를 시작했어요.",
+                delivery ? "예상 도착" : "포장 완료 예정",
+                estimatedAt
+            );
+            case "DELIVERING" -> appendEstimatedTime(
+                "주문하신 음식의 배달이 시작됐어요.", "예상 도착", estimatedAt
+            );
+            case "PACKAGED" -> "포장이 완료됐어요. 매장에서 주문을 수령해 주세요.";
+            case "PICKED_UP" -> "주문 수령이 완료됐어요. 맛있게 드세요!";
+            case "DELIVERED" -> "배달이 완료됐어요. 맛있게 드세요!";
+            case "CANCELED" -> "주문이 취소됐어요. 자세한 내용은 주문 내역을 확인해 주세요.";
+            default -> throw new IllegalArgumentException("알림 대상이 아닌 주문 상태: " + status);
+        };
+    }
+
+    private String appendEstimatedTime(String message, String estimatedTimeLabel, LocalDateTime estimatedAt) {
+        String estimatedTime = estimatedAt.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
+        return "%s\n%s: %s".formatted(message, estimatedTimeLabel, estimatedTime);
     }
 
     private String formatEventDateTime(LocalDateTime dateTime) {
