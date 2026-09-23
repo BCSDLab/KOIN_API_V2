@@ -151,12 +151,10 @@ public class CallvanPostQueryRepository {
         }
         LocalDate today = now.toLocalDate();
         LocalTime nowTime = now.toLocalTime();
-        BooleanExpression stillBeforeDeparture = callvanPost.departureDate.gt(today)
+        // 상태(RECRUITING/CLOSED/COMPLETED)와 무관하게 출발 시간이 지난 게시글은 작성자/참여자 본인 외에는 숨긴다.
+        return callvanPost.departureDate.gt(today)
             .or(callvanPost.departureDate.eq(today)
                 .and(callvanPost.departureTime.gt(nowTime)));
-        // CLOSED/COMPLETED 게시글은 출발 시간이 지났어도 정착된 기록이므로 계속 노출한다.
-        // RECRUITING 상태에서 출발 시간만 지난, 마감 처리를 놓친 게시글만 이 필터로 숨긴다.
-        return callvanPost.status.ne(CallvanStatus.RECRUITING).or(stillBeforeDeparture);
     }
 
     private BooleanExpression joinedByMemberId(Integer joinedMemberId) {

@@ -107,14 +107,14 @@ class CallvanApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 일반_사용자가_완료_상태만_조회하면_만료된_완료_콜벤팟도_노출된다() throws Exception {
+    void 일반_사용자가_완료_상태만_조회해도_만료된_완료_콜벤팟은_노출되지_않는다() throws Exception {
         mockMvc.perform(
                 get("/callvan")
                     .param("statuses", "COMPLETED")
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.posts[*].id").value(hasItem(completedExpiredPost.getId())));
+            .andExpect(jsonPath("$.posts[*].id").value(not(hasItem(completedExpiredPost.getId()))));
     }
 
     @Test
@@ -156,9 +156,21 @@ class CallvanApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 일반_사용자는_목록에_노출된_완료된_콜벤팟을_요약_조회할_수_있다() throws Exception {
+    void 일반_사용자는_만료된_완료_콜벤팟을_요약_조회할_수_없다() throws Exception {
         mockMvc.perform(
                 get("/callvan/posts/{postId}/summary", completedExpiredPost.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void 작성자_본인은_만료된_완료_콜벤팟을_요약_조회할_수_있다() throws Exception {
+        String token = userFixture.getToken(author);
+
+        mockMvc.perform(
+                get("/callvan/posts/{postId}/summary", completedExpiredPost.getId())
+                    .header("Authorization", "Bearer " + token)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -166,7 +178,7 @@ class CallvanApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 일반_사용자의_목록_노출_여부는_게시글의_isStaleRecruiting_판정과_항상_일치한다() throws Exception {
+    void 일반_사용자의_목록_노출_여부는_게시글의_isExpired_판정과_항상_일치한다() throws Exception {
         CallvanPost recruitingFuture = callvanFixture.콜벤팟(author, LocalDateTime.now().plusDays(2));
         CallvanPost recruitingPast = callvanFixture.콜벤팟(author, LocalDateTime.now().minusMinutes(10));
         CallvanPost closedPast = callvanFixture.콜벤팟(author, LocalDateTime.now().minusMinutes(20));
@@ -180,7 +192,7 @@ class CallvanApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         for (CallvanPost post : List.of(recruitingFuture, recruitingPast, closedPast)) {
-            if (post.isStaleRecruiting()) {
+            if (post.isExpired()) {
                 result.andExpect(jsonPath("$.posts[*].id").value(not(hasItem(post.getId()))));
             } else {
                 result.andExpect(jsonPath("$.posts[*].id").value(hasItem(post.getId())));

@@ -133,7 +133,7 @@ public class CallvanPostQueryService {
             userId != null && callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId);
 
         // 작성자는 게시글 생성 시 AUTHOR 역할로 참여자에 등록되어 항상 isJoined=true이므로 별도 체크가 필요 없다.
-        if (!isJoined && callvanPost.isStaleRecruiting()) {
+        if (!isJoined && callvanPost.isExpired()) {
             throw CustomException.of(ApiResponseCode.NOT_FOUND_ARTICLE);
         }
 
