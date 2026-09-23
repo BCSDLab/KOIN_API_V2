@@ -106,7 +106,7 @@ public interface CallvanApi {
         5. `LATEST_ASC`는 게시글 등록순 오름차순, `LATEST_DESC`는 게시글 등록순 내림차순으로 정렬됩니다.
         6. `joined=true`이면 로그인 사용자가 참여한 게시글만 반환합니다. 비로그인 사용자는 자동으로 `false` 처리됩니다. `false`는 모든 게시글이 반환됩니다.
         7. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
-        8. `author=ALL`이고 `joined=false`인 일반 조회에서는, 모집 중(`RECRUITING`) 상태인데 출발 시간이 이미 지난 게시글(마감 처리를 놓친 게시글)이 결과에서 제외됩니다. 마감(`CLOSED`)되었거나 완료(`COMPLETED`)된 게시글은 출발 시간이 지났어도 계속 조회됩니다.
+        8. `author=ALL`이고 `joined=false`인 일반 조회에서는, 게시글 상태(`RECRUITING`/`CLOSED`/`COMPLETED`)와 무관하게 출발 시간이 이미 지난 게시글이 결과에서 제외됩니다.
         9. `author=MY`이거나 `joined=true`인 경우, 작성자 본인 또는 참여자 본인의 게시글은 상태나 출발 시간과 무관하게 계속 조회됩니다.
         """)
     @GetMapping
@@ -158,7 +158,7 @@ public interface CallvanApi {
 
         #### 비즈니스 로직
         1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
-        2. 모집 중(`RECRUITING`) 상태인데 출발 시간이 이미 지난 게시글을 참여자(작성자 포함)가 아닌 사용자가 조회하면 `NOT_FOUND_ARTICLE` 예외가 발생합니다. 마감/완료된 게시글은 이 조건과 무관하게 조회됩니다.
+        2. 게시글 상태(`RECRUITING`/`CLOSED`/`COMPLETED`)와 무관하게 출발 시간이 이미 지난 게시글을 참여자(작성자 포함)가 아닌 사용자가 조회하면 `NOT_FOUND_ARTICLE` 예외가 발생합니다.
         3. 로그인된 사용자의 경우, 해당 콜벤 게시글에 합류한 상태면 `isJoined` 필드가 true로 표시됩니다.
         """)
     @GetMapping("/posts/{postId}/summary")

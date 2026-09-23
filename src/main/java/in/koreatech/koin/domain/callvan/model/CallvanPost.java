@@ -145,12 +145,6 @@ public class CallvanPost extends BaseEntity {
         return !LocalDateTime.of(this.departureDate, this.departureTime).isAfter(LocalDateTime.now());
     }
 
-    // 마감/완료 처리 없이 모집 중 상태로 출발 시간만 지나버린, 방치된 게시글인지 여부.
-    // 이미 마감(CLOSED)되었거나 완료(COMPLETED)된 게시글은 출발 시간이 지나도 정착된 기록으로 취급한다.
-    public boolean isStaleRecruiting() {
-        return this.status == CallvanStatus.RECRUITING && isExpired();
-    }
-
     public void increaseParticipantCount() {
         if (this.currentParticipants >= this.maxParticipants) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_FULL);
