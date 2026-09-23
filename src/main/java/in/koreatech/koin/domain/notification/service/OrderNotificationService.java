@@ -30,7 +30,11 @@ public class OrderNotificationService {
 
         Notification notification = notificationFactory.generateOrderNotification(
             ORDER,
-            event,
+            event.orderId(),
+            event.shopName(),
+            event.status(),
+            event.delivery(),
+            event.estimatedAt(),
             user
         );
         notificationService.pushNotification(notification);
