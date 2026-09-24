@@ -48,7 +48,15 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Page<Article> findAllByBoardIdNot(Integer boardId, PageRequest pageRequest);
 
-    Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
+    @Query(
+        value = "SELECT a.* FROM new_articles a "
+            + "LEFT JOIN new_koreatech_articles ka ON ka.article_id = a.id AND ka.is_deleted = 0 "
+            + "WHERE a.board_id = :boardId AND a.is_deleted = 0 "
+            + "ORDER BY COALESCE(ka.registered_at, a.created_at) DESC, a.id DESC",
+        countQuery = "SELECT COUNT(*) FROM new_articles a WHERE a.board_id = :boardId AND a.is_deleted = 0",
+        nativeQuery = true
+    )
+    Page<Article> findAllByBoardId(@Param("boardId") Integer boardId, Pageable pageable);
 
     Page<Article> findAllByIdIn(List<Integer> articleIds, PageRequest pageRequest);
 
