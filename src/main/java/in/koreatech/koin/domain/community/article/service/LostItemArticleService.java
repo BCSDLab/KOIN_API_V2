@@ -98,7 +98,9 @@ public class LostItemArticleService {
         Page<Article> articles;
 
         if (type == null) {
-            articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+            // findAllByBoardId 는 정렬이 쿼리에 포함되어 있으므로 Sort 없는 Pageable을 전달한다.
+            PageRequest unsortedPageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
+            articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, unsortedPageRequest);
         } else {
             articles = articleRepository.findAllByLostItemArticleType(type, pageRequest);
         }

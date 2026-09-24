@@ -143,6 +143,15 @@ class ArticleApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.articles[1].registered_at").value("2016-04-27"));
     }
 
+    @Test
+    void 분실물_게시글_목록을_type_없이_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/articles/lost-item")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+    }
+
     // 클래스 단에 transactional이 붙으면 테스트 실패 함
     /* @Test
     void 같은_ip_동일한_query로_4개의_스레드가_동시에_검색시_동시성_제어() throws InterruptedException {
