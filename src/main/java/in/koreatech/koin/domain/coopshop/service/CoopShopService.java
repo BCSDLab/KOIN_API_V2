@@ -9,12 +9,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
+import in.koreatech.koin.domain.coopshop.exception.CoopOpenNotFoundException;
 import in.koreatech.koin.domain.coopshop.exception.CoopSemesterNotFoundException;
 import in.koreatech.koin.domain.coopshop.exception.DiningTypeNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopName;
@@ -54,14 +57,10 @@ public class CoopShopService {
 
     public boolean getIsOpened(LocalDateTime now, CoopShopType coopShopType, DiningType type, Boolean isMinus) {
         try {
-            DayType todayType =
-                (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY)
-                    ? DayType.WEEKEND : DayType.WEEKDAYS;
             CoopSemester currentSemester = coopSemesterRepository.getByIsApplied(true);
             CoopName coopName = coopNameRepository.getByName(coopShopType);
             CoopShop coopShop = coopShopRepository.getByCoopNameIdAndCoopSemester(coopName.getId(), currentSemester);
-            CoopOpen open = coopOpenRepository
-                .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
+            CoopOpen open = findOpen(coopShop, type.getDiningName(), now.getDayOfWeek());
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             LocalDateTime openTime = LocalTime.parse(open.getOpenTime(), formatter)
@@ -77,6 +76,26 @@ public class CoopShopService {
         } catch (DateTimeParseException e) {
             return false;
         }
+    }
+
+    private CoopOpen findOpen(CoopShop coopShop, String type, DayOfWeek dayOfWeek) {
+        for (DayType dayType : candidateDayTypes(dayOfWeek)) {
+            Optional<CoopOpen> open = coopOpenRepository.findByCoopShopAndTypeAndDayOfWeek(coopShop, type, dayType);
+            if (open.isPresent()) {
+                return open.get();
+            }
+        }
+        throw CoopOpenNotFoundException.withDetail(
+            String.format("coopShop: %s, type: %s, day of week: %s", coopShop, type, dayOfWeek)
+        );
+    }
+
+    private List<DayType> candidateDayTypes(DayOfWeek dayOfWeek) {
+        return switch (dayOfWeek) {
+            case SATURDAY -> List.of(DayType.SATURDAY, DayType.WEEKEND);
+            case SUNDAY -> List.of(DayType.SUNDAY, DayType.WEEKEND);
+            default -> List.of(DayType.WEEKDAYS);
+        };
     }
 
     public DiningType getDiningType() {
