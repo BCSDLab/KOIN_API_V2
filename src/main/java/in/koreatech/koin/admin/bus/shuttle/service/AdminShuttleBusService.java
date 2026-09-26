@@ -3,7 +3,9 @@ package in.koreatech.koin.admin.bus.shuttle.service;
 import static in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest.InnerAdminShuttleBusUpdateRequest;
 import static in.koreatech.koin.global.code.ApiResponseCode.REQUIRED_SHUTTLE_RUNNING_DAYS;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -30,14 +32,17 @@ public class AdminShuttleBusService {
 
     @Transactional
     public void updateShuttleBusTimetable(AdminShuttleBusUpdateRequest request, SemesterType semesterType) {
+        Map<TimetableKey, ShuttleBusRoute> preparedTimetables = new LinkedHashMap<>();
         for (InnerAdminShuttleBusUpdateRequest shuttleBusUpdateRequest : request.shuttleBusTimetables()) {
             ShuttleBusRegion region = ShuttleBusRegion.convertFrom(shuttleBusUpdateRequest.region());
             ShuttleRouteType routeType = ShuttleRouteType.convertFrom(shuttleBusUpdateRequest.routeType());
             String routeName = shuttleBusUpdateRequest.routeName();
             String subName = shuttleBusUpdateRequest.subName();
+            TimetableKey key = new TimetableKey(region, routeType, routeName, subName);
 
-            Optional<ShuttleBusRoute> optionalTimetable =
-                adminShuttleBusTimetableRepository.findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
+            Optional<ShuttleBusRoute> optionalTimetable = preparedTimetables.containsKey(key)
+                ? Optional.of(preparedTimetables.get(key))
+                : adminShuttleBusTimetableRepository.findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
                     semesterType.getDescription(), region.name(), routeType.name(), routeName, subName
                 );
 
@@ -63,8 +68,14 @@ public class AdminShuttleBusService {
                         .build();
                 });
 
-            adminShuttleBusTimetableRepository.save(timetable);
+            preparedTimetables.put(key, timetable);
         }
+
+        // 뒤쪽 요청의 입력 검증까지 성공한 경우에만 저장을 시작한다.
+        preparedTimetables.values().forEach(adminShuttleBusTimetableRepository::save);
+    }
+
+    private record TimetableKey(ShuttleBusRegion region, ShuttleRouteType routeType, String routeName, String subName) {
     }
 
     /**

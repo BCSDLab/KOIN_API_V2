@@ -1,8 +1,13 @@
 package in.koreatech.koin.domain.bus.service.shuttle.model;
 
 import static lombok.AccessLevel.PROTECTED;
+import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -111,16 +117,41 @@ public class ShuttleBusRoute {
         List<NodeInfo> nodeInfos,
         List<RouteInfo> routeInfos
     ) {
+        Map<String, List<RouteInfo>> updatedRoutesByName = routeInfos.stream()
+            .collect(Collectors.groupingBy(RouteInfo::getName));
+        validateDuplicateRouteCounts(updatedRoutesByName);
+
         this.nodeInfo = nodeInfos;
+        Map<String, Integer> consumedRouteCounts = new HashMap<>();
         for (RouteInfo routeInfo : this.routeInfo) {
-            for (RouteInfo updatedRouteInfo : routeInfos) {
-                if (updatedRouteInfo.getName().equals(routeInfo.getName())) {
-                    routeInfo.arrivalTime = updatedRouteInfo.getArrivalTime();
-                    if (!CollectionUtils.isEmpty(updatedRouteInfo.getRunningDays())) {
-                        routeInfo.runningDays = updatedRouteInfo.getRunningDays();
-                    }
-                    break;
-                }
+            List<RouteInfo> updatedRoutes = updatedRoutesByName.get(routeInfo.getName());
+            if (updatedRoutes == null) {
+                continue;
+            }
+
+            int occurrence = consumedRouteCounts.getOrDefault(routeInfo.getName(), 0);
+            RouteInfo updatedRouteInfo = updatedRoutes.get(occurrence);
+            routeInfo.arrivalTime = updatedRouteInfo.getArrivalTime();
+            if (!CollectionUtils.isEmpty(updatedRouteInfo.getRunningDays())) {
+                routeInfo.runningDays = updatedRouteInfo.getRunningDays();
+            }
+            consumedRouteCounts.put(routeInfo.getName(), occurrence + 1);
+        }
+    }
+
+    private void validateDuplicateRouteCounts(Map<String, List<RouteInfo>> updatedRoutesByName) {
+        for (Map.Entry<String, List<RouteInfo>> entry : updatedRoutesByName.entrySet()) {
+            long existingRouteCount = this.routeInfo.stream()
+                .filter(routeInfo -> Objects.equals(routeInfo.getName(), entry.getKey()))
+                .count();
+            long updatedRouteCount = entry.getValue().size();
+
+            if ((existingRouteCount > 1 || updatedRouteCount > 1)
+                && existingRouteCount != updatedRouteCount) {
+                throw CustomException.of(
+                    INVALID_REQUEST_BODY,
+                    "동일한 회차 이름의 기존 회차 수와 요청 회차 수가 다릅니다: " + entry.getKey()
+                );
             }
         }
     }

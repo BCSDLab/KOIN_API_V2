@@ -17,6 +17,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -133,5 +135,22 @@ class AdminShuttleBusServiceTest {
         RouteInfo saved = captor.getValue().getRouteInfo().get(0);
         assertThat(saved.getRunningDays()).isEqualTo(WEEKDAYS);
         assertThat(saved.getArrivalTime()).containsExactly("08:00");
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    @DisplayName("동일 대상이 반복되면 신규와 기존 모두 한 번 조회하고 최종 문서를 한 번 저장한다")
+    void preparesRepeatedTargetOnce(boolean exists) {
+        givenExistingTimetable(exists ? Optional.of(createExistingRoute()) : Optional.empty());
+        InnerAdminShuttleBusUpdateRequest item = createRequest(WEEKDAYS).shuttleBusTimetables().get(0);
+
+        adminShuttleBusService.updateShuttleBusTimetable(
+            new AdminShuttleBusUpdateRequest(List.of(item, item)), SemesterType.REGULAR);
+
+        verify(adminShuttleBusTimetableRepository).findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
+            anyString(), anyString(), anyString(), anyString(), any());
+        ArgumentCaptor<ShuttleBusRoute> captor = ArgumentCaptor.forClass(ShuttleBusRoute.class);
+        verify(adminShuttleBusTimetableRepository).save(captor.capture());
+        assertThat(captor.getValue().getRouteInfo().get(0).getArrivalTime()).containsExactly("08:00");
     }
 }
