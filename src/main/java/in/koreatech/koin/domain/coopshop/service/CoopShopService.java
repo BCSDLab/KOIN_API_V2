@@ -113,6 +113,7 @@ public class CoopShopService {
 
     public boolean validateSemester(CoopSemester coopSemester) {
         LocalDate today = LocalDate.now(clock);
-        return today.isAfter(coopSemester.getFromDate()) && today.isBefore(coopSemester.getToDate());
+        return !today.isBefore(coopSemester.getFromDate()) && !today.isAfter(coopSemester.getToDate())
+            && !coopSemester.getCoopShops().isEmpty();
     }
 }
