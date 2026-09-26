@@ -23,8 +23,8 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateSchemeUri(path, orderId),
-            "%s 주문 안내".formatted(shopName),
-            generateOrderMessage(status, delivery, estimatedAt),
+            generateOrderTitle(status),
+            generateOrderMessage(status, shopName, delivery, estimatedAt),
             null,
             NotificationType.MESSAGE,
             target
@@ -216,20 +216,31 @@ public class NotificationFactory {
         );
     }
 
-    private String generateOrderMessage(String status, boolean delivery, LocalDateTime estimatedAt) {
+    private String generateOrderTitle(String status) {
+        return switch (status) {
+            case "COOKING" -> "주문이 접수되었어요";
+            case "DELIVERING" -> "배달이 시작됐어요";
+            case "PACKAGED" -> "포장이 완료됐어요";
+            case "PICKED_UP" -> "주문 수령이 완료됐어요";
+            case "DELIVERED" -> "배달이 완료됐어요";
+            case "CANCELED" -> "주문이 취소됐어요";
+            default -> throw new IllegalArgumentException("알림 대상이 아닌 주문 상태: " + status);
+        };
+    }
+
+    private String generateOrderMessage(String status, String shopName, boolean delivery, LocalDateTime estimatedAt) {
         return switch (status) {
             case "COOKING" -> appendEstimatedTime(
-                "주문이 접수되어 조리를 시작했어요.",
+                "%s에서 조리를 시작했어요.".formatted(shopName),
                 delivery ? "예상 도착" : "포장 완료 예정",
                 estimatedAt
             );
             case "DELIVERING" -> appendEstimatedTime(
-                "주문하신 음식의 배달이 시작됐어요.", "예상 도착", estimatedAt
+                "%s에서 주문하신 음식이 배달 중이에요.".formatted(shopName), "예상 도착", estimatedAt
             );
-            case "PACKAGED" -> "포장이 완료됐어요. 매장에서 주문을 수령해 주세요.";
-            case "PICKED_UP" -> "주문 수령이 완료됐어요. 맛있게 드세요!";
-            case "DELIVERED" -> "배달이 완료됐어요. 맛있게 드세요!";
-            case "CANCELED" -> "주문이 취소됐어요. 자세한 내용은 주문 내역을 확인해 주세요.";
+            case "PACKAGED" -> "%s에서 주문을 수령해 주세요.".formatted(shopName);
+            case "PICKED_UP", "DELIVERED" -> "%s 주문, 맛있게 드세요!".formatted(shopName);
+            case "CANCELED" -> "%s 주문의 자세한 내용은 주문 내역을 확인해 주세요.".formatted(shopName);
             default -> throw new IllegalArgumentException("알림 대상이 아닌 주문 상태: " + status);
         };
     }
