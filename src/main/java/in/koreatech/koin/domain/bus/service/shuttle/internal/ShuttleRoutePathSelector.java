@@ -117,14 +117,8 @@ public final class ShuttleRoutePathSelector {
             return false;
         }
 
-        int firstTimedCampus = findFirstTimedCampus(nodeNames, arrivalTimes);
-        int lastTimedCampus = findLastTimedCampus(nodeNames, arrivalTimes);
-        if (firstTimedCampus < 0 && lastTimedCampus < 0) {
-            return false;
-        }
-
-        boolean campusTimedAtStart = firstTimedCampus == 0;
-        boolean campusTimedAtEnd = lastTimedCampus == nodeNames.size() - 1;
+        boolean campusTimedAtStart = isTimedCampus(nodeNames, arrivalTimes, 0);
+        boolean campusTimedAtEnd = isTimedCampus(nodeNames, arrivalTimes, nodeNames.size() - 1);
         if (south) {
             return campusTimedAtEnd && !campusTimedAtStart;
         }
@@ -147,24 +141,9 @@ public final class ShuttleRoutePathSelector {
         return indexes;
     }
 
-    private static int findFirstTimedCampus(List<String> nodeNames, List<String> arrivalTimes) {
-        Set<String> campusAliases = aliasesFor(BusStation.KOREATECH);
-        for (int index = 0; index < nodeNames.size(); index++) {
-            if (matches(campusAliases, nodeNames.get(index)) && parseTime(arrivalTimes.get(index)) != null) {
-                return index;
-            }
-        }
-        return -1;
-    }
-
-    private static int findLastTimedCampus(List<String> nodeNames, List<String> arrivalTimes) {
-        Set<String> campusAliases = aliasesFor(BusStation.KOREATECH);
-        for (int index = nodeNames.size() - 1; index >= 0; index--) {
-            if (matches(campusAliases, nodeNames.get(index)) && parseTime(arrivalTimes.get(index)) != null) {
-                return index;
-            }
-        }
-        return -1;
+    private static boolean isTimedCampus(List<String> nodeNames, List<String> arrivalTimes, int index) {
+        return matches(aliasesFor(BusStation.KOREATECH), nodeNames.get(index))
+            && parseTime(arrivalTimes.get(index)) != null;
     }
 
     private static boolean matches(Set<String> aliases, String nodeName) {

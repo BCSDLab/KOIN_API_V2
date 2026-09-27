@@ -67,12 +67,9 @@ public class ExcelRangeUtil {
         for (int rowNum = startRow; rowNum <= sheet.getLastRowNum(); rowNum++) {
             Row row = sheet.getRow(rowNum);
             String stopName = row == null ? "" : getCellStringValue(row.getCell(stopNameCol));
-            boolean hasAnyValue = row != null && hasAnyValue(row);
-            boolean hasRouteValue = row != null && routeColumns.stream()
-                .anyMatch(column -> StringUtils.hasText(getCellStringValue(row.getCell(column))));
 
             if (!StringUtils.hasText(stopName)) {
-                if (hasAnyValue || hasRouteValue) {
+                if (row != null && hasTextAfter(row, 0, row.getLastCellNum())) {
                     throw invalidTemplate("정류소 이름이 없는 행에 값이 있습니다: " + rowNum);
                 }
                 ended = true;
@@ -122,59 +119,5 @@ public class ExcelRangeUtil {
             }
         }
         return false;
-    }
-
-    private static boolean hasAnyValue(Row row) {
-        if (row.getFirstCellNum() < 0) {
-            return false;
-        }
-        for (int col = row.getFirstCellNum(); col < row.getLastCellNum(); col++) {
-            if (StringUtils.hasText(getCellStringValue(row.getCell(col)))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static int countUsedRowsInColumn(Sheet sheet, int startRow, int checkColumn) {
-        int cnt = 0;
-
-        for (int i = startRow; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-
-            if (row == null) {
-                break;
-            }
-
-            Cell cell = row.getCell(checkColumn);
-
-            if (!StringUtils.hasText(getCellStringValue(cell))) {
-                break;
-            }
-
-            cnt++;
-        }
-
-        return cnt;
-    }
-
-    public static int countUsedColumnsInRow(Sheet sheet, int checkRow, int startCol) {
-        Row row = sheet.getRow(checkRow);
-
-        if (row == null) {
-            return 0;
-        }
-
-        int lastCol = startCol;
-
-        for (int col = startCol; col < row.getLastCellNum(); col++) {
-            Cell cell = row.getCell(col);
-
-            if (StringUtils.hasText(getCellStringValue(cell))) {
-                lastCol = col;
-            }
-        }
-
-        return lastCol - startCol + 1;
     }
 }
