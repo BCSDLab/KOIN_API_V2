@@ -9,11 +9,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bson.Document;
@@ -72,7 +69,6 @@ import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusExcelService;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusService;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
-import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.exception.GlobalExceptionHandler;
 
@@ -85,8 +81,10 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
 
     private static final String COLLECTION = "shuttlebus_timetables";
     private static final String FIXTURE = "fixtures/shuttle/regular-cheonan-timetable-damaged.json";
-    private static final String FULL_EXPORT_FIXTURE = "fixtures/shuttle/full-export.json";
+    private static final String ADMIN_TIMETABLES_FIXTURE = "fixtures/shuttle/admin-timetables.json";
+    private static final String CORRECTED_EXPORT_FIXTURE = "fixtures/shuttle/regular-visible-corrected.json";
     private static final ObjectId TIMETABLE_ID = new ObjectId("6a941f37c9bf31464a269865");
+    private static final ObjectId CITY_REPLACEMENT_ID = new ObjectId("6a941f37c9bf31464a269867");
     private static final ObjectId FIRST_COMMUTING_ID = new ObjectId("6a941f37c9bf31464a269854");
     private static final ObjectId SECOND_COMMUTING_ID = new ObjectId("6a941f37c9bf31464a269855");
 
@@ -170,25 +168,12 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
     }
 
     @Test
-    @DisplayName("중복 이름 회차의 입력 개수가 다르면 어느 회차인지 모호하므로 저장하지 않는다")
-    void rejectsAmbiguousPartialUpdateForDuplicateNameRounds() throws Exception {
-        ObjectNode request = baseRequest();
-        ArrayNode routeInfos = objectMapper.createArrayNode();
-        routeInfos.add(routeInfoRequest("토요일 오후", List.of("SAT"), CORRECT_SATURDAY_SECOND));
-        request.set("route_info", routeInfos);
-
-        ResponseEntity<?> response = putTimetable(request);
-
-        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
-        assertThat(routeInfo(10).getList("arrival_time", String.class))
-            .containsExactly("14:00", null, "14:25", "14:30", "15:00");
-        assertThat(routeInfo(11).getList("arrival_time", String.class))
-            .containsExactlyElementsOf(CORRECT_SATURDAY_SECOND);
-    }
-
-    @Test
     @DisplayName("반복 저장은 안정적이고 운행 요일 미전달은 보존하며 명시하면 갱신한다")
     void preservesRunningDaysAndNullPositionsAcrossRepeatedUpdates() throws Exception {
+        mongoTemplate.getCollection(COLLECTION).updateOne(
+            Filters.eq("_id", TIMETABLE_ID),
+            Updates.set("route_info.0.detail", "하교")
+        );
         ObjectNode partialRequest = baseRequest();
         ArrayNode routeInfos = objectMapper.createArrayNode();
         routeInfos.add(routeInfoRequest(
@@ -202,6 +187,7 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
             .containsExactly("MON", "TUE", "WED", "THU", "FRI");
         assertThat(firstRound.getList("arrival_time", String.class))
             .containsExactly("12:00", null, "12:25", "12:30", "13:00");
+        assertThat(firstRound.getString("detail")).isEqualTo("하교");
 
         ObjectNode explicitDaysRequest = baseRequest();
         ArrayNode explicitRouteInfos = objectMapper.createArrayNode();
@@ -224,103 +210,135 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
     }
 
     @Test
-    @DisplayName("전체 export 40문서를 학기별로 두 번 PUT해도 원본의 모든 시간표 값이 보존된다")
-    void preservesFullExportAcrossRepeatedSemesterBatchUpdates() throws Exception {
-        List<Document> original = loadFullExportFixture();
-        seedFullExport(original);
-        Map<SemesterType, ObjectNode> requests = new EnumMap<>(SemesterType.class);
-        Map<SemesterType, Integer> httpCounts = new EnumMap<>(SemesterType.class);
-        Set<ObjectId> savedIds = new HashSet<>();
-        Map<SemesterType, Integer> documentCounts = Map.of(
-            SemesterType.REGULAR, 23, SemesterType.SEASONAL, 11, SemesterType.VACATION, 6
-        );
-        for (SemesterType semester : SemesterType.values()) {
-            List<Document> timetables = original.stream()
-                .filter(document -> semester.getDescription().equals(document.getString("semester_type")))
-                .toList();
-            assertThat(timetables).as("%s documents", semester).hasSize(documentCounts.get(semester));
-            ObjectNode request = objectMapper.createObjectNode();
-            ArrayNode batches = request.putArray("shuttle_bus_timetables");
-            timetables.forEach(document -> batches.add(exportTimetableRequest(document)));
-            requests.put(semester, request);
-        }
+    @DisplayName("REPLACE는 포함된 문서의 순서와 중복 회차를 두 번 저장해도 그대로 재조회한다")
+    void replacesIncludedDocumentSnapshotAcrossRepeatedHttpMongoReads() throws Exception {
+        List<Document> original = loadAdminTimetables();
+        seedTimetables(original);
+        List<Document> expected = loadAdminTimetables();
+        Document expectedTarget = fixtureDocument(expected, TIMETABLE_ID);
 
-        // 손상된 두 회차도 원본 그대로 보존한다. 이 테스트는 시간표의 정확성이 아닌 저장 보존을 검증한다.
+        ObjectNode replacement = exportTimetableRequest(expectedTarget);
+        ArrayNode nodes = replacement.withArray("node_info");
+        JsonNode firstNode = nodes.get(0).deepCopy();
+        JsonNode secondNode = nodes.get(1).deepCopy();
+        nodes.set(0, secondNode);
+        nodes.set(1, firstNode);
+
+        ArrayNode sourceRoutes = replacement.withArray("route_info");
+        ArrayNode replacementRoutes = objectMapper.createArrayNode();
+        ObjectNode renamed = sourceRoutes.get(0).deepCopy();
+        renamed.put("name", "교체된 첫 회차");
+        ObjectNode duplicateFirst = sourceRoutes.get(1).deepCopy();
+        duplicateFirst.put("name", "교체된 중복 회차");
+        ObjectNode duplicateSecond = sourceRoutes.get(2).deepCopy();
+        duplicateSecond.put("name", "교체된 중복 회차");
+        replacementRoutes.add(duplicateSecond).add(renamed).add(duplicateFirst);
+        replacement.set("route_info", replacementRoutes);
+
+        List<Document> expectedNodes = new ArrayList<>();
+        replacement.withArray("node_info")
+            .forEach(node -> expectedNodes.add(Document.parse(node.toString())));
+        List<Document> expectedRoutes = new ArrayList<>();
+        replacement.withArray("route_info")
+            .forEach(route -> expectedRoutes.add(Document.parse(route.toString())));
+        expectedTarget.put("node_info", expectedNodes);
+        expectedTarget.put("route_info", expectedRoutes);
+
         for (int pass = 1; pass <= 2; pass++) {
-            for (SemesterType semester : SemesterType.values()) {
-                ResponseEntity<String> response = putTimetables(semester, requests.get(semester));
-                assertThat(response.getStatusCode())
-                    .as("original pass=%s semester=%s response=%s", pass, semester, response.getBody())
-                    .isEqualTo(OK);
-                httpCounts.merge(semester, 1, Integer::sum);
-                original.stream()
-                    .filter(document -> semester.getDescription().equals(document.getString("semester_type")))
-                    .forEach(document -> savedIds.add(document.getObjectId("_id")));
-                assertExportSnapshot(original, "original pass=" + pass + " semester=" + semester, savedIds);
-            }
+            ResponseEntity<?> response = putTimetable(replacement, "REPLACE");
+            assertThat(response.getStatusCode())
+                .as("replace pass=%s response=%s", pass, response.getBody())
+                .isEqualTo(OK);
+            assertExportSnapshot(expected, "replace pass=" + pass);
         }
-        assertThat(httpCounts).containsExactlyInAnyOrderEntriesOf(Map.of(
-            SemesterType.REGULAR, 2, SemesterType.SEASONAL, 2, SemesterType.VACATION, 2
-        ));
-        printExportSummary("original-preserved (known damaged rounds retained)", original, httpCounts);
-        System.out.println("FULL_EXPORT original business_changed_paths=[]; all 40 documents preserved");
-        System.out.println("FULL_EXPORT allowed mapping metadata: absent _class may become "
-            + ShuttleBusRoute.class.getName() + "; verified_added_class_documents="
-            + original.stream().filter(document -> document.get("_class") == null).count());
     }
 
     @Test
-    @DisplayName("전체 export에서 천안의 두 배열만 복구해 두 번 PUT하면 나머지 39문서와 대상의 다른 값은 보존된다")
-    void repairsOnlyTwoArrivalArraysInFullExportAcrossRepeatedUpdates() throws Exception {
-        List<Document> original = loadFullExportFixture();
-        seedFullExport(original);
-        List<Document> expected = loadFullExportFixture();
-        Document corrected = expected.stream()
-            .filter(document -> TIMETABLE_ID.equals(document.getObjectId("_id")))
-            .findFirst().orElseThrow();
-        List<Document> routes = corrected.getList("route_info", Document.class);
-        assertThat(routes.get(11).get("arrival_time")).isNotEqualTo(CORRECT_SATURDAY_SECOND);
-        assertThat(routes.get(13).get("arrival_time")).isNotEqualTo(CORRECT_SUNDAY_SECOND);
-        routes.get(11).put("arrival_time", CORRECT_SATURDAY_SECOND);
-        routes.get(13).put("arrival_time", CORRECT_SUNDAY_SECOND);
-        ObjectNode request = wrapRequest(exportTimetableRequest(corrected));
+    @DisplayName("실제 4회차 7정류장 노선을 5회차 8정류장 snapshot으로 REPLACE하고 반복 재조회한다")
+    void replacesCorrectedCitySnapshotAcrossRepeatedHttpMongoReads() throws Exception {
+        List<Document> fullExport = loadAdminTimetables();
+        Document originalCity = fixtureDocument(fullExport, CITY_REPLACEMENT_ID);
+        Document unrelatedDocument = fullExport.stream()
+            .filter(document -> !CITY_REPLACEMENT_ID.equals(document.getObjectId("_id")))
+            .findFirst()
+            .orElseThrow();
+        assertThat(originalCity.getList("node_info", Document.class)).hasSize(7);
+        assertThat(originalCity.getList("route_info", Document.class)).hasSize(4);
 
+        List<Document> original = List.of(originalCity, unrelatedDocument);
+        seedTimetables(original);
+
+        Document correctedCity = fixtureDocument(loadCorrectedExportFixture(), CITY_REPLACEMENT_ID);
+        assertThat(correctedCity.getList("node_info", Document.class)).hasSize(8);
+        assertThat(correctedCity.getList("route_info", Document.class)).hasSize(5);
+        ObjectNode replacement = exportTimetableRequest(correctedCity);
+
+        List<Document> expected = List.of(correctedCity, unrelatedDocument);
         for (int pass = 1; pass <= 2; pass++) {
-            ResponseEntity<String> response = putTimetables(SemesterType.REGULAR, request);
+            ResponseEntity<?> response = putTimetable(replacement, "REPLACE");
             assertThat(response.getStatusCode())
-                .as("repair pass=%s _id=%s response=%s", pass, TIMETABLE_ID, response.getBody())
+                .as("city replacement pass=%s response=%s", pass, response.getBody())
                 .isEqualTo(OK);
-            assertExportSnapshot(expected, "repair pass=" + pass);
+            assertExportSnapshot(expected, "city replacement pass=" + pass);
         }
-        printExportSummary("two-arrays-repaired", expected, Map.of(
-            SemesterType.REGULAR, 2, SemesterType.SEASONAL, 0, SemesterType.VACATION, 0
-        ));
-        System.out.println("FULL_EXPORT repaired _id=" + TIMETABLE_ID
-            + " changed_paths=[route_info.11.arrival_time, route_info.13.arrival_time]"
-            + " preserved_other_docs=39; all other fields/rounds/cells preserved");
-        System.out.println("FULL_EXPORT repaired route_info.11.arrival_time="
-            + routeInfo(11).get("arrival_time"));
-        System.out.println("FULL_EXPORT repaired route_info.13.arrival_time="
-            + routeInfo(13).get("arrival_time"));
+    }
+
+    @Test
+    @DisplayName("REPLACE 뒤쪽 회차의 운행 요일이 잘못되면 앞쪽 변경도 저장하지 않는다")
+    void rejectsInvalidReplacementDaysWithoutSavingEarlierDocument() throws Exception {
+        List<Document> fullExport = loadAdminTimetables();
+        Document originalFirst = fixtureDocument(fullExport, CITY_REPLACEMENT_ID);
+        Document originalLater = fixtureDocument(fullExport, SECOND_COMMUTING_ID);
+        List<Document> original = List.of(originalFirst, originalLater);
+        seedTimetables(original);
+
+        ObjectNode first = exportTimetableRequest(originalFirst);
+        ((ObjectNode)first.withArray("route_info").get(0)).withArray("arrival_time")
+            .set(0, objectMapper.getNodeFactory().textNode("08:01"));
+        ObjectNode invalidLater = exportTimetableRequest(originalLater);
+        ((ObjectNode)invalidLater.withArray("route_info").get(0)).putArray("running_days");
+
+        ResponseEntity<String> response = putBatch("shuttle", "REPLACE", first, invalidLater);
+
+        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(response.getBody()).contains("REQUIRED_SHUTTLE_RUNNING_DAYS");
+        assertExportSnapshot(original, "invalid replacement days");
+    }
+
+    @Test
+    @DisplayName("REPLACE 뒤쪽 회차의 정류장별 도착 시간 개수가 다르면 앞쪽 변경도 저장하지 않는다")
+    void rejectsInvalidReplacementLengthWithoutSavingEarlierDocument() throws Exception {
+        List<Document> fullExport = loadAdminTimetables();
+        Document originalFirst = fixtureDocument(fullExport, CITY_REPLACEMENT_ID);
+        Document originalLater = fixtureDocument(fullExport, SECOND_COMMUTING_ID);
+        List<Document> original = List.of(originalFirst, originalLater);
+        seedTimetables(original);
+
+        ObjectNode first = exportTimetableRequest(originalFirst);
+        ((ObjectNode)first.withArray("route_info").get(0)).withArray("arrival_time")
+            .set(0, objectMapper.getNodeFactory().textNode("08:01"));
+        ObjectNode invalidLater = exportTimetableRequest(originalLater);
+        ((ObjectNode)invalidLater.withArray("route_info").get(0)).withArray("arrival_time").remove(0);
+
+        ResponseEntity<String> response = putBatch("shuttle", "REPLACE", first, invalidLater);
+
+        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(response.getBody()).contains("INVALID_REQUEST_BODY");
+        assertExportSnapshot(original, "invalid replacement length");
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"shuttle", "commuting"})
     @DisplayName("배치 뒤쪽의 회차 검증이 실패하면 앞 문서 변경을 포함한 전체 원본이 유지된다")
     void rejectsInvalidLaterDocumentWithoutSavingEarlierChange(String admin) throws Exception {
-        List<Document> original = loadFullExportFixture();
-        seedFullExport(original);
+        List<Document> original = loadAdminTimetables();
+        seedTimetables(original);
         ObjectNode first = exportTimetableRequest(fixtureDocument(original, FIRST_COMMUTING_ID));
         ((ObjectNode)first.withArray("route_info").get(0)).withArray("arrival_time")
             .set(0, objectMapper.getNodeFactory().textNode("07:01"));
 
         ResponseEntity<String> response = putBatch(admin, first, invalidDuplicateRequest(original, admin));
 
-        Document after = mongoTemplate.getCollection(COLLECTION).find(Filters.eq("_id", FIRST_COMMUTING_ID)).first();
-        System.out.printf("BATCH_VALIDATION admin=%s status=%s first_id=%s after_first_time=%s count=%d%n",
-            admin, response.getStatusCode().value(), FIRST_COMMUTING_ID,
-            after.getList("route_info", Document.class).get(0).getList("arrival_time", String.class).get(0),
-            mongoTemplate.getCollection(COLLECTION).countDocuments());
         assertThat(response.getStatusCode()).as("%s: %s", admin, response.getBody()).isEqualTo(BAD_REQUEST);
         assertThat(response.getBody()).contains("INVALID_REQUEST_BODY");
         assertExportSnapshot(original, admin + " invalid later document");
@@ -330,8 +348,8 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
     @ValueSource(strings = {"shuttle", "commuting"})
     @DisplayName("배치 뒤쪽 검증이 실패하면 앞쪽 신규 문서도 생성하지 않는다")
     void rejectsInvalidLaterDocumentWithoutInsertingEarlierNewRoute(String admin) throws Exception {
-        List<Document> original = loadFullExportFixture();
-        seedFullExport(original);
+        List<Document> original = loadAdminTimetables();
+        seedTimetables(original);
         ObjectNode first = exportTimetableRequest(fixtureDocument(original, FIRST_COMMUTING_ID));
         first.put("route_name", "검증 실패 시 생성하지 않을 노선");
         first.putNull("sub_name");
@@ -343,51 +361,13 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
         assertExportSnapshot(original, admin + " no insert on invalid batch");
     }
 
-    @Test
-    @DisplayName("뒤쪽 신규 셔틀 문서의 운행 요일이 없으면 앞 문서도 저장하지 않는다")
-    void rejectsMissingRunningDaysOnLaterNewShuttleRoute() throws Exception {
-        List<Document> original = loadFullExportFixture();
-        seedFullExport(original);
-        ObjectNode first = exportTimetableRequest(fixtureDocument(original, FIRST_COMMUTING_ID));
-        ((ObjectNode)first.withArray("route_info").get(0)).withArray("arrival_time")
-            .set(0, objectMapper.getNodeFactory().textNode("07:01"));
-        ObjectNode invalidNew = exportTimetableRequest(fixtureDocument(original, FIRST_COMMUTING_ID));
-        invalidNew.put("route_name", "운행 요일 없는 신규 노선");
-        invalidNew.putNull("sub_name");
-        invalidNew.withArray("route_info").forEach(round -> ((ObjectNode)round).remove("running_days"));
-
-        ResponseEntity<String> response = putBatch("shuttle", first, invalidNew);
-
-        assertThat(response.getStatusCode()).as("%s", response.getBody()).isEqualTo(BAD_REQUEST);
-        assertThat(response.getBody()).contains("REQUIRED_SHUTTLE_RUNNING_DAYS");
-        assertExportSnapshot(original, "missing days on later new document");
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"shuttle", "commuting"})
-    @DisplayName("정상 다중 노선 배치는 각 변경을 저장하고 다른 모든 값을 보존한다")
-    void savesValidMultipleRoutes(String admin) throws Exception {
-        List<Document> original = loadFullExportFixture();
-        seedFullExport(original);
-        List<Document> expected = loadFullExportFixture();
-        Document first = fixtureDocument(expected, FIRST_COMMUTING_ID);
-        Document second = fixtureDocument(expected, SECOND_COMMUTING_ID);
-        first.getList("route_info", Document.class).get(0).getList("arrival_time", String.class).set(0, "07:01");
-        second.getList("route_info", Document.class).get(0).getList("arrival_time", String.class).set(0, "07:02");
-
-        ResponseEntity<String> response = putBatch(admin, exportTimetableRequest(first), exportTimetableRequest(second));
-
-        assertThat(response.getStatusCode()).as("%s: %s", admin, response.getBody()).isEqualTo(OK);
-        assertExportSnapshot(expected, admin + " valid multiple routes");
-    }
-
     @ParameterizedTest
     @ValueSource(strings = {"shuttle", "commuting"})
     @DisplayName("동일 노선의 연속 부분 요청은 정규화한 키로 같은 문서에 누적한다")
     void accumulatesRepeatedPartialUpdatesForSameRoute(String admin) throws Exception {
-        List<Document> original = loadFullExportFixture();
-        seedFullExport(original);
-        List<Document> expected = loadFullExportFixture();
+        List<Document> original = loadAdminTimetables();
+        seedTimetables(original);
+        List<Document> expected = loadAdminTimetables();
         Document changed = fixtureDocument(expected, FIRST_COMMUTING_ID);
         changed.getList("route_info", Document.class).get(0).getList("arrival_time", String.class).set(0, "07:01");
         changed.getList("route_info", Document.class).get(1).getList("arrival_time", String.class).set(0, "19:01");
@@ -405,9 +385,9 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
     @ValueSource(strings = {"shuttle", "commuting"})
     @DisplayName("부가명 없는 동일 신규 노선을 두 번 요청해도 한 문서만 만들고 변경을 누적한다")
     void createsRepeatedNewRouteOnlyOnce(String admin) throws Exception {
-        List<Document> original = loadFullExportFixture();
-        seedFullExport(original);
-        List<Document> expected = loadFullExportFixture();
+        List<Document> original = loadAdminTimetables();
+        seedTimetables(original);
+        List<Document> expected = loadAdminTimetables();
         Document newRoute = Document.parse(fixtureDocument(original, FIRST_COMMUTING_ID).toJson());
         newRoute.remove("_id");
         newRoute.put("route_name", "동일 신규 노선 검증");
@@ -442,6 +422,20 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
         return request;
     }
 
+    private List<Document> loadCorrectedExportFixture() throws IOException {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(CORRECTED_EXPORT_FIXTURE)) {
+            if (input == null) {
+                throw new IllegalStateException("Fixture not found: " + CORRECTED_EXPORT_FIXTURE);
+            }
+            JsonNode exported = objectMapper.readTree(input);
+            List<Document> documents = new ArrayList<>();
+            for (JsonNode document : exported) {
+                documents.add(Document.parse(document.toString()));
+            }
+            return documents;
+        }
+    }
+
     private ObjectNode invalidDuplicateRequest(List<Document> original, String admin) {
         ObjectNode request = exportTimetableRequest(fixtureDocument(original,
             "shuttle".equals(admin) ? TIMETABLE_ID : SECOND_COMMUTING_ID));
@@ -456,6 +450,10 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
     }
 
     private ResponseEntity<String> putBatch(String admin, ObjectNode... timetables) {
+        return putBatch(admin, "PARTIAL", timetables);
+    }
+
+    private ResponseEntity<String> putBatch(String admin, String updateMode, ObjectNode... timetables) {
         ObjectNode request = objectMapper.createObjectNode();
         ArrayNode batch = request.putArray("shuttle".equals(admin) ? "shuttle_bus_timetables" : "commuting_bus_timetables");
         for (ObjectNode timetable : timetables) {
@@ -465,13 +463,16 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
             }
             batch.add(copy);
         }
-        return putJson("/admin/bus/" + admin + "/timetable?semester_type=REGULAR", request);
+        return putJson(
+            "/admin/bus/" + admin + "/timetable?semester_type=REGULAR&update_mode=" + updateMode,
+            request
+        );
     }
 
-    private List<Document> loadFullExportFixture() throws IOException {
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream(FULL_EXPORT_FIXTURE)) {
+    private List<Document> loadAdminTimetables() throws IOException {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(ADMIN_TIMETABLES_FIXTURE)) {
             if (input == null) {
-                throw new IllegalStateException("Fixture not found: " + FULL_EXPORT_FIXTURE);
+                throw new IllegalStateException("Fixture not found: " + ADMIN_TIMETABLES_FIXTURE);
             }
             JsonNode exported = objectMapper.readTree(input);
             assertThat(exported.isArray()).isTrue();
@@ -480,12 +481,12 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
                 // Extended JSON의 $oid를 문자열로 바꾸지 않고 BSON ObjectId로 복원한다.
                 documents.add(Document.parse(document.toString()));
             }
-            assertThat(documents).hasSize(40);
+            assertThat(documents).hasSize(4);
             return documents;
         }
     }
 
-    private void seedFullExport(List<Document> documents) {
+    private void seedTimetables(List<Document> documents) {
         mongoTemplate.getCollection(COLLECTION).deleteMany(new Document());
         mongoTemplate.getCollection(COLLECTION).insertMany(documents);
         assertExportSnapshot(documents, "fresh full-export seed");
@@ -503,10 +504,6 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
     }
 
     private void assertExportSnapshot(List<Document> expected, String phase) {
-        assertExportSnapshot(expected, phase, Set.of());
-    }
-
-    private void assertExportSnapshot(List<Document> expected, String phase, Set<ObjectId> savedIds) {
         List<Document> actual = mongoTemplate.getCollection(COLLECTION).find().into(new ArrayList<>());
         assertThat(actual).as("%s document count", phase).hasSize(expected.size());
         assertThat(actual).extracting(document -> document.getObjectId("_id"))
@@ -517,19 +514,11 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
             .collect(Collectors.toMap(document -> document.getObjectId("_id"), document -> document));
         for (Document document : expected) {
             ObjectId id = document.getObjectId("_id");
-            Document expectedWithMetadata = new Document(document);
-            if (document.get("_class") == null && savedIds.contains(id)) {
-                // Spring Data가 추가하는 정해진 클래스 메타데이터만 허용한다. 도메인 값 비교는 그대로다.
-                String actualClass = actualById.get(id).getString("_class");
-                assertThat(actualClass).as("%s _id=%s mapping metadata", phase, id)
-                    .isEqualTo(ShuttleBusRoute.class.getName());
-                expectedWithMetadata.put("_class", actualClass);
-            }
             assertThat(normalizeMissingAndNullFields(actualById.get(id)))
                 .as("%s _id=%s semester=%s route=%s", phase, id,
                     document.getString("semester_type"), document.getString("route_name"))
                 .usingRecursiveComparison()
-                .isEqualTo(normalizeMissingAndNullFields(expectedWithMetadata));
+                .isEqualTo(normalizeMissingAndNullFields(document));
         }
     }
 
@@ -550,20 +539,16 @@ class AdminShuttleBusTimetableMongoIntegrationTest {
         return value;
     }
 
-    private void printExportSummary(String mode, List<Document> documents, Map<SemesterType, Integer> httpCounts) {
-        List<Document> rounds = documents.stream()
-            .flatMap(document -> document.getList("route_info", Document.class).stream()).toList();
-        int cells = rounds.stream().mapToInt(round -> round.getList("arrival_time", String.class).size()).sum();
-        System.out.printf("FULL_EXPORT mode=%s docs=%d rounds=%d cells=%d HTTP_200_counts=%s%n",
-            mode, documents.size(), rounds.size(), cells, new EnumMap<>(httpCounts));
-    }
-
     private ResponseEntity<?> putTimetable(ObjectNode request) {
-        return putTimetables(SemesterType.REGULAR, wrapRequest(request));
+        return putTimetable(request, "PARTIAL");
     }
 
-    private ResponseEntity<String> putTimetables(SemesterType semester, ObjectNode request) {
-        return putJson("/admin/bus/shuttle/timetable?semester_type=" + semester.name(), request);
+    private ResponseEntity<?> putTimetable(ObjectNode request, String updateMode) {
+        return putJson(
+            "/admin/bus/shuttle/timetable?semester_type=" + SemesterType.REGULAR.name()
+                + "&update_mode=" + updateMode,
+            wrapRequest(request)
+        );
     }
 
     private ResponseEntity<String> putJson(String path, ObjectNode request) {

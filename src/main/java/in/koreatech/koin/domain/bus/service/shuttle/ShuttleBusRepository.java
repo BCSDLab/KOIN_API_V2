@@ -42,10 +42,27 @@ public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, Object
         // 4단계: 필요한 필드만 선택하여 반환 (불필요한 필드 제외)
         """
             { $project: {
+                '_id': 0,
                 'route_name': 1,
+                'route_type': 1,
+                'region': 1,
+                'route_info_name': '$route_info.name',
+                'route_detail': '$route_info.detail',
+                'array_lengths_match': {
+                    '$cond': [
+                        { '$and': [
+                            { '$isArray': '$node_info' },
+                            { '$isArray': '$route_info.arrival_time' }
+                        ] },
+                        { '$eq': [
+                            { '$size': { '$ifNull': ['$node_info', []] } },
+                            { '$size': { '$ifNull': ['$route_info.arrival_time', []] } }
+                        ] },
+                        false
+                    ]
+                },
                 'node_name': '$node_info.name',
-                'arrival_time': '$route_info.arrival_time',
-                '_id': 0
+                'arrival_time': '$route_info.arrival_time'
             }}"""
     })
     List<ShuttleBusSimpleRoute> findBySemesterType(String semesterType, String dayOfWeek);
@@ -61,16 +78,38 @@ public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, Object
                 'route_type': 1,
                 'route_info': '$route_info.name',
                 'route_detail': '$route_info.detail',
+                'array_lengths_match': {
+                    '$cond': [
+                        { '$and': [
+                            { '$isArray': '$node_info' },
+                            { '$isArray': '$route_info.arrival_time' }
+                        ] },
+                        { '$eq': [
+                            { '$size': { '$ifNull': ['$node_info', []] } },
+                            { '$size': { '$ifNull': ['$route_info.arrival_time', []] } }
+                        ] },
+                        false
+                    ]
+                },
                 'running_days': '$route_info.running_days',
                 'arrival_nodes': {
-                    $map: {
-                        input: { $range: [0, { $size: '$node_info' }] },
-                        as: 'index',
-                        in: {
-                            'node_name': { '$arrayElemAt': ['$node_info.name', '$$index'] },
-                            'arrival_time': { '$arrayElemAt': ['$route_info.arrival_time', '$$index'] }
-                        }
-                    }
+                    '$cond': [
+                        { '$and': [
+                            { '$isArray': '$node_info' },
+                            { '$isArray': '$route_info.arrival_time' }
+                        ] },
+                        {
+                            '$map': {
+                                'input': { '$range': [0, { '$size': '$node_info' }] },
+                                'as': 'index',
+                                'in': {
+                                    'node_name': { '$arrayElemAt': ['$node_info.name', '$$index'] },
+                                    'arrival_time': { '$arrayElemAt': ['$route_info.arrival_time', '$$index'] }
+                                }
+                            }
+                        },
+                        []
+                    ]
                 }
             }}"""
     })

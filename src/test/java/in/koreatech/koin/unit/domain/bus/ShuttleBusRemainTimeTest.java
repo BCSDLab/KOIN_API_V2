@@ -1,10 +1,13 @@
 package in.koreatech.koin.unit.domain.bus;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -24,7 +27,9 @@ import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse.InnerBusResponse;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
+import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.service.BusNoticeRepository;
 import in.koreatech.koin.domain.bus.service.BusService;
 import in.koreatech.koin.domain.bus.service.city.CityBusService;
@@ -65,7 +70,7 @@ class ShuttleBusRemainTimeTest {
 
     @BeforeEach
     void setUp() {
-        when(versionService.getVersionEntity(VersionType.SHUTTLE))
+        lenient().when(versionService.getVersionEntity(VersionType.SHUTTLE))
             .thenReturn(Version.builder().title(SEMESTER).build());
         shuttleBusService = new ShuttleBusService(versionService, shuttleBusRepository, CLOCK);
         busService = new BusService(
@@ -130,14 +135,14 @@ class ShuttleBusRemainTimeTest {
 
         assertThat(remainTimes)
             .extracting(BusRemainTime::getBusArrivalTime)
-            .containsExactly(LocalTime.of(14, 25), LocalTime.of(15, 0), LocalTime.of(16, 0));
+            .containsExactly(LocalTime.of(14, 25), LocalTime.of(15, 0), LocalTime.of(16, 0), LocalTime.of(19, 50));
     }
 
     @ParameterizedTest
     @EnumSource(value = BusType.class, names = {"SHUTTLE", "COMMUTING"})
     void 셔틀_서비스는_null_시각만_있으면_빈_목록을_반환한다(BusType busType) {
         ShuttleRouteType type = routeType(busType);
-        givenRoutes(busType, List.of(duplicateDeparture(type, null), duplicateDeparture(type, "정차")));
+        givenRoutes(busType, List.of(invalidDeparture(type, null), invalidDeparture(type, "정차")));
 
         List<BusRemainTime> remainTimes = shuttleBusService.getShuttleBusRemainTimes(
             busType, BusStation.TERMINAL, BusStation.KOREATECH);
@@ -150,7 +155,7 @@ class ShuttleBusRemainTimeTest {
     void 계산할_수_없는_시간과_운행_종료_항목만_있으면_빈_응답을_반환한다(BusType busType) {
         ShuttleRouteType type = routeType(busType);
         givenRoutes(busType, List.of(
-            duplicateDeparture(type, null), duplicateDeparture(type, "정차"), departure(type, "10:00")));
+            invalidDeparture(type, null), invalidDeparture(type, "정차"), departure(type, "10:00")));
 
         assertThat(getRemainTime(busType)).isEqualTo(new BusRemainTimeResponse(busType.getName(), null, null));
     }
@@ -161,6 +166,47 @@ class ShuttleBusRemainTimeTest {
         givenRoutes(busType, List.of());
 
         assertThat(getRemainTime(busType)).isEqualTo(new BusRemainTimeResponse(busType.getName(), null, null));
+    }
+
+    @Test
+    void 같은_정류장의_남은_시간_조회는_기존_오류_계약을_유지한다() {
+        assertThatThrownBy(() -> busService.getBusRemainTime(
+            BusType.SHUTTLE, BusStation.TERMINAL, BusStation.TERMINAL))
+            .isInstanceOf(BusIllegalStationException.class);
+    }
+
+    @Test
+    void 같은_정류장의_검색은_기존_오류_계약을_유지한다() {
+        assertThatThrownBy(() -> busService.searchTimetable(
+            LocalDate.of(2026, 9, 5), LocalTime.NOON, BusStation.TERMINAL, BusStation.TERMINAL))
+            .isInstanceOf(BusIllegalStationException.class);
+    }
+
+    @Test
+    void 레거시_시간표_표시_순서는_route_type별_기존_계약을_유지한다() {
+        Route shuttle = route(ShuttleRouteType.SHUTTLE, null,
+            node("한기대", "08:00"), node("터미널", "08:30"));
+        Route weekend = route(ShuttleRouteType.WEEKEND, "하교",
+            node("한기대", "19:10"), node("터미널", "19:50"));
+        Route weekdays = route(ShuttleRouteType.WEEKDAYS, "하교",
+            node("터미널", "18:50"), node("한기대", "18:10"));
+        when(shuttleBusRepository.findAllBySemesterTypeAndRouteType(SEMESTER, ShuttleRouteType.SHUTTLE))
+            .thenReturn(List.of(shuttle));
+        when(shuttleBusRepository.findAllBySemesterTypeAndRouteType(SEMESTER, ShuttleRouteType.WEEKEND))
+            .thenReturn(List.of(weekend));
+        when(shuttleBusRepository.findAllBySemesterTypeAndRouteType(SEMESTER, ShuttleRouteType.WEEKDAYS))
+            .thenReturn(List.of(weekdays));
+
+        assertThat(shuttleBusService.getSchoolBusTimetables(BusType.SHUTTLE, "from", "천안"))
+            .extracting(timetable -> timetable.getArrivalNodes().stream()
+                .map(ArrivalNode::getNodeName).toList())
+            .containsExactly(
+                List.of("한기대", "터미널"),
+                List.of("터미널", "한기대"));
+        assertThat(shuttleBusService.getSchoolBusTimetables(BusType.COMMUTING, "from", "천안"))
+            .extracting(timetable -> timetable.getArrivalNodes().stream()
+                .map(ArrivalNode::getNodeName).toList())
+            .containsExactly(List.of("한기대", "터미널"));
     }
 
     private BusRemainTimeResponse getRemainTime(BusType busType) {
@@ -185,12 +231,17 @@ class ShuttleBusRemainTimeTest {
         return route(type, "등교", node("터미널", firstTime), node("터미널", "19:50"), node("한기대", "도착"));
     }
 
+    private Route invalidDeparture(ShuttleRouteType type, String time) {
+        return route(type, "등교", node("터미널", time), node("한기대", "도착"));
+    }
+
     private Route route(ShuttleRouteType type, String direction, ArrivalNode... nodes) {
         Route route = BeanUtils.instantiateClass(Route.class);
         ReflectionTestUtils.setField(route, "routeName", "테스트 노선");
         ReflectionTestUtils.setField(route, "routeType", type);
         ReflectionTestUtils.setField(route, "routeInfo", direction);
         ReflectionTestUtils.setField(route, "routeDetail", direction);
+        ReflectionTestUtils.setField(route, "region", ShuttleBusRegion.CHEONAN_ASAN);
         ReflectionTestUtils.setField(route, "runningDays", List.of("SAT"));
         ReflectionTestUtils.setField(route, "arrivalNodes", new ArrayList<>(List.of(nodes)));
         return route;

@@ -22,11 +22,11 @@ class ShuttleBusRouteTest {
     private ShuttleBusRoute createRoute(List<String> runningDays) {
         return ShuttleBusRoute.builder()
             .routeName("천안 셔틀")
-            .nodeInfo(List.of(createNodeInfo("한기대")))
+            .nodeInfo(List.of(createNodeInfo("한기대"), createNodeInfo("천안역")))
             .routeInfo(List.of(
                 RouteInfo.builder()
                     .name("1회")
-                    .detail("(천안역→본교)")
+                    .detail("기존 상세")
                     .runningDays(runningDays)
                     .arrivalTime(List.of("08:00", "08:30"))
                     .build()
@@ -44,7 +44,7 @@ class ShuttleBusRouteTest {
         return List.of(
             RouteInfo.builder()
                 .name("1회")
-                .detail("(천안역→본교)")
+                .detail(null)
                 .runningDays(runningDays)
                 .arrivalTime(List.of("09:00", "09:30"))
                 .build()
@@ -57,12 +57,13 @@ class ShuttleBusRouteTest {
         ShuttleBusRoute route = createRoute(WEEKDAYS);
 
         route.updateCommutingBusRoute(
-            List.of(createNodeInfo("한기대")),
+            List.of(createNodeInfo("한기대"), createNodeInfo("천안역")),
             createUpdatedRouteInfos(null)
         );
 
         RouteInfo updated = route.getRouteInfo().get(0);
         assertThat(updated.getRunningDays()).isEqualTo(WEEKDAYS);
+        assertThat(updated.getDetail()).isEqualTo("기존 상세");
         assertThat(updated.getArrivalTime()).containsExactly("09:00", "09:30");
     }
 
@@ -72,7 +73,7 @@ class ShuttleBusRouteTest {
         ShuttleBusRoute route = createRoute(WEEKDAYS);
 
         route.updateCommutingBusRoute(
-            List.of(createNodeInfo("한기대")),
+            List.of(createNodeInfo("한기대"), createNodeInfo("천안역")),
             createUpdatedRouteInfos(List.of())
         );
 
@@ -85,7 +86,7 @@ class ShuttleBusRouteTest {
         ShuttleBusRoute route = createRoute(WEEKDAYS);
 
         route.updateCommutingBusRoute(
-            List.of(createNodeInfo("한기대")),
+            List.of(createNodeInfo("한기대"), createNodeInfo("천안역")),
             createUpdatedRouteInfos(SATURDAY)
         );
 
@@ -132,6 +133,7 @@ class ShuttleBusRouteTest {
     @DisplayName("동명 회차도 각 요청의 운행 요일 누락과 명시 갱신을 개별 적용한다")
     void preservesAndUpdatesRunningDaysPerDuplicateRound() {
         ShuttleBusRoute route = ShuttleBusRoute.builder()
+            .nodeInfo(List.of(createNodeInfo("한기대")))
             .routeInfo(List.of(
                 RouteInfo.builder()
                     .name("일요일 오후")
@@ -147,7 +149,7 @@ class ShuttleBusRouteTest {
             .build();
 
         route.updateCommutingBusRoute(
-            List.of(),
+            List.of(createNodeInfo("한기대")),
             List.of(
                 RouteInfo.builder()
                     .name("일요일 오후")
@@ -166,5 +168,31 @@ class ShuttleBusRouteTest {
         assertThat(route.getRouteInfo().get(0).getArrivalTime()).containsExactly("16:00");
         assertThat(route.getRouteInfo().get(1).getRunningDays()).containsExactly("SUN");
         assertThat(route.getRouteInfo().get(1).getArrivalTime()).containsExactly("17:30");
+    }
+
+    @Test
+    @DisplayName("부분 수정에서 중복 이름 회차 전체를 생략하면 기존 회차를 보존한다")
+    void preservesOmittedDuplicateNameGroup() {
+        ShuttleBusRoute route = ShuttleBusRoute.builder()
+            .nodeInfo(List.of(createNodeInfo("한기대")))
+            .routeInfo(List.of(
+                RouteInfo.builder().name("토요일 오후").runningDays(SATURDAY)
+                    .arrivalTime(List.of("14:25")).build(),
+                RouteInfo.builder().name("토요일 오후").runningDays(SATURDAY)
+                    .arrivalTime(List.of("18:30")).build(),
+                RouteInfo.builder().name("1회").runningDays(WEEKDAYS)
+                    .arrivalTime(List.of("08:00")).build()
+            ))
+            .build();
+
+        route.updateCommutingBusRoute(
+            List.of(createNodeInfo("한기대")),
+            List.of(RouteInfo.builder().name("1회").runningDays(WEEKDAYS)
+                .arrivalTime(List.of("09:00")).build())
+        );
+
+        assertThat(route.getRouteInfo().get(0).getArrivalTime()).containsExactly("14:25");
+        assertThat(route.getRouteInfo().get(1).getArrivalTime()).containsExactly("18:30");
+        assertThat(route.getRouteInfo().get(2).getArrivalTime()).containsExactly("09:00");
     }
 }

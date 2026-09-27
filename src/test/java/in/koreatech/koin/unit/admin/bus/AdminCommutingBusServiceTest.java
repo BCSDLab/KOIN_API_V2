@@ -15,8 +15,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -79,8 +77,8 @@ class AdminCommutingBusServiceTest {
     }
 
     @Test
-    @DisplayName("운행 요일이 비어있던 기존 등하교 시간표는 갱신 시 주중으로 채워진다")
-    void backfillWeekdaysOnUpdate() {
+    @DisplayName("운행 요일이 비어있던 기존 등하교 시간표는 갱신해도 비어 있는 상태를 유지한다")
+    void preservesMissingDaysOnUpdate() {
         ShuttleBusRoute existing = ShuttleBusRoute.builder()
             .routeName("천안 등하교")
             .nodeInfo(List.of(NodeInfo.builder().name("한기대").build()))
@@ -96,27 +94,30 @@ class AdminCommutingBusServiceTest {
         adminCommutingBusService.updateCommutingBusTimetable(SemesterType.REGULAR, createRequest());
 
         RouteInfo saved = captureSavedRoute().getRouteInfo().get(0);
-        assertThat(saved.getRunningDays()).isEqualTo(WEEKDAYS);
+        assertThat(saved.getRunningDays()).isNull();
         assertThat(saved.getArrivalTime()).containsExactly("08:00");
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {false, true})
-    @DisplayName("동일 통학 노선이 반복되면 신규와 기존 모두 한 번 조회하고 최종 문서를 한 번 저장한다")
-    void preparesRepeatedTargetOnce(boolean exists) {
-        ShuttleBusRoute existing = ShuttleBusRoute.builder()
-            .nodeInfo(List.of(NodeInfo.builder().name("한기대").build()))
-            .routeInfo(List.of(RouteInfo.builder().name("등교").runningDays(WEEKDAYS)
-                .arrivalTime(List.of("07:00")).build()))
-            .build();
-        givenExistingTimetable(exists ? Optional.of(existing) : Optional.empty());
-        InnerAdminCommutingBusUpdateRequest item = createRequest().commutingBusTimetables().get(0);
+    @Test
+    @DisplayName("통학 시간표에 명시한 운행 요일은 노선 형태와 무관하게 저장된다")
+    void savesExplicitRunningDays() {
+        givenExistingTimetable(Optional.empty());
+        InnerAdminCommutingBusUpdateRequest item = new InnerAdminCommutingBusUpdateRequest(
+            "천안・아산",
+            "주중",
+            "천안 등하교",
+            null,
+            List.of(new InnerNodeInfo("한기대", null)),
+            List.of(new InnerRouteInfo("등교", null, List.of("SAT"), List.of("08:00")))
+        );
 
         adminCommutingBusService.updateCommutingBusTimetable(
-            SemesterType.REGULAR, new AdminCommutingBusUpdateRequest(List.of(item, item)));
+            SemesterType.REGULAR,
+            new AdminCommutingBusUpdateRequest(List.of(item))
+        );
 
-        verify(adminCommutingBusRepository).findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
-            anyString(), any(), any(), anyString(), any());
-        assertThat(captureSavedRoute().getRouteInfo().get(0).getArrivalTime()).containsExactly("08:00");
+        assertThat(captureSavedRoute().getRouteInfo().get(0).getRunningDays())
+            .containsExactly("SAT");
     }
+
 }

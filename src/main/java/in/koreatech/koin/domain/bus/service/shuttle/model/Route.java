@@ -1,9 +1,8 @@
 package in.koreatech.koin.domain.bus.service.shuttle.model;
 
-import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.*;
-
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,8 +15,8 @@ import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
-import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.service.shuttle.internal.ShuttleRoutePathSelector;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,10 +46,14 @@ public class Route {
     @Field("arrival_nodes")
     private List<ArrivalNode> arrivalNodes = new ArrayList<>();
 
+    @Field("array_lengths_match")
+    private boolean arrayLengthsMatch = true;
+
     private String direction;
 
     public boolean isRunning(Clock clock) {
-        if ("미운행".equals(routeName) || arrivalNodes.isEmpty()) {
+        if ("미운행".equals(routeName) || "미운행".equals(routeInfo)
+            || arrivalNodes == null || arrivalNodes.isEmpty() || runningDays == null) {
             return false;
         }
         String todayOfWeek = LocalDateTime.now(clock)
@@ -61,53 +64,69 @@ public class Route {
     }
 
     public boolean isCorrectRoute(BusStation depart, BusStation arrival, Clock clock) {
-        boolean foundDepart = false;
-        for (ArrivalNode node : arrivalNodes) {
-            if (depart.getDisplayNames().contains(node.getNodeName())
-                && (BusRemainTime.from(node.getArrivalTime()).isBefore(clock))) {
-                foundDepart = true;
-            }
-            if (arrival.getDisplayNames().contains(node.getNodeName()) && foundDepart) {
-                return true;
-            }
+        return findOccurrences(depart, arrival).stream()
+            .anyMatch(occurrence -> occurrence.departureTime().isAfter(LocalDateTime.now(clock).toLocalTime()));
+    }
+
+    public List<ShuttleRoutePathSelector.Occurrence> findOccurrences(BusStation depart, BusStation arrival) {
+        if (!arrayLengthsMatch || arrivalNodes == null) {
+            return List.of();
         }
-        return false;
+        List<String> nodeNames = arrivalNodes.stream()
+            .map(node -> node == null ? null : node.getNodeName())
+            .toList();
+        List<String> arrivalTimes = arrivalNodes.stream()
+            .map(node -> node == null ? null : node.getArrivalTime())
+            .toList();
+        return ShuttleRoutePathSelector.select(
+            nodeNames,
+            arrivalTimes,
+            routeType,
+            routeDirectionForPath(),
+            depart,
+            arrival
+        );
     }
 
-    public BusRemainTime getRemainTime(BusStation busStation) {
-        ArrivalNode convertedNode = convertToArrivalNode(busStation);
-        return BusRemainTime.from(convertedNode.getArrivalTime());
-    }
-
-    private ArrivalNode convertToArrivalNode(BusStation busStation) {
-        return arrivalNodes.stream()
-            .filter(node -> busStation.getDisplayNames().contains(node.getNodeName()))
-            .findFirst()
-            .orElseThrow(() -> BusArrivalNodeNotFoundException.withDetail(
-                "routeName: " + routeName + ", busStation: " + busStation.name()));
+    public BusRemainTime getRemainTime(ShuttleRoutePathSelector.Occurrence occurrence) {
+        return BusRemainTime.from(occurrence.departureTime().format(DateTimeFormatter.ofPattern("HH:mm")));
     }
 
     public void sortArrivalNodesByDirection() {
         setDirection();
-        if (BusDirection.SOUTH.getName().equals(direction) && routeType != SHUTTLE) {
+        if (arrivalNodes == null || arrivalNodes.isEmpty()) {
+            return;
+        }
+        if (BusDirection.SOUTH.getName().equals(direction) && routeType != ShuttleRouteType.SHUTTLE) {
             Collections.reverse(this.arrivalNodes);
         }
     }
 
     private void setDirection() {
-        if (routeType.equals(WEEKDAYS)) {
+        if (routeType == ShuttleRouteType.WEEKDAYS) {
             this.direction = normalizeDirection(routeInfo);
             return;
         }
 
-        if (routeType.equals(WEEKEND)) {
+        if (routeType == ShuttleRouteType.WEEKEND) {
             this.direction = normalizeDirection(routeDetail);
             return;
         }
 
-        this.direction = arrivalNodes.get(0).getArrivalTime() == null
+        this.direction = arrivalNodes == null || arrivalNodes.isEmpty()
+            || arrivalNodes.get(0) == null || arrivalNodes.get(0).getArrivalTime() == null
             ? BusDirection.NORTH.getName()
             : BusDirection.SOUTH.getName();
+    }
+
+    private String routeDirectionForPath() {
+        if (routeType == ShuttleRouteType.WEEKDAYS) {
+            return routeInfo;
+        }
+        if (routeType == ShuttleRouteType.WEEKEND) {
+            return routeDetail;
+        }
+        return null;
     }
 
     private String normalizeDirection(String value) {

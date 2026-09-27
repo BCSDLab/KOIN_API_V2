@@ -3,11 +3,13 @@ package in.koreatech.koin.domain.bus.service.shuttle.model;
 import static lombok.AccessLevel.PROTECTED;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -117,35 +119,93 @@ public class ShuttleBusRoute {
         List<NodeInfo> nodeInfos,
         List<RouteInfo> routeInfos
     ) {
-        Map<String, List<RouteInfo>> updatedRoutesByName = routeInfos.stream()
-            .collect(Collectors.groupingBy(RouteInfo::getName));
-        validateDuplicateRouteCounts(updatedRoutesByName);
+        validateRouteShape(nodeInfos, routeInfos);
 
-        this.nodeInfo = nodeInfos;
+        Map<String, List<Integer>> existingRouteIndexesByName = new HashMap<>();
+        for (int index = 0; index < this.routeInfo.size(); index++) {
+            existingRouteIndexesByName.computeIfAbsent(this.routeInfo.get(index).getName(), ignored -> new ArrayList<>())
+                .add(index);
+        }
+
         Map<String, Integer> consumedRouteCounts = new HashMap<>();
-        for (RouteInfo routeInfo : this.routeInfo) {
-            List<RouteInfo> updatedRoutes = updatedRoutesByName.get(routeInfo.getName());
-            if (updatedRoutes == null) {
-                continue;
+        Set<Integer> matchedRouteIndexes = new HashSet<>();
+        for (RouteInfo updatedRouteInfo : routeInfos) {
+            List<Integer> existingRouteIndexes = existingRouteIndexesByName.get(updatedRouteInfo.getName());
+            int occurrence = consumedRouteCounts.getOrDefault(updatedRouteInfo.getName(), 0);
+            if (existingRouteIndexes == null || occurrence >= existingRouteIndexes.size()) {
+                throw invalidRequest("부분 수정에서는 기존 회차 이름만 변경할 수 있습니다.");
             }
 
-            int occurrence = consumedRouteCounts.getOrDefault(routeInfo.getName(), 0);
-            RouteInfo updatedRouteInfo = updatedRoutes.get(occurrence);
-            routeInfo.arrivalTime = updatedRouteInfo.getArrivalTime();
-            if (!CollectionUtils.isEmpty(updatedRouteInfo.getRunningDays())) {
-                routeInfo.runningDays = updatedRouteInfo.getRunningDays();
+            matchedRouteIndexes.add(existingRouteIndexes.get(occurrence));
+            consumedRouteCounts.put(updatedRouteInfo.getName(), occurrence + 1);
+        }
+
+        validateDuplicateRouteCounts(existingRouteIndexesByName, consumedRouteCounts);
+        boolean omittedRoute = matchedRouteIndexes.size() != this.routeInfo.size();
+        if (omittedRoute && !hasSameNodeIdentityAndOrder(this.nodeInfo, nodeInfos)) {
+            throw invalidRequest("생략된 회차가 있는 부분 수정에서는 정류장 이름과 순서를 변경할 수 없습니다.");
+        }
+
+        this.nodeInfo = copyNodeInfos(nodeInfos);
+        consumedRouteCounts.clear();
+        for (RouteInfo updatedRouteInfo : routeInfos) {
+            List<Integer> existingRouteIndexes = existingRouteIndexesByName.get(updatedRouteInfo.getName());
+            int occurrence = consumedRouteCounts.getOrDefault(updatedRouteInfo.getName(), 0);
+            RouteInfo routeInfo = this.routeInfo.get(existingRouteIndexes.get(occurrence));
+            if (updatedRouteInfo.getDetail() != null) {
+                routeInfo.detail = updatedRouteInfo.getDetail();
             }
-            consumedRouteCounts.put(routeInfo.getName(), occurrence + 1);
+            routeInfo.arrivalTime = copyList(updatedRouteInfo.getArrivalTime());
+            if (!CollectionUtils.isEmpty(updatedRouteInfo.getRunningDays())) {
+                routeInfo.runningDays = copyList(updatedRouteInfo.getRunningDays());
+            }
+            consumedRouteCounts.put(updatedRouteInfo.getName(), occurrence + 1);
         }
     }
 
-    private void validateDuplicateRouteCounts(Map<String, List<RouteInfo>> updatedRoutesByName) {
-        for (Map.Entry<String, List<RouteInfo>> entry : updatedRoutesByName.entrySet()) {
-            long existingRouteCount = this.routeInfo.stream()
-                .filter(routeInfo -> Objects.equals(routeInfo.getName(), entry.getKey()))
-                .count();
-            long updatedRouteCount = entry.getValue().size();
+    public void replaceRoute(List<NodeInfo> nodeInfos, List<RouteInfo> routeInfos) {
+        validateRouteShape(nodeInfos, routeInfos);
+        this.nodeInfo = copyNodeInfos(nodeInfos);
+        this.routeInfo = copyRouteInfos(routeInfos);
+    }
 
+    public ShuttleBusRoute copy() {
+        return ShuttleBusRoute.builder()
+            .id(id)
+            .semesterType(semesterType)
+            .region(region)
+            .routeType(routeType)
+            .routeName(routeName)
+            .subName(subName)
+            .nodeInfo(copyNodeInfos(nodeInfo))
+            .routeInfo(copyRouteInfos(routeInfo))
+            .build();
+    }
+
+    public static void validateRouteShape(List<NodeInfo> nodeInfos, List<RouteInfo> routeInfos) {
+        if (CollectionUtils.isEmpty(nodeInfos) || CollectionUtils.isEmpty(routeInfos)) {
+            throw invalidRequest("정류장과 회차 정보는 비어 있을 수 없습니다.");
+        }
+        if (nodeInfos.stream().anyMatch(nodeInfo -> nodeInfo == null || isBlank(nodeInfo.getName()))) {
+            throw invalidRequest("정류장 이름은 비어 있을 수 없습니다.");
+        }
+        for (RouteInfo routeInfo : routeInfos) {
+            if (routeInfo == null || isBlank(routeInfo.getName())) {
+                throw invalidRequest("회차 이름은 비어 있을 수 없습니다.");
+            }
+            if (routeInfo.getArrivalTime() == null || routeInfo.getArrivalTime().size() != nodeInfos.size()) {
+                throw invalidRequest("회차별 도착 시간 개수는 정류장 개수와 같아야 합니다.");
+            }
+        }
+    }
+
+    private void validateDuplicateRouteCounts(
+        Map<String, List<Integer>> existingRouteIndexesByName,
+        Map<String, Integer> updatedRouteCountsByName
+    ) {
+        for (Map.Entry<String, Integer> entry : updatedRouteCountsByName.entrySet()) {
+            int existingRouteCount = existingRouteIndexesByName.get(entry.getKey()).size();
+            int updatedRouteCount = entry.getValue();
             if ((existingRouteCount > 1 || updatedRouteCount > 1)
                 && existingRouteCount != updatedRouteCount) {
                 throw CustomException.of(
@@ -154,5 +214,49 @@ public class ShuttleBusRoute {
                 );
             }
         }
+    }
+
+    private boolean hasSameNodeIdentityAndOrder(List<NodeInfo> currentNodes, List<NodeInfo> updatedNodes) {
+        if (currentNodes == null || currentNodes.size() != updatedNodes.size()) {
+            return false;
+        }
+        for (int index = 0; index < currentNodes.size(); index++) {
+            if (!Objects.equals(currentNodes.get(index).getName(), updatedNodes.get(index).getName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static List<NodeInfo> copyNodeInfos(List<NodeInfo> source) {
+        return copyList(source, nodeInfo -> NodeInfo.builder()
+            .name(nodeInfo.getName())
+            .detail(nodeInfo.getDetail())
+            .build());
+    }
+
+    private static List<RouteInfo> copyRouteInfos(List<RouteInfo> source) {
+        return copyList(source, routeInfo -> RouteInfo.builder()
+            .name(routeInfo.getName())
+            .detail(routeInfo.getDetail())
+            .runningDays(copyList(routeInfo.getRunningDays()))
+            .arrivalTime(copyList(routeInfo.getArrivalTime()))
+            .build());
+    }
+
+    private static <T> List<T> copyList(List<T> source) {
+        return source == null ? null : new ArrayList<>(source);
+    }
+
+    private static <T, R> List<R> copyList(List<T> source, java.util.function.Function<T, R> mapper) {
+        return source == null ? null : source.stream().map(mapper).toList();
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private static CustomException invalidRequest(String detail) {
+        return CustomException.of(INVALID_REQUEST_BODY, detail);
     }
 }

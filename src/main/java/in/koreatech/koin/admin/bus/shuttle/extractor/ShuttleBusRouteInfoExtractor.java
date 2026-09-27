@@ -6,7 +6,6 @@ import static in.koreatech.koin.admin.bus.shuttle.model.ShuttleBusTimetable.Rout
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -30,47 +29,41 @@ public class ShuttleBusRouteInfoExtractor {
     private static final int START_COL = 1;
 
     public List<RouteInfo> extractRouteInfos() {
-        List<InnerNameDetail> innerNameDetails = extractRouteNameDetails();
+        List<Integer> routeColumns = ExcelRangeUtil.findContiguousRouteColumns(sheet, START_HEADER_ROW, START_COL);
+        List<Integer> stopRows = ExcelRangeUtil.findContiguousStopRows(sheet, START_TIME_DATA_ROW, 0, routeColumns);
+        Row detailRow = sheet.getRow(START_DETAIL_ROW);
+        ExcelRangeUtil.requireRow(sheet, START_DETAIL_ROW, "회차 세부 정보");
+        ExcelRangeUtil.rejectValuesAfterRouteColumns(detailRow, routeColumns.get(routeColumns.size() - 1), START_DETAIL_ROW);
+
+        List<InnerNameDetail> innerNameDetails = extractRouteNameDetails(routeColumns, detailRow);
 
         List<RunningDays> runningDays = innerNameDetails.stream()
             .map(RunningDays::from)
             .toList();
 
-        List<ArrivalTime> arrivalTimes = extractArrivalTimes();
+        List<ArrivalTime> arrivalTimes = extractArrivalTimes(routeColumns, stopRows);
 
-        return IntStream.range(0, innerNameDetails.size())
-            .mapToObj(i -> from(
-                innerNameDetails.get(i),
-                runningDays.get(i),
-                arrivalTimes.get(i)
-            ))
-            .toList();
+        List<RouteInfo> routeInfos = new ArrayList<>();
+        for (int i = 0; i < innerNameDetails.size(); i++) {
+            routeInfos.add(from(innerNameDetails.get(i), runningDays.get(i), arrivalTimes.get(i)));
+        }
+        return List.copyOf(routeInfos);
     }
 
-    private List<InnerNameDetail> extractRouteNameDetails() {
+    private List<InnerNameDetail> extractRouteNameDetails(List<Integer> routeColumns, Row detailRow) {
         List<InnerNameDetail> innerNameDetails = new ArrayList<>();
 
         Row headerRow = sheet.getRow(START_HEADER_ROW);
-        Row detailRow = sheet.getRow(START_DETAIL_ROW);
-
-        if (headerRow == null || detailRow == null) {
-            return innerNameDetails;
-        }
-
-        for (int col = START_COL; col <= headerRow.getLastCellNum(); col++) {
+        for (Integer col : routeColumns) {
             Cell nameCell = headerRow.getCell(col);
-
-            if (nameCell == null || !StringUtils.hasText(nameCell.toString())) {
-                break;
-            }
 
             String name = PoiCellExtractor.extractStringValue(nameCell);
 
             Cell detailCell = detailRow.getCell(col);
-
-            String detail = (detailCell != null && StringUtils.hasText(detailCell.toString()))
-                ? PoiCellExtractor.extractStringValue(detailCell)
-                : null;
+            String detail = detailCell == null ? null : PoiCellExtractor.extractStringValue(detailCell);
+            if (!StringUtils.hasText(detail)) {
+                detail = null;
+            }
 
             innerNameDetails.add(InnerNameDetail.of(name, detail));
         }
@@ -78,32 +71,22 @@ public class ShuttleBusRouteInfoExtractor {
         return innerNameDetails;
     }
 
-    private List<ArrivalTime> extractArrivalTimes() {
+    private List<ArrivalTime> extractArrivalTimes(List<Integer> routeColumns, List<Integer> stopRows) {
         List<ArrivalTime> arrivalTimes = new ArrayList<>();
 
-        for (int colNum = START_COL;
-             colNum < START_COL + ExcelRangeUtil.countUsedColumnsInRow(sheet, START_HEADER_ROW, START_COL);
-             colNum++
-        ) {
+        for (Integer colNum : routeColumns) {
             List<String> times = new ArrayList<>();
 
-            for (int rowNum = START_TIME_DATA_ROW;
-                 rowNum < START_TIME_DATA_ROW + ExcelRangeUtil.countUsedRowsInColumn(sheet, START_TIME_DATA_ROW, 0);
-                 rowNum++
-            ) {
+            for (Integer rowNum : stopRows) {
                 Row row = sheet.getRow(rowNum);
-
-                if (row == null) {
-                    break;
-                }
 
                 Cell cell = row.getCell(colNum);
                 String strTime = PoiCellExtractor.extractStringValue(cell);
 
-                if (cell == null || !StringUtils.hasText(strTime)) {
+                if (!StringUtils.hasText(strTime)) {
                     times.add(null);
                 } else {
-                    times.add(strTime.trim());
+                    times.add(strTime);
                 }
             }
 
