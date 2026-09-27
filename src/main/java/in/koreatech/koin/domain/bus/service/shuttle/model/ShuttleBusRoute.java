@@ -3,7 +3,9 @@ package in.koreatech.koin.domain.bus.service.shuttle.model;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -147,7 +149,7 @@ public class ShuttleBusRoute {
             throw invalidRequest("생략된 회차가 있는 부분 수정에서는 정류장 이름과 순서를 변경할 수 없습니다.");
         }
 
-        this.nodeInfo = copyNodeInfos(nodeInfos);
+        this.nodeInfo = mergeNodeInfos(nodeInfos);
         consumedRouteCounts.clear();
         for (RouteInfo updatedRouteInfo : routeInfos) {
             List<Integer> existingRouteIndexes = existingRouteIndexesByName.get(updatedRouteInfo.getName());
@@ -227,6 +229,24 @@ public class ShuttleBusRoute {
             }
         }
         return true;
+    }
+
+    private List<NodeInfo> mergeNodeInfos(List<NodeInfo> requestedNodes) {
+        Map<String, Deque<NodeInfo>> existingByName = new HashMap<>();
+        if (nodeInfo != null) {
+            for (NodeInfo node : nodeInfo) {
+                existingByName.computeIfAbsent(node.getName(), ignored -> new ArrayDeque<>()).add(node);
+            }
+        }
+        List<NodeInfo> mergedNodes = copyNodeInfos(requestedNodes);
+        for (NodeInfo node : mergedNodes) {
+            Deque<NodeInfo> matches = existingByName.get(node.getName());
+            NodeInfo existing = matches == null ? null : matches.pollFirst();
+            if (node.getDetail() == null && existing != null) {
+                node.detail = existing.getDetail();
+            }
+        }
+        return mergedNodes;
     }
 
     private static List<NodeInfo> copyNodeInfos(List<NodeInfo> source) {
