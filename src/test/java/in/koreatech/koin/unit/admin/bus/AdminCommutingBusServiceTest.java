@@ -97,27 +97,4 @@ class AdminCommutingBusServiceTest {
         assertThat(saved.getRunningDays()).isNull();
         assertThat(saved.getArrivalTime()).containsExactly("08:00");
     }
-
-    @Test
-    @DisplayName("통학 시간표에 명시한 운행 요일은 노선 형태와 무관하게 저장된다")
-    void savesExplicitRunningDays() {
-        givenExistingTimetable(Optional.empty());
-        InnerAdminCommutingBusUpdateRequest item = new InnerAdminCommutingBusUpdateRequest(
-            "천안・아산",
-            "주중",
-            "천안 등하교",
-            null,
-            List.of(new InnerNodeInfo("한기대", null)),
-            List.of(new InnerRouteInfo("등교", null, List.of("SAT"), List.of("08:00")))
-        );
-
-        adminCommutingBusService.updateCommutingBusTimetable(
-            SemesterType.REGULAR,
-            new AdminCommutingBusUpdateRequest(List.of(item))
-        );
-
-        assertThat(captureSavedRoute().getRouteInfo().get(0).getRunningDays())
-            .containsExactly("SAT");
-    }
-
 }

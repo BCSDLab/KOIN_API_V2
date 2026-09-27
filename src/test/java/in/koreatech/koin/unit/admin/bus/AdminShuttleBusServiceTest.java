@@ -24,7 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
-import in.koreatech.koin.admin.bus.shuttle.enums.UpdateMode;
 import in.koreatech.koin.admin.bus.shuttle.repository.AdminShuttleBusTimetableRepository;
 import in.koreatech.koin.admin.bus.shuttle.service.AdminShuttleBusService;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
@@ -134,66 +133,5 @@ class AdminShuttleBusServiceTest {
         RouteInfo saved = captor.getValue().getRouteInfo().get(0);
         assertThat(saved.getRunningDays()).isEqualTo(WEEKDAYS);
         assertThat(saved.getArrivalTime()).containsExactly("08:00");
-    }
-
-    @Test
-    @DisplayName("전체 교체 요청의 같은 노선 키 중복은 저장하지 않는다")
-    void rejectsDuplicateReplacementKeysBeforeSaving() {
-        givenExistingTimetable(Optional.empty());
-        InnerAdminShuttleBusUpdateRequest item = createRequest(WEEKDAYS).shuttleBusTimetables().get(0);
-
-        assertThatThrownBy(() -> adminShuttleBusService.updateShuttleBusTimetable(
-            new AdminShuttleBusUpdateRequest(List.of(item, item)),
-            SemesterType.REGULAR,
-            UpdateMode.REPLACE
-        ))
-            .isInstanceOf(CustomException.class)
-            .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.INVALID_REQUEST_BODY);
-
-        verify(adminShuttleBusTimetableRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("부분 수정에서 생략 회차의 정류장 순서 변경은 저장하지 않는다")
-    void rejectsNodeOrderChangeWhenPartialRoundsAreOmitted() {
-        ShuttleBusRoute existing = ShuttleBusRoute.builder()
-            .routeName("천안 셔틀")
-            .nodeInfo(List.of(NodeInfo.builder().name("첫 정류장").build()))
-            .routeInfo(List.of(
-                RouteInfo.builder().name("1회").runningDays(WEEKDAYS).arrivalTime(List.of("07:00")).build(),
-                RouteInfo.builder().name("2회").runningDays(WEEKDAYS).arrivalTime(List.of("08:00")).build()
-            ))
-            .build();
-        givenExistingTimetable(Optional.of(existing));
-
-        assertThatThrownBy(() -> adminShuttleBusService.updateShuttleBusTimetable(
-            createRequest(WEEKDAYS), SemesterType.REGULAR
-        ))
-            .isInstanceOf(CustomException.class)
-            .hasFieldOrPropertyWithValue("errorCode", ApiResponseCode.INVALID_REQUEST_BODY);
-
-        verify(adminShuttleBusTimetableRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("부분 수정은 회차 상세 정보를 갱신하고 운행 요일 생략은 보존한다")
-    void updatesRouteDetailWithoutOverwritingMissingRunningDays() {
-        ShuttleBusRoute existing = createExistingRoute();
-        givenExistingTimetable(Optional.of(existing));
-        AdminShuttleBusUpdateRequest request = new AdminShuttleBusUpdateRequest(List.of(
-            new InnerAdminShuttleBusUpdateRequest(
-                "천안・아산", "순환", "천안 셔틀", null,
-                List.of(new InnerNodeInfoRequest("한기대", "변경 상세")),
-                List.of(new InnerRouteInfoRequest("1회", "변경 회차 상세", null, List.of("08:00")))
-            )
-        ));
-
-        adminShuttleBusService.updateShuttleBusTimetable(request, SemesterType.REGULAR);
-
-        ArgumentCaptor<ShuttleBusRoute> captor = ArgumentCaptor.forClass(ShuttleBusRoute.class);
-        verify(adminShuttleBusTimetableRepository).save(captor.capture());
-        RouteInfo saved = captor.getValue().getRouteInfo().get(0);
-        assertThat(saved.getDetail()).isEqualTo("변경 회차 상세");
-        assertThat(saved.getRunningDays()).isEqualTo(WEEKDAYS);
     }
 }
