@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.bus.service.shuttle.model;
 
-import static lombok.AccessLevel.PROTECTED;
 import static in.koreatech.koin.global.code.ApiResponseCode.INVALID_REQUEST_BODY;
+import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -123,7 +123,8 @@ public class ShuttleBusRoute {
 
         Map<String, List<Integer>> existingRouteIndexesByName = new HashMap<>();
         for (int index = 0; index < this.routeInfo.size(); index++) {
-            existingRouteIndexesByName.computeIfAbsent(this.routeInfo.get(index).getName(), ignored -> new ArrayList<>())
+            existingRouteIndexesByName.computeIfAbsent(this.routeInfo.get(index).getName(),
+                    ignored -> new ArrayList<>())
                 .add(index);
         }
 

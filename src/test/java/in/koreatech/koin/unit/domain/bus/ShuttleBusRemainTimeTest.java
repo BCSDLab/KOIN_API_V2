@@ -70,7 +70,8 @@ class ShuttleBusRemainTimeTest {
             .thenReturn(Version.builder().title(SEMESTER).build());
         shuttleBusService = new ShuttleBusService(versionService, shuttleBusRepository, CLOCK);
         busService = new BusService(
-            CLOCK, busNoticeRepository, versionService, List.of(), expressBusService, cityBusService, shuttleBusService);
+            CLOCK, busNoticeRepository, versionService, List.of(), expressBusService, cityBusService,
+            shuttleBusService);
     }
 
     @Test

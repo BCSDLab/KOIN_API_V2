@@ -33,7 +33,8 @@ public class ShuttleBusRouteInfoExtractor {
         List<Integer> stopRows = ExcelRangeUtil.findContiguousStopRows(sheet, START_TIME_DATA_ROW, 0, routeColumns);
         Row detailRow = sheet.getRow(START_DETAIL_ROW);
         ExcelRangeUtil.requireRow(sheet, START_DETAIL_ROW, "회차 세부 정보");
-        ExcelRangeUtil.rejectValuesAfterRouteColumns(detailRow, routeColumns.get(routeColumns.size() - 1), START_DETAIL_ROW);
+        ExcelRangeUtil.rejectValuesAfterRouteColumns(detailRow, routeColumns.get(routeColumns.size() - 1),
+            START_DETAIL_ROW);
 
         List<InnerNameDetail> innerNameDetails = extractRouteNameDetails(routeColumns, detailRow);
 

@@ -53,7 +53,7 @@ public class AdminCommutingBusService {
             ShuttleBusRoute prepared = preparedTimetables.get(key);
             if (prepared == null) {
                 prepared = adminCommutingBusRepository.findBySemesterTypeAndRegionAndRouteTypeAndRouteNameAndSubName(
-                    semesterType.getDescription(), region, routeType, key.routeName(), key.subName())
+                        semesterType.getDescription(), region, routeType, key.routeName(), key.subName())
                     .map(ShuttleBusRoute::copy).orElse(null);
             }
             List<RouteInfo> routeInfos = timetableRequest.toRouteInfoEntity(prepared == null ? WEEKDAYS : null);
