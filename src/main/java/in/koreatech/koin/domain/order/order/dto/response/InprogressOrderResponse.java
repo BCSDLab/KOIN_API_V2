@@ -1,11 +1,9 @@
 package in.koreatech.koin.domain.order.order.dto.response;
 
-import static in.koreatech.koin.domain.order.order.model.OrderStatus.CONFIRMING;
-import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
-import static in.koreatech.koin.domain.order.order.model.OrderType.TAKE_OUT;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -50,15 +48,8 @@ public record InprogressOrderResponse(
     Integer totalAmount
 ) {
     public static InprogressOrderResponse from(Order order, Payment payment) {
-
-        LocalTime estimatedTime = null;
-        if (order.getStatus() != CONFIRMING) {
-            if (order.getOrderType() == DELIVERY) {
-                estimatedTime = LocalTime.from(order.getOrderDelivery().getEstimatedArrivalAt());
-            } else if (order.getOrderType() == TAKE_OUT) {
-                estimatedTime = LocalTime.from(order.getOrderTakeout().getEstimatedPackagedAt());
-            }
-        }
+        LocalDateTime estimatedAt = order.getEstimatedAt();
+        LocalTime estimatedTime = estimatedAt == null ? null : LocalTime.from(estimatedAt);
 
         return new InprogressOrderResponse(
             order.getId(),

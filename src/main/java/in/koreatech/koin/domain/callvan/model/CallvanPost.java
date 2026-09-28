@@ -133,9 +133,16 @@ public class CallvanPost extends BaseEntity {
         if (this.status != CallvanStatus.RECRUITING) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_NOT_RECRUITING);
         }
+        if (isExpired()) {
+            throw CustomException.of(ApiResponseCode.CALLVAN_POST_JOIN_FAILED_TIME);
+        }
         if (this.currentParticipants >= this.maxParticipants) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_FULL);
         }
+    }
+
+    public boolean isExpired() {
+        return !LocalDateTime.of(this.departureDate, this.departureTime).isAfter(LocalDateTime.now());
     }
 
     public void increaseParticipantCount() {
@@ -164,7 +171,7 @@ public class CallvanPost extends BaseEntity {
         if (this.currentParticipants >= this.maxParticipants) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_REOPEN_FAILED_FULL);
         }
-        if (LocalDateTime.of(this.departureDate, this.departureTime).isBefore(LocalDateTime.now())) {
+        if (isExpired()) {
             throw CustomException.of(ApiResponseCode.CALLVAN_POST_REOPEN_FAILED_TIME);
         }
         this.status = CallvanStatus.RECRUITING;

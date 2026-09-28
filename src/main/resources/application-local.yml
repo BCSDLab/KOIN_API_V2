@@ -1,90 +1,89 @@
 auth:
   web:
-    secure: false
+    csrf-secret-key: ${WEB_AUTH_CSRF_SECRET_KEY:local-csrf-secret-key-example-32chars!!}
+    secure: ${WEB_AUTH_COOKIE_SECURE:false}
 
 jwt:
-  secret-key: local-jwt-secret-key-example-32chars!!
+  secret-key: ${JWT_SECRET_KEY:local-jwt-secret-key-example-32chars!!}
   access-token:
-    expiration-time: 6000000
+    expiration-time: ${JWT_ACCESS_TOKEN_EXPIRATION_TIME:6000000}
 
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:13306/koin?characterEncoding=utf8&useUnicode=true&mysqlEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
-    username: koin
-    password: koin
+    url: ${DATASOURCE_URL:jdbc:mysql://127.0.0.1:13306/koin?characterEncoding=utf8&useUnicode=true&mysqlEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true}
+    username: ${DATASOURCE_USERNAME:koin}
+    password: ${DATASOURCE_PASSWORD:koin}
 
   data:
     redis:
-      host: 127.0.0.1
-      port: 16379
-      password: koin
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:16379}
+      password: ${REDIS_PASSWORD:koin}
     mongodb:
-      uri: mongodb://koin:koin@127.0.0.1:27018/koin?authSource=admin
+      uri: ${MONGODB_URI:mongodb://koin:koin@127.0.0.1:27018/koin?authSource=admin}
 
 swagger:
-  server-url: http://localhost:8080
+  server-url: ${SWAGGER_SERVER_URL:http://localhost:8080}
 
 aws:
   ses:
-    access-key: test
-    secret-key: test
+    access-key: ${AWS_SES_ACCESS_KEY:test}
+    secret-key: ${AWS_SES_SECRET_KEY:test}
 
 s3:
-  bucket: test-bucket
-  custom_domain: https://static.example.com/
+  bucket: ${S3_BUCKET:test-bucket}
+  custom_domain: ${S3_CUSTOM_DOMAIN:https://static.example.com/}
 
 slack:
-  koin_event_notify_url: https://example.com/slack
-  koin_owner_event_notify_url: https://example.com/slack
-  koin_shop_review_notify_url: https://example.com/slack
-  koin_lost_item_notify_url: https://example.com/slack
+  koin_event_notify_url: ${SLACK_KOIN_EVENT_NOTIFY_URL:https://example.com/slack}
+  koin_owner_event_notify_url: ${SLACK_KOIN_OWNER_EVENT_NOTIFY_URL:https://example.com/slack}
+  koin_shop_review_notify_url: ${SLACK_KOIN_SHOP_REVIEW_NOTIFY_URL:https://example.com/slack}
+  koin_lost_item_notify_url: ${SLACK_KOIN_LOST_ITEM_NOTIFY_URL:https://example.com/slack}
   logging:
-    error: https://example.com/slack
+    error: ${SLACK_LOGGING_ERROR_URL:https://example.com/slack}
 
 koin:
   admin:
     shop:
-      url: http://localhost:3000/store
+      url: ${KOIN_ADMIN_SHOP_URL:http://localhost:3000/store}
     review:
-      url: http://localhost:3000/review
+      url: ${KOIN_ADMIN_REVIEW_URL:http://localhost:3000/review}
 
-OPEN_API_KEY_PUBLIC: test
-OPEN_API_KEY_TMONEY: test
+OPEN_API_KEY_PUBLIC: ${OPEN_API_KEY_PUBLIC:test}
+OPEN_API_KEY_TMONEY: ${OPEN_API_KEY_TMONEY:test}
 
 fcm:
   koin:
-    url: koin://local
+    url: ${FCM_KOIN_URL:koin://local}
 
 naver:
-  accessKey: test
-  secretKey: test
+  accessKey: ${NAVER_ACCESS_KEY:test}
+  secretKey: ${NAVER_SECRET_KEY:test}
   sms:
-    apiUrl: http://localhost:8888
-    serviceId: test
-    fromNumber: "01000000000"
+    apiUrl: ${NAVER_SMS_API_URL:http://localhost:8888}
+    serviceId: ${NAVER_SMS_SERVICE_ID:test}
+    fromNumber: "${NAVER_SMS_FROM_NUMBER:01000000000}"
 
 cors:
-  allowedOrigins:
-    - http://localhost:3000
-    - http://localhost:8080
+  allowedOrigins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
 
 cloudfront:
-  distribution-id: test
-  region: ap-northeast-2
+  distribution-id: ${CLOUDFRONT_DISTRIBUTION_ID:test}
+  region: ${CLOUDFRONT_REGION:ap-northeast-2}
 
 user:
   verification:
-    max-verification-count: 5
+    max-verification-count: ${MAX_VERIFICATION_COUNT:5}
 
 address:
   api:
-    url: https://business.juso.go.kr/addrlink/addrLinkApi.do
-    key: test
+    url: ${ADDRESS_API_URL:https://business.juso.go.kr/addrlink/addrLinkApi.do}
+    key: ${ADDRESS_API_KEY:test}
 
 toss-payment:
-  secret-key: test_sk
-  api-base-url: https://api.tosspayments.com/v1/payments
+  secret-key: ${TOSS_PAYMENT_SECRET_KEY:test_sk}
+  api-base-url: ${TOSS_PAYMENT_API_BASE_URL:https://api.tosspayments.com/v1/payments}
 
 team-recruitment:
   outbox:
-    enabled: false
+    enabled: ${TEAM_RECRUITMENT_OUTBOX_ENABLED:false}

@@ -78,14 +78,18 @@ public class ArticleAcceptanceFixture {
     }
 
     public Article 공지_크롤링_게시글(String title, Board board, Integer articleNum) {
+        return 공지_크롤링_게시글(title, board, articleNum, LocalDate.of(2024, 10, 3));
+    }
+
+    public Article 공지_크롤링_게시글(String title, Board board, Integer articleNum, LocalDate registeredAt) {
 
         KoreatechArticle koreatechArticle = KoreatechArticle.builder()
-            .url("https://example3.com")
+            .url("https://example3.com/" + articleNum)
             .portalNum(articleNum)
             .portalHit(1)
             .isDeleted(false)
             .author("취창업 지원팀")
-            .registeredAt(LocalDate.of(2024, 10, 3))
+            .registeredAt(registeredAt)
             .build();
 
         Article article = Article.builder()

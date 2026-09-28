@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
 import in.koreatech.koin.domain.order.order.model.Order;
 import in.koreatech.koin.domain.order.order.model.OrderInfo;
 import in.koreatech.koin.domain.order.order.model.OrderSearchCriteria;
+import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import in.koreatech.koin.domain.order.order.repository.OrderRepository;
 import in.koreatech.koin.domain.order.order.repository.OrderSearchQueryRepository;
 import in.koreatech.koin.domain.payment.model.entity.Payment;
@@ -38,7 +39,8 @@ public class OrderService {
 
     public List<InprogressOrderResponse> getInprogressOrders(Integer userId) {
         User user = userRepository.getById(userId);
-        List<Order> orders = orderRepository.findOrderWithStatus(user.getId());
+        List<Order> orders = orderRepository.findAllByUserIdAndStatuses(
+            user.getId(), OrderStatus.inProgressStatuses());
 
         return orders.stream()
             .map(order -> {

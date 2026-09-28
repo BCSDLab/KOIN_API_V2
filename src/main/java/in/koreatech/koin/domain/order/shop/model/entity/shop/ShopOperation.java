@@ -47,4 +47,8 @@ public class ShopOperation {
         this.isOpen = isOpen;
         this.isDeleted = isDeleted;
     }
+
+    public void changeOpenStatus(boolean isOpen) {
+        this.isOpen = isOpen;
+    }
 }
