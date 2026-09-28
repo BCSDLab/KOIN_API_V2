@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import in.koreatech.koin.admin.bus.commuting.enums.SemesterType;
 import in.koreatech.koin.admin.bus.shuttle.dto.request.AdminShuttleBusUpdateRequest;
 import in.koreatech.koin.admin.bus.shuttle.dto.response.AdminShuttleBusTimetableResponse;
+import in.koreatech.koin.admin.bus.shuttle.enums.UpdateMode;
 import in.koreatech.koin.admin.history.aop.AdminActivityLogging;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCodes;
@@ -51,6 +52,7 @@ public interface AdminShuttleBusTimetableApi {
     @PutMapping
     ResponseEntity<Void> updateShuttleBusTimetable(
         @RequestParam(name = "semester_type") SemesterType semesterType,
+        @RequestParam(name = "update_mode", defaultValue = "PARTIAL") UpdateMode updateMode,
         @Valid @RequestBody AdminShuttleBusUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );

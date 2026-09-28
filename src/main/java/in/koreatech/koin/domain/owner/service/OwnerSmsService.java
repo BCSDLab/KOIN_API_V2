@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.owner.service;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-
 import java.time.LocalDateTime;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +25,6 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +35,6 @@ public class OwnerSmsService {
 
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
     private final OwnerRepository ownerRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
@@ -91,8 +87,8 @@ public class OwnerSmsService {
 
     @Transactional
     public void sendResetPasswordBySms(OwnerSendSmsRequest request) {
-        User user = userRepository.getByPhoneNumberAndUserType(request.phoneNumber(), OWNER);
-        ownerVerificationService.sendCertificationSms(user.getPhoneNumber());
+        ownerUtilService.extractUserByAccount(request.phoneNumber());
+        ownerVerificationService.sendCertificationSms(request.phoneNumber());
     }
 
     @Transactional
@@ -102,7 +98,7 @@ public class OwnerSmsService {
 
     @Transactional
     public void updatePasswordBySms(OwnerPasswordUpdateSmsRequest request) {
-        User user = userRepository.getByPhoneNumberAndUserType(request.phoneNumber(), OWNER);
+        User user = ownerUtilService.extractUserByAccount(request.phoneNumber());
         user.updatePassword(passwordEncoder, request.password());
         refreshTokenService.deleteAllRefreshTokens(user.getId());
     }

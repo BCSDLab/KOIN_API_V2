@@ -38,16 +38,28 @@ public class PaymentCancelService {
         validatePaymentStatusIsNotCanceled(payment);
         payment.validateUserIdMatches(user.getId());
 
-        String paymentIdempotencyKey = paymentIdempotencyKeyService.getOrCreate(user.getId());
+        return PaymentCancelResponse.from(cancel(payment, paymentCancelInfo.cancelReason()));
+    }
+
+    @Transactional
+    public PaymentCancelResponse cancelPaymentByOrderId(Integer orderId, String cancelReason) {
+        Payment payment = paymentRepository.getByOrderId(orderId);
+        validatePaymentStatusIsNotCanceled(payment);
+
+        return PaymentCancelResponse.from(cancel(payment, cancelReason));
+    }
+
+    private List<PaymentCancel> cancel(Payment payment, String cancelReason) {
+        String paymentIdempotencyKey = paymentIdempotencyKeyService.getOrCreate(payment.getOrder().getUser().getId());
         PaymentGatewayCancelResponse pgResponse = paymentGatewayService.cancelPayment(payment.getPaymentKey(),
-            paymentCancelInfo.cancelReason(), paymentIdempotencyKey);
+            cancelReason, paymentIdempotencyKey);
         validatePaymentIsCanceled(pgResponse.status());
 
-        payment.cancel(paymentCancelInfo.cancelReason());
+        payment.cancel(cancelReason);
         List<PaymentCancel> paymentCancels = paymentCancelMapper.toEntity(payment, pgResponse);
         paymentCancelRepository.saveAll(paymentCancels);
 
-        return PaymentCancelResponse.from(paymentCancels);
+        return paymentCancels;
     }
 
     private void validatePaymentStatusIsNotCanceled(Payment payment) {

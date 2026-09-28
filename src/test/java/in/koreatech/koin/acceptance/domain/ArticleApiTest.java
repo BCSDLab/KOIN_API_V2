@@ -2,7 +2,10 @@ package in.koreatech.koin.acceptance.domain;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -115,6 +118,38 @@ class ArticleApiTest extends AcceptanceTest {
                      "updated_at": "2024-01-15 12:00:00"
                  }
                 """));
+    }
+
+    @Test
+    void 게시판_목록은_id가_아니라_등록일_기준으로_정렬된다() throws Exception {
+        Board jobBoard = boardFixture.취업공지();
+
+        // 먼저 등록된(id가 낮은) 글이지만 등록일은 더 최근이다.
+        Article recent = articleFixture.공지_크롤링_게시글("최근 채용 공고", jobBoard, 90001, LocalDate.of(2026, 9, 1));
+        // 나중에 등록된(id가 더 높은) 글이지만, 뒤늦게 백필된 2016년 글이라 등록일은 더 과거다.
+        Article backfilledOld = articleFixture.공지_크롤링_게시글("2016년 채용 공고", jobBoard, 90002, LocalDate.of(2016, 4, 27));
+
+        mockMvc.perform(
+                get("/articles")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .param("boardId", jobBoard.getId().toString())
+                    .param("page", "1")
+                    .param("limit", "10")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.articles[0].id").value(recent.getId()))
+            .andExpect(jsonPath("$.articles[0].registered_at").value("2026-09-01"))
+            .andExpect(jsonPath("$.articles[1].id").value(backfilledOld.getId()))
+            .andExpect(jsonPath("$.articles[1].registered_at").value("2016-04-27"));
+    }
+
+    @Test
+    void 분실물_게시글_목록을_type_없이_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/articles/lost-item")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 
     // 클래스 단에 transactional이 붙으면 테스트 실패 함

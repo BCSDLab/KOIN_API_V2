@@ -3,6 +3,9 @@ package in.koreatech.koin.domain.callvan.repository;
 import static in.koreatech.koin.domain.callvan.model.QCallvanParticipant.callvanParticipant;
 import static in.koreatech.koin.domain.callvan.model.QCallvanPost.callvanPost;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,8 @@ public class CallvanPostQueryRepository {
         String title,
         Integer joinedMemberId,
         CallvanPostSortCriteria sort,
-        Criteria criteria
+        Criteria criteria,
+        LocalDateTime now
     ) {
         return queryFactory
             .selectFrom(callvanPost)
@@ -46,7 +50,8 @@ public class CallvanPostQueryRepository {
                 arrivalFilter(arrivals, arrivalKeyword),
                 statusIn(statuses),
                 titleContains(title),
-                joinedByMemberId(joinedMemberId))
+                joinedByMemberId(joinedMemberId),
+                notExpired(authorId, joinedMemberId, now))
             .orderBy(getOrderSpecifiers(sort))
             .offset((long)criteria.getPage() * criteria.getLimit())
             .limit(criteria.getLimit())
@@ -61,7 +66,8 @@ public class CallvanPostQueryRepository {
         String arrivalKeyword,
         List<CallvanStatus> statuses,
         String title,
-        Integer joinedMemberId
+        Integer joinedMemberId,
+        LocalDateTime now
     ) {
         return queryFactory
             .select(callvanPost.count())
@@ -72,7 +78,8 @@ public class CallvanPostQueryRepository {
                 arrivalFilter(arrivals, arrivalKeyword),
                 statusIn(statuses),
                 titleContains(title),
-                joinedByMemberId(joinedMemberId))
+                joinedByMemberId(joinedMemberId),
+                notExpired(authorId, joinedMemberId, now))
             .fetchOne();
     }
 
@@ -136,6 +143,18 @@ public class CallvanPostQueryRepository {
 
     private BooleanExpression titleContains(String title) {
         return (title != null && !title.isBlank()) ? callvanPost.title.contains(title) : null;
+    }
+
+    private BooleanExpression notExpired(Integer authorId, Integer joinedMemberId, LocalDateTime now) {
+        if (authorId != null || joinedMemberId != null) {
+            return null;
+        }
+        LocalDate today = now.toLocalDate();
+        LocalTime nowTime = now.toLocalTime();
+        // 상태(RECRUITING/CLOSED/COMPLETED)와 무관하게 출발 시간이 지난 게시글은 작성자/참여자 본인 외에는 숨긴다.
+        return callvanPost.departureDate.gt(today)
+            .or(callvanPost.departureDate.eq(today)
+                .and(callvanPost.departureTime.gt(nowTime)));
     }
 
     private BooleanExpression joinedByMemberId(Integer joinedMemberId) {

@@ -106,5 +106,23 @@ tasks.named('bootBuildImage') {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'web-auth-http'
+    }
+}
+
+// 실제 HTTP 서버는 별도 JVM에서 실행해 기존 테스트의 Spring 컨텍스트 캐시와 분리한다.
+tasks.register('webAuthHttpTest', Test) {
+    description = '웹 쿠키 인증의 실제 HTTP 흐름을 검증합니다.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'web-auth-http'
+    }
+    shouldRunAfter tasks.named('test')
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('webAuthHttpTest')
 }

@@ -47,7 +47,7 @@ jobs:
           set -a
           source .env.example
           set +a
-          ./gradlew clean build -x test -Dspring.profiles.active=dev
+          ./gradlew clean build -x test -x webAuthHttpTest -Dspring.profiles.active=dev
 
       - name: SCP JAR to develop server
         uses: appleboy/scp-action@v0.1.7
