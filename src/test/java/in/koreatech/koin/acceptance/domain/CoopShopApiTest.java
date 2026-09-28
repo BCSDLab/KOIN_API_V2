@@ -131,4 +131,25 @@ class CoopShopApiTest extends AcceptanceTest {
                     }
                 """));
     }
+
+    @Test
+    void 매장_데이터가_없는_미래_학기가_있어도_현재_유효한_학기로_전환된다() throws Exception {
+        coopShopFixture._23_겨울학기();
+        coopShopFixture._24_1학기_매장_없음();
+
+        coopShopService.updateSemester();
+
+        mockMvc.perform(
+                get("/coopshop")
+                    .contentType(MediaType.ALL.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                    {
+                        "semester": "23-겨울학기",
+                        "from_date": "2023-12-21",
+                        "to_date": "2024-02-28"
+                    }
+                """));
+    }
 }
