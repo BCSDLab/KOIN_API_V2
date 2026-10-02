@@ -66,6 +66,72 @@ class WebAuthFailureTest {
     }
 
     @Test
+    void 쿠키가_없으면_세션_조회는_저장소를_조회하지_않고_쿠키도_지우지_않는다() {
+        WebSessionResult result = service.getWebSession(null, null);
+
+        assertThat(result.response().authenticated()).isFalse();
+        assertThat(result.clearCookies()).isFalse();
+        verifyNoInteractions(sessionRepository, userRepository, userService);
+    }
+
+    @Test
+    void 저장소에_세션이_없으면_세션_조회는_비로그인으로_응답하고_쿠키를_지우게_한다() {
+        when(sessionRepository.findById(session.id())).thenReturn(Optional.empty());
+
+        WebSessionResult result = service.getWebSession(token.value(), null);
+
+        assertThat(result.response().authenticated()).isFalse();
+        assertThat(result.clearCookies()).isTrue();
+        verifyNoSessionMutation();
+    }
+
+    @Test
+    void 형식이_잘못된_refresh_쿠키는_세션_조회에서_쿠키를_지우게_한다() {
+        WebSessionResult result = service.getWebSession("not-a-refresh-token", null);
+
+        assertThat(result.response().authenticated()).isFalse();
+        assertThat(result.clearCookies()).isTrue();
+        verifyNoInteractions(sessionRepository);
+    }
+
+    @Test
+    void 다른_탭이_회전시킨_이전_refresh는_비로그인으로_보되_쿠키를_지우지_않는다() {
+        WebAuthSession rotated = session.rotate(WebRefreshToken.parse(token.rotate().value()));
+        when(sessionRepository.findById(session.id())).thenReturn(Optional.of(rotated));
+
+        WebSessionResult result = service.getWebSession(token.value(), null);
+
+        assertThat(result.response().authenticated()).isFalse();
+        assertThat(result.clearCookies()).isFalse();
+        verifyNoSessionMutation();
+    }
+
+    @Test
+    void 유효한_세션이면_회원_유형과_CSRF를_돌려주고_세션을_변경하지_않는다() {
+        when(sessionRepository.findById(session.id())).thenReturn(Optional.of(session));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        WebSessionResult result = service.getWebSession(token.value(), null);
+
+        assertThat(result.response().authenticated()).isTrue();
+        assertThat(result.response().userType()).isEqualTo(user.getUserType().getValue());
+        assertThat(result.response().csrfToken()).isEqualTo(session.csrfToken());
+        assertThat(result.clearCookies()).isFalse();
+        verifyNoSessionMutation();
+    }
+
+    @Test
+    void 탈퇴한_계정의_세션은_세션_조회에서_비로그인으로_응답하고_쿠키를_지우게_한다() {
+        when(sessionRepository.findById(session.id())).thenReturn(Optional.of(session));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        WebSessionResult result = service.getWebSession(token.value(), null);
+
+        assertThat(result.response().authenticated()).isFalse();
+        assertThat(result.clearCookies()).isTrue();
+    }
+
+    @Test
     void access_인증_중_Redis_조회가_실패하면_사용자_조회로_진행하지_않는다() {
         RedisConnectionFailureException failure = redisFailure();
         when(sessionRepository.findById(session.id())).thenThrow(failure);

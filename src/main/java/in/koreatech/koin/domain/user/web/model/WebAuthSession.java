@@ -35,8 +35,12 @@ public record WebAuthSession(
         }
     }
 
+    public boolean isExpired() {
+        return !expiresAt.isAfter(Instant.now());
+    }
+
     public void requireNotExpired() {
-        if (!expiresAt.isAfter(Instant.now())) {
+        if (isExpired()) {
             throw AuthenticationException.withDetail("웹 로그인 유지 기간이 만료되었습니다.");
         }
     }

@@ -89,53 +89,25 @@ public class WebAuthService {
     }
 
     /**
-     * 세션 상태를 조회한다. 인증되지 않은 상태도 오류가 아닌 정상 결과로 돌려준다. 토큰은 회전하지 않는다.
+     * 세션 상태를 조회한다. 인증되지 않은 상태도 오류가 아닌 정상 결과로 돌려주며, 토큰은 회전하지 않고 세션도 변경하지 않는다.
      *
      * <p>refresh 쿠키의 세션을 우선 보고, 일치하지 않으면 access 쿠키로 확인한다. refresh만 남은 상태(access 만료)도
-     * 세션이 유효하므로 인증된 것으로 응답한다. access는 이후 API 요청의 401에서 재발급된다.
-     * 세션이 저장소에서 확정적으로 사라졌거나 쿠키가 형식에 맞지 않을 때만 쿠키를 지우게 한다.
+     * 세션이 유효하므로 인증된 것으로 응답하며, access는 이후 API 요청의 401에서 재발급된다.
+     * 인증 쿠키를 지우게 하는 경우는 세션이 저장소에서 확정적으로 사라졌거나 쿠키가 형식에 맞지 않을 때뿐이다.
      * refresh 값이 세션과 어긋나는 경우는 다른 탭이 이미 회전시켰을 수 있어 지우지 않는다.
      */
     public WebSessionResult getWebSession(String refreshValue, String accessValue) {
-        boolean hasRefresh = StringUtils.hasText(refreshValue);
-        boolean hasAccess = StringUtils.hasText(accessValue);
-        if (!hasRefresh && !hasAccess) {
-            return WebSessionResult.anonymous(false);
-        }
-
-        boolean sessionGone = !hasRefresh;
-        WebAuthSession session = null;
-        if (hasRefresh) {
-            try {
-                WebRefreshToken refreshToken = WebRefreshToken.parse(refreshValue);
-                Optional<WebAuthSession> found = sessionRepository.findById(refreshToken.sessionId());
-                if (found.isEmpty() || !found.get().expiresAt().isAfter(Instant.now())) {
-                    sessionGone = true;
-                } else if (found.get().matchesRefreshToken(refreshToken)) {
-                    session = found.get();
-                }
-            } catch (AuthenticationException e) {
-                sessionGone = true;
-            }
-        }
-        if (session == null && hasAccess) {
-            try {
-                session = authenticate(accessValue);
-            } catch (AuthenticationException e) {
-                // access가 유효하지 않으면 refresh 판단만으로 결과를 정한다.
-            }
+        RefreshLookup refresh = lookupByRefreshToken(refreshValue);
+        WebAuthSession session = refresh.session();
+        if (session == null && StringUtils.hasText(accessValue)) {
+            session = findByAccessToken(accessValue);
         }
         if (session == null) {
-            return WebSessionResult.anonymous(sessionGone);
+            boolean hasAnyCookie = StringUtils.hasText(refreshValue) || StringUtils.hasText(accessValue);
+            return WebSessionResult.anonymous(hasAnyCookie && !refresh.rotated());
         }
-
         User user = userRepository.findById(session.userId()).orElse(null);
         if (user == null) {
-            return WebSessionResult.anonymous(true);
-        }
-        if (!session.credentialHash().equals(WebRefreshToken.hash(user.getLoginPw()))) {
-            // 비밀번호가 바뀐 세션은 refresh와 같은 기준으로 폐기한다.
-            sessionRepository.delete(session);
             return WebSessionResult.anonymous(true);
         }
         return WebSessionResult.authenticated(user.getUserType().getValue(),
@@ -143,16 +115,52 @@ public class WebAuthService {
     }
 
     public WebAuthSession authenticate(String accessToken) {
-        JwtProvider.WebTokenClaims claims = jwtProvider.getWebTokenClaims(accessToken);
-        WebAuthSession session = getSession(claims.sessionId());
-        if (!session.userId().equals(claims.userId())) {
-            throw AuthenticationException.withDetail("웹 로그인 사용자 정보가 일치하지 않습니다.");
-        }
+        WebAuthSession session = getSessionByAccessToken(accessToken);
         // @UserId만 사용하는 API에서도 탈퇴한 계정의 쿠키를 인증하지 않는다.
         if (!userRepository.existsById(session.userId())) {
             throw AuthenticationException.withDetail("웹 로그인 사용자가 존재하지 않습니다.");
         }
         return session;
+    }
+
+    private WebAuthSession getSessionByAccessToken(String accessToken) {
+        JwtProvider.WebTokenClaims claims = jwtProvider.getWebTokenClaims(accessToken);
+        WebAuthSession session = getSession(claims.sessionId());
+        if (!session.userId().equals(claims.userId())) {
+            throw AuthenticationException.withDetail("웹 로그인 사용자 정보가 일치하지 않습니다.");
+        }
+        return session;
+    }
+
+    private WebAuthSession findByAccessToken(String accessToken) {
+        try {
+            return getSessionByAccessToken(accessToken);
+        } catch (AuthenticationException e) {
+            return null;
+        }
+    }
+
+    /** rotated: 세션은 있지만 refresh 값이 다르다(다른 탭이 이미 회전시켰을 수 있다). */
+    private RefreshLookup lookupByRefreshToken(String value) {
+        if (!StringUtils.hasText(value)) {
+            return RefreshLookup.NONE;
+        }
+        try {
+            WebRefreshToken refreshToken = WebRefreshToken.parse(value);
+            Optional<WebAuthSession> found = sessionRepository.findById(refreshToken.sessionId());
+            if (found.isEmpty() || found.get().isExpired()) {
+                return RefreshLookup.NONE;
+            }
+            return found.get().matchesRefreshToken(refreshToken) ? new RefreshLookup(found.get(), false)
+                : new RefreshLookup(null, true);
+        } catch (AuthenticationException e) {
+            return RefreshLookup.NONE;
+        }
+    }
+
+    private record RefreshLookup(WebAuthSession session, boolean rotated) {
+
+        static final RefreshLookup NONE = new RefreshLookup(null, false);
     }
 
     private WebAuthSession getSession(String sessionId) {
