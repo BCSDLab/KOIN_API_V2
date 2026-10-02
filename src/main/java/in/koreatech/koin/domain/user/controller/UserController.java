@@ -55,7 +55,8 @@ public class UserController implements UserApi {
     public ResponseEntity<UserProfileResponse> getProfile(
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     ) {
-        return ResponseEntity.ok().body(userService.getProfile(userId));
+        UserProfileResponse response = userService.getProfile(userId);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/user/auth")
