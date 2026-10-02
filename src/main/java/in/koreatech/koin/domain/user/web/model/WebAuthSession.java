@@ -5,6 +5,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.security.MessageDigest;
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
@@ -35,6 +37,7 @@ public record WebAuthSession(
         }
     }
 
+    @JsonIgnore
     public boolean isExpired() {
         return !expiresAt.isAfter(Instant.now());
     }
