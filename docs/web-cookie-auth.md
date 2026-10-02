@@ -12,6 +12,8 @@
 | `GET /v2/web/auth/csrf` | refresh 쿠키 | 200, CSRF 일반 쿠키 복구, `csrf_token` |
 | `POST /v2/web/auth/refresh` | refresh 쿠키, `X-CSRF-Token` | 201, 교체된 인증 쿠키 2개와 CSRF 일반 쿠키, `user_type`·`csrf_token` |
 | `POST /v2/web/auth/logout` | refresh 쿠키, `X-CSRF-Token` | 204, 현재 웹 세션 폐기 및 쿠키 삭제 |
+| `GET /v2/web/auth/session` | access·refresh 쿠키(둘 다 선택) | 200 항상. `authenticated`, `user_type`, `csrf_token`. 유효하면 CSRF 쿠키 복구 |
+| `GET /v2/users/me/profile` | access 쿠키(또는 Bearer) | 200, 일반·학생·총학생회 공통 내 정보. 학생은 `student_number`, `major` 포함 |
 
 웹 인증 API는 허용된 `Origin` 또는 `Referer`가 필요하다. 로그인 본문은 `application/json`만 받는다.
 `login_pw`는 기존 로그인과 동일하게 SHA-256 처리한 비밀번호를 전달한다.
@@ -51,6 +53,23 @@ API 주소 직접 입력은 403이 될 수 있다. SSR/프록시도 모든 쿠�
 
 `/user/check/login`처럼 토큰을 query로 받는 기존 전용 API는 쿠키 인증으로 전환하지 않는다.
 웹의 로그인 상태 확인은 쿠키와 함께 `/user/auth`를 사용한다.
+
+### 세션 조회 (`/v2/web/auth/session`)
+
+웹은 로그인 상태를 알기 위해 이 API를 사용한다. 비로그인도 오류가 아니라 `authenticated: false`인 200으로 응답하므로
+401을 정상 응답으로 해석하거나 `/user/auth` 401 → `/refresh` → 재시도를 클라이언트가 조합할 필요가 없다.
+
+- refresh 쿠키의 세션이 유효하면 access가 만료되었어도 `authenticated: true`이고, 일치하지 않으면 access 쿠키로 확인한다. 토큰은 회전하지 않는다. access는 이후 API 요청이 401일 때 `/refresh`로 재발급한다.
+- 세션이 유효하면 `/csrf`와 같이 CSRF 일반 쿠키를 복구한다. 별도의 `/csrf` 호출이 필요 없다.
+- 세션이 저장소에서 사라졌거나(만료·로그아웃·비밀번호 변경·탈퇴) 쿠키 형식이 잘못되면 `authenticated: false`로 응답하며 access·refresh·CSRF 쿠키를 만료시킨다. 이후 "CSRF 쿠키 없음 = 세션 없음"으로 판단할 수 있다.
+- refresh 값이 세션과 일치하지 않는 경우는 다른 탭이 이미 회전시켰을 수 있으므로 쿠키를 지우지 않는다.
+- 다른 웹 인증 API와 같이 허용된 `Origin` 또는 `Referer`가 필요하고 `Cache-Control: no-store`로 응답한다.
+
+### 내 정보 조회 (`/v2/users/me/profile`)
+
+일반(`GENERAL`)·학생(`STUDENT`)·총학생회(`COUNCIL`)가 같은 엔드포인트로 조회한다. 학생·총학생회는 `student_number`, `major`가 함께 내려오고 일반 회원은 두 필드가 null이다.
+기존 `/user/student/me`, `/v2/users/me`와 앱 계약은 그대로 유지한다.
+
 
 ## 쿠키와 만료 설정
 

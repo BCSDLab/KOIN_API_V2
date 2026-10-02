@@ -25,6 +25,10 @@ public record WebAuthSession(
         }
     }
 
+    public boolean matchesRefreshToken(WebRefreshToken token) {
+        return matches(refreshTokenHash, token.hash());
+    }
+
     public void requireCsrfToken(String token) {
         if (!matches(csrfToken, token)) {
             throw CustomException.of(ApiResponseCode.INVALID_CSRF_TOKEN);

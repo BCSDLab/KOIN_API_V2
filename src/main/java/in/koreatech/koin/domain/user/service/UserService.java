@@ -28,6 +28,7 @@ import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
+import in.koreatech.koin.domain.user.dto.UserProfileResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
 import in.koreatech.koin.domain.user.dto.UserUpdatePasswordRequest;
@@ -57,6 +58,15 @@ public class UserService {
     public UserResponse getUser(Integer userId) {
         User user = userRepository.getById(userId);
         return UserResponse.from(user);
+    }
+
+    /** 회원 유형과 무관한 내 정보. 학생·총학생회는 학생 정보(학번·전공)를 포함한다. */
+    public UserProfileResponse getProfile(Integer userId) {
+        User user = userRepository.getById(userId);
+        if (KOIN_STUDENT_TYPES.contains(user.getUserType())) {
+            return UserProfileResponse.from(studentRepository.getById(userId));
+        }
+        return UserProfileResponse.from(user);
     }
 
     public UserTypeResponse getUserType(Integer userId) {

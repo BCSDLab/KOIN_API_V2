@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.user.web.dto.WebAuthResponse;
 import in.koreatech.koin.domain.user.web.dto.WebCsrfTokenResponse;
 import in.koreatech.koin.domain.user.web.dto.WebLoginRequest;
+import in.koreatech.koin.domain.user.web.dto.WebSessionResponse;
 import in.koreatech.koin.domain.user.web.service.WebAuthService;
 import in.koreatech.koin.domain.user.web.service.WebAuthTokens;
 import in.koreatech.koin.domain.user.web.service.WebCsrfToken;
+import in.koreatech.koin.domain.user.web.service.WebSessionResult;
 import in.koreatech.koin.global.auth.WebAuthCookieManager;
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,5 +71,17 @@ public class WebAuthController implements WebAuthApi {
         WebCsrfToken csrfToken = webAuthService.getCsrfToken(cookieManager.getRefreshToken(request));
         cookieManager.writeCsrfToken(response, csrfToken);
         return ResponseEntity.ok(new WebCsrfTokenResponse(csrfToken.value()));
+    }
+
+    @GetMapping("/session")
+    public ResponseEntity<WebSessionResponse> getSession(HttpServletRequest request, HttpServletResponse response) {
+        WebSessionResult result = webAuthService.getWebSession(
+            cookieManager.getRefreshToken(request), cookieManager.getAccessToken(request));
+        if (result.csrfToken() != null) {
+            cookieManager.writeCsrfToken(response, result.csrfToken());
+        } else if (result.clearCookies()) {
+            cookieManager.clear(response);
+        }
+        return ResponseEntity.ok(result.response());
     }
 }

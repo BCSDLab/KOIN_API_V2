@@ -485,6 +485,128 @@ class WebAuthApiTest extends AcceptanceTest {
             .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
     }
 
+    @Test
+    void 쿠키가_없으면_세션_조회는_오류가_아니라_비로그인으로_응답한다() throws Exception {
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(false))
+            .andExpect(jsonPath("$.user_type").doesNotExist())
+            .andExpect(jsonPath("$.csrf_token").doesNotExist())
+            .andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-store"))
+            .andReturn();
+
+        assertThat(result.getResponse().getHeaders(HttpHeaders.SET_COOKIE)).isEmpty();
+    }
+
+    @Test
+    void 세션_조회는_유효한_세션이면_회원_유형을_주고_CSRF_쿠키만_복구한다() throws Exception {
+        WebLogin login = login(true);
+
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN)
+                .cookie(login.access(), login.refresh()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(true))
+            .andExpect(jsonPath("$.user_type").value("GENERAL"))
+            .andExpect(jsonPath("$.csrf_token").value(login.csrfToken()))
+            .andReturn();
+
+        assertThat(result.getResponse().getHeaders(HttpHeaders.SET_COOKIE)).hasSize(1);
+        assertThat(result.getResponse().getCookie(properties.csrfCookieName()).getValue()).isEqualTo(login.csrfToken());
+        refresh(login).andExpect(status().isCreated());
+    }
+
+    @Test
+    void access가_만료되어도_refresh_세션이_유효하면_로그인으로_응답하고_회전하지_않는다() throws Exception {
+        WebLogin login = login(true);
+
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN)
+                .cookie(expiredAccess(login), login.refresh()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(true))
+            .andExpect(jsonPath("$.user_type").value("GENERAL"))
+            .andReturn();
+
+        assertThat(result.getResponse().getHeaders(HttpHeaders.SET_COOKIE)).hasSize(1);
+        assertThat(result.getResponse().getCookie(properties.refreshCookieName())).isNull();
+        refresh(login).andExpect(status().isCreated());
+    }
+
+    @Test
+    void CSRF_쿠키가_없어도_refresh_쿠키만으로_세션을_확인하고_CSRF를_복구한다() throws Exception {
+        WebLogin login = login(true);
+
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN).cookie(login.refresh()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(true))
+            .andReturn();
+
+        assertThat(result.getResponse().getCookie(properties.csrfCookieName()).getValue()).isEqualTo(login.csrfToken());
+    }
+
+    @Test
+    void 세션이_사라졌으면_비로그인으로_응답하고_인증_쿠키를_모두_만료시킨다() throws Exception {
+        WebLogin login = login(true);
+        logout(login).andExpect(status().isNoContent());
+
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN)
+                .cookie(login.access(), login.refresh()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(false))
+            .andReturn();
+
+        assertThat(result.getResponse().getHeaders(HttpHeaders.SET_COOKIE)).hasSize(3);
+        assertThat(result.getResponse().getCookie(properties.accessCookieName()).getMaxAge()).isZero();
+        assertThat(result.getResponse().getCookie(properties.refreshCookieName()).getMaxAge()).isZero();
+        assertThat(result.getResponse().getCookie(properties.csrfCookieName()).getMaxAge()).isZero();
+    }
+
+    @Test
+    void 형식이_잘못된_refresh_쿠키는_비로그인으로_응답하고_쿠키를_만료시킨다() throws Exception {
+        Cookie broken = new Cookie(properties.refreshCookieName(), "not-a-refresh-token");
+
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN).cookie(broken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(false))
+            .andReturn();
+
+        assertThat(result.getResponse().getHeaders(HttpHeaders.SET_COOKIE)).hasSize(3);
+    }
+
+    @Test
+    void 다른_탭이_이미_회전시킨_이전_refresh는_비로그인으로_보지만_쿠키를_지우지_않는다() throws Exception {
+        WebLogin login = login(true);
+        refresh(login).andExpect(status().isCreated());
+
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN)
+                .cookie(expiredAccess(login), login.refresh()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(false))
+            .andReturn();
+
+        assertThat(result.getResponse().getHeaders(HttpHeaders.SET_COOKIE)).isEmpty();
+    }
+
+    @Test
+    void 세션_조회도_허용되지_않은_출처는_거부한다() throws Exception {
+        WebLogin login = login(true);
+
+        mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", "https://evil.example").cookie(login.refresh()))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void 일반_회원은_회원_유형과_무관한_내_정보_API로_조회한다() throws Exception {
+        WebLogin login = login(true);
+
+        mockMvc.perform(get("/v2/users/me/profile").header("Origin", ORIGIN).cookie(login.access()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.user_type").value("GENERAL"))
+            .andExpect(jsonPath("$.login_id").value("web-test"))
+            .andExpect(jsonPath("$.anonymous_nickname").exists())
+            .andExpect(jsonPath("$.student_number").doesNotExist())
+            .andExpect(jsonPath("$.major").doesNotExist());
+    }
+
     private WebLogin login(boolean autoLogin) throws Exception {
         MvcResult result = mockMvc.perform(post(AUTH_PATH + "/login").header("Origin", ORIGIN)
                 .header("User-Agent", MOBILE_USER_AGENT)
