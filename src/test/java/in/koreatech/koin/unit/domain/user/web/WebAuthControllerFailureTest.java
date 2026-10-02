@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import in.koreatech.koin.domain.user.web.controller.WebAuthController;
 import in.koreatech.koin.domain.user.web.service.WebAuthService;
+import in.koreatech.koin.domain.user.web.service.WebSessionService;
 import in.koreatech.koin.global.auth.WebAuthCookieManager;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.config.WebAuthProperties;
@@ -40,13 +41,16 @@ class WebAuthControllerFailureTest {
     @Mock
     private WebAuthService service;
 
+    @Mock
+    private WebSessionService sessionService;
+
     private MockMvc mockMvc;
     private final WebAuthProperties properties = new WebAuthProperties(
         Duration.ofMinutes(15), Duration.ofDays(90), true, "Lax", null, "koin-web");
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new WebAuthController(service, new WebAuthCookieManager(properties)))
+        mockMvc = MockMvcBuilders.standaloneSetup(new WebAuthController(service, sessionService, new WebAuthCookieManager(properties)))
             .setControllerAdvice(new GlobalExceptionHandler())
             .build();
     }
@@ -59,7 +63,7 @@ class WebAuthControllerFailureTest {
             case "login" -> when(service.login(any())).thenThrow(failure);
             case "refresh" -> when(service.refresh(anyString(), anyString())).thenThrow(failure);
             case "logout" -> doThrow(failure).when(service).logout(anyString(), anyString());
-            case "session" -> when(service.getWebSession(any(), any())).thenThrow(failure);
+            case "session" -> when(sessionService.getSession(any(), any())).thenThrow(failure);
             default -> throw new IllegalArgumentException("잘못된 테스트 경로");
         }
 
