@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.web.service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,24 +88,31 @@ public class WebAuthService {
         }
     }
 
-    public WebCsrfToken getCsrfToken(String value) {
-        WebRefreshToken refreshToken = WebRefreshToken.parse(value);
-        WebAuthSession session = getSession(refreshToken.sessionId());
-        session.requireRefreshToken(refreshToken);
-        return new WebCsrfToken(session.csrfToken(), session.expiresAt(), session.autoLogin());
-    }
-
     public WebAuthSession authenticate(String accessToken) {
-        JwtProvider.WebTokenClaims claims = jwtProvider.getWebTokenClaims(accessToken);
-        WebAuthSession session = getSession(claims.sessionId());
-        if (!session.userId().equals(claims.userId())) {
-            throw AuthenticationException.withDetail("웹 로그인 사용자 정보가 일치하지 않습니다.");
-        }
+        WebAuthSession session = getSessionByAccessToken(accessToken);
         // @UserId만 사용하는 API에서도 탈퇴한 계정의 쿠키를 인증하지 않는다.
         if (!userRepository.existsById(session.userId())) {
             throw AuthenticationException.withDetail("웹 로그인 사용자가 존재하지 않습니다.");
         }
         return session;
+    }
+
+    private WebAuthSession getSessionByAccessToken(String accessToken) {
+        JwtProvider.WebTokenClaims claims = jwtProvider.getWebTokenClaims(accessToken);
+        WebAuthSession session = getSession(claims.sessionId());
+        if (!session.userId().equals(claims.userId())) {
+            throw AuthenticationException.withDetail("웹 로그인 사용자 정보가 일치하지 않습니다.");
+        }
+        return session;
+    }
+
+    /** 사용자 존재 여부까지는 확인하지 않는 access 토큰 → 세션 조회. 유효하지 않으면 비어 있다. */
+    public Optional<WebAuthSession> findSessionByAccessToken(String accessToken) {
+        try {
+            return Optional.of(getSessionByAccessToken(accessToken));
+        } catch (AuthenticationException e) {
+            return Optional.empty();
+        }
     }
 
     private WebAuthSession getSession(String sessionId) {
