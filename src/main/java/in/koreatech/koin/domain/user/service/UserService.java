@@ -63,7 +63,7 @@ public class UserService {
     /** 회원 유형과 무관한 내 정보. 학생·총학생회는 학생 정보(학번·전공)를 포함한다. */
     public UserProfileResponse getProfile(Integer userId) {
         User user = userRepository.getById(userId);
-        if (KOIN_STUDENT_TYPES.contains(user.getUserType())) {
+        if (user.isKoinStudent()) {
             return UserProfileResponse.from(studentRepository.getById(userId));
         }
         return UserProfileResponse.from(user);
