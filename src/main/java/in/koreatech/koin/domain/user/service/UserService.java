@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.common.event.UserDeleteEvent;
 import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
@@ -64,7 +65,8 @@ public class UserService {
     public UserProfileResponse getProfile(Integer userId) {
         User user = userRepository.getById(userId);
         if (user.isKoinStudent()) {
-            return UserProfileResponse.from(studentRepository.getById(userId));
+            Student student = studentRepository.getById(userId);
+            return UserProfileResponse.from(student);
         }
         return UserProfileResponse.from(user);
     }
