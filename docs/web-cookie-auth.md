@@ -9,11 +9,10 @@
 | 요청 | 입력 | 성공 응답 |
 | --- | --- | --- |
 | `POST /v2/web/auth/login` | JSON `login_id`, `login_pw`, `auto_login` | 201, 인증 쿠키 2개와 CSRF 일반 쿠키, `user_type`·`csrf_token` |
-| `GET /v2/web/auth/csrf` | refresh 쿠키 | 200, CSRF 일반 쿠키 복구, `csrf_token` |
 | `POST /v2/web/auth/refresh` | refresh 쿠키, `X-CSRF-Token` | 201, 교체된 인증 쿠키 2개와 CSRF 일반 쿠키, `user_type`·`csrf_token` |
 | `POST /v2/web/auth/logout` | refresh 쿠키, `X-CSRF-Token` | 204, 현재 웹 세션 폐기 및 쿠키 삭제 |
 | `GET /v2/web/auth/session` | access·refresh 쿠키(둘 다 선택) | 200 항상. `authenticated`, `user_type`, `csrf_token`. 유효하면 CSRF 쿠키 복구 |
-| `GET /v2/users/me/profile` | access 쿠키(또는 Bearer) | 200, 일반·학생·총학생회 공통 내 정보. 학생은 `student_number`, `major` 포함 |
+| `GET /v3/users/me` | access 쿠키(또는 Bearer) | 200, 일반·학생·총학생회 공통 내 정보. 학생은 `student_number`, `major` 포함 |
 
 웹 인증 API는 허용된 `Origin` 또는 `Referer`가 필요하다. 로그인 본문은 `application/json`만 받는다.
 `login_pw`는 기존 로그인과 동일하게 SHA-256 처리한 비밀번호를 전달한다.
@@ -25,7 +24,7 @@ HMAC-SHA256 서명으로 구성되며 세션 ID는 CSRF 토큰에 노출하지 �
 현재 Redis 세션의 토큰을 함께 검증한다. 쿠키에 담긴 값만으로 인증하거나 쿠키와 헤더의 단순 일치만 확인하지 않는다.
 웹 코드는 CSRF 일반 쿠키를 읽어 쿠키 인증 POST/PUT/PATCH/DELETE 요청의 `X-CSRF-Token` 헤더에 넣는다.
 CSRF 토큰을 별도 state나 localStorage에 저장할 필요는 없다. 기존 JSON의 `csrf_token`은 호환성을 위해 유지한다.
-CSRF 쿠키가 없으면 `/csrf`를 호출해 복구한다. 단순 새로고침마다 이 API를 호출할 필요는 없다.
+CSRF 쿠키가 없으면 `/session`을 호출해 복구한다(세션이 유효할 때 CSRF 쿠키를 다시 발급한다). 단순 새로고침마다 호출할 필요는 없다.
 로그인 시에는 기존 세션이 없으므로
 허용 출처 검사와 JSON Content-Type 제한으로 로그인 CSRF를 방어한다.
 
@@ -38,7 +37,7 @@ CSRF 쿠키가 없으면 `/csrf`를 호출해 복구한다. 단순 새로고침�
 5. access 만료 시 `/refresh`를 한 번 호출한 뒤 원래 요청을 재시도한다.
 6. 로그아웃은 서버 `/logout`의 성공을 확인한 뒤 화면의 로그인 상태를 비운다.
 
-로그인·재발급·로그아웃·CSRF 조회는 만료된 access 쿠키의 영향을 받지 않는다.
+로그인·재발급·로그아웃·세션 조회는 만료된 access 쿠키의 영향을 받지 않는다.
 일반 기능 API에서는 명시적인 `Authorization` 헤더가 있으면 기존 헤더 인증만 사용한다.
 잘못된 헤더를 쿠키 인증으로 대체하지 않으므로, 웹 전환 시 예전 헤더 주입 코드도 제거해야 한다.
 기존 앱 토큰을 웹 쿠키로 넣거나 웹 토큰을 기존 앱 인증 경로로 전달하는 것은 허용하지 않는다.
@@ -60,12 +59,12 @@ API 주소 직접 입력은 403이 될 수 있다. SSR/프록시도 모든 쿠�
 401을 정상 응답으로 해석하거나 `/user/auth` 401 → `/refresh` → 재시도를 클라이언트가 조합할 필요가 없다.
 
 - refresh 쿠키의 세션이 유효하면 access가 만료되었어도 `authenticated: true`이고, 일치하지 않으면 access 쿠키로 확인한다. 토큰은 회전하지 않는다. access는 이후 API 요청이 401일 때 `/refresh`로 재발급한다.
-- 세션이 유효하면 `/csrf`와 같이 CSRF 일반 쿠키를 복구한다. 별도의 `/csrf` 호출이 필요 없다.
+- 세션이 유효하면 CSRF 일반 쿠키를 복구한다. 이 API가 기존 `/csrf` 조회를 대체한다.
 - 세션이 저장소에서 사라졌거나(만료·로그아웃·비밀번호 변경·탈퇴) 쿠키 형식이 잘못되면 `authenticated: false`로 응답하며 access·refresh·CSRF 쿠키를 만료시킨다. 이후 "CSRF 쿠키 없음 = 세션 없음"으로 판단할 수 있다.
 - refresh 값이 세션과 일치하지 않는 경우는 다른 탭이 이미 회전시켰을 수 있으므로 쿠키를 지우지 않는다.
 - 다른 웹 인증 API와 같이 허용된 `Origin` 또는 `Referer`가 필요하고 `Cache-Control: no-store`로 응답한다.
 
-### 내 정보 조회 (`/v2/users/me/profile`)
+### 내 정보 조회 (`/v3/users/me`)
 
 일반(`GENERAL`)·학생(`STUDENT`)·총학생회(`COUNCIL`)가 같은 엔드포인트로 조회한다. 학생·총학생회는 `student_number`, `major`가 함께 내려오고 일반 회원은 두 필드가 null이다.
 기존 `/user/student/me`, `/v2/users/me`와 앱 계약은 그대로 유지한다.
@@ -124,7 +123,7 @@ refresh 원문은 저장하지 않고 SHA-256 해시를 저장한다. 재발급 
 웹 access JWT에도 세션 ID를 넣고 요청마다 Redis 세션을 확인하므로 웹 로그아웃 후 남은 access도 사용할 수 없다.
 웹 인증 시 DB에서도 계정의 존재 여부를 확인하므로 `@UserId` API도 탈퇴 계정의 쿠키를 받지 않는다.
 이 때문에 쿠키 인증은 Redis와 사용자 DB 가용성에 의존하며, 조회 실패 시 인증을 허용하지 않는다.
-Redis 전용 CSRF 조회·로그아웃에는 SQL 트랜잭션을 만들지 않고, access 인증도 Redis 대기 전에 SQL 트랜잭션을 시작하지 않는다.
+Redis 전용 로그아웃과 세션 조회(사용자 조회는 트랜잭션 없이 단건 읽기)에는 SQL 트랜잭션을 만들지 않고, access 인증도 Redis 대기 전에 SQL 트랜잭션을 시작하지 않는다.
 
 Redis의 원자적 비교·교체로 같은 refresh의 동시 갱신은 하나만 성공한다. 먼저 읽은 상태가 다른 요청에 의해 변경되면 409,
 이미 교체된 refresh를 새로 제출하면 401이다. 실패 응답은 쿠키를 삭제하거나 덮어쓰지 않는다.

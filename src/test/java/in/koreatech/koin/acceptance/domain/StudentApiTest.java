@@ -120,7 +120,7 @@ public class StudentApiTest extends AcceptanceTest {
         String token = userFixture.getToken(student.getUser());
 
         mockMvc.perform(
-                get("/v2/users/me/profile")
+                get("/v3/users/me")
                     .header("Authorization", "Bearer " + token)
                     .contentType(MediaType.APPLICATION_JSON)
             )

@@ -12,12 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.web.dto.WebAuthResponse;
-import in.koreatech.koin.domain.user.web.dto.WebCsrfTokenResponse;
 import in.koreatech.koin.domain.user.web.dto.WebLoginRequest;
 import in.koreatech.koin.domain.user.web.dto.WebSessionResponse;
 import in.koreatech.koin.domain.user.web.service.WebAuthService;
 import in.koreatech.koin.domain.user.web.service.WebAuthTokens;
-import in.koreatech.koin.domain.user.web.service.WebCsrfToken;
 import in.koreatech.koin.domain.user.web.service.WebSessionResult;
 import in.koreatech.koin.global.auth.WebAuthCookieManager;
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
@@ -64,13 +62,6 @@ public class WebAuthController implements WebAuthApi {
         webAuthService.logout(cookieManager.getRefreshToken(request), csrfToken);
         cookieManager.clear(response);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/csrf")
-    public ResponseEntity<WebCsrfTokenResponse> getCsrfToken(HttpServletRequest request, HttpServletResponse response) {
-        WebCsrfToken csrfToken = webAuthService.getCsrfToken(cookieManager.getRefreshToken(request));
-        cookieManager.writeCsrfToken(response, csrfToken);
-        return ResponseEntity.ok(new WebCsrfTokenResponse(csrfToken.value()));
     }
 
     @GetMapping("/session")

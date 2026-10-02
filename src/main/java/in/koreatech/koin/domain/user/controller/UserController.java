@@ -51,7 +51,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(userResponse);
     }
 
-    @GetMapping("/v2/users/me/profile")
+    @GetMapping("/v3/users/me")
     public ResponseEntity<UserProfileResponse> getProfile(
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     ) {

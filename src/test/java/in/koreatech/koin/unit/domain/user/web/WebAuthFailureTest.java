@@ -28,6 +28,7 @@ import in.koreatech.koin.domain.user.web.model.WebAuthSession;
 import in.koreatech.koin.domain.user.web.model.WebRefreshToken;
 import in.koreatech.koin.domain.user.web.repository.WebAuthSessionRedisRepository;
 import in.koreatech.koin.domain.user.web.service.WebAuthService;
+import in.koreatech.koin.domain.user.web.service.WebSessionResult;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.WebCsrfTokenProvider;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
@@ -87,11 +88,11 @@ class WebAuthFailureTest {
     }
 
     @Test
-    void csrf_조회_중_Redis_조회가_실패하면_토큰을_반환하지_않는다() {
+    void 세션_조회_중_Redis_조회가_실패하면_비로그인으로_단정하지_않고_오류를_전달한다() {
         RedisConnectionFailureException failure = redisFailure();
         when(sessionRepository.findById(session.id())).thenThrow(failure);
 
-        assertThatThrownBy(() -> service.getCsrfToken(token.value())).isSameAs(failure);
+        assertThatThrownBy(() -> service.getWebSession(token.value(), null)).isSameAs(failure);
 
         verifyNoInteractions(userRepository, userService);
         verifyNoSessionMutation();
@@ -198,10 +199,13 @@ class WebAuthFailureTest {
     }
 
     @Test
-    void 만료된_세션으로는_csrf_토큰을_조회할_수_없다() {
+    void 만료된_세션은_세션_조회에서_비로그인으로_응답하고_쿠키를_지우게_한다() {
         when(sessionRepository.findById(session.id())).thenReturn(Optional.of(expiredSession()));
 
-        assertThatThrownBy(() -> service.getCsrfToken(token.value())).isInstanceOf(AuthenticationException.class);
+        WebSessionResult result = service.getWebSession(token.value(), null);
+
+        assertThat(result.response().authenticated()).isFalse();
+        assertThat(result.clearCookies()).isTrue();
 
         verifyNoInteractions(userRepository, userService);
         verifyNoSessionMutation();

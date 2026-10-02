@@ -52,19 +52,19 @@ class WebAuthControllerFailureTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"login", "refresh", "logout", "csrf"})
+    @ValueSource(strings = {"login", "refresh", "logout", "session"})
     void Redis_장애는_서버_오류를_반환하고_기존_쿠키를_덮거나_삭제하지_않는다(String endpoint) throws Exception {
         RedisConnectionFailureException failure = new RedisConnectionFailureException("테스트용 Redis 연결 실패");
         switch (endpoint) {
             case "login" -> when(service.login(any())).thenThrow(failure);
             case "refresh" -> when(service.refresh(anyString(), anyString())).thenThrow(failure);
             case "logout" -> doThrow(failure).when(service).logout(anyString(), anyString());
-            case "csrf" -> when(service.getCsrfToken(anyString())).thenThrow(failure);
+            case "session" -> when(service.getWebSession(any(), any())).thenThrow(failure);
             default -> throw new IllegalArgumentException("잘못된 테스트 경로");
         }
 
-        MockHttpServletRequestBuilder request = "csrf".equals(endpoint)
-            ? get("/v2/web/auth/csrf") : post("/v2/web/auth/" + endpoint);
+        MockHttpServletRequestBuilder request = "session".equals(endpoint)
+            ? get("/v2/web/auth/session") : post("/v2/web/auth/" + endpoint);
         mockMvc.perform(request.header("Origin", "http://localhost:3000").header("X-CSRF-Token", "test-csrf")
                 .cookie(new Cookie(properties.refreshCookieName(), "test-refresh"))
                 .contentType(MediaType.APPLICATION_JSON).content("{\"login_id\":\"test\",\"login_pw\":\"test-password\"}"))

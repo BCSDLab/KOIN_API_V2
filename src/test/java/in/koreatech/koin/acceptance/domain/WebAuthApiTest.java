@@ -149,11 +149,13 @@ class WebAuthApiTest extends AcceptanceTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void csrf_조회는_기존_세션의_쿠키만_복구하고_refresh를_회전하지_않는다(boolean autoLogin) throws Exception {
+    void 세션_조회는_기존_세션의_CSRF_쿠키만_복구하고_refresh를_회전하지_않는다(boolean autoLogin) throws Exception {
         WebLogin login = login(autoLogin);
 
-        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/csrf").header("Origin", ORIGIN).cookie(login.refresh()))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.csrf_token").value(login.csrfToken())).andReturn();
+        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN).cookie(login.refresh()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(true))
+            .andExpect(jsonPath("$.csrf_token").value(login.csrfToken())).andReturn();
 
         assertThat(result.getResponse().getHeaders(HttpHeaders.SET_COOKIE)).hasSize(1);
         Cookie restored = result.getResponse().getCookie(properties.csrfCookieName());
@@ -272,12 +274,13 @@ class WebAuthApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 만료된_access_쿠키가_있어도_csrf_조회와_재발급이_가능하다() throws Exception {
+    void 만료된_access_쿠키가_있어도_세션_조회와_재발급이_가능하다() throws Exception {
         WebLogin login = login(true);
         Cookie expired = expiredAccess(login);
 
-        mockMvc.perform(get(AUTH_PATH + "/csrf").header("Origin", ORIGIN).cookie(expired, login.refresh()))
+        mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN).cookie(expired, login.refresh()))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.authenticated").value(true))
             .andExpect(jsonPath("$.csrf_token").value(login.csrfToken()))
             .andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-store"));
 
@@ -532,18 +535,6 @@ class WebAuthApiTest extends AcceptanceTest {
     }
 
     @Test
-    void CSRF_쿠키가_없어도_refresh_쿠키만으로_세션을_확인하고_CSRF를_복구한다() throws Exception {
-        WebLogin login = login(true);
-
-        MvcResult result = mockMvc.perform(get(AUTH_PATH + "/session").header("Origin", ORIGIN).cookie(login.refresh()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.authenticated").value(true))
-            .andReturn();
-
-        assertThat(result.getResponse().getCookie(properties.csrfCookieName()).getValue()).isEqualTo(login.csrfToken());
-    }
-
-    @Test
     void 세션이_사라졌으면_비로그인으로_응답하고_인증_쿠키를_모두_만료시킨다() throws Exception {
         WebLogin login = login(true);
         logout(login).andExpect(status().isNoContent());
@@ -598,7 +589,7 @@ class WebAuthApiTest extends AcceptanceTest {
     void 일반_회원은_회원_유형과_무관한_내_정보_API로_조회한다() throws Exception {
         WebLogin login = login(true);
 
-        mockMvc.perform(get("/v2/users/me/profile").header("Origin", ORIGIN).cookie(login.access()))
+        mockMvc.perform(get("/v3/users/me").header("Origin", ORIGIN).cookie(login.access()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.user_type").value("GENERAL"))
             .andExpect(jsonPath("$.login_id").value("web-test"))

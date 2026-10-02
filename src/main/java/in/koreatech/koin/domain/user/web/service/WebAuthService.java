@@ -88,13 +88,6 @@ public class WebAuthService {
         }
     }
 
-    public WebCsrfToken getCsrfToken(String value) {
-        WebRefreshToken refreshToken = WebRefreshToken.parse(value);
-        WebAuthSession session = getSession(refreshToken.sessionId());
-        session.requireRefreshToken(refreshToken);
-        return new WebCsrfToken(session.csrfToken(), session.expiresAt(), session.autoLogin());
-    }
-
     /**
      * 세션 상태를 조회한다. 인증되지 않은 상태도 오류가 아닌 정상 결과로 돌려준다. 토큰은 회전하지 않는다.
      *
@@ -103,7 +96,6 @@ public class WebAuthService {
      * 세션이 저장소에서 확정적으로 사라졌거나 쿠키가 형식에 맞지 않을 때만 쿠키를 지우게 한다.
      * refresh 값이 세션과 어긋나는 경우는 다른 탭이 이미 회전시켰을 수 있어 지우지 않는다.
      */
-    @Transactional(readOnly = true)
     public WebSessionResult getWebSession(String refreshValue, String accessValue) {
         boolean hasRefresh = StringUtils.hasText(refreshValue);
         boolean hasAccess = StringUtils.hasText(accessValue);

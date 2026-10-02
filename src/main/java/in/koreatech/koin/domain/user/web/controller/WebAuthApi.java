@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import in.koreatech.koin.domain.user.web.dto.WebAuthResponse;
-import in.koreatech.koin.domain.user.web.dto.WebCsrfTokenResponse;
 import in.koreatech.koin.domain.user.web.dto.WebLoginRequest;
 import in.koreatech.koin.domain.user.web.dto.WebSessionResponse;
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
@@ -93,22 +92,6 @@ public interface WebAuthApi {
         @Parameter(description = "CSRF 토큰. refresh 쿠키가 없거나 세션이 이미 삭제된 경우 생략 가능")
         @RequestHeader(value = WebAuthRequestValidator.CSRF_HEADER, required = false) String csrfToken
     );
-
-    @Operation(
-        summary = "웹 CSRF 토큰 조회",
-        description = """
-            refresh 쿠키로 현재 웹 세션의 CSRF 토큰을 조회합니다.
-            동일한 CSRF 토큰을 일반 쿠키로 다시 발급합니다.
-            access 토큰과 refresh 토큰은 재발급하지 않습니다.
-            """
-    )
-    @ApiResponse(responseCode = "200", description = "CSRF 토큰 조회 성공",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-            schema = @Schema(implementation = WebCsrfTokenResponse.class)))
-    @ApiResponseCodes({ApiResponseCode.UNAUTHORIZED_USER, ApiResponseCode.FORBIDDEN_WEB_ORIGIN,
-        ApiResponseCode.INTERNAL_SERVER_ERROR})
-    @GetMapping("/csrf")
-    ResponseEntity<WebCsrfTokenResponse> getCsrfToken(HttpServletRequest request, HttpServletResponse response);
 
     @Operation(
         summary = "웹 세션 조회",

@@ -71,7 +71,7 @@ public interface UserApi {
         description = "일반·학생·총학생회 모두 이 엔드포인트로 조회합니다. 학생·총학생회는 student_number, major가 함께 내려오고 일반 회원은 null입니다."
     )
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/v2/users/me/profile")
+    @GetMapping("/v3/users/me")
     ResponseEntity<UserProfileResponse> getProfile(
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     );
