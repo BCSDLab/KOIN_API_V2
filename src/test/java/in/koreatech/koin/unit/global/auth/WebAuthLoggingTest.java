@@ -64,6 +64,7 @@ class WebAuthLoggingTest {
             request.addHeader("AUTHORIZATION", "Bearer access-secret");
             request.addHeader("Cookie", "koin-web-refresh=refresh-secret");
             request.addHeader("X-CSRF-Token", "csrf-secret");
+            request.addHeader("X-Koin-Service-Token", "bot-service-secret");
             request.setContent("{\"login_pw\":\"password-secret\"}".getBytes(UTF_8));
 
             new GlobalExceptionHandler().handleCustomException(new ContentCachingRequestWrapper(request),
@@ -72,7 +73,7 @@ class WebAuthLoggingTest {
             String messages = appender.list.stream().map(ILoggingEvent::getFormattedMessage)
                 .collect(joining("\n"));
             assertThat(messages).contains("[REDACTED]")
-                .doesNotContain("access-secret", "refresh-secret", "csrf-secret", "password-secret");
+                .doesNotContain("access-secret", "refresh-secret", "csrf-secret", "password-secret", "bot-service-secret");
         } finally {
             logger.detachAppender(appender);
             logger.setLevel(previousLevel);

@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Set<String> SENSITIVE_HEADERS = Set.of("authorization", "cookie", "x-csrf-token");
+    private static final Set<String> SENSITIVE_HEADERS = Set.of("authorization", "cookie", "x-csrf-token", "x-koin-service-token");
 
     // 커스텀 예외
 
