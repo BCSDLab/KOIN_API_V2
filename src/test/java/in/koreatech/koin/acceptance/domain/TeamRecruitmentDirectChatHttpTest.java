@@ -37,6 +37,8 @@ import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomTy
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserIdentity;
 import in.koreatech.koin.domain.user.model.UserType;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +48,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.transaction.TestTransaction;
 
-/** Checks both participants through real HTTP authentication, chat services and databases. */
+/** Checks direct chat and group chat through real HTTP authentication, services and databases. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
     "server.address=127.0.0.1",
     "spring.jpa.properties.hibernate.show_sql=false",
@@ -57,6 +59,7 @@ import org.springframework.test.context.transaction.TestTransaction;
     "logging.level.in.koreatech.koin.global.exception.GlobalExceptionHandler=OFF"
 })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Tag("team-recruitment-http")
 class TeamRecruitmentDirectChatHttpTest extends AcceptanceTest {
 
     @LocalServerPort
@@ -211,6 +214,175 @@ class TeamRecruitmentDirectChatHttpTest extends AcceptanceTest {
             Files.writeString(output, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(report));
             System.out.println("HTTP_REPRODUCTION_REPORT=" + output.toAbsolutePath());
         }
+    }
+
+    @Test
+    void threeApprovedApplicantsShareOneTeamRoomAndCanExchangeMessagesThroughRealHttp() throws Exception {
+        evidence.clear();
+        clear();
+        Department department = departmentFixture.컴퓨터공학부();
+        Student author = userFixture.준호_학생(department, null);
+        List<Student> applicants = List.of(
+            groupStudent(department, 101), groupStudent(department, 102), groupStudent(department, 103));
+        Student outsider = groupStudent(department, 104);
+        for (Student applicant : applicants) {
+            profileRepository.save(TeamRecruitmentProfile.builder()
+                .user(applicant.getUser()).profileNickname(applicant.getUser().getNickname())
+                .preferredRole("백엔드").selfIntroduction("단체 채팅 HTTP 검증 계정").build());
+        }
+        List<Integer> expectedMemberIds = new ArrayList<>();
+        expectedMemberIds.add(author.getUser().getId());
+        applicants.forEach(applicant -> expectedMemberIds.add(applicant.getUser().getId()));
+        LocalDate today = LocalDate.now(clock);
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        boolean completed = false;
+
+        try {
+            String authorToken = login("author", "juno");
+            List<String> applicantTokens = new ArrayList<>();
+            for (int i = 0; i < applicants.size(); i++) {
+                applicantTokens.add(login("applicant " + (i + 1), applicants.get(i).getUser().getLoginId()));
+            }
+            String outsiderToken = login("outsider", outsider.getUser().getLoginId());
+            JsonNode created = expect("create recruitment and team room", "author", "POST", "/team-recruitments",
+                authorToken, """
+                    {
+                      "category":"PROJECT", "title":"팀 단체 채팅 HTTP 검증", "meeting_type":"ONLINE",
+                      "activity_start_date":"%s", "activity_end_date":"%s", "deadline_date":"%s",
+                      "recruitment_type":"GENERAL", "max_participants":3, "roles":[],
+                      "description":"모집자와 승인된 지원자 세 명의 단체 채팅 검증"
+                    }
+                    """.formatted(today.plusDays(2), today.plusDays(10), today.plusDays(1)), 201, null);
+            int recruitmentId = created.path("id").asInt();
+            assertThat(recruitmentId).isPositive();
+            var teamRooms = chatRoomRepository.findAllByRecruitment_Id(recruitmentId).stream()
+                .filter(room -> room.getRoomType() == TeamRecruitmentChatRoomType.TEAM).toList();
+            assertThat(teamRooms).hasSize(1);
+            int teamRoomId = teamRooms.get(0).getId();
+            String roomPath = "/chatroom/team-recruitment/" + recruitmentId + "/" + teamRoomId;
+            JsonNode initialRoom = expect("team room initially contains author", "author", "GET", roomPath,
+                authorToken, null, 200, null);
+            assertThat(initialRoom.path("member_count").asInt()).isEqualTo(1);
+
+            List<Integer> applicationIds = new ArrayList<>();
+            for (int i = 0; i < applicants.size(); i++) {
+                JsonNode application = expect("apply for group", "applicant " + (i + 1), "POST",
+                    "/team-recruitments/" + recruitmentId + "/applications", applicantTokens.get(i),
+                    "{\"role_id\":null,\"motivation\":\"단체 채팅 지원\",\"availability\":\"평일 저녁\"}", 201, null);
+                applicationIds.add(application.path("application_id").asInt());
+            }
+            expect("pending applicant cannot enter group", "applicant 1", "GET", roomPath,
+                applicantTokens.get(0), null, 403, "TEAM_RECRUITMENT_CHAT_FORBIDDEN");
+
+            for (int i = 0; i < applicants.size(); i++) {
+                expect("approve group applicant " + (i + 1), "author", "PUT",
+                    "/team-recruitments/" + recruitmentId + "/applications/" + applicationIds.get(i) + "/status",
+                    authorToken, "{\"status\":\"ACCEPTED\"}", 204, null);
+                JsonNode applications = expect("approved applicant receives same team room", "applicant " + (i + 1),
+                    "GET", "/team-recruitments/me/applications", applicantTokens.get(i), null, 200, null);
+                JsonNode accepted = applications.path("applications").get(0);
+                assertThat(accepted.path("team_chat_available").asBoolean()).isTrue();
+                assertThat(accepted.path("team_chat_room_id").asInt()).isEqualTo(teamRoomId);
+                assertThat(accepted.path("direct_chat_room_id").isNull()).isTrue();
+                assertThat(memberRepository.countByChatRoom_Id(teamRoomId)).isEqualTo(i + 2L);
+            }
+            JsonNode closed = expect("capacity closes recruitment without closing group", "author", "GET",
+                "/team-recruitments/" + recruitmentId, authorToken, null, 200, null);
+            assertThat(closed.path("status").asText()).isEqualTo("CLOSED");
+            assertThat(memberRepository.findAllWithUsersByChatRoomIds(List.of(teamRoomId)))
+                .extracting(member -> member.getUser().getId()).containsExactlyInAnyOrderElementsOf(expectedMemberIds);
+            assertThat(chatRoomRepository.findAllByRecruitment_Id(recruitmentId)).hasSize(1);
+
+            List<String> participantTokens = new ArrayList<>();
+            participantTokens.add(authorToken);
+            participantTokens.addAll(applicantTokens);
+            List<Integer> messageIds = new ArrayList<>();
+            for (int i = 0; i < participantTokens.size(); i++) {
+                String actor = i == 0 ? "author" : "applicant " + i;
+                JsonNode room = expect("all four participants enter same group", actor, "GET", roomPath,
+                    participantTokens.get(i), null, 200, null);
+                assertThat(room.path("room_type").asText()).isEqualTo("TEAM");
+                assertThat(room.path("member_count").asInt()).isEqualTo(4);
+                assertThat(room.path("max_member_count").asInt()).isEqualTo(4);
+                JsonNode message = expect("each participant sends group message", actor, "POST", roomPath + "/messages",
+                    participantTokens.get(i), "{\"content\":\"단체 메시지 " + i + "\",\"is_image\":false}", 200, null);
+                assertThat(message.path("user_id").asInt()).isEqualTo(expectedMemberIds.get(i));
+                assertThat(message.path("unread_count").asInt()).isEqualTo(3);
+                messageIds.add(message.path("message_id").asInt());
+            }
+            for (int i = 0; i < participantTokens.size(); i++) {
+                String actor = i == 0 ? "author" : "applicant " + i;
+                JsonNode messages = expect("each participant reads all group messages", actor, "GET",
+                    roomPath + "/messages", participantTokens.get(i), null, 200, null);
+                assertThat(messages).hasSize(4);
+                for (int j = 0; j < messageIds.size(); j++) {
+                    assertThat(messages.get(j).path("message_id").asInt()).isEqualTo(messageIds.get(j));
+                    assertThat(messages.get(j).path("user_id").asInt()).isEqualTo(expectedMemberIds.get(j));
+                    assertThat(messages.get(j).path("content").asText()).isEqualTo("단체 메시지 " + j);
+                }
+                JsonNode rooms = expect("group appears in each participant chat list", actor, "GET",
+                    "/chatroom/team-recruitment", participantTokens.get(i), null, 200, null);
+                assertThat(rooms).hasSize(1);
+                assertThat(rooms.get(0).path("chat_room_id").asInt()).isEqualTo(teamRoomId);
+            }
+            JsonNode readMessages = expect("all four readers clear unread counts", "author", "GET", roomPath + "/messages",
+                authorToken, null, 200, null);
+            assertThat(readMessages).hasSize(messageIds.size());
+            for (int i = 0; i < messageIds.size(); i++) {
+                JsonNode message = readMessages.get(i);
+                assertThat(message.path("message_id").asInt()).isEqualTo(messageIds.get(i));
+                assertThat(message.path("unread_count").isIntegralNumber()).isTrue();
+                assertThat(message.path("unread_count").asInt()).isZero();
+            }
+            expect("outsider cannot enter group", "outsider", "GET", roomPath,
+                outsiderToken, null, 403, "TEAM_RECRUITMENT_CHAT_FORBIDDEN");
+            expect("outsider cannot read group messages", "outsider", "GET", roomPath + "/messages",
+                outsiderToken, null, 403, "TEAM_RECRUITMENT_CHAT_FORBIDDEN");
+            expect("outsider cannot send group message", "outsider", "POST", roomPath + "/messages",
+                outsiderToken, "{\"content\":\"허용되지 않는 메시지\",\"is_image\":false}",
+                403, "TEAM_RECRUITMENT_CHAT_FORBIDDEN");
+            expect("anonymous cannot enter group", "anonymous", "GET", roomPath,
+                null, null, 401, "UNAUTHORIZED_USER");
+
+            String directPath = "/chatroom/team-recruitment/" + recruitmentId
+                + "/applications/" + applicationIds.get(0) + "/direct";
+            JsonNode direct = expect("first approved applicant opens separate direct room", "applicant 1", "POST",
+                directPath, applicantTokens.get(0), null, 201, null);
+            assertThat(memberRepository.findAllWithUsersByChatRoomIds(List.of(direct.path("chat_room_id").asInt())))
+                .extracting(member -> member.getUser().getId())
+                .containsExactlyInAnyOrder(author.getUser().getId(), applicants.get(0).getUser().getId());
+            expect("other approved applicant cannot access first applicant direct room", "applicant 2", "POST",
+                directPath, applicantTokens.get(1), null, 403, "TEAM_RECRUITMENT_FORBIDDEN");
+            JsonNode unchangedGroup = expect("direct creation keeps four group members", "applicant 3", "GET",
+                roomPath, applicantTokens.get(2), null, 200, null);
+            assertThat(unchangedGroup.path("member_count").asInt()).isEqualTo(4);
+            assertThat(memberRepository.findAllWithUsersByChatRoomIds(List.of(teamRoomId)))
+                .extracting(member -> member.getUser().getId()).containsExactlyInAnyOrderElementsOf(expectedMemberIds);
+            assertThat(chatRoomRepository.findAllByRecruitment_Id(recruitmentId))
+                .filteredOn(room -> room.getRoomType() == TeamRecruitmentChatRoomType.TEAM).hasSize(1);
+            completed = true;
+        } finally {
+            Path output = Path.of("outputs/team-chat-fix-20261005/group-results.json");
+            Files.createDirectories(output.getParent());
+            Map<String, Object> report = new LinkedHashMap<>();
+            report.put("scenario", "author and three approved applicants share one TEAM room");
+            report.put("completed", completed);
+            report.put("server", "http://127.0.0.1:" + port);
+            report.put("expected_member_ids", expectedMemberIds);
+            report.put("requests", evidence);
+            Files.writeString(output, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(report));
+        }
+    }
+
+    private Student groupStudent(Department department, int number) {
+        return studentRepository.save(Student.builder()
+            .studentNumber("2026136" + number).department(department)
+            .userIdentity(UserIdentity.UNDERGRADUATE).isGraduated(false)
+            .user(User.builder().loginId("group" + number).loginPw(passwordEncoder.encode("1234"))
+                .name("HTTP 그룹 " + number).nickname("그룹" + number).anonymousNickname("익명_그룹" + number)
+                .phoneNumber("01000000" + number).email("group" + number + "@example.com")
+                .userType(UserType.STUDENT).isAuthed(true).isDeleted(false).build()).build());
     }
 
     private String login(String actor, String loginId) throws Exception {

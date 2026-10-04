@@ -107,7 +107,7 @@ tasks.named('bootBuildImage') {
 
 tasks.named('test') {
     useJUnitPlatform {
-        excludeTags 'web-auth-http'
+        excludeTags 'web-auth-http', 'team-recruitment-http'
     }
 }
 
@@ -123,6 +123,18 @@ tasks.register('webAuthHttpTest', Test) {
     shouldRunAfter tasks.named('test')
 }
 
+tasks.register('teamRecruitmentHttpTest', Test) {
+    description = '팀원 모집의 1대1 및 단체 채팅을 실제 HTTP로 검증합니다.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'team-recruitment-http'
+    }
+    shouldRunAfter tasks.named('test')
+}
+
 tasks.named('check') {
     dependsOn tasks.named('webAuthHttpTest')
+    dependsOn tasks.named('teamRecruitmentHttpTest')
 }
