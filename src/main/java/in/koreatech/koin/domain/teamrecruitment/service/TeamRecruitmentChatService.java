@@ -176,7 +176,10 @@ public class TeamRecruitmentChatService {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND);
         }
 
-        if (!userId.equals(recruitment.getAuthor().getId())) {
+        User author = recruitment.getAuthor();
+        User applicant = application.getApplicant();
+        boolean isAuthor = userId.equals(author.getId());
+        if (!isAuthor && !userId.equals(applicant.getId())) {
             throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN);
         }
 
@@ -184,7 +187,7 @@ public class TeamRecruitmentChatService {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_ACCEPTED);
         }
 
-        User counterpartUser = application.getApplicant();
+        User counterpartUser = isAuthor ? applicant : author;
         Optional<TeamRecruitmentChatRoom> existingDirectChatRoom = chatRoomRepository
                 .findByRecruitment_IdAndApplication_IdAndRoomType(
                         recruitmentId, applicationId, TeamRecruitmentChatRoomType.DIRECT);
@@ -212,9 +215,9 @@ public class TeamRecruitmentChatService {
         chatRoom = chatRoomRepository.save(chatRoom);
 
         memberRepository.save(TeamRecruitmentChatMember.builder()
-                .chatRoom(chatRoom).user(recruitment.getAuthor()).build());
+                .chatRoom(chatRoom).user(author).build());
         memberRepository.save(TeamRecruitmentChatMember.builder()
-                .chatRoom(chatRoom).user(counterpartUser).build());
+                .chatRoom(chatRoom).user(applicant).build());
 
         return new DirectChatRoomCreationResult(DirectChatRoomResponse.of(chatRoom, counterpartUser), true);
     }
