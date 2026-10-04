@@ -12,6 +12,10 @@ import java.util.Locale;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -143,6 +147,126 @@ class TeamRecruitmentMigrationTest {
                 "team_recruitment_outbox_event",
                 "idx_team_recruitment_outbox_claim"
             ))).isEqualTo("status,next_attempt_at,locked_until,attempt_count,id");
+        }
+    }
+
+    @Test
+    void 신고된_모집글과_알림의_오타만_교정하고_재실행해도_값이_유지된다() throws SQLException {
+        try (Connection connection = typoFixtureConnection()) {
+            try {
+                ScriptUtils.executeSqlScript(connection, new ClassPathResource(
+                    "db/migration/V12__correct_team_recruitment_notification_typo.sql"));
+
+                assertThat(queryString(connection, "SELECT title FROM team_recruitment WHERE id = 71"))
+                    .isEqualTo("공모전");
+                assertThat(queryString(connection,
+                    "SELECT message_preview FROM team_recruitment_notification WHERE id = 136"))
+                    .isEqualTo("지원하신 공모전 모집이 마감되어 지원이 거절되었어요.");
+                assertThat(queryInt(connection, """
+                    SELECT COUNT(*) FROM team_recruitment_notification
+                    WHERE id = 136 AND recruitment_id = 71 AND application_id = 52
+                        AND type = 'APPLICATION_REJECTED' AND target_type = 'MY_APPLICATIONS'
+                        AND read_at IS NULL AND is_deleted = 0
+                        AND created_at = '2026-09-29 00:00:32'
+                    """)).isOne();
+                assertThat(queryString(connection, "SELECT title FROM team_recruitment WHERE id = 72"))
+                    .isEqualTo("공모저온");
+                assertThat(queryInt(connection, """
+                    SELECT COUNT(*) FROM team_recruitment_notification
+                    WHERE id IN (137, 138)
+                        AND message_preview = '지원하신 공모저온 모집이 마감되어 지원이 거절되었어요.'
+                    """)).isEqualTo(2);
+
+                execute(connection, "UPDATE team_recruitment SET title = '작성자가 수정한 제목' WHERE id = 71");
+                ScriptUtils.executeSqlScript(connection, new ClassPathResource(
+                    "db/migration/V12__correct_team_recruitment_notification_typo.sql"));
+
+                assertThat(queryString(connection, "SELECT title FROM team_recruitment WHERE id = 71"))
+                    .isEqualTo("작성자가 수정한 제목");
+                assertThat(queryString(connection,
+                    "SELECT message_preview FROM team_recruitment_notification WHERE id = 136"))
+                    .isEqualTo("지원하신 공모전 모집이 마감되어 지원이 거절되었어요.");
+            } finally {
+                connection.rollback();
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "id = 139",
+        "recruitment_id = 72, application_id = 53",
+        "application_id = 51",
+        "type = 'RECRUITMENT_CLOSED'",
+        "target_type = 'NONE'",
+        "message_preview = '작성자가 수정한 문구'",
+        "message_preview = '지원하신 공모저온 모집이 마감되어 지원이 거절되었어요. '"
+    })
+    void 대상_알림의_ID나_기존_값이_다르면_문구를_덮어쓰지_않는다(String changedValues) throws SQLException {
+        try (Connection connection = typoFixtureConnection()) {
+            try {
+                execute(connection, "UPDATE team_recruitment_notification SET " + changedValues + " WHERE id = 136");
+                String previousMessage = queryString(connection,
+                    "SELECT message_preview FROM team_recruitment_notification WHERE id NOT IN (137, 138)");
+
+                ScriptUtils.executeSqlScript(connection, new ClassPathResource(
+                    "db/migration/V12__correct_team_recruitment_notification_typo.sql"));
+
+                assertThat(queryString(connection,
+                    "SELECT message_preview FROM team_recruitment_notification WHERE id NOT IN (137, 138)"))
+                    .isEqualTo(previousMessage);
+            } finally {
+                connection.rollback();
+            }
+        }
+    }
+
+    private Connection typoFixtureConnection() throws SQLException {
+        Connection connection = DriverManager.getConnection(
+            MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+        connection.setAutoCommit(false);
+        try {
+            execute(connection, """
+                INSERT INTO users (id, password, user_type, anonymous_nickname)
+                VALUES (101, 'test', 'GENERAL', '오타교정작성자'),
+                       (102, 'test', 'GENERAL', '오타교정지원자'),
+                       (103, 'test', 'GENERAL', '오타교정다른지원자')
+                """, """
+                INSERT INTO team_recruitment
+                    (id, author_id, category, title, meeting_type, activity_start_date, activity_end_date,
+                     deadline_date, recruitment_type, max_participants, description, status)
+                VALUES (71, 101, 'CONTEST', '공모저온', 'ONLINE', '2026-09-29', '2026-10-05',
+                        '2026-09-28', 'GENERAL', 5, '테스트 모집글', 'CLOSED'),
+                       (72, 101, 'CONTEST', '공모저온', 'ONLINE', '2026-09-29', '2026-10-05',
+                        '2026-09-28', 'GENERAL', 5, '다른 모집글', 'CLOSED')
+                """, """
+                INSERT INTO team_recruitment_application
+                    (id, recruitment_id, applicant_id, motivation, availability, status, profile_snapshot)
+                VALUES (51, 71, 103, '테스트 지원', '가능', 'REJECTED', '{}'),
+                       (52, 71, 102, '테스트 지원', '가능', 'REJECTED', '{}'),
+                       (53, 72, 102, '다른 지원', '가능', 'REJECTED', '{}')
+                """, """
+                INSERT INTO team_recruitment_notification
+                    (id, recipient_id, type, target_type, message_preview, recruitment_id, application_id, created_at)
+                VALUES (136, 102, 'APPLICATION_REJECTED', 'MY_APPLICATIONS',
+                        '지원하신 공모저온 모집이 마감되어 지원이 거절되었어요.', 71, 52, '2026-09-29 00:00:32'),
+                       (137, 102, 'APPLICATION_REJECTED', 'MY_APPLICATIONS',
+                        '지원하신 공모저온 모집이 마감되어 지원이 거절되었어요.', 71, 52, '2026-09-29 00:00:32'),
+                       (138, 102, 'APPLICATION_REJECTED', 'MY_APPLICATIONS',
+                        '지원하신 공모저온 모집이 마감되어 지원이 거절되었어요.', 72, 53, '2026-09-29 00:00:32')
+                """);
+            return connection;
+        } catch (SQLException exception) {
+            connection.close();
+            throw exception;
+        }
+    }
+
+    private void execute(Connection connection, String... queries) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            for (String query : queries) {
+                statement.executeUpdate(query);
+            }
         }
     }
 
