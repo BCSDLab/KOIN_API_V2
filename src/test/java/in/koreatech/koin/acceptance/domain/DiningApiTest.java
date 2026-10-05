@@ -10,14 +10,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
@@ -32,7 +38,19 @@ import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 
+@Import(DiningApiTest.DiningClockConfig.class)
 class DiningApiTest extends AcceptanceTest {
+
+    @TestConfiguration(proxyBeanMethods = false)
+    static class DiningClockConfig {
+
+        @Bean
+        @Primary
+        Clock diningApiTestFixedClock() {
+            ZoneId zoneId = ZoneId.of("Asia/Seoul");
+            return Clock.fixed(LocalDateTime.of(2024, 1, 15, 12, 0).atZone(zoneId).toInstant(), zoneId);
+        }
+    }
 
     @Autowired
     private DiningRepository diningRepository;

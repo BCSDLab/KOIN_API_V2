@@ -106,6 +106,7 @@ tasks.named('bootBuildImage') {
 }
 
 tasks.named('test') {
+    maxHeapSize = '2g'
     useJUnitPlatform {
         excludeTags 'web-auth-http'
     }
