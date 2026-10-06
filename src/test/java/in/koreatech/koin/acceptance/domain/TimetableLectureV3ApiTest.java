@@ -1,7 +1,9 @@
 package in.koreatech.koin.acceptance.domain;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
@@ -117,6 +119,27 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                     "total_grades": 3
                 }
                 """));
+    }
+
+    @Test
+    void 교수가_미정인_정규강의를_생성한다() throws Exception {
+        timetableV2Fixture.시간표1(user, semester);
+        lectureFixture.교수_미정_강의(semester.getSemester());
+
+        mockMvc.perform(
+                post("/v3/timetables/lecture/regular")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
+                        {
+                            "timetable_frame_id": 1,
+                            "lecture_id": 1
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.timetable[0].class_title").value("교수 미정 강의"))
+            .andExpect(jsonPath("$.timetable[0].professor").value(nullValue()));
     }
 
     @Test
