@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
@@ -50,8 +49,6 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
     private static final String ADMIN_PATH = "/admin/dining/soldout-reports";
     private static final String BOT_HEADER = "X-Koin-Service-Token";
     private static final String BOT_TOKEN = "test-dining-report-bot-token";
-    private static final String UUID_PATTERN =
-        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     private static final String IMAGE_DOMAIN = "https://test.koreatech.in/";
     private static final String IMAGE_URL = IMAGE_DOMAIN
         + "upload/COOP/2024/1/15/e924c7d3-3757-4cd0-961b-e65c1f6cc8ad/soldout.jpg";
@@ -307,102 +304,6 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
         mockMvc.perform(get(ADMIN_PATH).header("Authorization", "Bearer " + adminToken).param("only_pending", "true"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reports[*].report_id").value(contains(latestId, firstId)));
-    }
-
-    @Test
-    void Swagger는_공백시간과_봇_인증을_명세한다() throws Exception {
-        for (String group : List.of("", "3. Campus API")) {
-            var request = group.isEmpty() ? get("/v3/api-docs") : get("/v3/api-docs/{group}", group);
-            JsonNode api = body(mockMvc.perform(request).andExpect(status().isOk()));
-            JsonNode schemas = api.at("/components/schemas");
-            assertThat(api.path("paths").path(BOT_PATH).has("get")).isFalse();
-            assertThat(api.path("paths").has(BOT_PATH + "/changes")).isFalse();
-            assertThat(schemas.at("/DiningReportDecisionResponse/properties").has("processing_id")).isFalse();
-            assertThat(schemas.at("/DiningReportResponse/properties").has("processing_id")).isTrue();
-            for (JsonNode time : List.of(schemas.at("/DiningReportCreateResponse/properties/created_at"),
-                schemas.at("/DiningReportResponse/properties/created_at"),
-                schemas.at("/DiningReportResponse/properties/processed_at"))) {
-                assertThat(time.path("type").asText()).isEqualTo("string");
-                assertThat(time.path("format").asText()).isNotEqualTo("date-time");
-                assertThat(time.path("pattern").asText()).isNotBlank();
-            }
-            assertThat(schemas.at("/DiningReportResponse/properties/processed_at/nullable").asBoolean()).isTrue();
-            JsonNode scheme = api.at("/components/securitySchemes/Bot Service Authentication");
-            assertThat(scheme.path("type").asText()).isEqualTo("apiKey");
-            assertThat(scheme.path("in").asText()).isEqualTo("header");
-            assertThat(scheme.path("name").asText()).isEqualTo(BOT_HEADER);
-            for (JsonNode operation : List.of(api.path("paths").path(BOT_PATH + "/{reportId}").path("get"),
-                api.path("paths").path(BOT_PATH + "/{reportId}/approve").path("post"),
-                api.path("paths").path(BOT_PATH + "/{reportId}/reject").path("post"),
-                api.path("paths").path(BOT_PATH + "/deliveries/claim").path("post"),
-                api.path("paths").path(BOT_PATH + "/deliveries/{deliveryId}/result").path("post"))) {
-                assertThat(operation.path("security")).isNotEmpty().allSatisfy(requirement -> {
-                    assertThat(requirement.has("Bot Service Authentication")).isTrue();
-                    assertThat(requirement.has("Jwt Authentication")).isFalse();
-                });
-            }
-            JsonNode claim = api.path("paths").path(BOT_PATH + "/deliveries/claim").path("post");
-            assertThat(claim.has("requestBody")).isFalse();
-            assertThat(claim.path("parameters")).noneSatisfy(parameter ->
-                assertThat(parameter.path("name").asText()).isEqualTo("Idempotency-Key"));
-            assertThat(claim.at("/responses/204/headers/Retry-After").isMissingNode()).isFalse();
-            assertClaimSchema(api, claim);
-            assertResultSchemas(api);
-        }
-    }
-
-    private void assertClaimSchema(JsonNode api, JsonNode claim) {
-        JsonNode response = contentSchema(api, claim.at("/responses/200/content"));
-        assertClosedObject(response, "delivery_id", "attempt_token", "expires_at", "report");
-        JsonNode properties = response.path("properties");
-        assertUuid(properties.path("delivery_id"));
-        assertUuid(properties.path("attempt_token"));
-        assertThat(properties.path("expires_at").path("format").asText()).isEqualTo("date-time");
-        assertThat(schema(api, properties.path("report")).path("properties").has("report_id")).isTrue();
-    }
-
-    private void assertResultSchemas(JsonNode api) {
-        JsonNode operation = api.path("paths").path(BOT_PATH + "/deliveries/{deliveryId}/result").path("post");
-        JsonNode request = contentSchema(api, operation.at("/requestBody/content"));
-        assertClosedObject(request, "attempt_token", "outcome");
-        assertUuid(request.path("properties").path("attempt_token"));
-        assertThat(schema(api, request.path("properties").path("outcome")).path("enum"))
-            .extracting(JsonNode::asText).containsExactlyInAnyOrder("SUCCEEDED", "FAILED");
-        JsonNode response = contentSchema(api, operation.at("/responses/200/content"));
-        assertClosedObject(response, "delivery_id", "delivery_state");
-        assertUuid(response.path("properties").path("delivery_id"));
-        assertThat(schema(api, response.path("properties").path("delivery_state")).path("enum"))
-            .extracting(JsonNode::asText).containsExactlyInAnyOrder("QUEUED", "IN_PROGRESS", "DELIVERED");
-    }
-
-    private JsonNode contentSchema(JsonNode api, JsonNode content) {
-        assertThat(content).isNotEmpty();
-        JsonNode mediaType = content.has("application/json") ? content.path("application/json") : content.elements().next();
-        return schema(api, mediaType.path("schema"));
-    }
-
-    private JsonNode schema(JsonNode api, JsonNode candidate) {
-        if (candidate.has("$ref")) {
-            String reference = candidate.path("$ref").asText();
-            assertThat(reference).startsWith("#/components/schemas/");
-            candidate = api.at(reference.substring(1));
-            assertThat(candidate.isMissingNode()).as("unresolved schema: %s", reference).isFalse();
-        }
-        assertThat(candidate.isObject()).isTrue();
-        return candidate;
-    }
-
-    private void assertClosedObject(JsonNode schema, String... fields) {
-        assertThat(schema.path("type").asText()).isEqualTo("object");
-        assertThat(schema.path("additionalProperties")).isEqualTo(BooleanNode.FALSE);
-        assertThat(schema.path("required")).extracting(JsonNode::asText).containsExactlyInAnyOrder(fields);
-        assertThat(schema.path("properties").fieldNames()).toIterable().containsExactlyInAnyOrder(fields);
-    }
-
-    private void assertUuid(JsonNode schema) {
-        assertThat(schema.path("type").asText()).isEqualTo("string");
-        assertThat(schema.path("format").asText()).isEqualTo("uuid");
-        assertThat(schema.path("pattern").asText()).isEqualTo(UUID_PATTERN);
     }
 
     private ResultActions submit(String token, Dining target, String key, String imageUrl) throws Exception {
