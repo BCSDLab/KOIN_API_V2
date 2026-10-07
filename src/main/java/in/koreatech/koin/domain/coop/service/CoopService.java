@@ -39,6 +39,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.lingala.zip4j.ZipFile;
@@ -46,7 +47,6 @@ import net.lingala.zip4j.exception.ZipException;
 
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.common.event.DiningImageUploadEvent;
-import in.koreatech.koin.common.event.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.CoopResponse;
@@ -57,11 +57,9 @@ import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
 import in.koreatech.koin.domain.coop.exception.DuplicateExcelRequestException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
-import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
-import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.coop.repository.ExcelDownloadCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
@@ -69,6 +67,7 @@ import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.model.enums.ExcelDiningPosition;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
+import in.koreatech.koin.domain.dining.service.DiningReportService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
@@ -85,7 +84,7 @@ public class CoopService {
     private final Clock clock;
     private final ApplicationEventPublisher eventPublisher;
     private final DiningRepository diningRepository;
-    private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
+    private final DiningReportService diningReportService;
     private final ExcelDownloadCacheRepository excelDownloadCacheRepository;
     private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
@@ -105,22 +104,9 @@ public class CoopService {
     private static final int cornerColumnIndex = 1;
     private static final int mealAndColumnWidth = 4000;
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
-        Dining dining = diningRepository.getById(soldOutRequest.menuId());
-
-        if (soldOutRequest.soldOut()) {
-            LocalDateTime now = LocalDateTime.now(clock);
-            dining.setSoldOut(now);
-            boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), false);
-            if (isOpened && diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty()) {
-                diningSoldOutCacheRepository.save(DiningSoldOutCache.from(dining.getPlace()));
-                eventPublisher.publishEvent(
-                    new DiningSoldOutEvent(dining.getId(), dining.getPlace(), dining.getType()));
-            }
-        } else {
-            dining.cancelSoldOut();
-        }
+        diningReportService.changeSoldOutByCoop(soldOutRequest.menuId(), soldOutRequest.soldOut());
     }
 
     @Transactional
