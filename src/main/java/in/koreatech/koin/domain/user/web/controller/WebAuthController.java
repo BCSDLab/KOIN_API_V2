@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.web.dto.WebAuthResponse;
-import in.koreatech.koin.domain.user.web.dto.WebCsrfTokenResponse;
 import in.koreatech.koin.domain.user.web.dto.WebLoginRequest;
+import in.koreatech.koin.domain.user.web.dto.WebSessionResponse;
 import in.koreatech.koin.domain.user.web.service.WebAuthService;
 import in.koreatech.koin.domain.user.web.service.WebAuthTokens;
-import in.koreatech.koin.domain.user.web.service.WebCsrfToken;
+import in.koreatech.koin.domain.user.web.service.WebSessionResult;
+import in.koreatech.koin.domain.user.web.service.WebSessionService;
 import in.koreatech.koin.global.auth.WebAuthCookieManager;
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class WebAuthController implements WebAuthApi {
 
     private final WebAuthService webAuthService;
+    private final WebSessionService webSessionService;
     private final WebAuthCookieManager cookieManager;
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -64,10 +66,18 @@ public class WebAuthController implements WebAuthApi {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/csrf")
-    public ResponseEntity<WebCsrfTokenResponse> getCsrfToken(HttpServletRequest request, HttpServletResponse response) {
-        WebCsrfToken csrfToken = webAuthService.getCsrfToken(cookieManager.getRefreshToken(request));
-        cookieManager.writeCsrfToken(response, csrfToken);
-        return ResponseEntity.ok(new WebCsrfTokenResponse(csrfToken.value()));
+    @GetMapping("/session")
+    public ResponseEntity<WebSessionResponse> getSession(HttpServletRequest request, HttpServletResponse response) {
+        WebSessionResult result = webSessionService.getSession(
+            cookieManager.getRefreshToken(request), cookieManager.getAccessToken(request));
+        switch (result.status()) {
+            case AUTHENTICATED -> {
+                cookieManager.writeCsrfToken(response, result.csrfToken());
+                return ResponseEntity.ok(new WebSessionResponse(true, result.userType(), result.csrfToken().value()));
+            }
+            case SESSION_LOST -> cookieManager.clear(response);
+            case ANONYMOUS -> { }
+        }
+        return ResponseEntity.ok(WebSessionResponse.anonymous());
     }
 }

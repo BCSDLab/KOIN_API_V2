@@ -21,14 +21,14 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 class WebAuthOpenApiCustomizerTest {
 
     @Test
-    void 공유_쿠키_설정과_CSRF_조회_복구를_문서에_반영한다() {
+    void 공유_쿠키_설정과_세션_조회의_CSRF_복구를_문서에_반영한다() {
         WebAuthProperties properties = new WebAuthProperties(Duration.ofMinutes(15), Duration.ofDays(90),
             true, "Lax", "example.test", "koin-stage-web");
         Operation login = operation();
         Operation csrf = new Operation().responses(new ApiResponses().addApiResponse("200", new ApiResponse()));
         OpenAPI openApi = new OpenAPI().paths(new Paths()
             .addPathItem("/v2/web/auth/login", new PathItem().post(login))
-            .addPathItem("/v2/web/auth/csrf", new PathItem().get(csrf)));
+            .addPathItem("/v2/web/auth/session", new PathItem().get(csrf)));
 
         new WebAuthOpenApiCustomizer(properties).customise(openApi);
 

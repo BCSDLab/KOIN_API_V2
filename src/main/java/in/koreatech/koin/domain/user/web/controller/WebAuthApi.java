@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import in.koreatech.koin.domain.user.web.dto.WebAuthResponse;
-import in.koreatech.koin.domain.user.web.dto.WebCsrfTokenResponse;
 import in.koreatech.koin.domain.user.web.dto.WebLoginRequest;
+import in.koreatech.koin.domain.user.web.dto.WebSessionResponse;
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.code.ApiResponseCodes;
@@ -94,18 +94,19 @@ public interface WebAuthApi {
     );
 
     @Operation(
-        summary = "웹 CSRF 토큰 조회",
+        summary = "웹 세션 조회",
         description = """
-            refresh 쿠키로 현재 웹 세션의 CSRF 토큰을 조회합니다.
-            동일한 CSRF 토큰을 일반 쿠키로 다시 발급합니다.
-            access 토큰과 refresh 토큰은 재발급하지 않습니다.
+            현재 브라우저의 웹 로그인 세션 상태를 조회합니다. 비로그인도 오류가 아니라 authenticated=false인 200으로 응답합니다.
+            refresh 쿠키의 세션이 유효하면 access가 만료되었더라도 authenticated=true입니다(access는 이후 요청에서 재발급).
+            세션이 유효하면 CSRF 일반 쿠키를 복구합니다. 토큰은 재발급(회전)하지 않습니다.
+            세션이 서버 저장소에서 사라졌거나 쿠키가 형식에 맞지 않으면 access·refresh·CSRF 쿠키를 만료시킵니다.
+            refresh 값이 세션과 일치하지 않는 경우(다른 탭이 이미 회전)에는 쿠키를 지우지 않습니다.
             """
     )
-    @ApiResponse(responseCode = "200", description = "CSRF 토큰 조회 성공",
+    @ApiResponse(responseCode = "200", description = "세션 조회 성공",
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-            schema = @Schema(implementation = WebCsrfTokenResponse.class)))
-    @ApiResponseCodes({ApiResponseCode.UNAUTHORIZED_USER, ApiResponseCode.FORBIDDEN_WEB_ORIGIN,
-        ApiResponseCode.INTERNAL_SERVER_ERROR})
-    @GetMapping("/csrf")
-    ResponseEntity<WebCsrfTokenResponse> getCsrfToken(HttpServletRequest request, HttpServletResponse response);
+            schema = @Schema(implementation = WebSessionResponse.class)))
+    @ApiResponseCodes({ApiResponseCode.FORBIDDEN_WEB_ORIGIN, ApiResponseCode.INTERNAL_SERVER_ERROR})
+    @GetMapping("/session")
+    ResponseEntity<WebSessionResponse> getSession(HttpServletRequest request, HttpServletResponse response);
 }

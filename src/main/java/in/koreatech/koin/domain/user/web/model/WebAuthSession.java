@@ -5,6 +5,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.security.MessageDigest;
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
@@ -25,14 +27,23 @@ public record WebAuthSession(
         }
     }
 
+    public boolean matchesRefreshToken(WebRefreshToken token) {
+        return matches(refreshTokenHash, token.hash());
+    }
+
     public void requireCsrfToken(String token) {
         if (!matches(csrfToken, token)) {
             throw CustomException.of(ApiResponseCode.INVALID_CSRF_TOKEN);
         }
     }
 
+    @JsonIgnore
+    public boolean isExpired() {
+        return !expiresAt.isAfter(Instant.now());
+    }
+
     public void requireNotExpired() {
-        if (!expiresAt.isAfter(Instant.now())) {
+        if (isExpired()) {
             throw AuthenticationException.withDetail("웹 로그인 유지 기간이 만료되었습니다.");
         }
     }

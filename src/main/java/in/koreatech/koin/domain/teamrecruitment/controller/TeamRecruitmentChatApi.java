@@ -74,7 +74,8 @@ public interface TeamRecruitmentChatApi {
     })
     @Operation(
         summary = "지원자와 개인 채팅방 생성 또는 조회",
-        description = "ACCEPTED 지원서만 대상입니다. 기존 DIRECT 채팅방이 있으면 모집 상태와 관계없이 기존 방을 반환합니다. "
+        description = "모집글 작성자 또는 해당 지원자만 호출할 수 있으며 ACCEPTED 지원서만 대상입니다. "
+            + "기존 DIRECT 채팅방이 있으면 모집 상태와 관계없이 기존 방을 반환합니다. "
             + "기존 방이 없을 때는 마감일이 지나지 않은 RECRUITING 상태이거나 "
             + "정원 충족으로 마감되어 ACTIVE 상태인 TEAM 채팅방이 있는 경우에만 새 방을 생성합니다."
     )

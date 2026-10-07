@@ -38,6 +38,11 @@ public class SwaggerConfig {
             .scheme("Bearer")
             .description("토큰값을 입력하여 인증을 활성화할 수 있습니다.")
             .bearerFormat("JWT")
+        ).addSecuritySchemes("Bot Service Authentication", new SecurityScheme()
+            .type(SecurityScheme.Type.APIKEY)
+            .in(SecurityScheme.In.HEADER)
+            .name("X-Koin-Service-Token")
+            .description("삐봇 서비스 토큰을 입력하여 인증을 활성화할 수 있습니다.")
         );
         Server server = new Server();
         server.setUrl(serverUrl);

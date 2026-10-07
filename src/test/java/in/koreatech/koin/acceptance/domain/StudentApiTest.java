@@ -114,6 +114,33 @@ public class StudentApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 학생은_회원_유형과_무관한_내_정보_API로_학번과_전공까지_조회한다() throws Exception {
+        Department department = departmentFixture.컴퓨터공학부();
+        Student student = userFixture.준호_학생(department, null);
+        String token = userFixture.getToken(student.getUser());
+
+        mockMvc.perform(
+                get("/v3/users/me")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "anonymous_nickname": "익명_주노",
+                    "email": "juno@koreatech.ac.kr",
+                    "gender": 0,
+                    "major": "컴퓨터공학부",
+                    "name": "테스트용_준호",
+                    "nickname": "준호",
+                    "phone_number": "01012345678",
+                    "student_number": "2019136135",
+                    "user_type": "STUDENT"
+                }
+                """));
+    }
+
+    @Test
     void 올바른_학생계정인지_확인한다_토큰_정보가_올바르지_않으면_401() throws Exception {
         Department department = departmentFixture.컴퓨터공학부();
 

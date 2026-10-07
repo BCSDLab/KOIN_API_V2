@@ -43,8 +43,8 @@ public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer {
             List.of(cookieSecurity()), "201");
         configureOperation(openApi, "logout", PathItem.HttpMethod.POST,
             List.of(cookieSecurity(), new SecurityRequirement()), "204");
-        configureOperation(openApi, "csrf", PathItem.HttpMethod.GET,
-            List.of(cookieSecurity()), "200");
+        configureOperation(openApi, "session", PathItem.HttpMethod.GET,
+            List.of(cookieSecurity(), new SecurityRequirement()), "200");
     }
 
     private void configureOperation(OpenAPI openApi, String endpoint, PathItem.HttpMethod method,
@@ -117,7 +117,7 @@ public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer {
         String description = clear ? "access·refresh·CSRF 쿠키 만료 (Max-Age=0)"
             : "access·refresh는 HttpOnly, CSRF는 일반 쿠키로 발급합니다. auto_login=true이면 Max-Age를 설정합니다.";
         String csrf = cookie(properties.csrfCookieName(), clear ? "" : "SIGNED_CSRF_TOKEN_PLACEHOLDER", "/", clear, false);
-        return new Header().description((csrfOnly ? "기존 세션의 CSRF 쿠키만 복구합니다." : description)
+        return new Header().description((csrfOnly ? "세션이 유효하면 CSRF 쿠키만 복구합니다(토큰은 회전하지 않음). 세션이 사라졌으면 세 쿠키를 만료시킵니다." : description)
                 + " refresh는 API 호스트 전용이며 access·CSRF의 Domain과 쿠키 이름·Secure·SameSite는 서버 설정에 따릅니다.")
             .schema(new ArraySchema().items(new StringSchema()))
             .example(csrfOnly ? List.of(csrf) : List.of(

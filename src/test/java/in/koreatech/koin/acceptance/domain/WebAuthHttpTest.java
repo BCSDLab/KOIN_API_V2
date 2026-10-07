@@ -80,7 +80,7 @@ class WebAuthHttpTest extends AcceptanceTest {
             assertThat(missingCsrf.statusCode()).isEqualTo(403);
             assertThat(missingCsrf.headers().allValues("Set-Cookie")).isEmpty();
 
-            HttpResponse<String> restored = send(request(AUTH_PATH + "/csrf").header("Cookie", refresh).GET());
+            HttpResponse<String> restored = send(request(AUTH_PATH + "/session").header("Cookie", refresh).GET());
             assertThat(restored.statusCode()).isEqualTo(200);
             assertThat(restored.headers().allValues("Set-Cookie")).hasSize(1);
 

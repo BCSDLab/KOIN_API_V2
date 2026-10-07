@@ -87,17 +87,6 @@ class WebAuthFailureTest {
     }
 
     @Test
-    void csrf_조회_중_Redis_조회가_실패하면_토큰을_반환하지_않는다() {
-        RedisConnectionFailureException failure = redisFailure();
-        when(sessionRepository.findById(session.id())).thenThrow(failure);
-
-        assertThatThrownBy(() -> service.getCsrfToken(token.value())).isSameAs(failure);
-
-        verifyNoInteractions(userRepository, userService);
-        verifyNoSessionMutation();
-    }
-
-    @Test
     void 로그아웃_중_Redis_조회가_실패하면_성공으로_처리하지_않는다() {
         RedisConnectionFailureException failure = redisFailure();
         when(sessionRepository.findById(session.id())).thenThrow(failure);
@@ -192,16 +181,6 @@ class WebAuthFailureTest {
 
         assertThatThrownBy(() -> service.refresh(token.value(), expired.csrfToken()))
             .isInstanceOf(AuthenticationException.class);
-
-        verifyNoInteractions(userRepository, userService);
-        verifyNoSessionMutation();
-    }
-
-    @Test
-    void 만료된_세션으로는_csrf_토큰을_조회할_수_없다() {
-        when(sessionRepository.findById(session.id())).thenReturn(Optional.of(expiredSession()));
-
-        assertThatThrownBy(() -> service.getCsrfToken(token.value())).isInstanceOf(AuthenticationException.class);
 
         verifyNoInteractions(userRepository, userService);
         verifyNoSessionMutation();

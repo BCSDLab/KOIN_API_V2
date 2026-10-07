@@ -33,7 +33,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
         JsonNode openApi = openApi(LOGIN_GROUP);
         JsonNode nativeLogin = openApi.at("/paths/~1v2~1users~1login/post");
 
-        for (String endpoint : List.of("login", "refresh", "logout", "csrf")) {
+        for (String endpoint : List.of("login", "refresh", "logout", "session")) {
             assertThat(operation(openApi, endpoint).path("tags")).isEqualTo(nativeLogin.path("tags"));
         }
         assertThat(nativeLogin.path("tags").get(0).asText()).isEqualTo("(Normal) User: 유저");
@@ -45,7 +45,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
     void 웹_인증_API는_회원_그룹에_중복_노출하지_않는다() throws Exception {
         JsonNode openApi = openApi("4. User API");
 
-        for (String endpoint : List.of("login", "refresh", "logout", "csrf")) {
+        for (String endpoint : List.of("login", "refresh", "logout", "session")) {
             assertThat(operation(openApi, endpoint).isMissingNode()).isTrue();
         }
         assertThat(openApi.at("/paths/~1v2~1users~1login/post").isMissingNode()).isFalse();
@@ -57,7 +57,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
     void 웹_인증_출처와_refresh_쿠키를_명세한다() throws Exception {
         JsonNode openApi = openApi(LOGIN_GROUP);
 
-        for (String endpoint : List.of("login", "refresh", "logout", "csrf")) {
+        for (String endpoint : List.of("login", "refresh", "logout", "session")) {
             JsonNode operation = operation(openApi, endpoint);
             assertThat(parameter(operation, "Origin").path("in").asText()).isEqualTo("header");
             assertThat(parameter(operation, "Referer").path("in").asText()).isEqualTo("header");
@@ -65,7 +65,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
         JsonNode cookieScheme = openApi.path("components").path("securitySchemes").path(WEB_REFRESH_COOKIE);
         assertThat(cookieScheme.path("in").asText()).isEqualTo("cookie");
         assertThat(cookieScheme.path("name").asText()).isEqualTo("__Secure-koin-web-refresh");
-        for (String endpoint : List.of("refresh", "csrf")) {
+        for (String endpoint : List.of("refresh", "session")) {
             assertThat(operation(openApi, endpoint).path("security").get(0).has(WEB_REFRESH_COOKIE)).isTrue();
         }
     }
@@ -81,7 +81,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
         assertThat(logout.path("security")).hasSize(2);
         assertThat(logout.path("security").get(1)).isEmpty();
         assertThat(logout.path("description").asText()).contains("서버 세션은 삭제하지 않습니다");
-        assertThat(operation(openApi, "csrf").path("parameters"))
+        assertThat(operation(openApi, "session").path("parameters"))
             .noneMatch(parameter -> parameter.path("name").asText().equals("X-CSRF-Token"));
     }
 
@@ -111,7 +111,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
         assertThat(properties).hasSize(2);
         assertThat(properties.has("user_type")).isTrue();
         assertThat(properties.has("csrf_token")).isTrue();
-        assertThat(operation(openApi, "csrf").at("/responses/200/headers/Set-Cookie/example")).hasSize(1);
+        assertThat(operation(openApi, "session").at("/responses/200/headers/Set-Cookie/example")).hasSize(1);
     }
 
     @Test
@@ -127,7 +127,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
             .isTrue();
         assertThat(login.at("/responses/415/content/application~1json/schema/$ref").asText())
             .endsWith("ErrorResponse");
-        for (String endpoint : List.of("login", "refresh", "logout", "csrf")) {
+        for (String endpoint : List.of("login", "refresh", "logout", "session")) {
             assertThat(operation(openApi, endpoint).at("/responses/500/content/application~1json/examples")
                 .has("INTERNAL_SERVER_ERROR")).isTrue();
             assertThat(operation(openApi, endpoint).at("/responses/403/content/text~1plain/example").asText())
@@ -147,7 +147,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
     }
 
     private JsonNode operation(JsonNode openApi, String endpoint) {
-        String method = endpoint.equals("csrf") ? "get" : "post";
+        String method = endpoint.equals("session") ? "get" : "post";
         return openApi.path("paths").path("/v2/web/auth/" + endpoint).path(method);
     }
 
