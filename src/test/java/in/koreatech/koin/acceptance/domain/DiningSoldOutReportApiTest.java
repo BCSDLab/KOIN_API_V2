@@ -13,8 +13,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.CoopShopAcceptanceFixture;
@@ -40,13 +43,19 @@ import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 
-@TestPropertySource(properties = "dining.report.bot-token=test-dining-report-bot-token")
+@TestPropertySource(properties = {
+    "dining.report.bot-token=test-dining-report-bot-token",
+    "dining.report.delivery.workspace-id=T_EXAMPLE",
+    "dining.report.delivery.channel-id=C_EXAMPLE"
+})
 class DiningSoldOutReportApiTest extends AcceptanceTest {
 
     private static final String BOT_PATH = "/internal/dining/soldout-reports";
     private static final String ADMIN_PATH = "/admin/dining/soldout-reports";
     private static final String BOT_HEADER = "X-Koin-Service-Token";
     private static final String BOT_TOKEN = "test-dining-report-bot-token";
+    private static final String UUID_PATTERN =
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     private static final String IMAGE_DOMAIN = "https://test.koreatech.in/";
     private static final String IMAGE_URL = IMAGE_DOMAIN
         + "upload/COOP/2024/1/15/e924c7d3-3757-4cd0-961b-e65c1f6cc8ad/soldout.jpg";
@@ -163,25 +172,32 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
         int selectedId = createReport(otherStudentToken, dining);
         int automaticId = createReport(thirdStudentToken, dining);
         int unrelatedId = createReport(studentToken, otherDining);
-        JsonNode rejected = body(decide(rejectedId, "reject", "U_FIRST").andExpect(status().isOk()));
+        JsonNode rejected = body(decide(rejectedId, "reject", "U_FIRST").andExpect(status().isOk())
+            .andExpect(jsonPath("$.processing_id").doesNotHaveJsonPath())
+            .andExpect(jsonPath("$.report.processing_id").isNotEmpty())
+            .andExpect(jsonPath("$.affected_report_ids").value(contains(rejectedId))));
         JsonNode replayedRejection = body(decide(rejectedId, "reject", "U_OTHER").andExpect(status().isOk())
             .andExpect(jsonPath("$.already_processed").value(true))
-            .andExpect(jsonPath("$.processing_id").value(rejected.path("processing_id").asText()))
+            .andExpect(jsonPath("$.report.processing_id")
+                .value(rejected.path("report").path("processing_id").asText()))
             .andExpect(jsonPath("$.affected_report_ids").value(contains(rejectedId))));
         assertThat(replayedRejection.path("report")).isEqualTo(rejected.path("report"));
         botDetail(selectedId).andExpect(jsonPath("$.status").value("PENDING"));
         assertThat(storedDining().getSoldOut()).isNull();
         JsonNode approved = body(decide(selectedId, "approve", "U_FIRST").andExpect(status().isOk())
+            .andExpect(jsonPath("$.processing_id").doesNotHaveJsonPath())
+            .andExpect(jsonPath("$.report.processing_id").isNotEmpty())
             .andExpect(jsonPath("$.report.status").value("APPROVED"))
             .andExpect(jsonPath("$.report.processing_type").value("MANUAL"))
             .andExpect(jsonPath("$.affected_report_ids").value(contains(selectedId, automaticId))));
-        String group = approved.path("processing_id").asText();
+        String group = approved.path("report").path("processing_id").asText();
         botDetail(automaticId).andExpect(jsonPath("$.status").value("APPROVED"))
+            .andExpect(jsonPath("$.processing_id").value(group))
             .andExpect(jsonPath("$.processing_type").value("SAME_DINING_APPROVED"))
             .andExpect(jsonPath("$.source_report_id").value(selectedId));
         decide(automaticId, "approve", "U_OTHER").andExpect(status().isOk())
             .andExpect(jsonPath("$.already_processed").value(true))
-            .andExpect(jsonPath("$.processing_id").value(group))
+            .andExpect(jsonPath("$.report.processing_id").value(group))
             .andExpect(jsonPath("$.affected_report_ids").value(contains(selectedId, automaticId)))
             .andExpect(jsonPath("$.report.processing_type").value("SAME_DINING_APPROVED"))
             .andExpect(jsonPath("$.report.source_report_id").value(selectedId))
@@ -195,14 +211,12 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
         assertThat(storedDining().getSoldOut()).isNotNull();
         decide(selectedId, "approve", "U_OTHER").andExpect(status().isOk())
             .andExpect(jsonPath("$.already_processed").value(true))
-            .andExpect(jsonPath("$.processing_id").value(group))
+            .andExpect(jsonPath("$.report.processing_id").value(group))
             .andExpect(jsonPath("$.report.processor.user_id").value("U_FIRST"))
             .andExpect(jsonPath("$.report.processor.display_name").value("U_FIRST"));
         decide(selectedId, "reject", "U_OTHER").andExpect(status().isConflict());
         decide(rejectedId, "approve", "U_OTHER").andExpect(status().isConflict());
-        mockMvc.perform(get(BOT_PATH).header(BOT_HEADER, BOT_TOKEN).param("processing_id", group))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.reports[*].report_id").value(contains(selectedId, automaticId)));
+        botDetail(selectedId).andExpect(jsonPath("$.processing_id").value(group));
     }
 
     @Test
@@ -212,7 +226,7 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
         int selectedId = created.path("report_id").asInt();
         int automaticId = createReport(otherStudentToken, dining);
         String previousGroup = body(decide(selectedId, "approve", "U_FIRST").andExpect(status().isOk()))
-            .path("processing_id").asText();
+            .path("report").path("processing_id").asText();
         submit(thirdStudentToken, dining, UUID.randomUUID().toString(), IMAGE_URL).andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DINING_ALREADY_SOLD_OUT"));
         setSoldOut(false);
@@ -221,21 +235,23 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
             .isEqualTo(created);
         decide(selectedId, "approve", "U_OTHER").andExpect(status().isOk())
             .andExpect(jsonPath("$.already_processed").value(true))
-            .andExpect(jsonPath("$.processing_id").value(previousGroup))
+            .andExpect(jsonPath("$.report.processing_id").value(previousGroup))
             .andExpect(jsonPath("$.affected_report_ids").value(contains(selectedId, automaticId)));
         assertThat(storedDining().getSoldOut()).isNull();
-        mockMvc.perform(get(BOT_PATH).header(BOT_HEADER, BOT_TOKEN)
-                .param("dining_id", dining.getId().toString()).param("status", "PENDING"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.reports[*].report_id").value(contains(newId)))
-            .andExpect(jsonPath("$.reports[0].processing_id").value(nullValue()))
-            .andExpect(jsonPath("$.reports[0].reporter").doesNotExist());
+        botDetail(newId).andExpect(jsonPath("$.status").value("PENDING"))
+            .andExpect(jsonPath("$.processing_id").value(nullValue()))
+            .andExpect(jsonPath("$.reporter").doesNotExist());
         JsonNode processed = body(decide(newId, "approve", "U_OTHER").andExpect(status().isOk())
             .andExpect(jsonPath("$.affected_report_ids").value(contains(newId))));
-        assertThat(processed.path("processing_id").asText()).isNotEqualTo(previousGroup);
-        mockMvc.perform(get(BOT_PATH).header(BOT_HEADER, BOT_TOKEN).param("processing_id", previousGroup))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.reports[*].report_id").value(contains(selectedId, automaticId)));
+        assertThat(processed.path("report").path("processing_id").asText()).isNotEqualTo(previousGroup);
+        decide(selectedId, "approve", "U_OTHER").andExpect(status().isOk())
+            .andExpect(jsonPath("$.already_processed").value(true))
+            .andExpect(jsonPath("$.report.processing_id").value(previousGroup))
+            .andExpect(jsonPath("$.affected_report_ids").value(contains(selectedId, automaticId)));
+        for (int id : List.of(selectedId, automaticId)) {
+            botDetail(id).andExpect(jsonPath("$.status").value("APPROVED"))
+                .andExpect(jsonPath("$.processing_id").value(previousGroup));
+        }
     }
 
     @Test
@@ -253,7 +269,8 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
         }
         botDetail(rejectedId).andExpect(jsonPath("$.status").value("REJECTED"))
             .andExpect(jsonPath("$.processing_type").value("MANUAL"))
-            .andExpect(jsonPath("$.processing_id").value(rejected.path("processing_id").asText()));
+            .andExpect(jsonPath("$.processing_id")
+                .value(rejected.path("report").path("processing_id").asText()));
         setSoldOut(false);
         assertThat(storedDining().getSoldOut()).isNull();
         botDetail(firstId).andExpect(jsonPath("$.status").value("REJECTED"));
@@ -297,56 +314,165 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 변경커서는_접수와_처리를_누락하거나_재시도에서_중복하지_않는다() throws Exception {
-        changes("0").andExpect(jsonPath("$.changes").isEmpty())
-            .andExpect(jsonPath("$.next_cursor").value("0"))
-            .andExpect(jsonPath("$.has_more").value(false));
-        int firstId = createReport(studentToken, dining);
-        int secondId = createReport(otherStudentToken, dining);
-        decide(firstId, "approve", "U_FIRST").andExpect(status().isOk());
-        JsonNode first = body(changes("0").andExpect(jsonPath("$.has_more").value(true))
-            .andExpect(jsonPath("$.changes[*].report_id").value(contains(firstId, secondId)))
-            .andExpect(jsonPath("$.changes[*].event_type").value(contains("CREATED", "CREATED")))
-            .andExpect(jsonPath("$.changes[*].status").value(contains("PENDING", "PENDING"))));
-        String cursor = first.path("next_cursor").asText();
-        assertThat(first.path("next_cursor").isTextual()).isTrue();
-        JsonNode last = body(changes(cursor).andExpect(jsonPath("$.has_more").value(false))
-            .andExpect(jsonPath("$.changes[*].report_id").value(contains(firstId, secondId)))
-            .andExpect(jsonPath("$.changes[*].event_type").value(contains("PROCESSED", "PROCESSED")))
-            .andExpect(jsonPath("$.changes[*].status").value(contains("APPROVED", "APPROVED"))));
-        assertThat(body(changes("0")).path("changes")).isEqualTo(first.path("changes"));
-        decide(firstId, "approve", "U_OTHER").andExpect(status().isOk());
-        String lastCursor = last.path("next_cursor").asText();
-        changes(lastCursor).andExpect(jsonPath("$.changes").isEmpty())
-            .andExpect(jsonPath("$.next_cursor").value(lastCursor))
-            .andExpect(jsonPath("$.has_more").value(false));
-        String futureCursor = Long.toString(Long.parseLong(lastCursor) + 1);
-        mockMvc.perform(get(BOT_PATH + "/changes").header(BOT_HEADER, BOT_TOKEN).param("cursor", futureCursor))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.code").value("INVALID_CHANGE_CURSOR"));
+    void Swagger는_공백시간과_봇_인증을_명세한다() throws Exception {
+        for (String group : List.of("", "3. Campus API")) {
+            var request = group.isEmpty() ? get("/v3/api-docs") : get("/v3/api-docs/{group}", group);
+            JsonNode api = body(mockMvc.perform(request).andExpect(status().isOk()));
+            JsonNode schemas = api.at("/components/schemas");
+            assertThat(api.path("paths").path(BOT_PATH).has("get")).isFalse();
+            assertThat(api.path("paths").has(BOT_PATH + "/changes")).isFalse();
+            assertThat(schemas.at("/DiningReportDecisionResponse/properties").has("processing_id")).isFalse();
+            assertThat(schemas.at("/DiningReportResponse/properties").has("processing_id")).isTrue();
+            for (JsonNode time : List.of(schemas.at("/DiningReportCreateResponse/properties/created_at"),
+                schemas.at("/DiningReportResponse/properties/created_at"),
+                schemas.at("/DiningReportResponse/properties/processed_at"))) {
+                assertThat(time.path("type").asText()).isEqualTo("string");
+                assertThat(time.path("format").asText()).isNotEqualTo("date-time");
+                assertThat(time.path("pattern").asText()).isNotBlank();
+            }
+            assertThat(schemas.at("/DiningReportResponse/properties/processed_at/nullable").asBoolean()).isTrue();
+            JsonNode scheme = api.at("/components/securitySchemes/Bot Service Authentication");
+            assertThat(scheme.path("type").asText()).isEqualTo("apiKey");
+            assertThat(scheme.path("in").asText()).isEqualTo("header");
+            assertThat(scheme.path("name").asText()).isEqualTo(BOT_HEADER);
+            for (JsonNode operation : List.of(api.path("paths").path(BOT_PATH + "/{reportId}").path("get"),
+                api.path("paths").path(BOT_PATH + "/{reportId}/approve").path("post"),
+                api.path("paths").path(BOT_PATH + "/{reportId}/reject").path("post"),
+                api.path("paths").path(BOT_PATH + "/deliveries/claim").path("post"),
+                api.path("paths").path(BOT_PATH + "/deliveries/{deliveryId}/result").path("post"))) {
+                assertThat(operation.path("security")).isNotEmpty().allSatisfy(requirement -> {
+                    assertThat(requirement.has("Bot Service Authentication")).isTrue();
+                    assertThat(requirement.has("Jwt Authentication")).isFalse();
+                });
+            }
+            JsonNode claim = api.path("paths").path(BOT_PATH + "/deliveries/claim").path("post");
+            assertThat(claim.has("requestBody")).isFalse();
+            assertThat(claim.path("parameters")).noneSatisfy(parameter ->
+                assertThat(parameter.path("name").asText()).isEqualTo("Idempotency-Key"));
+            assertThat(claim.at("/responses/204/headers/Retry-After").isMissingNode()).isFalse();
+            assertClaimSchema(api, claim);
+            assertResultSchemas(api);
+        }
     }
 
-    @Test
-    void Swagger는_공백시간과_봇_인증을_명세한다() throws Exception {
-        JsonNode api = body(mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk()));
-        JsonNode schemas = api.at("/components/schemas");
-        for (JsonNode time : List.of(schemas.at("/DiningReportCreateResponse/properties/created_at"),
-            schemas.at("/DiningReportResponse/properties/created_at"),
-            schemas.at("/DiningReportResponse/properties/processed_at"))) {
-            assertThat(time.path("type").asText()).isEqualTo("string");
-            assertThat(time.path("format").asText()).isNotEqualTo("date-time");
-            assertThat(time.path("pattern").asText()).isNotBlank();
+    private void assertClaimSchema(JsonNode api, JsonNode claim) {
+        JsonNode response = contentSchema(api, claim.at("/responses/200/content"));
+        assertThat(response.path("oneOf")).hasSize(2);
+        Set<String> operations = new HashSet<>();
+        for (JsonNode branch : response.path("oneOf")) {
+            JsonNode work = schema(api, branch);
+            assertClosedObject(work, "delivery_id", "attempt_token", "mode", "operation", "expires_at", "target", "report");
+            JsonNode properties = work.path("properties");
+            assertUuid(properties.path("delivery_id"));
+            assertUuid(properties.path("attempt_token"));
+            assertThat(schema(api, properties.path("mode")).path("enum")).extracting(JsonNode::asText)
+                .containsExactlyInAnyOrder("SEND", "VERIFY");
+            JsonNode operation = schema(api, properties.path("operation")).path("enum");
+            assertThat(operation).hasSize(1);
+            String name = operation.get(0).asText();
+            assertThat(name).isIn("CREATE", "UPDATE");
+            operations.add(name);
+            assertThat(properties.path("expires_at").path("format").asText()).isEqualTo("date-time");
+            assertThat(schema(api, properties.path("report")).path("properties").has("report_id")).isTrue();
+
+            JsonNode target = schema(api, properties.path("target"));
+            assertClosedObject(target, "workspace_id", "channel_id", "message_ts");
+            for (String field : List.of("workspace_id", "channel_id")) {
+                assertThat(target.path("properties").path(field).path("type").asText()).isEqualTo("string");
+                assertThat(target.path("properties").path(field).path("minLength").asInt()).isEqualTo(1);
+            }
+            JsonNode timestamp = target.path("properties").path("message_ts");
+            assertThat(timestamp.path("type").asText()).isEqualTo("string");
+            if (name.equals("CREATE")) {
+                assertThat(timestamp.path("nullable").asBoolean()).isTrue();
+                assertThat(timestamp.path("enum")).hasSize(1);
+                assertThat(timestamp.path("enum").get(0).isNull()).isTrue();
+            } else {
+                assertThat(timestamp.path("nullable").asBoolean()).isFalse();
+                assertThat(timestamp.path("minLength").asInt()).isEqualTo(1);
+            }
         }
-        assertThat(schemas.at("/DiningReportResponse/properties/processed_at/nullable").asBoolean()).isTrue();
-        JsonNode scheme = api.at("/components/securitySchemes/Bot Service Authentication");
-        assertThat(scheme.path("type").asText()).isEqualTo("apiKey");
-        assertThat(scheme.path("in").asText()).isEqualTo("header");
-        assertThat(scheme.path("name").asText()).isEqualTo(BOT_HEADER);
-        assertThat(api.path("paths").path(BOT_PATH).path("get").path("security"))
-            .isNotEmpty().allSatisfy(requirement -> {
-                assertThat(requirement.has("Bot Service Authentication")).isTrue();
-                assertThat(requirement.has("Jwt Authentication")).isFalse();
-            });
+        assertThat(operations).containsExactlyInAnyOrder("CREATE", "UPDATE");
+    }
+
+    private void assertResultSchemas(JsonNode api) {
+        JsonNode operation = api.path("paths").path(BOT_PATH + "/deliveries/{deliveryId}/result").path("post");
+        JsonNode request = contentSchema(api, operation.at("/requestBody/content"));
+        Map<String, List<String>> fields = Map.of(
+            "SUCCEEDED", List.of("attempt_token", "outcome", "message_ref"),
+            "NOT_SENT", List.of("attempt_token", "outcome", "reason"),
+            "RATE_LIMITED", List.of("attempt_token", "outcome", "reason", "retry_after_seconds"),
+            "REJECTED", List.of("attempt_token", "outcome", "reason", "error_code"),
+            "UNCERTAIN", List.of("attempt_token", "outcome"));
+        assertThat(request.path("oneOf")).hasSize(fields.size());
+        Set<String> variants = new HashSet<>();
+        for (JsonNode branch : request.path("oneOf")) {
+            JsonNode result = schema(api, branch);
+            JsonNode properties = result.path("properties");
+            JsonNode outcomeValues = schema(api, properties.path("outcome")).path("enum");
+            assertThat(outcomeValues).hasSize(1);
+            String outcome = outcomeValues.get(0).asText();
+            assertThat(outcome).isIn("SUCCEEDED", "NOT_APPLIED", "UNCERTAIN");
+            String variant = outcome;
+            if (outcome.equals("NOT_APPLIED")) {
+                JsonNode reasons = schema(api, properties.path("reason")).path("enum");
+                assertThat(reasons).hasSize(1);
+                variant = reasons.get(0).asText();
+                assertThat(variant).isIn("NOT_SENT", "RATE_LIMITED", "REJECTED");
+            }
+            variants.add(variant);
+            assertClosedObject(result, fields.get(variant).toArray(String[]::new));
+            assertUuid(properties.path("attempt_token"));
+            if (variant.equals("SUCCEEDED")) {
+                JsonNode reference = schema(api, properties.path("message_ref"));
+                assertClosedObject(reference, "channel_id", "message_ts");
+                for (String field : List.of("channel_id", "message_ts")) {
+                    assertThat(reference.path("properties").path(field).path("type").asText()).isEqualTo("string");
+                    assertThat(reference.path("properties").path(field).path("minLength").asInt()).isEqualTo(1);
+                }
+            } else if (variant.equals("RATE_LIMITED")) {
+                assertThat(properties.path("retry_after_seconds").path("type").asText()).isEqualTo("integer");
+                assertThat(properties.path("retry_after_seconds").path("minimum").asInt()).isEqualTo(1);
+            } else if (variant.equals("REJECTED")) {
+                assertThat(properties.path("error_code").path("type").asText()).isEqualTo("string");
+                assertThat(properties.path("error_code").path("minLength").asInt()).isEqualTo(1);
+                assertThat(properties.path("error_code").path("maxLength").asInt()).isEqualTo(128);
+            }
+        }
+        assertThat(variants).containsExactlyInAnyOrderElementsOf(fields.keySet());
+        JsonNode response = contentSchema(api, operation.at("/responses/200/content"));
+        assertClosedObject(response, "delivery_id", "delivery_state");
+        assertUuid(response.path("properties").path("delivery_id"));
+    }
+
+    private JsonNode contentSchema(JsonNode api, JsonNode content) {
+        assertThat(content).isNotEmpty();
+        JsonNode mediaType = content.has("application/json") ? content.path("application/json") : content.elements().next();
+        return schema(api, mediaType.path("schema"));
+    }
+
+    private JsonNode schema(JsonNode api, JsonNode candidate) {
+        if (candidate.has("$ref")) {
+            String reference = candidate.path("$ref").asText();
+            assertThat(reference).startsWith("#/components/schemas/");
+            candidate = api.at(reference.substring(1));
+            assertThat(candidate.isMissingNode()).as("unresolved schema: %s", reference).isFalse();
+        }
+        assertThat(candidate.isObject()).isTrue();
+        return candidate;
+    }
+
+    private void assertClosedObject(JsonNode schema, String... fields) {
+        assertThat(schema.path("type").asText()).isEqualTo("object");
+        assertThat(schema.path("additionalProperties")).isEqualTo(BooleanNode.FALSE);
+        assertThat(schema.path("required")).extracting(JsonNode::asText).containsExactlyInAnyOrder(fields);
+        assertThat(schema.path("properties").fieldNames()).toIterable().containsExactlyInAnyOrder(fields);
+    }
+
+    private void assertUuid(JsonNode schema) {
+        assertThat(schema.path("type").asText()).isEqualTo("string");
+        assertThat(schema.path("format").asText()).isEqualTo("uuid");
+        assertThat(schema.path("pattern").asText()).isEqualTo(UUID_PATTERN);
     }
 
     private ResultActions submit(String token, Dining target, String key, String imageUrl) throws Exception {
@@ -373,11 +499,6 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
 
     private ResultActions botDetail(int id) throws Exception {
         return mockMvc.perform(get(BOT_PATH + "/{id}", id).header(BOT_HEADER, BOT_TOKEN)).andExpect(status().isOk());
-    }
-
-    private ResultActions changes(String cursor) throws Exception {
-        return mockMvc.perform(get(BOT_PATH + "/changes").header(BOT_HEADER, BOT_TOKEN)
-            .param("cursor", cursor).param("limit", "2")).andExpect(status().isOk());
     }
 
     private void setSoldOut(boolean soldOut) throws Exception {

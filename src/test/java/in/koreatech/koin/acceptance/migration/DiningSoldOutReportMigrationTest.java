@@ -1,6 +1,7 @@
 package in.koreatech.koin.acceptance.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,6 +20,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.DiningReport;
 import in.koreatech.koin.domain.dining.model.DiningReportChange;
+import in.koreatech.koin.domain.dining.model.DiningReportDelivery;
+import in.koreatech.koin.domain.dining.model.DiningReportDeliveryAttempt;
+import in.koreatech.koin.domain.dining.model.DiningReportDeliveryTarget;
 import in.koreatech.koin.domain.dining.model.DiningReportSequence;
 
 @Testcontainers
@@ -31,7 +35,7 @@ class DiningSoldOutReportMigrationTest {
         .withPassword("test");
 
     @Test
-    void 기존_데이터에_V12를_적용하고_회원_삭제_후에도_제보와_처리이력을_보존한다() throws SQLException {
+    void V11부터_V13까지_기존_이력을_보존하고_전송_스키마와_제약을_검증한다() throws SQLException {
         migrateTo("11");
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             statement.executeUpdate("""
@@ -45,12 +49,35 @@ class DiningSoldOutReportMigrationTest {
                 """);
         }
         migrateTo("12");
+        // V13 이전 제보는 메시지 연결을 알 수 없으므로 자동 CREATE 대상으로 이관하지 않는다.
+        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                INSERT INTO dining_soldout_report
+                    (id, reporter_id, dining_id, image_url, request_key, created_at, updated_at, status,
+                     processing_type, processing_id, processed_at,
+                     processor_workspace_id, processor_user_id, processor_name)
+                VALUES (301, 101, 201, 'https://example.com/report.jpg', UNHEX(REPEAT('01', 16)),
+                        '2026-10-02 12:35:00', '2026-10-02 12:40:00', 'APPROVED',
+                        'MANUAL', UNHEX(REPEAT('02', 16)), '2026-10-02 12:40:00', 'workspace', 'processor', '담당자')
+                """);
+            statement.executeUpdate("""
+                INSERT INTO dining_soldout_report_change
+                    (sequence, report_id, event_type, status, processing_type, processing_id, occurred_at)
+                VALUES (1, 301, 'PROCESSED', 'APPROVED', 'MANUAL',
+                    UNHEX(REPEAT('02', 16)), '2026-10-02 12:40:00')
+                """);
+            statement.executeUpdate("UPDATE dining_soldout_report_sequence SET last_sequence = 1 WHERE id = 1");
+        }
+        migrateTo("13");
         // Flyway 결과를 실제 엔티티의 enum, UUID, sequence 매핑과 대조한다.
         try (SessionFactory ignored = new Configuration()
             .addAnnotatedClass(Dining.class)
             .addAnnotatedClass(DiningReport.class)
             .addAnnotatedClass(DiningReportChange.class)
             .addAnnotatedClass(DiningReportSequence.class)
+            .addAnnotatedClass(DiningReportDeliveryTarget.class)
+            .addAnnotatedClass(DiningReportDelivery.class)
+            .addAnnotatedClass(DiningReportDeliveryAttempt.class)
             .setProperty("hibernate.connection.url", MYSQL.getJdbcUrl())
             .setProperty("hibernate.connection.username", MYSQL.getUsername())
             .setProperty("hibernate.connection.password", MYSQL.getPassword())
@@ -67,24 +94,66 @@ class DiningSoldOutReportMigrationTest {
                 WHERE u.id = 101 AND u.anonymous_nickname = '기존학생' AND s.student_number = '2025100101'
                 """)).isOne();
             assertThat(queryInt(statement,
-                "SELECT COUNT(*) FROM dining_soldout_report_sequence WHERE id = 1 AND last_sequence = 0")).isOne();
+                """
+                    SELECT COUNT(*) FROM dining_soldout_report_sequence
+                    WHERE id = 1 AND last_sequence = 1 AND delivery_cooldown_until IS NULL
+                    """)).isOne();
+            assertThat(queryInt(statement, "SELECT COUNT(*) FROM dining_soldout_report_delivery_target")).isZero();
+            assertThat(queryInt(statement, "SELECT COUNT(*) FROM dining_soldout_report_delivery")).isZero();
+            assertThat(queryInt(statement, "SELECT COUNT(*) FROM dining_soldout_report_delivery_attempt")).isZero();
 
             statement.executeUpdate("""
                 INSERT INTO dining_soldout_report
-                    (id, reporter_id, dining_id, image_url, request_key, created_at, updated_at, status,
-                     processing_type, processing_id, processed_at,
-                     processor_workspace_id, processor_user_id, processor_name)
-                VALUES (301, 101, 201, 'https://example.com/report.jpg', UNHEX(REPEAT('01', 16)),
-                        '2026-10-02 12:35:00', '2026-10-02 12:40:00', 'APPROVED',
-                        'MANUAL', UNHEX(REPEAT('02', 16)), '2026-10-02 12:40:00', 'workspace', 'processor', '담당자')
+                    (id, dining_id, image_url, request_key, created_at, updated_at)
+                VALUES (302, 201, 'https://example.com/new.jpg', UNHEX(REPEAT('03', 16)),
+                    '2026-10-02 12:45:00', '2026-10-02 12:45:00')
                 """);
             statement.executeUpdate("""
                 INSERT INTO dining_soldout_report_change
-                    (sequence, report_id, event_type, status, processing_type, processing_id, occurred_at)
-                VALUES (1, 301, 'PROCESSED', 'APPROVED', 'MANUAL',
-                        UNHEX(REPEAT('02', 16)), '2026-10-02 12:40:00')
+                    (sequence, report_id, event_type, status, occurred_at)
+                VALUES (2, 302, 'CREATED', 'PENDING', '2026-10-02 12:45:00')
                 """);
-            statement.executeUpdate("UPDATE dining_soldout_report_sequence SET last_sequence = 1 WHERE id = 1");
+            statement.executeUpdate("UPDATE dining_soldout_report_sequence SET last_sequence = 2 WHERE id = 1");
+            statement.executeUpdate("""
+                INSERT INTO dining_soldout_report_delivery_target
+                    (report_id, desired_sequence, desired_snapshot, workspace_id, channel_id, created_at, updated_at)
+                VALUES (302, 2, '{"report_id":302,"status":"PENDING"}', 'T_EXAMPLE', 'C_EXAMPLE',
+                    '2026-10-02 12:45:00.123456', '2026-10-02 12:45:00.123456')
+                """);
+            statement.executeUpdate("""
+                INSERT INTO dining_soldout_report_delivery
+                    (id, report_id, source_sequence, report_snapshot, operation, workspace_id, channel_id,
+                     status, next_attempt_at, created_at, updated_at)
+                VALUES (UNHEX(REPEAT('04', 16)), 302, 2, '{"report_id":302,"status":"PENDING"}',
+                    'CREATE', 'T_EXAMPLE', 'C_EXAMPLE', 'QUEUED', '2026-10-02 12:45:00.123456',
+                    '2026-10-02 12:45:00.123456', '2026-10-02 12:45:00.123456')
+                """);
+            statement.executeUpdate("""
+                INSERT INTO dining_soldout_report_delivery_attempt
+                    (token, delivery_id, mode, send_attempt_token, issued_at, expires_at, evidence_history)
+                VALUES (UNHEX(REPEAT('05', 16)), UNHEX(REPEAT('04', 16)), 'SEND', UNHEX(REPEAT('05', 16)),
+                    '2026-10-02 12:45:00.123456', '2026-10-02 12:46:00.123456', '[]')
+                """);
+            assertThat(queryInt(statement, """
+                SELECT COUNT(*) FROM dining_soldout_report_delivery_attempt
+                WHERE expires_at = DATE_ADD(issued_at, INTERVAL 60 SECOND) AND MICROSECOND(issued_at) = 123456
+                """)).isOne();
+            assertThatThrownBy(() -> statement.executeUpdate("""
+                INSERT INTO dining_soldout_report_delivery
+                    (id, report_id, source_sequence, report_snapshot, operation, workspace_id, channel_id,
+                     status, created_at, updated_at)
+                SELECT UNHEX(REPEAT('06', 16)), report_id, source_sequence, report_snapshot, operation,
+                    workspace_id, channel_id, status, created_at, updated_at
+                FROM dining_soldout_report_delivery
+                """)).isInstanceOf(SQLException.class).hasMessageContaining("uk_dining_delivery_snapshot");
+            assertThatThrownBy(() -> statement.executeUpdate("""
+                UPDATE dining_soldout_report_delivery_attempt SET expires_at = DATE_ADD(expires_at, INTERVAL 1 SECOND)
+                """)).isInstanceOf(SQLException.class).hasMessageContaining("chk_dining_delivery_attempt_deadline");
+            assertThatThrownBy(() -> statement.executeUpdate("""
+                UPDATE dining_soldout_report_delivery_attempt
+                SET mode = 'VERIFY', accepted_outcome = 'NOT_APPLIED', accepted_result = '{}',
+                    result_at = '2026-10-02 12:45:30'
+                """)).isInstanceOf(SQLException.class).hasMessageContaining("chk_dining_delivery_attempt_verify");
             statement.executeUpdate("DELETE FROM users WHERE id = 101");
 
             assertThat(queryInt(statement, "SELECT COUNT(*) FROM users WHERE id = 101")).isZero();

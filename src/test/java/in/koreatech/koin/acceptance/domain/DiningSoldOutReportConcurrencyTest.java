@@ -38,6 +38,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
@@ -69,6 +70,11 @@ import in.koreatech.koin.infrastructure.fcm.FcmSendResponse;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
+@TestPropertySource(properties = {
+    "dining.report.bot-token=test-dining-report-bot-token",
+    "dining.report.delivery.workspace-id=T_EXAMPLE",
+    "dining.report.delivery.channel-id=C_EXAMPLE"
+})
 class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
 
     private static final int CONCURRENCY = 2;
@@ -319,6 +325,15 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
             assertThat(changes).extracting(row -> row.get("status")).containsOnly(expectedStatus);
             assertThat(changes).extracting(row -> row.get("processing_type")).containsOnly(expectedProcessingType);
             assertThat(lastSequence()).isEqualTo(sequenceBefore + 2);
+            List<Map<String, Object>> targets = jdbcTemplate.queryForList("""
+                SELECT report_id, desired_sequence, JSON_UNQUOTE(JSON_EXTRACT(desired_snapshot, '$.status')) AS status
+                FROM dining_soldout_report_delivery_target ORDER BY desired_sequence
+                """);
+            assertThat(targets).extracting(row -> ((Number)row.get("report_id")).intValue())
+                .containsExactly(secondReportId, firstReportId);
+            assertThat(targets).extracting(row -> ((Number)row.get("desired_sequence")).longValue())
+                .containsExactly(sequenceBefore + 1, sequenceBefore + 2);
+            assertThat(targets).extracting(row -> row.get("status")).containsOnly(expectedStatus);
         } finally {
             firstAtSequence.countDown();
             secondLockedSequence.countDown();
@@ -354,6 +369,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
 
             List<Map<String, Object>> pending = reportRows();
             List<Map<String, Object>> changesBefore = changeRows();
+            List<Map<String, Object>> targetsBefore = targetRows();
             long sequenceBefore = lastSequence();
             Dining dining = diningRepository.getById(diningId);
             assertThat(dining.getSoldOut()).isNull();
@@ -374,6 +390,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
                 String.class, diningId)).isNull();
             assertThat(reportRows()).isEqualTo(pending);
             assertThat(changeRows()).isEqualTo(changesBefore);
+            assertThat(targetRows()).isEqualTo(targetsBefore);
             assertThat(lastSequence()).isEqualTo(sequenceBefore);
             assertThat(diningSoldOutCacheRepository.findById(dining.getPlace())).isEmpty();
             assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM notification", Integer.class)).isZero();
@@ -392,6 +409,8 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
                 .containsOnly(rejected.get(0).get("processing_id"));
             assertThat(changeRows()).hasSize(changesBefore.size() + 2);
             assertThat(lastSequence()).isEqualTo(sequenceBefore + 2);
+            assertThat(targetRows()).extracting(row -> ((Number)row.get("desired_sequence")).longValue())
+                .containsExactly(sequenceBefore + 1, sequenceBefore + 2);
             verify(coopEventListener).onDiningSoldOutRequest(
                 new DiningSoldOutEvent(diningId, dining.getPlace(), dining.getType()));
             verify(fcmClient).sendMessages(argThat(requests -> requests.size() == 1
@@ -452,5 +471,14 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
     private long lastSequence() {
         return jdbcTemplate.queryForObject(
             "SELECT last_sequence FROM dining_soldout_report_sequence WHERE id = 1", Long.class);
+    }
+
+    private List<Map<String, Object>> targetRows() {
+        return jdbcTemplate.queryForList("""
+            SELECT t.report_id, t.desired_sequence, t.desired_snapshot
+            FROM dining_soldout_report_delivery_target t
+            JOIN dining_soldout_report r ON r.id = t.report_id
+            WHERE r.dining_id = ? ORDER BY t.report_id
+            """, diningId);
     }
 }

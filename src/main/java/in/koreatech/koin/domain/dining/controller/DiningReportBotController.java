@@ -1,23 +1,28 @@
 package in.koreatech.koin.domain.dining.controller;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.DINING_REPORT_DELIVERY_CONFLICT;
+import static in.koreatech.koin.global.code.ApiResponseCode.ILLEGAL_ARGUMENT;
+
 import java.util.UUID;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.dining.dto.DiningReportChangesResponse;
 import in.koreatech.koin.domain.dining.dto.DiningReportDecisionRequest;
 import in.koreatech.koin.domain.dining.dto.DiningReportDecisionResponse;
-import in.koreatech.koin.domain.dining.dto.DiningReportPageResponse;
+import in.koreatech.koin.domain.dining.dto.DiningReportDeliveryResponse;
+import in.koreatech.koin.domain.dining.dto.DiningReportDeliveryResultRequest;
+import in.koreatech.koin.domain.dining.dto.DiningReportDeliveryResultResponse;
 import in.koreatech.koin.domain.dining.dto.DiningReportResponse;
-import in.koreatech.koin.domain.dining.model.DiningReportStatus;
+import in.koreatech.koin.domain.dining.service.DiningReportDeliveryService;
 import in.koreatech.koin.domain.dining.service.DiningReportQueryService;
 import in.koreatech.koin.domain.dining.service.DiningReportService;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +32,30 @@ public class DiningReportBotController implements DiningReportBotApi {
 
     private final DiningReportService diningReportService;
     private final DiningReportQueryService diningReportQueryService;
+    private final DiningReportDeliveryService diningReportDeliveryService;
+
+    @PostMapping("/internal/dining/soldout-reports/deliveries/claim")
+    public ResponseEntity<DiningReportDeliveryResponse> claimDiningReportDelivery() {
+        return diningReportDeliveryService.claim()
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.noContent().header(HttpHeaders.RETRY_AFTER, "5").build());
+    }
+
+    @PostMapping("/internal/dining/soldout-reports/deliveries/{deliveryId}/result")
+    public ResponseEntity<DiningReportDeliveryResultResponse> reportDiningReportDeliveryResult(
+        @PathVariable String deliveryId, @Valid @RequestBody DiningReportDeliveryResultRequest request
+    ) {
+        if (!deliveryId.matches(DiningReportDeliveryResultRequest.UUID_PATTERN)) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
+        }
+        DiningReportDeliveryService.Result result = diningReportDeliveryService.recordResult(
+            UUID.fromString(deliveryId), request);
+        // 서비스 트랜잭션이 충돌 보류 상태를 커밋한 뒤 HTTP 예외를 발생시킵니다.
+        if (result.conflict()) {
+            throw CustomException.of(DINING_REPORT_DELIVERY_CONFLICT);
+        }
+        return ResponseEntity.ok(result.response());
+    }
 
     @PostMapping("/internal/dining/soldout-reports/{reportId}/approve")
     public ResponseEntity<DiningReportDecisionResponse> approveReport(
@@ -45,23 +74,5 @@ public class DiningReportBotController implements DiningReportBotApi {
     @GetMapping("/internal/dining/soldout-reports/{reportId}")
     public ResponseEntity<DiningReportResponse> getReport(@PathVariable Integer reportId) {
         return ResponseEntity.ok(diningReportQueryService.getBotReport(reportId));
-    }
-
-    @GetMapping("/internal/dining/soldout-reports")
-    public ResponseEntity<DiningReportPageResponse<DiningReportResponse>> getReports(
-        @RequestParam(name = "dining_id", required = false) Integer diningId,
-        @RequestParam(name = "processing_id", required = false) UUID processingId,
-        @RequestParam(required = false) DiningReportStatus status,
-        @RequestParam(defaultValue = "1") Integer page,
-        @RequestParam(defaultValue = "10") Integer limit
-    ) {
-        return ResponseEntity.ok(diningReportQueryService.getBotReports(diningId, processingId, status, page, limit));
-    }
-
-    @GetMapping("/internal/dining/soldout-reports/changes")
-    public ResponseEntity<DiningReportChangesResponse> getChanges(
-        @RequestParam(defaultValue = "0") String cursor, @RequestParam(defaultValue = "50") Integer limit
-    ) {
-        return ResponseEntity.ok(diningReportQueryService.getChanges(cursor, limit));
     }
 }

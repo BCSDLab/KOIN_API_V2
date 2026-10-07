@@ -21,6 +21,7 @@ public class DiningReportChangeService {
 
     private final DiningReportSequenceRepository sequenceRepository;
     private final DiningReportChangeRepository changeRepository;
+    private final DiningReportDeliveryService deliveryService;
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void append(List<DiningReport> reports, DiningReportChange.EventType eventType, LocalDateTime now) {
@@ -31,7 +32,9 @@ public class DiningReportChangeService {
         DiningReportSequence sequence = Objects.requireNonNull(sequenceRepository.findForUpdate(),
             "식단 제보 변경 순번 초기값이 없습니다.");
         for (DiningReport report : reports) {
-            changeRepository.save(DiningReportChange.from(sequence.next(), report, eventType, now));
+            long sourceSequence = sequence.next();
+            changeRepository.save(DiningReportChange.from(sourceSequence, report, eventType, now));
+            deliveryService.recordChange(report, sourceSequence, eventType, now);
         }
     }
 }
