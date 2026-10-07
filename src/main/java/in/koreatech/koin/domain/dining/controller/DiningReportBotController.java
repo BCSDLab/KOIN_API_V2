@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.dining.controller;
 
-import static in.koreatech.koin.global.code.ApiResponseCode.DINING_REPORT_DELIVERY_CONFLICT;
 import static in.koreatech.koin.global.code.ApiResponseCode.ILLEGAL_ARGUMENT;
 
 import java.util.UUID;
@@ -48,13 +47,7 @@ public class DiningReportBotController implements DiningReportBotApi {
         if (!deliveryId.matches(DiningReportDeliveryResultRequest.UUID_PATTERN)) {
             throw CustomException.of(ILLEGAL_ARGUMENT);
         }
-        DiningReportDeliveryService.Result result = diningReportDeliveryService.recordResult(
-            UUID.fromString(deliveryId), request);
-        // 서비스 트랜잭션이 충돌 보류 상태를 커밋한 뒤 HTTP 예외를 발생시킵니다.
-        if (result.conflict()) {
-            throw CustomException.of(DINING_REPORT_DELIVERY_CONFLICT);
-        }
-        return ResponseEntity.ok(result.response());
+        return ResponseEntity.ok(diningReportDeliveryService.recordResult(UUID.fromString(deliveryId), request));
     }
 
     @PostMapping("/internal/dining/soldout-reports/{reportId}/approve")
