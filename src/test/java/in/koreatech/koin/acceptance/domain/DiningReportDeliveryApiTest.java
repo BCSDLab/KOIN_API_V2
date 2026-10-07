@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -16,9 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,11 +61,7 @@ import in.koreatech.koin.domain.dining.repository.DiningReportSequenceRepository
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@TestPropertySource(properties = {
-    "dining.report.bot-token=test-dining-report-bot-token",
-    "dining.report.delivery.workspace-id=T_EXAMPLE",
-    "dining.report.delivery.channel-id=C_EXAMPLE"
-})
+@TestPropertySource(properties = "dining.report.bot-token=test-dining-report-bot-token")
 class DiningReportDeliveryApiTest extends AcceptanceTest {
 
     private static final String BOT_PATH = "/internal/dining/soldout-reports";
@@ -73,7 +70,6 @@ class DiningReportDeliveryApiTest extends AcceptanceTest {
     private static final String IMAGE_DOMAIN = "https://test.koreatech.in/";
     private static final String IMAGE_URL = IMAGE_DOMAIN
         + "upload/COOP/2024/1/15/e924c7d3-3757-4cd0-961b-e65c1f6cc8ad/soldout.jpg";
-    private static final String MESSAGE_TS = "1791257400.000100";
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final Instant START = Instant.parse("2024-01-15T03:00:00Z");
     private static final long TIMEOUT_SECONDS = 10;
@@ -122,7 +118,6 @@ class DiningReportDeliveryApiTest extends AcceptanceTest {
             .thenAnswer(invocation -> Clock.fixed(now.get(), invocation.getArgument(0)));
         clear();
         new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
-            // clear()가 지운 기존 singleton만 복원하며 새 cooldown은 NULL로 시작한다.
             jdbcTemplate.update("INSERT INTO dining_soldout_report_sequence (id, last_sequence) VALUES (1, 0)");
             coopShopFixture.현재학기();
             var student = userFixture.준호_학생(departmentFixture.컴퓨터공학부(), null).getUser();
@@ -145,354 +140,353 @@ class DiningReportDeliveryApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 본문과_멱등키_없는_claim은_서비스_인증과_빈_응답을_구분한다() throws Exception {
+    void 봇_토큰만으로_작업을_배정하고_두_필드_성공_결과로_완료한다() throws Exception {
+        int reportId = submit(diningId);
+        JsonNode task = nextClaim();
+        assertThat(task.fieldNames()).toIterable()
+            .containsExactlyInAnyOrder("delivery_id", "attempt_token", "expires_at", "report");
+        assertThat(task.path("report").path("report_id").asInt()).isEqualTo(reportId);
+        assertThat(OffsetDateTime.parse(task.path("expires_at").asText()))
+            .isEqualTo(START.atZone(KST).toOffsetDateTime().plusSeconds(60));
+        postResult(task.path("delivery_id").asText(), objectMapper.writeValueAsString(Map.of(
+                "attempt_token", task.path("attempt_token").asText(), "outcome", "SUCCEEDED")))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.delivery_id").value(task.path("delivery_id").asText()))
+            .andExpect(jsonPath("$.delivery_state").value("DELIVERED"));
+        emptyClaim();
+    }
+
+    @Test
+    void 서비스_토큰으로만_배정과_결과를_인증하고_빈_작업은_204를_반환한다() throws Exception {
         mockMvc.perform(post(BOT_PATH + "/deliveries/claim")).andExpect(status().isUnauthorized());
         mockMvc.perform(post(BOT_PATH + "/deliveries/claim").header(BOT_HEADER, "wrong-token"))
             .andExpect(status().isUnauthorized());
         mockMvc.perform(post(BOT_PATH + "/deliveries/claim").header("Authorization", "Bearer " + studentToken))
             .andExpect(status().isUnauthorized());
         emptyClaim();
-        int reportId = submit(diningId);
+        submit(diningId);
         JsonNode task = nextClaim();
-        assertThat(task.path("report").path("report_id").asInt()).isEqualTo(reportId);
-        assertThat(task.path("mode").asText()).isEqualTo("SEND");
-        assertThat(task.path("operation").asText()).isEqualTo("CREATE");
-        assertThat(task.path("target").path("workspace_id").asText()).isEqualTo("T_EXAMPLE");
-        assertThat(task.path("target").path("channel_id").asText()).isEqualTo("C_EXAMPLE");
-        assertThat(task.path("target").path("message_ts").isNull()).isTrue();
-        assertThat(OffsetDateTime.parse(task.path("expires_at").asText()))
-            .isEqualTo(START.atZone(KST).toOffsetDateTime().plusSeconds(60));
         emptyClaim();
         mockMvc.perform(post(BOT_PATH + "/deliveries/{id}/result", task.path("delivery_id").asText())
-                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(Map.of(
-                    "attempt_token", task.path("attempt_token").asText(), "outcome", "UNCERTAIN"))))
+                .contentType(MediaType.APPLICATION_JSON).content(resultBody(task, "SUCCEEDED")))
             .andExpect(status().isUnauthorized());
+        result(task, "SUCCEEDED").andExpect(status().isOk());
     }
 
     @Test
-    void CREATE_성공_재통보는_문자열_ts를_보존하고_제보를_승인하지_않는다() throws Exception {
+    void 성공_재통보는_멱등이며_제보_업무와_후속_변경을_완료하지_않는다() throws Exception {
         int reportId = submit(diningId);
         JsonNode task = nextClaim();
-        JsonNode completed = body(result(task, success(MESSAGE_TS)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value("DELIVERED")));
-        assertThat(body(result(task, success(MESSAGE_TS)).andExpect(status().isOk()))).isEqualTo(completed);
+        JsonNode completed = body(result(task, "SUCCEEDED").andExpect(status().isOk()));
+        assertThat(completed.fieldNames()).toIterable().containsExactlyInAnyOrder("delivery_id", "delivery_state");
+        assertThat(completed.path("delivery_state").asText()).isEqualTo("DELIVERED");
+        assertThat(body(result(task, "SUCCEEDED").andExpect(status().isOk()))).isEqualTo(completed);
         assertThat(reportStatus(reportId)).isEqualTo("PENDING");
         assertThat(jdbcTemplate.queryForObject("SELECT sold_out FROM dining_menus WHERE id = ?",
             Object.class, diningId)).isNull();
+        result(task, "FAILED").andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DINING_REPORT_DELIVERY_CONFLICT"));
         emptyClaim();
-        approve(reportId);
-        JsonNode update = nextClaim();
-        assertThat(update.path("operation").asText()).isEqualTo("UPDATE");
-        assertThat(update.path("target").path("message_ts").asText()).isEqualTo(MESSAGE_TS);
+        JsonNode approved = approve(reportId).path("report");
+        JsonNode next = nextClaim();
+        assertThat(next.path("delivery_id")).isNotEqualTo(task.path("delivery_id"));
+        assertThat(next.path("report")).isEqualTo(approved);
+        result(task, "SUCCEEDED").andExpect(status().isOk())
+            .andExpect(jsonPath("$.delivery_state").value("DELIVERED"));
+        emptyClaim();
+        result(next, "SUCCEEDED").andExpect(status().isOk());
+        emptyClaim();
+    }
+
+    @Test
+    void 최초_배정_전에_승인해도_생성과_처리_스냅샷을_순서대로_배정한다() throws Exception {
+        int reportId = submit(diningId);
+        JsonNode approved = approve(reportId).path("report");
+        JsonNode created = nextClaim();
+        assertThat(created.path("report").path("status").asText()).isEqualTo("PENDING");
+        assertThat(created.path("report").path("processor").isNull()).isTrue();
+        emptyClaim();
+        result(created, "SUCCEEDED").andExpect(status().isOk());
+        JsonNode processed = nextClaim();
+        assertThat(processed.path("delivery_id")).isNotEqualTo(created.path("delivery_id"));
+        assertThat(processed.path("report")).isEqualTo(approved);
+        result(processed, "SUCCEEDED").andExpect(status().isOk());
+        emptyClaim();
+    }
+
+    @Test
+    void 실패는_5초_후_같은_작업을_재배정하고_재통보가_대기를_연장하지_않는다() throws Exception {
+        int reportId = submit(diningId);
+        JsonNode task = nextClaim();
+        JsonNode approved = approve(reportId).path("report");
+        result(task, "FAILED").andExpect(status().isOk())
+            .andExpect(jsonPath("$.delivery_state").value("QUEUED"));
+        advance(4);
+        result(task, "FAILED").andExpect(status().isOk())
+            .andExpect(jsonPath("$.delivery_state").value("QUEUED"));
+        result(task, "SUCCEEDED").andExpect(status().isConflict());
+        emptyClaim();
+        advance(1);
+        JsonNode retry = nextClaim();
+        assertSameWork(task, retry);
+        result(task, "FAILED").andExpect(status().isConflict());
+        result(task, "SUCCEEDED").andExpect(status().isConflict());
+        result(retry, "SUCCEEDED").andExpect(status().isOk());
+        JsonNode processed = nextClaim();
+        assertThat(processed.path("report")).isEqualTo(approved);
+        result(processed, "SUCCEEDED").andExpect(status().isOk());
+        emptyClaim();
+    }
+
+    @Test
+    void 한_제보의_실패_대기는_다른_제보의_배정을_막지_않는다() throws Exception {
+        int firstReportId = submit(diningId);
+        int secondReportId = submit(otherDiningId);
+        JsonNode first = nextClaim();
+        assertThat(first.path("report").path("report_id").asInt()).isEqualTo(firstReportId);
+        result(first, "FAILED").andExpect(status().isOk());
+        approve(firstReportId);
+        JsonNode second = nextClaim();
+        assertThat(second.path("report").path("report_id").asInt()).isEqualTo(secondReportId);
+        result(second, "SUCCEEDED").andExpect(status().isOk());
+        emptyClaim();
+        advance(5);
+        assertSameWork(first, nextClaim());
+    }
+
+    @Test
+    void 구버전의_늦은_변경_INSERT는_첫_claim에서_UUID와_스냅샷을_초기화한다() throws Exception {
+        int existingReportId = submit(diningId);
+        result(nextClaim(), "SUCCEEDED").andExpect(status().isOk());
+        emptyClaim();
+        int legacyReportId = new TransactionTemplate(transactionManager).execute(transaction -> {
+            jdbcTemplate.update("""
+                INSERT INTO dining_soldout_report
+                    (dining_id, reporter_id, image_url, status, request_key, created_at, updated_at)
+                SELECT ?, reporter_id, image_url, 'PENDING', UNHEX(REPLACE(?, '-', '')), created_at, updated_at
+                FROM dining_soldout_report WHERE id = ?
+                """, otherDiningId, UUID.randomUUID().toString(), existingReportId);
+            int reportId = jdbcTemplate.queryForObject(
+                "SELECT id FROM dining_soldout_report WHERE dining_id = ?", Integer.class, otherDiningId);
+            long sequence = sequenceRepository.findForUpdate().next();
+            jdbcTemplate.update("""
+                INSERT INTO dining_soldout_report_change
+                    (sequence, report_id, event_type, status, processing_type, processing_id, occurred_at)
+                VALUES (?, ?, 'CREATED', 'PENDING', NULL, NULL, ?)
+                """, sequence, reportId, now.get().atZone(KST).toLocalDateTime());
+            return reportId;
+        });
         assertThat(jdbcTemplate.queryForObject(
             "SELECT last_sequence FROM dining_soldout_report_sequence WHERE id = 1", Long.class)).isEqualTo(2L);
-    }
-
-    @Test
-    void 최초_claim_전에_승인한_제보는_최신_상태로_CREATE한다() throws Exception {
-        int reportId = submit(diningId);
-        JsonNode approved = approve(reportId).path("report");
+        assertThat(jdbcTemplate.queryForMap("""
+            SELECT delivery_id, report_snapshot, delivery_state, attempt_token, expires_at, next_attempt_at, accepted_outcome
+            FROM dining_soldout_report_change WHERE report_id = ?
+            """, legacyReportId))
+            .containsEntry("delivery_id", null).containsEntry("report_snapshot", null)
+            .containsEntry("delivery_state", "QUEUED").containsEntry("attempt_token", null)
+            .containsEntry("expires_at", null).containsEntry("next_attempt_at", null).containsEntry("accepted_outcome", null);
+        JsonNode expectedReport = body(mockMvc.perform(get(BOT_PATH + "/{id}", legacyReportId)
+            .header(BOT_HEADER, BOT_TOKEN)).andExpect(status().isOk()));
         JsonNode task = nextClaim();
-        assertThat(task.path("operation").asText()).isEqualTo("CREATE");
-        assertThat(task.path("report")).isEqualTo(approved);
-        result(task, success(MESSAGE_TS)).andExpect(status().isOk());
-        assertThat(reportStatus(reportId)).isEqualTo("APPROVED");
+        String deliveryId = task.path("delivery_id").asText();
+        assertThat(UUID.fromString(deliveryId).toString()).isEqualTo(deliveryId);
+        assertThat(task.path("report")).isEqualTo(expectedReport);
+        String storedSnapshot = jdbcTemplate.queryForObject("""
+            SELECT report_snapshot FROM dining_soldout_report_change
+            WHERE report_id = ? AND delivery_id = UNHEX(REPLACE(?, '-', ''))
+            """, String.class, legacyReportId, deliveryId);
+        assertThat(objectMapper.readTree(storedSnapshot)).isEqualTo(expectedReport);
+        result(task, "SUCCEEDED").andExpect(status().isOk())
+            .andExpect(jsonPath("$.delivery_state").value("DELIVERED"));
+        emptyClaim();
+        JsonNode approved = approve(legacyReportId).path("report");
+        assertThat(jdbcTemplate.queryForObject(
+            "SELECT last_sequence FROM dining_soldout_report_sequence WHERE id = 1", Long.class)).isEqualTo(3L);
+        JsonNode processed = nextClaim();
+        assertThat(processed.path("report")).isEqualTo(approved);
+        result(processed, "SUCCEEDED").andExpect(status().isOk());
         emptyClaim();
     }
 
     @Test
-    void 배정_뒤_승인해도_VERIFY는_원본을_확인하고_완료_후_새_UPDATE를_배정한다() throws Exception {
+    void 배정_60초_만료_즉시_새_토큰을_배정하고_이전_토큰의_결과는_거부한다() throws Exception {
         int reportId = submit(diningId);
-        JsonNode send = nextClaim();
+        JsonNode first = nextClaim();
         JsonNode approved = approve(reportId).path("report");
-        emptyClaim();
-        result(send, Map.of("outcome", "UNCERTAIN")).andExpect(status().isOk());
-        JsonNode verify = nextClaim();
-        assertSameWork(send, verify, "VERIFY");
-        assertThat(verify.path("report").path("status").asText()).isEqualTo("PENDING");
-        result(verify, success(MESSAGE_TS)).andExpect(status().isOk());
-        JsonNode update = nextClaim();
-        assertThat(update.path("delivery_id")).isNotEqualTo(send.path("delivery_id"));
-        assertThat(update.path("operation").asText()).isEqualTo("UPDATE");
-        assertThat(update.path("report")).isEqualTo(approved);
-        assertThat(update.path("target").path("message_ts").asText()).isEqualTo(MESSAGE_TS);
-        result(update, Map.of("outcome", "NOT_APPLIED", "reason", "REJECTED", "error_code", "message_not_found"))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.delivery_state").value("NEEDS_ATTENTION"));
-        advance(600);
-        emptyClaim();
-        assertThat(reportStatus(reportId)).isEqualTo("APPROVED");
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = {false, true})
-    void SEND_60초_만료와_VERIFY_실패는_재전송_없이_5분_뒤_다시_확인한다(boolean verifyExpires) throws Exception {
-        submit(diningId);
-        JsonNode send = nextClaim();
         advance(59);
         emptyClaim();
         advance(1);
-        JsonNode verify = nextClaim();
-        assertSameWork(send, verify, "VERIFY");
-        if (verifyExpires) {
-            advance(59);
-            emptyClaim();
-            advance(1);
-            emptyClaim();
-        } else {
-            result(verify, Map.of("outcome", "UNCERTAIN")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.delivery_state").value("NEEDS_ATTENTION"));
+        JsonNode replacement = nextClaim();
+        assertSameWork(first, replacement);
+        assertThat(OffsetDateTime.parse(replacement.path("expires_at").asText()))
+            .isEqualTo(START.atZone(KST).toOffsetDateTime().plusSeconds(120));
+        for (String outcome : List.of("SUCCEEDED", "FAILED")) {
+            result(first, outcome).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("DINING_REPORT_DELIVERY_CONFLICT"));
         }
-        advance(299);
         emptyClaim();
-        advance(1);
-        assertSameWork(send, nextClaim(), "VERIFY");
-    }
-
-    @Test
-    void 늦은_SEND_성공은_VERIFY를_무효화하고_이후_불확실한_결과와_만료에도_유지한다() throws Exception {
-        submit(diningId);
-        JsonNode send = nextClaim();
-        advance(60);
-        JsonNode verify = nextClaim();
-        result(send, success(MESSAGE_TS)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value("DELIVERED"));
-        result(verify, Map.of("outcome", "UNCERTAIN")).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value("DELIVERED"));
-        advance(600);
+        result(replacement, "SUCCEEDED").andExpect(status().isOk());
+        JsonNode processed = nextClaim();
+        assertThat(processed.path("report")).isEqualTo(approved);
+        result(processed, "SUCCEEDED").andExpect(status().isOk());
         emptyClaim();
-        result(send, success(MESSAGE_TS)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value("DELIVERED"));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"NOT_SENT", "RATE_LIMITED", "REJECTED"})
-    void VERIFY_만료_후_늦은_SEND_미반영_증거는_원인에_맞게_복구한다(String reason) throws Exception {
+    @ValueSource(strings = {"SUCCEEDED", "FAILED"})
+    void 만료되어도_재배정되지_않은_현재_토큰의_늦은_결과를_접수한다(String outcome) throws Exception {
         submit(diningId);
-        JsonNode send = nextClaim();
-        advance(60);
-        JsonNode verify = nextClaim();
-        advance(60);
+        JsonNode task = nextClaim();
+        advance(61);
+        String expectedState = outcome.equals("SUCCEEDED") ? "DELIVERED" : "QUEUED";
+        result(task, outcome).andExpect(status().isOk())
+            .andExpect(jsonPath("$.delivery_state").value(expectedState));
+        result(task, outcome).andExpect(status().isOk())
+            .andExpect(jsonPath("$.delivery_state").value(expectedState));
+        result(task, outcome.equals("SUCCEEDED") ? "FAILED" : "SUCCEEDED").andExpect(status().isConflict());
         emptyClaim();
-        Map<String, Object> evidence = notApplied(reason, 30);
-        String expected = reason.equals("REJECTED") ? "NEEDS_ATTENTION" : "QUEUED";
-        result(send, evidence).andExpect(status().isOk()).andExpect(jsonPath("$.delivery_state").value(expected));
-        result(verify, Map.of("outcome", "UNCERTAIN")).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value(expected));
-        result(send, evidence).andExpect(status().isOk());
-        if (reason.equals("REJECTED")) {
-            advance(600);
-            emptyClaim();
-        } else {
-            if (reason.equals("RATE_LIMITED")) {
-                advance(29);
-                emptyClaim();
-                advance(1);
-            }
-            assertSameWork(send, nextClaim(), "SEND");
+        if (outcome.equals("FAILED")) {
+            advance(5);
+            JsonNode retry = nextClaim();
+            assertSameWork(task, retry);
+            result(retry, "SUCCEEDED").andExpect(status().isOk());
         }
+        emptyClaim();
     }
 
     @Test
-    void 요청제한은_다른_제보에도_적용되고_더_긴_대기와_재통보를_보존한다() throws Exception {
+    void 없는_작업과_다른_작업의_토큰은_404이고_알_수_없는_현재_토큰은_409이다() throws Exception {
         submit(diningId);
         submit(otherDiningId);
         JsonNode first = nextClaim();
         JsonNode second = nextClaim();
-        result(first, notApplied("RATE_LIMITED", 30)).andExpect(status().isOk());
-        result(second, Map.of("outcome", "UNCERTAIN")).andExpect(status().isOk());
-        JsonNode verify = nextClaim();
-        assertSameWork(second, verify, "VERIFY");
-        advance(10);
-        result(second, notApplied("RATE_LIMITED", 60)).andExpect(status().isOk());
-        result(verify, Map.of("outcome", "UNCERTAIN")).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value("QUEUED"));
-        result(first, notApplied("RATE_LIMITED", 30)).andExpect(status().isOk());
-        assertThat(jdbcTemplate.queryForObject(
-            "SELECT delivery_cooldown_until FROM dining_soldout_report_sequence WHERE id = 1",
-            LocalDateTime.class)).isEqualTo(START.plusSeconds(70).atZone(KST).toLocalDateTime());
-        advance(59);
+        postResult(UUID.randomUUID().toString(), resultBody(first, "SUCCEEDED"))
+            .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("NOT_FOUND_DINING_REPORT_DELIVERY"));
+        postResult(first.path("delivery_id").asText(), resultBody(second, "SUCCEEDED"))
+            .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("NOT_FOUND_DINING_REPORT_DELIVERY"));
+        postResult(first.path("delivery_id").asText(), objectMapper.writeValueAsString(Map.of(
+                "attempt_token", UUID.randomUUID().toString(), "outcome", "SUCCEEDED")))
+            .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("DINING_REPORT_DELIVERY_CONFLICT"));
+        result(first, "SUCCEEDED").andExpect(status().isOk());
+        result(second, "SUCCEEDED").andExpect(status().isOk());
         emptyClaim();
-        advance(1);
-        JsonNode retry = nextClaim();
-        assertThat(retry.path("mode").asText()).isEqualTo("SEND");
-        assertThat(retry.path("report").path("report_id"))
-            .isIn(first.path("report").path("report_id"), second.path("report").path("report_id"));
-    }
-
-    @Test
-    void 보류된_제보의_늦은_요청제한도_다른_전송을_막고_재통보로_연장하지_않는다() throws Exception {
-        int heldReportId = submit(diningId);
-        int otherReportId = submit(otherDiningId);
-        JsonNode send = nextClaim();
-        assertThat(send.path("report").path("report_id").asInt()).isEqualTo(heldReportId);
-        result(send, Map.of("outcome", "SUCCEEDED", "message_ref",
-            Map.of("channel_id", "C_OTHER", "message_ts", MESSAGE_TS)))
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.code").value("DINING_REPORT_DELIVERY_CONFLICT"));
-        Map<String, Object> heldBinding = binding(heldReportId);
-        assertThat(heldBinding).containsEntry("workspace_id", "T_EXAMPLE")
-            .containsEntry("channel_id", "C_EXAMPLE").containsEntry("message_ts", null)
-            .containsEntry("hold_reason", "CONFLICT");
-        String attemptOutcomeSql = """
-            SELECT accepted_outcome FROM dining_soldout_report_delivery_attempt
-            WHERE token = UNHEX(REPLACE(?, '-', ''))
-            """;
-        assertThat(jdbcTemplate.queryForObject(attemptOutcomeSql, String.class,
-            send.path("attempt_token").asText())).isNull();
-
-        Map<String, Object> rateLimited = notApplied("RATE_LIMITED", 30);
-        LocalDateTime deadline = now.get().atZone(KST).toLocalDateTime().plusSeconds(30);
-        String cooldownSql = "SELECT delivery_cooldown_until FROM dining_soldout_report_sequence WHERE id = 1";
-        result(send, rateLimited).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value("NEEDS_ATTENTION"));
-        assertThat(jdbcTemplate.queryForObject(attemptOutcomeSql, String.class,
-            send.path("attempt_token").asText())).isEqualTo("NOT_APPLIED");
-        assertThat(jdbcTemplate.queryForObject(cooldownSql, LocalDateTime.class)).isEqualTo(deadline);
-        emptyClaim();
-
-        advance(10);
-        result(send, rateLimited).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value("NEEDS_ATTENTION"));
-        assertThat(jdbcTemplate.queryForObject(cooldownSql, LocalDateTime.class)).isEqualTo(deadline);
-        assertThat(binding(heldReportId)).isEqualTo(heldBinding);
-        advance(19);
-        emptyClaim();
-        advance(1);
-        JsonNode next = nextClaim();
-        assertThat(next.path("report").path("report_id").asInt()).isEqualTo(otherReportId);
-        assertThat(next.path("mode").asText()).isEqualTo("SEND");
-        assertThat(binding(heldReportId)).isEqualTo(heldBinding);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"different_ts", "wrong_channel", "not_applied", "update_target"})
-    void 충돌_409는_기존_메시지_연결을_보존하고_다음_트랜잭션에도_전송을_보류한다(String conflict) throws Exception {
-        int reportId = submit(diningId);
-        JsonNode send = nextClaim();
-        result(send, success(MESSAGE_TS)).andExpect(status().isOk());
-        JsonNode task = send;
-        if (conflict.equals("update_target")) {
-            approve(reportId);
-            task = nextClaim();
+    @ValueSource(strings = {"message_ref", "reason", "error_code", "retry_after_seconds", "mode", "operation", "target", "unexpected"})
+    void 결과의_미지원_필드는_null이어도_거부한다(String field) throws Exception {
+        submit(diningId);
+        JsonNode task = nextClaim();
+        for (String outcome : List.of("SUCCEEDED", "FAILED")) {
+            for (Object value : new Object[] {null, true}) {
+                Map<String, Object> request = new LinkedHashMap<>();
+                request.put("attempt_token", task.path("attempt_token").asText());
+                request.put("outcome", outcome);
+                request.put(field, value);
+                postResult(task.path("delivery_id").asText(), objectMapper.writeValueAsString(request))
+                    .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("INVALID_REQUEST_BODY"));
+            }
         }
-        Map<String, Object> evidence = switch (conflict) {
-            case "not_applied" -> notApplied("NOT_SENT", 0);
-            case "wrong_channel" -> Map.of("outcome", "SUCCEEDED", "message_ref",
-                Map.of("channel_id", "C_OTHER", "message_ts", MESSAGE_TS));
-            default -> success("1791257400.000101");
-        };
-        result(task, evidence).andExpect(status().isConflict())
-            .andExpect(jsonPath("$.code").value("DINING_REPORT_DELIVERY_CONFLICT"));
-        assertThat(binding(reportId)).containsEntry("workspace_id", "T_EXAMPLE")
-            .containsEntry("channel_id", "C_EXAMPLE").containsEntry("message_ts", MESSAGE_TS)
-            .containsEntry("hold_reason", "CONFLICT");
-        result(send, success(MESSAGE_TS)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.delivery_state").value("NEEDS_ATTENTION"));
-        if (!conflict.equals("update_target")) {
-            approve(reportId);
-        }
-        advance(600);
-        emptyClaim();
-        assertThat(reportStatus(reportId)).isEqualTo("APPROVED");
+        result(task, "SUCCEEDED").andExpect(status().isOk());
     }
 
     @Test
-    void 결과는_엄격한_본문_변형과_시도_소유권을_검증한다() throws Exception {
+    void 결과는_필수_문자열과_두_결과값과_정규_UUID를_검증한다() throws Exception {
         submit(diningId);
         JsonNode task = nextClaim();
-        Map<String, List<Map<String, Object>>> invalidBodies = Map.of(
+        String deliveryId = task.path("delivery_id").asText();
+        String token = task.path("attempt_token").asText();
+        Map<String, List<String>> invalidBodies = Map.of(
             "INVALID_REQUEST_BODY", List.of(
-                Map.of("outcome", "SUCCEEDED"),
-                Map.of("outcome", "NOT_APPLIED"),
-                Map.of("outcome", "NOT_APPLIED", "reason", "RATE_LIMITED"),
-                notApplied("RATE_LIMITED", 0),
-                Map.of("outcome", "NOT_APPLIED", "reason", "REJECTED", "error_code", ""),
-                Map.of("outcome", "NOT_APPLIED", "reason", "REJECTED", "error_code", "x".repeat(129)),
-                Map.of("outcome", "UNCERTAIN", "message_ref", Map.of("channel_id", "C_EXAMPLE", "message_ts", MESSAGE_TS)),
-                Map.of("outcome", "UNCERTAIN", "reason", "NOT_SENT"),
-                Map.of("outcome", "UNCERTAIN", "unexpected", true)),
+                "{}", "{\"outcome\":\"SUCCEEDED\"}",
+                "{\"attempt_token\":null,\"outcome\":\"SUCCEEDED\"}",
+                "{\"attempt_token\":\"\",\"outcome\":\"SUCCEEDED\"}",
+                "{\"attempt_token\":\"%s\"}".formatted(token),
+                "{\"attempt_token\":\"%s\",\"outcome\":null}".formatted(token),
+                "{\"attempt_token\":\"%s\",\"outcome\":\"\"}".formatted(token)),
             "NOT_READABLE_HTTP_MESSAGE", List.of(
-                Map.of("outcome", "SUCCEEDED", "message_ref", Map.of("channel_id", "C_EXAMPLE", "message_ts", 123.5)),
-                Map.of("outcome", "NOT_APPLIED", "reason", "RATE_LIMITED", "retry_after_seconds", 1.5)));
+                "null", "[]", "true", "{\"attempt_token\":123,\"outcome\":\"SUCCEEDED\"}",
+                "{\"attempt_token\":\"not-a-uuid\",\"outcome\":\"SUCCEEDED\"}",
+                "{\"attempt_token\":\"1-1-1-1-1\",\"outcome\":\"SUCCEEDED\"}",
+                "{\"attempt_token\":\"%s\",\"outcome\":true}".formatted(token),
+                "{\"attempt_token\":\"%s\",\"outcome\":\"UNCERTAIN\"}".formatted(token),
+                "{\"attempt_token\":\"%s\",\"outcome\":\"NOT_APPLIED\"}".formatted(token),
+                "{\"attempt_token\":\"%s\",\"outcome\":\"succeeded\"}".formatted(token)));
         for (var invalid : invalidBodies.entrySet()) {
-            for (var request : invalid.getValue()) {
-                result(task, request).andExpect(status().isBadRequest())
+            for (String request : invalid.getValue()) {
+                postResult(deliveryId, request).andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.code").value(invalid.getKey()));
             }
         }
-        String deliveryId = task.path("delivery_id").asText();
-        postResult(deliveryId, "{\"outcome\":\"UNCERTAIN\"}").andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.code").value("INVALID_REQUEST_BODY"));
-        postResult(deliveryId, """
-            {"attempt_token":"%s","outcome":"UNCERTAIN","reason":null}
-            """.formatted(task.path("attempt_token").asText()))
-            .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("INVALID_REQUEST_BODY"));
-        String validBody = objectMapper.writeValueAsString(Map.of(
-            "attempt_token", task.path("attempt_token").asText(), "outcome", "UNCERTAIN"));
-        JsonNode error = body(postResult("not-a-uuid", validBody).andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"))
-            .andExpect(jsonPath("$.status").doesNotHaveJsonPath()));
-        assertThat(error.path("message").asText()).isNotBlank();
-        assertThat(UUID.fromString(error.path("errorTraceId").asText()).toString())
-            .isEqualTo(error.path("errorTraceId").asText());
-        postResult("1-1-1-1-1", validBody).andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"));
-        postResult(deliveryId, "{\"attempt_token\":\"not-a-uuid\",\"outcome\":\"UNCERTAIN\"}")
-            .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("NOT_READABLE_HTTP_MESSAGE"));
-        String unknownAttempt = objectMapper.writeValueAsString(Map.of(
-            "attempt_token", UUID.randomUUID().toString(), "outcome", "UNCERTAIN"));
-        postResult(deliveryId, unknownAttempt).andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.code").value("NOT_FOUND_DINING_REPORT_DELIVERY"));
-        postResult(UUID.randomUUID().toString(), unknownAttempt).andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.code").value("NOT_FOUND_DINING_REPORT_DELIVERY"));
-        result(task, Map.of("outcome", "UNCERTAIN")).andExpect(status().isOk());
-        JsonNode verify = nextClaim();
-        result(verify, notApplied("NOT_SENT", 0)).andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.code").value("INVALID_REQUEST_BODY"));
-        result(verify, success(MESSAGE_TS)).andExpect(status().isOk());
+        for (String invalidId : List.of("not-a-uuid", "1-1-1-1-1")) {
+            JsonNode error = body(postResult(invalidId, resultBody(task, "SUCCEEDED"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("ILLEGAL_ARGUMENT"))
+                .andExpect(jsonPath("$.status").doesNotHaveJsonPath()));
+            assertThat(error.path("message").asText()).isNotBlank();
+            assertThat(UUID.fromString(error.path("errorTraceId").asText()).toString())
+                .isEqualTo(error.path("errorTraceId").asText());
+        }
+        result(task, "SUCCEEDED").andExpect(status().isOk());
     }
 
     @Test
-    void 동시_claim은_한_제보에_SEND를_한번만_배정한다() throws Exception {
+    void 동시_claim은_하나의_작업에_하나의_시도만_배정한다() throws Exception {
         int reportId = submit(diningId);
         List<MvcResult> responses = concurrentlyAtGate(() -> claim().andReturn(), () -> claim().andReturn());
         assertThat(responses).extracting(response -> response.getResponse().getStatus())
             .containsExactlyInAnyOrder(200, 204);
         JsonNode task = body(responses.stream().filter(response -> response.getResponse().getStatus() == 200)
             .findFirst().orElseThrow());
-        assertThat(jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM dining_soldout_report_delivery WHERE report_id = ?", Integer.class, reportId)).isOne();
         assertThat(jdbcTemplate.queryForObject("""
-            SELECT COUNT(*) FROM dining_soldout_report_delivery_attempt a
-            JOIN dining_soldout_report_delivery d ON d.id = a.delivery_id WHERE d.report_id = ?
-            """, Integer.class, reportId)).isOne();
+            SELECT COUNT(*) FROM dining_soldout_report_change
+            WHERE report_id = ? AND delivery_state = 'IN_PROGRESS'
+                AND delivery_id = UNHEX(REPLACE(?, '-', '')) AND attempt_token = UNHEX(REPLACE(?, '-', ''))
+            """, Integer.class, reportId, task.path("delivery_id").asText(), task.path("attempt_token").asText())).isOne();
         emptyClaim();
-        result(task, success(MESSAGE_TS)).andExpect(status().isOk());
+        result(task, "SUCCEEDED").andExpect(status().isOk());
         emptyClaim();
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void 동시_성공_증거는_같으면_멱등이고_다르면_연결을_보존하며_보류한다(boolean conflicting) throws Exception {
+    void 동시_결과는_같으면_멱등이고_다르면_409이며_후속_작업을_보류하지_않는다(boolean conflicting) throws Exception {
         int reportId = submit(diningId);
         JsonNode task = nextClaim();
         List<MvcResult> responses = concurrentlyAtGate(
-            () -> result(task, success(MESSAGE_TS)).andReturn(),
-            () -> result(task, success(conflicting ? "1791257400.000101" : MESSAGE_TS)).andReturn());
+            () -> result(task, "SUCCEEDED").andReturn(),
+            () -> result(task, conflicting ? "FAILED" : "SUCCEEDED").andReturn());
         assertThat(responses).extracting(response -> response.getResponse().getStatus())
             .containsExactlyInAnyOrder(200, conflicting ? 409 : 200);
-        String winningTs = responses.get(0).getResponse().getStatus() == 200 ? MESSAGE_TS : "1791257400.000101";
-        assertThat(binding(reportId)).containsEntry("message_ts", winningTs);
+        result(task, "SUCCEEDED").andExpect(status().isOk())
+            .andExpect(jsonPath("$.delivery_state").value("DELIVERED"));
         assertThat(reportStatus(reportId)).isEqualTo("PENDING");
-        approve(reportId);
-        if (conflicting) {
-            assertThat(binding(reportId)).containsEntry("hold_reason", "CONFLICT");
-            emptyClaim();
-        } else {
-            JsonNode update = nextClaim();
-            assertThat(update.path("operation").asText()).isEqualTo("UPDATE");
-            assertThat(update.path("target").path("message_ts").asText()).isEqualTo(MESSAGE_TS);
-        }
+        JsonNode approved = approve(reportId).path("report");
+        JsonNode processed = nextClaim();
+        assertThat(processed.path("report")).isEqualTo(approved);
+        result(processed, "SUCCEEDED").andExpect(status().isOk());
+        emptyClaim();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/v3/api-docs", "/v3/api-docs/3. Campus API"})
+    void 기본과_Campus_스키마는_단순한_닫힌_작업_객체와_해결된_참조를_제공한다(String path) throws Exception {
+        JsonNode document = body(mockMvc.perform(get(path)).andExpect(status().isOk()));
+        JsonNode schemas = document.path("components").path("schemas");
+        assertClosedSchema(schemas.path("DiningReportDeliveryResponse"),
+            "delivery_id", "attempt_token", "expires_at", "report");
+        assertClosedSchema(schemas.path("DiningReportDeliveryResultRequest"), "attempt_token", "outcome");
+        assertClosedSchema(schemas.path("DiningReportDeliveryResultResponse"), "delivery_id", "delivery_state");
+        assertThat(schemas.path("DiningReportDeliveryResultRequest").path("properties").path("outcome").path("enum"))
+            .isEqualTo(objectMapper.valueToTree(List.of("SUCCEEDED", "FAILED")));
+        assertThat(schemas.path("DiningReportDeliveryResultResponse").path("properties").path("delivery_state").path("enum"))
+            .isEqualTo(objectMapper.valueToTree(List.of("QUEUED", "IN_PROGRESS", "DELIVERED")));
+        assertThat(schemas.fieldNames()).toIterable().doesNotContain("DiningReportDeliveryMessageTarget",
+            "DiningReportDeliveryMessageReference", "DiningReportDeliverySucceeded", "DiningReportDeliveryNotSent",
+            "DiningReportDeliveryRateLimited", "DiningReportDeliveryRejected", "DiningReportDeliveryUncertain");
+        List<String> references = new ArrayList<>();
+        collectReferences(document, references);
+        assertThat(references.stream().filter(reference -> reference.startsWith("#/components/schemas/"))
+            .filter(reference -> document.at(reference.substring(1)).isMissingNode()).distinct().toList()).isEmpty();
     }
 
     private int submit(Integer targetDiningId) throws Exception {
@@ -524,10 +518,13 @@ class DiningReportDeliveryApiTest extends AcceptanceTest {
             .andExpect(content().string(""));
     }
 
-    private ResultActions result(JsonNode task, Map<String, Object> evidence) throws Exception {
-        Map<String, Object> request = new LinkedHashMap<>(evidence);
-        request.put("attempt_token", task.path("attempt_token").asText());
-        return postResult(task.path("delivery_id").asText(), objectMapper.writeValueAsString(request));
+    private ResultActions result(JsonNode task, String outcome) throws Exception {
+        return postResult(task.path("delivery_id").asText(), resultBody(task, outcome));
+    }
+
+    private String resultBody(JsonNode task, String outcome) throws Exception {
+        return objectMapper.writeValueAsString(Map.of(
+            "attempt_token", task.path("attempt_token").asText(), "outcome", outcome));
     }
 
     private ResultActions postResult(String deliveryId, String request) throws Exception {
@@ -535,25 +532,26 @@ class DiningReportDeliveryApiTest extends AcceptanceTest {
             .contentType(MediaType.APPLICATION_JSON).content(request));
     }
 
-    private Map<String, Object> success(String messageTs) {
-        return Map.of("outcome", "SUCCEEDED", "message_ref", Map.of("channel_id", "C_EXAMPLE", "message_ts", messageTs));
-    }
-
-    private Map<String, Object> notApplied(String reason, long retryAfter) {
-        return switch (reason) {
-            case "RATE_LIMITED" -> Map.of("outcome", "NOT_APPLIED", "reason", reason, "retry_after_seconds", retryAfter);
-            case "REJECTED" -> Map.of("outcome", "NOT_APPLIED", "reason", reason, "error_code", "channel_not_found");
-            default -> Map.of("outcome", "NOT_APPLIED", "reason", reason);
-        };
-    }
-
-    private void assertSameWork(JsonNode original, JsonNode next, String mode) {
+    private void assertSameWork(JsonNode original, JsonNode next) {
         assertThat(next.path("delivery_id")).isEqualTo(original.path("delivery_id"));
         assertThat(next.path("attempt_token")).isNotEqualTo(original.path("attempt_token"));
-        assertThat(next.path("mode").asText()).isEqualTo(mode);
-        assertThat(next.path("operation")).isEqualTo(original.path("operation"));
-        assertThat(next.path("target")).isEqualTo(original.path("target"));
         assertThat(next.path("report")).isEqualTo(original.path("report"));
+    }
+
+    private void assertClosedSchema(JsonNode schema, String... fields) {
+        assertThat(schema.path("type").asText()).isEqualTo("object");
+        assertThat(schema.path("additionalProperties").asBoolean(true)).isFalse();
+        assertThat(schema.path("properties").fieldNames()).toIterable().containsExactlyInAnyOrder(fields);
+        assertThat(objectMapper.convertValue(schema.path("required"), String[].class)).containsExactlyInAnyOrder(fields);
+        assertThat(schema.has("oneOf")).isFalse();
+        assertThat(schema.has("anyOf")).isFalse();
+    }
+
+    private void collectReferences(JsonNode node, List<String> references) {
+        if (node.isObject() && node.has("$ref")) {
+            references.add(node.path("$ref").asText());
+        }
+        node.elements().forEachRemaining(child -> collectReferences(child, references));
     }
 
     private void advance(long seconds) {
@@ -562,13 +560,6 @@ class DiningReportDeliveryApiTest extends AcceptanceTest {
 
     private String reportStatus(int reportId) {
         return jdbcTemplate.queryForObject("SELECT status FROM dining_soldout_report WHERE id = ?", String.class, reportId);
-    }
-
-    private Map<String, Object> binding(int reportId) {
-        return jdbcTemplate.queryForMap("""
-            SELECT workspace_id, channel_id, message_ts, hold_reason
-            FROM dining_soldout_report_delivery_target WHERE report_id = ?
-            """, reportId);
     }
 
     private JsonNode body(ResultActions response) throws Exception {

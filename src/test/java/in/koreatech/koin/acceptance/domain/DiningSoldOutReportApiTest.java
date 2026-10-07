@@ -13,10 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -44,9 +42,7 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 
 @TestPropertySource(properties = {
-    "dining.report.bot-token=test-dining-report-bot-token",
-    "dining.report.delivery.workspace-id=T_EXAMPLE",
-    "dining.report.delivery.channel-id=C_EXAMPLE"
+    "dining.report.bot-token=test-dining-report-bot-token"
 })
 class DiningSoldOutReportApiTest extends AcceptanceTest {
 
@@ -357,92 +353,26 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
 
     private void assertClaimSchema(JsonNode api, JsonNode claim) {
         JsonNode response = contentSchema(api, claim.at("/responses/200/content"));
-        assertThat(response.path("oneOf")).hasSize(2);
-        Set<String> operations = new HashSet<>();
-        for (JsonNode branch : response.path("oneOf")) {
-            JsonNode work = schema(api, branch);
-            assertClosedObject(work, "delivery_id", "attempt_token", "mode", "operation", "expires_at", "target", "report");
-            JsonNode properties = work.path("properties");
-            assertUuid(properties.path("delivery_id"));
-            assertUuid(properties.path("attempt_token"));
-            assertThat(schema(api, properties.path("mode")).path("enum")).extracting(JsonNode::asText)
-                .containsExactlyInAnyOrder("SEND", "VERIFY");
-            JsonNode operation = schema(api, properties.path("operation")).path("enum");
-            assertThat(operation).hasSize(1);
-            String name = operation.get(0).asText();
-            assertThat(name).isIn("CREATE", "UPDATE");
-            operations.add(name);
-            assertThat(properties.path("expires_at").path("format").asText()).isEqualTo("date-time");
-            assertThat(schema(api, properties.path("report")).path("properties").has("report_id")).isTrue();
-
-            JsonNode target = schema(api, properties.path("target"));
-            assertClosedObject(target, "workspace_id", "channel_id", "message_ts");
-            for (String field : List.of("workspace_id", "channel_id")) {
-                assertThat(target.path("properties").path(field).path("type").asText()).isEqualTo("string");
-                assertThat(target.path("properties").path(field).path("minLength").asInt()).isEqualTo(1);
-            }
-            JsonNode timestamp = target.path("properties").path("message_ts");
-            assertThat(timestamp.path("type").asText()).isEqualTo("string");
-            if (name.equals("CREATE")) {
-                assertThat(timestamp.path("nullable").asBoolean()).isTrue();
-                assertThat(timestamp.path("enum")).hasSize(1);
-                assertThat(timestamp.path("enum").get(0).isNull()).isTrue();
-            } else {
-                assertThat(timestamp.path("nullable").asBoolean()).isFalse();
-                assertThat(timestamp.path("minLength").asInt()).isEqualTo(1);
-            }
-        }
-        assertThat(operations).containsExactlyInAnyOrder("CREATE", "UPDATE");
+        assertClosedObject(response, "delivery_id", "attempt_token", "expires_at", "report");
+        JsonNode properties = response.path("properties");
+        assertUuid(properties.path("delivery_id"));
+        assertUuid(properties.path("attempt_token"));
+        assertThat(properties.path("expires_at").path("format").asText()).isEqualTo("date-time");
+        assertThat(schema(api, properties.path("report")).path("properties").has("report_id")).isTrue();
     }
 
     private void assertResultSchemas(JsonNode api) {
         JsonNode operation = api.path("paths").path(BOT_PATH + "/deliveries/{deliveryId}/result").path("post");
         JsonNode request = contentSchema(api, operation.at("/requestBody/content"));
-        Map<String, List<String>> fields = Map.of(
-            "SUCCEEDED", List.of("attempt_token", "outcome", "message_ref"),
-            "NOT_SENT", List.of("attempt_token", "outcome", "reason"),
-            "RATE_LIMITED", List.of("attempt_token", "outcome", "reason", "retry_after_seconds"),
-            "REJECTED", List.of("attempt_token", "outcome", "reason", "error_code"),
-            "UNCERTAIN", List.of("attempt_token", "outcome"));
-        assertThat(request.path("oneOf")).hasSize(fields.size());
-        Set<String> variants = new HashSet<>();
-        for (JsonNode branch : request.path("oneOf")) {
-            JsonNode result = schema(api, branch);
-            JsonNode properties = result.path("properties");
-            JsonNode outcomeValues = schema(api, properties.path("outcome")).path("enum");
-            assertThat(outcomeValues).hasSize(1);
-            String outcome = outcomeValues.get(0).asText();
-            assertThat(outcome).isIn("SUCCEEDED", "NOT_APPLIED", "UNCERTAIN");
-            String variant = outcome;
-            if (outcome.equals("NOT_APPLIED")) {
-                JsonNode reasons = schema(api, properties.path("reason")).path("enum");
-                assertThat(reasons).hasSize(1);
-                variant = reasons.get(0).asText();
-                assertThat(variant).isIn("NOT_SENT", "RATE_LIMITED", "REJECTED");
-            }
-            variants.add(variant);
-            assertClosedObject(result, fields.get(variant).toArray(String[]::new));
-            assertUuid(properties.path("attempt_token"));
-            if (variant.equals("SUCCEEDED")) {
-                JsonNode reference = schema(api, properties.path("message_ref"));
-                assertClosedObject(reference, "channel_id", "message_ts");
-                for (String field : List.of("channel_id", "message_ts")) {
-                    assertThat(reference.path("properties").path(field).path("type").asText()).isEqualTo("string");
-                    assertThat(reference.path("properties").path(field).path("minLength").asInt()).isEqualTo(1);
-                }
-            } else if (variant.equals("RATE_LIMITED")) {
-                assertThat(properties.path("retry_after_seconds").path("type").asText()).isEqualTo("integer");
-                assertThat(properties.path("retry_after_seconds").path("minimum").asInt()).isEqualTo(1);
-            } else if (variant.equals("REJECTED")) {
-                assertThat(properties.path("error_code").path("type").asText()).isEqualTo("string");
-                assertThat(properties.path("error_code").path("minLength").asInt()).isEqualTo(1);
-                assertThat(properties.path("error_code").path("maxLength").asInt()).isEqualTo(128);
-            }
-        }
-        assertThat(variants).containsExactlyInAnyOrderElementsOf(fields.keySet());
+        assertClosedObject(request, "attempt_token", "outcome");
+        assertUuid(request.path("properties").path("attempt_token"));
+        assertThat(schema(api, request.path("properties").path("outcome")).path("enum"))
+            .extracting(JsonNode::asText).containsExactlyInAnyOrder("SUCCEEDED", "FAILED");
         JsonNode response = contentSchema(api, operation.at("/responses/200/content"));
         assertClosedObject(response, "delivery_id", "delivery_state");
         assertUuid(response.path("properties").path("delivery_id"));
+        assertThat(schema(api, response.path("properties").path("delivery_state")).path("enum"))
+            .extracting(JsonNode::asText).containsExactlyInAnyOrder("QUEUED", "IN_PROGRESS", "DELIVERED");
     }
 
     private JsonNode contentSchema(JsonNode api, JsonNode content) {
