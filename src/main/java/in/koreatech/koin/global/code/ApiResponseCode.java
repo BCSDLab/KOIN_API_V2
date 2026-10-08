@@ -17,7 +17,6 @@ public enum ApiResponseCode {
     NOT_FOUND_DINING_REPORT_DELIVERY(HttpStatus.NOT_FOUND, "배정된 작업을 찾을 수 없습니다."),
     DINING_ALREADY_SOLD_OUT(HttpStatus.CONFLICT, "이미 품절된 식단입니다."),
     DINING_REPORT_ALREADY_SUBMITTED(HttpStatus.CONFLICT, "이미 제보한 식단입니다."),
-    IDEMPOTENCY_KEY_CONFLICT(HttpStatus.CONFLICT, "동일한 요청 키에 다른 요청 내용이 사용되었습니다."),
     DINING_REPORT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 다른 결과로 처리된 제보입니다."),
     DINING_REPORT_DELIVERY_CONFLICT(HttpStatus.CONFLICT, "현재 작업 시도 또는 이미 접수한 결과와 일치하지 않습니다."),
     IMAGE_STORAGE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "이미지 저장소에 연결할 수 없습니다."),
