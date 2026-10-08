@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -268,7 +267,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
             WHERE table_schema = DATABASE() AND table_name = 'dining_soldout_report'
             GROUP BY index_name
             """, String.class)).containsExactlyInAnyOrder(
-                "id", "reporter_id,dining_id", "reporter_id,request_key", "created_at,id",
+                "id", "reporter_id,dining_id", "created_at,id",
                 "status,created_at,id", "dining_id,status,id", "processing_id,id", "source_report_id");
 
         Integer secondDiningId = transactionTemplate.execute(status ->
@@ -444,7 +443,6 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
     private int submit(String token, Integer targetDiningId) throws Exception {
         return mockMvc.perform(post("/dinings/{diningId}/soldout-reports", targetDiningId)
                 .header("Authorization", "Bearer " + token)
-                .header("Idempotency-Key", UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"image_url\":\"" + IMAGE_URL + "\"}"))
             .andReturn().getResponse().getStatus();
@@ -454,7 +452,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
         return jdbcTemplate.queryForList("""
             SELECT id, reporter_id, image_url, status, processing_type, HEX(processing_id) AS processing_id,
                 source_report_id, processor_workspace_id, processor_user_id, processor_name,
-                processed_at, created_at, updated_at, HEX(request_key) AS request_key
+                processed_at, created_at, updated_at
             FROM dining_soldout_report
             WHERE dining_id = ?
             ORDER BY id

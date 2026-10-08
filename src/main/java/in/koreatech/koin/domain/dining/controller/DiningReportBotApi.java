@@ -53,7 +53,7 @@ public interface DiningReportBotApi {
         headers = @Header(name = "Retry-After", description = "다음 조회까지 기다릴 시간(초)",
             schema = @Schema(type = "integer", allowableValues = "5", example = "5")))
     @Operation(operationId = "claimDiningReportDelivery", summary = "제보 변경 작업 한 건 가져오기", description = """
-        - 서비스 토큰으로 인증하며 본문 없이 호출합니다. 봇 요청에는 Idempotency-Key가 필요하지 않습니다.
+        - 서비스 토큰으로 인증하며 본문 없이 호출합니다.
         - 작업이 있으면 200을, 없으면 본문 없는 204와 Retry-After: 5를 반환합니다. 5초 뒤 다시 조회합니다.
         - report는 해당 변경의 고정된 내용입니다. 같은 제보의 이전 작업이 완료되어야 다음 변경을 배정합니다.
         - expires_at은 배정 후 60초가 되는 한국시간이며, 이 시각부터 같은 작업을 다시 배정할 수 있습니다.

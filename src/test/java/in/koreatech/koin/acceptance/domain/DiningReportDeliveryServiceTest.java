@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -187,7 +186,7 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
             var time = currentTime();
             var dining = diningFixture.B코너_점심(time.toLocalDate());
             var report = reportRepository.saveAndFlush(
-                DiningReport.create(dining, null, IMAGE_URL, UUID.randomUUID(), time));
+                DiningReport.create(dining, null, IMAGE_URL, time));
             long sequence = sequenceRepository.findForUpdate().next();
             jdbcTemplate.update("""
                 INSERT INTO dining_soldout_report_change
@@ -218,7 +217,7 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
             var time = currentTime();
             var dining = diningFixture.A코너_점심(time.toLocalDate());
             var report = reportRepository.saveAndFlush(
-                DiningReport.create(dining, null, IMAGE_URL, UUID.randomUUID(), time));
+                DiningReport.create(dining, null, IMAGE_URL, time));
             changeService.append(List.of(report), CREATED, time);
             return report.getId();
         });

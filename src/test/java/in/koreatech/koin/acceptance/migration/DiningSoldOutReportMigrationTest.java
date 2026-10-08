@@ -37,7 +37,7 @@ class DiningSoldOutReportMigrationTest {
         .withPassword("test");
 
     @Test
-    void V14는_확인된_이력을_보존하고_최신_미완료_작업만_이관하며_구버전_추가를_배정한다() throws Exception {
+    void V14와_V15는_기존이력을_보존하고_요청키없는_접수도_학생중복을_막는다() throws Exception {
         migrateTo("11");
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             statement.executeUpdate("""
@@ -197,6 +197,40 @@ class DiningSoldOutReportMigrationTest {
                     AND event_type = 'PROCESSED' AND status = 'APPROVED' AND processing_type = 'MANUAL'
                     AND processing_id = UNHEX(REPEAT('02', 16)) AND delivery_state = 'DELIVERED'
                 """)).isOne();
+        }
+        migrateTo("15");
+        try (SessionFactory sessionFactory = validateSchema();
+            Connection connection = getConnection(); Statement statement = connection.createStatement()) {
+            assertThat(queryInt(statement, """
+                SELECT COUNT(*) FROM dining_soldout_report
+                WHERE id BETWEEN 301 AND 306 AND request_key = UNHEX(REPEAT('01', 16))
+                """)).isEqualTo(6);
+            assertThat(queryInt(statement, """
+                SELECT COUNT(*) FROM dining_soldout_report WHERE id = 301 AND reporter_id IS NULL
+                    AND status = 'APPROVED' AND processor_name = '담당자' AND processing_type = 'MANUAL'
+                    AND processing_id = UNHEX(REPEAT('02', 16))
+                """)).isOne();
+            statement.executeUpdate("""
+                INSERT INTO users (id, password, user_type, anonymous_nickname)
+                VALUES (102, 'test', 'STUDENT', '새학생1'), (103, 'test', 'STUDENT', '새학생2')
+                """);
+            statement.executeUpdate("""
+                INSERT INTO dining_menus (id, date, type, place, menu)
+                VALUES (202, '2026-10-02', 'LUNCH', 'B코너', '새 메뉴')
+                """);
+            statement.executeUpdate("""
+                INSERT INTO dining_soldout_report (id, reporter_id, dining_id, image_url, created_at, updated_at)
+                VALUES (307, 102, 201, 'https://example.com/new.jpg', '2026-10-02 12:45:00', '2026-10-02 12:45:00'),
+                       (308, 103, 201, 'https://example.com/new.jpg', '2026-10-02 12:45:00', '2026-10-02 12:45:00'),
+                       (309, 102, 202, 'https://example.com/new.jpg', '2026-10-02 12:45:00', '2026-10-02 12:45:00')
+                """);
+            assertThatThrownBy(() -> statement.executeUpdate("""
+                INSERT INTO dining_soldout_report (reporter_id, dining_id, image_url, created_at, updated_at)
+                VALUES (102, 201, 'https://example.com/new.jpg', '2026-10-02 12:45:00', '2026-10-02 12:45:00')
+                """)).isInstanceOf(SQLException.class).hasMessageContaining("uk_dining_report_student");
+            assertThat(queryInt(statement, """
+                SELECT COUNT(*) FROM dining_soldout_report WHERE reporter_id IN (102, 103) AND request_key IS NULL
+                """)).isEqualTo(3);
         }
     }
 

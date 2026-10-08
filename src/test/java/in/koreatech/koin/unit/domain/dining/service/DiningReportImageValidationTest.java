@@ -18,7 +18,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -88,15 +87,12 @@ class DiningReportImageValidationTest {
 
         Integer reporterId = 42;
         Integer diningId = 1;
-        UUID requestKey = UUID.randomUUID();
         Dining dining = Dining.builder().date(LocalDate.now(clock)).type(DiningType.LUNCH)
             .place("A코너").menu("[\"돈까스\"]").build();
-        when(reportRepository.findByReporterIdAndRequestKey(reporterId, requestKey)).thenReturn(Optional.empty());
-        when(reportRepository.findRequestForUpdate(reporterId, requestKey)).thenReturn(Optional.empty());
         when(reportRepository.findAllByDiningIdForUpdate(diningId)).thenReturn(List.of());
         when(diningRepository.findByIdForUpdate(diningId)).thenReturn(Optional.of(dining));
 
-        var response = service.create(reporterId, diningId, requestKey, new DiningReportCreateRequest(imageUrl));
+        var response = service.create(reporterId, diningId, new DiningReportCreateRequest(imageUrl));
 
         ArgumentCaptor<DiningReport> reportCaptor = ArgumentCaptor.forClass(DiningReport.class);
         verify(reportRepository).saveAndFlush(reportCaptor.capture());
@@ -122,18 +118,17 @@ class DiningReportImageValidationTest {
         Dining dining = Dining.builder().date(LocalDate.parse(diningDate)).type(DiningType.LUNCH)
             .place("A코너").menu("[\"돈까스\"]").build();
         when(diningRepository.findByIdForUpdate(1)).thenReturn(Optional.of(dining));
-        UUID requestKey = UUID.randomUUID();
         var request = new DiningReportCreateRequest(imageUrl);
 
         if (!allowed) {
-            assertThatThrownBy(() -> boundaryService.create(42, 1, requestKey, request))
+            assertThatThrownBy(() -> boundaryService.create(42, 1, request))
                 .isInstanceOfSatisfying(CustomException.class,
                     exception -> assertThat(exception.getErrorCode()).isEqualTo(DINING_REPORT_DATE_NOT_ALLOWED));
             verify(reportRepository, never()).saveAndFlush(any(DiningReport.class));
             return;
         }
 
-        var response = boundaryService.create(42, 1, requestKey, request);
+        var response = boundaryService.create(42, 1, request);
         assertThat(response.status()).isEqualTo(DiningReportStatus.PENDING);
         assertThat(response.createdAt().toLocalDate()).isEqualTo(dining.getDate());
         verify(reportRepository).saveAndFlush(any(DiningReport.class));
@@ -149,7 +144,7 @@ class DiningReportImageValidationTest {
         "https://static.koreatech.in/upload/SHOPS/soldout.jpg"
     })
     void 허용되지_않은_URL은_S3_확인과_식단_잠금_전에_거부한다(String imageUrl) {
-        assertThatThrownBy(() -> service.create(42, 1, UUID.randomUUID(), new DiningReportCreateRequest(imageUrl)))
+        assertThatThrownBy(() -> service.create(42, 1, new DiningReportCreateRequest(imageUrl)))
             .isInstanceOf(CustomException.class)
             .hasMessage(INVALID_REPORT_IMAGE.getMessage());
         verifyNoInteractions(amazonS3, diningRepository);

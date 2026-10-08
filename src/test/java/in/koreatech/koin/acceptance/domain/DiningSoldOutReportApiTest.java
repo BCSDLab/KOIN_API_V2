@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -123,39 +122,38 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 접수는_판매상태를_유지하고_재시도와_중복을_구분한다() throws Exception {
-        String key = UUID.randomUUID().toString();
-        int id = body(submit(studentToken, dining, key, IMAGE_URL).andExpect(status().isCreated())
+    void 접수는_판매상태를_유지하고_같은학생의_같은식단_중복을_막는다() throws Exception {
+        int id = body(submit(studentToken, dining, IMAGE_URL).andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("PENDING"))).path("report_id").asInt();
         botDetail(id).andExpect(jsonPath("$.status").value("PENDING"))
             .andExpect(jsonPath("$.image_url").value(IMAGE_URL));
         assertThat(storedDining().getSoldOut()).isNull();
-        submit(studentToken, dining, key, IMAGE_URL).andExpect(status().isCreated())
-            .andExpect(jsonPath("$.report_id").value(id));
-        submit(studentToken, dining, key, IMAGE_URL.replace("soldout.jpg", "other.jpg"))
-            .andExpect(status().isConflict());
-        submit(studentToken, otherDining, key, IMAGE_URL).andExpect(status().isConflict())
-            .andExpect(jsonPath("$.code").value("IDEMPOTENCY_KEY_CONFLICT"));
-        submit(studentToken, dining, UUID.randomUUID().toString(), IMAGE_URL).andExpect(status().isConflict());
+        submit(studentToken, dining, IMAGE_URL).andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DINING_REPORT_ALREADY_SUBMITTED"));
+        submit(studentToken, dining, IMAGE_URL.replace("soldout.jpg", "other.jpg"))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DINING_REPORT_ALREADY_SUBMITTED"));
+        int otherId = body(submit(studentToken, otherDining, IMAGE_URL).andExpect(status().isCreated()))
+            .path("report_id").asInt();
+        assertThat(otherId).isNotEqualTo(id);
     }
 
     @Test
     void 접수는_학생과_당일식단과_업로드사진을_검증한다() throws Exception {
-        String key = UUID.randomUUID().toString();
         for (String token : List.of(generalToken, coopToken, adminToken)) {
-            submit(token, dining, key, IMAGE_URL).andExpect(status().isForbidden());
+            submit(token, dining, IMAGE_URL).andExpect(status().isForbidden());
         }
-        submit(null, dining, key, IMAGE_URL).andExpect(status().isUnauthorized());
+        submit(null, dining, IMAGE_URL).andExpect(status().isUnauthorized());
         for (int days : List.of(-1, 1)) {
             Dining anotherDate = diningFixture.A코너_점심(dining.getDate().plusDays(days));
-            submit(studentToken, anotherDate, key, IMAGE_URL).andExpect(status().isBadRequest());
+            submit(studentToken, anotherDate, IMAGE_URL).andExpect(status().isBadRequest());
         }
-        submit(studentToken, dining, key, "https://outside.example/soldout.jpg").andExpect(status().isBadRequest());
+        submit(studentToken, dining, "https://outside.example/soldout.jpg").andExpect(status().isBadRequest());
         when(s3Client.doesFileExist(anyString())).thenReturn(false);
-        submit(studentToken, dining, key, IMAGE_URL).andExpect(status().isBadRequest());
+        submit(studentToken, dining, IMAGE_URL).andExpect(status().isBadRequest());
         student.updateAuthenticationStatus(false);
         entityManager.flush();
-        submit(studentToken, dining, key, IMAGE_URL).andExpect(status().isForbidden())
+        submit(studentToken, dining, IMAGE_URL).andExpect(status().isForbidden())
             .andExpect(jsonPath("$.code").value("FORBIDDEN_STUDENT"));
     }
 
@@ -214,18 +212,16 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
 
     @Test
     void 품절해제후_새학생_제보는_과거_처리묶음과_분리한다() throws Exception {
-        String key = UUID.randomUUID().toString();
-        JsonNode created = body(submit(studentToken, dining, key, IMAGE_URL).andExpect(status().isCreated()));
-        int selectedId = created.path("report_id").asInt();
+        int selectedId = createReport(studentToken, dining);
         int automaticId = createReport(otherStudentToken, dining);
         String previousGroup = body(decide(selectedId, "approve", "U_FIRST").andExpect(status().isOk()))
             .path("report").path("processing_id").asText();
-        submit(thirdStudentToken, dining, UUID.randomUUID().toString(), IMAGE_URL).andExpect(status().isConflict())
+        submit(thirdStudentToken, dining, IMAGE_URL).andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DINING_ALREADY_SOLD_OUT"));
         setSoldOut(false);
         int newId = createReport(thirdStudentToken, dining);
-        assertThat(body(submit(studentToken, dining, key, IMAGE_URL).andExpect(status().isCreated())))
-            .isEqualTo(created);
+        submit(studentToken, dining, IMAGE_URL).andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DINING_REPORT_ALREADY_SUBMITTED"));
         decide(selectedId, "approve", "U_OTHER").andExpect(status().isOk())
             .andExpect(jsonPath("$.already_processed").value(true))
             .andExpect(jsonPath("$.report.processing_id").value(previousGroup))
@@ -267,7 +263,7 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
         setSoldOut(false);
         assertThat(storedDining().getSoldOut()).isNull();
         botDetail(firstId).andExpect(jsonPath("$.status").value("REJECTED"));
-        submit(otherStudentToken, dining, UUID.randomUUID().toString(), IMAGE_URL).andExpect(status().isConflict());
+        submit(otherStudentToken, dining, IMAGE_URL).andExpect(status().isConflict());
     }
 
     @Test
@@ -306,9 +302,9 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.reports[*].report_id").value(contains(latestId, firstId)));
     }
 
-    private ResultActions submit(String token, Dining target, String key, String imageUrl) throws Exception {
+    private ResultActions submit(String token, Dining target, String imageUrl) throws Exception {
         var request = post("/dinings/{id}/soldout-reports", target.getId())
-            .header("Idempotency-Key", key).contentType(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(Map.of("image_url", imageUrl)));
         if (token != null) {
             request.header("Authorization", "Bearer " + token);
@@ -317,7 +313,7 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
     }
 
     private int createReport(String token, Dining target) throws Exception {
-        return body(submit(token, target, UUID.randomUUID().toString(), IMAGE_URL)
+        return body(submit(token, target, IMAGE_URL)
             .andExpect(status().isCreated())).path("report_id").asInt();
     }
 

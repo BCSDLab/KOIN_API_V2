@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -64,19 +63,9 @@ public class DiningReportService {
     private final S3Client s3Client;
     private final Clock clock;
 
-    public DiningReportCreateResponse create(Integer reporterId, Integer diningId, UUID requestKey,
-        DiningReportCreateRequest request) {
-        Optional<DiningReport> previous = reportRepository.findByReporterIdAndRequestKey(reporterId, requestKey);
-        if (previous.isPresent()) {
-            return replayCreation(previous.get(), diningId, request.imageUrl());
-        }
-
+    public DiningReportCreateResponse create(Integer reporterId, Integer diningId, DiningReportCreateRequest request) {
         validateImage(request.imageUrl());
         Dining dining = lockDining(diningId);
-        previous = reportRepository.findRequestForUpdate(reporterId, requestKey);
-        if (previous.isPresent()) {
-            return replayCreation(previous.get(), diningId, request.imageUrl());
-        }
         List<DiningReport> reports = reportRepository.findAllByDiningIdForUpdate(diningId);
         if (reports.stream().anyMatch(report -> Objects.equals(report.getReporterId(), reporterId))) {
             throw CustomException.of(DINING_REPORT_ALREADY_SUBMITTED);
@@ -88,14 +77,11 @@ public class DiningReportService {
         if (dining.getSoldOut() != null) {
             throw CustomException.of(DINING_ALREADY_SOLD_OUT);
         }
-        DiningReport report = DiningReport.create(dining, reporterId, request.imageUrl(), requestKey, now);
+        DiningReport report = DiningReport.create(dining, reporterId, request.imageUrl(), now);
         try {
             reportRepository.saveAndFlush(report);
         } catch (DataIntegrityViolationException exception) {
             String detail = exception.getMostSpecificCause().getMessage();
-            if (detail != null && detail.contains("uk_dining_report_request")) {
-                throw CustomException.of(IDEMPOTENCY_KEY_CONFLICT);
-            }
             if (detail != null && detail.contains("uk_dining_report_student")) {
                 throw CustomException.of(DINING_REPORT_ALREADY_SUBMITTED);
             }
@@ -168,13 +154,6 @@ public class DiningReportService {
         changeService.append(affected, PROCESSED, now);
         return new DiningReportDecisionResponse(DiningReportResponse.from(target),
             affected.stream().map(DiningReport::getId).toList(), false);
-    }
-
-    private DiningReportCreateResponse replayCreation(DiningReport report, Integer diningId, String imageUrl) {
-        if (!report.getDining().getId().equals(diningId) || !report.getImageUrl().equals(imageUrl)) {
-            throw CustomException.of(IDEMPOTENCY_KEY_CONFLICT);
-        }
-        return DiningReportCreateResponse.from(report);
     }
 
     private Dining lockDining(Integer diningId) {
