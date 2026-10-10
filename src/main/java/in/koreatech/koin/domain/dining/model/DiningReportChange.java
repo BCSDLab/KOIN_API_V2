@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.hibernate.annotations.ColumnDefault;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
@@ -68,9 +69,11 @@ public class DiningReportChange {
     private UUID attemptToken;
 
     @Column(name = "expires_at", columnDefinition = "DATETIME(6)")
+    @Convert(disableConversion = true)
     private LocalDateTime expiresAt;
 
     @Column(name = "next_attempt_at", columnDefinition = "DATETIME(6)")
+    @Convert(disableConversion = true)
     private LocalDateTime nextAttemptAt;
 
     @Enumerated(STRING)
