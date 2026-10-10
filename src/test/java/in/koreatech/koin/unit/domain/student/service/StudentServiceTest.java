@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -17,6 +19,7 @@ import in.koreatech.koin.common.event.StudentFindPasswordEvent;
 import in.koreatech.koin.common.event.StudentRegisterEvent;
 import in.koreatech.koin.common.event.StudentRegisterRequestEvent;
 import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
+import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequestV2;
@@ -24,9 +27,14 @@ import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentWithAcademicResponse;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoRequest;
+import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
+import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
+import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
+import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
@@ -58,6 +66,7 @@ import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
@@ -95,11 +104,131 @@ class StudentServiceTest {
     @Mock
     private GraduationService graduationService;
     @Mock
+    private StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
+    @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
     private ApplicationEventPublisher eventPublisher;
     @Mock
     private UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
+
+    @Nested
+    class UpdateStudentAcademicInfoTest {
+
+        private final Department department = new Department("컴퓨터공학부");
+        private final Major major = new Major(null, department);
+
+        @ParameterizedTest
+        @ValueSource(strings = {"2025136001", "2026136001"})
+        void 졸업_기준이_없는_학번도_컴퓨터공학부를_저장한다(String studentNumber) {
+            Student student = StudentFixture.준호_학생(department, null);
+            UpdateStudentAcademicInfoRequest request = new UpdateStudentAcademicInfoRequest(
+                studentNumber, department.getName(), null);
+            when(studentRepository.getById(1)).thenReturn(student);
+            when(departmentRepository.getByName(department.getName())).thenReturn(department);
+            when(majorRepository.findFirstByDepartmentIdOrderByIdAsc(department.getId()))
+                .thenReturn(Optional.of(major));
+
+            UpdateStudentAcademicInfoResponse response = studentService.updateStudentAcademicInfo(1, request);
+
+            assertThat(student.getStudentNumber()).isEqualTo(studentNumber);
+            assertThat(student.getDepartment()).isSameAs(department);
+            assertThat(student.getMajor()).isSameAs(major);
+            assertThat(response).isEqualTo(new UpdateStudentAcademicInfoResponse(
+                studentNumber, department.getName(), null));
+            verify(studentValidationService).validateDepartment(department.getName());
+            verify(studentValidationService).validateMajor(null);
+            verify(graduationService).resetStudentCourseCalculation(student, major);
+            verifyNoInteractions(standardGraduationRequirementsRepository);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"2025136001", "2026136001"})
+        void 졸업_기준_없이_학부에_속한_전공으로_변경한다(String studentNumber) {
+            Student student = StudentFixture.준호_학생(department, major);
+            Department newDepartment = new Department("전기전자통신공학부");
+            Major newMajor = new Major("전자공학전공", newDepartment);
+            UpdateStudentAcademicInfoRequest request = new UpdateStudentAcademicInfoRequest(
+                studentNumber, newDepartment.getName(), newMajor.getName());
+            when(studentRepository.getById(1)).thenReturn(student);
+            when(departmentRepository.getByName(newDepartment.getName())).thenReturn(newDepartment);
+            when(majorRepository.getByNameAndDepartmentId(newMajor.getName(), newDepartment.getId()))
+                .thenReturn(newMajor);
+
+            UpdateStudentAcademicInfoResponse response = studentService.updateStudentAcademicInfo(1, request);
+
+            assertThat(student.getStudentNumber()).isEqualTo(studentNumber);
+            assertThat(student.getDepartment()).isSameAs(newDepartment);
+            assertThat(student.getMajor()).isSameAs(newMajor);
+            assertThat(response).isEqualTo(new UpdateStudentAcademicInfoResponse(
+                studentNumber, newDepartment.getName(), newMajor.getName()));
+            verify(studentValidationService).validateDepartment(newDepartment.getName());
+            verify(studentValidationService).validateMajor(newMajor.getName());
+            verify(graduationService).resetStudentCourseCalculation(student, newMajor);
+            verifyNoInteractions(standardGraduationRequirementsRepository);
+        }
+
+        @Test
+        void 학번과_전공이_그대로면_졸업_계산을_갱신하지_않는다() {
+            Student student = StudentFixture.준호_학생(department, major);
+            UpdateStudentAcademicInfoRequest request = new UpdateStudentAcademicInfoRequest(
+                null, department.getName(), null);
+            when(studentRepository.getById(1)).thenReturn(student);
+            when(departmentRepository.getByName(department.getName())).thenReturn(department);
+            when(majorRepository.findFirstByDepartmentIdOrderByIdAsc(department.getId()))
+                .thenReturn(Optional.of(major));
+
+            UpdateStudentAcademicInfoResponse response = studentService.updateStudentAcademicInfo(1, request);
+
+            assertThat(response.studentNumber()).isEqualTo("2019136135");
+            assertThat(student.getMajor()).isSameAs(major);
+            verifyNoInteractions(standardGraduationRequirementsRepository, graduationService);
+        }
+
+        @Test
+        void 유효하지_않은_학부는_계속_거절한다() {
+            UpdateStudentAcademicInfoRequest request = new UpdateStudentAcademicInfoRequest(
+                "2025136001", "존재하지않는학부", null);
+            doThrow(StudentDepartmentNotValidException.withDetail(request.department()))
+                .when(studentValidationService).validateDepartment(request.department());
+
+            assertThatThrownBy(() -> studentService.updateStudentAcademicInfo(1, request))
+                .isInstanceOf(StudentDepartmentNotValidException.class);
+            verifyNoInteractions(studentRepository, departmentRepository, majorRepository,
+                standardGraduationRequirementsRepository, graduationService);
+        }
+
+        @Test
+        void 존재하지_않는_전공은_계속_거절한다() {
+            UpdateStudentAcademicInfoRequest request = new UpdateStudentAcademicInfoRequest(
+                "2025136001", department.getName(), "존재하지않는전공");
+            doThrow(MajorNotFoundException.withDetail(request.major()))
+                .when(studentValidationService).validateMajor(request.major());
+
+            assertThatThrownBy(() -> studentService.updateStudentAcademicInfo(1, request))
+                .isInstanceOf(MajorNotFoundException.class);
+            verifyNoInteractions(studentRepository, departmentRepository, majorRepository,
+                standardGraduationRequirementsRepository, graduationService);
+        }
+
+        @Test
+        void 선택한_학부에_속하지_않는_전공은_계속_거절한다() {
+            Student student = StudentFixture.준호_학생(department, major);
+            UpdateStudentAcademicInfoRequest request = new UpdateStudentAcademicInfoRequest(
+                "2025136001", department.getName(), "전자공학전공");
+            when(studentRepository.getById(1)).thenReturn(student);
+            when(departmentRepository.getByName(department.getName())).thenReturn(department);
+            when(majorRepository.getByNameAndDepartmentId(request.major(), department.getId()))
+                .thenThrow(DepartmentNotFoundException.withDetail(request.major()));
+
+            assertThatThrownBy(() -> studentService.updateStudentAcademicInfo(1, request))
+                .isInstanceOf(DepartmentNotFoundException.class);
+            assertThat(student.getStudentNumber()).isEqualTo("2019136135");
+            assertThat(student.getDepartment()).isSameAs(department);
+            assertThat(student.getMajor()).isSameAs(major);
+            verifyNoInteractions(standardGraduationRequirementsRepository, graduationService);
+        }
+    }
 
     @Nested
     class RegisterStudentTest {

@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.student.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,7 +17,6 @@ import in.koreatech.koin.common.event.StudentFindPasswordEvent;
 import in.koreatech.koin.common.event.StudentRegisterEvent;
 import in.koreatech.koin.common.event.StudentRegisterRequestEvent;
 import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
-import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.dto.RegisterStudentRequestV2;
@@ -37,8 +37,6 @@ import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.domain.student.util.StudentUtil;
-import in.koreatech.koin.domain.timetableV3.exception.ChangeMajorNotExistException;
 import in.koreatech.koin.domain.user.dto.UserAuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserChangePasswordRequest;
 import in.koreatech.koin.domain.user.dto.UserChangePasswordSubmitRequest;
@@ -76,7 +74,6 @@ public class StudentService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRedisRepository passwordResetTokenRepository;
-    private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
 
     @Transactional
     public void studentRegister(RegisterStudentRequest request, String serverURL) {
@@ -194,17 +191,10 @@ public class StudentService {
 
         Student student = studentRepository.getById(userId);
 
-        String oldStudentNumber = student.getStudentNumber();
         String newStudentNumber = student.getStudentNumber();
         String requestStudentNumber = request.studentNumber();
         if (requestStudentNumber != null) {
             newStudentNumber = requestStudentNumber;
-        }
-
-        // 학번 변경 사항 감지
-        boolean updateStudentNumber = false;
-        if (requestStudentNumber != null && oldStudentNumber != null) {
-            updateStudentNumber = student.isNotSameStudentNumber(requestStudentNumber);
         }
 
         Department newDepartment;
@@ -214,7 +204,6 @@ public class StudentService {
             newDepartment = null;
         }
 
-        Major oldMajor = student.getMajor();
         Major newMajor;
         if (request.major() != null) {
             newMajor = majorRepository.getByNameAndDepartmentId(request.major(), newDepartment.getId());
@@ -224,52 +213,15 @@ public class StudentService {
             newMajor = null;
         }
 
-        validateMajorChange(newStudentNumber, newMajor);
-
-        // 전공 변경 사항 감지
-        boolean updateMajor = isChangedMajor(oldMajor, newMajor);
-
+        boolean isAcademicInfoChanged = !Objects.equals(student.getStudentNumber(), newStudentNumber)
+            || !Objects.equals(student.getMajor(), newMajor);
         student.updateStudentAcademicInfo(newStudentNumber, newDepartment, newMajor);
 
-        /**
-         * 해당 API에서는 Major를 수정할 수 있음 (여기서 그대로는 null이 아닌 경우)
-         * 1. 학번, 전공 모두 변경
-         * 2. 전공만 변경 (학번, 학부는 그대로)
-         * 3. 학번만 변경 (학부, 전공은 그대로)
-         */
-        if (updateStudentNumber && updateMajor) {
+        if (isAcademicInfoChanged && newStudentNumber != null && newMajor != null) {
             graduationService.resetStudentCourseCalculation(student, newMajor);
-        } else if (updateMajor) {
-            if (student.getDepartment() != null && student.getStudentNumber() != null) {
-                graduationService.resetStudentCourseCalculation(student, newMajor);
-            }
-        } else if (updateStudentNumber) {
-            if (student.getDepartment() != null && student.getMajor() != null) {
-                graduationService.resetStudentCourseCalculation(student, newMajor);
-            }
         }
 
         return UpdateStudentAcademicInfoResponse.from(student);
-    }
-
-    private void validateMajorChange(String studentNumber, Major newMajor) {
-        if (newMajor == null) {
-            return;
-        }
-
-        String studentYear = StudentUtil.parseStudentNumberYearAsString(studentNumber);
-
-        boolean exists = standardGraduationRequirementsRepository.existsByMajorIdAndYear(
-            newMajor.getId(), studentYear
-        );
-
-        if (!exists) {
-            throw ChangeMajorNotExistException.withDetail("studentYear: " + studentYear + " major: " + newMajor);
-        }
-    }
-
-    private boolean isChangedMajor(Major oldMajor, Major newMajor) {
-        return newMajor != null && !newMajor.equals(oldMajor);
     }
 
     @ConcurrencyGuard(lockName = "studentAuthenticate")
