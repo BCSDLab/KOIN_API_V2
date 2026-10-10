@@ -59,7 +59,7 @@ import in.koreatech.koin.global.exception.CustomException;
 class DiningReportDeliveryServiceTest extends AcceptanceTest {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
-    private static final Instant START = Instant.parse("2024-01-15T03:00:00Z");
+    private static final Instant START = Instant.parse("2024-01-15T03:00:00.551123Z");
     private static final String IMAGE_URL = "https://test.koreatech.in/upload/COOP/soldout.jpg";
     private static final long TIMEOUT_SECONDS = 10;
 
@@ -142,6 +142,10 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
         createReport();
         var task = claim();
         assertThat(result(task, FAILED).deliveryState()).isEqualTo(QUEUED);
+        assertThat(jdbcTemplate.queryForObject("""
+            SELECT next_attempt_at FROM dining_soldout_report_change
+            WHERE delivery_id = UNHEX(REPLACE(?, '-', ''))
+            """, LocalDateTime.class, task.deliveryId().toString())).isEqualTo(currentTime().plusSeconds(5));
         advance(4);
         assertThat(result(task, FAILED).deliveryState()).isEqualTo(QUEUED);
         assertThat(deliveryService.claim()).isEmpty();
@@ -156,6 +160,10 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
     void 배정_60초_만료_즉시_같은_작업을_재배정하고_이전_토큰은_거부한다() {
         createReport();
         var task = claim();
+        assertThat(jdbcTemplate.queryForObject("""
+            SELECT expires_at FROM dining_soldout_report_change
+            WHERE delivery_id = UNHEX(REPLACE(?, '-', ''))
+            """, LocalDateTime.class, task.deliveryId().toString())).isEqualTo(currentTime().plusSeconds(60));
         advance(59);
         assertThat(deliveryService.claim()).isEmpty();
         advance(1);
