@@ -149,11 +149,11 @@ public class TeamRecruitmentChatService {
                     .filter(m -> !m.getUser().getId().equals(userId))
                     .findFirst()
                     .map(m -> new ChatRoomResponse.Counterpart(m.getUser().getId(), m.getUser().getDisplayNickname()))
-                    .orElse(null);
+                    .orElse(new ChatRoomResponse.Counterpart(null, "탈퇴한 회원"));
         }
 
         String roomName = chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT
-                ? (counterpart != null ? counterpart.nickname() : "")
+                ? counterpart.nickname()
                 : chatRoom.getRecruitment().getTitle();
 
         int maxMemberCount = chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT
@@ -178,8 +178,9 @@ public class TeamRecruitmentChatService {
 
         User author = recruitment.getAuthor();
         User applicant = application.getApplicant();
-        boolean isAuthor = userId.equals(author.getId());
-        if (!isAuthor && !userId.equals(applicant.getId())) {
+        boolean isAuthor = author != null && userId.equals(author.getId());
+        boolean isApplicant = applicant != null && userId.equals(applicant.getId());
+        if (!isAuthor && !isApplicant) {
             throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN);
         }
 
@@ -194,6 +195,10 @@ public class TeamRecruitmentChatService {
         if (existingDirectChatRoom.isPresent()) {
             return new DirectChatRoomCreationResult(
                     DirectChatRoomResponse.of(existingDirectChatRoom.get(), counterpartUser), false);
+        }
+
+        if (counterpartUser == null) {
+            throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN);
         }
 
         TeamRecruitmentChatRoom teamChatRoom = chatRoomRepository
@@ -261,7 +266,7 @@ public class TeamRecruitmentChatService {
         return messages.stream()
                 .map(msg -> {
                     int unreadCount = (int) allMembers.stream()
-                            .filter(m -> !m.getUser().getId().equals(msg.getSender().getId()))
+                            .filter(m -> msg.getSender() == null || !m.getUser().getId().equals(msg.getSender().getId()))
                             .filter(m -> m.getLastReadMessageId() == null || m.getLastReadMessageId() < msg.getId())
                             .count();
                     return ChatMessageResponse.of(msg, unreadCount);
@@ -296,6 +301,12 @@ public class TeamRecruitmentChatService {
 
         TeamRecruitmentChatMember senderMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
                 .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
+
+        if (chatRoom.getRecruitment().getAuthor() == null
+                || (chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT
+                && (chatRoom.getApplication() == null || chatRoom.getApplication().getApplicant() == null))) {
+            throw CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN);
+        }
 
         User sender = senderMember.getUser();
 

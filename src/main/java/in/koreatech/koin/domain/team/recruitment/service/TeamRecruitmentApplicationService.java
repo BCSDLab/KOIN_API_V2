@@ -206,7 +206,7 @@ public class TeamRecruitmentApplicationService {
         Integer applicationId,
         Integer authorId
     ) {
-        if (request == null || request.status() == null || request.status() == PENDING) {
+        if (request == null || (request.status() != ACCEPTED && request.status() != REJECTED)) {
             throw CustomException.of(INVALID_REQUEST_BODY);
         }
 
@@ -218,7 +218,7 @@ public class TeamRecruitmentApplicationService {
             .findByIdAndRecruitmentIdWithLock(applicationId, recruitmentId)
             .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
         validateApplicationBelongsToRecruitment(application, recruitmentId);
-        if (application.getStatus() != PENDING) {
+        if (application.getApplicant() == null || application.getStatus() != PENDING) {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_FINALIZED);
         }
 
@@ -473,6 +473,10 @@ public class TeamRecruitmentApplicationService {
         TeamRecruitmentNotificationType type,
         TeamRecruitmentChatRoom room
     ) {
+        User recipient = type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant();
+        if (recipient == null) {
+            return;
+        }
         TeamRecruitmentNotificationTargetType targetType = type == APPLICATION_ACCEPTED
             || type == RECRUITMENT_CLOSED
             ? CHAT_ROOM
@@ -485,7 +489,7 @@ public class TeamRecruitmentApplicationService {
         }
 
         TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
-            .recipient(type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant())
+            .recipient(recipient)
             .type(type)
             .targetType(targetType)
             .messagePreview(notificationMessage(recruitment, type))
@@ -503,7 +507,7 @@ public class TeamRecruitmentApplicationService {
             .aggregateType(AGGREGATE_TYPE)
             .aggregateId(recruitment.getId())
             .payload(notificationPayload(
-                type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant(),
+                recipient,
                 application,
                 recruitment,
                 type,

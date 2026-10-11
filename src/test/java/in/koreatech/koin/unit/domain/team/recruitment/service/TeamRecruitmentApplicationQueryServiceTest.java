@@ -1,6 +1,7 @@
 package in.koreatech.koin.unit.domain.team.recruitment.service;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.CANCELLED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
@@ -99,6 +100,83 @@ class TeamRecruitmentApplicationQueryServiceTest {
         lenient().when(clock.instant()).thenReturn(Instant.parse("2026-08-28T03:00:00Z"));
         lenient().when(clock.getZone()).thenReturn(KST);
         lenient().when(clock.withZone(KST)).thenReturn(clock);
+    }
+
+    @Test
+    void acceptedHistoryRemainsReadableAfterAuthorWithdrawal() {
+        TeamRecruitment recruitment = recruitment();
+        org.springframework.test.util.ReflectionTestUtils.setField(recruitment, "author", null);
+        recruitment.close();
+        TeamRecruitmentApplication application = application(20, recruitment, ACCEPTED);
+        when(applicationRepository.countByApplicant_IdAndStatusIn(eq(APPLICANT_ID), any())).thenReturn(1L);
+        when(applicationRepository.findAllByApplicant_IdAndStatusIn(eq(APPLICANT_ID), any(), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(application)));
+        when(chatRoomRepository.findAllByRecruitment_IdInAndRoomScopeKeyAndRoomType(
+            List.of(RECRUITMENT_ID), "TEAM", TEAM)).thenReturn(List.of(teamRoom(recruitment)));
+        MyApplicationListResponse response = queryService.getMyApplications(
+            null, TeamRecruitmentApplicationSort.LATEST_DESC, 1, 10, APPLICANT_ID);
+        assertThat(response.applications()).hasSize(1);
+        assertThat(response.applications().get(0).status()).isEqualTo(ACCEPTED);
+        assertThat(response.applications().get(0).teamChatRoomId()).isEqualTo(TEAM_ROOM_ID);
+        assertThat(response.applications().get(0).recruitment().id()).isEqualTo(RECRUITMENT_ID);
+    }
+
+    @Test
+    void withdrawnApplicantSnapshotIsRetainedButCannotBeDecidedOrChatted() {
+        TeamRecruitment recruitment = recruitment();
+        TeamRecruitmentApplication application = applicationWithSnapshot(20, recruitment, PENDING);
+        org.springframework.test.util.ReflectionTestUtils.setField(application, "applicant", null);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findById(20)).thenReturn(Optional.of(application));
+        ApplicantDetail detail = queryService.getApplicationDetail(RECRUITMENT_ID, 20, AUTHOR_ID);
+        assertThat(detail.profileSnapshot().nickname()).isEqualTo("탈퇴한 회원");
+        assertThat(detail.profileSnapshot().department()).isEqualTo("컴퓨터공학부");
+        assertThat(detail.profileSnapshot().studentYear()).isEqualTo(2023);
+        assertThat(detail.profileSnapshot().preferredRole()).isEqualTo("백엔드");
+        assertThat(detail.profileSnapshot().selfIntroduction()).isEqualTo("지원 당시 소개");
+        assertThat(detail.profileSnapshot().skills()).isEmpty();
+        assertThat(detail.profileSnapshot().activities()).isEmpty();
+        assertThat(detail.canDecide()).isFalse();
+        application.accept();
+        TeamRecruitmentChatRoom directRoom = TeamRecruitmentChatRoom.builder()
+            .id(DIRECT_ROOM_ID).application(application).recruitment(recruitment)
+            .roomType(DIRECT).status(ACTIVE).build();
+        when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
+            .thenReturn(List.of(directRoom));
+        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(eq(RECRUITMENT_ID), any(), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(application)));
+        when(applicationRepository.countByRecruitment_IdAndStatusIn(eq(RECRUITMENT_ID), any())).thenReturn(1L);
+        ApplicantListResponse list = queryService.getApplications(RECRUITMENT_ID, null, 1, 10, AUTHOR_ID);
+        assertThat(list.applications().get(0).nickname()).isEqualTo("탈퇴한 회원");
+        assertThat(list.applications().get(0).canOpenDirectChat()).isFalse();
+        assertThat(queryService.getApplicationDetail(RECRUITMENT_ID, 20, AUTHOR_ID).canOpenDirectChat()).isFalse();
+    }
+
+    @Test
+    void 취소된_지원서도_기본_목록과_상세에_남고_승인과_거절은_비활성화된다() {
+        TeamRecruitment recruitment = recruitment();
+        TeamRecruitmentApplication application = applicationWithSnapshot(20, recruitment, CANCELLED);
+        org.springframework.test.util.ReflectionTestUtils.setField(application, "applicant", null);
+        List<TeamRecruitmentApplicationStatus> statuses = List.of(PENDING, ACCEPTED, REJECTED, CANCELLED);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findById(20)).thenReturn(Optional.of(application));
+        when(applicationRepository.countByRecruitment_IdAndStatusIn(RECRUITMENT_ID, statuses)).thenReturn(1L);
+        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
+            eq(RECRUITMENT_ID), eq(statuses), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(application)));
+
+        ApplicantListResponse list = queryService.getApplications(RECRUITMENT_ID, null, 1, 10, AUTHOR_ID);
+        ApplicantDetail detail = queryService.getApplicationDetail(RECRUITMENT_ID, 20, AUTHOR_ID);
+
+        assertThat(list.applications()).singleElement().satisfies(summary -> {
+            assertThat(summary.status()).isEqualTo(CANCELLED);
+            assertThat(summary.nickname()).isEqualTo("탈퇴한 회원");
+            assertThat(summary.canOpenDirectChat()).isFalse();
+        });
+        assertThat(detail.status()).isEqualTo(CANCELLED);
+        assertThat(detail.profileSnapshot().nickname()).isEqualTo("탈퇴한 회원");
+        assertThat(detail.canDecide()).isFalse();
+        assertThat(detail.canOpenDirectChat()).isFalse();
     }
 
     @Test

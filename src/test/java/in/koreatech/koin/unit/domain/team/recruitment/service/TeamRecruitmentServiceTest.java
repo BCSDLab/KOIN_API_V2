@@ -165,6 +165,15 @@ class TeamRecruitmentServiceTest {
         lenient().when(applicationRepository.countByRole_IdAndStatus(anyInt(), any())).thenReturn(0L);
     }
 
+    @Test
+    void withdrawnAuthorCannotManageRecruitment() {
+        ReflectionTestUtils.setField(recruitment, "author", null);
+        givenFoundRecruitment();
+        assertThatThrownBy(() -> teamRecruitmentService.closeRecruitment(AUTHOR_ID, RECRUITMENT_ID))
+            .isInstanceOf(CustomException.class)
+            .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_FORBIDDEN);
+    }
+
     @Nested
     @DisplayName("소유권 검증")
     class Ownership {

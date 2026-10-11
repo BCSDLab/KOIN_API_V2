@@ -15,7 +15,7 @@ public record ChatMessageResponse(
         @Schema(description = "메시지 ID", example = "901", requiredMode = REQUIRED)
         Integer messageId,
 
-        @Schema(description = "발신자 유저 ID", example = "22", requiredMode = REQUIRED)
+        @Schema(description = "발신자 유저 ID. 탈퇴한 회원은 null입니다.", example = "22", nullable = true, requiredMode = REQUIRED)
         Integer userId,
 
         @Schema(description = "발신자 닉네임", example = "김철수", requiredMode = REQUIRED)
@@ -37,8 +37,8 @@ public record ChatMessageResponse(
     public static ChatMessageResponse of(TeamRecruitmentChatMessage message, int unreadCount) {
         return new ChatMessageResponse(
                 message.getId(),
-                message.getSender().getId(),
-                message.getSenderNickname(),
+                message.getSender() == null ? null : message.getSender().getId(),
+                message.getSender() == null ? "탈퇴한 회원" : message.getSenderNickname(),
                 message.getContent(),
                 message.getCreatedAt(),
                 message.getIsImage(),

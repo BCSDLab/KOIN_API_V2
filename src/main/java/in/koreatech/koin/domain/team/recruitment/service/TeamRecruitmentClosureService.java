@@ -10,8 +10,6 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNot
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
@@ -65,6 +63,10 @@ public class TeamRecruitmentClosureService {
         notifyAccepted(recruitment, accepted, RECRUITMENT_CLOSED, closedMessage(recruitment));
     }
 
+    public void onAuthorWithdrawn(TeamRecruitment recruitment) {
+        rejectAll(findApplications(recruitment.getId(), PENDING), RECRUITMENT_CLOSED_REASON);
+    }
+
     /**
      * 삭제도 마감과 같은 후속 처리를 하되 거절 사유와 알림 문구를 삭제 기준으로 남긴다.
      */
@@ -93,9 +95,7 @@ public class TeamRecruitmentClosureService {
         Integer recruitmentId,
         TeamRecruitmentApplicationStatus status
     ) {
-        Page<TeamRecruitmentApplication> page = applicationRepository.findAllByRecruitment_IdAndStatusIn(
-            recruitmentId, List.of(status), Pageable.unpaged());
-        return page == null ? List.of() : page.getContent();
+        return applicationRepository.findAllByRecruitmentIdAndStatusInWithLock(recruitmentId, List.of(status));
     }
 
     private void rejectAll(List<TeamRecruitmentApplication> applications, String reason) {
@@ -108,6 +108,9 @@ public class TeamRecruitmentClosureService {
         String messagePreview
     ) {
         for (TeamRecruitmentApplication application : pending) {
+            if (application.getApplicant() == null) {
+                continue;
+            }
             TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
                 .recipient(application.getApplicant())
                 .type(APPLICATION_REJECTED)
@@ -134,6 +137,9 @@ public class TeamRecruitmentClosureService {
             .findByRecruitment_IdAndRoomScopeKey(recruitment.getId(), TeamRecruitmentChatRoom.TEAM_ROOM_SCOPE_KEY)
             .orElse(null);
         for (TeamRecruitmentApplication application : accepted) {
+            if (application.getApplicant() == null) {
+                continue;
+            }
             TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
                 .recipient(application.getApplicant())
                 .type(type)

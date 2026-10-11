@@ -28,11 +28,11 @@ public record TeamRecruitmentChatRoomListItemResponse(
     @Schema(description = "채팅방 타입", example = "TEAM", requiredMode = REQUIRED)
     String roomType,
 
-    @Schema(description = "DIRECT 상대방 유저 ID. TEAM은 null입니다.", example = "22",
+    @Schema(description = "DIRECT 상대방 유저 ID. 탈퇴한 회원이거나 TEAM이면 null입니다.", example = "22",
         nullable = true, requiredMode = REQUIRED)
     Integer counterpartId,
 
-    @Schema(description = "DIRECT 상대방 닉네임. TEAM은 null입니다.", example = "김철수",
+    @Schema(description = "DIRECT 상대방 닉네임. 탈퇴 시 탈퇴한 회원으로 표시하며 TEAM은 null입니다.", example = "김철수",
         nullable = true, requiredMode = REQUIRED)
     String counterpartNickname,
 
@@ -63,13 +63,16 @@ public record TeamRecruitmentChatRoomListItemResponse(
         int unreadMessageCount
     ) {
         boolean direct = chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT;
+        String counterpartNickname = direct
+            ? (counterpart == null ? "탈퇴한 회원" : counterpart.getDisplayNickname())
+            : null;
         return new TeamRecruitmentChatRoomListItemResponse(
             chatRoom.getRecruitment().getId(),
             chatRoom.getId(),
-            direct && counterpart != null ? counterpart.getDisplayNickname() : chatRoom.getRecruitment().getTitle(),
+            direct ? counterpartNickname : chatRoom.getRecruitment().getTitle(),
             chatRoom.getRoomType().name(),
             direct && counterpart != null ? counterpart.getId() : null,
-            direct && counterpart != null ? counterpart.getDisplayNickname() : null,
+            counterpartNickname,
             lastMessage == null ? null : lastMessage.getId(),
             lastMessage == null ? null : lastMessage.getContent(),
             lastMessage == null ? null : lastMessage.getCreatedAt(),

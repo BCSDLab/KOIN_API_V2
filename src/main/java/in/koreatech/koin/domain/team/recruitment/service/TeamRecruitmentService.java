@@ -193,7 +193,7 @@ public class TeamRecruitmentService {
     private TeamRecruitment getOwnedRecruitment(Integer userId, Integer recruitmentId) {
         TeamRecruitment recruitment = teamRecruitmentRepository.findByIdWithLock(recruitmentId)
             .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_NOT_FOUND, "recruitmentId: " + recruitmentId));
-        if (!recruitment.getAuthor().getId().equals(userId)) {
+        if (recruitment.getAuthor() == null || !recruitment.getAuthor().getId().equals(userId)) {
             throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN, "recruitmentId: " + recruitmentId);
         }
         return recruitment;

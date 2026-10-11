@@ -45,8 +45,8 @@ public class TeamRecruitment extends BaseEntity {
     @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
 
-    @ManyToOne(fetch = LAZY, optional = false)
-    @JoinColumn(name = "author_id", nullable = false, updatable = false)
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "author_id", updatable = false)
     private User author;
 
     @NotNull

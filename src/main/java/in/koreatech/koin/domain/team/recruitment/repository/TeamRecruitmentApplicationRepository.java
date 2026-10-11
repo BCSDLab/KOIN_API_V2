@@ -11,6 +11,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface TeamRecruitmentApplicationRepository extends Repository<TeamRecruitmentApplication, Integer> {
@@ -49,6 +50,19 @@ public interface TeamRecruitmentApplicationRepository extends Repository<TeamRec
     Optional<TeamRecruitmentApplication> findByRecruitmentIdAndApplicantIdWithLock(
         @Param("recruitmentId") Integer recruitmentId,
         @Param("applicantId") Integer applicantId
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT application
+        FROM TeamRecruitmentApplication application
+        WHERE application.recruitment.id = :recruitmentId
+        AND application.status IN :statuses
+        ORDER BY application.id
+        """)
+    List<TeamRecruitmentApplication> findAllByRecruitmentIdAndStatusInWithLock(
+        @Param("recruitmentId") Integer recruitmentId,
+        @Param("statuses") Collection<TeamRecruitmentApplicationStatus> statuses
     );
 
     Optional<TeamRecruitmentApplication> findByRecruitment_IdAndApplicant_Id(Integer recruitmentId, Integer applicantId);

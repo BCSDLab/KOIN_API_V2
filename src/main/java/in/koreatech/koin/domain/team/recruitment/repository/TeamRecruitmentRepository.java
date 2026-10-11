@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.List;
 
 public interface TeamRecruitmentRepository extends Repository<TeamRecruitment, Integer> {
 
@@ -27,6 +28,19 @@ public interface TeamRecruitmentRepository extends Repository<TeamRecruitment, I
         WHERE recruitment.id = :id
         """)
     Optional<TeamRecruitment> findByIdWithLock(@Param("id") Integer id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT recruitment
+        FROM TeamRecruitment recruitment
+        LEFT JOIN TeamRecruitmentApplication application
+            ON application.recruitment.id = recruitment.id
+            AND application.applicant.id = :userId
+        WHERE recruitment.author.id = :userId
+        OR application.id IS NOT NULL
+        ORDER BY recruitment.id
+        """)
+    List<TeamRecruitment> findAllRelatedToUserWithLock(@Param("userId") Integer userId);
 
     Page<TeamRecruitment> findAllByStatusNot(TeamRecruitmentStatus status, Pageable pageable);
 

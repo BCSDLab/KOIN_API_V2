@@ -17,6 +17,7 @@ import in.koreatech.koin.common.event.UserRegisterEvent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentWithdrawalService;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserFindIdBySmsRequest;
@@ -55,6 +56,7 @@ public class UserService {
     private final RefreshTokenService refreshTokenService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+    private final TeamRecruitmentWithdrawalService teamRecruitmentWithdrawalService;
 
     public UserResponse getUser(Integer userId) {
         User user = userRepository.getById(userId);
@@ -165,6 +167,7 @@ public class UserService {
     @Transactional
     public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
+        teamRecruitmentWithdrawalService.prepareWithdrawal(userId);
         if (user.getUserType() == STUDENT) {
             timetableFrameRepositoryV2.deleteAllByUser(user);
             studentRepository.deleteByUserId(userId);
