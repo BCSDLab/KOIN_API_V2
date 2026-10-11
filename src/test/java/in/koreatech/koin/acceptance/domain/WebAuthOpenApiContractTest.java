@@ -159,6 +159,7 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
         assertThat(initializer).contains("__Host-koin-web-csrf", "request.headers['X-CSRF-Token']", "isSameOrigin")
             .doesNotContain("localStorage", "sessionStorage");
         assertThat(initializer.split("requestInterceptor:", -1)).hasSize(2);
+        assertThat(initializer).contains("wrapComponents:", "auths:", "WebAccessCookie", "WebRefreshCookie");
     }
 
     @Test

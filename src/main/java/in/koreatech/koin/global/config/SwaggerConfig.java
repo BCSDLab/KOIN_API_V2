@@ -1,14 +1,23 @@
 package in.koreatech.koin.global.config;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
+import org.springdoc.core.properties.SwaggerUiConfigParameters;
 import org.springdoc.core.properties.SwaggerUiConfigProperties;
+import org.springdoc.core.properties.SwaggerUiOAuthProperties;
+import org.springdoc.core.providers.ObjectMapperProvider;
+import org.springdoc.webmvc.ui.SwaggerIndexPageTransformer;
+import org.springdoc.webmvc.ui.SwaggerIndexTransformer;
+import org.springdoc.webmvc.ui.SwaggerWelcomeCommon;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.resource.TransformedResource;
 
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
 import in.koreatech.koin.global.exception.ErrorResponse;
@@ -43,6 +52,35 @@ public class SwaggerConfig {
         config.getCsrf().setUseLocalStorage(false);
         config.getCsrf().setUseSessionStorage(false);
         return config;
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = {"springdoc.swagger-ui.enabled", "springdoc.api-docs.enabled"}, matchIfMissing = true)
+    public SwaggerIndexTransformer swaggerIndexTransformer(SwaggerUiConfigProperties config,
+        SwaggerUiOAuthProperties oauthProperties, SwaggerUiConfigParameters configParameters,
+        SwaggerWelcomeCommon welcome, ObjectMapperProvider objectMapperProvider) {
+        SwaggerIndexPageTransformer delegate = new SwaggerIndexPageTransformer(
+            config, oauthProperties, configParameters, welcome, objectMapperProvider);
+        return (request, resource, chain) -> {
+            Resource transformed = delegate.transform(request, resource, chain);
+            if (!"swagger-initializer.js".equals(resource.getFilename())) {
+                return transformed;
+            }
+            String initializer = transformed.getContentAsString(StandardCharsets.UTF_8).replace("plugins: [", """
+                plugins: [
+                    () => ({
+                        wrapComponents: {
+                            auths: (Original, system) => props => {
+                                const definitions = props.definitions.filter((schema, name) =>
+                                    name !== "WebAccessCookie" && name !== "WebRefreshCookie");
+                                return definitions.size === 0 ? null :
+                                    system.React.createElement(Original, {...props, definitions});
+                            }
+                        }
+                    }),
+                """);
+            return new TransformedResource(transformed, initializer.getBytes(StandardCharsets.UTF_8));
+        };
     }
 
     @Bean
