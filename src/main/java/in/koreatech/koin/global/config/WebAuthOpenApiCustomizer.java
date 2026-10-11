@@ -137,18 +137,15 @@ public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer, Global
             }
             if (schemes.contains(WEB_ACCESS_COOKIE)) {
                 openApi.getComponents().addSecuritySchemes(WEB_ACCESS_COOKIE, new SecurityScheme()
-                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE).name(properties.accessCookieName())
-                    .description("웹 access 쿠키. 웹 로그인 후 브라우저가 자동 전송합니다."));
+                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE).name(properties.accessCookieName()));
             }
             if (schemes.contains(WEB_REFRESH_COOKIE)) {
                 openApi.getComponents().addSecuritySchemes(WEB_REFRESH_COOKIE, new SecurityScheme()
-                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE).name(properties.refreshCookieName())
-                    .description("웹 refresh 쿠키. 웹 로그인 후 브라우저가 자동 전송합니다."));
+                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE).name(properties.refreshCookieName()));
             }
             if (schemes.contains(WEB_CSRF_TOKEN)) {
                 openApi.getComponents().addSecuritySchemes(WEB_CSRF_TOKEN, new SecurityScheme()
-                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name(WebAuthRequestValidator.CSRF_HEADER)
-                    .description("쿠키 인증의 변경 요청에 필수. Swagger가 같은 출처의 CSRF 쿠키에서 읽어 자동 전송합니다."));
+                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name(WebAuthRequestValidator.CSRF_HEADER));
             }
         }
     }
