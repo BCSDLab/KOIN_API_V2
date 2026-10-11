@@ -17,6 +17,8 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
 
     private static final String LOGIN_GROUP = "0. Login API";
     private static final String WEB_REFRESH_COOKIE = "WebRefreshCookie";
+    private static final String WEB_ACCESS_COOKIE = "WebAccessCookie";
+    private static final String WEB_CSRF_TOKEN = "WebCsrfToken";
 
     @Test
     void 웹_로그인은_Bearer를_요구하지_않고_기존_앱_설정은_유지한다() throws Exception {
@@ -76,13 +78,88 @@ class WebAuthOpenApiContractTest extends AcceptanceTest {
         JsonNode refresh = operation(openApi, "refresh");
         JsonNode logout = operation(openApi, "logout");
 
-        assertThat(parameter(refresh, "X-CSRF-Token").path("required").asBoolean()).isTrue();
-        assertThat(parameter(logout, "X-CSRF-Token").path("required").asBoolean()).isFalse();
+        assertThat(refresh.path("parameters"))
+            .noneMatch(parameter -> parameter.path("name").asText().equals("X-CSRF-Token"));
+        assertThat(logout.path("parameters"))
+            .noneMatch(parameter -> parameter.path("name").asText().equals("X-CSRF-Token"));
+        assertThat(refresh.path("security")).hasSize(1);
+        assertThat(refresh.path("security").get(0).has(WEB_CSRF_TOKEN)).isTrue();
+        assertThat(logout.path("security").get(0).has(WEB_CSRF_TOKEN)).isTrue();
+        JsonNode csrfScheme = openApi.at("/components/securitySchemes/" + WEB_CSRF_TOKEN);
+        assertThat(csrfScheme.path("type").asText()).isEqualTo("apiKey");
+        assertThat(csrfScheme.path("in").asText()).isEqualTo("header");
+        assertThat(csrfScheme.path("name").asText()).isEqualTo("X-CSRF-Token");
         assertThat(logout.path("security")).hasSize(2);
         assertThat(logout.path("security").get(1)).isEmpty();
         assertThat(logout.path("description").asText()).contains("서버 세션은 삭제하지 않습니다");
         assertThat(operation(openApi, "session").path("parameters"))
             .noneMatch(parameter -> parameter.path("name").asText().equals("X-CSRF-Token"));
+        assertThat(operation(openApi, "session").path("security").get(0).has(WEB_CSRF_TOKEN)).isFalse();
+    }
+
+    @Test
+    void 일반_API는_Bearer_또는_쿠키를_지원하고_변경_요청만_CSRF를_요구한다() throws Exception {
+        JsonNode campus = openApi("3. Campus API");
+        JsonNode report = campus.at("/paths/~1dinings~1{diningId}~1soldout-reports/post");
+        JsonNode dinings = campus.at("/paths/~1dinings/get");
+
+        assertThat(report.path("security")).hasSize(2);
+        assertThat(report.path("security").get(0).has("Jwt Authentication")).isTrue();
+        assertThat(report.path("security").get(0).has(WEB_CSRF_TOKEN)).isFalse();
+        assertThat(report.path("security").get(1).has(WEB_ACCESS_COOKIE)).isTrue();
+        assertThat(report.path("security").get(1).has(WEB_CSRF_TOKEN)).isTrue();
+        assertThat(report.path("parameters"))
+            .noneMatch(parameter -> parameter.path("name").asText().equals("X-CSRF-Token"));
+        assertThat(dinings.path("security")).hasSize(3);
+        assertThat(dinings.path("security").get(0).has("Jwt Authentication")).isTrue();
+        assertThat(dinings.path("security").get(1).has(WEB_ACCESS_COOKIE)).isTrue();
+        assertThat(dinings.path("security").get(1).has(WEB_CSRF_TOKEN)).isFalse();
+        assertThat(dinings.path("security").get(2)).isEmpty();
+        assertThat(campus.at("/components/securitySchemes/" + WEB_ACCESS_COOKIE + "/name").asText())
+            .isEqualTo("__Host-koin-web-access");
+        assertThat(openApi("4. User API").at("/paths/~1v3~1users~1me/get/security").get(1)
+            .has(WEB_ACCESS_COOKIE)).isTrue();
+        JsonNode upload = openApi("7. bcsd API").at("/paths/~1{domain}~1upload~1url/post/security");
+        assertThat(upload).hasSize(2);
+        assertThat(upload.get(0).has("Jwt Authentication")).isTrue();
+        assertThat(upload.get(1).has(WEB_ACCESS_COOKIE)).isTrue();
+        assertThat(upload).noneMatch(JsonNode::isEmpty);
+    }
+
+    @Test
+    void 사장님_관리자_봇과_기존_앱_로그아웃에는_쿠키_대안을_추가하지_않는다() throws Exception {
+        JsonNode owner = openApi("2. Business API").at("/paths/~1owner/get/security");
+        JsonNode admin = openApi("1. Admin API").at("/paths/~1admin~1dining~1soldout-reports/get/security");
+        JsonNode bot = openApi("3. Campus API")
+            .at("/paths/~1internal~1dining~1soldout-reports~1deliveries~1claim/post/security");
+        JsonNode user = openApi("4. User API");
+
+        assertThat(owner).hasSize(1);
+        assertThat(owner.get(0).has("Jwt Authentication")).isTrue();
+        assertThat(admin).hasSize(1);
+        assertThat(admin.get(0).has("Jwt Authentication")).isTrue();
+        assertThat(bot).hasSize(1);
+        assertThat(bot.get(0).has("Bot Service Authentication")).isTrue();
+        assertThat(user.at("/paths/~1user~1logout/post/security")).hasSize(1);
+        assertThat(user.at("/paths/~1v2~1users~1login/post/security"))
+            .noneMatch(security -> security.has(WEB_ACCESS_COOKIE));
+        assertThat(user.at("/paths/~1v2~1users~1register/post/security"))
+            .noneMatch(security -> security.has(WEB_ACCESS_COOKIE));
+    }
+
+    @Test
+    void Swagger는_브라우저_쿠키에서_CSRF를_읽고_인증을_저장하지_않는다() throws Exception {
+        JsonNode config = JsonAssertions.convertJsonNode(mockMvc.perform(get("/v3/api-docs/swagger-config"))
+            .andExpect(status().isOk()).andReturn());
+        String initializer = mockMvc.perform(get("/swagger-ui/swagger-initializer.js"))
+            .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        assertThat(config.path("withCredentials").asBoolean()).isTrue();
+        assertThat(config.path("persistAuthorization").asBoolean()).isFalse();
+        assertThat(initializer).contains("__Host-koin-web-csrf", "request.headers['X-CSRF-Token']", "isSameOrigin")
+            .doesNotContain("localStorage", "sessionStorage");
+        assertThat(initializer.split("requestInterceptor:", -1)).hasSize(2);
+        assertThat(initializer).contains("wrapComponents:", "auths:", "WebAccessCookie", "WebRefreshCookie");
     }
 
     @Test
