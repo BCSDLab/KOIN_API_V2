@@ -35,8 +35,8 @@ public class TeamRecruitmentChatMessage extends BaseEntity {
     @JoinColumn(name = "chat_room_id", nullable = false, updatable = false)
     private TeamRecruitmentChatRoom chatRoom;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "sender_id", nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id", updatable = false)
     private User sender;
 
     @NotBlank

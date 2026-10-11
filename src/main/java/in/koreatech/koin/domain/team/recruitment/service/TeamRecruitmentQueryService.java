@@ -112,7 +112,8 @@ public class TeamRecruitmentQueryService {
 
     private RecruitmentDetail toDetail(TeamRecruitment recruitment, Integer userId, LocalDate today) {
         RecruitmentCard card = RecruitmentCards.of(recruitment, today);
-        boolean isAuthor = userId != null && recruitment.getAuthor().getId().equals(userId);
+        boolean isAuthor = userId != null && recruitment.getAuthor() != null
+            && recruitment.getAuthor().getId().equals(userId);
         Optional<TeamRecruitmentApplication> myApplication = userId == null
             ? Optional.empty()
             : applicationRepository.findByRecruitment_IdAndApplicant_Id(recruitment.getId(), userId);
@@ -143,7 +144,7 @@ public class TeamRecruitmentQueryService {
             card.currentParticipants(),
             card.maxParticipants(),
             card.roles(),
-            recruitment.getAuthor().getNickname(),
+            recruitment.getAuthor() == null ? "탈퇴한 회원" : recruitment.getAuthor().getNickname(),
             recruitment.getDescription(),
             recruitment.getRelatedUrl(),
             recruitment.getQualification(),

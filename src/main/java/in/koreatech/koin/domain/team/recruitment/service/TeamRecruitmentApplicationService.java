@@ -60,6 +60,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfi
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileSkillRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRoleRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.global.exception.CustomException;
@@ -110,6 +111,7 @@ public class TeamRecruitmentApplicationService {
     private final ObjectMapper objectMapper;
     private final EntityManager entityManager;
     private final Clock clock;
+    private final TeamRecruitmentUserLockRepository userLockRepository;
 
     @Transactional
     @DuplicateGuard(
@@ -125,6 +127,7 @@ public class TeamRecruitmentApplicationService {
             throw CustomException.of(INVALID_REQUEST_BODY);
         }
 
+        userLockRepository.lock(studentId);
         TeamRecruitment recruitment = getLockedRecruitment(recruitmentId);
         validateRecruitmentCanReceiveApplication(recruitment, studentId);
 
@@ -206,7 +209,7 @@ public class TeamRecruitmentApplicationService {
         Integer applicationId,
         Integer authorId
     ) {
-        if (request == null || request.status() == null || request.status() == PENDING) {
+        if (request == null || (request.status() != ACCEPTED && request.status() != REJECTED)) {
             throw CustomException.of(INVALID_REQUEST_BODY);
         }
 
@@ -218,7 +221,7 @@ public class TeamRecruitmentApplicationService {
             .findByIdAndRecruitmentIdWithLock(applicationId, recruitmentId)
             .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
         validateApplicationBelongsToRecruitment(application, recruitmentId);
-        if (application.getStatus() != PENDING) {
+        if (application.getApplicant() == null || application.getStatus() != PENDING) {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_FINALIZED);
         }
 
@@ -473,6 +476,10 @@ public class TeamRecruitmentApplicationService {
         TeamRecruitmentNotificationType type,
         TeamRecruitmentChatRoom room
     ) {
+        User recipient = type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant();
+        if (recipient == null) {
+            return;
+        }
         TeamRecruitmentNotificationTargetType targetType = type == APPLICATION_ACCEPTED
             || type == RECRUITMENT_CLOSED
             ? CHAT_ROOM
@@ -485,7 +492,7 @@ public class TeamRecruitmentApplicationService {
         }
 
         TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
-            .recipient(type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant())
+            .recipient(recipient)
             .type(type)
             .targetType(targetType)
             .messagePreview(notificationMessage(recruitment, type))
@@ -503,7 +510,7 @@ public class TeamRecruitmentApplicationService {
             .aggregateType(AGGREGATE_TYPE)
             .aggregateId(recruitment.getId())
             .payload(notificationPayload(
-                type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant(),
+                recipient,
                 application,
                 recruitment,
                 type,

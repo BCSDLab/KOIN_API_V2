@@ -41,6 +41,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentAppli
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.duplicate.DuplicateGuard;
@@ -74,6 +75,7 @@ public class TeamRecruitmentService {
     private final TeamRecruitmentClosureService closureService;
     private final EntityManager entityManager;
     private final Clock clock;
+    private final TeamRecruitmentUserLockRepository userLockRepository;
 
     /**
      * 모집글과 TEAM 채팅방, 작성자 멤버를 같은 트랜잭션에서 생성한다.
@@ -84,6 +86,7 @@ public class TeamRecruitmentService {
         timeoutSeconds = 300
     )
     public IdResponse createRecruitment(Integer userId, CreateRecruitmentRequest request) {
+        userLockRepository.lock(userId);
         User author = userRepository.getById(userId);
         TeamRecruitment recruitment = request.toEntity(author);
         addRoles(recruitment, request.roles());
@@ -193,7 +196,7 @@ public class TeamRecruitmentService {
     private TeamRecruitment getOwnedRecruitment(Integer userId, Integer recruitmentId) {
         TeamRecruitment recruitment = teamRecruitmentRepository.findByIdWithLock(recruitmentId)
             .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_NOT_FOUND, "recruitmentId: " + recruitmentId));
-        if (!recruitment.getAuthor().getId().equals(userId)) {
+        if (recruitment.getAuthor() == null || !recruitment.getAuthor().getId().equals(userId)) {
             throw CustomException.of(TEAM_RECRUITMENT_FORBIDDEN, "recruitmentId: " + recruitmentId);
         }
         return recruitment;

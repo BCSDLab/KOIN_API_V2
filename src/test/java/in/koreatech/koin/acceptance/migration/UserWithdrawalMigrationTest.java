@@ -25,6 +25,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentWithdrawalService;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -228,7 +230,9 @@ class UserWithdrawalMigrationTest {
                 mock(UserValidationService.class),
                 mock(RefreshTokenService.class),
                 mock(JwtProvider.class),
-                mock(PasswordEncoder.class)
+                mock(PasswordEncoder.class),
+                mock(TeamRecruitmentWithdrawalService.class),
+                mock(TeamRecruitmentUserLockRepository.class)
             );
             session.beginTransaction();
             try {

@@ -52,8 +52,8 @@ public class TeamRecruitmentApplication extends BaseEntity {
     @JoinColumn(name = "recruitment_id", nullable = false, updatable = false)
     private TeamRecruitment recruitment;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "applicant_id", nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "applicant_id", updatable = false)
     private User applicant;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -122,6 +122,12 @@ public class TeamRecruitmentApplication extends BaseEntity {
     public void reject(String decisionReason) {
         validatePendingStatus();
         this.status = TeamRecruitmentApplicationStatus.REJECTED;
+        this.decisionReason = decisionReason;
+    }
+
+    public void cancel(String decisionReason) {
+        validatePendingStatus();
+        this.status = TeamRecruitmentApplicationStatus.CANCELLED;
         this.decisionReason = decisionReason;
     }
 

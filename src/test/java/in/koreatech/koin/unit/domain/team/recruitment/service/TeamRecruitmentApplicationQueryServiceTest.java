@@ -1,6 +1,7 @@
 package in.koreatech.koin.unit.domain.team.recruitment.service;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.CANCELLED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
@@ -54,6 +55,8 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -99,6 +102,42 @@ class TeamRecruitmentApplicationQueryServiceTest {
         lenient().when(clock.instant()).thenReturn(Instant.parse("2026-08-28T03:00:00Z"));
         lenient().when(clock.getZone()).thenReturn(KST);
         lenient().when(clock.withZone(KST)).thenReturn(clock);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = TeamRecruitmentApplicationStatus.class, names = {"PENDING", "CANCELLED", "ACCEPTED"})
+    void 탈퇴한_지원서도_목록과_상세에_남고_상태변경과_채팅은_불가능하다(TeamRecruitmentApplicationStatus status) {
+        TeamRecruitment recruitment = recruitment();
+        TeamRecruitmentApplication application = applicationWithSnapshot(20, recruitment, status);
+        org.springframework.test.util.ReflectionTestUtils.setField(application, "applicant", null);
+        List<TeamRecruitmentApplicationStatus> statuses = List.of(PENDING, ACCEPTED, REJECTED, CANCELLED);
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment));
+        when(applicationRepository.findById(20)).thenReturn(Optional.of(application));
+        when(applicationRepository.countByRecruitment_IdAndStatusIn(RECRUITMENT_ID, statuses)).thenReturn(1L);
+        when(applicationRepository.findAllByRecruitment_IdAndStatusIn(
+            eq(RECRUITMENT_ID), eq(statuses), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(application)));
+        if (status == ACCEPTED) {
+            TeamRecruitmentChatRoom directRoom = TeamRecruitmentChatRoom.builder()
+                .id(DIRECT_ROOM_ID).application(application).recruitment(recruitment)
+                .roomType(DIRECT).status(ACTIVE).build();
+            when(chatRoomRepository.findAllByApplication_IdInAndRoomType(List.of(20), DIRECT))
+                .thenReturn(List.of(directRoom));
+        }
+
+        ApplicantListResponse list = queryService.getApplications(RECRUITMENT_ID, null, 1, 10, AUTHOR_ID);
+        ApplicantDetail detail = queryService.getApplicationDetail(RECRUITMENT_ID, 20, AUTHOR_ID);
+
+        assertThat(list.applications()).singleElement().satisfies(summary -> {
+            assertThat(summary.status()).isEqualTo(status);
+            assertThat(summary.nickname()).isEqualTo("탈퇴한 회원");
+            assertThat(summary.canOpenDirectChat()).isFalse();
+        });
+        assertThat(detail.status()).isEqualTo(status);
+        assertThat(detail.profileSnapshot().nickname()).isEqualTo("탈퇴한 회원");
+        assertThat(detail.profileSnapshot().selfIntroduction()).isEqualTo("지원 당시 소개");
+        assertThat(detail.canDecide()).isFalse();
+        assertThat(detail.canOpenDirectChat()).isFalse();
     }
 
     @Test
