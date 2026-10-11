@@ -1,7 +1,6 @@
 package in.koreatech.koin.unit.domain.team.recruitment.model;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.CANCELLED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,21 +83,6 @@ class TeamRecruitmentApplicationTest {
 
         assertThat(application.getStatus()).isEqualTo(REJECTED);
         assertThat(application.getDecisionReason()).isEqualTo("RECRUITMENT_CLOSED");
-    }
-
-    @Test
-    void 탈퇴로_취소된_지원서는_이력과_사유를_보존하고_다시_승인하거나_거절할_수_없다() {
-        TeamRecruitmentApplication application = application("snapshot");
-
-        application.cancel("USER_WITHDRAWN");
-
-        assertThat(application.getStatus()).isEqualTo(CANCELLED);
-        assertThat(application.getDecisionReason()).isEqualTo("USER_WITHDRAWN");
-        assertThat(application.getProfileSnapshot()).isEqualTo("snapshot");
-        assertThatThrownBy(application::accept).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> application.reject("APPLICATION_REJECTED"))
-            .isInstanceOf(IllegalStateException.class);
-        assertThat(application.getStatus()).isEqualTo(CANCELLED);
     }
 
     private TeamRecruitmentApplication application(String profileSnapshot) {

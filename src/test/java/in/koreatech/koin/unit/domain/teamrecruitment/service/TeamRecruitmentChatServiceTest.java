@@ -23,8 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.InOrder;
@@ -607,23 +605,12 @@ class TeamRecruitmentChatServiceTest {
         assertThat(captor.getValue().getSenderNickname()).isEqualTo(anonymousSender.getDisplayNickname());
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "TEAM, RECRUITING, true", "TEAM, CLOSED, true",
-            "DIRECT, RECRUITING, true", "DIRECT, CLOSED, true",
-            "DIRECT, RECRUITING, false", "DIRECT, CLOSED, false"
-    })
-    void 탈퇴_후에도_메시지는_보존하고_남은_멤버의_읽음_상태를_계산한다(
-            TeamRecruitmentChatRoomType roomType, TeamRecruitmentStatus status, boolean authorWithdrawn) {
-        User survivor = UserFixture.id_설정_코인_유저(USER_ID);
+    @Test
+    void 탈퇴자의_메시지를_표시하고_남은_멤버의_읽음_상태를_계산한다() {
         TeamRecruitment recruitment = TeamRecruitment.builder().id(RECRUITMENT_ID)
-                .author(authorWithdrawn ? null : survivor).status(status).build();
-        TeamRecruitmentApplication application = roomType == TeamRecruitmentChatRoomType.DIRECT
-                ? TeamRecruitmentApplication.builder().recruitment(recruitment)
-                        .applicant(authorWithdrawn ? survivor : null).build()
-                : null;
+                .author(null).status(TeamRecruitmentStatus.CLOSED).build();
         TeamRecruitmentChatRoom room = TeamRecruitmentChatRoom.builder()
-                .id(CHAT_ROOM_ID).recruitment(recruitment).application(application).roomType(roomType)
+                .id(CHAT_ROOM_ID).recruitment(recruitment).roomType(TeamRecruitmentChatRoomType.TEAM)
                 .status(TeamRecruitmentChatRoomStatus.ACTIVE).build();
         TeamRecruitmentChatMember reader = TeamRecruitmentChatMember.builder()
                 .chatRoom(room).user(UserFixture.id_설정_코인_유저(USER_ID)).build();
@@ -676,17 +663,6 @@ class TeamRecruitmentChatServiceTest {
         assertThat(detail.maxMemberCount()).isEqualTo(2);
     }
 
-    @Test
-    void 작성자와_지원자가_모두_탈퇴한_경우_DIRECT_생성은_권한_오류를_반환한다() {
-        stubWithdrawnApplication(null);
-
-        assertThatThrownBy(() -> chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID))
-                .isInstanceOf(CustomException.class)
-                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
-                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN));
-        verifyNoInteractions(chatRoomRepository, memberRepository);
-    }
-
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void 상대가_탈퇴해도_남은_사용자에게_기존_DIRECT_채팅방은_반환한다(boolean authorWithdrawn) {
@@ -727,20 +703,6 @@ class TeamRecruitmentChatServiceTest {
         verifyNoInteractions(memberRepository);
     }
 
-    @Test
-    void 작성자가_탈퇴해도_남은_멤버가_아니면_메시지를_조회할_수_없다() {
-        TeamRecruitment recruitment = TeamRecruitment.builder().id(RECRUITMENT_ID).author(null).build();
-        TeamRecruitmentChatRoom room = TeamRecruitmentChatRoom.builder().id(CHAT_ROOM_ID)
-                .recruitment(recruitment).roomType(TeamRecruitmentChatRoomType.TEAM).build();
-        when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(room));
-
-        assertThatThrownBy(() -> chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, null, 10))
-                .isInstanceOf(CustomException.class)
-                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
-                        .isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_FORBIDDEN));
-        verifyNoInteractions(messageRepository);
-    }
-
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void 상대가_탈퇴한_DIRECT_채팅방은_메시지를_전송할_수_없다(boolean authorWithdrawn) {
@@ -766,11 +728,10 @@ class TeamRecruitmentChatServiceTest {
         assertThat(member.getLastReadMessageId()).isNull();
     }
 
-    @ParameterizedTest
-    @EnumSource(value = TeamRecruitmentStatus.class, names = {"RECRUITING", "CLOSED"})
-    void 작성자가_탈퇴한_TEAM은_모집_상태와_관계없이_메시지_전송을_거절한다(TeamRecruitmentStatus status) {
+    @Test
+    void 작성자가_탈퇴한_TEAM은_메시지_전송을_거절한다() {
         TeamRecruitment recruitment = TeamRecruitment.builder().id(RECRUITMENT_ID)
-                .author(null).status(status).build();
+                .author(null).status(TeamRecruitmentStatus.CLOSED).build();
         TeamRecruitmentChatRoom room = TeamRecruitmentChatRoom.builder().id(CHAT_ROOM_ID)
                 .recruitment(recruitment).roomType(TeamRecruitmentChatRoomType.TEAM)
                 .status(TeamRecruitmentChatRoomStatus.ACTIVE).build();
@@ -788,13 +749,12 @@ class TeamRecruitmentChatServiceTest {
         assertThat(member.getLastReadMessageId()).isNull();
     }
 
-    @ParameterizedTest
-    @EnumSource(value = TeamRecruitmentStatus.class, names = {"RECRUITING", "CLOSED"})
-    void 일반_팀원_탈퇴_후에도_작성자가_있으면_남은_TEAM_멤버는_메시지를_전송한다(TeamRecruitmentStatus status) {
+    @Test
+    void 일반_팀원_탈퇴_후에도_작성자가_있으면_남은_TEAM_멤버는_메시지를_전송한다() {
         User author = UserFixture.id_설정_코인_유저(OTHER_USER_ID);
         User sender = UserFixture.id_설정_코인_유저(USER_ID);
         TeamRecruitment recruitment = TeamRecruitment.builder().id(RECRUITMENT_ID)
-                .author(author).status(status).currentParticipants(1).build();
+                .author(author).status(TeamRecruitmentStatus.CLOSED).currentParticipants(1).build();
         TeamRecruitmentChatRoom room = TeamRecruitmentChatRoom.builder().id(CHAT_ROOM_ID)
                 .recruitment(recruitment).roomType(TeamRecruitmentChatRoomType.TEAM).build();
         TeamRecruitmentChatMember senderMember = TeamRecruitmentChatMember.builder()

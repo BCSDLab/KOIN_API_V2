@@ -20,12 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.data.auditing.AuditingHandler;
-import org.springframework.data.mapping.context.PersistentEntities;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.orm.hibernate5.SpringBeanContainer;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.containers.MySQLContainer;
@@ -134,6 +128,12 @@ class TeamRecruitmentUserWithdrawalTest {
                 + base)).isZero();
             assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_notification WHERE id = "
                 + (base + 51))).isOne();
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
+                + (base + 70))).isZero();
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
+                + (base + 71) + " AND status = 'PUBLISHED'")).isOne();
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
+                + (base + 72))).isOne();
             assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_profile WHERE user_id = "
                 + base)).isZero();
             assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_profile_skill WHERE profile_user_id = "
@@ -209,20 +209,6 @@ class TeamRecruitmentUserWithdrawalTest {
                 + (base + 10))).isEqualTo(2);
             assertThat(queryInt(connection, "SELECT current_participants FROM team_recruitment_role WHERE id = "
                 + (base + 11))).isEqualTo(2);
-        }
-    }
-
-    @Test
-    void 탈퇴자의_미발송_알림만_정리하고_다른_회원의_알림과_발송_이력을_보존한다() throws SQLException {
-        int base = seedRecruitment();
-        withdrawAndCommit(base);
-        try (Connection connection = getConnection()) {
-            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
-                + (base + 70))).isZero();
-            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
-                + (base + 71) + " AND status = 'PUBLISHED'")).isOne();
-            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
-                + (base + 72))).isOne();
         }
     }
 
@@ -423,17 +409,6 @@ class TeamRecruitmentUserWithdrawalTest {
     }
 
     private SessionFactory sessionFactory() {
-        AuditingHandler handler = new AuditingHandler(PersistentEntities.of());
-        DefaultListableBeanFactory beans = new DefaultListableBeanFactory();
-        beans.addBeanPostProcessor(new BeanPostProcessor() {
-            @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) {
-                if (bean instanceof AuditingEntityListener listener) {
-                    listener.setAuditingHandler(() -> handler);
-                }
-                return bean;
-            }
-        });
         Configuration configuration = new Configuration()
             .addAnnotatedClass(User.class)
             .addAnnotatedClass(Student.class)
@@ -452,7 +427,6 @@ class TeamRecruitmentUserWithdrawalTest {
             .setProperty("hibernate.connection.password", MYSQL.getPassword())
             .setProperty("hibernate.hbm2ddl.auto", "none")
             .setProperty("hibernate.connection.isolation", "4");
-        configuration.getProperties().put("hibernate.resource.beans.container", new SpringBeanContainer(beans));
         return configuration.buildSessionFactory();
     }
 
