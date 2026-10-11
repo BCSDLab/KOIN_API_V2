@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -63,6 +64,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfi
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileSkillRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRoleRepository;
 import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentApplicationService;
 import in.koreatech.koin.domain.user.model.User;
@@ -108,6 +110,9 @@ class TeamRecruitmentApplicationServiceTest {
 
     @Mock
     private TeamRecruitmentRepository recruitmentRepository;
+
+    @Mock
+    private TeamRecruitmentUserLockRepository userLockRepository;
 
     @Mock
     private TeamRecruitmentRoleRepository roleRepository;
@@ -220,6 +225,10 @@ class TeamRecruitmentApplicationServiceTest {
                 RECRUITMENT_ID,
                 APPLICANT_ID
             );
+
+            var locks = inOrder(userLockRepository, recruitmentRepository);
+            locks.verify(userLockRepository).lock(APPLICANT_ID);
+            locks.verify(recruitmentRepository).findByIdWithLock(RECRUITMENT_ID);
 
             ArgumentCaptor<TeamRecruitmentApplication> captor =
                 ArgumentCaptor.forClass(TeamRecruitmentApplication.class);

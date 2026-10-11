@@ -1,3 +1,10 @@
+-- 회원 탈퇴와 모집글/지원 등록을 회원별로 직렬화한다.
+-- users 참조 잠금과 모집글 잠금의 순서가 역전되지 않도록 FK는 두지 않는다.
+CREATE TABLE `team_recruitment_user_lock` (
+    `user_id` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`user_id`)
+) ENGINE = InnoDB;
+
 ALTER TABLE `team_recruitment`
     DROP FOREIGN KEY `fk_team_recruitment_author_id`,
     MODIFY COLUMN `author_id` INT UNSIGNED DEFAULT NULL,

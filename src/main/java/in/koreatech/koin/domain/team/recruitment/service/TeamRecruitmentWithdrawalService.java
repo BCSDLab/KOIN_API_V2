@@ -4,6 +4,8 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApp
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,13 @@ public class TeamRecruitmentWithdrawalService {
 
     @Transactional
     public void prepareWithdrawal(Integer userId) {
-        for (TeamRecruitment recruitment : recruitmentRepository.findAllRelatedToUserWithLock(userId)) {
+        Set<Integer> recruitmentIds = new TreeSet<>(recruitmentRepository.findIdsByAuthorId(userId));
+        recruitmentIds.addAll(applicationRepository.findRecruitmentIdsByApplicantId(userId));
+        for (Integer recruitmentId : recruitmentIds) {
+            TeamRecruitment recruitment = recruitmentRepository.findByIdWithLock(recruitmentId).orElse(null);
+            if (recruitment == null) {
+                continue;
+            }
             TeamRecruitmentApplication application = applicationRepository
                 .findByRecruitmentIdAndApplicantIdWithLock(recruitment.getId(), userId)
                 .orElse(null);
@@ -43,7 +51,8 @@ public class TeamRecruitmentWithdrawalService {
                 closureService.onAuthorWithdrawn(recruitment);
             }
         }
-        outboxEventRepository.deleteUnpublishedNotificationsByRecipientId(userId);
+        outboxEventRepository.findUnpublishedNotificationIdsByRecipientId(userId)
+            .forEach(outboxEventRepository::deleteUnpublishedById);
     }
 
     private void withdrawApplication(TeamRecruitment recruitment, TeamRecruitmentApplication application) {

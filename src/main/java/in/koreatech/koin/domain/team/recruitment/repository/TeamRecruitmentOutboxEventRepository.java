@@ -23,14 +23,21 @@ public interface TeamRecruitmentOutboxEventRepository extends Repository<TeamRec
 
     Optional<TeamRecruitmentOutboxEvent> findById(Integer id);
 
-    @Modifying(flushAutomatically = true)
     @Query(value = """
-        DELETE FROM team_recruitment_outbox_event
+        SELECT id FROM team_recruitment_outbox_event
         WHERE event_type = 'TEAM_RECRUITMENT_NOTIFICATION'
         AND status <> 'PUBLISHED'
         AND JSON_UNQUOTE(JSON_EXTRACT(payload, '$.recipient_id')) = :recipientId
+        ORDER BY id
         """, nativeQuery = true)
-    void deleteUnpublishedNotificationsByRecipientId(@Param("recipientId") Integer recipientId);
+    List<Integer> findUnpublishedNotificationIdsByRecipientId(@Param("recipientId") Integer recipientId);
+
+    @Modifying(flushAutomatically = true)
+    @Query(value = """
+        DELETE FROM team_recruitment_outbox_event
+        WHERE id = :id AND status <> 'PUBLISHED'
+        """, nativeQuery = true)
+    void deleteUnpublishedById(@Param("id") Integer id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""

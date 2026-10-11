@@ -60,6 +60,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfi
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileSkillRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRoleRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.global.exception.CustomException;
@@ -110,6 +111,7 @@ public class TeamRecruitmentApplicationService {
     private final ObjectMapper objectMapper;
     private final EntityManager entityManager;
     private final Clock clock;
+    private final TeamRecruitmentUserLockRepository userLockRepository;
 
     @Transactional
     @DuplicateGuard(
@@ -125,6 +127,7 @@ public class TeamRecruitmentApplicationService {
             throw CustomException.of(INVALID_REQUEST_BODY);
         }
 
+        userLockRepository.lock(studentId);
         TeamRecruitment recruitment = getLockedRecruitment(recruitmentId);
         validateRecruitmentCanReceiveApplication(recruitment, studentId);
 

@@ -9,6 +9,12 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flywaydb.core.Flyway;
@@ -22,6 +28,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
+import org.springframework.transaction.interceptor.TransactionAttribute;
+import org.springframework.util.ReflectionUtils;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -39,10 +49,12 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentOutboxEvent;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentRole;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentUserLock;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRoleRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
@@ -226,7 +238,12 @@ class TeamRecruitmentUserWithdrawalTest {
                         "UPDATE team_recruitment SET current_participants = 3 WHERE id = " + (base + 10),
                         "UPDATE team_recruitment_role SET current_participants = 3 WHERE id = " + (base + 11),
                         "INSERT INTO team_recruitment_chat_member (chat_room_id, user_id) VALUES ("
-                            + (base + 30) + ", " + (base + 3) + ")"
+                            + (base + 30) + ", " + (base + 3) + ")",
+                        "INSERT INTO team_recruitment_outbox_event "
+                            + "(id, event_key, event_type, aggregate_type, aggregate_id, payload, status) VALUES ("
+                            + (base + 73) + ", 'fresh-approval-" + base
+                            + "', 'TEAM_RECRUITMENT_NOTIFICATION', 'TEAM_RECRUITMENT', " + (base + 10)
+                            + ", JSON_OBJECT('recipient_id', " + (base + 1) + "), 'PENDING')"
                     );
                     approval.commit();
                 }
@@ -245,6 +262,8 @@ class TeamRecruitmentUserWithdrawalTest {
                 + (base + 10))).isEqualTo(3);
             assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_notification WHERE application_id = "
                 + (base + 22) + " AND type = 'APPLICATION_REJECTED'")).isZero();
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
+                + (base + 73))).isZero();
         }
     }
 
@@ -323,6 +342,206 @@ class TeamRecruitmentUserWithdrawalTest {
             assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_notification WHERE recipient_id = "
                 + base)).isOne();
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void 탈퇴_트랜잭션이_열려도_무관한_모집_수정과_지원과_알림_등록은_완료된다(boolean hasHistory) throws Exception {
+        int base = seedRecruitment();
+        int unrelated = seedRecruitment();
+        int withdrawingUser = hasHistory ? base : base + 4;
+        try (Connection connection = getConnection()) {
+            if (!hasHistory) {
+                execute(connection, "INSERT INTO users (id, password, user_type, anonymous_nickname) VALUES ("
+                    + withdrawingUser + ", 'test', 'STUDENT', '이력없는회원')",
+                    "INSERT INTO students (user_id, is_graduated) VALUES (" + withdrawingUser + ", 0)");
+            }
+        }
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try (SessionFactory factory = sessionFactory(); Session session = factory.openSession()) {
+            session.beginTransaction();
+            try {
+                userService(session).withdraw(withdrawingUser);
+                session.flush();
+                Future<?> unrelatedWrite = executor.submit(() -> {
+                    try (Connection connection = getConnection()) {
+                        execute(connection, "SET SESSION innodb_lock_wait_timeout = 2");
+                        connection.setAutoCommit(false);
+                        execute(connection, "UPDATE team_recruitment SET title = '무관한 수정' WHERE id = "
+                            + (unrelated + 10));
+                        insertApplicationAndOutbox(connection, unrelated, base + 1);
+                        connection.commit();
+                    }
+                    return null;
+                });
+                unrelatedWrite.get(5, TimeUnit.SECONDS);
+                // 탈퇴 잠금이 풀리기 전에 다른 회원의 변경이 커밋됐는지 확인한다.
+                try (Connection connection = getConnection()) {
+                    assertThat(queryString(connection, "SELECT title FROM team_recruitment WHERE id = "
+                        + (unrelated + 10))).isEqualTo("무관한 수정");
+                    assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_application WHERE id = "
+                        + (unrelated + 23))).isOne();
+                    assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
+                        + (unrelated + 73))).isOne();
+                }
+                session.getTransaction().commit();
+            } finally {
+                if (session.getTransaction().isActive()) {
+                    session.getTransaction().rollback();
+                }
+            }
+        } finally {
+            executor.shutdownNow();
+            assertThat(executor.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void 동일_회원의_등록과_탈퇴는_먼저_획득한_사용자_잠금_순서로_처리된다(boolean registrationFirst) throws Exception {
+        int base = seedRecruitment();
+        int userId = base + 4;
+        try (Connection connection = getConnection()) {
+            execute(connection, "INSERT INTO users (id, password, user_type, anonymous_nickname) VALUES ("
+                + userId + ", 'test', 'STUDENT', '동시등록회원')",
+                "INSERT INTO students (user_id, is_graduated) VALUES (" + userId + ", 0)");
+            if (registrationFirst) {
+                execute(connection, "INSERT INTO team_recruitment_user_lock (user_id) VALUES (" + userId + ")");
+            }
+        }
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        CountDownLatch attempting = new CountDownLatch(1);
+        try (SessionFactory factory = sessionFactory(); Session first = factory.openSession()) {
+            if (registrationFirst) {
+                first.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ));
+            }
+            first.beginTransaction();
+            try {
+                if (registrationFirst) {
+                    assertThat(registerWithUserLock(first, base, userId)).isTrue();
+                } else {
+                    userService(first).withdraw(userId);
+                    first.flush();
+                }
+                Future<Boolean> second = executor.submit(() -> {
+                    try (Session session = factory.openSession()) {
+                        if (!registrationFirst) {
+                            session.doWork(connection ->
+                                connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ));
+                        }
+                        session.beginTransaction();
+                        try {
+                            session.createNativeQuery("SET SESSION innodb_lock_wait_timeout = 5").executeUpdate();
+                            attempting.countDown();
+                            boolean registered = false;
+                            if (registrationFirst) {
+                                userService(session).withdraw(userId);
+                            } else {
+                                registered = registerWithUserLock(session, base, userId);
+                            }
+                            if (registrationFirst || registered) {
+                                session.getTransaction().commit();
+                            } else {
+                                session.getTransaction().rollback();
+                            }
+                            return registered;
+                        } finally {
+                            if (session.getTransaction().isActive()) {
+                                session.getTransaction().rollback();
+                            }
+                        }
+                    }
+                });
+                assertThat(attempting.await(5, TimeUnit.SECONDS)).isTrue();
+                assertThatThrownBy(() -> second.get(250, TimeUnit.MILLISECONDS))
+                    .isInstanceOf(TimeoutException.class);
+                first.getTransaction().commit();
+                assertThat(second.get(5, TimeUnit.SECONDS)).isFalse();
+            } finally {
+                if (first.getTransaction().isActive()) {
+                    first.getTransaction().rollback();
+                }
+            }
+        } finally {
+            executor.shutdownNow();
+            assertThat(executor.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
+        }
+        try (Connection connection = getConnection()) {
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM users WHERE id = " + userId)).isZero();
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_user_lock WHERE user_id = "
+                + userId)).isZero();
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment WHERE id = "
+                + (base + 12))).isEqualTo(registrationFirst ? 1 : 0);
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_application WHERE id = "
+                + (base + 23))).isEqualTo(registrationFirst ? 1 : 0);
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment WHERE id = " + (base + 12)
+                + " AND author_id IS NULL AND status = 'CLOSED'")).isEqualTo(registrationFirst ? 1 : 0);
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_application WHERE id = "
+                + (base + 23) + " AND applicant_id IS NULL AND status = 'CANCELLED'"
+                + " AND decision_reason = 'USER_WITHDRAWN'")).isEqualTo(registrationFirst ? 1 : 0);
+            assertThat(queryInt(connection, "SELECT COUNT(*) FROM team_recruitment_outbox_event WHERE id = "
+                + (base + 73))).isZero();
+        }
+    }
+
+    @Test
+    void 탈퇴_알림_정리_대상을_조회한_뒤_발송이_끝난_알림은_보존한다() throws SQLException {
+        int base = seedRecruitment();
+        try (SessionFactory factory = sessionFactory(); Session session = factory.openSession()) {
+            session.beginTransaction();
+            try {
+                var repository = new JpaRepositoryFactory(session)
+                    .getRepository(TeamRecruitmentOutboxEventRepository.class);
+                var eventIds = repository.findUnpublishedNotificationIdsByRecipientId(base);
+                assertThat(eventIds).containsExactly(base + 70);
+                try (Connection publisher = getConnection()) {
+                    execute(publisher, "UPDATE team_recruitment_outbox_event SET status = 'PUBLISHED' WHERE id = "
+                        + (base + 70));
+                }
+                eventIds.forEach(repository::deleteUnpublishedById);
+                session.getTransaction().commit();
+            } finally {
+                if (session.getTransaction().isActive()) {
+                    session.getTransaction().rollback();
+                }
+            }
+        }
+        try (Connection connection = getConnection()) {
+            assertThat(queryString(connection, "SELECT status FROM team_recruitment_outbox_event WHERE id = "
+                + (base + 70))).isEqualTo("PUBLISHED");
+        }
+    }
+
+    private boolean registerWithUserLock(Session session, int base, int userId) {
+        new JpaRepositoryFactory(session).getRepository(TeamRecruitmentUserLockRepository.class).lock(userId);
+        if (session.find(User.class, userId) == null) {
+            return false;
+        }
+        session.doWork(connection -> {
+            execute(connection, """
+                INSERT INTO team_recruitment
+                    (id, author_id, category, title, meeting_type, activity_start_date, activity_end_date,
+                     deadline_date, recruitment_type, max_participants, current_participants, description)
+                VALUES (%d, %d, 'STUDY', '동시 등록', 'ONLINE', '2026-10-20', '2026-10-31',
+                        '2026-10-19', 'ROLE_BASED', 5, 0, '동시 등록 테스트')
+                """.formatted(base + 12, userId));
+            insertApplicationAndOutbox(connection, base, userId);
+        });
+        return true;
+    }
+
+    private static void insertApplicationAndOutbox(Connection connection, int base, int userId) throws SQLException {
+        execute(connection, """
+            INSERT INTO team_recruitment_application
+                (id, recruitment_id, applicant_id, role_id, motivation, availability, status, profile_snapshot)
+            VALUES (%d, %d, %d, %d, '새 지원', '주말', 'PENDING', JSON_OBJECT('nickname', '지원자'))
+            """.formatted(base + 23, base + 10, userId, base + 11),
+            """
+            INSERT INTO team_recruitment_outbox_event
+                (id, event_key, event_type, aggregate_type, aggregate_id, payload, status)
+            VALUES (%d, 'concurrent-%d', 'TEAM_RECRUITMENT_NOTIFICATION', 'TEAM_RECRUITMENT', %d,
+                    JSON_OBJECT('recipient_id', %d), 'PENDING')
+            """.formatted(base + 73, base + 73, base + 10, userId));
     }
 
     private static int seedRecruitment() throws SQLException {
@@ -422,11 +641,19 @@ class TeamRecruitmentUserWithdrawalTest {
             .addAnnotatedClass(TeamRecruitmentChatMessage.class)
             .addAnnotatedClass(TeamRecruitmentNotification.class)
             .addAnnotatedClass(TeamRecruitmentOutboxEvent.class)
+            .addAnnotatedClass(TeamRecruitmentUserLock.class)
             .setProperty("hibernate.connection.url", MYSQL.getJdbcUrl())
             .setProperty("hibernate.connection.username", MYSQL.getUsername())
             .setProperty("hibernate.connection.password", MYSQL.getPassword())
-            .setProperty("hibernate.hbm2ddl.auto", "none")
-            .setProperty("hibernate.connection.isolation", "4");
+            .setProperty("hibernate.hbm2ddl.auto", "none");
+        TransactionAttribute withdrawalTransaction = new AnnotationTransactionAttributeSource()
+            .getTransactionAttribute(ReflectionUtils.findMethod(UserService.class, "withdraw", Integer.class),
+                UserService.class);
+        if (withdrawalTransaction != null
+            && withdrawalTransaction.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
+            configuration.setProperty("hibernate.connection.isolation",
+                Integer.toString(withdrawalTransaction.getIsolationLevel()));
+        }
         return configuration.buildSessionFactory();
     }
 
@@ -454,7 +681,8 @@ class TeamRecruitmentUserWithdrawalTest {
                     repositories.getRepository(TeamRecruitmentOutboxEventRepository.class)
                 ),
                 repositories.getRepository(TeamRecruitmentOutboxEventRepository.class)
-            )
+            ),
+            repositories.getRepository(TeamRecruitmentUserLockRepository.class)
         );
     }
 

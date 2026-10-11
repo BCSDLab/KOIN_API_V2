@@ -29,18 +29,12 @@ public interface TeamRecruitmentRepository extends Repository<TeamRecruitment, I
         """)
     Optional<TeamRecruitment> findByIdWithLock(@Param("id") Integer id);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
-        SELECT recruitment
+        SELECT recruitment.id
         FROM TeamRecruitment recruitment
-        LEFT JOIN TeamRecruitmentApplication application
-            ON application.recruitment.id = recruitment.id
-            AND application.applicant.id = :userId
         WHERE recruitment.author.id = :userId
-        OR application.id IS NOT NULL
-        ORDER BY recruitment.id
         """)
-    List<TeamRecruitment> findAllRelatedToUserWithLock(@Param("userId") Integer userId);
+    List<Integer> findIdsByAuthorId(@Param("userId") Integer userId);
 
     Page<TeamRecruitment> findAllByStatusNot(TeamRecruitmentStatus status, Pageable pageable);
 

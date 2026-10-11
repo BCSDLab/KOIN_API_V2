@@ -20,6 +20,13 @@ public interface TeamRecruitmentApplicationRepository extends Repository<TeamRec
 
     Optional<TeamRecruitmentApplication> findById(Integer id);
 
+    @Query("""
+        SELECT application.recruitment.id
+        FROM TeamRecruitmentApplication application
+        WHERE application.applicant.id = :userId
+        """)
+    List<Integer> findRecruitmentIdsByApplicantId(@Param("userId") Integer userId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         SELECT application
