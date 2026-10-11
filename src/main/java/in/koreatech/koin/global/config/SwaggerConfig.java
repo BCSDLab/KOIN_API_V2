@@ -3,10 +3,14 @@ package in.koreatech.koin.global.config;
 import java.time.LocalDate;
 
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
+import org.springdoc.core.properties.SwaggerUiConfigProperties;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
+import in.koreatech.koin.global.auth.WebAuthRequestValidator;
 import in.koreatech.koin.global.exception.ErrorResponse;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.converter.ResolvedSchema;
@@ -26,6 +30,19 @@ public class SwaggerConfig {
         @Value("${swagger.server-url}") String serverUrl
     ) {
         this.serverUrl = serverUrl;
+    }
+
+    @Bean
+    @Primary
+    @ConditionalOnProperty(name = {"springdoc.swagger-ui.enabled", "springdoc.api-docs.enabled"}, matchIfMissing = true)
+    public SwaggerUiConfigProperties swaggerUiConfig(SwaggerUiConfigProperties config, WebAuthProperties properties) {
+        config.setWithCredentials(true);
+        config.getCsrf().setEnabled(true);
+        config.getCsrf().setCookieName(properties.csrfCookieName());
+        config.getCsrf().setHeaderName(WebAuthRequestValidator.CSRF_HEADER);
+        config.getCsrf().setUseLocalStorage(false);
+        config.getCsrf().setUseSessionStorage(false);
+        return config;
     }
 
     @Bean
