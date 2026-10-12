@@ -38,7 +38,7 @@ public interface DeptApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "학과 목록 조회")
+    @Operation(summary = "학과 목록 조회", description = "로그인 여부나 학번과 관계없이 DB에 등록된 전체 선택 가능 학부를 동일한 목록으로 반환한다.")
     @GetMapping("/depts")
     ResponseEntity<List<DeptsResponse>> getAllDept();
 
