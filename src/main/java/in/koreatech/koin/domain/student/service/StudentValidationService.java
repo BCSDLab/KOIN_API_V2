@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotValidException;
-import in.koreatech.koin.domain.student.model.StudentDepartment;
+import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
@@ -25,6 +25,7 @@ public class StudentValidationService {
     private final UserRepository userRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final MajorRepository majorRepository;
+    private final DepartmentRepository departmentRepository;
 
     private static final int MIN_YEAR = 1992;
 
@@ -38,7 +39,7 @@ public class StudentValidationService {
     }
 
     public void validateDepartment(String department) {
-        if (department != null && !StudentDepartment.isValid(department)) {
+        if (department != null && !departmentRepository.existsByName(department)) {
             throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
         }
     }

@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.dept.dto.DepartmentAndMajorResponse;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
 import in.koreatech.koin.domain.dept.dto.DeptsResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -47,7 +48,10 @@ public interface DeptApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "학부/전공 목록 조회")
+    @Operation(summary = "학부/전공 목록 조회", description = "학번 연도를 전달하면 해당 연도의 선택 목록을 반환한다. 연도 생략 또는 연도 연결 미등록 시 전체 목록을 반환한다.")
     @GetMapping("/depts/major")
-    ResponseEntity<List<DepartmentAndMajorResponse>> getAllDeptAndMajor();
+    ResponseEntity<List<DepartmentAndMajorResponse>> getAllDeptAndMajor(
+        @Parameter(description = "학번 앞 네 자리", example = "2026")
+        @RequestParam(value = "student_year", required = false) String studentYear
+    );
 }
