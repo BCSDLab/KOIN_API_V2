@@ -60,7 +60,9 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final Instant START = Instant.parse("2024-01-15T03:00:00.551123Z");
-    private static final String IMAGE_URL = "https://test.koreatech.in/upload/COOP/soldout.jpg";
+    private static final String IMAGE_URL = "https://test.koreatech.in/upload/COOP/품절 photo+100%20.jpg";
+    private static final String ENCODED_IMAGE_URL =
+        "https://test.koreatech.in/upload/COOP/%ED%92%88%EC%A0%88%20photo%2B100%2520.jpg";
     private static final long TIMEOUT_SECONDS = 10;
 
     @Autowired
@@ -118,6 +120,14 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
     void 변경_스냅샷을_순서대로_배정하고_늦은_성공과_재통보는_후속_작업을_완료하지_않는다() {
         int reportId = createReport();
         var approved = reportService.approve(reportId, new DiningReportActor("T_EXAMPLE", "U_REVIEWER", "담당자"));
+        assertThat(approved.report().imageUrl()).isEqualTo(ENCODED_IMAGE_URL);
+        var repeated = reportService.approve(reportId, new DiningReportActor("T_EXAMPLE", "U_REVIEWER", "담당자"));
+        assertThat(repeated.alreadyProcessed()).isTrue();
+        assertThat(repeated.report().imageUrl()).isEqualTo(ENCODED_IMAGE_URL);
+        assertThat(jdbcTemplate.queryForList("""
+            SELECT JSON_UNQUOTE(JSON_EXTRACT(report_snapshot, '$.image_url'))
+            FROM dining_soldout_report_change WHERE report_id = ?
+            """, String.class, reportId)).containsOnly(IMAGE_URL);
         var created = claim();
         assertThat(created.report().status()).isEqualTo(PENDING);
         assertThat(deliveryService.claim()).isEmpty();
@@ -211,9 +221,9 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
         assertThat(task.report().reportId()).isEqualTo(legacyReportId);
         assertThat(task.report().status()).isEqualTo(PENDING);
         assertThat(jdbcTemplate.queryForObject("""
-            SELECT report_snapshot FROM dining_soldout_report_change
+            SELECT JSON_UNQUOTE(JSON_EXTRACT(report_snapshot, '$.image_url')) FROM dining_soldout_report_change
             WHERE report_id = ? AND delivery_id = UNHEX(REPLACE(?, '-', ''))
-            """, String.class, legacyReportId, task.deliveryId().toString())).isNotBlank();
+            """, String.class, legacyReportId, task.deliveryId().toString())).isEqualTo(IMAGE_URL);
         assertThat(jdbcTemplate.queryForObject(
             "SELECT last_sequence FROM dining_soldout_report_sequence WHERE id = 1", Long.class)).isEqualTo(2L);
         assertThat(result(task, SUCCEEDED).deliveryState()).isEqualTo(DELIVERED);
@@ -232,7 +242,9 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
     }
 
     private DiningReportDeliveryResponse claim() {
-        return deliveryService.claim().orElseThrow();
+        var task = deliveryService.claim().orElseThrow();
+        assertThat(task.report().imageUrl()).isEqualTo(ENCODED_IMAGE_URL);
+        return task;
     }
 
     private DiningReportDeliveryResultResponse result(

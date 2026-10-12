@@ -4,9 +4,12 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static in.koreatech.koin.domain.dining.model.DiningReportProcessingType.MANUAL;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.springframework.web.util.UriUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -61,7 +64,7 @@ public record DiningReportResponse(
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime processedAt,
     @Schema(description = "담당자 수동 처리의 감사 정보. 대기·자동 처리이면 null입니다.", nullable = true, requiredMode = REQUIRED)
     DiningReportActor processor,
-    @Schema(description = "접수한 공용 COOP 업로드의 원본 사진 URL",
+    @Schema(description = "파일 경로를 URL 인코딩한 공용 COOP 업로드 사진 URL",
         example = "https://static.koreatech.in/upload/COOP/2026/10/2/"
             + "e924c7d3-3757-4cd0-961b-e65c1f6cc8ad/soldout.jpg", format = "uri", requiredMode = REQUIRED)
     String imageUrl,
@@ -88,6 +91,13 @@ public record DiningReportResponse(
             manual ? report.getProcessedAt() : null, actor, report.getImageUrl(), report.getProcessingId(),
             report.getSourceReportId(), report.getUpdatedAt()
         );
+    }
+
+    public DiningReportResponse withEncodedImageUrl() {
+        // 저장할 스냅샷에는 원문을 유지하고, 삐봇에 반환할 때만 한 번 인코딩한다.
+        String encodedImageUrl = UriUtils.encodePath(imageUrl, StandardCharsets.UTF_8).replace("+", "%2B");
+        return new DiningReportResponse(reportId, dining, status, processingType, reason, createdAt,
+            processedAt, processor, encodedImageUrl, processingId, sourceReportId, updatedAt);
     }
 
     public record DiningReference(
