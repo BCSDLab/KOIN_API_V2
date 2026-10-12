@@ -17,10 +17,9 @@ import in.koreatech.koin.admin.student.dto.StudentsCondition;
 import in.koreatech.koin.admin.student.repository.AdminDepartmentRepository;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
-import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.model.StudentDepartment;
+import in.koreatech.koin.domain.student.service.StudentValidationService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +33,7 @@ public class AdminStudentService {
     private final AdminDepartmentRepository adminDepartmentRepository;
     private final AdminUserRepository adminUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StudentValidationService studentValidationService;
 
     public AdminStudentResponse getStudent(Integer userId) {
         Student student = adminStudentRepository.getById(userId);
@@ -55,7 +55,7 @@ public class AdminStudentService {
         Student student = adminStudentRepository.getById(id);
         User user = student.getUser();
         validateNicknameDuplication(adminRequest.nickname(), id);
-        validateDepartmentValid(adminRequest.major());
+        studentValidationService.validateDepartment(adminRequest.major());
         user.update(user.getEmail(), adminRequest.nickname(), adminRequest.name(),
             adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updatePassword(passwordEncoder, adminRequest.password());
@@ -70,12 +70,6 @@ public class AdminStudentService {
         if (nickname != null &&
             adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
             throw CustomException.of(ApiResponseCode.DUPLICATE_NICKNAME, "nickname : " + nickname);
-        }
-    }
-
-    private void validateDepartmentValid(String department) {
-        if (department != null && !StudentDepartment.isValid(department)) {
-            throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
         }
     }
 }

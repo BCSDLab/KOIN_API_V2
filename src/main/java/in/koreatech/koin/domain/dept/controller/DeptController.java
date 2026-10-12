@@ -37,8 +37,10 @@ public class DeptController implements DeptApi {
     }
 
     @GetMapping("/depts/major")
-    public ResponseEntity<List<DepartmentAndMajorResponse>> getAllDeptAndMajor() {
-        List<DepartmentAndMajorResponse> response = deptService.getAllDepartmentsWithMajors();
+    public ResponseEntity<List<DepartmentAndMajorResponse>> getAllDeptAndMajor(
+        @RequestParam(value = "student_year", required = false) String studentYear
+    ) {
+        List<DepartmentAndMajorResponse> response = deptService.getAllDepartmentsWithMajors(studentYear);
         return ResponseEntity.ok(response);
     }
 

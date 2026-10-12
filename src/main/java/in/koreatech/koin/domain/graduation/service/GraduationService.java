@@ -132,12 +132,23 @@ public class GraduationService {
 
     @Transactional
     public void resetStudentCourseCalculation(Student student, Major newMajor) {
-        // 기존 학생 졸업요건 계산 정보 삭제
+        if (student.getStudentNumber() == null || newMajor == null) {
+            return;
+        }
+
         if (!studentCourseCalculationRepository.findAllByUserId(student.getUser().getId()).isEmpty()) {
+            List<StandardGraduationRequirements> requirementsList =
+                standardGraduationRequirementsRepository.findAllByMajorAndYear(
+                    newMajor, StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber()));
+            // 졸업 기준이 준비되지 않은 학적도 저장하고 기존 계산 자료는 보존한다.
+            if (requirementsList.isEmpty()) {
+                return;
+            }
+
             studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
             entityManager.flush();
             entityManager.clear();
-            initializeStudentCourseCalculation(student, newMajor);
+            initializeStudentCourseCalculation(student, requirementsList);
 
             detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
                 .ifPresent(detectGraduationCalculation -> detectGraduationCalculation.updatedIsChanged(true));
@@ -150,6 +161,11 @@ public class GraduationService {
             standardGraduationRequirementsRepository.findAllByMajorAndYear(
                 major, student.getStudentNumber().substring(0, 4));
 
+        initializeStudentCourseCalculation(student, requirementsList);
+    }
+
+    private void initializeStudentCourseCalculation(
+        Student student, List<StandardGraduationRequirements> requirementsList) {
         // 학생 졸업요건 계산 정보 초기화
         requirementsList.forEach(requirement ->
             studentCourseCalculationRepository.save(
