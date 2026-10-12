@@ -73,7 +73,7 @@ public class DeptService {
         Map<Integer, List<Major>> majors = new LinkedHashMap<>();
         for (AcademicProgramYear program : programs) {
             Integer departmentId = program.getDepartment().getId();
-            departments.putIfAbsent(departmentId, program.getDepartment());
+            departments.put(departmentId, program.getDepartment());
             majors.computeIfAbsent(departmentId, ignored -> new ArrayList<>());
             if (program.getMajor() != null && program.getMajor().getName() != null) {
                 majors.get(departmentId).add(program.getMajor());
