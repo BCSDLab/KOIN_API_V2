@@ -3,6 +3,7 @@ package in.koreatech.koin.unit.domain.teamrecruitment.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -15,6 +16,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.InOrder;
@@ -44,6 +48,7 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplicatio
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentProfile;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentRole;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
@@ -52,6 +57,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatM
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
@@ -89,6 +95,9 @@ class TeamRecruitmentChatServiceTest {
     private TeamRecruitmentChatMessageRepository messageRepository;
 
     @Mock
+    private TeamRecruitmentProfileRepository profileRepository;
+
+    @Mock
     private TeamRecruitmentNotificationRepository notificationRepository;
 
     @Mock
@@ -104,8 +113,14 @@ class TeamRecruitmentChatServiceTest {
     private TeamRecruitmentChatService chatService;
 
     @BeforeEach
-    void setUpClock() {
+    void setUp() {
         lenient().when(clock.withZone(KST)).thenReturn(FIXED_CLOCK);
+        List<TeamRecruitmentProfile> profiles = List.of(
+                profile(USER_ID, "모집자프로필"), profile(OTHER_USER_ID, "지원자프로필"));
+        lenient().when(profileRepository.findAllByUserIdIn(any())).thenAnswer(invocation -> {
+            Collection<Integer> userIds = invocation.getArgument(0);
+            return profiles.stream().filter(profile -> userIds.contains(profile.getUserId())).toList();
+        });
     }
 
     @Test
@@ -208,7 +223,7 @@ class TeamRecruitmentChatServiceTest {
                 TeamRecruitmentChatRoomListItemResponse::lastMessageId,
                 TeamRecruitmentChatRoomListItemResponse::unreadMessageCount
             )
-            .containsExactly(counterpart.getDisplayNickname(), OTHER_USER_ID, counterpart.getDisplayNickname(), 101, 0);
+            .containsExactly("지원자프로필", OTHER_USER_ID, "지원자프로필", 101, 0);
         assertThat(responses.get(1))
             .extracting(
                 TeamRecruitmentChatRoomListItemResponse::roomName,
@@ -230,7 +245,7 @@ class TeamRecruitmentChatServiceTest {
     }
 
     @Test
-    void 닉네임_미설정_사용자가_상대방인_DIRECT_채팅방_목록_조회시_counterpartNickname이_null이_아니다() {
+    void 코인_닉네임이_없어도_DIRECT_채팅방_목록은_모집_프로필_닉네임을_반환한다() {
         TeamRecruitment recruitment = mock(TeamRecruitment.class);
         TeamRecruitmentChatRoom directRoom = mock(TeamRecruitmentChatRoom.class);
         TeamRecruitmentChatMember currentMember = mock(TeamRecruitmentChatMember.class);
@@ -256,8 +271,8 @@ class TeamRecruitmentChatServiceTest {
         List<TeamRecruitmentChatRoomListItemResponse> responses = chatService.getChatRooms(USER_ID);
 
         assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).roomName()).isEqualTo(anonymousCounterpart.getDisplayNickname());
-        assertThat(responses.get(0).counterpartNickname()).isEqualTo(anonymousCounterpart.getDisplayNickname());
+        assertThat(responses.get(0).roomName()).isEqualTo("지원자프로필");
+        assertThat(responses.get(0).counterpartNickname()).isEqualTo("지원자프로필");
         assertThat(responses.get(0).counterpartNickname()).isNotNull();
     }
 
@@ -405,7 +420,8 @@ class TeamRecruitmentChatServiceTest {
 
         assertThat(result.isNew()).isTrue();
         assertThat(result.response().counterpart().id()).isEqualTo(USER_ID);
-        assertThat(result.response().roomName()).isEqualTo(author.getDisplayNickname());
+        assertThat(result.response().roomName()).isEqualTo("모집자프로필");
+        assertThat(result.response().counterpart().nickname()).isEqualTo("모집자프로필");
         ArgumentCaptor<TeamRecruitmentChatMember> members = ArgumentCaptor.forClass(TeamRecruitmentChatMember.class);
         verify(memberRepository, times(2)).save(members.capture());
         assertThat(members.getAllValues())
@@ -440,7 +456,8 @@ class TeamRecruitmentChatServiceTest {
         assertThat(result.isNew()).isFalse();
         assertThat(result.response().chatRoomId()).isEqualTo(CHAT_ROOM_ID);
         assertThat(result.response().counterpart().id()).isEqualTo(USER_ID);
-        assertThat(result.response().roomName()).isEqualTo(author.getDisplayNickname());
+        assertThat(result.response().roomName()).isEqualTo("모집자프로필");
+        assertThat(result.response().counterpart().nickname()).isEqualTo("모집자프로필");
         verifyNoInteractions(memberRepository);
     }
 
@@ -470,7 +487,7 @@ class TeamRecruitmentChatServiceTest {
 
         assertThat(result.isNew()).isFalse();
         assertThat(result.response().chatRoomId()).isEqualTo(CHAT_ROOM_ID);
-        assertThat(result.response().roomName()).isEqualTo(counterpart.getNickname());
+        assertThat(result.response().roomName()).isEqualTo("지원자프로필");
 
         InOrder lockOrder = inOrder(recruitmentRepository, applicationRepository, chatRoomRepository);
         lockOrder.verify(recruitmentRepository).findByIdWithLock(RECRUITMENT_ID);
@@ -548,7 +565,7 @@ class TeamRecruitmentChatServiceTest {
     }
 
     @Test
-    void 닉네임_미설정_사용자가_포함된_DIRECT_채팅방_조회시_nickname이_익명_사용자로_응답된다() {
+    void 코인_닉네임이_없어도_기존_DIRECT_채팅방은_모집_프로필_닉네임을_반환한다() {
         User author = UserFixture.id_설정_코인_유저(USER_ID);
         User anonymousCounterpart = UserFixture.닉네임_없는_코인_유저(OTHER_USER_ID);
         TeamRecruitmentApplication application = mock(TeamRecruitmentApplication.class);
@@ -571,17 +588,16 @@ class TeamRecruitmentChatServiceTest {
 
         DirectChatRoomCreationResult result = chatService.getOrCreateDirectChatRoom(USER_ID, RECRUITMENT_ID, APPLICATION_ID);
 
-        assertThat(result.response().roomName()).isEqualTo(anonymousCounterpart.getDisplayNickname());
-        assertThat(result.response().counterpart().nickname()).isEqualTo(anonymousCounterpart.getDisplayNickname());
+        assertThat(result.response().roomName()).isEqualTo("지원자프로필");
+        assertThat(result.response().counterpart().nickname()).isEqualTo("지원자프로필");
     }
 
     @Test
-    void 닉네임_미설정_사용자의_메시지_전송시_senderNickname이_익명_사용자로_저장된다() {
+    void 코인_닉네임이_없는_사용자의_메시지도_모집_프로필_닉네임으로_저장하고_응답한다() {
         User anonymousSender = UserFixture.닉네임_없는_코인_유저(USER_ID);
         TeamRecruitmentChatRoom chatRoom = mock(TeamRecruitmentChatRoom.class);
         TeamRecruitment recruitment = mock(TeamRecruitment.class);
         TeamRecruitmentChatMember senderMember = mock(TeamRecruitmentChatMember.class);
-        TeamRecruitmentChatMessage savedMessage = mock(TeamRecruitmentChatMessage.class);
 
         when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(chatRoom));
         when(chatRoom.getRecruitment()).thenReturn(recruitment);
@@ -589,20 +605,72 @@ class TeamRecruitmentChatServiceTest {
         when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(Optional.of(senderMember));
         when(recruitment.getAuthor()).thenReturn(anonymousSender);
         when(senderMember.getUser()).thenReturn(anonymousSender);
-        when(messageRepository.save(any(TeamRecruitmentChatMessage.class))).thenReturn(savedMessage);
-        when(savedMessage.getId()).thenReturn(100);
+        when(messageRepository.save(any(TeamRecruitmentChatMessage.class))).thenAnswer(invocation -> {
+            TeamRecruitmentChatMessage message = invocation.getArgument(0);
+            return TeamRecruitmentChatMessage.builder().id(100).chatRoom(chatRoom).sender(message.getSender())
+                    .senderNickname(message.getSenderNickname()).content(message.getContent())
+                    .isImage(message.getIsImage()).build();
+        });
         when(memberRepository.findAllByChatRoom_Id(CHAT_ROOM_ID)).thenReturn(List.of());
-        when(savedMessage.getContent()).thenReturn("안녕");
-        when(savedMessage.getSender()).thenReturn(anonymousSender);
-        when(savedMessage.getSenderNickname()).thenReturn(anonymousSender.getDisplayNickname());
-        when(savedMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
-        when(savedMessage.getIsImage()).thenReturn(false);
 
         ArgumentCaptor<TeamRecruitmentChatMessage> captor = ArgumentCaptor.forClass(TeamRecruitmentChatMessage.class);
-        chatService.createMessage(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, new CreateChatMessageRequest("안녕", false));
+        var response = chatService.createMessage(
+                USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, new CreateChatMessageRequest("안녕", false));
         verify(messageRepository).save(captor.capture());
 
-        assertThat(captor.getValue().getSenderNickname()).isEqualTo(anonymousSender.getDisplayNickname());
+        assertThat(captor.getValue().getSenderNickname()).isEqualTo("모집자프로필");
+        assertThat(response.userNickname()).isEqualTo("모집자프로필");
+    }
+
+    @ParameterizedTest
+    @EnumSource(TeamRecruitmentChatRoomType.class)
+    void 과거_메시지는_현재_프로필로_표시하고_멤버가_아닌_발신자도_중복없이_한번_조회한다(
+            TeamRecruitmentChatRoomType roomType) {
+        User author = UserFixture.id_설정_코인_유저(USER_ID);
+        User applicant = UserFixture.id_설정_코인_유저(OTHER_USER_ID);
+        stubMessages(roomType, List.of(
+                message(100, author), message(101, applicant), message(102, applicant)));
+
+        var responses = chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, null, 10);
+
+        assertThat(responses).extracting(response -> response.userNickname())
+                .containsExactly("모집자프로필", "지원자프로필", "지원자프로필");
+        verify(profileRepository).findAllByUserIdIn(List.of(USER_ID, OTHER_USER_ID));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void 프로필이_없거나_공백이면_공통닉과_저장된_발신자명_대신_익명_사용자로_표시한다(boolean missing) {
+        doReturn(missing ? List.of() : List.of(profile(USER_ID, " "), profile(OTHER_USER_ID, "\t")))
+                .when(profileRepository).findAllByUserIdIn(any());
+        stubMessages(TeamRecruitmentChatRoomType.TEAM, List.of(
+                message(100, UserFixture.id_설정_코인_유저(USER_ID)),
+                message(101, UserFixture.닉네임_없는_코인_유저(OTHER_USER_ID))));
+
+        var responses = chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, null, 10);
+        var directRoom = getChatRoom(TeamRecruitmentType.GENERAL, TeamRecruitmentChatRoomType.DIRECT, 1, 2);
+
+        assertThat(responses).extracting(response -> response.userNickname())
+                .containsExactly("익명 사용자", "익명 사용자");
+        assertThat(directRoom.roomName()).isEqualTo("익명 사용자");
+        assertThat(directRoom.counterpart().nickname()).isEqualTo("익명 사용자");
+    }
+
+    @Test
+    void 프로필_닉네임을_변경하면_이미_저장된_메시지도_변경된_닉네임으로_응답한다() {
+        TeamRecruitmentProfile senderProfile = profile(OTHER_USER_ID, "변경전프로필");
+        doReturn(List.of(senderProfile)).when(profileRepository).findAllByUserIdIn(any());
+        TeamRecruitmentChatMessage message = message(100, UserFixture.id_설정_코인_유저(OTHER_USER_ID));
+        stubMessages(TeamRecruitmentChatRoomType.TEAM, List.of(message));
+
+        var before = chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, null, 10);
+        senderProfile.replace("변경후프로필", "백엔드", "자기소개");
+        var after = chatService.getMessages(USER_ID, RECRUITMENT_ID, CHAT_ROOM_ID, null, null, 10);
+
+        assertThat(before.get(0).userNickname()).isEqualTo("변경전프로필");
+        assertThat(after.get(0).userNickname()).isEqualTo("변경후프로필");
+        assertThat(message.getSenderNickname()).isEqualTo("저장된 과거 닉네임");
+        verify(profileRepository, times(2)).findAllByUserIdIn(any());
     }
 
     @Test
@@ -779,11 +847,39 @@ class TeamRecruitmentChatServiceTest {
 
         assertThat(response.content()).isEqualTo("계속 대화");
         assertThat(response.userId()).isEqualTo(USER_ID);
+        assertThat(response.userNickname()).isEqualTo("모집자프로필");
         assertThat(response.unreadCount()).isEqualTo(1);
         assertThat(senderMember.getLastReadMessageId()).isEqualTo(100);
         verify(messageRepository).save(any(TeamRecruitmentChatMessage.class));
         verify(notificationRepository).save(any());
         verify(outboxEventRepository).save(any());
+    }
+
+    private TeamRecruitmentProfile profile(Integer userId, String nickname) {
+        return TeamRecruitmentProfile.builder().userId(userId)
+                .user(UserFixture.id_설정_코인_유저(userId)).profileNickname(nickname)
+                .preferredRole("백엔드").selfIntroduction("자기소개").build();
+    }
+
+    private TeamRecruitmentChatMessage message(Integer id, User sender) {
+        return TeamRecruitmentChatMessage.builder().id(id).sender(sender)
+                .senderNickname("저장된 과거 닉네임").content("과거 메시지").isImage(false).build();
+    }
+
+    private void stubMessages(TeamRecruitmentChatRoomType roomType, List<TeamRecruitmentChatMessage> messages) {
+        TeamRecruitment recruitment = TeamRecruitment.builder().id(RECRUITMENT_ID)
+                .author(UserFixture.id_설정_코인_유저(USER_ID)).build();
+        TeamRecruitmentChatRoom room = TeamRecruitmentChatRoom.builder().id(CHAT_ROOM_ID)
+                .recruitment(recruitment).roomType(roomType).build();
+        TeamRecruitmentChatMember reader = TeamRecruitmentChatMember.builder().chatRoom(room)
+                .user(UserFixture.id_설정_코인_유저(USER_ID)).build();
+        when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(room));
+        when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(Optional.of(reader));
+        when(messageRepository.findAllByChatRoom_IdOrderByIdDesc(
+                org.mockito.ArgumentMatchers.eq(CHAT_ROOM_ID), any())).thenReturn(messages.stream()
+                .sorted(Comparator.comparing(TeamRecruitmentChatMessage::getId).reversed())
+                .toList());
+        when(memberRepository.findAllByChatRoom_Id(CHAT_ROOM_ID)).thenReturn(List.of(reader));
     }
 
     private TeamRecruitmentApplication stubWithdrawnApplication(User author) {
