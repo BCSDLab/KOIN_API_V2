@@ -38,7 +38,7 @@ public interface DiningApi {
     ResponseEntity<List<DiningResponse>> getDinings(
         @DateTimeFormat(pattern = "yyMMdd")
         @Parameter(description = "조회 날짜(yyMMdd)") @RequestParam(required = false) LocalDate date,
-        @UserId(ignoreInvalidToken = true) Integer userId
+        @UserId Integer userId
     );
 
     @Operation(summary = "식단 좋아요")

@@ -3,7 +3,6 @@ package in.koreatech.koin.global.auth;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -37,24 +36,17 @@ public class ExtractAuthenticationInterceptor implements HandlerInterceptor {
             authContext.setUserId(userId);
             userIdContext.setUserId(userId);
         } catch (AuthenticationException e) {
-            if (!canIgnoreInvalidToken(request, handler)) {
+            if (!canIgnoreInvalidToken(handler)) {
                 throw e;
             }
         }
         return true;
     }
 
-    static boolean canIgnoreInvalidToken(HttpServletRequest request, Object handler) {
-        if (!(handler instanceof HandlerMethod handlerMethod)
-            || !("GET".equals(request.getMethod()) || "HEAD".equals(request.getMethod()))) {
-            return false;
-        }
-        var parameters = handlerMethod.getMethodParameters();
-        return Arrays.stream(parameters).noneMatch(parameter -> parameter.hasParameterAnnotation(Auth.class))
-            && Arrays.stream(parameters)
-                .map(parameter -> parameter.getParameterAnnotation(UserId.class))
-                .filter(Objects::nonNull)
-                .anyMatch(UserId::ignoreInvalidToken);
+    static boolean canIgnoreInvalidToken(Object handler) {
+        return handler instanceof HandlerMethod handlerMethod
+            && Arrays.stream(handlerMethod.getMethodParameters())
+                .noneMatch(parameter -> parameter.hasParameterAnnotation(Auth.class));
     }
 
     public static String extractAccessToken(HttpServletRequest request) {

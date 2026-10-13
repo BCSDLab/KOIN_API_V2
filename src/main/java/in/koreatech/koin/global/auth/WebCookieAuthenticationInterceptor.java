@@ -57,7 +57,7 @@ public class WebCookieAuthenticationInterceptor implements HandlerInterceptor {
                 userIdContext.setUserId(session.userId());
             }
         } catch (AuthenticationException e) {
-            if (!canIgnoreInvalidToken(request, handlerMethod)) {
+            if (!canIgnoreInvalidToken(handlerMethod)) {
                 throw e;
             }
         }
