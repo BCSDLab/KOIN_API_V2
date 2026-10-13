@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -688,7 +689,7 @@ class TeamRecruitmentChatServiceTest {
                 .content("보존된 메시지").isImage(true).build();
         when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(room));
         when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(Optional.of(reader));
-        when(messageRepository.findAllByChatRoom_IdOrderByIdAsc(
+        when(messageRepository.findAllByChatRoom_IdOrderByIdDesc(
                 org.mockito.ArgumentMatchers.eq(CHAT_ROOM_ID), any())).thenReturn(List.of(message));
         when(memberRepository.findAllByChatRoom_Id(CHAT_ROOM_ID)).thenReturn(List.of(reader, unreadMember));
 
@@ -874,8 +875,10 @@ class TeamRecruitmentChatServiceTest {
                 .user(UserFixture.id_설정_코인_유저(USER_ID)).build();
         when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(room));
         when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(Optional.of(reader));
-        when(messageRepository.findAllByChatRoom_IdOrderByIdAsc(
-                org.mockito.ArgumentMatchers.eq(CHAT_ROOM_ID), any())).thenReturn(messages);
+        when(messageRepository.findAllByChatRoom_IdOrderByIdDesc(
+                org.mockito.ArgumentMatchers.eq(CHAT_ROOM_ID), any())).thenReturn(messages.stream()
+                .sorted(Comparator.comparing(TeamRecruitmentChatMessage::getId).reversed())
+                .toList());
         when(memberRepository.findAllByChatRoom_Id(CHAT_ROOM_ID)).thenReturn(List.of(reader));
     }
 

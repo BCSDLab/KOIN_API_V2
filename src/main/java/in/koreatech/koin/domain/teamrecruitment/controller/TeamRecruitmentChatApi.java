@@ -93,7 +93,12 @@ public interface TeamRecruitmentChatApi {
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
-    @Operation(summary = "채팅 메시지 조회 (Polling)")
+    @Operation(
+        summary = "채팅 메시지 조회 (Polling)",
+        description = "조회 시작점이 없으면 최근 메시지를 반환하며, 기본 조회 개수는 100개입니다. "
+            + "afterMessageId는 해당 ID 이후의 메시지, beforeMessageId는 해당 ID 이전의 메시지를 조회합니다. "
+            + "모든 결과는 메시지 ID 오름차순으로 반환합니다."
+    )
     ResponseEntity<List<ChatMessageResponse>> getMessages(
             Integer userId,
             @PathVariable Integer recruitmentId,

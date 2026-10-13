@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -224,6 +225,39 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
         mockMvc.perform(get("/chatroom/team-recruitment"))
             .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.code").value("UNAUTHORIZED_USER"));
+    }
+
+    @Test
+    @DisplayName("커서 없이 조회하면 최근 100개 메시지를 오래된 순서로 반환한다")
+    void defaultPollingReturnsLatest100Messages() throws Exception {
+        TeamRecruitment recruitment = saveRecruitment("최근 메시지 기본 조회");
+        TeamRecruitmentChatRoom room = saveTeamRoom(recruitment, ACTIVE);
+        List<Integer> messageIds = new ArrayList<>();
+        for (int i = 1; i <= 99; i++) {
+            messageIds.add(saveMessage(room, author.getUser(), "메시지 " + i, false).getId());
+        }
+
+        for (int i = 100; i <= 101; i++) {
+            MvcResult sent = sendMessage(room, recruitment, authorToken, "메시지 " + i)
+                .andExpect(status().isOk())
+                .andReturn();
+            messageIds.add(objectMapper.readTree(sent.getResponse().getContentAsString())
+                .path("message_id").asInt());
+
+            MvcResult polled = mockMvc.perform(get(
+                    "/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages",
+                    recruitment.getId(), room.getId())
+                    .header("Authorization", "Bearer " + applicantToken))
+                .andExpect(status().isOk())
+                .andReturn();
+            List<Integer> returnedIds = objectMapper.readTree(polled.getResponse().getContentAsString())
+                .findValues("message_id").stream()
+                .map(JsonNode::asInt)
+                .toList();
+
+            assertThat(returnedIds)
+                .containsExactlyElementsOf(messageIds.subList(messageIds.size() - 100, messageIds.size()));
+        }
     }
 
     @Test
