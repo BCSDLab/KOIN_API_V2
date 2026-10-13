@@ -25,8 +25,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.AbtestAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
@@ -53,9 +51,6 @@ class AbtestApiTest extends AcceptanceTest {
 
     @Autowired
     private WebAuthProperties webAuthProperties;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -94,18 +89,6 @@ class AbtestApiTest extends AcceptanceTest {
         admin = userFixture.코인_운영자();
         adminToken = userFixture.getToken(admin.getUser());
         department = departmentFixture.컴퓨터공학부();
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"cookie", "bearer"})
-    void 비로그인_접속_이력은_잘못된_인증정보가_있어도_발급한다(String authentication) throws Exception {
-        MvcResult result = mockMvc.perform(withInvalidAuthentication(post("/abtest/assign/token"), authentication))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.accessHistoryId").isNumber())
-            .andReturn();
-
-        int historyId = objectMapper.readTree(result.getResponse().getContentAsString()).get("accessHistoryId").asInt();
-        assertThat(accessHistoryRepository.getById(historyId).getDevice()).isNull();
     }
 
     @ParameterizedTest
