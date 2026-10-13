@@ -41,8 +41,8 @@ public interface TeamRecruitmentChatMessageRepository extends Repository<TeamRec
         """)
     List<ChatRoomUnreadCount> countUnreadMessagesByUserId(@Param("userId") Integer userId);
 
-    /** Returns the initial page in ascending message-id order. */
-    List<TeamRecruitmentChatMessage> findAllByChatRoom_IdOrderByIdAsc(
+    /** Returns the latest messages first. */
+    List<TeamRecruitmentChatMessage> findAllByChatRoom_IdOrderByIdDesc(
         Integer chatRoomId,
         Pageable pageable
     );

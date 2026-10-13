@@ -621,7 +621,7 @@ class TeamRecruitmentChatServiceTest {
                 .content("보존된 메시지").isImage(true).build();
         when(chatRoomRepository.findById(CHAT_ROOM_ID)).thenReturn(Optional.of(room));
         when(memberRepository.findByChatRoom_IdAndUser_Id(CHAT_ROOM_ID, USER_ID)).thenReturn(Optional.of(reader));
-        when(messageRepository.findAllByChatRoom_IdOrderByIdAsc(
+        when(messageRepository.findAllByChatRoom_IdOrderByIdDesc(
                 org.mockito.ArgumentMatchers.eq(CHAT_ROOM_ID), any())).thenReturn(List.of(message));
         when(memberRepository.findAllByChatRoom_Id(CHAT_ROOM_ID)).thenReturn(List.of(reader, unreadMember));
 

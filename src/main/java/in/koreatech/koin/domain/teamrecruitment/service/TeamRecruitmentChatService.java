@@ -287,7 +287,10 @@ public class TeamRecruitmentChatService {
             Collections.reverse(result);
             return result;
         }
-        return messageRepository.findAllByChatRoom_IdOrderByIdAsc(chatRoomId, pageable);
+        List<TeamRecruitmentChatMessage> result = new ArrayList<>(
+                messageRepository.findAllByChatRoom_IdOrderByIdDesc(chatRoomId, pageable));
+        Collections.reverse(result);
+        return result;
     }
 
     @Transactional
