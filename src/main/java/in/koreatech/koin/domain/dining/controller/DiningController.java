@@ -30,7 +30,7 @@ public class DiningController implements DiningApi {
     public ResponseEntity<List<DiningResponse>> getDinings(
         @DateTimeFormat(pattern = "yyMMdd")
         @RequestParam(required = false) LocalDate date,
-        @UserId(ignoreInvalidToken = true) Integer userId
+        @UserId Integer userId
     ) {
         List<DiningResponse> responses = diningService.getDinings(date, userId);
         return ResponseEntity.ok(responses);
