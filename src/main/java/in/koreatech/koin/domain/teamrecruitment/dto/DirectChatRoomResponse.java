@@ -31,8 +31,9 @@ public record DirectChatRoomResponse(
             String nickname
     ) {}
 
-    public static DirectChatRoomResponse of(TeamRecruitmentChatRoom chatRoom, User counterpartUser) {
-        String nickname = counterpartUser == null ? "탈퇴한 회원" : counterpartUser.getDisplayNickname();
+    public static DirectChatRoomResponse of(TeamRecruitmentChatRoom chatRoom, User counterpartUser,
+            String counterpartNickname) {
+        String nickname = counterpartUser == null ? "탈퇴한 회원" : counterpartNickname;
         return new DirectChatRoomResponse(
                 chatRoom.getId(),
                 nickname,
