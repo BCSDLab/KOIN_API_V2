@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.auth;
 
+import static in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor.canIgnoreInvalidToken;
+
 import java.util.Arrays;
 
 import org.springframework.http.HttpHeaders;
@@ -10,6 +12,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import in.koreatech.koin.domain.user.web.controller.WebAuthController;
 import in.koreatech.koin.domain.user.web.model.WebAuthSession;
 import in.koreatech.koin.domain.user.web.service.WebAuthService;
+import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,13 +47,19 @@ public class WebCookieAuthenticationInterceptor implements HandlerInterceptor {
         if (!usesAuthentication) {
             return true;
         }
-        String accessToken = cookieManager.getAccessToken(request);
-        if (accessToken != null) {
-            response.setHeader(HttpHeaders.CACHE_CONTROL, "private, no-store");
-            WebAuthSession session = webAuthService.authenticate(accessToken);
-            requestValidator.validate(request, session);
-            authContext.setUserId(session.userId());
-            userIdContext.setUserId(session.userId());
+        try {
+            String accessToken = cookieManager.getAccessToken(request);
+            if (accessToken != null) {
+                response.setHeader(HttpHeaders.CACHE_CONTROL, "private, no-store");
+                WebAuthSession session = webAuthService.authenticate(accessToken);
+                requestValidator.validate(request, session);
+                authContext.setUserId(session.userId());
+                userIdContext.setUserId(session.userId());
+            }
+        } catch (AuthenticationException e) {
+            if (!canIgnoreInvalidToken(request, handlerMethod)) {
+                throw e;
+            }
         }
         return true;
     }
