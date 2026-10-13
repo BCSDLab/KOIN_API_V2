@@ -18,4 +18,8 @@ import io.swagger.v3.oas.annotations.Hidden;
 @Retention(RUNTIME)
 public @interface UserId {
 
+    /**
+     * 공개 조회 API에서 토큰 인증에 실패하면 비로그인 사용자로 처리한다.
+     */
+    boolean ignoreInvalidToken() default false;
 }
