@@ -2,16 +2,20 @@ package in.koreatech.koin.acceptance.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -161,6 +165,81 @@ class WebAuthCompatibilityTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].id").value(dining.getId()))
             .andExpect(jsonPath("$[0].is_liked").value(true));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "invalid-web-access"})
+    void 식단은_잘못된_웹_쿠키가_남아도_비로그인으로_조회한다(String token) throws Exception {
+        Dining dining = diningFixture.A코너_점심(LocalDate.of(2026, 9, 10));
+
+        mockMvc.perform(get("/dinings").param("date", "260910")
+                .cookie(new Cookie(properties.accessCookieName(), token)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(dining.getId()))
+            .andExpect(jsonPath("$[0].is_liked").value(false))
+            .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
+    }
+
+    @Test
+    void 식단은_만료된_웹_쿠키가_남아도_비로그인으로_조회한다() throws Exception {
+        Dining dining = diningFixture.A코너_점심(LocalDate.of(2026, 9, 10));
+        String expired = jwtProvider.createWebToken(user, "expired-session", Instant.now().minusSeconds(60));
+
+        mockMvc.perform(get("/dinings").param("date", "260910")
+                .cookie(new Cookie(properties.accessCookieName(), expired)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(dining.getId()))
+            .andExpect(jsonPath("$[0].is_liked").value(false));
+    }
+
+    @Test
+    void 식단은_웹_세션이_사라져도_비로그인으로_조회한다() throws Exception {
+        Dining dining = diningFixture.A코너_점심(LocalDate.of(2026, 9, 10));
+        String access = jwtProvider.createWebToken(user, "missing-session", Instant.now().plusSeconds(60));
+
+        mockMvc.perform(get("/dinings").param("date", "260910").header(HttpHeaders.ORIGIN, ORIGIN)
+                .cookie(new Cookie(properties.accessCookieName(), access)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(dining.getId()))
+            .andExpect(jsonPath("$[0].is_liked").value(false));
+    }
+
+    @Test
+    void 식단은_만료된_Bearer_토큰이_남아도_비로그인으로_조회한다() throws Exception {
+        Dining dining = diningFixture.A코너_점심(LocalDate.of(2026, 9, 10));
+        String expired = jwtProvider.createWebToken(user, null, Instant.now().minusSeconds(60));
+
+        mockMvc.perform(get("/dinings").param("date", "260910")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + expired))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(dining.getId()))
+            .andExpect(jsonPath("$[0].is_liked").value(false));
+    }
+
+    @Test
+    void 식단의_잘못된_Bearer는_정상_쿠키로_대체하지_않고_비로그인으로_조회한다() throws Exception {
+        Dining dining = diningFixture.A코너_점심(LocalDate.of(2026, 9, 10));
+        dining.likesDining();
+        diningLikesRepository.save(DiningLikes.builder().diningId(dining.getId()).userId(user.getId()).build());
+        Cookie access = login();
+
+        mockMvc.perform(get("/dinings").param("date", "260910").header(HttpHeaders.ORIGIN, ORIGIN)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-access").cookie(access))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(dining.getId()))
+            .andExpect(jsonPath("$[0].is_liked").value(false));
+    }
+
+    @Test
+    void 식단_좋아요와_사용자_정보는_잘못된_인증정보를_계속_거부한다() throws Exception {
+        mockMvc.perform(patch("/dining/like").param("diningId", "1"))
+            .andExpect(status().isUnauthorized());
+        mockMvc.perform(patch("/dining/like").param("diningId", "1")
+                .cookie(new Cookie(properties.accessCookieName(), "invalid-access")))
+            .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/v2/users/me")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-access"))
+            .andExpect(status().isUnauthorized());
     }
 
     private Cookie login() throws Exception {

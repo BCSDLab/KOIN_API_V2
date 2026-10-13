@@ -18,7 +18,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,7 +38,9 @@ import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningReportRepository;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.dining.service.DiningReportChangeService;
+import in.koreatech.koin.domain.dining.service.DiningReportQueryService;
 import in.koreatech.koin.domain.dining.service.DiningReportService;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlRequest;
@@ -77,9 +78,19 @@ class DiningReportImageValidationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"soldout.jpg", "soldout photo.jpg", "품절.jpg", "soldout+photo.jpg",
-        "soldout%20photo.jpg", "100%.jpg"})
-    void 공용_COOP_업로드의_파일명과_URL을_원문으로_접수한다(String fileName) {
+    @CsvSource({
+        "soldout.jpg, soldout.jpg",
+        "soldout photo.jpg, soldout%20photo.jpg",
+        "품절.jpg, %ED%92%88%EC%A0%88.jpg",
+        "soldout+photo.jpg, soldout%2Bphoto.jpg",
+        "soldout%20photo.jpg, soldout%2520photo.jpg",
+        "100%.jpg, 100%25.jpg",
+        "soldout%2Fphoto.jpg, soldout%252Fphoto.jpg",
+        "a//품절 photo.jpg, a//%ED%92%88%EC%A0%88%20photo.jpg"
+    })
+    void 공용_COOP_업로드는_원문으로_접수하고_삐봇에는_인코딩한_URL을_반환한다(
+        String fileName, String encodedFileName
+    ) {
         String imageUrl = new UploadService(s3Client, clock).getPresignedUrl(ImageUploadDomain.COOP,
             new UploadUrlRequest(1, "image/jpeg", fileName)).fileUrl();
         String rawKey = imageUrl.substring(DOMAIN_URL.length());
@@ -88,21 +99,24 @@ class DiningReportImageValidationTest {
 
         Integer reporterId = 42;
         Integer diningId = 1;
-        UUID requestKey = UUID.randomUUID();
         Dining dining = Dining.builder().date(LocalDate.now(clock)).type(DiningType.LUNCH)
             .place("A코너").menu("[\"돈까스\"]").build();
-        when(reportRepository.findByReporterIdAndRequestKey(reporterId, requestKey)).thenReturn(Optional.empty());
-        when(reportRepository.findRequestForUpdate(reporterId, requestKey)).thenReturn(Optional.empty());
         when(reportRepository.findAllByDiningIdForUpdate(diningId)).thenReturn(List.of());
         when(diningRepository.findByIdForUpdate(diningId)).thenReturn(Optional.of(dining));
 
-        var response = service.create(reporterId, diningId, requestKey, new DiningReportCreateRequest(imageUrl));
+        var response = service.create(reporterId, diningId, new DiningReportCreateRequest(imageUrl));
 
         ArgumentCaptor<DiningReport> reportCaptor = ArgumentCaptor.forClass(DiningReport.class);
         verify(reportRepository).saveAndFlush(reportCaptor.capture());
         assertThat(response.status()).isEqualTo(DiningReportStatus.PENDING);
         assertThat(reportCaptor.getValue().getImageUrl()).isEqualTo(imageUrl);
         verify(amazonS3).doesObjectExist(BUCKET_NAME, rawKey);
+
+        when(reportRepository.findById(1)).thenReturn(Optional.of(reportCaptor.getValue()));
+        var queryService = new DiningReportQueryService(reportRepository, mock(UserRepository.class));
+        String encodedUrl = imageUrl.substring(0, imageUrl.length() - fileName.length()) + encodedFileName;
+        assertThat(queryService.getBotReport(1).imageUrl()).isEqualTo(encodedUrl);
+        assertThat(reportCaptor.getValue().getImageUrl()).isEqualTo(imageUrl);
     }
 
     @ParameterizedTest
@@ -122,18 +136,17 @@ class DiningReportImageValidationTest {
         Dining dining = Dining.builder().date(LocalDate.parse(diningDate)).type(DiningType.LUNCH)
             .place("A코너").menu("[\"돈까스\"]").build();
         when(diningRepository.findByIdForUpdate(1)).thenReturn(Optional.of(dining));
-        UUID requestKey = UUID.randomUUID();
         var request = new DiningReportCreateRequest(imageUrl);
 
         if (!allowed) {
-            assertThatThrownBy(() -> boundaryService.create(42, 1, requestKey, request))
+            assertThatThrownBy(() -> boundaryService.create(42, 1, request))
                 .isInstanceOfSatisfying(CustomException.class,
                     exception -> assertThat(exception.getErrorCode()).isEqualTo(DINING_REPORT_DATE_NOT_ALLOWED));
             verify(reportRepository, never()).saveAndFlush(any(DiningReport.class));
             return;
         }
 
-        var response = boundaryService.create(42, 1, requestKey, request);
+        var response = boundaryService.create(42, 1, request);
         assertThat(response.status()).isEqualTo(DiningReportStatus.PENDING);
         assertThat(response.createdAt().toLocalDate()).isEqualTo(dining.getDate());
         verify(reportRepository).saveAndFlush(any(DiningReport.class));
@@ -149,7 +162,7 @@ class DiningReportImageValidationTest {
         "https://static.koreatech.in/upload/SHOPS/soldout.jpg"
     })
     void 허용되지_않은_URL은_S3_확인과_식단_잠금_전에_거부한다(String imageUrl) {
-        assertThatThrownBy(() -> service.create(42, 1, UUID.randomUUID(), new DiningReportCreateRequest(imageUrl)))
+        assertThatThrownBy(() -> service.create(42, 1, new DiningReportCreateRequest(imageUrl)))
             .isInstanceOf(CustomException.class)
             .hasMessage(INVALID_REPORT_IMAGE.getMessage());
         verifyNoInteractions(amazonS3, diningRepository);

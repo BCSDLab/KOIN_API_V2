@@ -24,8 +24,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "dining_soldout_report", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_dining_report_student", columnNames = {"reporter_id", "dining_id"}),
-    @UniqueConstraint(name = "uk_dining_report_request", columnNames = {"reporter_id", "request_key"})
+    @UniqueConstraint(name = "uk_dining_report_student", columnNames = {"reporter_id", "dining_id"})
 })
 public class DiningReport {
 
@@ -69,22 +68,17 @@ public class DiningReport {
     @Column(name = "processed_at", columnDefinition = "DATETIME")
     private LocalDateTime processedAt;
 
-    @Column(name = "request_key", columnDefinition = "BINARY(16)", nullable = false)
-    private UUID requestKey;
-
     @Column(name = "created_at", columnDefinition = "DATETIME", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", columnDefinition = "DATETIME", nullable = false)
     private LocalDateTime updatedAt;
 
-    public static DiningReport create(Dining dining, Integer reporterId, String imageUrl,
-        UUID requestKey, LocalDateTime now) {
+    public static DiningReport create(Dining dining, Integer reporterId, String imageUrl, LocalDateTime now) {
         DiningReport report = new DiningReport();
         report.dining = dining;
         report.reporterId = reporterId;
         report.imageUrl = imageUrl;
-        report.requestKey = requestKey;
         report.status = DiningReportStatus.PENDING;
         report.createdAt = now;
         report.updatedAt = now;

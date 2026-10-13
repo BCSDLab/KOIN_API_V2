@@ -20,7 +20,7 @@ public record ChatRoomResponse(
         String roomType,
 
         @Schema(
-                description = "현재 채팅방 멤버 수. TEAM은 작성자와 승인된 지원자를 포함하고, DIRECT는 항상 2",
+                description = "현재 채팅방 멤버 수. 탈퇴한 회원은 제외합니다.",
                 example = "3",
                 requiredMode = REQUIRED
         )
@@ -39,7 +39,8 @@ public record ChatRoomResponse(
 ) {
     @Schema(description = "상대방 정보")
     public record Counterpart(
-            @Schema(description = "상대방 유저 ID", example = "22", requiredMode = REQUIRED)
+            @Schema(description = "상대방 유저 ID. 탈퇴한 회원이면 null입니다.", example = "22", nullable = true,
+                    requiredMode = REQUIRED)
             Integer id,
 
             @Schema(description = "상대방 닉네임", example = "김철수", requiredMode = REQUIRED)

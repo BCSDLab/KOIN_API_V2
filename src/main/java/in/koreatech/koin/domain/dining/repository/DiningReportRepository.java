@@ -20,13 +20,6 @@ public interface DiningReportRepository extends Repository<DiningReport, Integer
 
     Optional<DiningReport> findById(Integer id);
 
-    Optional<DiningReport> findByReporterIdAndRequestKey(Integer reporterId, UUID requestKey);
-
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT r FROM DiningReport r WHERE r.reporterId = :reporterId AND r.requestKey = :requestKey")
-    Optional<DiningReport> findRequestForUpdate(@Param("reporterId") Integer reporterId,
-        @Param("requestKey") UUID requestKey);
-
     @Query("SELECT r.dining.id FROM DiningReport r WHERE r.id = :id")
     Optional<Integer> findDiningIdById(@Param("id") Integer id);
 

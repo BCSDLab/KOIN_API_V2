@@ -16,6 +16,8 @@ public interface DepartmentRepository extends Repository<Department, Integer> {
 
     Optional<Department> findByName(String name);
 
+    boolean existsByName(String name);
+
     Optional<List<Department>> findAll();
 
     default Department getByName(String name) {

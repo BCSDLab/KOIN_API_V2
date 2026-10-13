@@ -1,12 +1,25 @@
 package in.koreatech.koin.global.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
+import org.springdoc.core.customizers.GlobalOperationCustomizer;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.method.HandlerMethod;
 
+import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.domain.user.web.controller.WebAuthController;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.auth.WebAuthCookieManager;
 import in.koreatech.koin.global.auth.WebAuthRequestValidator;
 import io.swagger.v3.oas.models.Components;
@@ -26,12 +39,75 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer {
+public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer, GlobalOperationCustomizer {
 
+    private static final String JWT = "Jwt Authentication";
+    private static final String WEB_ACCESS_COOKIE = "WebAccessCookie";
     private static final String WEB_REFRESH_COOKIE = "WebRefreshCookie";
+    private static final String WEB_CSRF_TOKEN = "WebCsrfToken";
     private static final String AUTH_PATH = WebAuthCookieManager.AUTH_PATH;
+    // WebConfig에서 쿠키 인터셉터를 제외하는 기존 앱 인증 경로.
+    private static final Set<String> NATIVE_AUTH_PATHS = Set.of(
+        "/v2/users/login", "/user/login", "/user/refresh", "/user/logout",
+        "/student/login", "/owner/login", "/coop/login", "/admin/user/login");
+    private static final String SWAGGER_COOKIE_GUIDE =
+        "Swagger에서 쿠키 인증을 테스트하려면 Authorize의 Jwt Authentication을 해제한 뒤 웹 로그인하세요. "
+            + "쿠키는 브라우저가 관리하며 같은 출처의 요청에 X-CSRF-Token을 자동으로 보냅니다.";
 
     private final WebAuthProperties properties;
+
+    @Override
+    public Operation customize(Operation operation, HandlerMethod handlerMethod) {
+        if (WebAuthController.class.isAssignableFrom(handlerMethod.getBeanType())) {
+            return operation;
+        }
+        var parameters = handlerMethod.getMethodParameters();
+        boolean usesAuthentication = Arrays.stream(parameters).anyMatch(parameter ->
+            parameter.hasParameterAnnotation(Auth.class) || parameter.hasParameterAnnotation(UserId.class));
+        boolean unsupportedRole = Arrays.stream(parameters)
+            .map(parameter -> parameter.getParameterAnnotation(Auth.class))
+            .filter(auth -> auth != null)
+            .anyMatch(auth -> Arrays.stream(auth.permit()).noneMatch(UserType.KOIN_USER_TYPES::contains));
+        RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(handlerMethod.getMethod(), RequestMapping.class);
+        if (!usesAuthentication || unsupportedRole || mapping == null || isExcludedPath(handlerMethod, mapping)) {
+            return operation;
+        }
+        List<SecurityRequirement> security = operation.getSecurity() == null
+            ? new ArrayList<>(List.of(new SecurityRequirement().addList(JWT)))
+            : new ArrayList<>(operation.getSecurity());
+        if (security.stream().anyMatch(requirement -> requirement.containsKey(WEB_ACCESS_COOKIE))) {
+            return operation;
+        }
+        SecurityRequirement cookie = new SecurityRequirement().addList(WEB_ACCESS_COOKIE);
+        if (mapping.method().length == 0 || Arrays.stream(mapping.method()).anyMatch(method ->
+            method != RequestMethod.GET && method != RequestMethod.HEAD && method != RequestMethod.OPTIONS)) {
+            cookie.addList(WEB_CSRF_TOKEN);
+        }
+        security.add(cookie);
+        boolean optional = Arrays.stream(parameters)
+            .noneMatch(parameter -> parameter.hasParameterAnnotation(Auth.class));
+        if (optional && security.stream().noneMatch(SecurityRequirement::isEmpty)) {
+            security.add(new SecurityRequirement());
+        }
+        operation.setSecurity(security);
+        addCookieGuide(operation);
+        return operation;
+    }
+
+    private boolean isExcludedPath(HandlerMethod handlerMethod, RequestMapping mapping) {
+        RequestMapping typeMapping = AnnotatedElementUtils.findMergedAnnotation(handlerMethod.getBeanType(), RequestMapping.class);
+        String[] prefixes = typeMapping == null || typeMapping.path().length == 0 ? new String[] {""} : typeMapping.path();
+        for (String prefix : prefixes) {
+            for (String path : mapping.path()) {
+                String fullPath = prefix + path;
+                if (NATIVE_AUTH_PATHS.contains(fullPath) || fullPath.equals("/internal/dining/soldout-reports")
+                    || fullPath.startsWith("/internal/dining/soldout-reports/")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     public void customise(OpenAPI openApi) {
@@ -40,11 +116,38 @@ public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer {
         }
         configureOperation(openApi, "login", PathItem.HttpMethod.POST, List.of(), "201");
         configureOperation(openApi, "refresh", PathItem.HttpMethod.POST,
-            List.of(cookieSecurity()), "201");
+            List.of(cookieSecurity(true)), "201");
         configureOperation(openApi, "logout", PathItem.HttpMethod.POST,
-            List.of(cookieSecurity(), new SecurityRequirement()), "204");
+            List.of(cookieSecurity(true), new SecurityRequirement()), "204");
         configureOperation(openApi, "session", PathItem.HttpMethod.GET,
-            List.of(cookieSecurity(), new SecurityRequirement()), "200");
+            List.of(cookieSecurity(false), new SecurityRequirement()), "200");
+        configureSecuritySchemes(openApi);
+    }
+
+    private void configureSecuritySchemes(OpenAPI openApi) {
+        Set<String> schemes = openApi.getPaths().values().stream()
+            .flatMap(path -> path.readOperations().stream())
+            .filter(operation -> operation.getSecurity() != null)
+            .flatMap(operation -> operation.getSecurity().stream())
+            .flatMap(requirement -> requirement.keySet().stream())
+            .collect(Collectors.toSet());
+        if (schemes.contains(WEB_ACCESS_COOKIE) || schemes.contains(WEB_REFRESH_COOKIE) || schemes.contains(WEB_CSRF_TOKEN)) {
+            if (openApi.getComponents() == null) {
+                openApi.setComponents(new Components());
+            }
+            if (schemes.contains(WEB_ACCESS_COOKIE)) {
+                openApi.getComponents().addSecuritySchemes(WEB_ACCESS_COOKIE, new SecurityScheme()
+                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE).name(properties.accessCookieName()));
+            }
+            if (schemes.contains(WEB_REFRESH_COOKIE)) {
+                openApi.getComponents().addSecuritySchemes(WEB_REFRESH_COOKIE, new SecurityScheme()
+                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE).name(properties.refreshCookieName()));
+            }
+            if (schemes.contains(WEB_CSRF_TOKEN)) {
+                openApi.getComponents().addSecuritySchemes(WEB_CSRF_TOKEN, new SecurityScheme()
+                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name(WebAuthRequestValidator.CSRF_HEADER));
+            }
+        }
     }
 
     private void configureOperation(OpenAPI openApi, String endpoint, PathItem.HttpMethod method,
@@ -54,28 +157,26 @@ public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer {
         if (operation == null) {
             return;
         }
-        // 웹 인증 API에만 적용하고 기존 앱 API의 전역 Bearer 설정은 유지한다.
+        // 기존 전역 Bearer 설정은 유지하고 웹 인증 API의 별도 조건만 지정한다.
         operation.setSecurity(security);
-        if (!security.isEmpty()) {
-            if (openApi.getComponents() == null) {
-                openApi.setComponents(new Components());
-            }
-            openApi.getComponents().addSecuritySchemes(WEB_REFRESH_COOKIE, new SecurityScheme()
-                .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE)
-                .name(properties.refreshCookieName())
-                .description("웹 refresh 토큰 (브라우저가 관리하는 HttpOnly 쿠키)"));
-        }
+        addCookieGuide(operation);
         addHeader(operation, HttpHeaders.ORIGIN,
             "허용된 웹 출처. Origin 또는 Referer 필수이며 Origin을 우선 검증합니다.");
         addHeader(operation, HttpHeaders.REFERER,
             "Origin 헤더가 없는 경우 검증할 요청 출처");
-        if (endpoint.equals("refresh") && operation.getParameters() != null) {
-            // 런타임의 required=false는 누락 시 기존 403 오류를 반환하기 위해 유지한다.
-            operation.getParameters().stream()
-                .filter(parameter -> WebAuthRequestValidator.CSRF_HEADER.equals(parameter.getName()))
-                .forEach(parameter -> parameter.setRequired(true));
+        if ((endpoint.equals("refresh") || endpoint.equals("logout")) && operation.getParameters() != null) {
+            // CSRF 필수 조건은 security에 명세해 자동 주입 전의 빈 헤더 입력 검증을 피한다.
+            operation.getParameters().removeIf(parameter ->
+                WebAuthRequestValidator.CSRF_HEADER.equals(parameter.getName()) && "header".equals(parameter.getIn()));
         }
         configureResponses(operation, successStatus);
+    }
+
+    private void addCookieGuide(Operation operation) {
+        if (operation.getDescription() == null || !operation.getDescription().contains(SWAGGER_COOKIE_GUIDE)) {
+            operation.setDescription(operation.getDescription() == null ? SWAGGER_COOKIE_GUIDE
+                : operation.getDescription() + "\n" + SWAGGER_COOKIE_GUIDE);
+        }
     }
 
     private void addHeader(Operation operation, String name, String description) {
@@ -133,7 +234,8 @@ public class WebAuthOpenApiCustomizer implements GlobalOpenApiCustomizer {
             .secure(properties.secure()).sameSite(properties.sameSite()).maxAge(clear ? 0 : -1).build().toString();
     }
 
-    private SecurityRequirement cookieSecurity() {
-        return new SecurityRequirement().addList(WEB_REFRESH_COOKIE);
+    private SecurityRequirement cookieSecurity(boolean csrfRequired) {
+        SecurityRequirement security = new SecurityRequirement().addList(WEB_REFRESH_COOKIE);
+        return csrfRequired ? security.addList(WEB_CSRF_TOKEN) : security;
     }
 }

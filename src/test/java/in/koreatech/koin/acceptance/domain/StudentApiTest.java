@@ -357,6 +357,7 @@ public class StudentApiTest extends AcceptanceTest {
 
     @Test
     void 학생_회원가입_후_학교_이메일요청_이벤트가_발생하고_Redis에_저장된다() throws Exception {
+        departmentFixture.컴퓨터공학부();
         mockMvc.perform(
                 post("/user/student/register")
                     .content("""

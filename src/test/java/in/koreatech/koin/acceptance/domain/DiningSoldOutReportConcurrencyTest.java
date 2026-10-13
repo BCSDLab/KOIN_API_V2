@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,9 +70,7 @@ import in.koreatech.koin.infrastructure.s3.client.S3Client;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @TestPropertySource(properties = {
-    "dining.report.bot-token=test-dining-report-bot-token",
-    "dining.report.delivery.workspace-id=T_EXAMPLE",
-    "dining.report.delivery.channel-id=C_EXAMPLE"
+    "dining.report.bot-token=test-dining-report-bot-token"
 })
 class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
 
@@ -270,7 +267,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
             WHERE table_schema = DATABASE() AND table_name = 'dining_soldout_report'
             GROUP BY index_name
             """, String.class)).containsExactlyInAnyOrder(
-                "id", "reporter_id,dining_id", "reporter_id,request_key", "created_at,id",
+                "id", "reporter_id,dining_id", "created_at,id",
                 "status,created_at,id", "dining_id,status,id", "processing_id,id", "source_report_id");
 
         Integer secondDiningId = transactionTemplate.execute(status ->
@@ -325,15 +322,18 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
             assertThat(changes).extracting(row -> row.get("status")).containsOnly(expectedStatus);
             assertThat(changes).extracting(row -> row.get("processing_type")).containsOnly(expectedProcessingType);
             assertThat(lastSequence()).isEqualTo(sequenceBefore + 2);
-            List<Map<String, Object>> targets = jdbcTemplate.queryForList("""
-                SELECT report_id, desired_sequence, JSON_UNQUOTE(JSON_EXTRACT(desired_snapshot, '$.status')) AS status
-                FROM dining_soldout_report_delivery_target ORDER BY desired_sequence
+            List<Map<String, Object>> tasks = jdbcTemplate.queryForList("""
+                SELECT report_id, sequence, delivery_id, delivery_state,
+                    JSON_UNQUOTE(JSON_EXTRACT(report_snapshot, '$.status')) AS status
+                FROM dining_soldout_report_change WHERE event_type = 'PROCESSED' ORDER BY sequence
                 """);
-            assertThat(targets).extracting(row -> ((Number)row.get("report_id")).intValue())
+            assertThat(tasks).extracting(row -> ((Number)row.get("report_id")).intValue())
                 .containsExactly(secondReportId, firstReportId);
-            assertThat(targets).extracting(row -> ((Number)row.get("desired_sequence")).longValue())
+            assertThat(tasks).extracting(row -> ((Number)row.get("sequence")).longValue())
                 .containsExactly(sequenceBefore + 1, sequenceBefore + 2);
-            assertThat(targets).extracting(row -> row.get("status")).containsOnly(expectedStatus);
+            assertThat(tasks).extracting(row -> row.get("status")).containsOnly(expectedStatus);
+            assertThat(tasks).extracting(row -> row.get("delivery_state")).containsOnly("QUEUED");
+            assertThat(tasks).allSatisfy(row -> assertThat(row.get("delivery_id")).isNotNull());
         } finally {
             firstAtSequence.countDown();
             secondLockedSequence.countDown();
@@ -369,7 +369,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
 
             List<Map<String, Object>> pending = reportRows();
             List<Map<String, Object>> changesBefore = changeRows();
-            List<Map<String, Object>> targetsBefore = targetRows();
+            List<Map<String, Object>> tasksBefore = taskRows();
             long sequenceBefore = lastSequence();
             Dining dining = diningRepository.getById(diningId);
             assertThat(dining.getSoldOut()).isNull();
@@ -390,7 +390,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
                 String.class, diningId)).isNull();
             assertThat(reportRows()).isEqualTo(pending);
             assertThat(changeRows()).isEqualTo(changesBefore);
-            assertThat(targetRows()).isEqualTo(targetsBefore);
+            assertThat(taskRows()).isEqualTo(tasksBefore);
             assertThat(lastSequence()).isEqualTo(sequenceBefore);
             assertThat(diningSoldOutCacheRepository.findById(dining.getPlace())).isEmpty();
             assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM notification", Integer.class)).isZero();
@@ -409,8 +409,11 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
                 .containsOnly(rejected.get(0).get("processing_id"));
             assertThat(changeRows()).hasSize(changesBefore.size() + 2);
             assertThat(lastSequence()).isEqualTo(sequenceBefore + 2);
-            assertThat(targetRows()).extracting(row -> ((Number)row.get("desired_sequence")).longValue())
+            assertThat(taskRows()).filteredOn(row -> "PROCESSED".equals(row.get("event_type")))
+                .extracting(row -> ((Number)row.get("sequence")).longValue())
                 .containsExactly(sequenceBefore + 1, sequenceBefore + 2);
+            assertThat(taskRows()).filteredOn(row -> "CREATED".equals(row.get("event_type")))
+                .isEqualTo(tasksBefore);
             verify(coopEventListener).onDiningSoldOutRequest(
                 new DiningSoldOutEvent(diningId, dining.getPlace(), dining.getType()));
             verify(fcmClient).sendMessages(argThat(requests -> requests.size() == 1
@@ -440,7 +443,6 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
     private int submit(String token, Integer targetDiningId) throws Exception {
         return mockMvc.perform(post("/dinings/{diningId}/soldout-reports", targetDiningId)
                 .header("Authorization", "Bearer " + token)
-                .header("Idempotency-Key", UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"image_url\":\"" + IMAGE_URL + "\"}"))
             .andReturn().getResponse().getStatus();
@@ -450,7 +452,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
         return jdbcTemplate.queryForList("""
             SELECT id, reporter_id, image_url, status, processing_type, HEX(processing_id) AS processing_id,
                 source_report_id, processor_workspace_id, processor_user_id, processor_name,
-                processed_at, created_at, updated_at, HEX(request_key) AS request_key
+                processed_at, created_at, updated_at
             FROM dining_soldout_report
             WHERE dining_id = ?
             ORDER BY id
@@ -473,12 +475,13 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
             "SELECT last_sequence FROM dining_soldout_report_sequence WHERE id = 1", Long.class);
     }
 
-    private List<Map<String, Object>> targetRows() {
+    private List<Map<String, Object>> taskRows() {
         return jdbcTemplate.queryForList("""
-            SELECT t.report_id, t.desired_sequence, t.desired_snapshot
-            FROM dining_soldout_report_delivery_target t
-            JOIN dining_soldout_report r ON r.id = t.report_id
-            WHERE r.dining_id = ? ORDER BY t.report_id
+            SELECT c.report_id, c.sequence, c.event_type, HEX(c.delivery_id) AS delivery_id,
+                c.report_snapshot, c.delivery_state
+            FROM dining_soldout_report_change c
+            JOIN dining_soldout_report r ON r.id = c.report_id
+            WHERE r.dining_id = ? ORDER BY c.sequence
             """, diningId);
     }
 }

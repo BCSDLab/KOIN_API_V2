@@ -35,14 +35,14 @@ public interface TeamRecruitmentChatMessageRepository extends Repository<TeamRec
         FROM TeamRecruitmentChatMessage message
         JOIN message.chatRoom.members member
         WHERE member.user.id = :userId
-        AND message.sender.id <> :userId
+        AND (message.sender IS NULL OR message.sender.id <> :userId)
         AND (member.lastReadMessageId IS NULL OR message.id > member.lastReadMessageId)
         GROUP BY message.chatRoom.id
         """)
     List<ChatRoomUnreadCount> countUnreadMessagesByUserId(@Param("userId") Integer userId);
 
-    /** Returns the initial page in ascending message-id order. */
-    List<TeamRecruitmentChatMessage> findAllByChatRoom_IdOrderByIdAsc(
+    /** Returns the latest messages first. */
+    List<TeamRecruitmentChatMessage> findAllByChatRoom_IdOrderByIdDesc(
         Integer chatRoomId,
         Pageable pageable
     );

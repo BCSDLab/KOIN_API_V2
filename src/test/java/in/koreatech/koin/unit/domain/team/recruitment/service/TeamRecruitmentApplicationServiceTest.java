@@ -1,6 +1,7 @@
 package in.koreatech.koin.unit.domain.team.recruitment.service;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.CANCELLED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.PENDING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.REJECTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomStatus.ACTIVE;
@@ -27,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +64,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfi
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileSkillRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRoleRepository;
 import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentApplicationService;
 import in.koreatech.koin.domain.user.model.User;
@@ -80,6 +83,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.hibernate.exception.ConstraintViolationException;
 import org.mockito.ArgumentCaptor;
@@ -105,6 +110,9 @@ class TeamRecruitmentApplicationServiceTest {
 
     @Mock
     private TeamRecruitmentRepository recruitmentRepository;
+
+    @Mock
+    private TeamRecruitmentUserLockRepository userLockRepository;
 
     @Mock
     private TeamRecruitmentRoleRepository roleRepository;
@@ -159,6 +167,40 @@ class TeamRecruitmentApplicationServiceTest {
         lenient().when(clock.withZone(KST)).thenReturn(clock);
     }
 
+    @Test
+    void withdrawnApplicantCannotBeApproved() {
+        TeamRecruitment recruitment = recruitment(GENERAL, 0, 5, TODAY.plusDays(1));
+        TeamRecruitmentApplication target = application(recruitment, null, PENDING);
+        ReflectionTestUtils.setField(target, "applicant", null);
+        stubDecision(recruitment, target);
+        assertThatThrownBy(() -> applicationService.updateApplicationStatus(
+            new UpdateApplicationStatusRequest(ACCEPTED), RECRUITMENT_ID, APPLICATION_ID, AUTHOR_ID))
+            .isInstanceOf(CustomException.class)
+            .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_APPLICATION_FINALIZED);
+        assertThat(target.getStatus()).isEqualTo(PENDING);
+        assertThat(recruitment.getCurrentParticipants()).isZero();
+        verify(applicationRepository, never()).save(any());
+        verify(notificationRepository, never()).save(any());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = TeamRecruitmentApplicationStatus.class, names = {"ACCEPTED", "REJECTED"})
+    void 취소된_지원서는_승인하거나_거절할_수_없다(TeamRecruitmentApplicationStatus requestedStatus) {
+        TeamRecruitment recruitment = recruitment(GENERAL, 0, 5, TODAY.plusDays(1));
+        TeamRecruitmentApplication target = application(recruitment, null, CANCELLED);
+        stubDecision(recruitment, target);
+
+        assertThatThrownBy(() -> applicationService.updateApplicationStatus(
+            new UpdateApplicationStatusRequest(requestedStatus), RECRUITMENT_ID, APPLICATION_ID, AUTHOR_ID))
+            .isInstanceOf(CustomException.class)
+            .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_APPLICATION_FINALIZED);
+
+        assertThat(target.getStatus()).isEqualTo(CANCELLED);
+        assertThat(recruitment.getCurrentParticipants()).isZero();
+        verify(applicationRepository, never()).save(any());
+        verify(notificationRepository, never()).save(any());
+    }
+
     @Nested
     class CreateApplication {
 
@@ -183,6 +225,10 @@ class TeamRecruitmentApplicationServiceTest {
                 RECRUITMENT_ID,
                 APPLICANT_ID
             );
+
+            var locks = inOrder(userLockRepository, recruitmentRepository);
+            locks.verify(userLockRepository).lock(APPLICANT_ID);
+            locks.verify(recruitmentRepository).findByIdWithLock(RECRUITMENT_ID);
 
             ArgumentCaptor<TeamRecruitmentApplication> captor =
                 ArgumentCaptor.forClass(TeamRecruitmentApplication.class);
@@ -613,10 +659,11 @@ class TeamRecruitmentApplicationServiceTest {
             verify(applicationRepository, never()).save(any());
         }
 
-        @Test
-        void PENDING은_상태_변경_요청으로_허용하지_않는다() {
+        @ParameterizedTest
+        @EnumSource(value = TeamRecruitmentApplicationStatus.class, names = {"PENDING", "CANCELLED"})
+        void 승인과_거절_외의_상태_변경_요청은_허용하지_않는다(TeamRecruitmentApplicationStatus requestedStatus) {
             assertThatThrownBy(() -> applicationService.updateApplicationStatus(
-                new UpdateApplicationStatusRequest(PENDING),
+                new UpdateApplicationStatusRequest(requestedStatus),
                 RECRUITMENT_ID,
                 APPLICATION_ID,
                 AUTHOR_ID
@@ -664,11 +711,17 @@ class TeamRecruitmentApplicationServiceTest {
             verify(applicationRepository, never()).save(any());
         }
 
-        @Test
-        void 마지막_자리를_승인하면_남은_PENDING을_거절하고_두번째_승인으로_count를_초과하지_않는다() {
+        @org.junit.jupiter.params.ParameterizedTest
+        @org.junit.jupiter.params.provider.ValueSource(booleans = {false, true})
+        void 마지막_자리를_승인하면_남은_PENDING을_거절하고_두번째_승인으로_count를_초과하지_않는다(boolean withdrawn) {
             TeamRecruitment recruitment = recruitment(GENERAL, 0, 1, TODAY.plusDays(1));
             TeamRecruitmentApplication target = application(recruitment, null, PENDING);
             TeamRecruitmentApplication remaining = application(21, recruitment, null, PENDING);
+            TeamRecruitmentApplication withdrawnAccepted = application(22, recruitment, null, ACCEPTED);
+            ReflectionTestUtils.setField(withdrawnAccepted, "applicant", null);
+            if (withdrawn) {
+                ReflectionTestUtils.setField(remaining, "applicant", null);
+            }
             TeamRecruitmentChatRoom teamRoom = TeamRecruitmentChatRoom.builder()
                 .id(TEAM_ROOM_ID)
                 .recruitment(recruitment)
@@ -691,7 +744,7 @@ class TeamRecruitmentApplicationServiceTest {
                 eq(RECRUITMENT_ID),
                 eq(List.of(ACCEPTED)),
                 any(Pageable.class)
-            )).thenReturn(new PageImpl<>(List.of(target)));
+            )).thenReturn(new PageImpl<>(withdrawn ? List.of(target, withdrawnAccepted) : List.of(target)));
 
             applicationService.updateApplicationStatus(
                 new UpdateApplicationStatusRequest(ACCEPTED),
@@ -709,11 +762,15 @@ class TeamRecruitmentApplicationServiceTest {
 
             ArgumentCaptor<TeamRecruitmentNotification> notificationCaptor =
                 ArgumentCaptor.forClass(TeamRecruitmentNotification.class);
-            verify(notificationRepository, org.mockito.Mockito.times(3)).save(notificationCaptor.capture());
+            verify(notificationRepository, org.mockito.Mockito.times(withdrawn ? 2 : 3)).save(notificationCaptor.capture());
             assertThat(notificationCaptor.getAllValues())
                 .extracting(TeamRecruitmentNotification::getType)
-                .containsExactlyInAnyOrder(APPLICATION_ACCEPTED, RECRUITMENT_CLOSED, APPLICATION_REJECTED);
-            verify(outboxEventRepository, org.mockito.Mockito.times(3)).save(any());
+                .containsExactlyInAnyOrderElementsOf(withdrawn
+                    ? List.of(APPLICATION_ACCEPTED, RECRUITMENT_CLOSED)
+                    : List.of(APPLICATION_ACCEPTED, RECRUITMENT_CLOSED, APPLICATION_REJECTED));
+            assertThat(notificationCaptor.getAllValues())
+                .allSatisfy(notification -> assertThat(notification.getRecipient()).isNotNull());
+            verify(outboxEventRepository, org.mockito.Mockito.times(withdrawn ? 2 : 3)).save(any());
 
             assertThatThrownBy(() -> applicationService.updateApplicationStatus(
                 new UpdateApplicationStatusRequest(ACCEPTED),
