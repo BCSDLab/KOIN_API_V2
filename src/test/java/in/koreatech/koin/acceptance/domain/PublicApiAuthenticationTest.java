@@ -63,9 +63,9 @@ class PublicApiAuthenticationTest extends AcceptanceTest {
 
     @ParameterizedTest
     @EnumSource(InvalidCredential.class)
-    void 인터페이스에만_선언된_필수_인증도_잘못된_인증정보를_거부한다(InvalidCredential credential)
+    void 콜밴_참여는_인터페이스의_필수_인증을_검증한다(InvalidCredential credential)
         throws Exception {
-        mockMvc.perform(withInvalidCredential(get("/callvan/posts/1/chat"), credential))
+        mockMvc.perform(withInvalidCredential(post("/callvan/posts/1/participants"), credential))
             .andExpect(status().isUnauthorized());
     }
 
