@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.coopshop.service;
 
 import static in.koreatech.koin.domain.dining.model.DiningType.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_COOP_SEMESTER;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -14,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
-import in.koreatech.koin.domain.coopshop.exception.CoopSemesterNotFoundException;
 import in.koreatech.koin.domain.coopshop.exception.DiningTypeNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopName;
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.coopshop.repository.CoopNameRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopSemesterRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.dining.model.DiningType;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -98,20 +99,24 @@ public class CoopShopService {
     @Transactional
     public void updateSemester() {
         CoopSemester currentSemester = coopSemesterRepository.getByIsApplied(true);
-        if (validateSemester(currentSemester)) {
+        if (validateSemester(currentSemester) && currentSemester.hasCoopShops()) {
             return;
         }
 
+        CoopSemester nextSemester = findNextSemester();
         currentSemester.updateApply(false);
-        CoopSemester nextSemester = coopSemesterRepository.getTopByOrderByToDateDesc();
-        if (!validateSemester(nextSemester)) {
-            throw CoopSemesterNotFoundException.withDetail("");
-        }
         nextSemester.updateApply(true);
     }
 
-    public boolean validateSemester(CoopSemester coopSemester) {
+    private CoopSemester findNextSemester() {
         LocalDate today = LocalDate.now(clock);
-        return today.isAfter(coopSemester.getFromDate()) && today.isBefore(coopSemester.getToDate());
+        return coopSemesterRepository.findAllValidOn(today).stream()
+            .filter(CoopSemester::hasCoopShops)
+            .findFirst()
+            .orElseThrow(() -> CustomException.of(NOT_FOUND_COOP_SEMESTER, "date : " + today));
+    }
+
+    public boolean validateSemester(CoopSemester coopSemester) {
+        return coopSemester.isValidOn(LocalDate.now(clock));
     }
 }

@@ -94,6 +94,14 @@ public class CoopSemester extends BaseEntity {
         this.isApplied = isApplied;
     }
 
+    public boolean isValidOn(LocalDate date) {
+        return !date.isBefore(fromDate) && !date.isAfter(toDate);
+    }
+
+    public boolean hasCoopShops() {
+        return !coopShops.isEmpty();
+    }
+
     public void replaceCoopShops(List<CoopShop> coopShops) {
         this.coopShops.clear();
         this.coopShops.addAll(coopShops);
