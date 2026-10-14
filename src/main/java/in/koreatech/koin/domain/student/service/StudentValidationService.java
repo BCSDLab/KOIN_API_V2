@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.student.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
@@ -43,10 +44,11 @@ public class StudentValidationService {
         validateDataExist(request);
         validateStudentNumber(request.studentNumber());
         validateDepartment(request.major());
+        validateAcademicProgram(request.studentNumber(), departmentRepository.getByName(request.major()), null);
     }
 
     public void validateDepartment(String department) {
-        if (department != null && !departmentRepository.existsByName(department)) {
+        if (department == null || department.isBlank() || !departmentRepository.existsByName(department)) {
             throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
         }
     }
@@ -58,8 +60,13 @@ public class StudentValidationService {
     }
 
     public void validateAcademicProgram(String studentNumber, Department department, Major major) {
-        if (department == null || studentNumber == null || studentNumber.length() < 4) {
-            return;
+        validateStudentNumberFormat(studentNumber);
+        if (department == null) {
+            throw StudentDepartmentNotValidException.withDetail("학부가 필요합니다.");
+        }
+        if (major != null && (major.getDepartment() == null
+            || !Objects.equals(major.getDepartment().getId(), department.getId()))) {
+            throw MajorNotFoundException.withDetail("학부: " + department.getName() + ", 전공: " + major.getName());
         }
         String studentYear = studentNumber.substring(0, 4);
         List<AcademicProgramYear> programs = academicProgramYearRepository
@@ -111,10 +118,14 @@ public class StudentValidationService {
             });
     }
 
-    public void validateStudentNumber(String studentNumber) {
-        if (studentNumber == null) {
-            return;
+    public void validateStudentNumberFormat(String studentNumber) {
+        if (studentNumber == null || !studentNumber.matches("[0-9]{8,10}")) {
+            throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
+    }
+
+    public void validateStudentNumber(String studentNumber) {
+        validateStudentNumberFormat(studentNumber);
         int studentNumberYear = StudentUtil.parseStudentNumberYear(studentNumber);
         if (studentNumberYear < MIN_YEAR || LocalDateTime.now().getYear() < studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);

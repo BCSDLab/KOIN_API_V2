@@ -355,13 +355,9 @@ class AcademicProgramYearApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 학부를_비우는_기존_요청은_계속_허용한다() throws Exception {
-        update("2019136135", null, null, 200);
-        transactionTemplate.executeWithoutResult(transaction -> {
-            Student saved = studentRepository.getById(student.getId());
-            assertThat(saved.getDepartment()).isNull();
-            assertThat(saved.getMajor()).isNull();
-        });
+    void 학부를_비우는_요청은_거절하고_기존_학적을_유지한다() throws Exception {
+        update("2019136135", null, null, 400);
+        assertAcademic("2019136135", computerDepartment.getId(), legacyComputerMajor.getId());
     }
 
     private Department addDepartment(String year) {

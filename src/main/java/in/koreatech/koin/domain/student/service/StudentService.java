@@ -155,15 +155,11 @@ public class StudentService {
         Department department = departmentRepository.findByName(major).orElse(null);
         boolean isUpdatedDepartment = student.isNotSameDepartment(department);
         // 기존 프로필 API는 전공 선택을 받지 않는다. 학부 변경 시에만 기본 전공을 정한다.
-        if (department != null) {
-            Major newMajor = isUpdatedDepartment
-                ? findDefaultMajor(student.getStudentNumber(), department) : student.getMajor();
-            studentValidationService.validateAcademicProgram(student.getStudentNumber(), department, newMajor);
-            if (isUpdatedDepartment) {
-                student.updateDepartmentMajor(department, newMajor);
-            }
-        } else {
-            student.updateDepartmentMajor(null, null);
+        Major newMajor = department != null && isUpdatedDepartment
+            ? findDefaultMajor(student.getStudentNumber(), department) : student.getMajor();
+        studentValidationService.validateAcademicProgram(student.getStudentNumber(), department, newMajor);
+        if (isUpdatedDepartment) {
+            student.updateDepartmentMajor(department, newMajor);
         }
         return isUpdatedDepartment;
     }
@@ -246,9 +242,7 @@ public class StudentService {
     }
 
     private List<AcademicProgramYear> findAcademicPrograms(String studentNumber) {
-        if (studentNumber == null || studentNumber.length() < 4) {
-            return List.of();
-        }
+        studentValidationService.validateStudentNumberFormat(studentNumber);
         return academicProgramYearRepository
             .findAllByStudentYearOrderByDepartmentIdAscIdAsc(studentNumber.substring(0, 4));
     }
@@ -270,9 +264,9 @@ public class StudentService {
         Major major = null;
         if (department != null) {
             major = findDefaultMajor(studentTemporaryStatus.get().getStudentNumber(), department);
-            studentValidationService.validateAcademicProgram(
-                studentTemporaryStatus.get().getStudentNumber(), department, major);
         }
+        studentValidationService.validateAcademicProgram(
+            studentTemporaryStatus.get().getStudentNumber(), department, major);
         Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department, major);
         studentRepository.save(student);
         userRepository.save(student.getUser());
