@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.dept.model.Dept;
+import in.koreatech.koin.domain.student.model.Department;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -23,11 +23,11 @@ public record DeptsResponse(
     List<String> deptNums
 ) {
 
-    public static DeptsResponse from(Dept dept) {
+    public static DeptsResponse from(Department department) {
         return new DeptsResponse(
-            dept.getName(),
-            dept.getCurriculumLink(),
-            dept.getNumbers()
+            department.getName(),
+            department.getCurriculumLink(),
+            department.getDeptNums()
         );
     }
 }
