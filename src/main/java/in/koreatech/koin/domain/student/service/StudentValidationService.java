@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.student.service;
 
+import java.util.List;
+
 import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +11,10 @@ import in.koreatech.koin.domain.student.dto.RegisterStudentRequest;
 import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotValidException;
+import in.koreatech.koin.domain.student.model.AcademicProgramYear;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
+import in.koreatech.koin.domain.student.repository.AcademicProgramYearRepository;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
@@ -26,6 +32,7 @@ public class StudentValidationService {
     private final StudentRedisRepository studentRedisRepository;
     private final MajorRepository majorRepository;
     private final DepartmentRepository departmentRepository;
+    private final AcademicProgramYearRepository academicProgramYearRepository;
 
     private static final int MIN_YEAR = 1992;
 
@@ -47,6 +54,30 @@ public class StudentValidationService {
     public void validateMajor(String major) {
         if (major != null && !majorRepository.existsByName(major)) {
             throw MajorNotFoundException.withDetail("전공 : " + major);
+        }
+    }
+
+    public void validateAcademicProgram(String studentNumber, Department department, Major major) {
+        if (department == null || studentNumber == null || studentNumber.length() < 4) {
+            return;
+        }
+        String studentYear = studentNumber.substring(0, 4);
+        List<AcademicProgramYear> programs = academicProgramYearRepository
+            .findAllByStudentYearOrderByDepartmentIdAscIdAsc(studentYear);
+        if (programs.isEmpty()) {
+            return;
+        }
+        boolean validDepartment = programs.stream()
+            .anyMatch(program -> program.getDepartment().getId().equals(department.getId()));
+        if (!validDepartment) {
+            throw StudentDepartmentNotValidException.withDetail(
+                "학번 연도: " + studentYear + ", 학부: " + department.getName());
+        }
+        if (major != null && programs.stream().noneMatch(program -> program.getMajor() != null
+            && program.getDepartment().getId().equals(department.getId())
+            && program.getMajor().getId().equals(major.getId()))) {
+            throw MajorNotFoundException.withDetail(
+                "학번 연도: " + studentYear + ", 전공: " + major.getName());
         }
     }
 

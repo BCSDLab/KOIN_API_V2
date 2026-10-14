@@ -117,24 +117,73 @@ class AcademicProgramYearApiTest extends AcceptanceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"2019136001", "2022136001", "2024136001", "2025136001", "2026136001"})
-    void 새_데이터를_추가해도_기존_컴공_전공_ID를_보존한다(String number) throws Exception {
+    @ValueSource(strings = {"2019136001", "2022136001", "2024136001", "2025136001", "2027136001"})
+    void 연도_기준이_없거나_해당_기준에_맞는_기존_컴공_전공은_보존한다(String number) throws Exception {
         update(number, "컴퓨터공학부", null, 200);
         assertAcademic(number, computerDepartment.getId(), legacyComputerMajor.getId());
     }
 
     @Test
-    void 매핑에서_빠진_기존_학부와_전공도_그대로_보존한다() throws Exception {
+    void 매핑에서_빠진_기존_학부의_재저장은_거절하고_저장된_학적은_보존한다() throws Exception {
         changeExistingAcademic("2026136001", "산업경영학부", "융합경영전공");
-        update("2026136001", "산업경영학부", null, 200);
+        update("2026136001", "산업경영학부", null, 400);
         assertAcademic("2026136001", legacyManagementDepartment.getId(), legacyManagementMajor.getId());
     }
 
     @Test
-    void 매핑에서_빠진_기존_이름_있는_전공도_전공_생략시_유지한다() throws Exception {
+    void 연도_기준이_있으면_기존_전공을_생략해서_재저장해도_검증한다() throws Exception {
         changeExistingAcademic("2025136001", "컴퓨터공학부", "AI·소프트웨어전공");
         Integer previousId = majorRepository.getByNameAndDepartmentId("AI·소프트웨어전공", computerDepartment.getId()).getId();
-        update("2025136001", "컴퓨터공학부", null, 200);
+        update("2025136001", "컴퓨터공학부", null, 404);
+        assertAcademic("2025136001", computerDepartment.getId(), previousId);
+    }
+
+    @Test
+    void 연도_기준이_있으면_기존_이름_없는_전공도_검증한다() throws Exception {
+        changeExistingAcademic("2026136001", "컴퓨터공학부", null);
+        transactionTemplate.executeWithoutResult(transaction -> studentRepository.getById(student.getId())
+            .updateStudentAcademicInfo("2026136001", computerDepartment, legacyComputerMajor));
+
+        update("2026136001", "컴퓨터공학부", null, 404);
+
+        assertAcademic("2026136001", computerDepartment.getId(), legacyComputerMajor.getId());
+    }
+
+    @Test
+    void 해당_연도_연결이_전혀_없는_2027학번은_연도별_검증만_생략한다() throws Exception {
+        assertThat(departments("2027")).isEqualTo(departments(null));
+
+        update("2027136001", "컴퓨터공학부", "AI·소프트웨어전공", 200);
+
+        Integer majorId = majorRepository.getByNameAndDepartmentId(
+            "AI·소프트웨어전공", computerDepartment.getId()).getId();
+        assertAcademic("2027136001", computerDepartment.getId(), majorId);
+        update("2027136001", "존재하지않는학부", null, 400);
+        update("2027136001", "컴퓨터공학부", "존재하지않는전공", 404);
+        update("2027136001", "컴퓨터공학부", "융합경영전공", 404);
+        update("2027", "컴퓨터공학부", null, 400);
+        assertAcademic("2027136001", computerDepartment.getId(), majorId);
+    }
+
+    @Test
+    void 요청_학부가_아닌_다른_학부만_등록돼도_그_연도는_검증한다() throws Exception {
+        transactionTemplate.executeWithoutResult(transaction -> linkYear(
+            "2027", computerDepartment, legacyComputerMajor));
+        changeExistingAcademic("2027136001", "산업경영학부", "융합경영전공");
+
+        update("2027136001", "산업경영학부", null, 400);
+
+        assertAcademic("2027136001", legacyManagementDepartment.getId(), legacyManagementMajor.getId());
+    }
+
+    @Test
+    void 기존_전공이라도_명시적으로_선택하면_학번에_맞는지_검증한다() throws Exception {
+        changeExistingAcademic("2025136001", "컴퓨터공학부", "AI·소프트웨어전공");
+        Integer previousId = majorRepository.getByNameAndDepartmentId(
+            "AI·소프트웨어전공", computerDepartment.getId()).getId();
+
+        update("2025136001", "컴퓨터공학부", "AI·소프트웨어전공", 404);
+
         assertAcademic("2025136001", computerDepartment.getId(), previousId);
     }
 

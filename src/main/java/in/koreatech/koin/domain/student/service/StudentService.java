@@ -29,7 +29,6 @@ import in.koreatech.koin.domain.student.dto.UpdateStudentAcademicInfoResponse;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequest;
 import in.koreatech.koin.domain.student.dto.UpdateStudentRequestV2;
 import in.koreatech.koin.domain.student.dto.UpdateStudentResponse;
-import in.koreatech.koin.domain.student.exception.MajorNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.model.AcademicProgramYear;
 import in.koreatech.koin.domain.student.model.Department;
@@ -156,12 +155,14 @@ public class StudentService {
         Department department = departmentRepository.findByName(major).orElse(null);
         boolean isUpdatedDepartment = student.isNotSameDepartment(department);
         // 기존 프로필 API는 전공 선택을 받지 않는다. 학부 변경 시에만 기본 전공을 정한다.
-        Major newMajor;
-        if (department != null && isUpdatedDepartment) {
-            newMajor = findDefaultMajor(student.getStudentNumber(), department);
-            validateAcademicProgram(student.getStudentNumber(), department, newMajor);
-            student.updateDepartmentMajor(department, newMajor);
-        } else if (department == null) {
+        if (department != null) {
+            Major newMajor = isUpdatedDepartment
+                ? findDefaultMajor(student.getStudentNumber(), department) : student.getMajor();
+            studentValidationService.validateAcademicProgram(student.getStudentNumber(), department, newMajor);
+            if (isUpdatedDepartment) {
+                student.updateDepartmentMajor(department, newMajor);
+            }
+        } else {
             student.updateDepartmentMajor(null, null);
         }
         return isUpdatedDepartment;
@@ -219,10 +220,7 @@ public class StudentService {
 
         boolean isAcademicInfoChanged = !Objects.equals(student.getStudentNumber(), newStudentNumber)
             || !Objects.equals(student.getMajor(), newMajor);
-        if (!Objects.equals(student.getDepartment(), newDepartment)
-            || !Objects.equals(student.getMajor(), newMajor)) {
-            validateAcademicProgram(newStudentNumber, newDepartment, newMajor);
-        }
+        studentValidationService.validateAcademicProgram(newStudentNumber, newDepartment, newMajor);
         student.updateStudentAcademicInfo(newStudentNumber, newDepartment, newMajor);
         // 졸업 계산 갱신이 영속성 컨텍스트를 비우기 전에 응답의 학적 값을 읽는다.
         UpdateStudentAcademicInfoResponse response = UpdateStudentAcademicInfoResponse.from(student);
@@ -255,28 +253,6 @@ public class StudentService {
             .findAllByStudentYearOrderByDepartmentIdAscIdAsc(studentNumber.substring(0, 4));
     }
 
-    private void validateAcademicProgram(String studentNumber, Department department, Major major) {
-        if (department == null) {
-            return;
-        }
-        List<AcademicProgramYear> programs = findAcademicPrograms(studentNumber);
-        if (programs.isEmpty()) {
-            return;
-        }
-        boolean validDepartment = programs.stream()
-            .anyMatch(program -> program.getDepartment().getId().equals(department.getId()));
-        if (!validDepartment) {
-            throw StudentDepartmentNotValidException.withDetail(
-                "학번 연도: " + studentNumber.substring(0, 4) + ", 학부: " + department.getName());
-        }
-        if (major != null && programs.stream().noneMatch(program -> program.getMajor() != null
-            && program.getDepartment().getId().equals(department.getId())
-            && program.getMajor().getId().equals(major.getId()))) {
-            throw MajorNotFoundException.withDetail(
-                "학번 연도: " + studentNumber.substring(0, 4) + ", 전공: " + major.getName());
-        }
-    }
-
     @Transactional
     @ConcurrencyGuard(lockName = "studentAuthenticate")
     public ModelAndView authenticate(UserAuthTokenRequest request) {
@@ -294,7 +270,8 @@ public class StudentService {
         Major major = null;
         if (department != null) {
             major = findDefaultMajor(studentTemporaryStatus.get().getStudentNumber(), department);
-            validateAcademicProgram(studentTemporaryStatus.get().getStudentNumber(), department, major);
+            studentValidationService.validateAcademicProgram(
+                studentTemporaryStatus.get().getStudentNumber(), department, major);
         }
         Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department, major);
         studentRepository.save(student);
@@ -314,7 +291,7 @@ public class StudentService {
             request.loginId()
         );
         Department department = departmentRepository.getByName(request.department());
-        validateAcademicProgram(request.studentNumber(), department, null);
+        studentValidationService.validateAcademicProgram(request.studentNumber(), department, null);
         Student student = request.toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
