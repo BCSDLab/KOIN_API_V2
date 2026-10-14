@@ -100,7 +100,7 @@ public class DiningReportDeliveryService {
 
     private DiningReportResponse snapshot(String value) {
         try {
-            return objectMapper.readValue(value, DiningReportResponse.class);
+            return objectMapper.readValue(value, DiningReportResponse.class).withEncodedImageUrl();
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("저장된 제보 작업 내용을 읽을 수 없습니다.", exception);
         }

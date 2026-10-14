@@ -4,11 +4,13 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,12 +26,14 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentDirectChatPolicy;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentOutboxEvent;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentProfile;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.ChatRoomResponse;
@@ -43,6 +47,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
@@ -68,6 +73,7 @@ public class TeamRecruitmentChatService {
     private final TeamRecruitmentChatMessageRepository messageRepository;
     private final TeamRecruitmentNotificationRepository notificationRepository;
     private final TeamRecruitmentOutboxEventRepository outboxEventRepository;
+    private final TeamRecruitmentProfileRepository profileRepository;
     private final ObjectMapper objectMapper;
     private final Clock clock;
 
@@ -98,6 +104,8 @@ public class TeamRecruitmentChatService {
                     TeamRecruitmentChatMember::getUser,
                     (first, ignored) -> first
                 ));
+        Map<Integer, String> profileNicknames = getProfileNicknames(counterpartsByChatRoomId.values().stream()
+            .map(User::getId).distinct().toList());
         Map<Integer, TeamRecruitmentChatMessage> latestMessagesByChatRoomId = messageRepository
             .findLatestByChatRoomIds(chatRoomIds).stream()
             .collect(Collectors.toMap(
@@ -114,6 +122,7 @@ public class TeamRecruitmentChatService {
             .map(chatRoom -> TeamRecruitmentChatRoomListItemResponse.of(
                 chatRoom,
                 counterpartsByChatRoomId.get(chatRoom.getId()),
+                getProfileNickname(counterpartsByChatRoomId.get(chatRoom.getId()), profileNicknames),
                 latestMessagesByChatRoomId.get(chatRoom.getId()),
                 Math.toIntExact(unreadCountsByChatRoomId.getOrDefault(chatRoom.getId(), 0L))
             ))
@@ -148,7 +157,7 @@ public class TeamRecruitmentChatService {
             counterpart = memberRepository.findAllByChatRoom_Id(chatRoomId).stream()
                     .filter(m -> !m.getUser().getId().equals(userId))
                     .findFirst()
-                    .map(m -> new ChatRoomResponse.Counterpart(m.getUser().getId(), m.getUser().getDisplayNickname()))
+                    .map(m -> new ChatRoomResponse.Counterpart(m.getUser().getId(), getProfileNickname(m.getUser())))
                     .orElse(new ChatRoomResponse.Counterpart(null, "탈퇴한 회원"));
         }
 
@@ -194,7 +203,8 @@ public class TeamRecruitmentChatService {
                         recruitmentId, applicationId, TeamRecruitmentChatRoomType.DIRECT);
         if (existingDirectChatRoom.isPresent()) {
             return new DirectChatRoomCreationResult(
-                    DirectChatRoomResponse.of(existingDirectChatRoom.get(), counterpartUser), false);
+                    DirectChatRoomResponse.of(existingDirectChatRoom.get(), counterpartUser,
+                            getProfileNickname(counterpartUser)), false);
         }
 
         if (counterpartUser == null) {
@@ -224,7 +234,8 @@ public class TeamRecruitmentChatService {
         memberRepository.save(TeamRecruitmentChatMember.builder()
                 .chatRoom(chatRoom).user(applicant).build());
 
-        return new DirectChatRoomCreationResult(DirectChatRoomResponse.of(chatRoom, counterpartUser), true);
+        return new DirectChatRoomCreationResult(
+                DirectChatRoomResponse.of(chatRoom, counterpartUser, getProfileNickname(counterpartUser)), true);
     }
 
     @Transactional
@@ -262,6 +273,12 @@ public class TeamRecruitmentChatService {
         }
 
         List<TeamRecruitmentChatMember> allMembers = memberRepository.findAllByChatRoom_Id(chatRoomId);
+        Map<Integer, String> profileNicknames = getProfileNicknames(messages.stream()
+                .map(TeamRecruitmentChatMessage::getSender)
+                .filter(Objects::nonNull)
+                .map(User::getId)
+                .distinct()
+                .toList());
 
         return messages.stream()
                 .map(msg -> {
@@ -269,7 +286,7 @@ public class TeamRecruitmentChatService {
                             .filter(m -> msg.getSender() == null || !m.getUser().getId().equals(msg.getSender().getId()))
                             .filter(m -> m.getLastReadMessageId() == null || m.getLastReadMessageId() < msg.getId())
                             .count();
-                    return ChatMessageResponse.of(msg, unreadCount);
+                    return ChatMessageResponse.of(msg, unreadCount, getProfileNickname(msg.getSender(), profileNicknames));
                 })
                 .toList();
     }
@@ -287,7 +304,10 @@ public class TeamRecruitmentChatService {
             Collections.reverse(result);
             return result;
         }
-        return messageRepository.findAllByChatRoom_IdOrderByIdAsc(chatRoomId, pageable);
+        List<TeamRecruitmentChatMessage> result = new ArrayList<>(
+                messageRepository.findAllByChatRoom_IdOrderByIdDesc(chatRoomId, pageable));
+        Collections.reverse(result);
+        return result;
     }
 
     @Transactional
@@ -309,12 +329,13 @@ public class TeamRecruitmentChatService {
         }
 
         User sender = senderMember.getUser();
+        String senderNickname = getProfileNickname(sender);
 
         TeamRecruitmentChatMessage message = messageRepository.save(
                 TeamRecruitmentChatMessage.builder()
                         .chatRoom(chatRoom)
                         .sender(sender)
-                        .senderNickname(sender.getDisplayNickname())
+                        .senderNickname(senderNickname)
                         .content(request.content())
                         .isImage(request.isImage())
                         .build());
@@ -329,7 +350,27 @@ public class TeamRecruitmentChatService {
 
         saveChatMessageNotifications(message, chatRoom, allMembers, userId);
 
-        return ChatMessageResponse.of(message, unreadCount);
+        return ChatMessageResponse.of(message, unreadCount, senderNickname);
+    }
+
+    private Map<Integer, String> getProfileNicknames(Collection<Integer> userIds) {
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+        return profileRepository.findAllByUserIdIn(userIds).stream()
+                .filter(profile -> StringUtils.hasText(profile.getProfileNickname()))
+                .collect(Collectors.toMap(TeamRecruitmentProfile::getUserId, TeamRecruitmentProfile::getProfileNickname));
+    }
+
+    private String getProfileNickname(User user) {
+        if (user == null) {
+            return "탈퇴한 회원";
+        }
+        return getProfileNickname(user, getProfileNicknames(List.of(user.getId())));
+    }
+
+    private String getProfileNickname(User user, Map<Integer, String> profileNicknames) {
+        return user == null ? "탈퇴한 회원" : profileNicknames.getOrDefault(user.getId(), "익명 사용자");
     }
 
     private void saveChatMessageNotifications(

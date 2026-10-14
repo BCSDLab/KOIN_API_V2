@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 /**
  * 토큰으로부터 사용자 ID를 추출하여 가져온다.
  * <p>
- * Nullable: 사용자 ID가 없을 수도 있다.
+ * Nullable: 인증정보가 없거나 유효하지 않으면 사용자 ID를 반환하지 않는다.
  */
 @Hidden // Swagger 문서에 표시하지 않음
 @Target(PARAMETER)

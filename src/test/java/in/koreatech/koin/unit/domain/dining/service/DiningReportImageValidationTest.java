@@ -38,7 +38,9 @@ import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningReportRepository;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.dining.service.DiningReportChangeService;
+import in.koreatech.koin.domain.dining.service.DiningReportQueryService;
 import in.koreatech.koin.domain.dining.service.DiningReportService;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.infrastructure.s3.client.S3Client;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlRequest;
@@ -76,9 +78,19 @@ class DiningReportImageValidationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"soldout.jpg", "soldout photo.jpg", "품절.jpg", "soldout+photo.jpg",
-        "soldout%20photo.jpg", "100%.jpg"})
-    void 공용_COOP_업로드의_파일명과_URL을_원문으로_접수한다(String fileName) {
+    @CsvSource({
+        "soldout.jpg, soldout.jpg",
+        "soldout photo.jpg, soldout%20photo.jpg",
+        "품절.jpg, %ED%92%88%EC%A0%88.jpg",
+        "soldout+photo.jpg, soldout%2Bphoto.jpg",
+        "soldout%20photo.jpg, soldout%2520photo.jpg",
+        "100%.jpg, 100%25.jpg",
+        "soldout%2Fphoto.jpg, soldout%252Fphoto.jpg",
+        "a//품절 photo.jpg, a//%ED%92%88%EC%A0%88%20photo.jpg"
+    })
+    void 공용_COOP_업로드는_원문으로_접수하고_삐봇에는_인코딩한_URL을_반환한다(
+        String fileName, String encodedFileName
+    ) {
         String imageUrl = new UploadService(s3Client, clock).getPresignedUrl(ImageUploadDomain.COOP,
             new UploadUrlRequest(1, "image/jpeg", fileName)).fileUrl();
         String rawKey = imageUrl.substring(DOMAIN_URL.length());
@@ -99,6 +111,12 @@ class DiningReportImageValidationTest {
         assertThat(response.status()).isEqualTo(DiningReportStatus.PENDING);
         assertThat(reportCaptor.getValue().getImageUrl()).isEqualTo(imageUrl);
         verify(amazonS3).doesObjectExist(BUCKET_NAME, rawKey);
+
+        when(reportRepository.findById(1)).thenReturn(Optional.of(reportCaptor.getValue()));
+        var queryService = new DiningReportQueryService(reportRepository, mock(UserRepository.class));
+        String encodedUrl = imageUrl.substring(0, imageUrl.length() - fileName.length()) + encodedFileName;
+        assertThat(queryService.getBotReport(1).imageUrl()).isEqualTo(encodedUrl);
+        assertThat(reportCaptor.getValue().getImageUrl()).isEqualTo(imageUrl);
     }
 
     @ParameterizedTest

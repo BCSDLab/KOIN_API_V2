@@ -135,7 +135,7 @@ public class DiningReportService {
             List<Integer> ids = reports.stream()
                 .filter(report -> Objects.equals(report.getProcessingId(), target.getProcessingId()))
                 .map(DiningReport::getId).toList();
-            return new DiningReportDecisionResponse(DiningReportResponse.from(target), ids, true);
+            return new DiningReportDecisionResponse(DiningReportResponse.from(target).withEncodedImageUrl(), ids, true);
         }
 
         LocalDateTime now = now();
@@ -152,7 +152,7 @@ public class DiningReportService {
             publishSoldOut(dining, now);
         }
         changeService.append(affected, PROCESSED, now);
-        return new DiningReportDecisionResponse(DiningReportResponse.from(target),
+        return new DiningReportDecisionResponse(DiningReportResponse.from(target).withEncodedImageUrl(),
             affected.stream().map(DiningReport::getId).toList(), false);
     }
 

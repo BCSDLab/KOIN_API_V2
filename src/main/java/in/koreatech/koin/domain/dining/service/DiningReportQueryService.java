@@ -32,7 +32,7 @@ public class DiningReportQueryService {
     private final UserRepository userRepository;
 
     public DiningReportResponse getBotReport(Integer reportId) {
-        return DiningReportResponse.from(getReport(reportId));
+        return DiningReportResponse.from(getReport(reportId)).withEncodedImageUrl();
     }
 
     public AdminDiningReportResponse getAdminReport(Integer reportId) {

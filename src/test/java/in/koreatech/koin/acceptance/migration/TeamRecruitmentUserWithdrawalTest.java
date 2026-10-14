@@ -157,7 +157,7 @@ class TeamRecruitmentUserWithdrawalTest {
             TeamRecruitmentChatMessageRepository messages = repositories.getRepository(
                 TeamRecruitmentChatMessageRepository.class);
             ChatMessageResponse response = ChatMessageResponse.of(
-                messages.findTopByChatRoom_IdOrderByIdDesc(base + 30).orElseThrow(), 1);
+                messages.findTopByChatRoom_IdOrderByIdDesc(base + 30).orElseThrow(), 1, "탈퇴한 회원");
             assertThat(response.userId()).isNull();
             assertThat(response.userNickname()).isEqualTo("탈퇴한 회원");
             assertThat(response.content()).isEqualTo("탈퇴 전 마지막 메시지");
