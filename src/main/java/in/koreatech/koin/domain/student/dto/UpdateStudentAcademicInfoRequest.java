@@ -1,17 +1,20 @@
 package in.koreatech.koin.domain.student.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record UpdateStudentAcademicInfoRequest(
 
-    @Schema(description = "학번", example = "2021136012", requiredMode = NOT_REQUIRED)
+    @Schema(description = "학번. 생략하면 기존 학번으로 검증하며, 기존 학번도 없으면 저장할 수 없습니다.",
+        example = "2021136012", requiredMode = NOT_REQUIRED)
     @Pattern(regexp = "^[0-9]{10}$", message = "학번엔 10자리 숫자만 입력 가능합니다.")
     String studentNumber,
 
@@ -31,8 +34,9 @@ public record UpdateStudentAcademicInfoRequest(
             - 응용화학공학부
             """,
         example = "컴퓨터공학부",
-        requiredMode = NOT_REQUIRED
+        requiredMode = REQUIRED
     )
+    @NotBlank(message = "학부는 필수입니다.")
     String department,
 
     @Schema(

@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +38,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.AcademicProgramYear;
+import in.koreatech.koin.domain.student.model.Major;
+import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
+import in.koreatech.koin.domain.student.exception.StudentNumberNotValidException;
+import in.koreatech.koin.domain.student.repository.AcademicProgramYearRepository;
+import in.koreatech.koin.domain.student.service.StudentValidationService;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicationCreatedResponse;
@@ -85,6 +92,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.hibernate.exception.ConstraintViolationException;
 import org.mockito.ArgumentCaptor;
@@ -147,6 +156,13 @@ class TeamRecruitmentApplicationServiceTest {
     @Mock
     private StudentRepository studentRepository;
 
+    private final AcademicProgramYearRepository academicProgramYearRepository =
+        mock(AcademicProgramYearRepository.class);
+
+    @Spy
+    private StudentValidationService studentValidationService = new StudentValidationService(
+        null, null, null, null, academicProgramYearRepository);
+
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -203,6 +219,65 @@ class TeamRecruitmentApplicationServiceTest {
 
     @Nested
     class CreateApplication {
+
+        @ParameterizedTest
+        @ValueSource(strings = {"2025", "2027"})
+        void rejectsExistingDepartmentWhenItsYearHasDifferentPrograms(String year) {
+            Student student = futureDepartmentApplicant(year);
+            Department allowedDepartment = Department.builder().name("컴퓨터공학부").build();
+            ReflectionTestUtils.setField(allowedDepartment, "id", 1);
+            when(academicProgramYearRepository.findAllByStudentYearOrderByDepartmentIdAscIdAsc(year))
+                .thenReturn(List.of(AcademicProgramYear.builder()
+                    .studentYear(year).department(allowedDepartment).build()));
+            stubRecruitment(recruitment(GENERAL, 0, 5, TODAY.plusDays(1)));
+            stubNoExistingApplication();
+            stubApplicantAndProfile(student);
+            Department originalDepartment = student.getDepartment();
+            Major originalMajor = student.getMajor();
+
+            assertThatThrownBy(() -> applicationService.createApplication(
+                new CreateApplicationRequest(null, "지원 동기", "가능"), RECRUITMENT_ID, APPLICANT_ID))
+                .isInstanceOf(StudentDepartmentNotValidException.class);
+
+            verify(applicationRepository, never()).save(any());
+            verify(notificationRepository, never()).save(any());
+            verify(outboxEventRepository, never()).save(any());
+            assertThat(student.getStudentNumber()).isEqualTo(year + "136001");
+            assertThat(student.getDepartment()).isSameAs(originalDepartment);
+            assertThat(student.getMajor()).isSameAs(originalMajor);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"2026136001", "2024136001", "2027136001", "20271360", "202713600"})
+        void acceptsMappedFutureDepartmentAndUnmappedYearWithoutChangingStudent(String studentNumber) throws Exception {
+            String year = studentNumber.substring(0, 4);
+            Student student = futureDepartmentApplicant(year);
+            student.updateStudentNumber(studentNumber);
+            Department originalDepartment = student.getDepartment();
+            Major originalMajor = student.getMajor();
+            List<AcademicProgramYear> programs = year.equals("2026")
+                ? List.of(AcademicProgramYear.builder().studentYear(year).department(originalDepartment).build())
+                : List.of();
+            when(academicProgramYearRepository.findAllByStudentYearOrderByDepartmentIdAscIdAsc(year))
+                .thenReturn(programs);
+            stubRecruitment(recruitment(GENERAL, 0, 5, TODAY.plusDays(1)));
+            stubNoExistingApplication();
+            stubApplicantAndProfile(student);
+
+            ApplicationCreatedResponse response = applicationService.createApplication(
+                new CreateApplicationRequest(null, "지원 동기", "가능"), RECRUITMENT_ID, APPLICANT_ID);
+
+            assertThat(response.status()).isEqualTo(PENDING);
+            ArgumentCaptor<TeamRecruitmentApplication> captor = ArgumentCaptor.forClass(TeamRecruitmentApplication.class);
+            verify(applicationRepository).save(captor.capture());
+            JsonNode snapshot = objectMapper.readTree(captor.getValue().getProfileSnapshot());
+            assertThat(snapshot.get("department").asText()).isEqualTo("미래융합학부");
+            assertThat(snapshot.get("student_year").asInt()).isEqualTo(Integer.parseInt(year));
+            verify(outboxEventRepository).save(any());
+            assertThat(student.getStudentNumber()).isEqualTo(studentNumber);
+            assertThat(student.getDepartment()).isSameAs(originalDepartment);
+            assertThat(student.getMajor()).isSameAs(originalMajor);
+        }
 
         @Test
         void 지원을_생성하고_지원_당시_프로필_snapshot을_저장한다() throws Exception {
@@ -334,6 +409,7 @@ class TeamRecruitmentApplicationServiceTest {
         void 지원자의_학과가_없으면_지원을_생성할_수_없다() {
             TeamRecruitment recruitment = recruitment(GENERAL, 0, 5, TODAY.plusDays(1));
             Student student = StudentFixture.익명_학생(APPLICANT_ID, null);
+            student.updateStudentNumber("2027136001");
             ReflectionTestUtils.setField(student.getUser(), "id", APPLICANT_ID);
             stubRecruitment(recruitment);
             stubNoExistingApplication();
@@ -347,13 +423,17 @@ class TeamRecruitmentApplicationServiceTest {
                 .isInstanceOfSatisfying(CustomException.class, exception ->
                     assertThat(exception.getErrorCode()).isEqualTo(TEAM_RECRUITMENT_PROFILE_REQUIRED));
             verify(applicationRepository, never()).save(any());
+            verify(notificationRepository, never()).save(any());
+            verify(outboxEventRepository, never()).save(any());
         }
 
-        @Test
-        void 지원자의_학번에서_입학_연도를_확인할_수_없으면_지원을_생성할_수_없다() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {"2", "202", "학번없음", "ABCDEFGHIJ"})
+        void 지원자의_학번에서_입학_연도를_확인할_수_없으면_지원을_생성할_수_없다(String studentNumber) {
             TeamRecruitment recruitment = recruitment(GENERAL, 0, 5, TODAY.plusDays(1));
             Student student = applicant();
-            student.updateStudentNumber("학번없음");
+            student.updateStudentNumber(studentNumber);
             stubRecruitment(recruitment);
             stubNoExistingApplication();
             stubApplicantAndProfile(student);
@@ -366,6 +446,27 @@ class TeamRecruitmentApplicationServiceTest {
                 .isInstanceOfSatisfying(CustomException.class, exception ->
                     assertThat(exception.getErrorCode()).isEqualTo(TEAM_RECRUITMENT_PROFILE_REQUIRED));
             verify(applicationRepository, never()).save(any());
+            verify(notificationRepository, never()).save(any());
+            verify(outboxEventRepository, never()).save(any());
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"2027", "2027136", "20271360010", "2027ABC001", "202713600A"})
+        void rejectsMalformedStoredStudentNumberEvenWhenItsYearHasNoMapping(String studentNumber) {
+            Student student = futureDepartmentApplicant("2027");
+            student.updateStudentNumber(studentNumber);
+            stubRecruitment(recruitment(GENERAL, 0, 5, TODAY.plusDays(1)));
+            stubNoExistingApplication();
+            stubApplicantAndProfile(student);
+
+            assertThatThrownBy(() -> applicationService.createApplication(
+                new CreateApplicationRequest(null, "지원 동기", "가능"), RECRUITMENT_ID, APPLICANT_ID))
+                .isInstanceOf(StudentNumberNotValidException.class);
+
+            verify(studentValidationService).validateAcademicProgram(studentNumber, student.getDepartment(), null);
+            verify(applicationRepository, never()).save(any());
+            verify(notificationRepository, never()).save(any());
+            verify(outboxEventRepository, never()).save(any());
         }
 
         @Test
@@ -847,6 +948,15 @@ class TeamRecruitmentApplicationServiceTest {
             .thenReturn(List.of(skill));
         when(profileActivityRepository.findAllByProfile_UserIdOrderByDisplayOrderAsc(APPLICANT_ID))
             .thenReturn(List.of(activity));
+    }
+
+    private Student futureDepartmentApplicant(String year) {
+        Department department = Department.builder().name("미래융합학부").build();
+        ReflectionTestUtils.setField(department, "id", 2);
+        Student student = StudentFixture.익명_학생(APPLICANT_ID, department);
+        ReflectionTestUtils.setField(student.getUser(), "id", APPLICANT_ID);
+        student.updateStudentAcademicInfo(year + "136001", department, new Major("기존 전공", department));
+        return student;
     }
 
     private Student applicant() {

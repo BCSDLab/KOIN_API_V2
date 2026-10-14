@@ -1,11 +1,14 @@
 package in.koreatech.koin.admin.student.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -31,7 +34,8 @@ public record AdminStudentUpdateRequest(
         - 에너지신소재공학부
         - 산업경영학부
         - 고용서비스정책학부
-        """, example = "컴퓨터공학부", requiredMode = NOT_REQUIRED)
+        """, example = "컴퓨터공학부", requiredMode = REQUIRED)
+    @NotBlank(message = "학부는 필수입니다.")
     String major,
 
     @Size(max = 50, message = "이름의 길이는 최대 50자 입니다.")
@@ -50,8 +54,9 @@ public record AdminStudentUpdateRequest(
     @Size(max = 20, message = "휴대전화의 길이는 최대 20자 입니다")
     String phoneNumber,
 
-    @Size(min = 10, max = 10, message = "학번은 10자여야 합니다.")
-    @Schema(description = "학번", example = "2020136065", requiredMode = NOT_REQUIRED)
+    @NotBlank(message = "학번은 필수입니다.")
+    @Pattern(regexp = "^[0-9]{10}$", message = "학번엔 10자리 숫자만 입력 가능합니다.")
+    @Schema(description = "학번", example = "2020136065", requiredMode = REQUIRED)
     String studentNumber
 ) {
 
