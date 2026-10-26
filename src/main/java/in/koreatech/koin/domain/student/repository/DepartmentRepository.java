@@ -20,6 +20,8 @@ public interface DepartmentRepository extends Repository<Department, Integer> {
 
     Optional<List<Department>> findAll();
 
+    List<Department> findAllByIsSelectableTrueOrderByDisplayOrderAscIdAsc();
+
     default Department getByName(String name) {
         return findByName(name)
             .orElseThrow(() -> DepartmentNotFoundException.withDetail("name: " + name));

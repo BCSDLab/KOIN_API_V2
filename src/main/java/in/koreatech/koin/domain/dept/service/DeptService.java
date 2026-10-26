@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.dept.service;
 
-import static in.koreatech.koin.domain.dept.model.Dept.NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -37,9 +35,8 @@ public class DeptService {
     }
 
     public List<DeptsResponse> getAll() {
-        return Dept.findAll()
+        return departmentRepository.findAllByIsSelectableTrueOrderByDisplayOrderAscIdAsc()
             .stream()
-            .filter(dept -> !NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING.equals(dept))
             .map(DeptsResponse::from)
             .toList();
     }

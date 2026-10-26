@@ -29,6 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.service.StudentValidationService;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicationCreatedResponse;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicationRole;
 import in.koreatech.koin.domain.team.recruitment.dto.CreateApplicationRequest;
@@ -108,6 +109,7 @@ public class TeamRecruitmentApplicationService {
     private final TeamRecruitmentProfileActivityRepository profileActivityRepository;
     private final TeamRecruitmentProfileSkillRepository profileSkillRepository;
     private final StudentRepository studentRepository;
+    private final StudentValidationService studentValidationService;
     private final ObjectMapper objectMapper;
     private final EntityManager entityManager;
     private final Clock clock;
@@ -571,6 +573,7 @@ public class TeamRecruitmentApplicationService {
         if (student.getDepartment() == null || admissionYear == null) {
             throw CustomException.of(TEAM_RECRUITMENT_PROFILE_REQUIRED);
         }
+        studentValidationService.validateAcademicProgram(student.getStudentNumber(), student.getDepartment(), null);
         List<String> snapshotSkills = skills == null
             ? List.of()
             : skills.stream().map(TeamRecruitmentProfileSkill::getSkill).toList();

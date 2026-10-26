@@ -4,6 +4,7 @@ import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,5 +77,22 @@ public class CoopShop extends BaseEntity {
 
     public void add(CoopOpen coopOpen) {
         this.coopOpens.add(coopOpen);
+    }
+
+    public List<CoopOpen> getOpensOn(DayOfWeek dayOfWeek) {
+        DayType specificDay = DayType.valueOf(dayOfWeek.name());
+        List<CoopOpen> specificOpens = coopOpens.stream()
+            .filter(open -> open.getDayOfWeek() == specificDay)
+            .toList();
+        // 개별 요일은 그날의 전체 시간표이므로, 빠진 식사를 평일/주말 설정으로 채우지 않는다.
+        if (!specificOpens.isEmpty()) {
+            return specificOpens;
+        }
+
+        DayType groupedDay = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
+            ? DayType.WEEKEND : DayType.WEEKDAYS;
+        return coopOpens.stream()
+            .filter(open -> open.getDayOfWeek() == groupedDay)
+            .toList();
     }
 }
