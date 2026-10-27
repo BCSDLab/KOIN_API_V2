@@ -18,7 +18,7 @@ public record OrderCreateResponse(
     @Schema(description = "주문 번호", example = "A1B2C3D4E5", requiredMode = REQUIRED)
     String orderNumber,
 
-    @Schema(description = "결제 ID. GET /payments/{paymentId} 재조회에 사용한다.", example = "456", requiredMode = REQUIRED)
+    @Schema(description = "결제 ID", example = "456", requiredMode = REQUIRED)
     Integer paymentId,
 
     @Schema(description = "주문 유형", example = "DELIVERY", requiredMode = REQUIRED)
@@ -30,16 +30,21 @@ public record OrderCreateResponse(
     @Schema(description = "결제 방법", example = "계좌이체", requiredMode = REQUIRED)
     String paymentMethod,
 
-    @Schema(description = "입금할 금액. 배달비를 포함한다.", example = "18000", requiredMode = REQUIRED)
+    @Schema(description = "총 결제 금액", example = "18000", requiredMode = REQUIRED)
     Integer amount,
 
-    @Schema(description = "주문 당시 상점 계좌 정보", requiredMode = REQUIRED)
+    @Schema(description = "상점 계좌 정보", requiredMode = REQUIRED)
     BankAccountResponse bankAccount
 ) {
     public static OrderCreateResponse of(Order order, Payment payment) {
         return new OrderCreateResponse(
-            order.getId(), order.getOrderNumber(), payment.getId(), order.getOrderType().name(),
-            order.getStatus().name(), payment.getPaymentMethod().getDisplayName(), payment.getAmount(),
+            order.getId(),
+            order.getOrderNumber(),
+            payment.getId(),
+            order.getOrderType().name(),
+            order.getStatus().name(),
+            payment.getPaymentMethod().getDisplayName(),
+            payment.getAmount(),
             BankAccountResponse.from(payment)
         );
     }
