@@ -6,7 +6,6 @@ import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.domain.address.service.AddressValidator;
 import in.koreatech.koin.domain.order.cart.model.Cart;
@@ -24,8 +23,6 @@ import in.koreatech.koin.domain.payment.repository.PaymentRepository;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -50,7 +47,7 @@ public class DeliveryOrderService {
         Cart cart = cartRepository.getCartByUserId(userId);
         cart.validateDeliveryOrder();
         OrderableShop orderableShop = cart.getOrderableShop();
-        validateBankAccount(orderableShop.getShop());
+        orderableShop.getShop().validateBankAccount();
 
         int totalProductPrice = cart.calculateItemsAmount();
         int deliveryFee = orderableShop.calculateDeliveryFee(totalProductPrice);
@@ -70,13 +67,6 @@ public class DeliveryOrderService {
         cartRepository.delete(cart);
 
         return OrderCreateResponse.of(order, payment);
-    }
-
-    private void validateBankAccount(Shop shop) {
-        if (!shop.isPayBank() || !StringUtils.hasText(shop.getBank())
-            || !StringUtils.hasText(shop.getAccountNumber())) {
-            throw CustomException.of(ApiResponseCode.SHOP_BANK_ACCOUNT_UNAVAILABLE);
-        }
     }
 
     private Order createOrder(User user, OrderableShop orderableShop, DeliveryOrderRequest request,

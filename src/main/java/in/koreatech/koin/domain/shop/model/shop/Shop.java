@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.hibernate.annotations.Where;
+import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTips;
@@ -24,6 +25,8 @@ import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -340,6 +343,13 @@ public class Shop extends BaseEntity {
 
     public String getFullAddress() {
         return String.join(" ", this.address, this.addressDetail);
+    }
+
+    // TODO: 예금주명 추가되면 검증 로직 추가 필요
+    public void validateBankAccount() {
+        if (!payBank || !StringUtils.hasText(bank) || !StringUtils.hasText(accountNumber)) {
+            throw CustomException.of(ApiResponseCode.SHOP_BANK_ACCOUNT_UNAVAILABLE);
+        }
     }
 
     public boolean isOwner(Integer ownerId) {
