@@ -24,6 +24,6 @@ public record BankAccountResponse(
             return null;
         }
         // TODO: 사장님 앱 작업 후 수정
-        return new BankAccountResponse(payment.getBank(), payment.getAccountNumber(), "");
+        return new BankAccountResponse(payment.getBank(), payment.getAccountNumber(), "임금주명");
     }
 }
