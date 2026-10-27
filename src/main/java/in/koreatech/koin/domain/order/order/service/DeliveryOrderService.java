@@ -54,8 +54,12 @@ public class DeliveryOrderService {
         int deliveryFee = orderableShop.calculateDeliveryFee(totalProductPrice);
         int totalPrice = totalProductPrice + deliveryFee;
         validatePrice(
-            request.totalMenuPrice(), request.deliveryTip(), request.totalAmount(),
-            totalProductPrice, deliveryFee, totalPrice
+            request.totalMenuPrice(),
+            request.deliveryTip(),
+            request.totalAmount(),
+            totalProductPrice,
+            deliveryFee,
+            totalPrice
         );
 
         Order order = createOrder(user, orderableShop, request, totalProductPrice, deliveryFee, totalPrice);
@@ -69,11 +73,15 @@ public class DeliveryOrderService {
         return OrderCreateResponse.of(order, payment);
     }
 
-    private void validatePrice(int requestedMenuPrice, int requestedDeliveryTip, int requestedTotalAmount,
-        int totalProductPrice, int deliveryFee, int totalPrice) {
-        if (requestedMenuPrice != totalProductPrice
-            || requestedDeliveryTip != deliveryFee
-            || requestedTotalAmount != totalPrice) {
+    private void validatePrice(
+        int requestedMenuPrice,
+        int requestedDeliveryTip,
+        int requestedTotalAmount,
+        int totalProductPrice,
+        int deliveryFee,
+        int totalPrice
+    ) {
+        if (requestedMenuPrice != totalProductPrice || requestedDeliveryTip != deliveryFee || requestedTotalAmount != totalPrice) {
             throw CustomException.of(ORDER_PRICE_MISMATCH);
         }
     }
