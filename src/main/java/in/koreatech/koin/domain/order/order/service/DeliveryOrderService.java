@@ -47,7 +47,7 @@ public class DeliveryOrderService {
             addressValidator.validateAddress(request.address());
         }
 
-        Cart cart = cartRepository.getCartByUserIdForUpdate(userId);
+        Cart cart = cartRepository.getCartByUserId(userId);
         validateCart(cart);
         OrderableShop orderableShop = cart.getOrderableShop();
         validateBankAccount(orderableShop.getShop());
