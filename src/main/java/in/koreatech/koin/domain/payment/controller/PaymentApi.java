@@ -146,10 +146,11 @@ public interface PaymentApi {
             - `order_type`: 주문 방법 (DELIVERY | TAKE_OUT)
             - `easy_pay_company`: 간편결제사
             - `requested_at`: 결제 요청 일시 (yyyy.MM.dd HH:mm)
-            - `approved_at`: 결제 승인 일시 (yyyy.MM.dd HH:mm)
+            - `approved_at`: 결제 승인 일시 (yyyy.MM.dd HH:mm). 직접 계좌이체 주문은 null
             - `payment_method`: 결제 수단
             - `estimated_at`: 예상 시각 (HH:mm)
             - `order_status`: 주문 상태
+            - `bank_account`: 직접 계좌이체 주문 당시 은행명(bank), 계좌번호(account_number), 예금주(account_holder)
             """
     )
     @GetMapping("/{paymentId}")

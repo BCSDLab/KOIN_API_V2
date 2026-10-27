@@ -6,21 +6,43 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.order.order.dto.request.DeliveryOrderRequest;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchPeriodCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderStatusCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderTypeCriteria;
 import in.koreatech.koin.domain.order.order.dto.response.InprogressOrderResponse;
+import in.koreatech.koin.domain.order.order.dto.response.OrderCreateResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Order: 주문", description = "주문을 관리한다.")
 @RequestMapping("/order")
 public interface OrderApi {
+
+    @Operation(
+        summary = "계좌이체 배달 주문을 생성한다.",
+        description = """
+            기존 배달 임시 결제 저장 API와 동일한 요청 바디를 사용한다.
+            PG 승인 및 임시 저장 없이 장바구니로 주문을 생성하고 장바구니를 비운다.
+            계좌이체만 지원하며 앱에서 입금 여부를 확인하지 않는다.
+            응답의 계좌와 amount로 입금 안내를 표시한다.
+            이후 GET /payments/{paymentId}로 주문 및 계좌 정보를 재조회한다.
+            중복 호출 또는 실패 후 재시도 전에는 주문 내역을 확인한다.
+            """
+    )
+    @PostMapping("/delivery")
+    ResponseEntity<OrderCreateResponse> createDeliveryOrder(
+        @RequestBody @Valid DeliveryOrderRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 
     @Operation(
         summary = "주문 이력을 조회한다.",

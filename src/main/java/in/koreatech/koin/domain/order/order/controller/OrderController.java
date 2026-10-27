@@ -6,18 +6,24 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.order.order.dto.request.DeliveryOrderRequest;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchCondition;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchPeriodCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderStatusCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderTypeCriteria;
 import in.koreatech.koin.domain.order.order.dto.response.InprogressOrderResponse;
+import in.koreatech.koin.domain.order.order.dto.response.OrderCreateResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
+import in.koreatech.koin.domain.order.order.service.DeliveryOrderService;
 import in.koreatech.koin.domain.order.order.service.OrderService;
 import in.koreatech.koin.global.auth.Auth;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -26,6 +32,15 @@ import lombok.RequiredArgsConstructor;
 public class OrderController implements OrderApi {
 
     private final OrderService orderService;
+    private final DeliveryOrderService deliveryOrderService;
+
+    @PostMapping("/delivery")
+    public ResponseEntity<OrderCreateResponse> createDeliveryOrder(
+        @RequestBody @Valid DeliveryOrderRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        return ResponseEntity.ok(deliveryOrderService.createDeliveryOrder(userId, request));
+    }
 
     @GetMapping
     public ResponseEntity<OrdersResponse> getOrders(
