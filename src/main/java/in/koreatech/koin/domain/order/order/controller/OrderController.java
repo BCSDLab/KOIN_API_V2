@@ -39,7 +39,8 @@ public class OrderController implements OrderApi {
         @RequestBody @Valid DeliveryOrderRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        return ResponseEntity.ok(deliveryOrderService.createDeliveryOrder(userId, request));
+        OrderCreateResponse response = deliveryOrderService.createDeliveryOrder(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
