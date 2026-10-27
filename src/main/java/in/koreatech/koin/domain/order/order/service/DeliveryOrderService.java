@@ -84,7 +84,7 @@ public class DeliveryOrderService {
 
     private void validateBankAccount(Shop shop) {
         if (!shop.isPayBank() || !StringUtils.hasText(shop.getBank())
-            || !StringUtils.hasText(shop.getAccountNumber()) || !StringUtils.hasText(shop.getAccountHolder())) {
+            || !StringUtils.hasText(shop.getAccountNumber())) {
             throw CustomException.of(ApiResponseCode.SHOP_BANK_ACCOUNT_UNAVAILABLE);
         }
     }

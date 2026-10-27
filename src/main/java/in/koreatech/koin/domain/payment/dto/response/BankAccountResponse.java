@@ -23,6 +23,7 @@ public record BankAccountResponse(
         if (!payment.isDirectBankTransfer()) {
             return null;
         }
-        return new BankAccountResponse(payment.getBank(), payment.getAccountNumber(), payment.getAccountHolder());
+        // TODO: 사장님 앱 작업 후 수정
+        return new BankAccountResponse(payment.getBank(), payment.getAccountNumber(), "");
     }
 }
