@@ -96,7 +96,7 @@ public record PaymentResponse(
     @Schema(description = "주문 상태", example = "COOKING", requiredMode = REQUIRED)
     String orderStatus,
 
-    @Schema(description = "직접 계좌이체 주문 당시 상점 계좌 정보", requiredMode = NOT_REQUIRED)
+    @Schema(description = "직접 계좌이체 주문 계좌 정보. 은행명과 계좌번호는 스냅샷", requiredMode = NOT_REQUIRED)
     BankAccountResponse bankAccount
 ) {
 

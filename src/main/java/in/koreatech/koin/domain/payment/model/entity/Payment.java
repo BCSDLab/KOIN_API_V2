@@ -82,10 +82,6 @@ public class Payment extends BaseEntity {
     @Column(name = "account_number", length = 20, updatable = false)
     private String accountNumber;
 
-    @Size(max = 100)
-    @Column(name = "account_holder", length = 100, updatable = false)
-    private String accountHolder;
-
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = FALSE;
@@ -107,7 +103,6 @@ public class Payment extends BaseEntity {
         String receipt,
         String bank,
         String accountNumber,
-        String accountHolder,
         Boolean isDeleted,
         Order order
     ) {
@@ -122,7 +117,6 @@ public class Payment extends BaseEntity {
         this.receipt = receipt;
         this.bank = bank;
         this.accountNumber = accountNumber;
-        this.accountHolder = accountHolder;
         this.isDeleted = isDeleted;
         this.order = order;
     }
@@ -142,7 +136,6 @@ public class Payment extends BaseEntity {
             .requestedAt(LocalDateTime.now())
             .bank(shop.getBank())
             .accountNumber(shop.getAccountNumber())
-            .accountHolder(shop.getAccountHolder())
             .isDeleted(false)
             .build();
     }
