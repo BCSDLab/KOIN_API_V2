@@ -3,11 +3,14 @@ package in.koreatech.koin.domain.payment.service;
 import static in.koreatech.koin.global.code.ApiResponseCode.PAYMENT_ALREADY_CANCELED;
 import static in.koreatech.koin.global.code.ApiResponseCode.PAYMENT_CANCEL_ERROR;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import in.koreatech.koin.domain.payment.dto.response.PaymentCancelResponse;
 import in.koreatech.koin.domain.payment.gateway.pg.PaymentGatewayService;
 import in.koreatech.koin.domain.payment.gateway.pg.dto.PaymentGatewayCancelResponse;
@@ -50,6 +53,9 @@ public class PaymentCancelService {
     }
 
     private List<PaymentCancel> cancel(Payment payment, String cancelReason) {
+        if (payment.isDirectBankTransfer()) {
+            return cancelBankTransferOrder(payment, cancelReason);
+        }
         String paymentIdempotencyKey = paymentIdempotencyKeyService.getOrCreate(payment.getOrder().getUser().getId());
         PaymentGatewayCancelResponse pgResponse = paymentGatewayService.cancelPayment(payment.getPaymentKey(),
             cancelReason, paymentIdempotencyKey);
@@ -59,6 +65,23 @@ public class PaymentCancelService {
         List<PaymentCancel> paymentCancels = paymentCancelMapper.toEntity(payment, pgResponse);
         paymentCancelRepository.saveAll(paymentCancels);
 
+        return paymentCancels;
+    }
+
+    private List<PaymentCancel> cancelBankTransferOrder(Payment payment, String cancelReason) {
+        payment.getOrder().requireStatusChangeableTo(OrderStatus.CANCELED);
+        payment.cancel(cancelReason);
+        PaymentCancel paymentCancel = PaymentCancel.builder()
+            .transactionKey(UUID.randomUUID().toString())
+            .cancelReason(cancelReason)
+            // 입금과 환불은 앱에서 확인하지 않으므로 자동 환불 금액은 0원이다.
+            .cancelAmount(0)
+            .canceledAt(LocalDateTime.now())
+            .isDeleted(false)
+            .payment(payment)
+            .build();
+        List<PaymentCancel> paymentCancels = List.of(paymentCancel);
+        paymentCancelRepository.saveAll(paymentCancels);
         return paymentCancels;
     }
 
