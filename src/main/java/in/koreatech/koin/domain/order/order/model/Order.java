@@ -8,6 +8,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
@@ -164,6 +166,52 @@ public class Order extends BaseEntity {
         this.orderDelivery = orderDelivery;
         this.orderTakeout = orderTakeout;
         this.orderMenus = orderMenus;
+    }
+
+    public static Order createDelivery(
+        User user,
+        OrderableShop orderableShop,
+        String orderNumber,
+        String phoneNumber,
+        String address,
+        String addressDetail,
+        BigDecimal longitude,
+        BigDecimal latitude,
+        String toOwner,
+        String toRider,
+        Boolean provideCutlery,
+        int totalProductPrice,
+        int deliveryFee,
+        int totalPrice
+    ) {
+        Shop shop = orderableShop.getShop();
+        Order order = Order.builder()
+            .orderNumber(orderNumber)
+            .orderType(OrderType.DELIVERY)
+            .status(CONFIRMING)
+            .orderableShopAddress(shop.getAddress())
+            .orderableShopAddressDetail(shop.getAddressDetail())
+            .orderableShopName(shop.getName())
+            .phoneNumber(phoneNumber)
+            .totalProductPrice(totalProductPrice)
+            .discountAmount(0)
+            .totalPrice(totalPrice)
+            .orderableShop(orderableShop)
+            .user(user)
+            .isDeleted(false)
+            .build();
+        order.setOrderDelivery(OrderDelivery.builder()
+            .order(order)
+            .address(address)
+            .addressDetail(addressDetail)
+            .longitude(longitude)
+            .latitude(latitude)
+            .toOwner(toOwner)
+            .toRider(toRider)
+            .provideCutlery(provideCutlery)
+            .deliveryTip(deliveryFee)
+            .build());
+        return order;
     }
 
     public void setOrderDelivery(OrderDelivery orderDelivery) {
