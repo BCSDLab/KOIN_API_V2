@@ -48,7 +48,7 @@ public class DeliveryOrderService {
         }
 
         Cart cart = cartRepository.getCartByUserId(userId);
-        validateCart(cart);
+        cart.validateDeliveryOrder();
         OrderableShop orderableShop = cart.getOrderableShop();
         validateBankAccount(orderableShop.getShop());
 
@@ -70,16 +70,6 @@ public class DeliveryOrderService {
         cartRepository.delete(cart);
 
         return OrderCreateResponse.of(order, payment);
-    }
-
-    private void validateCart(Cart cart) {
-        if (cart.getCartMenuItems().isEmpty()) {
-            throw CustomException.of(ApiResponseCode.NOT_FOUND_CART_ITEM);
-        }
-        cart.validateOrderType(DELIVERY);
-        cart.getOrderableShop().requireShopOpen();
-        cart.getOrderableShop().requireMinimumOrderAmount(cart.calculateItemsAmount());
-        cart.getCartMenuItems().forEach(item -> item.getOrderableShopMenu().validateSoldOut());
     }
 
     private void validateBankAccount(Shop shop) {
