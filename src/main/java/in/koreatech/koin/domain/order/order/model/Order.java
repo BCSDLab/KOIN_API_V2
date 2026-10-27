@@ -214,6 +214,40 @@ public class Order extends BaseEntity {
         return order;
     }
 
+    public static Order createTakeout(
+        User user,
+        OrderableShop orderableShop,
+        String orderNumber,
+        String phoneNumber,
+        String toOwner,
+        Boolean provideCutlery,
+        int totalProductPrice,
+        int totalPrice
+    ) {
+        Shop shop = orderableShop.getShop();
+        Order order = Order.builder()
+            .orderNumber(orderNumber)
+            .orderType(OrderType.TAKE_OUT)
+            .status(CONFIRMING)
+            .orderableShopAddress(shop.getAddress())
+            .orderableShopAddressDetail(shop.getAddressDetail())
+            .orderableShopName(shop.getName())
+            .phoneNumber(phoneNumber)
+            .totalProductPrice(totalProductPrice)
+            .discountAmount(0)
+            .totalPrice(totalPrice)
+            .orderableShop(orderableShop)
+            .user(user)
+            .isDeleted(false)
+            .build();
+        order.setOrderTakeout(OrderTakeout.builder()
+            .order(order)
+            .toOwner(toOwner)
+            .provideCutlery(provideCutlery)
+            .build());
+        return order;
+    }
+
     public void setOrderDelivery(OrderDelivery orderDelivery) {
         this.orderDelivery = orderDelivery;
     }

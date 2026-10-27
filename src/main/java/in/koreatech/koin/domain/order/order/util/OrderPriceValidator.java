@@ -11,6 +11,15 @@ public class OrderPriceValidator {
 
     public static void validatePrice(
         int requestedMenuPrice,
+        int requestedTotalAmount,
+        int totalProductPrice,
+        int totalPrice
+    ) {
+        validatePrice(requestedMenuPrice, 0, requestedTotalAmount, totalProductPrice, 0, totalPrice);
+    }
+
+    public static void validatePrice(
+        int requestedMenuPrice,
         int requestedDeliveryTip,
         int requestedTotalAmount,
         int totalProductPrice,
