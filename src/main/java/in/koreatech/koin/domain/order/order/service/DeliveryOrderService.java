@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.order.order.service;
 import static in.koreatech.koin.domain.order.delivery.model.AddressType.OFF_CAMPUS;
 import static in.koreatech.koin.domain.order.order.model.OrderStatus.CONFIRMING;
 import static in.koreatech.koin.domain.order.order.model.OrderType.DELIVERY;
+import static in.koreatech.koin.global.code.ApiResponseCode.ORDER_PRICE_MISMATCH;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +18,12 @@ import in.koreatech.koin.domain.order.order.model.OrderDelivery;
 import in.koreatech.koin.domain.order.order.repository.OrderRepository;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
 import in.koreatech.koin.domain.payment.mapper.OrderMenuItemsMapper;
-import in.koreatech.koin.domain.payment.model.domain.DeliveryPaymentInfo;
 import in.koreatech.koin.domain.payment.model.entity.Payment;
 import in.koreatech.koin.domain.payment.repository.PaymentRepository;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -52,11 +53,10 @@ public class DeliveryOrderService {
         int totalProductPrice = cart.calculateItemsAmount();
         int deliveryFee = orderableShop.calculateDeliveryFee(totalProductPrice);
         int totalPrice = totalProductPrice + deliveryFee;
-        DeliveryPaymentInfo.of(
-            request.phoneNumber(), request.address(), request.addressDetail(), request.longitude(), request.latitude(),
-            request.toOwner(), request.toRider(), request.provideCutlery(), request.totalMenuPrice(),
-            request.deliveryTip(), request.totalAmount()
-        ).validatePrice(totalProductPrice, deliveryFee, totalPrice);
+        validatePrice(
+            request.totalMenuPrice(), request.deliveryTip(), request.totalAmount(),
+            totalProductPrice, deliveryFee, totalPrice
+        );
 
         Order order = createOrder(user, orderableShop, request, totalProductPrice, deliveryFee, totalPrice);
         orderMenuItemsMapper.toOrderMenus(cart, order).forEach(order::addOrderMenu);
@@ -67,6 +67,15 @@ public class DeliveryOrderService {
         cartRepository.delete(cart);
 
         return OrderCreateResponse.of(order, payment);
+    }
+
+    private void validatePrice(int requestedMenuPrice, int requestedDeliveryTip, int requestedTotalAmount,
+        int totalProductPrice, int deliveryFee, int totalPrice) {
+        if (requestedMenuPrice != totalProductPrice
+            || requestedDeliveryTip != deliveryFee
+            || requestedTotalAmount != totalPrice) {
+            throw CustomException.of(ORDER_PRICE_MISMATCH);
+        }
     }
 
     private Order createOrder(User user, OrderableShop orderableShop, DeliveryOrderRequest request,
