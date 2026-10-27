@@ -17,11 +17,13 @@ import in.koreatech.koin.domain.order.order.dto.request.OrderSearchCondition;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchPeriodCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderStatusCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderTypeCriteria;
+import in.koreatech.koin.domain.order.order.dto.request.TakeoutOrderRequest;
 import in.koreatech.koin.domain.order.order.dto.response.InprogressOrderResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrderCreateResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
 import in.koreatech.koin.domain.order.order.service.DeliveryOrderService;
 import in.koreatech.koin.domain.order.order.service.OrderService;
+import in.koreatech.koin.domain.order.order.service.TakeoutOrderService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class OrderController implements OrderApi {
 
     private final OrderService orderService;
     private final DeliveryOrderService deliveryOrderService;
+    private final TakeoutOrderService takeoutOrderService;
 
     @PostMapping("/delivery")
     public ResponseEntity<OrderCreateResponse> createDeliveryOrder(
@@ -40,6 +43,15 @@ public class OrderController implements OrderApi {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         OrderCreateResponse response = deliveryOrderService.createDeliveryOrder(userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/takeout")
+    public ResponseEntity<OrderCreateResponse> createTakeoutOrder(
+        @RequestBody @Valid TakeoutOrderRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        OrderCreateResponse response = takeoutOrderService.createTakeoutOrder(userId, request);
         return ResponseEntity.ok(response);
     }
 

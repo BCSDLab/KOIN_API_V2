@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.order.order.dto.request.DeliveryOrderRequest;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchPeriodCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderStatusCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderTypeCriteria;
+import in.koreatech.koin.domain.order.order.dto.request.TakeoutOrderRequest;
 import in.koreatech.koin.domain.order.order.dto.response.InprogressOrderResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrderCreateResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
@@ -59,6 +60,37 @@ public interface OrderApi {
     @PostMapping("/delivery")
     ResponseEntity<OrderCreateResponse> createDeliveryOrder(
         @RequestBody @Valid DeliveryOrderRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK,
+        INVALID_REQUEST_BODY,
+        NOT_READABLE_HTTP_MESSAGE,
+        SHOP_NOT_TAKEOUT_AVAILABLE,
+        SHOP_CLOSED,
+        MENU_SOLD_OUT,
+        SHOP_BANK_ACCOUNT_UNAVAILABLE,
+        ORDER_PRICE_MISMATCH,
+        UNAUTHORIZED_USER,
+        WITHDRAWN_USER,
+        FORBIDDEN_USER_TYPE,
+        FORBIDDEN_STUDENT,
+        NOT_FOUND_USER,
+        NOT_FOUND_CART,
+        NOT_FOUND_CART_ITEM
+    })
+    @Operation(
+        summary = "계좌이체 포장 주문을 생성한다.",
+        description = """
+            로그인한 학생의 장바구니로 계좌이체 포장 주문을 생성한다.
+            메뉴 금액과 총 결제 금액을 검증하고 주문 생성 후 장바구니를 비운다.
+            배달비는 부과하지 않으며 주문 정보, 입금할 금액과 상점 계좌 정보를 반환한다.
+            """
+    )
+    @PostMapping("/takeout")
+    ResponseEntity<OrderCreateResponse> createTakeoutOrder(
+        @RequestBody @Valid TakeoutOrderRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
