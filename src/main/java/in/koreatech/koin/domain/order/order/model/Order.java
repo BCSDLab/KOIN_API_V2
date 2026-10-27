@@ -48,9 +48,8 @@ public class Order extends BaseEntity {
     @Column(name = "id", nullable = false, updatable = false)
     Integer id;
 
-    @NotBlank
     @Size(min = 6, max = 64)
-    @Column(name = "pg_order_id", length = 64, nullable = false, updatable = false)
+    @Column(name = "pg_order_id", length = 64, updatable = false)
     private String pgOrderId;
 
     @NotBlank

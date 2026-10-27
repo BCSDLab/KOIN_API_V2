@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.order.model.Order;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +22,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -39,9 +39,8 @@ public class Payment extends BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @NotBlank
     @Size(max = 200)
-    @Column(name = "payment_key", length = 200, nullable = false, updatable = false)
+    @Column(name = "payment_key", length = 200, updatable = false)
     private String paymentKey;
 
     @NotNull
@@ -69,13 +68,23 @@ public class Payment extends BaseEntity {
     @Column(name = "requested_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime requestedAt;
 
-    @NotNull
-    @Column(name = "approved_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "approved_at", updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime approvedAt;
 
-    @NotNull
-    @Column(name = "receipt", nullable = false, updatable = false, columnDefinition = "TEXT")
+    @Column(name = "receipt", updatable = false, columnDefinition = "TEXT")
     private String receipt;
+
+    @Size(max = 10)
+    @Column(name = "bank", length = 10, updatable = false)
+    private String bank;
+
+    @Size(max = 20)
+    @Column(name = "account_number", length = 20, updatable = false)
+    private String accountNumber;
+
+    @Size(max = 100)
+    @Column(name = "account_holder", length = 100, updatable = false)
+    private String accountHolder;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
@@ -96,6 +105,9 @@ public class Payment extends BaseEntity {
         LocalDateTime requestedAt,
         LocalDateTime approvedAt,
         String receipt,
+        String bank,
+        String accountNumber,
+        String accountHolder,
         Boolean isDeleted,
         Order order
     ) {
@@ -108,8 +120,35 @@ public class Payment extends BaseEntity {
         this.requestedAt = requestedAt;
         this.approvedAt = approvedAt;
         this.receipt = receipt;
+        this.bank = bank;
+        this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
         this.isDeleted = isDeleted;
         this.order = order;
+    }
+
+    public static Payment createBankTransfer(Order order) {
+        Shop shop = order.getOrderableShop().getShop();
+        String description = order.getOrderMenus().get(0).getMenuName();
+        if (order.getOrderMenus().size() > 1) {
+            description += " 외 " + (order.getOrderMenus().size() - 1) + "건";
+        }
+        return Payment.builder()
+            .order(order)
+            .amount(order.getTotalPrice())
+            .paymentStatus(PaymentStatus.WAITING_FOR_DEPOSIT)
+            .paymentMethod(PaymentMethod.ACCOUNT_TRANSFER)
+            .description(description)
+            .requestedAt(LocalDateTime.now())
+            .bank(shop.getBank())
+            .accountNumber(shop.getAccountNumber())
+            .accountHolder(shop.getAccountHolder())
+            .isDeleted(false)
+            .build();
+    }
+
+    public boolean isDirectBankTransfer() {
+        return paymentMethod == PaymentMethod.ACCOUNT_TRANSFER && paymentKey == null;
     }
 
     public void validateUserIdMatches(Integer userId) {

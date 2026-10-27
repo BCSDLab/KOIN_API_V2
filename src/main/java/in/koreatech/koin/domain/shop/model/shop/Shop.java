@@ -159,6 +159,10 @@ public class Shop extends BaseEntity {
     @Column(name = "account_number", length = 20)
     private String accountNumber;
 
+    @Size(max = 100)
+    @Column(name = "account_holder", length = 100)
+    private String accountHolder;
+
     @Column(name = "introduction", columnDefinition = "text")
     private String introduction;
 
@@ -184,6 +188,7 @@ public class Shop extends BaseEntity {
         Integer hit,
         String bank,
         String accountNumber,
+        String accountHolder,
         ShopCategory shopMainCategory,
         ShopOperation shopOperation
     ) {
@@ -204,6 +209,7 @@ public class Shop extends BaseEntity {
         this.hit = hit;
         this.bank = bank;
         this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
         this.shopMainCategory = shopMainCategory;
         this.shopOperation = shopOperation;
     }
