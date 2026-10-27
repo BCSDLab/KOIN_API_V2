@@ -362,7 +362,7 @@ class OwnerOrderServiceTest {
         @DisplayName("반려된 주문은 반려 일시와 사유를 반환한다")
         void 반려된_주문은_반려_일시와_사유를_반환한다() {
             Order order = OrderFixture.배달_주문(1, "A1B2C3D4E5", OrderStatus.CONFIRMING, orderableShop, customer);
-            order.cancel("재료 소진");
+            order.cancel("재료 소진", LocalDateTime.of(2026, 10, 27, 12, 0));
 
             when(orderableShopRepository.getById(ORDERABLE_SHOP_ID)).thenReturn(orderableShop);
             when(orderRepository.findByIdAndOrderableShopId(1, ORDERABLE_SHOP_ID)).thenReturn(Optional.of(order));

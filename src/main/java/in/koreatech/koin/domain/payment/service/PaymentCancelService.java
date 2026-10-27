@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.payment.service;
 import static in.koreatech.koin.global.code.ApiResponseCode.PAYMENT_ALREADY_CANCELED;
 import static in.koreatech.koin.global.code.ApiResponseCode.PAYMENT_CANCEL_ERROR;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +35,7 @@ public class PaymentCancelService {
     private final PaymentGatewayService paymentGatewayService;
     private final PaymentIdempotencyKeyService paymentIdempotencyKeyService;
     private final PaymentCancelMapper paymentCancelMapper;
+    private final Clock clock;
 
     @Transactional
     public PaymentCancelResponse cancelPayment(User user, Integer paymentId, PaymentCancelInfo paymentCancelInfo) {
@@ -61,7 +63,8 @@ public class PaymentCancelService {
             cancelReason, paymentIdempotencyKey);
         validatePaymentIsCanceled(pgResponse.status());
 
-        payment.cancel(cancelReason);
+        LocalDateTime now = LocalDateTime.now(clock);
+        payment.cancel(cancelReason, now);
         List<PaymentCancel> paymentCancels = paymentCancelMapper.toEntity(payment, pgResponse);
         paymentCancelRepository.saveAll(paymentCancels);
 
@@ -70,13 +73,14 @@ public class PaymentCancelService {
 
     private List<PaymentCancel> cancelBankTransferOrder(Payment payment, String cancelReason) {
         payment.getOrder().requireStatusChangeableTo(OrderStatus.CANCELED);
-        payment.cancel(cancelReason);
+        LocalDateTime now = LocalDateTime.now(clock);
+        payment.cancel(cancelReason, now);
         PaymentCancel paymentCancel = PaymentCancel.builder()
             .transactionKey(UUID.randomUUID().toString())
             .cancelReason(cancelReason)
             // 입금과 환불은 앱에서 확인하지 않으므로 자동 환불 금액은 0원이다.
             .cancelAmount(0)
-            .canceledAt(LocalDateTime.now())
+            .canceledAt(now)
             .isDeleted(false)
             .payment(payment)
             .build();

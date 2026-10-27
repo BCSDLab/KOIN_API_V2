@@ -301,10 +301,10 @@ public class Order extends BaseEntity {
         return null;
     }
 
-    public void cancel(String cancelReason) {
+    public void cancel(String cancelReason, LocalDateTime canceledAt) {
         this.status = CANCELED;
         this.canceledReason = cancelReason;
-        this.canceledAt = LocalDateTime.now();
+        this.canceledAt = canceledAt;
     }
 
     public void delivered() {

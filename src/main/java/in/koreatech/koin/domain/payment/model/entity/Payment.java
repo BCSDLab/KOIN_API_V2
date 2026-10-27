@@ -121,7 +121,7 @@ public class Payment extends BaseEntity {
         this.order = order;
     }
 
-    public static Payment createBankTransfer(Order order) {
+    public static Payment createBankTransfer(Order order, LocalDateTime requestedAt) {
         Shop shop = order.getOrderableShop().getShop();
         String description = order.getOrderMenus().get(0).getMenuName();
         if (order.getOrderMenus().size() > 1) {
@@ -133,7 +133,7 @@ public class Payment extends BaseEntity {
             .paymentStatus(PaymentStatus.WAITING_FOR_DEPOSIT)
             .paymentMethod(PaymentMethod.ACCOUNT_TRANSFER)
             .description(description)
-            .requestedAt(LocalDateTime.now())
+            .requestedAt(requestedAt)
             .bank(shop.getBank())
             .accountNumber(shop.getAccountNumber())
             .isDeleted(false)
@@ -150,8 +150,8 @@ public class Payment extends BaseEntity {
         }
     }
 
-    public void cancel(String reason) {
+    public void cancel(String reason, LocalDateTime canceledAt) {
         this.paymentStatus = CANCELED;
-        this.order.cancel(reason);
+        this.order.cancel(reason, canceledAt);
     }
 }

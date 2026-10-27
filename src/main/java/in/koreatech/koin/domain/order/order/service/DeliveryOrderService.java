@@ -2,6 +2,9 @@ package in.koreatech.koin.domain.order.order.service;
 
 import static in.koreatech.koin.domain.order.delivery.model.AddressType.OFF_CAMPUS;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ public class DeliveryOrderService {
     private final OrderMenuItemsMapper orderMenuItemsMapper;
     private final OrderNumberGenerator orderNumberGenerator;
     private final AddressValidator addressValidator;
+    private final Clock clock;
 
     @Transactional
     public OrderCreateResponse createDeliveryOrder(Integer userId, DeliveryOrderRequest request) {
@@ -76,7 +80,8 @@ public class DeliveryOrderService {
         orderMenuItemsMapper.toOrderMenus(cart, order).forEach(order::addOrderMenu);
         orderRepository.save(order);
 
-        Payment payment = Payment.createBankTransfer(order);
+        LocalDateTime now = LocalDateTime.now(clock);
+        Payment payment = Payment.createBankTransfer(order, now);
         paymentRepository.save(payment);
         cartRepository.delete(cart);
 
