@@ -21,9 +21,7 @@ import in.koreatech.koin.domain.order.order.dto.request.TakeoutOrderRequest;
 import in.koreatech.koin.domain.order.order.dto.response.InprogressOrderResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrderCreateResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
-import in.koreatech.koin.domain.order.order.service.DeliveryOrderService;
 import in.koreatech.koin.domain.order.order.service.OrderService;
-import in.koreatech.koin.domain.order.order.service.TakeoutOrderService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +32,13 @@ import lombok.RequiredArgsConstructor;
 public class OrderController implements OrderApi {
 
     private final OrderService orderService;
-    private final DeliveryOrderService deliveryOrderService;
-    private final TakeoutOrderService takeoutOrderService;
 
     @PostMapping("/delivery")
     public ResponseEntity<OrderCreateResponse> createDeliveryOrder(
         @RequestBody @Valid DeliveryOrderRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        OrderCreateResponse response = deliveryOrderService.createDeliveryOrder(userId, request);
+        OrderCreateResponse response = orderService.createDeliveryOrder(userId, request);
         return ResponseEntity.ok(response);
     }
 
@@ -51,7 +47,7 @@ public class OrderController implements OrderApi {
         @RequestBody @Valid TakeoutOrderRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        OrderCreateResponse response = takeoutOrderService.createTakeoutOrder(userId, request);
+        OrderCreateResponse response = orderService.createTakeoutOrder(userId, request);
         return ResponseEntity.ok(response);
     }
 
