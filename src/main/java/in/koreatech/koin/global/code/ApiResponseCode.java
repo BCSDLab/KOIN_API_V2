@@ -78,6 +78,7 @@ public enum ApiResponseCode {
     ORDER_AMOUNT_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "최소 주문 금액을 충족하지 않습니다."),
     INVALID_SELF_CHAT(HttpStatus.BAD_REQUEST, "자신이 올린 게시글에 메시지를 보낼 수 없습니다."),
     INVALID_WEBSOCKET_USER_SESSION(HttpStatus.BAD_REQUEST, "웹소켓 사용자 세션 탐색 실패"),
+    SHOP_BANK_ACCOUNT_UNAVAILABLE(HttpStatus.BAD_REQUEST, "상점의 계좌이체 정보가 등록되지 않았습니다."),
     ORDER_PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "클라이언트 요청 금액이 서버 계산 결과와 다릅니다."),
     MISMATCH_TEMPORARY_PAYMENT(HttpStatus.BAD_REQUEST, "요청한 정보가 임시 결제 정보와 일치하지 않습니다."),
     PAYMENT_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
