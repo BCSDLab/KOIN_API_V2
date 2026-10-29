@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.repository.CoopNameRepository;
-import in.koreatech.koin.domain.coopshop.repository.CoopOpenRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopSemesterRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
@@ -39,9 +38,6 @@ class CoopShopServiceTest {
     private CoopShopRepository coopShopRepository;
 
     @Mock
-    private CoopOpenRepository coopOpenRepository;
-
-    @Mock
     private CoopSemesterRepository coopSemesterRepository;
 
     @Mock
@@ -55,7 +51,6 @@ class CoopShopServiceTest {
         coopShopService = new CoopShopService(
             clock,
             coopShopRepository,
-            coopOpenRepository,
             coopSemesterRepository,
             coopNameRepository
         );
