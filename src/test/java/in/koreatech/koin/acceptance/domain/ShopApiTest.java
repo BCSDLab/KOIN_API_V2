@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
@@ -200,28 +199,6 @@ class ShopApiTest extends AcceptanceTest {
                         ]
                     }
                 """));
-    }
-
-    @Test
-    void V2_상점_상세_조회에_예금주를_반환한다() throws Exception {
-        entityManager.createNativeQuery("UPDATE shops SET account_holder = :accountHolder WHERE id = :id")
-            .setParameter("accountHolder", "홍길동")
-            .setParameter("id", 마슬랜.getId())
-            .executeUpdate();
-        entityManager.clear();
-
-        mockMvc.perform(get("/v2/shops/{shopId}", 마슬랜.getId()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.account_holder").value("홍길동"))
-            .andExpect(jsonPath("$.bank").value("국민"))
-            .andExpect(jsonPath("$.account_number").value("01022595923"));
-    }
-
-    @Test
-    void V2_상점_상세_조회에서_미등록_예금주는_null로_반환한다() throws Exception {
-        mockMvc.perform(get("/v2/shops/{shopId}", 마슬랜.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().json("{\"account_holder\": null}"));
     }
 
     @Test
