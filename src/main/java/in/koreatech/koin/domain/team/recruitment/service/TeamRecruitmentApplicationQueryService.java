@@ -62,11 +62,8 @@ import lombok.RequiredArgsConstructor;
 public class TeamRecruitmentApplicationQueryService {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
-    private static final List<TeamRecruitmentApplicationStatus> ALL_STATUSES = List.of(
-        PENDING,
-        ACCEPTED,
-        TeamRecruitmentApplicationStatus.REJECTED
-    );
+    private static final List<TeamRecruitmentApplicationStatus> ALL_STATUSES =
+        List.of(TeamRecruitmentApplicationStatus.values());
 
     private final TeamRecruitmentRepository recruitmentRepository;
     private final TeamRecruitmentApplicationRepository applicationRepository;
@@ -158,7 +155,7 @@ public class TeamRecruitmentApplicationQueryService {
         validateApplicationBelongsToRecruitment(application, recruitmentId);
 
         LocalDate today = today();
-        boolean canDecide = application.getStatus() == PENDING
+        boolean canDecide = application.getApplicant() != null && application.getStatus() == PENDING
             && recruitment.getStatus() == RECRUITING
             && !isPastDeadline(recruitment, today);
         boolean canOpenDirectChat = application.getStatus() == ACCEPTED
@@ -166,7 +163,7 @@ public class TeamRecruitmentApplicationQueryService {
         return new ApplicantDetail(
             application.getId(),
             application.getStatus(),
-            readProfileSnapshot(application.getProfileSnapshot()),
+            readProfileSnapshot(application),
             application.getMotivation(),
             application.getAvailability(),
             toApplicationRole(application.getRole()),
@@ -319,7 +316,7 @@ public class TeamRecruitmentApplicationQueryService {
         AcceptedChatRooms acceptedChatRooms,
         LocalDate today
     ) {
-        ProfileSnapshot snapshot = readProfileSnapshot(application.getProfileSnapshot());
+        ProfileSnapshot snapshot = readProfileSnapshot(application);
         return new ApplicantSummary(
             application.getId(),
             snapshot.nickname(),
@@ -336,6 +333,9 @@ public class TeamRecruitmentApplicationQueryService {
         AcceptedChatRooms acceptedChatRooms,
         LocalDate today
     ) {
+        if (application.getApplicant() == null) {
+            return false;
+        }
         TeamRecruitment recruitment = application.getRecruitment();
         boolean hasExistingDirectChat = application.getId() != null
             && acceptedChatRooms.directRoomsByApplicationId().containsKey(application.getId());
@@ -429,6 +429,15 @@ public class TeamRecruitmentApplicationQueryService {
 
     private LocalDate today() {
         return LocalDate.now(clock.withZone(KST));
+    }
+
+    private ProfileSnapshot readProfileSnapshot(TeamRecruitmentApplication application) {
+        ProfileSnapshot snapshot = readProfileSnapshot(application.getProfileSnapshot());
+        if (application.getApplicant() != null) {
+            return snapshot;
+        }
+        return new ProfileSnapshot("탈퇴한 회원", snapshot.department(), snapshot.studentYear(),
+            snapshot.preferredRole(), snapshot.skills(), snapshot.activities(), snapshot.selfIntroduction());
     }
 
     private ProfileSnapshot readProfileSnapshot(String profileSnapshot) {

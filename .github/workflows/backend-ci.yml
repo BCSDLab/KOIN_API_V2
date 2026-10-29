@@ -37,12 +37,11 @@ jobs:
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v1
         with:
-          files: '**/build/test-results/test/TEST-*.xml'
+          files: '**/build/test-results/*/TEST-*.xml'
 
       - name: Annotate failed tests
         if: always()
         uses: mikepenz/action-junit-report@v3
         with:
-          report_paths: '**/build/test-results/test/TEST-*.xml'
+          report_paths: '**/build/test-results/*/TEST-*.xml'
           token: ${{ secrets.PAT }}
-

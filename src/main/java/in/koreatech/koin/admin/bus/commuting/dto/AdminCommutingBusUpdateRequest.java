@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminCommutingBusUpdateRequest(
@@ -71,10 +72,21 @@ public record AdminCommutingBusUpdateRequest(
             @Schema(description = "노선 세부 정보", example = "null", requiredMode = NOT_REQUIRED)
             String detail,
 
+            @Schema(
+                description = "운행 요일 목록",
+                example = "[\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\"]",
+                requiredMode = NOT_REQUIRED
+            )
+            List<@NotBlank @Pattern(regexp = "MON|TUE|WED|THU|FRI|SAT|SUN") String> runningDays,
+
             @Schema(description = "도착 시간 목록", example = "[\"08:00\", \"09:00\"]", requiredMode = REQUIRED)
             @NotEmpty(message = "도착 시간 목록은 필수 입력값입니다.")
             List<String> arrivalTime
         ) {
+            public InnerRouteInfo(String name, String detail, List<String> arrivalTime) {
+                this(name, detail, null, arrivalTime);
+            }
+
             public static ShuttleBusRoute.RouteInfo toEntity(
                 String name,
                 String detail,
@@ -97,11 +109,18 @@ public record AdminCommutingBusUpdateRequest(
                 .toList();
         }
 
-        public List<ShuttleBusRoute.RouteInfo> toRouteInfoEntity(List<String> runningDays) {
+        public List<ShuttleBusRoute.RouteInfo> toRouteInfoEntity() {
+            return toRouteInfoEntity(null);
+        }
+
+        public List<ShuttleBusRoute.RouteInfo> toRouteInfoEntity(List<String> fallbackRunningDays) {
             return routeInfo.stream()
                 .map(innerRouteInfoRequest ->
                     InnerRouteInfo.toEntity(innerRouteInfoRequest.name, innerRouteInfoRequest.detail,
-                        runningDays, innerRouteInfoRequest.arrivalTime)
+                        innerRouteInfoRequest.runningDays == null || innerRouteInfoRequest.runningDays.isEmpty()
+                            ? fallbackRunningDays
+                            : innerRouteInfoRequest.runningDays,
+                        innerRouteInfoRequest.arrivalTime)
                 )
                 .toList();
         }

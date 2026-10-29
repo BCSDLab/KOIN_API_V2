@@ -74,7 +74,8 @@ public interface TeamRecruitmentChatApi {
     })
     @Operation(
         summary = "지원자와 개인 채팅방 생성 또는 조회",
-        description = "ACCEPTED 지원서만 대상입니다. 기존 DIRECT 채팅방이 있으면 모집 상태와 관계없이 기존 방을 반환합니다. "
+        description = "모집글 작성자 또는 해당 지원자만 호출할 수 있으며 ACCEPTED 지원서만 대상입니다. "
+            + "기존 DIRECT 채팅방이 있으면 모집 상태와 관계없이 기존 방을 반환합니다. "
             + "기존 방이 없을 때는 마감일이 지나지 않은 RECRUITING 상태이거나 "
             + "정원 충족으로 마감되어 ACTIVE 상태인 TEAM 채팅방이 있는 경우에만 새 방을 생성합니다."
     )
@@ -92,7 +93,12 @@ public interface TeamRecruitmentChatApi {
         UNAUTHORIZED_USER,
         FORBIDDEN_USER_TYPE,
     })
-    @Operation(summary = "채팅 메시지 조회 (Polling)")
+    @Operation(
+        summary = "채팅 메시지 조회 (Polling)",
+        description = "조회 시작점이 없으면 최근 메시지를 반환하며, 기본 조회 개수는 100개입니다. "
+            + "afterMessageId는 해당 ID 이후의 메시지, beforeMessageId는 해당 ID 이전의 메시지를 조회합니다. "
+            + "모든 결과는 메시지 ID 오름차순으로 반환합니다."
+    )
     ResponseEntity<List<ChatMessageResponse>> getMessages(
             Integer userId,
             @PathVariable Integer recruitmentId,

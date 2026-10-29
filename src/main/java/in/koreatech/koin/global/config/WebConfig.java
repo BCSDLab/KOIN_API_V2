@@ -16,9 +16,11 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import in.koreatech.koin.domain.dining.auth.DiningReportBotInterceptor;
 import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin.global.auth.UserIdArgumentResolver;
+import in.koreatech.koin.global.auth.WebCookieAuthenticationInterceptor;
 import in.koreatech.koin.domain.notification.controller.NotificationSubscribeTypeConverter;
 import in.koreatech.koin.infrastructure.s3.convertor.ImageUploadDomainEnumConverter;
 import in.koreatech.koin.global.host.ServerURLArgumentResolver;
@@ -35,7 +37,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
+    private final DiningReportBotInterceptor diningReportBotInterceptor;
     private final ExtractAuthenticationInterceptor extractAuthenticationInterceptor;
+    private final WebCookieAuthenticationInterceptor webCookieAuthenticationInterceptor;
     private final IpAddressArgumentResolver ipAddressArgumentResolver;
     private final ServerURLInterceptor serverURLInterceptor;
 
@@ -49,15 +53,26 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(diningReportBotInterceptor)
+            .addPathPatterns("/internal/dining/soldout-reports", "/internal/dining/soldout-reports/**")
+            .order(-1);
         registry.addInterceptor(extractAuthenticationInterceptor)
             .addPathPatterns("/**")
+            .excludePathPatterns("/v2/web/auth/**", "/internal/dining/soldout-reports",
+                "/internal/dining/soldout-reports/**")
             .order(0);
+        registry.addInterceptor(webCookieAuthenticationInterceptor)
+            .addPathPatterns("/**")
+            .excludePathPatterns("/v2/users/login", "/user/login", "/user/refresh", "/user/logout",
+                "/student/login", "/owner/login", "/coop/login", "/admin/user/login",
+                "/internal/dining/soldout-reports", "/internal/dining/soldout-reports/**")
+            .order(1);
         registry.addInterceptor(ipAddressInterceptor)
             .addPathPatterns("/**")
-            .order(1);
+            .order(2);
         registry.addInterceptor(serverURLInterceptor)
             .addPathPatterns("/**")
-            .order(2);
+            .order(3);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.user.model;
 
+import static in.koreatech.koin.domain.user.model.UserType.KOIN_STUDENT_TYPES;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
@@ -253,5 +254,9 @@ public class User extends BaseEntity {
             return this.anonymousNickname;
         }
         return "익명 사용자";
+    }
+
+    public boolean isKoinStudent() {
+        return KOIN_STUDENT_TYPES.contains(this.getUserType());
     }
 }

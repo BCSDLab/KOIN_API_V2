@@ -67,6 +67,25 @@ class TeamRecruitmentDeadlineCloseProcessorTest {
     @InjectMocks
     private TeamRecruitmentDeadlineCloseProcessor processor;
 
+    @Test
+    void withdrawnApplicantsReceiveNoDeadlineNotifications() {
+        TeamRecruitment recruitment = recruitment(1, TODAY.minusDays(1));
+        TeamRecruitmentApplication pending = application(11, recruitment, PENDING);
+        TeamRecruitmentApplication accepted = application(12, recruitment, ACCEPTED);
+        ReflectionTestUtils.setField(pending, "applicant", null);
+        ReflectionTestUtils.setField(accepted, "applicant", null);
+        stubLockedRecruitment(recruitment);
+        stubApplications(pending, accepted);
+        when(chatRoomRepository.findByRecruitment_IdAndRoomScopeKey(1, "TEAM"))
+            .thenReturn(Optional.of(chatRoom(21, recruitment, TEAM, ACTIVE)));
+        processor.closeIfExpired(1, TODAY);
+        assertThat(recruitment.getStatus()).isEqualTo(CLOSED);
+        assertThat(pending.getStatus()).isEqualTo(REJECTED);
+        assertThat(accepted.getStatus()).isEqualTo(ACCEPTED);
+        verify(notificationRepository, never()).save(any());
+        verify(outboxEventRepository, never()).save(any());
+    }
+
     @Nested
     class CloseExpiredRecruitments {
 

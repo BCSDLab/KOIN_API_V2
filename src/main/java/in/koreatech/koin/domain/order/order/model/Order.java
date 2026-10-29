@@ -8,6 +8,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,10 @@ import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.entity.shop.OrderableShop;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -46,10 +50,14 @@ public class Order extends BaseEntity {
     @Column(name = "id", nullable = false, updatable = false)
     Integer id;
 
-    @NotBlank
     @Size(min = 6, max = 64)
-    @Column(name = "pg_order_id", length = 64, nullable = false, updatable = false)
+    @Column(name = "pg_order_id", length = 64, updatable = false)
     private String pgOrderId;
+
+    @NotBlank
+    @Size(min = 10, max = 10)
+    @Column(name = "order_number", length = 10, nullable = false, updatable = false, unique = true)
+    private String orderNumber;
 
     @NotBlank
     @Size(max = 255)
@@ -120,6 +128,7 @@ public class Order extends BaseEntity {
     @Builder
     public Order(
         String pgOrderId,
+        String orderNumber,
         String orderableShopName,
         String orderableShopAddress,
         String orderableShopAddressDetail,
@@ -139,6 +148,7 @@ public class Order extends BaseEntity {
         List<OrderMenu> orderMenus
     ) {
         this.pgOrderId = pgOrderId;
+        this.orderNumber = orderNumber;
         this.orderableShopName = orderableShopName;
         this.orderableShopAddress = orderableShopAddress;
         this.orderableShopAddressDetail = orderableShopAddressDetail;
@@ -158,6 +168,86 @@ public class Order extends BaseEntity {
         this.orderMenus = orderMenus;
     }
 
+    public static Order createDelivery(
+        User user,
+        OrderableShop orderableShop,
+        String orderNumber,
+        String phoneNumber,
+        String address,
+        String addressDetail,
+        BigDecimal longitude,
+        BigDecimal latitude,
+        String toOwner,
+        String toRider,
+        Boolean provideCutlery,
+        int totalProductPrice,
+        int deliveryFee,
+        int totalPrice
+    ) {
+        Shop shop = orderableShop.getShop();
+        Order order = Order.builder()
+            .orderNumber(orderNumber)
+            .orderType(OrderType.DELIVERY)
+            .status(CONFIRMING)
+            .orderableShopAddress(shop.getAddress())
+            .orderableShopAddressDetail(shop.getAddressDetail())
+            .orderableShopName(shop.getName())
+            .phoneNumber(phoneNumber)
+            .totalProductPrice(totalProductPrice)
+            .discountAmount(0)
+            .totalPrice(totalPrice)
+            .orderableShop(orderableShop)
+            .user(user)
+            .isDeleted(false)
+            .build();
+        order.setOrderDelivery(OrderDelivery.builder()
+            .order(order)
+            .address(address)
+            .addressDetail(addressDetail)
+            .longitude(longitude)
+            .latitude(latitude)
+            .toOwner(toOwner)
+            .toRider(toRider)
+            .provideCutlery(provideCutlery)
+            .deliveryTip(deliveryFee)
+            .build());
+        return order;
+    }
+
+    public static Order createTakeout(
+        User user,
+        OrderableShop orderableShop,
+        String orderNumber,
+        String phoneNumber,
+        String toOwner,
+        Boolean provideCutlery,
+        int totalProductPrice,
+        int totalPrice
+    ) {
+        Shop shop = orderableShop.getShop();
+        Order order = Order.builder()
+            .orderNumber(orderNumber)
+            .orderType(OrderType.TAKE_OUT)
+            .status(CONFIRMING)
+            .orderableShopAddress(shop.getAddress())
+            .orderableShopAddressDetail(shop.getAddressDetail())
+            .orderableShopName(shop.getName())
+            .phoneNumber(phoneNumber)
+            .totalProductPrice(totalProductPrice)
+            .discountAmount(0)
+            .totalPrice(totalPrice)
+            .orderableShop(orderableShop)
+            .user(user)
+            .isDeleted(false)
+            .build();
+        order.setOrderTakeout(OrderTakeout.builder()
+            .order(order)
+            .toOwner(toOwner)
+            .provideCutlery(provideCutlery)
+            .build());
+        return order;
+    }
+
     public void setOrderDelivery(OrderDelivery orderDelivery) {
         this.orderDelivery = orderDelivery;
     }
@@ -173,10 +263,82 @@ public class Order extends BaseEntity {
         this.orderMenus.add(orderMenu);
     }
 
-    public void cancel(String cancelReason) {
+    public void requireStatusChangeableTo(OrderStatus nextStatus) {
+        if (!this.status.canChangeTo(nextStatus) || !this.orderType.supports(nextStatus)) {
+            throw CustomException.of(ApiResponseCode.INVALID_ORDER_STATUS_CHANGE);
+        }
+    }
+
+    public boolean isDelivery() {
+        return this.orderType == OrderType.DELIVERY;
+    }
+
+    public String getToOwner() {
+        return isDelivery() ? orderDelivery.getToOwner() : orderTakeout.getToOwner();
+    }
+
+    public String getToRider() {
+        return isDelivery() ? orderDelivery.getToRider() : null;
+    }
+
+    public Boolean getProvideCutlery() {
+        return isDelivery() ? orderDelivery.getProvideCutlery() : orderTakeout.getProvideCutlery();
+    }
+
+    public String getDeliveryAddress() {
+        return isDelivery() ? orderDelivery.getAddress() : null;
+    }
+
+    public String getDeliveryAddressDetail() {
+        return isDelivery() ? orderDelivery.getAddressDetail() : null;
+    }
+
+    public Integer getDeliveryTip() {
+        return isDelivery() ? orderDelivery.getDeliveryTip() : 0;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return isDelivery() ? orderDelivery.getCompletedAt() : orderTakeout.getPackagedAt();
+    }
+
+    public void startCooking(LocalDateTime estimatedAt) {
+        if (isDelivery()) {
+            orderDelivery.cooking(estimatedAt);
+        } else {
+            orderTakeout.cooking(estimatedAt);
+        }
+    }
+
+    public void startDelivering() {
+        orderDelivery.delivering();
+    }
+
+    public void completeDelivery() {
+        orderDelivery.delivered();
+    }
+
+    public void completePackaging() {
+        orderTakeout.packaged();
+    }
+
+    public void completePickup() {
+        orderTakeout.pickedUp();
+    }
+
+    public LocalDateTime getEstimatedAt() {
+        if (orderType == OrderType.DELIVERY && orderDelivery != null) {
+            return orderDelivery.getEstimatedArrivalAt();
+        }
+        if (orderType == OrderType.TAKE_OUT && orderTakeout != null) {
+            return orderTakeout.getEstimatedPackagedAt();
+        }
+        return null;
+    }
+
+    public void cancel(String cancelReason, LocalDateTime canceledAt) {
         this.status = CANCELED;
         this.canceledReason = cancelReason;
-        this.canceledAt = LocalDateTime.now();
+        this.canceledAt = canceledAt;
     }
 
     public void delivered() {

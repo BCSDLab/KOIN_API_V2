@@ -19,7 +19,7 @@ class ShuttleBusRouteTest {
     private ShuttleBusRoute createRoute(List<String> runningDays) {
         return ShuttleBusRoute.builder()
             .routeName("천안 셔틀")
-            .nodeInfo(List.of(createNodeInfo("한기대")))
+            .nodeInfo(List.of(createNodeInfo("한기대"), createNodeInfo("천안역")))
             .routeInfo(List.of(
                 RouteInfo.builder()
                     .name("1회")
@@ -54,7 +54,7 @@ class ShuttleBusRouteTest {
         ShuttleBusRoute route = createRoute(WEEKDAYS);
 
         route.updateCommutingBusRoute(
-            List.of(createNodeInfo("한기대")),
+            List.of(createNodeInfo("한기대"), createNodeInfo("천안역")),
             createUpdatedRouteInfos(null)
         );
 
@@ -69,7 +69,7 @@ class ShuttleBusRouteTest {
         ShuttleBusRoute route = createRoute(WEEKDAYS);
 
         route.updateCommutingBusRoute(
-            List.of(createNodeInfo("한기대")),
+            List.of(createNodeInfo("한기대"), createNodeInfo("천안역")),
             createUpdatedRouteInfos(List.of())
         );
 
@@ -82,7 +82,7 @@ class ShuttleBusRouteTest {
         ShuttleBusRoute route = createRoute(WEEKDAYS);
 
         route.updateCommutingBusRoute(
-            List.of(createNodeInfo("한기대")),
+            List.of(createNodeInfo("한기대"), createNodeInfo("천안역")),
             createUpdatedRouteInfos(SATURDAY)
         );
 

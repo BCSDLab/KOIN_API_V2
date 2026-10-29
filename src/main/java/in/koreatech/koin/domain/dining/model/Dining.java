@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
 import jakarta.persistence.Column;
@@ -27,6 +29,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@DynamicUpdate
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "dining_menus", uniqueConstraints = {
     @UniqueConstraint(
@@ -72,6 +75,10 @@ public class Dining extends BaseEntity {
     @Column(name = "sold_out", columnDefinition = "DATETIME")
     private LocalDateTime soldOut;
 
+    @Enumerated(STRING)
+    @Column(name = "sold_out_source", length = 16)
+    private DiningSoldOutSource soldOutSource;
+
     @Column(name = "is_changed", columnDefinition = "DATETIME")
     private LocalDateTime isChanged;
 
@@ -113,8 +120,18 @@ public class Dining extends BaseEntity {
         this.soldOut = soldout;
     }
 
+    public boolean markSoldOut(LocalDateTime soldOutAt, DiningSoldOutSource source) {
+        if (soldOut != null) {
+            return false;
+        }
+        this.soldOut = soldOutAt;
+        this.soldOutSource = source;
+        return true;
+    }
+
     public void cancelSoldOut() {
         this.soldOut = null;
+        this.soldOutSource = null;
     }
 
     public void likesDining() {

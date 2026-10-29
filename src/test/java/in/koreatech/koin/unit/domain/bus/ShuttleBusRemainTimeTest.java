@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse.InnerBusResponse;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.service.BusNoticeRepository;
 import in.koreatech.koin.domain.bus.service.BusService;
@@ -69,7 +70,8 @@ class ShuttleBusRemainTimeTest {
             .thenReturn(Version.builder().title(SEMESTER).build());
         shuttleBusService = new ShuttleBusService(versionService, shuttleBusRepository, CLOCK);
         busService = new BusService(
-            CLOCK, busNoticeRepository, versionService, List.of(), expressBusService, cityBusService, shuttleBusService);
+            CLOCK, busNoticeRepository, versionService, List.of(), expressBusService, cityBusService,
+            shuttleBusService);
     }
 
     @Test
@@ -130,14 +132,14 @@ class ShuttleBusRemainTimeTest {
 
         assertThat(remainTimes)
             .extracting(BusRemainTime::getBusArrivalTime)
-            .containsExactly(LocalTime.of(14, 25), LocalTime.of(15, 0), LocalTime.of(16, 0));
+            .containsExactly(LocalTime.of(14, 25), LocalTime.of(15, 0), LocalTime.of(16, 0), LocalTime.of(19, 50));
     }
 
     @ParameterizedTest
     @EnumSource(value = BusType.class, names = {"SHUTTLE", "COMMUTING"})
     void 셔틀_서비스는_null_시각만_있으면_빈_목록을_반환한다(BusType busType) {
         ShuttleRouteType type = routeType(busType);
-        givenRoutes(busType, List.of(duplicateDeparture(type, null), duplicateDeparture(type, "정차")));
+        givenRoutes(busType, List.of(invalidDeparture(type, null), invalidDeparture(type, "정차")));
 
         List<BusRemainTime> remainTimes = shuttleBusService.getShuttleBusRemainTimes(
             busType, BusStation.TERMINAL, BusStation.KOREATECH);
@@ -150,7 +152,7 @@ class ShuttleBusRemainTimeTest {
     void 계산할_수_없는_시간과_운행_종료_항목만_있으면_빈_응답을_반환한다(BusType busType) {
         ShuttleRouteType type = routeType(busType);
         givenRoutes(busType, List.of(
-            duplicateDeparture(type, null), duplicateDeparture(type, "정차"), departure(type, "10:00")));
+            invalidDeparture(type, null), invalidDeparture(type, "정차"), departure(type, "10:00")));
 
         assertThat(getRemainTime(busType)).isEqualTo(new BusRemainTimeResponse(busType.getName(), null, null));
     }
@@ -185,12 +187,17 @@ class ShuttleBusRemainTimeTest {
         return route(type, "등교", node("터미널", firstTime), node("터미널", "19:50"), node("한기대", "도착"));
     }
 
+    private Route invalidDeparture(ShuttleRouteType type, String time) {
+        return route(type, "등교", node("터미널", time), node("한기대", "도착"));
+    }
+
     private Route route(ShuttleRouteType type, String direction, ArrivalNode... nodes) {
         Route route = BeanUtils.instantiateClass(Route.class);
         ReflectionTestUtils.setField(route, "routeName", "테스트 노선");
         ReflectionTestUtils.setField(route, "routeType", type);
         ReflectionTestUtils.setField(route, "routeInfo", direction);
         ReflectionTestUtils.setField(route, "routeDetail", direction);
+        ReflectionTestUtils.setField(route, "region", ShuttleBusRegion.CHEONAN_ASAN);
         ReflectionTestUtils.setField(route, "runningDays", List.of("SAT"));
         ReflectionTestUtils.setField(route, "arrivalNodes", new ArrayList<>(List.of(nodes)));
         return route;

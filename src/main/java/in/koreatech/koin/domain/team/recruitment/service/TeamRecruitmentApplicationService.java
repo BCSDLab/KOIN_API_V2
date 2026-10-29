@@ -29,6 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.service.StudentValidationService;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicationCreatedResponse;
 import in.koreatech.koin.domain.team.recruitment.dto.ApplicationRole;
 import in.koreatech.koin.domain.team.recruitment.dto.CreateApplicationRequest;
@@ -60,6 +61,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfi
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileSkillRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRoleRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.global.exception.CustomException;
@@ -107,9 +109,11 @@ public class TeamRecruitmentApplicationService {
     private final TeamRecruitmentProfileActivityRepository profileActivityRepository;
     private final TeamRecruitmentProfileSkillRepository profileSkillRepository;
     private final StudentRepository studentRepository;
+    private final StudentValidationService studentValidationService;
     private final ObjectMapper objectMapper;
     private final EntityManager entityManager;
     private final Clock clock;
+    private final TeamRecruitmentUserLockRepository userLockRepository;
 
     @Transactional
     @DuplicateGuard(
@@ -125,6 +129,7 @@ public class TeamRecruitmentApplicationService {
             throw CustomException.of(INVALID_REQUEST_BODY);
         }
 
+        userLockRepository.lock(studentId);
         TeamRecruitment recruitment = getLockedRecruitment(recruitmentId);
         validateRecruitmentCanReceiveApplication(recruitment, studentId);
 
@@ -206,7 +211,7 @@ public class TeamRecruitmentApplicationService {
         Integer applicationId,
         Integer authorId
     ) {
-        if (request == null || request.status() == null || request.status() == PENDING) {
+        if (request == null || (request.status() != ACCEPTED && request.status() != REJECTED)) {
             throw CustomException.of(INVALID_REQUEST_BODY);
         }
 
@@ -218,7 +223,7 @@ public class TeamRecruitmentApplicationService {
             .findByIdAndRecruitmentIdWithLock(applicationId, recruitmentId)
             .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_APPLICATION_NOT_FOUND));
         validateApplicationBelongsToRecruitment(application, recruitmentId);
-        if (application.getStatus() != PENDING) {
+        if (application.getApplicant() == null || application.getStatus() != PENDING) {
             throw CustomException.of(TEAM_RECRUITMENT_APPLICATION_FINALIZED);
         }
 
@@ -473,6 +478,10 @@ public class TeamRecruitmentApplicationService {
         TeamRecruitmentNotificationType type,
         TeamRecruitmentChatRoom room
     ) {
+        User recipient = type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant();
+        if (recipient == null) {
+            return;
+        }
         TeamRecruitmentNotificationTargetType targetType = type == APPLICATION_ACCEPTED
             || type == RECRUITMENT_CLOSED
             ? CHAT_ROOM
@@ -485,7 +494,7 @@ public class TeamRecruitmentApplicationService {
         }
 
         TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
-            .recipient(type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant())
+            .recipient(recipient)
             .type(type)
             .targetType(targetType)
             .messagePreview(notificationMessage(recruitment, type))
@@ -503,7 +512,7 @@ public class TeamRecruitmentApplicationService {
             .aggregateType(AGGREGATE_TYPE)
             .aggregateId(recruitment.getId())
             .payload(notificationPayload(
-                type == NEW_APPLICATION ? recruitment.getAuthor() : application.getApplicant(),
+                recipient,
                 application,
                 recruitment,
                 type,
@@ -564,6 +573,7 @@ public class TeamRecruitmentApplicationService {
         if (student.getDepartment() == null || admissionYear == null) {
             throw CustomException.of(TEAM_RECRUITMENT_PROFILE_REQUIRED);
         }
+        studentValidationService.validateAcademicProgram(student.getStudentNumber(), student.getDepartment(), null);
         List<String> snapshotSkills = skills == null
             ? List.of()
             : skills.stream().map(TeamRecruitmentProfileSkill::getSkill).toList();

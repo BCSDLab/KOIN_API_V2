@@ -24,19 +24,21 @@ public record DirectChatRoomResponse(
         Counterpart counterpart
 ) {
     public record Counterpart(
-            @Schema(description = "상대방 유저 ID", example = "22", requiredMode = REQUIRED)
+            @Schema(description = "상대방 유저 ID. 탈퇴한 회원은 null입니다.", example = "22", nullable = true, requiredMode = REQUIRED)
             Integer id,
 
             @Schema(description = "상대방 닉네임", example = "김철수", requiredMode = REQUIRED)
             String nickname
     ) {}
 
-    public static DirectChatRoomResponse of(TeamRecruitmentChatRoom chatRoom, User counterpartUser) {
+    public static DirectChatRoomResponse of(TeamRecruitmentChatRoom chatRoom, User counterpartUser,
+            String counterpartNickname) {
+        String nickname = counterpartUser == null ? "탈퇴한 회원" : counterpartNickname;
         return new DirectChatRoomResponse(
                 chatRoom.getId(),
-                counterpartUser.getDisplayNickname(),
+                nickname,
                 chatRoom.getRoomType().name(),
-                new Counterpart(counterpartUser.getId(), counterpartUser.getDisplayNickname())
+                new Counterpart(counterpartUser == null ? null : counterpartUser.getId(), nickname)
         );
     }
 }

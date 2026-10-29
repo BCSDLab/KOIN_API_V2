@@ -75,6 +75,26 @@ public class LectureAcceptanceFixture {
         );
     }
 
+    public Lecture 교수_미정_강의(String semester) {
+        return lectureRepository.save(
+            Lecture.builder()
+                .code("MEB312")
+                .semester(semester)
+                .name("교수 미정 강의")
+                .grades("3")
+                .lectureClass("01")
+                .regularNumber("30")
+                .department("기계공학부")
+                .target("기공전체")
+                .professor(null)
+                .isEnglish("")
+                .designScore("0")
+                .isElearning("")
+                .classTime("[100, 101, 102, 103]")
+                .build()
+        );
+    }
+
     public Lecture 영어청해(String semester) {
         return lectureRepository.save(
             Lecture.builder()

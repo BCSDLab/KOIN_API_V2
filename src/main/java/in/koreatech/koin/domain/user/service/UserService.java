@@ -7,8 +7,10 @@ import java.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.common.event.UserDeleteEvent;
 import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
@@ -16,6 +18,8 @@ import in.koreatech.koin.common.event.UserRegisterEvent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentWithdrawalService;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserFindIdBySmsRequest;
@@ -28,6 +32,7 @@ import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
+import in.koreatech.koin.domain.user.dto.UserProfileResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
 import in.koreatech.koin.domain.user.dto.UserUpdatePasswordRequest;
@@ -53,10 +58,22 @@ public class UserService {
     private final RefreshTokenService refreshTokenService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+    private final TeamRecruitmentWithdrawalService teamRecruitmentWithdrawalService;
+    private final TeamRecruitmentUserLockRepository teamRecruitmentUserLockRepository;
 
     public UserResponse getUser(Integer userId) {
         User user = userRepository.getById(userId);
         return UserResponse.from(user);
+    }
+
+    /** 회원 유형과 무관한 내 정보. 학생·총학생회는 학생 정보(학번·전공)를 포함한다. */
+    public UserProfileResponse getProfile(Integer userId) {
+        User user = userRepository.getById(userId);
+        if (user.isKoinStudent()) {
+            Student student = studentRepository.getById(userId);
+            return UserProfileResponse.from(student);
+        }
+        return UserProfileResponse.from(user);
     }
 
     public UserTypeResponse getUserType(Integer userId) {
@@ -103,6 +120,12 @@ public class UserService {
 
     @Transactional
     public UserLoginResponse loginV2(UserLoginRequestV2 request, UserAgentInfo userAgentInfo) {
+        User user = authenticate(request);
+        return createLoginResponse(user, userAgentInfo);
+    }
+
+    @Transactional
+    public User authenticate(UserLoginRequestV2 request) {
         User user;
         String loginId = request.loginId();
         if (loginId.matches("^\\d{11}$")) {
@@ -112,7 +135,7 @@ public class UserService {
         }
         user.requireSameLoginPw(passwordEncoder, request.loginPw());
         user.updateLastLoggedTime(LocalDateTime.now());
-        return createLoginResponse(user, userAgentInfo);
+        return user;
     }
 
     @Transactional
@@ -144,9 +167,12 @@ public class UserService {
         return UserRefreshTokenResponse.of(accessToken, refreshTokenService.getRefreshToken(userId, userAgentInfo.getType()));
     }
 
-    @Transactional
+    // 승인 완료를 기다린 뒤 생성된 알림까지 조회할 수 있도록 문장마다 최신 커밋을 읽는다.
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void withdraw(Integer userId) {
+        teamRecruitmentUserLockRepository.lock(userId);
         User user = userRepository.getById(userId);
+        teamRecruitmentWithdrawalService.prepareWithdrawal(userId);
         if (user.getUserType() == STUDENT) {
             timetableFrameRepositoryV2.deleteAllByUser(user);
             studentRepository.deleteByUserId(userId);
@@ -154,6 +180,7 @@ public class UserService {
             ownerRepository.deleteByUserId(userId);
         }
         userRepository.delete(user);
+        teamRecruitmentUserLockRepository.deleteByUserId(userId);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getPhoneNumber(), user.getUserType()));
     }
 

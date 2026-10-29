@@ -188,6 +188,20 @@ class TeamRecruitmentQueryServiceTest {
             .containsExactly(1, 1);
     }
 
+    @Test
+    void withdrawnAuthorStillExposesAcceptedHistory() {
+        ReflectionTestUtils.setField(recruitment, "author", null);
+        recruitment.close();
+        givenFound();
+        givenApplication(ACCEPTED);
+        givenTeamRoom();
+        RecruitmentDetail response = detail(VIEWER_ID);
+        assertThat(response.authorNickname()).isEqualTo("탈퇴한 회원");
+        assertThat(response.isAuthor()).isFalse();
+        assertThat(response.application().status()).isEqualTo(ACCEPTED);
+        assertThat(response.teamChatRoomId()).isEqualTo(TEAM_ROOM_ID);
+    }
+
     @Nested
     @DisplayName("지원 불가 사유")
     class ApplyBlockReason {

@@ -25,8 +25,37 @@ import jakarta.persistence.EntityNotFoundException;
 
 public interface ArticleRepository extends Repository<Article, Integer> {
 
+    String SELECT_WITH_PUBLICATION_DATE = """
+        SELECT a.* FROM new_articles a
+        LEFT JOIN new_koreatech_articles ka ON ka.article_id = a.id AND ka.is_deleted = 0
+        """;
+    String PUBLICATION_DATE_DESC = " ORDER BY COALESCE(ka.registered_at, a.created_at) DESC, a.id DESC ";
+    String PUBLICATION_DATE_ASC = " ORDER BY COALESCE(ka.registered_at, a.created_at) ASC, a.id ASC ";
+    String SELECT_WITH_CURRENT_ARTICLE = SELECT_WITH_PUBLICATION_DATE + """
+        JOIN new_articles current_article ON current_article.id = :articleId AND current_article.is_deleted = 0
+        LEFT JOIN new_koreatech_articles current_ka
+            ON current_ka.article_id = current_article.id AND current_ka.is_deleted = 0
+        """;
+    String BEFORE_CURRENT_PUBLICATION = """
+        WHERE a.is_deleted = 0
+          AND (COALESCE(ka.registered_at, a.created_at), a.id)
+            < (COALESCE(current_ka.registered_at, current_article.created_at), current_article.id)
+        """;
+    String AFTER_CURRENT_PUBLICATION = """
+        WHERE a.is_deleted = 0
+          AND (COALESCE(ka.registered_at, a.created_at), a.id)
+            > (COALESCE(current_ka.registered_at, current_article.created_at), current_article.id)
+        """;
+
     Article save(Article article);
 
+    @Query(
+        value = SELECT_WITH_PUBLICATION_DATE
+            + "WHERE a.is_notice = true AND a.is_deleted = 0"
+            + PUBLICATION_DATE_DESC,
+        countQuery = "SELECT COUNT(*) FROM new_articles WHERE is_notice = true AND is_deleted = 0",
+        nativeQuery = true
+    )
     Page<Article> findAllByIsNoticeIsTrue(Pageable pageable);
 
     Optional<Article> findById(Integer articleId);
@@ -46,9 +75,23 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Page<Article> findAll(Pageable pageable);
 
-    Page<Article> findAllByBoardIdNot(Integer boardId, PageRequest pageRequest);
+    @Query(
+        value = SELECT_WITH_PUBLICATION_DATE
+            + "WHERE a.board_id <> :boardId AND a.is_deleted = 0"
+            + PUBLICATION_DATE_DESC,
+        countQuery = "SELECT COUNT(*) FROM new_articles WHERE board_id <> :boardId AND is_deleted = 0",
+        nativeQuery = true
+    )
+    Page<Article> findAllByBoardIdNot(@Param("boardId") Integer boardId, Pageable pageable);
 
-    Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
+    @Query(
+        value = SELECT_WITH_PUBLICATION_DATE
+            + "WHERE a.board_id = :boardId AND a.is_deleted = 0"
+            + PUBLICATION_DATE_DESC,
+        countQuery = "SELECT COUNT(*) FROM new_articles a WHERE a.board_id = :boardId AND a.is_deleted = 0",
+        nativeQuery = true
+    )
+    Page<Article> findAllByBoardId(@Param("boardId") Integer boardId, Pageable pageable);
 
     Page<Article> findAllByIdIn(List<Integer> articleIds, PageRequest pageRequest);
 
@@ -86,14 +129,20 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByLostItemArticleType(@Param("type") String type, PageRequest pageRequest);
 
     @Query(
-        value = "SELECT * FROM new_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
+        value = SELECT_WITH_PUBLICATION_DATE
+            + "WHERE a.board_id = :boardId AND MATCH(a.title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) "
+            + "AND a.is_deleted = false"
+            + PUBLICATION_DATE_DESC,
         countQuery = "SELECT count(*) FROM new_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
         nativeQuery = true
     )
     Page<Article> findAllByBoardIdAndTitleContaining(@Param("boardId") Integer boardId, @Param("query") String query, Pageable pageable);
 
     @Query(
-        value = "SELECT * FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND board_id <> :excludedBoardId AND is_deleted = false",
+        value = SELECT_WITH_PUBLICATION_DATE
+            + "WHERE MATCH(a.title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) "
+            + "AND a.board_id <> :excludedBoardId AND a.is_deleted = false"
+            + PUBLICATION_DATE_DESC,
         countQuery = "SELECT count(*) FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND board_id <> :excludedBoardId AND is_deleted = false",
         nativeQuery = true
     )
@@ -101,7 +150,10 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         @Param("excludedBoardId") Integer excludedBoardId, Pageable pageable);
 
     @Query(
-        value = "SELECT * FROM new_articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
+        value = SELECT_WITH_PUBLICATION_DATE
+            + "WHERE a.is_notice = true AND MATCH(a.title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) "
+            + "AND a.is_deleted = false"
+            + PUBLICATION_DATE_DESC,
         countQuery = "SELECT count(*) FROM new_articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
         nativeQuery = true
     )
@@ -111,35 +163,29 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Long countByBoardIdNot(Integer boardId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.is_notice = true AND a.is_deleted = false "
-        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
+    @Query(value = SELECT_WITH_CURRENT_ARTICLE + BEFORE_CURRENT_PUBLICATION
+        + "AND a.is_notice = true" + PUBLICATION_DATE_DESC + "LIMIT 1", nativeQuery = true)
     Optional<Article> findPreviousNoticeArticle(@Param("articleId") Integer articleId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.board_id = :boardId AND a.is_deleted = false "
-        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
+    @Query(value = SELECT_WITH_CURRENT_ARTICLE + BEFORE_CURRENT_PUBLICATION
+        + "AND a.board_id = :boardId" + PUBLICATION_DATE_DESC + "LIMIT 1", nativeQuery = true)
     Optional<Article> findPreviousArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.board_id <> :excludedBoardId AND a.is_deleted = false "
-        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
+    @Query(value = SELECT_WITH_CURRENT_ARTICLE + BEFORE_CURRENT_PUBLICATION
+        + "AND a.board_id <> :excludedBoardId" + PUBLICATION_DATE_DESC + "LIMIT 1", nativeQuery = true)
     Optional<Article> findPreviousAllArticle(@Param("articleId") Integer articleId,
         @Param("excludedBoardId") Integer excludedBoardId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.is_notice = true AND a.is_deleted = false "
-        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
+    @Query(value = SELECT_WITH_CURRENT_ARTICLE + AFTER_CURRENT_PUBLICATION
+        + "AND a.is_notice = true" + PUBLICATION_DATE_ASC + "LIMIT 1", nativeQuery = true)
     Optional<Article> findNextNoticeArticle(@Param("articleId") Integer articleId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.board_id = :boardId AND a.is_deleted = false "
-        + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
+    @Query(value = SELECT_WITH_CURRENT_ARTICLE + AFTER_CURRENT_PUBLICATION
+        + "AND a.board_id = :boardId" + PUBLICATION_DATE_ASC + "LIMIT 1", nativeQuery = true)
     Optional<Article> findNextArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
-    @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.board_id <> :excludedBoardId AND a.is_deleted = false "
-        + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
+    @Query(value = SELECT_WITH_CURRENT_ARTICLE + AFTER_CURRENT_PUBLICATION
+        + "AND a.board_id <> :excludedBoardId" + PUBLICATION_DATE_ASC + "LIMIT 1", nativeQuery = true)
     Optional<Article> findNextAllArticle(@Param("articleId") Integer articleId,
         @Param("excludedBoardId") Integer excludedBoardId);
 

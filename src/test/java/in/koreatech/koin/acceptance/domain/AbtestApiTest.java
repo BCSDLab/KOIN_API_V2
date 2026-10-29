@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
@@ -15,9 +16,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
@@ -37,10 +42,15 @@ import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.global.config.WebAuthProperties;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.Cookie;
 
 class AbtestApiTest extends AcceptanceTest {
+
+    @Autowired
+    private WebAuthProperties webAuthProperties;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -79,6 +89,35 @@ class AbtestApiTest extends AcceptanceTest {
         admin = userFixture.코인_운영자();
         adminToken = userFixture.getToken(admin.getUser());
         department = departmentFixture.컴퓨터공학부();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"cookie", "bearer"})
+    void 비로그인_실험군_배정은_잘못된_인증정보가_있어도_가능하다(String authentication) throws Exception {
+        abtestFixture.식단_UI_실험();
+        AccessHistory history = accessHistoryRepository.save(AccessHistory.create());
+
+        mockMvc.perform(withInvalidAuthentication(post("/abtest/assign"), authentication)
+                .header("access_history_id", history.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"title":"dining_ui_test"}
+                    """))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.access_history_id").value(history.getId()))
+            .andExpect(jsonPath("$.variable_name").isNotEmpty());
+
+        assertThat(accessHistoryRepository.getById(history.getId()).getDevice()).isNull();
+    }
+
+    private MockHttpServletRequestBuilder withInvalidAuthentication(
+        MockHttpServletRequestBuilder request, String authentication
+    ) {
+        request.header(HttpHeaders.USER_AGENT, "koin/1.0 (Android 14) OKHttp/4.12.0");
+        if (authentication.equals("cookie")) {
+            return request.cookie(new Cookie(webAuthProperties.accessCookieName(), "invalid-access"));
+        }
+        return request.header(HttpHeaders.AUTHORIZATION, "Bearer invalid-access");
     }
 
     @Test

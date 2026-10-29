@@ -16,7 +16,11 @@ public interface DepartmentRepository extends Repository<Department, Integer> {
 
     Optional<Department> findByName(String name);
 
+    boolean existsByName(String name);
+
     Optional<List<Department>> findAll();
+
+    List<Department> findAllByIsSelectableTrueOrderByDisplayOrderAscIdAsc();
 
     default Department getByName(String name) {
         return findByName(name)

@@ -235,6 +235,10 @@ public class S3Client {
         return url.substring(domainUrlPrefix.length());
     }
 
+    public boolean doesFileExist(String key) {
+        return amazonS3.doesObjectExist(bucketName, key);
+    }
+
     public List<String> extractKeysFromUrls(List<String> urls) {
         return urls.stream()
             .map(this::extractKeyFromUrl)

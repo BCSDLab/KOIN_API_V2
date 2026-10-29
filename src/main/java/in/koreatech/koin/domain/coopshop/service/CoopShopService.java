@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.dining.model.DiningType.*;
 import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_COOP_SEMESTER;
 
 import java.time.Clock;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,9 +21,7 @@ import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
-import in.koreatech.koin.domain.coopshop.model.DayType;
 import in.koreatech.koin.domain.coopshop.repository.CoopNameRepository;
-import in.koreatech.koin.domain.coopshop.repository.CoopOpenRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopSemesterRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.dining.model.DiningType;
@@ -38,7 +35,6 @@ public class CoopShopService {
 
     private final Clock clock;
     private final CoopShopRepository coopShopRepository;
-    private final CoopOpenRepository coopOpenRepository;
     private final CoopSemesterRepository coopSemesterRepository;
     private final CoopNameRepository coopNameRepository;
 
@@ -54,21 +50,24 @@ public class CoopShopService {
     }
 
     public boolean getIsOpened(LocalDateTime now, CoopShopType coopShopType, DiningType type, Boolean isMinus) {
-        try {
-            DayType todayType =
-                (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY)
-                    ? DayType.WEEKEND : DayType.WEEKDAYS;
-            CoopSemester currentSemester = coopSemesterRepository.getByIsApplied(true);
-            CoopName coopName = coopNameRepository.getByName(coopShopType);
-            CoopShop coopShop = coopShopRepository.getByCoopNameIdAndCoopSemester(coopName.getId(), currentSemester);
-            CoopOpen open = coopOpenRepository
-                .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
+        CoopSemester currentSemester = coopSemesterRepository.getByIsApplied(true);
+        CoopName coopName = coopNameRepository.getByName(coopShopType);
+        CoopShop coopShop = coopShopRepository.getByCoopNameIdAndCoopSemester(coopName.getId(), currentSemester);
+        return coopShop.getOpensOn(now.getDayOfWeek()).stream()
+            .filter(open -> type.getDiningName().equals(open.getType()))
+            .anyMatch(open -> isOpenAt(open, now, isMinus));
+    }
 
+    private boolean isOpenAt(CoopOpen open, LocalDateTime now, Boolean isMinus) {
+        if (open.getOpenTime() == null || open.getCloseTime() == null) {
+            return false;
+        }
+        try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             LocalDateTime openTime = LocalTime.parse(open.getOpenTime(), formatter)
                 .atDate(now.toLocalDate());
 
-            if (isMinus) {
+            if (Boolean.TRUE.equals(isMinus)) {
                 openTime = openTime.minusHours(1);
             }
 

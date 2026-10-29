@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -39,8 +40,9 @@ public record UpdateStudentRequest(
             - 고용서비스정책학과
             """,
         example = "컴퓨터공학부",
-        requiredMode = NOT_REQUIRED
+        requiredMode = REQUIRED
     )
+    @NotBlank(message = "학부는 필수입니다.")
     String major,
 
     @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
@@ -56,7 +58,8 @@ public record UpdateStudentRequest(
     @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
     String nickname,
 
-    @Schema(description = "학번", example = "2021136012", requiredMode = NOT_REQUIRED)
+    @Schema(description = "학번", example = "2021136012", requiredMode = REQUIRED)
+    @NotBlank(message = "학번은 필수입니다.")
     @Pattern(regexp = "^[0-9]{10}$", message = "학번엔 10자리 숫자만 입력 가능합니다.")
     String studentNumber,
 

@@ -77,8 +77,8 @@ class AdminCommutingBusServiceTest {
     }
 
     @Test
-    @DisplayName("운행 요일이 비어있던 기존 등하교 시간표는 갱신 시 주중으로 채워진다")
-    void backfillWeekdaysOnUpdate() {
+    @DisplayName("운행 요일이 비어있던 기존 등하교 시간표는 갱신해도 비어 있는 상태를 유지한다")
+    void preservesMissingDaysOnUpdate() {
         ShuttleBusRoute existing = ShuttleBusRoute.builder()
             .routeName("천안 등하교")
             .nodeInfo(List.of(NodeInfo.builder().name("한기대").build()))
@@ -94,7 +94,7 @@ class AdminCommutingBusServiceTest {
         adminCommutingBusService.updateCommutingBusTimetable(SemesterType.REGULAR, createRequest());
 
         RouteInfo saved = captureSavedRoute().getRouteInfo().get(0);
-        assertThat(saved.getRunningDays()).isEqualTo(WEEKDAYS);
+        assertThat(saved.getRunningDays()).isNull();
         assertThat(saved.getArrivalTime()).containsExactly("08:00");
     }
 }

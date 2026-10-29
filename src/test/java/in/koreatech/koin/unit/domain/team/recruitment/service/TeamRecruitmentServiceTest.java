@@ -6,6 +6,7 @@ import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentSta
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.ROLE_BASED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_CLOSED;
+import static in.koreatech.koin.global.code.ApiResponseCode.NOT_FOUND_USER;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_FORBIDDEN;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_MAX_PARTICIPANTS_BELOW_ACCEPTED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOT_FOUND;
@@ -21,6 +22,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,6 +58,7 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentAppli
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentUserLockRepository;
 import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentClosureService;
 import in.koreatech.koin.domain.team.recruitment.service.TeamRecruitmentService;
 import in.koreatech.koin.domain.user.model.User;
@@ -82,6 +85,9 @@ class TeamRecruitmentServiceTest {
     private TeamRecruitmentRepository teamRecruitmentRepository;
 
     @Mock
+    private TeamRecruitmentUserLockRepository userLockRepository;
+
+    @Mock
     private TeamRecruitmentApplicationRepository applicationRepository;
 
     @Mock
@@ -103,6 +109,20 @@ class TeamRecruitmentServiceTest {
     private Clock clock = Clock.fixed(Instant.parse("2026-08-30T00:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     private TeamRecruitment recruitment;
+
+    @Test
+    void 회원_잠금을_획득한_뒤_이미_탈퇴한_작성자이면_모집글을_등록하지_않는다() {
+        when(userRepository.getById(AUTHOR_ID)).thenThrow(CustomException.of(NOT_FOUND_USER));
+
+        assertThatThrownBy(() -> teamRecruitmentService.createRecruitment(AUTHOR_ID, null))
+            .isInstanceOf(CustomException.class)
+            .hasFieldOrPropertyWithValue("errorCode", NOT_FOUND_USER);
+
+        var locks = inOrder(userLockRepository, userRepository);
+        locks.verify(userLockRepository).lock(AUTHOR_ID);
+        locks.verify(userRepository).getById(AUTHOR_ID);
+        verify(teamRecruitmentRepository, never()).save(any());
+    }
 
     @BeforeEach
     void setUp() {
@@ -163,6 +183,15 @@ class TeamRecruitmentServiceTest {
     private void givenNoApplicants() {
         lenient().when(applicationRepository.countByRecruitment_IdAndStatusIn(anyInt(), any())).thenReturn(0L);
         lenient().when(applicationRepository.countByRole_IdAndStatus(anyInt(), any())).thenReturn(0L);
+    }
+
+    @Test
+    void withdrawnAuthorCannotManageRecruitment() {
+        ReflectionTestUtils.setField(recruitment, "author", null);
+        givenFoundRecruitment();
+        assertThatThrownBy(() -> teamRecruitmentService.closeRecruitment(AUTHOR_ID, RECRUITMENT_ID))
+            .isInstanceOf(CustomException.class)
+            .hasFieldOrPropertyWithValue("errorCode", TEAM_RECRUITMENT_FORBIDDEN);
     }
 
     @Nested

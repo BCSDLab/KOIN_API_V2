@@ -57,9 +57,11 @@ public record RegisterStudentRequest(
         example = "컴퓨터공학부",
         requiredMode = REQUIRED
     )
+    @NotBlank(message = "학부는 필수입니다.")
     String major,
 
-    @Schema(description = "학번", example = "2021136012", requiredMode = NOT_REQUIRED)
+    @Schema(description = "학번", example = "2021136012", requiredMode = REQUIRED)
+    @NotBlank(message = "학번은 필수입니다.")
     @Pattern(regexp = "^[0-9]{10}$", message = "학번엔 10자리 숫자만 입력 가능합니다.")
     String studentNumber,
 

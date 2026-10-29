@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,12 +47,6 @@ public class ArticleService {
     private static final int HOT_ARTICLE_BEFORE_DAYS = 30;
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
-    private static final Sort ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("id")
-    );
-    private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("id")
-    );
 
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
@@ -105,7 +98,7 @@ public class ArticleService {
             ? articleRepository.countByBoardIdNot(LOST_ITEM_BOARD_ID)
             : articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
         if (boardId == null) {
             Page<Article> articles = articleRepository.findAllByBoardIdNot(LOST_ITEM_BOARD_ID, pageRequest);
             return ArticlesResponse.of(articles, criteria, userId);
@@ -179,7 +172,7 @@ public class ArticleService {
         String ipAddress, Integer userId) {
         verifyQueryLength(query);
         Criteria criteria = Criteria.of(page, limit);
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
         Page<Article> articles;
         if (boardId == null) {
             articles = articleRepository.findAllByTitleContainingExcludingBoardId(query, LOST_ITEM_BOARD_ID, pageRequest);

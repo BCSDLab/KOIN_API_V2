@@ -7,6 +7,7 @@ public enum MobileAppPath {
     HOME("home"),
     LOGIN("login"),
     SHOP("shop"),
+    ORDER("order"),
     DINING("dining"),
     KEYWORD("keyword"),
     LOST_ITEM("lost-item"),

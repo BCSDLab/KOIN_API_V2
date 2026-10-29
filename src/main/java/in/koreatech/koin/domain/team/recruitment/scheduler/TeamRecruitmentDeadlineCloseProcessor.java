@@ -108,6 +108,9 @@ public class TeamRecruitmentDeadlineCloseProcessor {
         List<TeamRecruitmentApplication> pendingApplications
     ) {
         for (TeamRecruitmentApplication application : pendingApplications) {
+            if (application.getApplicant() == null) {
+                continue;
+            }
             TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
                 .recipient(application.getApplicant())
                 .type(APPLICATION_REJECTED)
@@ -142,6 +145,9 @@ public class TeamRecruitmentDeadlineCloseProcessor {
         }
 
         for (TeamRecruitmentApplication application : acceptedApplications) {
+            if (application.getApplicant() == null) {
+                continue;
+            }
             TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
                 .recipient(application.getApplicant())
                 .type(RECRUITMENT_CLOSED)

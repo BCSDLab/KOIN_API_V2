@@ -7,13 +7,23 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
@@ -28,7 +38,19 @@ import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 
+@Import(DiningApiTest.DiningClockConfig.class)
 class DiningApiTest extends AcceptanceTest {
+
+    @TestConfiguration(proxyBeanMethods = false)
+    static class DiningClockConfig {
+
+        @Bean
+        @Primary
+        Clock diningApiTestFixedClock() {
+            ZoneId zoneId = ZoneId.of("Asia/Seoul");
+            return Clock.fixed(LocalDateTime.of(2024, 1, 15, 12, 0).atZone(zoneId).toInstant(), zoneId);
+        }
+    }
 
     @Autowired
     private DiningRepository diningRepository;
@@ -262,6 +284,59 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isForbidden())
             .andReturn();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"{\"menu_id\": %d}", "{\"menu_id\": %d, \"sold_out\": null}"})
+    void 품절_여부가_누락되거나_null이면_기존_품절_상태를_유지한다(String requestBody) throws Exception {
+        Dining dining = diningRepository.getById(A코너_점심.getId());
+        LocalDateTime soldOutAt = LocalDateTime.now(clock).minusMinutes(5);
+        dining.setSoldOut(soldOutAt);
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(diningRepository.getById(dining.getId()).getSoldOut()).isEqualTo(soldOutAt);
+
+        mockMvc.perform(
+                patch("/coop/dining/soldout")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content(requestBody.formatted(dining.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("INVALID_REQUEST_BODY"))
+            .andExpect(jsonPath("$.fieldErrors[0].field").value("sold_out"));
+
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(diningRepository.getById(dining.getId()).getSoldOut()).isEqualTo(soldOutAt);
+    }
+
+    @Test
+    void 품절_여부를_false로_명시하면_기존_품절_상태를_해제한다() throws Exception {
+        Dining dining = diningRepository.getById(A코너_점심.getId());
+        LocalDateTime soldOutAt = LocalDateTime.now(clock).minusMinutes(5);
+        dining.setSoldOut(soldOutAt);
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(diningRepository.getById(dining.getId()).getSoldOut()).isEqualTo(soldOutAt);
+
+        mockMvc.perform(
+                patch("/coop/dining/soldout")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content("""
+                        {
+                            "menu_id": %d,
+                            "sold_out": false
+                        }
+                        """.formatted(dining.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().string(""));
+
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(diningRepository.getById(dining.getId()).getSoldOut()).isNull();
     }
 
     @Test

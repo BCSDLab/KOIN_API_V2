@@ -117,21 +117,34 @@ class TeamRecruitmentDirectChatConcurrencyTest extends AcceptanceTest {
         assertConcurrentGetOrCreate(CONCURRENT_REQUEST_COUNT);
     }
 
+    @Test
+    void 모집자와_지원자가_동시에_DIRECT를_생성해도_하나의_방과_두_멤버만_저장된다() throws Exception {
+        assertConcurrentGetOrCreate(CONCURRENT_REQUEST_COUNT, true);
+    }
+
     private void assertConcurrentGetOrCreate(int requestCount) throws Exception {
+        assertConcurrentGetOrCreate(requestCount, false);
+    }
+
+    private void assertConcurrentGetOrCreate(int requestCount, boolean includeApplicant) throws Exception {
         directRoomSaveBarrier.expectInsertions(requestCount);
 
         entityManager.flush();
         TestTransaction.flagForCommit();
         TestTransaction.end();
 
-        List<MvcResult> results = performConcurrentRequests(requestCount);
+        List<MvcResult> results = performConcurrentRequests(requestCount, includeApplicant);
         List<Integer> statuses = results.stream()
             .map(result -> result.getResponse().getStatus())
             .toList();
         List<Integer> chatRoomIds = new ArrayList<>();
-        for (MvcResult result : results) {
+        for (int i = 0; i < results.size(); i++) {
+            MvcResult result = results.get(i);
             JsonNode response = objectMapper.readTree(result.getResponse().getContentAsString());
             chatRoomIds.add(response.path("chat_room_id").asInt());
+            Integer expectedCounterpartId = includeApplicant && i % 2 == 1
+                ? recruitment.getAuthor().getId() : application.getApplicant().getId();
+            assertThat(response.path("counterpart").path("id").asInt()).isEqualTo(expectedCounterpartId);
         }
 
         assertThat(statuses).containsOnly(200, 201);
@@ -155,13 +168,15 @@ class TeamRecruitmentDirectChatConcurrencyTest extends AcceptanceTest {
         assertThat(memberCount).isEqualTo(2);
     }
 
-    private List<MvcResult> performConcurrentRequests(int requestCount) throws Exception {
+    private List<MvcResult> performConcurrentRequests(int requestCount, boolean includeApplicant) throws Exception {
+        String applicantToken = userFixture.getToken(application.getApplicant());
         ExecutorService executor = Executors.newFixedThreadPool(requestCount);
         CountDownLatch ready = new CountDownLatch(requestCount);
         CountDownLatch start = new CountDownLatch(1);
         try {
             List<Future<MvcResult>> futures = new ArrayList<>();
             for (int i = 0; i < requestCount; i++) {
+                String requestToken = includeApplicant && i % 2 == 1 ? applicantToken : authorToken;
                 futures.add(executor.submit(() -> {
                     ready.countDown();
                     if (!start.await(5, SECONDS)) {
@@ -170,7 +185,7 @@ class TeamRecruitmentDirectChatConcurrencyTest extends AcceptanceTest {
                     return mockMvc.perform(post(
                             "/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
                             recruitment.getId(), application.getId())
-                        .header("Authorization", "Bearer " + authorToken))
+                        .header("Authorization", "Bearer " + requestToken))
                         .andReturn();
                 }));
             }

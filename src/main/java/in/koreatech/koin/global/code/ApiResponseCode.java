@@ -9,6 +9,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ApiResponseCode {
 
+    DINING_REPORT_DATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "오늘 식단만 제보할 수 있습니다."),
+    INVALID_REPORT_IMAGE(HttpStatus.BAD_REQUEST, "제보 사진이 올바르지 않습니다."),
+    BOT_AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "삐봇 서비스 인증에 실패했습니다."),
+    NOT_FOUND_DINING(HttpStatus.NOT_FOUND, "식단을 찾을 수 없습니다."),
+    NOT_FOUND_DINING_REPORT(HttpStatus.NOT_FOUND, "품절 제보를 찾을 수 없습니다."),
+    NOT_FOUND_DINING_REPORT_DELIVERY(HttpStatus.NOT_FOUND, "배정된 작업을 찾을 수 없습니다."),
+    DINING_ALREADY_SOLD_OUT(HttpStatus.CONFLICT, "이미 품절된 식단입니다."),
+    DINING_REPORT_ALREADY_SUBMITTED(HttpStatus.CONFLICT, "이미 제보한 식단입니다."),
+    DINING_REPORT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 다른 결과로 처리된 제보입니다."),
+    DINING_REPORT_DELIVERY_CONFLICT(HttpStatus.CONFLICT, "현재 작업 시도 또는 이미 접수한 결과와 일치하지 않습니다."),
+    IMAGE_STORAGE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "이미지 저장소에 연결할 수 없습니다."),
+
     /**
      * 2xx Success (성공)
      */
@@ -66,6 +78,7 @@ public enum ApiResponseCode {
     ORDER_AMOUNT_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "최소 주문 금액을 충족하지 않습니다."),
     INVALID_SELF_CHAT(HttpStatus.BAD_REQUEST, "자신이 올린 게시글에 메시지를 보낼 수 없습니다."),
     INVALID_WEBSOCKET_USER_SESSION(HttpStatus.BAD_REQUEST, "웹소켓 사용자 세션 탐색 실패"),
+    SHOP_BANK_ACCOUNT_UNAVAILABLE(HttpStatus.BAD_REQUEST, "상점의 계좌이체 정보가 등록되지 않았습니다."),
     ORDER_PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "클라이언트 요청 금액이 서버 계산 결과와 다릅니다."),
     MISMATCH_TEMPORARY_PAYMENT(HttpStatus.BAD_REQUEST, "요청한 정보가 임시 결제 정보와 일치하지 않습니다."),
     PAYMENT_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
@@ -90,12 +103,16 @@ public enum ApiResponseCode {
     CALLVAN_POST_FULL(HttpStatus.BAD_REQUEST, "참여 인원이 가득 찼습니다."),
     CALLVAN_POST_REOPEN_FAILED_FULL(HttpStatus.BAD_REQUEST, "인원이 가득 차서 모집을 다시 열 수 없습니다."),
     CALLVAN_POST_REOPEN_FAILED_TIME(HttpStatus.BAD_REQUEST, "출발 시간이 지나서 모집을 다시 열 수 없습니다."),
+    CALLVAN_POST_JOIN_FAILED_TIME(HttpStatus.BAD_REQUEST, "출발 시간이 지나서 참여할 수 없습니다."),
     CALLVAN_POST_AUTHOR(HttpStatus.BAD_REQUEST, "콜벤 게시글 작성자는 나갈 수 없습니다"),
     CALLVAN_REPORT_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 신고할 수 없습니다."),
     CALLVAN_REPORT_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "이미 처리된 콜벤 신고입니다."),
     TEAM_RECRUITMENT_ACTIVITY_END_DATE_REQUIRED(HttpStatus.BAD_REQUEST, "진행 중인 활동이 아닌 경우, 활동 종료일은 필수입니다."),
     TEAM_RECRUITMENT_ACTIVITY_END_DATE_MUST_BE_NULL(HttpStatus.BAD_REQUEST, "진행 중인 활동인 경우, 활동 종료일은 입력하면 안 됩니다."),
     TEAM_RECRUITMENT_INVALID_ROLE_COMPOSITION(HttpStatus.BAD_REQUEST, "모집 유형에 맞지 않는 역할 또는 정원 구성입니다."),
+    INVALID_ORDER_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "현재 주문 상태에서 요청한 상태로 변경할 수 없습니다."),
+    REQUIRED_ORDER_CANCEL_REASON(HttpStatus.BAD_REQUEST, "주문을 반려하려면 반려 사유가 필요합니다."),
+    REQUIRED_ESTIMATED_MINUTES(HttpStatus.BAD_REQUEST, "주문을 승인하려면 예상 소요 시간이 필요합니다."),
 
     /**
      * 401 Unauthorized (인증 필요)
@@ -107,6 +124,8 @@ public enum ApiResponseCode {
      * 403 Forbidden (인가 필요)
      */
     FORBIDDEN_USER_TYPE(HttpStatus.FORBIDDEN, "인가되지 않은 유저 타입입니다."),
+    INVALID_CSRF_TOKEN(HttpStatus.FORBIDDEN, "올바르지 않은 CSRF 토큰입니다."),
+    FORBIDDEN_WEB_ORIGIN(HttpStatus.FORBIDDEN, "허용되지 않은 웹 요청입니다."),
     FORBIDDEN_OWNER(HttpStatus.FORBIDDEN, "관리자 인증 대기중입니다."),
     FORBIDDEN_STUDENT(HttpStatus.FORBIDDEN, "아우누리에서 인증메일을 확인해주세요."),
     FORBIDDEN_ADMIN(HttpStatus.FORBIDDEN, "PL 인증 대기중입니다."),
@@ -163,6 +182,7 @@ public enum ApiResponseCode {
      * 409 CONFLICT (중복 혹은 충돌)
      */
     DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "이미 존재하는 로그인 아이디입니다."),
+    WEB_AUTH_SESSION_CONFLICT(HttpStatus.CONFLICT, "다른 요청에서 로그인 정보가 변경되었습니다. 다시 시도해주세요."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다."),

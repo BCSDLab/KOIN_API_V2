@@ -163,9 +163,10 @@ public class TemporaryPayment {
         );
     }
 
-    public Order toOrder(User user, OrderableShop orderableShop) {
+    public Order toOrder(User user, OrderableShop orderableShop, String orderNumber) {
         Order order = Order.builder()
             .pgOrderId(pgOrderId)
+            .orderNumber(orderNumber)
             .orderType(orderType)
             .status(CONFIRMING)
             .orderableShopAddress(orderableShop.getShop().getAddress())

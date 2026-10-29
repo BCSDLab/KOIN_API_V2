@@ -1,3 +1,7 @@
+auth:
+  web:
+    csrf-secret-key: csrf-signing-key-for-tests-only-32-bytes
+
 jwt:
   secret-key: EXAMPLE7A3E4F37B3DAD9CD8KEY6AA4B1AF7123!@#
   access-token:

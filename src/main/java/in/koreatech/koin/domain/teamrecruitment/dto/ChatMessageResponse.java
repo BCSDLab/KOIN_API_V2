@@ -15,10 +15,10 @@ public record ChatMessageResponse(
         @Schema(description = "메시지 ID", example = "901", requiredMode = REQUIRED)
         Integer messageId,
 
-        @Schema(description = "발신자 유저 ID", example = "22", requiredMode = REQUIRED)
+        @Schema(description = "발신자 유저 ID. 탈퇴한 회원은 null입니다.", example = "22", nullable = true, requiredMode = REQUIRED)
         Integer userId,
 
-        @Schema(description = "발신자 닉네임", example = "김철수", requiredMode = REQUIRED)
+        @Schema(description = "발신자의 현재 팀원 모집 프로필 닉네임", example = "김철수", requiredMode = REQUIRED)
         String userNickname,
 
         @Schema(description = "메시지 내용 (is_image=true이면 file_url)", example = "안녕하세요!", requiredMode = REQUIRED)
@@ -34,11 +34,11 @@ public record ChatMessageResponse(
         @Schema(description = "아직 읽지 않은 다른 멤버 수", example = "2", requiredMode = REQUIRED)
         int unreadCount
 ) {
-    public static ChatMessageResponse of(TeamRecruitmentChatMessage message, int unreadCount) {
+    public static ChatMessageResponse of(TeamRecruitmentChatMessage message, int unreadCount, String senderNickname) {
         return new ChatMessageResponse(
                 message.getId(),
-                message.getSender().getId(),
-                message.getSenderNickname(),
+                message.getSender() == null ? null : message.getSender().getId(),
+                message.getSender() == null ? "탈퇴한 회원" : senderNickname,
                 message.getContent(),
                 message.getCreatedAt(),
                 message.getIsImage(),

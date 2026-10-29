@@ -3,11 +3,15 @@ package in.koreatech.koin.domain.payment.service;
 import static in.koreatech.koin.global.code.ApiResponseCode.PAYMENT_ALREADY_CANCELED;
 import static in.koreatech.koin.global.code.ApiResponseCode.PAYMENT_CANCEL_ERROR;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.order.order.model.OrderStatus;
 import in.koreatech.koin.domain.payment.dto.response.PaymentCancelResponse;
 import in.koreatech.koin.domain.payment.gateway.pg.PaymentGatewayService;
 import in.koreatech.koin.domain.payment.gateway.pg.dto.PaymentGatewayCancelResponse;
@@ -31,6 +35,7 @@ public class PaymentCancelService {
     private final PaymentGatewayService paymentGatewayService;
     private final PaymentIdempotencyKeyService paymentIdempotencyKeyService;
     private final PaymentCancelMapper paymentCancelMapper;
+    private final Clock clock;
 
     @Transactional
     public PaymentCancelResponse cancelPayment(User user, Integer paymentId, PaymentCancelInfo paymentCancelInfo) {
@@ -38,16 +43,50 @@ public class PaymentCancelService {
         validatePaymentStatusIsNotCanceled(payment);
         payment.validateUserIdMatches(user.getId());
 
-        String paymentIdempotencyKey = paymentIdempotencyKeyService.getOrCreate(user.getId());
+        return PaymentCancelResponse.from(cancel(payment, paymentCancelInfo.cancelReason()));
+    }
+
+    @Transactional
+    public PaymentCancelResponse cancelPaymentByOrderId(Integer orderId, String cancelReason) {
+        Payment payment = paymentRepository.getByOrderId(orderId);
+        validatePaymentStatusIsNotCanceled(payment);
+
+        return PaymentCancelResponse.from(cancel(payment, cancelReason));
+    }
+
+    private List<PaymentCancel> cancel(Payment payment, String cancelReason) {
+        if (payment.isDirectBankTransfer()) {
+            return cancelBankTransferOrder(payment, cancelReason);
+        }
+        String paymentIdempotencyKey = paymentIdempotencyKeyService.getOrCreate(payment.getOrder().getUser().getId());
         PaymentGatewayCancelResponse pgResponse = paymentGatewayService.cancelPayment(payment.getPaymentKey(),
-            paymentCancelInfo.cancelReason(), paymentIdempotencyKey);
+            cancelReason, paymentIdempotencyKey);
         validatePaymentIsCanceled(pgResponse.status());
 
-        payment.cancel(paymentCancelInfo.cancelReason());
+        LocalDateTime now = LocalDateTime.now(clock);
+        payment.cancel(cancelReason, now);
         List<PaymentCancel> paymentCancels = paymentCancelMapper.toEntity(payment, pgResponse);
         paymentCancelRepository.saveAll(paymentCancels);
 
-        return PaymentCancelResponse.from(paymentCancels);
+        return paymentCancels;
+    }
+
+    private List<PaymentCancel> cancelBankTransferOrder(Payment payment, String cancelReason) {
+        payment.getOrder().requireStatusChangeableTo(OrderStatus.CANCELED);
+        LocalDateTime now = LocalDateTime.now(clock);
+        payment.cancel(cancelReason, now);
+        PaymentCancel paymentCancel = PaymentCancel.builder()
+            .transactionKey(UUID.randomUUID().toString())
+            .cancelReason(cancelReason)
+            // 입금과 환불은 앱에서 확인하지 않으므로 자동 환불 금액은 0원이다.
+            .cancelAmount(0)
+            .canceledAt(now)
+            .isDeleted(false)
+            .payment(payment)
+            .build();
+        List<PaymentCancel> paymentCancels = List.of(paymentCancel);
+        paymentCancelRepository.saveAll(paymentCancels);
+        return paymentCancels;
     }
 
     private void validatePaymentStatusIsNotCanceled(Payment payment) {

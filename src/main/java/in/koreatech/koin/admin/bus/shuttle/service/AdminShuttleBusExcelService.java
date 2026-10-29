@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -33,12 +34,18 @@ import in.koreatech.koin.global.exception.CustomException;
 public class AdminShuttleBusExcelService {
 
     public AdminShuttleBusTimetableResponse getShuttleBusTimetablePreview(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_FILE_FORMAT, "엑셀 파일이 비어 있습니다.");
+        }
+
         try (
             InputStream inputStream = file.getInputStream();
             Workbook workbook = WorkbookFactory.create(inputStream)
         ) {
             return extractShuttleBusTimetableData(workbook);
-        } catch (IOException e) {
+        } catch (CustomException e) {
+            throw e;
+        } catch (IOException | EncryptedDocumentException e) {
             throw CustomException.of(ApiResponseCode.INVALID_EXCEL_FILE_TYPE);
         }
     }
@@ -46,7 +53,12 @@ public class AdminShuttleBusExcelService {
     private AdminShuttleBusTimetableResponse extractShuttleBusTimetableData(Workbook workBook) {
         List<ShuttleBusTimetable> shuttleBusTimetables = new ArrayList<>();
 
-        for (Sheet sheet : workBook) {
+        for (int sheetIndex = 0; sheetIndex < workBook.getNumberOfSheets(); sheetIndex++) {
+            if (workBook.isSheetHidden(sheetIndex) || workBook.isSheetVeryHidden(sheetIndex)) {
+                continue;
+            }
+
+            Sheet sheet = workBook.getSheetAt(sheetIndex);
             ShuttleBusNodeInfoExtractor nodeInfoExtractor = new ShuttleBusNodeInfoExtractor(sheet);
             ShuttleBusRouteInfoExtractor routeInfoExtractor = new ShuttleBusRouteInfoExtractor(sheet);
             ShuttleBusMetaDataExtractor metaDataExtractor = new ShuttleBusMetaDataExtractor(sheet);
@@ -62,6 +74,10 @@ public class AdminShuttleBusExcelService {
             shuttleBusTimetables.add(
                 ShuttleBusTimetable.from(nodeInfos, routeInfos, region, routeName, subName, routeType)
             );
+        }
+
+        if (shuttleBusTimetables.isEmpty()) {
+            throw CustomException.of(ApiResponseCode.INVALID_EXCEL_FILE_FORMAT, "유효한 공개 시트가 없습니다.");
         }
 
         List<InnerAdminShuttleBusTimetableResponse> innerResponses = shuttleBusTimetables.stream()

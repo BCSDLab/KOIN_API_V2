@@ -54,9 +54,6 @@ public class LostItemArticleService {
     public static final int LOST_ITEM_BOARD_ID = 14;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
     public static final int NOTICE_BOARD_ID = 4;
-    private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("id")
-    );
     private static final Sort ARTICLES_SORT = Sort.by(
         Sort.Order.desc("id")
     );
@@ -78,7 +75,7 @@ public class LostItemArticleService {
             throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
         }
         Criteria criteria = Criteria.of(page, limit);
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
         Page<Article> articles = articleRepository.findAllByBoardIdAndTitleContaining(LOST_ITEM_BOARD_ID, query,
             pageRequest);
 
@@ -98,7 +95,9 @@ public class LostItemArticleService {
         Page<Article> articles;
 
         if (type == null) {
-            articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+            // findAllByBoardId 는 정렬이 쿼리에 포함되어 있으므로 Sort 없는 Pageable을 전달한다.
+            PageRequest unsortedPageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
+            articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, unsortedPageRequest);
         } else {
             articles = articleRepository.findAllByLostItemArticleType(type, pageRequest);
         }

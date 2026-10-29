@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordByEmailRequest;
 import in.koreatech.koin.domain.user.dto.UserResetPasswordBySmsRequest;
+import in.koreatech.koin.domain.user.dto.UserProfileResponse;
 import in.koreatech.koin.domain.user.dto.UserResponse;
 import in.koreatech.koin.domain.user.dto.UserTypeResponse;
 import in.koreatech.koin.domain.user.dto.UserUpdatePasswordRequest;
@@ -55,6 +56,24 @@ public interface UserApi {
     @GetMapping("/v2/users/me")
     ResponseEntity<UserResponse> getUser(
         @Auth(permit = {GENERAL}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(
+        summary = "내 정보 조회 V2 (회원 유형 무관)",
+        description = "일반·학생·총학생회 모두 이 엔드포인트로 조회합니다. 학생·총학생회는 student_number, major가 함께 내려오고 일반 회원은 null입니다."
+    )
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/v3/users/me")
+    ResponseEntity<UserProfileResponse> getProfile(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(

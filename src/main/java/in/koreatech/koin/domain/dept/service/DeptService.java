@@ -1,9 +1,10 @@
 package in.koreatech.koin.domain.dept.service;
 
-import static in.koreatech.koin.domain.dept.model.Dept.NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING;
-
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -12,8 +13,10 @@ import in.koreatech.koin.domain.dept.dto.DepartmentAndMajorResponse;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
 import in.koreatech.koin.domain.dept.dto.DeptsResponse;
 import in.koreatech.koin.domain.dept.model.Dept;
+import in.koreatech.koin.domain.student.model.AcademicProgramYear;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
+import in.koreatech.koin.domain.student.repository.AcademicProgramYearRepository;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.MajorRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class DeptService {
 
     private final DepartmentRepository departmentRepository;
     private final MajorRepository majorRepository;
+    private final AcademicProgramYearRepository academicProgramYearRepository;
 
     public DeptResponse getById(String id) {
         Optional<Dept> dept = Dept.findByNumber(id);
@@ -31,9 +35,8 @@ public class DeptService {
     }
 
     public List<DeptsResponse> getAll() {
-        return Dept.findAll()
+        return departmentRepository.findAllByIsSelectableTrueOrderByDisplayOrderAscIdAsc()
             .stream()
-            .filter(dept -> !NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING.equals(dept))
             .map(DeptsResponse::from)
             .toList();
     }
@@ -48,5 +51,33 @@ public class DeptService {
                 .toList();
             return DepartmentAndMajorResponse.of(department, majors);
         }).toList();
+    }
+
+    public List<DepartmentAndMajorResponse> getAllDepartmentsWithMajors(String studentYear) {
+        if (studentYear == null) {
+            return getAllDepartmentsWithMajors();
+        }
+        if (!studentYear.matches("[0-9]{4}")) {
+            throw new IllegalArgumentException("학번 연도는 네 자리 숫자여야 합니다.");
+        }
+        List<AcademicProgramYear> programs = academicProgramYearRepository
+            .findAllByStudentYearOrderByDepartmentIdAscIdAsc(studentYear);
+        if (programs.isEmpty()) {
+            return getAllDepartmentsWithMajors();
+        }
+
+        Map<Integer, Department> departments = new LinkedHashMap<>();
+        Map<Integer, List<Major>> majors = new LinkedHashMap<>();
+        for (AcademicProgramYear program : programs) {
+            Integer departmentId = program.getDepartment().getId();
+            departments.put(departmentId, program.getDepartment());
+            majors.computeIfAbsent(departmentId, ignored -> new ArrayList<>());
+            if (program.getMajor() != null && program.getMajor().getName() != null) {
+                majors.get(departmentId).add(program.getMajor());
+            }
+        }
+        return departments.entrySet().stream()
+            .map(entry -> DepartmentAndMajorResponse.of(entry.getValue(), majors.get(entry.getKey())))
+            .toList();
     }
 }

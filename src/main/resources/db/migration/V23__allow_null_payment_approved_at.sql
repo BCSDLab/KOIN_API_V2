@@ -1,0 +1,2 @@
+ALTER TABLE `payment_v2`
+    MODIFY COLUMN `approved_at` TIMESTAMP NULL DEFAULT NULL COMMENT '결제 승인 일시';

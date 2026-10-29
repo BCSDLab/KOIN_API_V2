@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,6 +27,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -42,18 +46,24 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessag
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentOutboxEvent;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentProfile;
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentProfileRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 
 class TeamRecruitmentChatApiTest extends AcceptanceTest {
+
+    private static final String AUTHOR_PROFILE_NICKNAME = "모집 팀장";
+    private static final String APPLICANT_PROFILE_NICKNAME = "모집 지원자";
 
     @Autowired
     private UserAcceptanceFixture userFixture;
@@ -86,6 +96,9 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
     private UserRepository userRepository;
 
     @Autowired
+    private TeamRecruitmentProfileRepository profileRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     private Student author;
@@ -101,6 +114,8 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
         Department department = departmentFixture.컴퓨터공학부();
         author = userFixture.준호_학생(department, null);
         applicant = userFixture.성빈_학생(department);
+        saveProfile(author.getUser(), AUTHOR_PROFILE_NICKNAME);
+        saveProfile(applicant.getUser(), APPLICANT_PROFILE_NICKNAME);
         outsider = userRepository.save(User.builder()
             .name("테스트용_외부")
             .nickname("외부조회자")
@@ -174,10 +189,10 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.length()").value(3))
             .andExpect(jsonPath("$[0].recruitment_id").value(recruitment.getId()))
             .andExpect(jsonPath("$[0].chat_room_id").value(directRoom.getId()))
-            .andExpect(jsonPath("$[0].room_name").value(author.getUser().getNickname()))
+            .andExpect(jsonPath("$[0].room_name").value(AUTHOR_PROFILE_NICKNAME))
             .andExpect(jsonPath("$[0].room_type").value("DIRECT"))
             .andExpect(jsonPath("$[0].counterpart_id").value(author.getUser().getId()))
-            .andExpect(jsonPath("$[0].counterpart_nickname").value(author.getUser().getNickname()))
+            .andExpect(jsonPath("$[0].counterpart_nickname").value(AUTHOR_PROFILE_NICKNAME))
             .andExpect(jsonPath("$[0].last_message_id").value(latestDirectMessage.getId()))
             .andExpect(jsonPath("$[0].last_message_content")
                 .value("https://static.koreatech.in/team-chat/image.png"))
@@ -213,6 +228,39 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("커서 없이 조회하면 최근 100개 메시지를 오래된 순서로 반환한다")
+    void defaultPollingReturnsLatest100Messages() throws Exception {
+        TeamRecruitment recruitment = saveRecruitment("최근 메시지 기본 조회");
+        TeamRecruitmentChatRoom room = saveTeamRoom(recruitment, ACTIVE);
+        List<Integer> messageIds = new ArrayList<>();
+        for (int i = 1; i <= 99; i++) {
+            messageIds.add(saveMessage(room, author.getUser(), "메시지 " + i, false).getId());
+        }
+
+        for (int i = 100; i <= 101; i++) {
+            MvcResult sent = sendMessage(room, recruitment, authorToken, "메시지 " + i)
+                .andExpect(status().isOk())
+                .andReturn();
+            messageIds.add(objectMapper.readTree(sent.getResponse().getContentAsString())
+                .path("message_id").asInt());
+
+            MvcResult polled = mockMvc.perform(get(
+                    "/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages",
+                    recruitment.getId(), room.getId())
+                    .header("Authorization", "Bearer " + applicantToken))
+                .andExpect(status().isOk())
+                .andReturn();
+            List<Integer> returnedIds = objectMapper.readTree(polled.getResponse().getContentAsString())
+                .findValues("message_id").stream()
+                .map(JsonNode::asInt)
+                .toList();
+
+            assertThat(returnedIds)
+                .containsExactlyElementsOf(messageIds.subList(messageIds.size() - 100, messageIds.size()));
+        }
+    }
+
+    @Test
     @DisplayName("TEAM 채팅은 메시지 polling cursor와 unread read를 실제 HTTP로 반영하고 알림 outbox를 만든다")
     void teamChatMessagePollingAndNotificationOutbox() throws Exception {
         TeamRecruitment recruitment = saveRecruitment("메시지 polling");
@@ -222,7 +270,7 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
         MvcResult firstMessageResult = sendMessage(room, recruitment, authorToken, "첫 번째 메시지")
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message_id").isNumber())
-            .andExpect(jsonPath("$.user_nickname").value(author.getUser().getNickname()))
+            .andExpect(jsonPath("$.user_nickname").value(AUTHOR_PROFILE_NICKNAME))
             .andExpect(jsonPath("$.content").value("첫 번째 메시지"))
             .andExpect(jsonPath("$.is_image").value(false))
             .andExpect(jsonPath("$.unread_count").value(1))
@@ -319,19 +367,19 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
                 chatMessageEventKey(fourthMessageId, applicant.getUser().getId())
             );
         assertChatNotificationOutbox(
-            firstMessageId, applicant.getUser().getId(), author.getUser().getNickname(),
+            firstMessageId, applicant.getUser().getId(), AUTHOR_PROFILE_NICKNAME,
             "첫 번째 메시지", recruitment, room
         );
         assertChatNotificationOutbox(
-            secondMessageId, author.getUser().getId(), applicant.getUser().getNickname(),
+            secondMessageId, author.getUser().getId(), APPLICANT_PROFILE_NICKNAME,
             "두 번째 메시지", recruitment, room
         );
         assertChatNotificationOutbox(
-            thirdMessageId, applicant.getUser().getId(), author.getUser().getNickname(),
+            thirdMessageId, applicant.getUser().getId(), AUTHOR_PROFILE_NICKNAME,
             "세 번째 메시지", recruitment, room
         );
         assertChatNotificationOutbox(
-            fourthMessageId, applicant.getUser().getId(), author.getUser().getNickname(),
+            fourthMessageId, applicant.getUser().getId(), AUTHOR_PROFILE_NICKNAME,
             "네 번째 메시지", recruitment, room
         );
 
@@ -414,6 +462,108 @@ class TeamRecruitmentChatApiTest extends AcceptanceTest {
         assertThat(notification.getChatRoom().getId()).isEqualTo(room.getId());
         assertThat(notification.getSenderNickname()).isEqualTo(senderNickname);
         assertThat(notification.getMessagePreview()).isEqualTo(messagePreview);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void directChatUsesProfileNicknamesForBothParticipantsRegardlessOfWhoOpens(boolean authorOpens) throws Exception {
+        TeamRecruitment recruitment = saveRecruitment("양방향 개인 채팅");
+        TeamRecruitmentApplication application = saveAcceptedApplication(recruitment);
+        entityManager.flush();
+
+        MvcResult result = mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + (authorOpens ? authorToken : applicantToken)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.room_name").value(authorOpens ? APPLICANT_PROFILE_NICKNAME : AUTHOR_PROFILE_NICKNAME))
+            .andExpect(jsonPath("$.counterpart.nickname").value(authorOpens ? APPLICANT_PROFILE_NICKNAME : AUTHOR_PROFILE_NICKNAME))
+            .andReturn();
+        int roomId = objectMapper.readTree(result.getResponse().getContentAsString()).path("chat_room_id").asInt();
+
+        mockMvc.perform(post("/chatroom/team-recruitment/{recruitmentId}/applications/{applicationId}/direct",
+                recruitment.getId(), application.getId())
+                .header("Authorization", "Bearer " + (authorOpens ? applicantToken : authorToken)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.chat_room_id").value(roomId))
+            .andExpect(jsonPath("$.room_name").value(authorOpens ? AUTHOR_PROFILE_NICKNAME : APPLICANT_PROFILE_NICKNAME));
+
+        assertDirectChatNickname(recruitment.getId(), roomId, authorToken, applicant.getUser().getId(), APPLICANT_PROFILE_NICKNAME);
+        assertDirectChatNickname(recruitment.getId(), roomId, applicantToken, author.getUser().getId(), AUTHOR_PROFILE_NICKNAME);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TeamRecruitmentChatRoomType.class)
+    void bothParticipantsSeeCurrentProfileNicknamesOnLegacyAndNewMessages(TeamRecruitmentChatRoomType roomType) throws Exception {
+        TeamRecruitment recruitment = saveRecruitment("기존 메시지 닉네임");
+        TeamRecruitmentChatRoom room = roomType == DIRECT
+            ? saveDirectRoom(recruitment, saveAcceptedApplication(recruitment), ACTIVE)
+            : saveTeamRoom(recruitment, ACTIVE);
+        TeamRecruitmentChatMessage authorMessage = saveMessage(room, author.getUser(), "기존 팀장 메시지", false);
+        TeamRecruitmentChatMessage applicantMessage = chatMessageRepository.save(TeamRecruitmentChatMessage.builder()
+            .chatRoom(room).sender(applicant.getUser()).senderNickname("YJrrTFTTigaYo")
+            .content("https://static.koreatech.in/team-chat/legacy.png").isImage(true).build());
+        profileRepository.findByUser_Id(author.getUser().getId()).orElseThrow()
+            .replace("변경한 팀장", "백엔드", "소개");
+        profileRepository.findByUser_Id(applicant.getUser().getId()).orElseThrow()
+            .replace("변경한 지원자", "프론트엔드", "소개");
+        entityManager.flush();
+        entityManager.clear();
+
+        for (String token : List.of(authorToken, applicantToken)) {
+            mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages",
+                    recruitment.getId(), room.getId()).header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].message_id").value(authorMessage.getId()))
+                .andExpect(jsonPath("$[0].user_nickname").value("변경한 팀장"))
+                .andExpect(jsonPath("$[1].message_id").value(applicantMessage.getId()))
+                .andExpect(jsonPath("$[1].user_nickname").value("변경한 지원자"))
+                .andExpect(jsonPath("$[1].is_image").value(true));
+        }
+        mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages",
+                recruitment.getId(), room.getId()).header("Authorization", "Bearer " + authorToken)
+                .param("afterMessageId", authorMessage.getId().toString()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].user_nickname").value("변경한 지원자"));
+        mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages",
+                recruitment.getId(), room.getId()).header("Authorization", "Bearer " + applicantToken)
+                .param("beforeMessageId", applicantMessage.getId().toString()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].user_nickname").value("변경한 팀장"));
+
+        sendMessage(room, recruitment, authorToken, "새 팀장 메시지")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.user_nickname").value("변경한 팀장"));
+        sendMessage(room, recruitment, applicantToken, "새 지원자 메시지")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.user_nickname").value("변경한 지원자"));
+        entityManager.flush();
+        assertThat(chatMessageRepository.findTopByChatRoom_IdOrderByIdDesc(room.getId()).orElseThrow().getSenderNickname())
+            .isEqualTo("변경한 지원자");
+        assertThat(notificationRepository.findAllByRecipient_IdAndIsDeletedFalse(author.getUser().getId()))
+            .singleElement().satisfies(notification -> assertThat(notification.getSenderNickname()).isEqualTo("변경한 지원자"));
+        assertThat(notificationRepository.findAllByRecipient_IdAndIsDeletedFalse(applicant.getUser().getId()))
+            .singleElement().satisfies(notification -> assertThat(notification.getSenderNickname()).isEqualTo("변경한 팀장"));
+    }
+
+    private void assertDirectChatNickname(Integer recruitmentId, Integer roomId, String token, Integer counterpartId,
+        String nickname) throws Exception {
+        mockMvc.perform(get("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}", recruitmentId, roomId)
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.room_name").value(nickname))
+            .andExpect(jsonPath("$.counterpart.id").value(counterpartId))
+            .andExpect(jsonPath("$.counterpart.nickname").value(nickname));
+        mockMvc.perform(get("/chatroom/team-recruitment").header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].room_name").value(nickname))
+            .andExpect(jsonPath("$[0].counterpart_id").value(counterpartId))
+            .andExpect(jsonPath("$[0].counterpart_nickname").value(nickname));
+    }
+
+    private void saveProfile(User user, String nickname) {
+        profileRepository.save(TeamRecruitmentProfile.builder().user(user).profileNickname(nickname)
+            .preferredRole("백엔드").selfIntroduction("소개").build());
     }
 
     private String chatMessageEventKey(Integer messageId, Integer recipientId) {

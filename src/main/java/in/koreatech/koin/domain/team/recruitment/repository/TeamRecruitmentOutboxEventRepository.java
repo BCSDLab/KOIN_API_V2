@@ -5,6 +5,7 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentOutboxEven
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +22,22 @@ public interface TeamRecruitmentOutboxEventRepository extends Repository<TeamRec
     Optional<TeamRecruitmentOutboxEvent> findByEventKey(String eventKey);
 
     Optional<TeamRecruitmentOutboxEvent> findById(Integer id);
+
+    @Query(value = """
+        SELECT id FROM team_recruitment_outbox_event
+        WHERE event_type = 'TEAM_RECRUITMENT_NOTIFICATION'
+        AND status <> 'PUBLISHED'
+        AND JSON_UNQUOTE(JSON_EXTRACT(payload, '$.recipient_id')) = :recipientId
+        ORDER BY id
+        """, nativeQuery = true)
+    List<Integer> findUnpublishedNotificationIdsByRecipientId(@Param("recipientId") Integer recipientId);
+
+    @Modifying(flushAutomatically = true)
+    @Query(value = """
+        DELETE FROM team_recruitment_outbox_event
+        WHERE id = :id AND status <> 'PUBLISHED'
+        """, nativeQuery = true)
+    void deleteUnpublishedById(@Param("id") Integer id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""

@@ -110,7 +110,8 @@ public record TakeAllTimetableLectureResponse(
                         lecture.getName(),
                         lecture.getLectureClass(),
                         lecture.getTarget(),
-                        firstNonNull(timetableLecture.getProfessor(),lecture.getProfessor()),
+                        timetableLecture.getProfessor() != null
+                            ? timetableLecture.getProfessor() : lecture.getProfessor(),
                         lecture.getDepartment(),
                         getCourseType(timetableLecture),
                         getGeneralEducationArea(timetableLecture)

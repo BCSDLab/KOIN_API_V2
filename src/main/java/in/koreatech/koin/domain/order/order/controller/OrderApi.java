@@ -1,26 +1,98 @@
 package in.koreatech.koin.domain.order.order.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.order.order.dto.request.DeliveryOrderRequest;
 import in.koreatech.koin.domain.order.order.dto.request.OrderSearchPeriodCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderStatusCriteria;
 import in.koreatech.koin.domain.order.order.dto.request.OrderTypeCriteria;
+import in.koreatech.koin.domain.order.order.dto.request.TakeoutOrderRequest;
 import in.koreatech.koin.domain.order.order.dto.response.InprogressOrderResponse;
+import in.koreatech.koin.domain.order.order.dto.response.OrderCreateResponse;
 import in.koreatech.koin.domain.order.order.dto.response.OrdersResponse;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Order: 주문", description = "주문을 관리한다.")
 @RequestMapping("/order")
 public interface OrderApi {
+
+    @ApiResponseCodes({
+        OK,
+        INVALID_REQUEST_BODY,
+        NOT_READABLE_HTTP_MESSAGE,
+        INVALID_ADDRESS_FORMAT,
+        SHOP_NOT_DELIVERABLE,
+        SHOP_CLOSED,
+        ORDER_AMOUNT_BELOW_MINIMUM,
+        MENU_SOLD_OUT,
+        SHOP_BANK_ACCOUNT_UNAVAILABLE,
+        ORDER_PRICE_MISMATCH,
+        UNAUTHORIZED_USER,
+        WITHDRAWN_USER,
+        FORBIDDEN_USER_TYPE,
+        FORBIDDEN_STUDENT,
+        NOT_FOUND_USER,
+        NOT_FOUND_CART,
+        NOT_FOUND_CART_ITEM
+    })
+    @Operation(
+        summary = "계좌이체 배달 주문을 생성한다.",
+        description = """
+            로그인한 학생의 장바구니로 계좌이체 배달 주문을 생성한다.
+            메뉴 금액과 배달비를 검증하고 주문 생성 후 장바구니를 비운다.
+            주문 정보, 입금할 금액과 상점 계좌 정보를 반환한다.
+            """
+    )
+    @PostMapping("/delivery")
+    ResponseEntity<OrderCreateResponse> createDeliveryOrder(
+        @RequestBody @Valid DeliveryOrderRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponseCodes({
+        OK,
+        INVALID_REQUEST_BODY,
+        NOT_READABLE_HTTP_MESSAGE,
+        SHOP_NOT_TAKEOUT_AVAILABLE,
+        SHOP_CLOSED,
+        MENU_SOLD_OUT,
+        SHOP_BANK_ACCOUNT_UNAVAILABLE,
+        ORDER_PRICE_MISMATCH,
+        UNAUTHORIZED_USER,
+        WITHDRAWN_USER,
+        FORBIDDEN_USER_TYPE,
+        FORBIDDEN_STUDENT,
+        NOT_FOUND_USER,
+        NOT_FOUND_CART,
+        NOT_FOUND_CART_ITEM
+    })
+    @Operation(
+        summary = "계좌이체 포장 주문을 생성한다.",
+        description = """
+            로그인한 학생의 장바구니로 계좌이체 포장 주문을 생성한다.
+            메뉴 금액과 총 결제 금액을 검증하고 주문 생성 후 장바구니를 비운다.
+            배달비는 부과하지 않으며 주문 정보, 입금할 금액과 상점 계좌 정보를 반환한다.
+            """
+    )
+    @PostMapping("/takeout")
+    ResponseEntity<OrderCreateResponse> createTakeoutOrder(
+        @RequestBody @Valid TakeoutOrderRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 
     @Operation(
         summary = "주문 이력을 조회한다.",
