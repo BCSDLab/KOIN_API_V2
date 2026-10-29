@@ -77,6 +77,9 @@ public record ShopResponseV2(
     @Schema(example = "110-439-1234567", description = "계좌번호", requiredMode = NOT_REQUIRED)
     String accountNumber,
 
+    @Schema(example = "홍길동", description = "예금주", requiredMode = NOT_REQUIRED, nullable = true)
+    String accountHolder,
+
     @Schema(description = "상점 영업 시작 시간", example = "11:30")
     @JsonFormat(pattern = "HH:mm")
     LocalTime openTime,
@@ -137,6 +140,7 @@ public record ShopResponseV2(
             shop.getEventArticles().stream().anyMatch(events -> events.isEventDuration(now)),
             shop.getBank(),
             shop.getAccountNumber(),
+            shop.getAccountHolder(),
             openTime,
             closeTime
         );
