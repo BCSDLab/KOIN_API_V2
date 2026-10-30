@@ -1,8 +1,5 @@
 package in.koreatech.koin.infrastructure.s3.client;
 
-import static com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
-
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,23 +17,28 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.MultiObjectDeleteException;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-
 import in.koreatech.koin.infrastructure.s3.dto.UploadFileResponse;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlResponse;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Error;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Component
-public class S3Client {
+public class S3ClientWrapper {
 
     private static final int URL_EXPIRATION_MINUTE = 10;
 
@@ -44,22 +46,22 @@ public class S3Client {
     private final String domainUrlPrefix;
     private final URI customDomainUri;
     private final S3Presigner.Builder presignerBuilder;
-    private final AmazonS3 amazonS3;
+    private final S3Client awsS3Client;
     private final Clock clock;
     private final WebClient webClient;
 
-    public S3Client(
+    public S3ClientWrapper(
         @Value("${s3.bucket}") String bucketName,
         @Value("${s3.custom_domain}") String domainUrlPrefix,
         S3Presigner.Builder presignerBuilder,
-        AmazonS3 amazonS3,
+        S3Client awsS3Client,
         Clock clock
     ) {
         this.bucketName = bucketName;
         this.domainUrlPrefix = domainUrlPrefix;
         this.customDomainUri = parseCustomDomainUri(domainUrlPrefix);
         this.presignerBuilder = presignerBuilder;
-        this.amazonS3 = amazonS3;
+        this.awsS3Client = awsS3Client;
         this.clock = clock;
         this.webClient = WebClient.builder().build();
     }
@@ -181,42 +183,55 @@ public class S3Client {
     }
 
     public UploadFileResponse uploadFile(String uploadFilePath, byte[] fileData) {
-        ObjectMetadata metaData = new ObjectMetadata();
-        metaData.setContentLength(fileData.length);
-        amazonS3.putObject(
-            new PutObjectRequest(bucketName, uploadFilePath, new ByteArrayInputStream(fileData), metaData)
-                .withCannedAcl(CannedAccessControlList.PublicRead));
+        PutObjectRequest request = PutObjectRequest.builder()
+            .bucket(bucketName)
+            .key(uploadFilePath)
+            .acl(ObjectCannedACL.PUBLIC_READ)
+            .build();
+        awsS3Client.putObject(request, RequestBody.fromBytes(fileData));
         return new UploadFileResponse(domainUrlPrefix + uploadFilePath);
     }
 
     public void deleteFile(String s3Key) {
         try {
-            amazonS3.deleteObject(bucketName, s3Key);
+            awsS3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(s3Key)
+                .build());
         } catch (Exception e) {
             throw new KoinIllegalStateException("S3 객체 삭제 중 문제가 발생했습니다. " + e.getMessage());
         }
     }
 
     public void deleteFiles(List<String> s3Keys) {
+        DeleteObjectsResponse response;
         try {
-            List<KeyVersion> keys = s3Keys.stream()
-                .map(KeyVersion::new)
+            List<ObjectIdentifier> keys = s3Keys.stream()
+                .map(key -> ObjectIdentifier.builder().key(key).build())
                 .toList();
-            DeleteObjectsRequest request = new DeleteObjectsRequest(bucketName).withKeys(keys);
-            amazonS3.deleteObjects(request);
-        } catch (MultiObjectDeleteException e) {
-            List<String> failedKeys = e.getErrors().stream()
-                .map(MultiObjectDeleteException.DeleteError::getKey)
-                .toList();
-            throw new KoinIllegalStateException("일부 S3 객체의 삭제가 실패했습니다. : " + failedKeys);
+            DeleteObjectsRequest request = DeleteObjectsRequest.builder()
+                .bucket(bucketName)
+                .delete(Delete.builder().objects(keys).build())
+                .build();
+            response = awsS3Client.deleteObjects(request);
         } catch (Exception e) {
             throw new KoinIllegalStateException("S3 객체 일괄 삭제 중 문제가 발생했습니다. : " + e.getMessage());
+        }
+        // v2는 일부 객체 삭제 실패를 예외 대신 응답의 errors로 돌려준다.
+        if (response.hasErrors() && !response.errors().isEmpty()) {
+            List<String> failedKeys = response.errors().stream()
+                .map(S3Error::key)
+                .toList();
+            throw new KoinIllegalStateException("일부 S3 객체의 삭제가 실패했습니다. : " + failedKeys);
         }
     }
 
     public void downloadS3Object(String bucketName, String s3Key, File localFile) {
-        try (S3Object s3Object = amazonS3.getObject(bucketName, s3Key);
-             InputStream inputStream = s3Object.getObjectContent();
+        GetObjectRequest request = GetObjectRequest.builder()
+            .bucket(bucketName)
+            .key(s3Key)
+            .build();
+        try (InputStream inputStream = awsS3Client.getObject(request);
              OutputStream outputStream = new FileOutputStream(localFile)) {
             byte[] buffer = new byte[1024];
             int bytesRead;
@@ -236,7 +251,19 @@ public class S3Client {
     }
 
     public boolean doesFileExist(String key) {
-        return amazonS3.doesObjectExist(bucketName, key);
+        try {
+            awsS3Client.headObject(HeadObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build());
+            return true;
+        } catch (S3Exception e) {
+            // v1 doesObjectExist와 같이 404만 "없음"으로 보고, 그 외 오류는 그대로 던진다.
+            if (e.statusCode() == 404) {
+                return false;
+            }
+            throw e;
+        }
     }
 
     public List<String> extractKeysFromUrls(List<String> urls) {

@@ -26,8 +26,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.context.ApplicationEventPublisher;
 
-import com.amazonaws.services.s3.AmazonS3;
-
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.dto.DiningReportCreateRequest;
@@ -42,13 +40,16 @@ import in.koreatech.koin.domain.dining.service.DiningReportQueryService;
 import in.koreatech.koin.domain.dining.service.DiningReportService;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlRequest;
 import in.koreatech.koin.infrastructure.s3.model.ImageUploadDomain;
 import in.koreatech.koin.infrastructure.s3.service.UploadService;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 class DiningReportImageValidationTest {
@@ -57,19 +58,19 @@ class DiningReportImageValidationTest {
     private static final String DOMAIN_URL = "https://static.koreatech.in/";
     private final Clock clock = Clock.fixed(Instant.parse("2026-10-02T03:00:00Z"), ZoneId.of("Asia/Seoul"));
 
-    private AmazonS3 amazonS3;
-    private S3Client s3Client;
+    private S3Client awsS3Client;
+    private S3ClientWrapper s3Client;
     private DiningRepository diningRepository;
     private DiningReportRepository reportRepository;
     private DiningReportService service;
 
     @BeforeEach
     void setUp() {
-        amazonS3 = mock(AmazonS3.class);
-        s3Client = new S3Client(BUCKET_NAME, DOMAIN_URL, S3Presigner.builder()
+        awsS3Client = mock(S3Client.class);
+        s3Client = new S3ClientWrapper(BUCKET_NAME, DOMAIN_URL, S3Presigner.builder()
             .credentialsProvider(StaticCredentialsProvider.create(
                 AwsBasicCredentials.create("test-access-key", "test-secret-key")))
-            .region(Region.AP_NORTHEAST_2), amazonS3, clock);
+            .region(Region.AP_NORTHEAST_2), awsS3Client, clock);
         diningRepository = mock(DiningRepository.class);
         reportRepository = mock(DiningReportRepository.class);
         service = new DiningReportService(diningRepository, reportRepository,
@@ -95,7 +96,7 @@ class DiningReportImageValidationTest {
             new UploadUrlRequest(1, "image/jpeg", fileName)).fileUrl();
         String rawKey = imageUrl.substring(DOMAIN_URL.length());
         assertThat(imageUrl).startsWith(DOMAIN_URL + "upload/COOP/2026/10/2/").endsWith("/" + fileName);
-        when(amazonS3.doesObjectExist(BUCKET_NAME, rawKey)).thenReturn(true);
+        when(awsS3Client.headObject(headObjectRequest(rawKey))).thenReturn(HeadObjectResponse.builder().build());
 
         Integer reporterId = 42;
         Integer diningId = 1;
@@ -110,7 +111,7 @@ class DiningReportImageValidationTest {
         verify(reportRepository).saveAndFlush(reportCaptor.capture());
         assertThat(response.status()).isEqualTo(DiningReportStatus.PENDING);
         assertThat(reportCaptor.getValue().getImageUrl()).isEqualTo(imageUrl);
-        verify(amazonS3).doesObjectExist(BUCKET_NAME, rawKey);
+        verify(awsS3Client).headObject(headObjectRequest(rawKey));
 
         when(reportRepository.findById(1)).thenReturn(Optional.of(reportCaptor.getValue()));
         var queryService = new DiningReportQueryService(reportRepository, mock(UserRepository.class));
@@ -132,7 +133,8 @@ class DiningReportImageValidationTest {
             mock(CoopShopService.class), mock(ApplicationEventPublisher.class), s3Client, utcClock);
         String imageUrl = new UploadService(s3Client, clock).getPresignedUrl(ImageUploadDomain.COOP,
             new UploadUrlRequest(1, "image/jpeg", "soldout.jpg")).fileUrl();
-        when(amazonS3.doesObjectExist(BUCKET_NAME, imageUrl.substring(DOMAIN_URL.length()))).thenReturn(true);
+        when(awsS3Client.headObject(headObjectRequest(imageUrl.substring(DOMAIN_URL.length()))))
+            .thenReturn(HeadObjectResponse.builder().build());
         Dining dining = Dining.builder().date(LocalDate.parse(diningDate)).type(DiningType.LUNCH)
             .place("A코너").menu("[\"돈까스\"]").build();
         when(diningRepository.findByIdForUpdate(1)).thenReturn(Optional.of(dining));
@@ -165,6 +167,10 @@ class DiningReportImageValidationTest {
         assertThatThrownBy(() -> service.create(42, 1, new DiningReportCreateRequest(imageUrl)))
             .isInstanceOf(CustomException.class)
             .hasMessage(INVALID_REPORT_IMAGE.getMessage());
-        verifyNoInteractions(amazonS3, diningRepository);
+        verifyNoInteractions(awsS3Client, diningRepository);
+    }
+
+    private HeadObjectRequest headObjectRequest(String key) {
+        return HeadObjectRequest.builder().bucket(BUCKET_NAME).key(key).build();
     }
 }

@@ -24,8 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.amazonaws.AmazonClientException;
-
 import in.koreatech.koin.common.event.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.exception.MenuNotFoundException;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
@@ -44,8 +42,9 @@ import in.koreatech.koin.domain.dining.repository.DiningReportRepository;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.core.exception.SdkException;
 
 @Service
 @Transactional(isolation = Isolation.READ_COMMITTED)
@@ -60,7 +59,7 @@ public class DiningReportService {
     private final DiningSoldOutCacheRepository soldOutCacheRepository;
     private final CoopShopService coopShopService;
     private final ApplicationEventPublisher eventPublisher;
-    private final S3Client s3Client;
+    private final S3ClientWrapper s3Client;
     private final Clock clock;
 
     public DiningReportCreateResponse create(Integer reporterId, Integer diningId, DiningReportCreateRequest request) {
@@ -186,7 +185,7 @@ public class DiningReportService {
             if (!s3Client.doesFileExist(key)) {
                 throw CustomException.of(INVALID_REPORT_IMAGE);
             }
-        } catch (AmazonClientException exception) {
+        } catch (SdkException exception) {
             throw CustomException.of(IMAGE_STORAGE_UNAVAILABLE);
         }
     }

@@ -34,7 +34,7 @@ import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRep
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryService;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryView;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -53,7 +53,7 @@ public class ArticleService {
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
     private final Clock clock;
-    private final S3Client s3Client;
+    private final S3ClientWrapper s3Client;
     private final PopularKeywordTracker popularKeywordTracker;
     private final KeywordRankingManager keywordRankingManager;
     private final ArticleAiSummaryService articleAiSummaryService;

@@ -48,10 +48,9 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     // infra (aws, cloud, fcm)
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.672'
-    implementation 'com.amazonaws:aws-java-sdk-ses:1.12.672'
     implementation platform('software.amazon.awssdk:bom:2.20.56')
     implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:ses'
     implementation 'software.amazon.awssdk:cloudfront'
     implementation 'com.google.firebase:firebase-admin:9.2.0'
     implementation 'org.redisson:redisson-spring-boot-starter:3.35.0'

@@ -37,7 +37,7 @@ import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 
 @TestPropertySource(properties = {
     "dining.report.bot-token=test-dining-report-bot-token"
@@ -74,7 +74,7 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private S3Client s3Client;
+    private S3ClientWrapper s3Client;
 
     private User student;
     private String studentToken;

@@ -66,7 +66,7 @@ import in.koreatech.koin.domain.notification.service.CoopNotificationService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import in.koreatech.koin.infrastructure.fcm.FcmSendResponse;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @TestPropertySource(properties = {
@@ -118,7 +118,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
     private PlatformTransactionManager transactionManager;
 
     @MockBean
-    private S3Client s3Client;
+    private S3ClientWrapper s3Client;
 
     @MockBean
     private FcmClient fcmClient;
