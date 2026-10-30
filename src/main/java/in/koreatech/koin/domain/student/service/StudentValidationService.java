@@ -1,9 +1,9 @@
 package in.koreatech.koin.domain.student.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.global.exception.CustomException;

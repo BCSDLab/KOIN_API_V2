@@ -12,7 +12,7 @@ import in.koreatech.koin.common.event.ImageSensitiveDeletedEvent;
 import in.koreatech.koin.common.event.ImagesDeletedEvent;
 import in.koreatech.koin.common.event.ImagesSensitiveDeletedEvent;
 import in.koreatech.koin.infrastructure.s3.client.CloudFrontClientWrapper;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Profile("!test")
 public class S3EventListener {
 
-    private final S3Client s3Client;
+    private final S3ClientWrapper s3Client;
     private final CloudFrontClientWrapper cloudFrontClientWrapper;
 
     @Async

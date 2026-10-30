@@ -10,23 +10,22 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.amazonaws.services.s3.AmazonS3;
-
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
-class S3ClientTest {
+class S3ClientWrapperTest {
 
-    private S3Client s3Client;
+    private S3ClientWrapper s3Client;
 
     @BeforeEach
     void setUp() {
-        s3Client = new S3Client(
+        s3Client = new S3ClientWrapper(
             "test-bucket",
             "https://static.koreatech.in/articles/",
             mock(S3Presigner.Builder.class),
-            mock(AmazonS3.class),
+            mock(S3Client.class),
             Clock.systemUTC()
         );
     }

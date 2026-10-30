@@ -4,26 +4,21 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.model.Body;
-import com.amazonaws.services.simpleemail.model.Content;
-import com.amazonaws.services.simpleemail.model.Destination;
-import com.amazonaws.services.simpleemail.model.Message;
-import com.amazonaws.services.simpleemail.model.SendEmailRequest;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SesMailSender {
 
-    private final AmazonSimpleEmailService amazonSimpleEmailService;
+    private final SesClient sesClient;
 
     @Retryable
     public void sendMail(SendEmailRequest request) {
-        amazonSimpleEmailService.sendEmail(request);
+        sesClient.sendEmail(request);
     }
 
     @Recover

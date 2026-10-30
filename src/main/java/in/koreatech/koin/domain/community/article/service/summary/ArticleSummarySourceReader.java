@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +43,7 @@ public class ArticleSummarySourceReader {
 
     private final ArticleDocumentParseClient documentParseClient;
     private final ArticleAiSummaryProperties properties;
-    private final S3Client s3Client;
+    private final S3ClientWrapper s3Client;
 
     public String createFingerprint(ArticleSummarySourceSeed seed) {
         return createFingerprint(seed, resolveContent(seed.content()));

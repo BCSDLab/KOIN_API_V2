@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsync;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsyncClient;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ses.SesClient;
 
 @Configuration
 public class AwsSesConfig {
@@ -25,12 +24,12 @@ public class AwsSesConfig {
     }
 
     @Bean
-    public AmazonSimpleEmailServiceAsync amazonSimpleEmailServiceAsync() {
-        BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKey, secretKey);
+    public SesClient sesClient() {
+        AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-        return AmazonSimpleEmailServiceAsyncClient.asyncBuilder()
-            .withCredentials(new AWSStaticCredentialsProvider(basicAWSCredentials))
-            .withRegion(Regions.US_WEST_2)
+        return SesClient.builder()
+            .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
+            .region(Region.US_WEST_2)
             .build();
     }
 }
