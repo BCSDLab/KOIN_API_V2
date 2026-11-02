@@ -1,21 +1,34 @@
 package in.koreatech.koin.acceptance.domain;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.LandAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.land.model.Land;
 
 class LandApiTest extends AcceptanceTest {
 
     @Autowired
     private LandAcceptanceFixture landFixture;
+
+    @Autowired
+    private UserAcceptanceFixture userFixture;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 복덕방_리스트를_조회한다() throws Exception {
@@ -107,5 +120,65 @@ class LandApiTest extends AcceptanceTest {
                     "room_type": "원룸"
                 }
                 """));
+    }
+
+    @Test
+    void 복덕방_리스트에서_삭제된_건물은_제외한다() throws Exception {
+        landFixture.신안빌();
+        landFixture.삭제된_복덕방();
+
+        mockMvc.perform(
+                get("/lands")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands.length()").value(1))
+            .andExpect(jsonPath("$.lands[0].name").value("신안빌"));
+    }
+
+    @Test
+    void 삭제된_복덕방을_단일_조회하면_404를_응답한다() throws Exception {
+        Land deletedLand = landFixture.삭제된_복덕방();
+
+        mockMvc.perform(
+                get("/lands/{id}", deletedLand.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void 존재하지_않는_복덕방을_단일_조회하면_404를_응답한다() throws Exception {
+        mockMvc.perform(
+                get("/lands/{id}", 9999)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void 어드민에서_복구한_복덕방은_같은_ID로_다시_조회된다() throws Exception {
+        Land deletedLand = landFixture.삭제된_복덕방();
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                post("/admin/lands/{id}/undelete", deletedLand.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk());
+
+        mockMvc.perform(
+                get("/lands/{id}", deletedLand.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(deletedLand.getId()));
+        mockMvc.perform(
+                get("/lands")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands[0].id").value(deletedLand.getId()));
     }
 }
