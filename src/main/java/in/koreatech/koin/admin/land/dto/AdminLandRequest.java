@@ -51,8 +51,8 @@ public record AdminLandRequest(
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호의 형식이 올바르지 않습니다.")
     String phone,
 
-    @Schema(description = "이미지 url 리스트 - 빈 리스트로 보내면 비워짐")
-    List<String> imageUrls,
+    @Schema(description = "이미지 url 리스트 - 빈 리스트로 보내면 비워짐, 비어 있는 주소는 넣을 수 없음")
+    List<@NotBlank(message = "이미지 주소는 비어 있을 수 없습니다.") String> imageUrls,
 
     @Schema(description = "주소 - 최대 65535자", example = "충청남도 천안시 동남구 병천면", requiredMode = REQUIRED)
     @NotBlank(message = "주소는 필수입니다.")
