@@ -4,6 +4,8 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 
 import java.util.List;
 
+import org.json.JSONArray;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
@@ -152,6 +154,10 @@ public record AdminLandResponse(
         if (imageUrls == null || imageUrls.isEmpty()) {
             return List.of();
         }
-        return List.of(imageUrls.replace("[", "").replace("]", "").replace("\"", "").split(","));
+        return new JSONArray(imageUrls)
+            .toList()
+            .stream()
+            .map(Object::toString)
+            .toList();
     }
 }
