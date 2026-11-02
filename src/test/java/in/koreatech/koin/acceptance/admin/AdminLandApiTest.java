@@ -1,6 +1,8 @@
 package in.koreatech.koin.acceptance.admin;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -65,6 +67,74 @@ class AdminLandApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.total_page").value(2))
             .andExpect(jsonPath("$.current_page").value(1))
             .andExpect(jsonPath("$.lands.length()").value(10));
+    }
+
+    @Test
+    void 관리자_권한으로_복덕방_목록에서_주소_연락처_수정일을_조회한다() throws Exception {
+        adminLandRepository.save(
+            Land.builder()
+                .internalName("연락처빌")
+                .name("연락처빌")
+                .address("충청남도 천안시 동남구 병천면")
+                .phone("041-111-1111")
+                .build()
+        );
+        adminLandRepository.save(
+            Land.builder()
+                .internalName("무연락빌")
+                .name("무연락빌")
+                .address("충청남도 천안시 동남구 병천면 가전리")
+                .build()
+        );
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                get("/admin/lands")
+                    .header("Authorization", "Bearer " + token)
+                    .param("page", "1")
+                    .param("is_deleted", "false")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands[0].address").value("충청남도 천안시 동남구 병천면"))
+            .andExpect(jsonPath("$.lands[0].phone").value("041-111-1111"))
+            .andExpect(jsonPath("$.lands[0].updated_at").value(matchesPattern("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")))
+            .andExpect(jsonPath("$.lands[1].address").value("충청남도 천안시 동남구 병천면 가전리"))
+            .andExpect(jsonPath("$.lands[1].phone").value(nullValue()));
+    }
+
+    @Test
+    void 관리자_권한으로_삭제된_복덕방_목록에서도_주소_연락처_수정일을_조회한다() throws Exception {
+        adminLandRepository.save(
+            Land.builder()
+                .internalName("삭제연락처빌")
+                .name("삭제연락처빌")
+                .address("충청남도 천안시 동남구 병천면")
+                .phone("041-111-1111")
+                .isDeleted(true)
+                .build()
+        );
+        adminLandRepository.save(
+            Land.builder()
+                .internalName("일반연락처빌")
+                .name("일반연락처빌")
+                .address("충청남도 천안시 동남구 병천면 가전리")
+                .build()
+        );
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                get("/admin/lands")
+                    .header("Authorization", "Bearer " + token)
+                    .param("page", "1")
+                    .param("is_deleted", "true")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands.length()").value(1))
+            .andExpect(jsonPath("$.lands[0].address").value("충청남도 천안시 동남구 병천면"))
+            .andExpect(jsonPath("$.lands[0].phone").value("041-111-1111"))
+            .andExpect(jsonPath("$.lands[0].updated_at").value(matchesPattern("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")));
     }
 
     @Test
