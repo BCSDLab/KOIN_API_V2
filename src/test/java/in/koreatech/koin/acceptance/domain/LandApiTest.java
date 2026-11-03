@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
@@ -196,5 +198,28 @@ class LandApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.lands[0].latitude").value(37.555))
             .andExpect(jsonPath("$.lands[1].latitude").value(nullValue()))
             .andExpect(jsonPath("$.lands[1].longitude").value(nullValue()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"NaN", "Infinity", "-Infinity", "1e309", "넓음", " "})
+    void 숫자가_아니거나_유한하지_않은_좌표와_크기는_상세에서_null로_응답한다(String invalid) throws Exception {
+        Land land = landRepository.save(
+            Land.builder()
+                .internalName("비정상값빌" + invalid)
+                .name("비정상값빌" + invalid)
+                .latitude(invalid)
+                .longitude("127.284")
+                .size(invalid)
+                .build()
+        );
+
+        mockMvc.perform(
+                get("/lands/{id}", land.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.latitude").value(nullValue()))
+            .andExpect(jsonPath("$.longitude").value(127.284))
+            .andExpect(jsonPath("$.size").value(nullValue()));
     }
 }

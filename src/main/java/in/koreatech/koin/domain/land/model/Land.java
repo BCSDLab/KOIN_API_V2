@@ -238,7 +238,11 @@ public class Land extends BaseEntity {
             return null;
         }
         try {
-            return Double.parseDouble(value);
+            double parsed = Double.parseDouble(value);
+            if (!Double.isFinite(parsed)) {
+                return null;
+            }
+            return parsed;
         } catch (NumberFormatException e) {
             // 예전에 문자열 컬럼에 숫자가 아닌 값이 들어간 행도 목록 전체를 깨뜨리지 않도록 한다.
             return null;
