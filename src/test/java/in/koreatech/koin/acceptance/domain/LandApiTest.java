@@ -163,6 +163,21 @@ class LandApiTest extends AcceptanceTest {
         String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
+                get("/admin/lands")
+                    .header("Authorization", "Bearer " + token)
+                    .param("page", "1")
+                    .param("is_deleted", "true")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands[0].id").value(deletedLand.getId()));
+        mockMvc.perform(
+                get("/admin/lands/{id}", deletedLand.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.is_deleted").value(true));
+
+        mockMvc.perform(
                 post("/admin/lands/{id}/undelete", deletedLand.getId())
                     .header("Authorization", "Bearer " + token)
             )
