@@ -150,6 +150,14 @@ public class Land extends BaseEntity {
     private boolean optElevator = false;
 
     @NotNull
+    @Column(name = "is_monthly_available", nullable = false)
+    private boolean isMonthlyAvailable = false;
+
+    @NotNull
+    @Column(name = "is_charter_available", nullable = false)
+    private boolean isCharterAvailable = false;
+
+    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
@@ -186,6 +194,8 @@ public class Land extends BaseEntity {
         boolean optBidet,
         boolean optVeranda,
         boolean optElevator,
+        boolean isMonthlyAvailable,
+        boolean isCharterAvailable,
         boolean isDeleted
     ) {
         this.internalName = internalName;
@@ -219,6 +229,8 @@ public class Land extends BaseEntity {
         this.optBidet = optBidet;
         this.optVeranda = optVeranda;
         this.optElevator = optElevator;
+        this.isMonthlyAvailable = isMonthlyAvailable;
+        this.isCharterAvailable = isCharterAvailable;
         this.isDeleted = isDeleted;
     }
 
@@ -305,6 +317,11 @@ public class Land extends BaseEntity {
         this.optBidet = keepIfNull(optBidet, this.optBidet);
         this.optVeranda = keepIfNull(optVeranda, this.optVeranda);
         this.optElevator = keepIfNull(optElevator, this.optElevator);
+    }
+
+    public void updateRentTypeAvailabilityIfPresent(Boolean isMonthlyAvailable, Boolean isCharterAvailable) {
+        this.isMonthlyAvailable = keepIfNull(isMonthlyAvailable, this.isMonthlyAvailable);
+        this.isCharterAvailable = keepIfNull(isCharterAvailable, this.isCharterAvailable);
     }
 
     private static <T> T keepIfNull(T newValue, T currentValue) {

@@ -404,6 +404,70 @@ class AdminLandApiTest extends AcceptanceTest {
         });
     }
 
+    @Test
+    void 복덕방을_추가할_때_월세_전세_가능_여부를_저장하고_보내지_않으면_false로_저장한다() throws Exception {
+        Map<String, Object> request = 필수값만_있는_요청("매물여부추가빌");
+        request.put("is_monthly_available", true);
+
+        추가한다(request).andExpect(status().isCreated());
+
+        Land savedLand = adminLandRepository.getByName("매물여부추가빌");
+        assertSoftly(softly -> {
+            softly.assertThat(savedLand.isMonthlyAvailable()).isTrue();
+            softly.assertThat(savedLand.isCharterAvailable()).isFalse();
+        });
+    }
+
+    @Test
+    void 복덕방을_수정할_때_월세_전세_가능_여부는_보낸_값만_바꾸고_보내지_않으면_유지한다() throws Exception {
+        Land land = adminLandRepository.save(
+            Land.builder()
+                .internalName("매물여부수정빌")
+                .name("매물여부수정빌")
+                .latitude("36.766")
+                .longitude("127.284")
+                .address("충청남도 천안시 동남구 병천면")
+                .isMonthlyAvailable(true)
+                .isCharterAvailable(true)
+                .build()
+        );
+        Map<String, Object> request = 필수값만_있는_요청("매물여부수정빌");
+        request.put("is_charter_available", false);
+
+        수정한다(land.getId(), request).andExpect(status().isOk());
+
+        Land updatedLand = adminLandRepository.getById(land.getId());
+        assertSoftly(softly -> {
+            softly.assertThat(updatedLand.isMonthlyAvailable()).isTrue();
+            softly.assertThat(updatedLand.isCharterAvailable()).isFalse();
+        });
+    }
+
+    @Test
+    void 어드민_상세에서_월세_전세_가능_여부를_조회한다() throws Exception {
+        Land land = adminLandRepository.save(
+            Land.builder()
+                .internalName("매물여부상세빌")
+                .name("매물여부상세빌")
+                .latitude("36.766")
+                .longitude("127.284")
+                .isMonthlyAvailable(false)
+                .isCharterAvailable(true)
+                .build()
+        );
+
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                get("/admin/lands/{id}", land.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.is_monthly_available").value(false))
+            .andExpect(jsonPath("$.is_charter_available").value(true));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"name", "address", "latitude", "longitude"})
     void 복덕방을_추가할_때_필수값이_없으면_400을_응답한다(String missingField) throws Exception {

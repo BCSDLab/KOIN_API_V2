@@ -4,8 +4,6 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import org.springframework.util.StringUtils;
-
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
@@ -40,10 +38,10 @@ public record LandsResponse(
     @Schema(description = "주소", example = "충청남도 천안시 동남구 병천면", requiredMode = NOT_REQUIRED)
     String address,
 
-    @Schema(description = "월세 매물 여부 - 가격 대신 매물 종류 표시용", example = "true", requiredMode = REQUIRED)
+    @Schema(description = "월세 매물 여부 - 가격 대신 매물 종류 표시용, 어드민에서 체크한 값", example = "true", requiredMode = REQUIRED)
     boolean isMonthlyAvailable,
 
-    @Schema(description = "전세 매물 여부 - 가격 대신 매물 종류 표시용", example = "false", requiredMode = REQUIRED)
+    @Schema(description = "전세 매물 여부 - 가격 대신 매물 종류 표시용, 어드민에서 체크한 값", example = "false", requiredMode = REQUIRED)
     boolean isCharterAvailable
 ) {
 
@@ -58,8 +56,8 @@ public record LandsResponse(
             land.getLongitude(),
             land.getRoomType(),
             land.getAddress(),
-            StringUtils.hasText(land.getMonthlyFee()),
-            StringUtils.hasText(land.getCharterFee())
+            land.isMonthlyAvailable(),
+            land.isCharterAvailable()
         );
     }
 }

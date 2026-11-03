@@ -228,15 +228,16 @@ class LandApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 복덕방_목록에서_월세_전세_가능_여부만_알려준다() throws Exception {
+    void 복덕방_목록의_월세_전세_가능_여부는_어드민이_체크한_값으로_알려준다() throws Exception {
         landRepository.save(
             Land.builder()
                 .internalName("월세만빌")
                 .name("월세만빌")
                 .latitude("36.766")
                 .longitude("127.284")
-                .monthlyFee("30")
-                .charterFee(" ")
+                .charterFee("5000")
+                .isMonthlyAvailable(true)
+                .isCharterAvailable(false)
                 .build()
         );
 
