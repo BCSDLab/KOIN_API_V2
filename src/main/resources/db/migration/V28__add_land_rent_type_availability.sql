@@ -4,8 +4,8 @@ ALTER TABLE `lands`
 
 UPDATE `lands`
 SET `is_monthly_available` = 1
-WHERE `monthly_fee` IS NOT NULL AND TRIM(`monthly_fee`) <> '';
+WHERE `monthly_fee` REGEXP '[^[:space:]]';
 
 UPDATE `lands`
 SET `is_charter_available` = 1
-WHERE `charter_fee` IS NOT NULL AND TRIM(`charter_fee`) <> '';
+WHERE `charter_fee` REGEXP '[^[:space:]]';
