@@ -2,9 +2,12 @@ package in.koreatech.koin.acceptance.domain;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
@@ -107,5 +110,79 @@ class LandApiTest extends AcceptanceTest {
                     "room_type": "원룸"
                 }
                 """));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"별밭하우스", "별밭 하우스", " 별 밭 하 우 스 ", "밭하우"})
+    void 복덕방을_띄어쓰기와_상관없이_건물명_부분_일치로_검색한다(String query) throws Exception {
+        landFixture.별밭하우스();
+        landFixture.신안빌();
+
+        mockMvc.perform(
+                get("/lands")
+                    .param("query", query)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands.length()").value(1))
+            .andExpect(jsonPath("$.lands[0].name").value("별밭하우스"));
+    }
+
+    @Test
+    void 복덕방을_대소문자와_상관없이_검색한다() throws Exception {
+        landFixture.코인하우스();
+        landFixture.별밭하우스();
+
+        mockMvc.perform(
+                get("/lands")
+                    .param("query", "koin HOUSE")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands.length()").value(1))
+            .andExpect(jsonPath("$.lands[0].name").value("KOIN House"));
+    }
+
+    @Test
+    void 복덕방_검색_결과에서_삭제된_건물은_제외한다() throws Exception {
+        landFixture.삭제된_복덕방();
+
+        mockMvc.perform(
+                get("/lands")
+                    .param("query", "삭제된")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands.length()").value(0));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"없는건물", "%", "_"})
+    void 복덕방_검색어와_일치하는_건물이_없으면_빈_목록을_반환한다(String query) throws Exception {
+        landFixture.별밭하우스();
+        landFixture.코인하우스();
+
+        mockMvc.perform(
+                get("/lands")
+                    .param("query", query)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands.length()").value(0));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "   "})
+    void 복덕방_검색어가_비어_있으면_전체_목록을_반환한다(String query) throws Exception {
+        landFixture.별밭하우스();
+        landFixture.코인하우스();
+
+        mockMvc.perform(
+                get("/lands")
+                    .param("query", query)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands.length()").value(2));
     }
 }

@@ -23,8 +23,12 @@ public class LandService {
 
     private final LandRepository landRepository;
 
-    public LandsGroupResponse getLands() {
-        List<LandsResponse> lands = landRepository.findAll()
+    public LandsGroupResponse getLands(String query) {
+        String normalizedQuery = normalizeName(query);
+        List<Land> foundLands = normalizedQuery.isEmpty()
+            ? landRepository.findAll()
+            : landRepository.findAllByIsDeletedFalseAndInternalNameContaining(normalizedQuery);
+        List<LandsResponse> lands = foundLands
             .stream()
             .map(LandsResponse::from)
             .toList();
@@ -47,5 +51,9 @@ public class LandService {
         }
 
         return LandResponse.of(land, imageUrls, URLEncoder.encode(land.getInternalName(), UTF_8));
+    }
+
+    private String normalizeName(String name) {
+        return name.replaceAll("\\s+", "").toLowerCase();
     }
 }
