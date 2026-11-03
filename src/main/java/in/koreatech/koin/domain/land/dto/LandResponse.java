@@ -21,7 +21,7 @@ public record LandResponse(
     @Schema(description = "TV 옵션 - MVP 개편으로 항상 false (예전 앱 호환을 위해 키 유지)", example = "false", requiredMode = REQUIRED)
     boolean optTv,
 
-    @Schema(description = "월세 범위 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "220~250만원(6개월)", requiredMode = NOT_REQUIRED)
+    @Schema(description = "월세 범위 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "null", requiredMode = NOT_REQUIRED)
     String monthlyFee,
 
     @Schema(description = "엘리베이터 옵션 - MVP 개편으로 항상 false (예전 앱 호환을 위해 키 유지)", example = "false", requiredMode = REQUIRED)
@@ -36,7 +36,7 @@ public record LandResponse(
     @Schema(description = "위도 좌표", example = "36.769062", requiredMode = NOT_REQUIRED)
     Double latitude,
 
-    @Schema(description = "전세 가격 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "4500", requiredMode = NOT_REQUIRED)
+    @Schema(description = "전세 가격 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "null", requiredMode = NOT_REQUIRED)
     String charterFee,
 
     @Schema(description = "베란다 옵션 - MVP 개편으로 항상 false (예전 앱 호환을 위해 키 유지)", example = "false", requiredMode = REQUIRED)
@@ -46,7 +46,7 @@ public record LandResponse(
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime createdAt,
 
-    @Schema(description = "설명 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "한기대 정문 근처 원룸", requiredMode = NOT_REQUIRED)
+    @Schema(description = "설명 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "null", requiredMode = NOT_REQUIRED)
     String description,
 
     @Schema(description = "이미지 URL 목록", example = """
@@ -85,7 +85,7 @@ public record LandResponse(
     @Schema(description = "층 수 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "null", requiredMode = NOT_REQUIRED)
     Integer floor,
 
-    @Schema(description = "인당 관리비", example = "21(1인 기준)", requiredMode = NOT_REQUIRED)
+    @Schema(description = "인당 관리비 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "null", requiredMode = NOT_REQUIRED)
     String managementFee,
 
     @Schema(description = "책상 옵션 - MVP 개편으로 항상 false (예전 앱 호환을 위해 키 유지)", example = "false", requiredMode = REQUIRED)
@@ -115,7 +115,7 @@ public record LandResponse(
     @Schema(description = "부동산 이름", example = "행운빌 (투베이)", requiredMode = NOT_REQUIRED)
     String name,
 
-    @Schema(description = "보증금 금액 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "50", requiredMode = NOT_REQUIRED)
+    @Schema(description = "보증금 금액 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "null", requiredMode = NOT_REQUIRED)
     String deposit,
 
     @Schema(description = "전자레인지 옵션 - MVP 개편으로 항상 false (예전 앱 호환을 위해 키 유지)", example = "false", requiredMode = REQUIRED)
