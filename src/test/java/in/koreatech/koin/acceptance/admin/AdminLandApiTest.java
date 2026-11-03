@@ -314,4 +314,60 @@ class AdminLandApiTest extends AcceptanceTest {
             softly.assertThat(undeletedLand.isDeleted()).isFalse();
         });
     }
+
+    @Test
+    void 관리자가_복덕방을_추가할_때_이름의_모든_공백을_빼고_내부_이름을_저장한다() throws Exception {
+        String jsonBody = """
+            {
+                "name": "별밭\\t하우스\\u3000B동",
+                "room_type": "원룸",
+                "latitude": "36.765",
+                "longitude": "127.282",
+                "address": "충청남도 천안시 동남구 병천면"
+            }
+            """;
+
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                post("/admin/lands")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+            )
+            .andExpect(status().isCreated());
+
+        Land savedLand = adminLandRepository.getByName("별밭\t하우스\u3000B동");
+        assertSoftly(softly -> softly.assertThat(savedLand.getInternalName()).isEqualTo("별밭하우스b동"));
+    }
+
+    @Test
+    void 관리자가_복덕방을_수정할_때_이름의_모든_공백을_빼고_내부_이름을_저장한다() throws Exception {
+        Land land = landFixture.신안빌();
+
+        String jsonBody = """
+            {
+                "name": "신안빌\\u00A0수정\\n",
+                "room_type": "원룸",
+                "latitude": "36.765",
+                "longitude": "127.282",
+                "address": "충청남도 천안시 동남구 병천면"
+            }
+            """;
+
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                put("/admin/lands/{id}", land.getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+            )
+            .andExpect(status().isOk());
+
+        Land updatedLand = adminLandRepository.getById(land.getId());
+        assertSoftly(softly -> softly.assertThat(updatedLand.getInternalName()).isEqualTo("신안빌수정"));
+    }
 }

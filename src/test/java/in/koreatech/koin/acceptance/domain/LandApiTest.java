@@ -113,7 +113,7 @@ class LandApiTest extends AcceptanceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"별밭하우스", "별밭 하우스", " 별 밭 하 우 스 ", "밭하우"})
+    @ValueSource(strings = {"별밭하우스", "별밭 하우스", " 별 밭 하 우 스 ", "밭하우", "별밭\t하우스", "별밭\n하우스", "별밭\u3000하우스", "별밭\u00A0하우스"})
     void 복덕방을_띄어쓰기와_상관없이_건물명_부분_일치로_검색한다(String query) throws Exception {
         landFixture.별밭하우스();
         landFixture.신안빌();
@@ -172,7 +172,7 @@ class LandApiTest extends AcceptanceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", "   "})
+    @ValueSource(strings = {"", "   ", "\u3000", "\u00A0"})
     void 복덕방_검색어가_비어_있으면_전체_목록을_반환한다(String query) throws Exception {
         landFixture.별밭하우스();
         landFixture.코인하우스();

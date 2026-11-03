@@ -251,6 +251,10 @@ public class Land extends BaseEntity {
             .collect(Collectors.joining(",")));
     }
 
+    public static String toInternalName(String name) {
+        return name.replaceAll("[\\s\\p{Z}]+", "").toLowerCase();
+    }
+
     public void delete() {
         this.isDeleted = true;
     }

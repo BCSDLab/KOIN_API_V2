@@ -24,7 +24,7 @@ public class LandService {
     private final LandRepository landRepository;
 
     public LandsGroupResponse getLands(String query) {
-        String normalizedQuery = normalizeName(query);
+        String normalizedQuery = Land.toInternalName(query);
         List<Land> foundLands = normalizedQuery.isEmpty()
             ? landRepository.findAll()
             : landRepository.findAllByIsDeletedFalseAndInternalNameContaining(normalizedQuery);
@@ -51,9 +51,5 @@ public class LandService {
         }
 
         return LandResponse.of(land, imageUrls, URLEncoder.encode(land.getInternalName(), UTF_8));
-    }
-
-    private String normalizeName(String name) {
-        return name.replaceAll("\\s+", "").toLowerCase();
     }
 }
