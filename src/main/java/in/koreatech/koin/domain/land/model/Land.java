@@ -222,24 +222,27 @@ public class Land extends BaseEntity {
     }
 
     public Double getLatitude() {
-        if (this.latitude == null) {
-            return null;
-        }
-        return Double.parseDouble(latitude);
+        return parseDoubleOrNull(this.latitude);
     }
 
     public Double getLongitude() {
-        if (this.longitude == null) {
-            return null;
-        }
-        return Double.parseDouble(longitude);
+        return parseDoubleOrNull(this.longitude);
     }
 
     public Double getSize() {
-        if (this.size == null) {
+        return parseDoubleOrNull(this.size);
+    }
+
+    private static Double parseDoubleOrNull(String value) {
+        if (value == null || value.isBlank()) {
             return null;
         }
-        return Double.parseDouble(size);
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            // 예전에 문자열 컬럼에 숫자가 아닌 값이 들어간 행도 목록 전체를 깨뜨리지 않도록 한다.
+            return null;
+        }
     }
 
     private String convertToSting(List<String> imageUrls) {
