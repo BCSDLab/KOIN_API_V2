@@ -46,6 +46,8 @@ class LandApiTest extends AcceptanceTest {
                             "charter_fee": null,
                             "name": "신안빌",
                             "address": "서울시 강남구",
+                            "is_monthly_available": true,
+                            "is_charter_available": true,
                             "id": 1,
                             "longitude": 126.555,
                             "room_type": "원룸"
@@ -57,6 +59,8 @@ class LandApiTest extends AcceptanceTest {
                             "charter_fee": null,
                             "name": "에듀윌",
                             "address": "천안시 동남구 강남구",
+                            "is_monthly_available": true,
+                            "is_charter_available": true,
                             "id": 2,
                             "longitude": 126.555,
                             "room_type": "원룸"
@@ -221,5 +225,29 @@ class LandApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.latitude").value(nullValue()))
             .andExpect(jsonPath("$.longitude").value(127.284))
             .andExpect(jsonPath("$.size").value(nullValue()));
+    }
+
+    @Test
+    void 복덕방_목록에서_월세_전세_가능_여부만_알려준다() throws Exception {
+        landRepository.save(
+            Land.builder()
+                .internalName("월세만빌")
+                .name("월세만빌")
+                .latitude("36.766")
+                .longitude("127.284")
+                .monthlyFee("30")
+                .charterFee(" ")
+                .build()
+        );
+
+        mockMvc.perform(
+                get("/lands")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands[0].monthly_fee").value(nullValue()))
+            .andExpect(jsonPath("$.lands[0].charter_fee").value(nullValue()))
+            .andExpect(jsonPath("$.lands[0].is_monthly_available").value(true))
+            .andExpect(jsonPath("$.lands[0].is_charter_available").value(false));
     }
 }
