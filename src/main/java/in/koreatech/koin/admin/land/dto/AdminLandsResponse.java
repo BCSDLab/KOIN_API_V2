@@ -3,10 +3,12 @@ package in.koreatech.koin.admin.land.dto;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
@@ -62,7 +64,17 @@ public record AdminLandsResponse(
         String charterFee,
 
         @Schema(description = "삭제(soft delete) 여부", example = "false", requiredMode = REQUIRED)
-        Boolean isDeleted
+        Boolean isDeleted,
+
+        @Schema(description = "주소", example = "충청남도 천안시 동남구 병천면")
+        String address,
+
+        @Schema(description = "전화번호 - 없으면 null", example = "041-111-1111")
+        String phone,
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        @Schema(description = "마지막 수정 일시", example = "2026-11-02 21:00:00", requiredMode = REQUIRED)
+        LocalDateTime updatedAt
     ) {
         public static SimpleLandInformation from(Land land) {
             return new SimpleLandInformation(
@@ -71,7 +83,10 @@ public record AdminLandsResponse(
                 land.getRoomType(),
                 land.getMonthlyFee(),
                 land.getCharterFee(),
-                land.isDeleted()
+                land.isDeleted(),
+                land.getAddress(),
+                land.getPhone(),
+                land.getUpdatedAt()
             );
         }
     }
