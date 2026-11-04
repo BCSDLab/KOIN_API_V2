@@ -110,6 +110,12 @@ public record AdminLandResponse(
     @Schema(description = "엘리베이터 보유 여부", example = "true")
     boolean optElevator,
 
+    @Schema(description = "월세 매물 여부 - 학생 목록의 월세 배지", example = "true")
+    boolean isMonthlyAvailable,
+
+    @Schema(description = "전세 매물 여부 - 학생 목록의 전세 배지", example = "false")
+    boolean isCharterAvailable,
+
     @Schema(description = "삭제(soft delete) 여부", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
     Boolean isDeleted
 ) {
@@ -147,6 +153,8 @@ public record AdminLandResponse(
             land.isOptBidet(),
             land.isOptVeranda(),
             land.isOptElevator(),
+            land.isMonthlyAvailable(),
+            land.isCharterAvailable(),
             land.isDeleted()
         );
     }

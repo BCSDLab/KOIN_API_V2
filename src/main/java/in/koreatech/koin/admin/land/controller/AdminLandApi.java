@@ -54,7 +54,7 @@ public interface AdminLandApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "복덕방 생성", description = "방이름·주소·위도·경도 필수, 위도 33~39·경도 124~132")
+    @Operation(summary = "복덕방 생성", description = "방이름·주소·위도·경도 필수")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/lands")
     @AdminActivityLogging(domain = LANDS)

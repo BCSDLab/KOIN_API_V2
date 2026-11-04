@@ -150,6 +150,14 @@ public class Land extends BaseEntity {
     private boolean optElevator = false;
 
     @NotNull
+    @Column(name = "is_monthly_available", nullable = false)
+    private boolean isMonthlyAvailable = false;
+
+    @NotNull
+    @Column(name = "is_charter_available", nullable = false)
+    private boolean isCharterAvailable = false;
+
+    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
@@ -186,6 +194,8 @@ public class Land extends BaseEntity {
         boolean optBidet,
         boolean optVeranda,
         boolean optElevator,
+        boolean isMonthlyAvailable,
+        boolean isCharterAvailable,
         boolean isDeleted
     ) {
         this.internalName = internalName;
@@ -219,28 +229,37 @@ public class Land extends BaseEntity {
         this.optBidet = optBidet;
         this.optVeranda = optVeranda;
         this.optElevator = optElevator;
+        this.isMonthlyAvailable = isMonthlyAvailable;
+        this.isCharterAvailable = isCharterAvailable;
         this.isDeleted = isDeleted;
     }
 
     public Double getLatitude() {
-        if (this.latitude == null) {
-            return null;
-        }
-        return Double.parseDouble(latitude);
+        return parseDoubleOrNull(this.latitude);
     }
 
     public Double getLongitude() {
-        if (this.longitude == null) {
-            return null;
-        }
-        return Double.parseDouble(longitude);
+        return parseDoubleOrNull(this.longitude);
     }
 
     public Double getSize() {
-        if (this.size == null) {
+        return parseDoubleOrNull(this.size);
+    }
+
+    private static Double parseDoubleOrNull(String value) {
+        if (value == null || value.isBlank()) {
             return null;
         }
-        return Double.parseDouble(size);
+        try {
+            double parsed = Double.parseDouble(value);
+            if (!Double.isFinite(parsed)) {
+                return null;
+            }
+            return parsed;
+        } catch (NumberFormatException e) {
+            // 예전에 문자열 컬럼에 숫자가 아닌 값이 들어간 행도 목록 전체를 깨뜨리지 않도록 한다.
+            return null;
+        }
     }
 
     private String convertToSting(List<String> imageUrls) {
@@ -298,6 +317,11 @@ public class Land extends BaseEntity {
         this.optBidet = keepIfNull(optBidet, this.optBidet);
         this.optVeranda = keepIfNull(optVeranda, this.optVeranda);
         this.optElevator = keepIfNull(optElevator, this.optElevator);
+    }
+
+    public void updateRentTypeAvailabilityIfPresent(Boolean isMonthlyAvailable, Boolean isCharterAvailable) {
+        this.isMonthlyAvailable = keepIfNull(isMonthlyAvailable, this.isMonthlyAvailable);
+        this.isCharterAvailable = keepIfNull(isCharterAvailable, this.isCharterAvailable);
     }
 
     private static <T> T keepIfNull(T newValue, T currentValue) {

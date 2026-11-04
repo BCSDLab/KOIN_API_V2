@@ -37,6 +37,8 @@ public class LandAcceptanceFixture {
                 .phone("010-1234-5678")
                 .address("서울시 강남구")
                 .size("100.0")
+                .isMonthlyAvailable(true)
+                .isCharterAvailable(true)
                 .imageUrls(imageUrls)
                 .build()
         );
@@ -62,6 +64,8 @@ public class LandAcceptanceFixture {
                 .phone("010-1133-5555")
                 .address("천안시 동남구 강남구")
                 .size("100.0")
+                .isMonthlyAvailable(true)
+                .isCharterAvailable(true)
                 .imageUrls(imageUrls)
                 .build()
         );

@@ -129,7 +129,13 @@ public record AdminLandRequest(
     Boolean optVeranda,
 
     @Schema(description = "엘리베이터 보유 여부 - 등록 시 null이면 false, 수정 시 null이면 기존 값 유지", example = "true")
-    Boolean optElevator
+    Boolean optElevator,
+
+    @Schema(description = "월세 매물 여부 - 학생 목록의 월세 배지, 등록 시 null이면 false, 수정 시 null이면 기존 값 유지", example = "true")
+    Boolean isMonthlyAvailable,
+
+    @Schema(description = "전세 매물 여부 - 학생 목록의 전세 배지, 등록 시 null이면 false, 수정 시 null이면 기존 값 유지", example = "false")
+    Boolean isCharterAvailable
 ) {
     public Land toLand() {
         return Land.builder()
@@ -164,6 +170,8 @@ public record AdminLandRequest(
             .optBidet(Boolean.TRUE.equals(optBidet))
             .optVeranda(Boolean.TRUE.equals(optVeranda))
             .optElevator(Boolean.TRUE.equals(optElevator))
+            .isMonthlyAvailable(Boolean.TRUE.equals(isMonthlyAvailable))
+            .isCharterAvailable(Boolean.TRUE.equals(isCharterAvailable))
             .build();
     }
 

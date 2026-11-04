@@ -88,6 +88,7 @@ public class AdminLandService {
             request.optVeranda(),
             request.optElevator()
         );
+        land.updateRentTypeAvailabilityIfPresent(request.isMonthlyAvailable(), request.isCharterAvailable());
     }
 
     @Transactional
