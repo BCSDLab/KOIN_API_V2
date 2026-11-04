@@ -73,7 +73,7 @@ public record AdminLandsResponse(
         String phone,
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        @Schema(description = "마지막 수정 일시 (연락처·좌표 검수일이 아님)", example = "2026-11-02 21:00:00", requiredMode = REQUIRED)
+        @Schema(description = "마지막 수정 일시", example = "2026-11-02 21:00:00", requiredMode = REQUIRED)
         LocalDateTime updatedAt
     ) {
         public static SimpleLandInformation from(Land land) {
