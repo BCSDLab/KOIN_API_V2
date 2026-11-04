@@ -3,7 +3,8 @@ package in.koreatech.koin.domain.land.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.json.JSONArray;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -149,6 +150,14 @@ public class Land extends BaseEntity {
     private boolean optElevator = false;
 
     @NotNull
+    @Column(name = "is_monthly_available", nullable = false)
+    private boolean isMonthlyAvailable = false;
+
+    @NotNull
+    @Column(name = "is_charter_available", nullable = false)
+    private boolean isCharterAvailable = false;
+
+    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
@@ -185,6 +194,8 @@ public class Land extends BaseEntity {
         boolean optBidet,
         boolean optVeranda,
         boolean optElevator,
+        boolean isMonthlyAvailable,
+        boolean isCharterAvailable,
         boolean isDeleted
     ) {
         this.internalName = internalName;
@@ -218,37 +229,44 @@ public class Land extends BaseEntity {
         this.optBidet = optBidet;
         this.optVeranda = optVeranda;
         this.optElevator = optElevator;
+        this.isMonthlyAvailable = isMonthlyAvailable;
+        this.isCharterAvailable = isCharterAvailable;
         this.isDeleted = isDeleted;
     }
 
     public Double getLatitude() {
-        if (this.latitude == null) {
-            return null;
-        }
-        return Double.parseDouble(latitude);
+        return parseDoubleOrNull(this.latitude);
     }
 
     public Double getLongitude() {
-        if (this.longitude == null) {
-            return null;
-        }
-        return Double.parseDouble(longitude);
+        return parseDoubleOrNull(this.longitude);
     }
 
     public Double getSize() {
-        if (this.size == null) {
+        return parseDoubleOrNull(this.size);
+    }
+
+    private static Double parseDoubleOrNull(String value) {
+        if (value == null || value.isBlank()) {
             return null;
         }
-        return Double.parseDouble(size);
+        try {
+            double parsed = Double.parseDouble(value);
+            if (!Double.isFinite(parsed)) {
+                return null;
+            }
+            return parsed;
+        } catch (NumberFormatException e) {
+            // 예전에 문자열 컬럼에 숫자가 아닌 값이 들어간 행도 목록 전체를 깨뜨리지 않도록 한다.
+            return null;
+        }
     }
 
     private String convertToSting(List<String> imageUrls) {
         if (imageUrls == null || imageUrls.isEmpty()) {
             return null;
         }
-        return String.format("[%s]", imageUrls.stream()
-            .map(url -> "\"" + url + "\"")
-            .collect(Collectors.joining(",")));
+        return new JSONArray(imageUrls).toString();
     }
 
     public static String toInternalName(String name) {
@@ -263,43 +281,64 @@ public class Land extends BaseEntity {
         this.isDeleted = false;
     }
 
-    public void update(String internalName, String name, double size, String roomType, double latitude,
-        double longitude, String phone, List<String> imageUrls, String address, String description, Integer floor,
-        String deposit, String monthlyFee, String charterFee, String managementFee, boolean optRefrigerator,
-        boolean optCloset, boolean optTv, boolean optMicrowave, boolean optGasRange, boolean optInduction,
-        boolean optWaterPurifier, boolean optAirConditioner, boolean optWasher, boolean optBed, boolean optDesk,
-        boolean optShoeCloset, boolean optElectronicDoorLocks, boolean optBidet, boolean optVeranda,
-        boolean optElevator) {
+    public void updateBasicInfo(String internalName, String name, Double size, String roomType, Double latitude,
+        Double longitude, String phone, List<String> imageUrls, String address) {
         this.internalName = internalName;
         this.name = name;
-        this.size = String.valueOf(size);
+        this.size = toStringOrNull(size);
         this.roomType = roomType;
-        this.latitude = String.valueOf(latitude);
-        this.longitude = String.valueOf(longitude);
+        this.latitude = toStringOrNull(latitude);
+        this.longitude = toStringOrNull(longitude);
         this.phone = phone;
         this.imageUrls = convertToSting(imageUrls);
         this.address = address;
-        this.description = description;
-        this.floor = floor;
-        this.deposit = deposit;
-        this.monthlyFee = monthlyFee;
-        this.charterFee = charterFee;
-        this.managementFee = managementFee;
-        this.optRefrigerator = optRefrigerator;
-        this.optCloset = optCloset;
-        this.optTv = optTv;
-        this.optMicrowave = optMicrowave;
-        this.optGasRange = optGasRange;
-        this.optInduction = optInduction;
-        this.optWaterPurifier = optWaterPurifier;
-        this.optAirConditioner = optAirConditioner;
-        this.optWasher = optWasher;
-        this.optBed = optBed;
-        this.optDesk = optDesk;
-        this.optShoeCloset = optShoeCloset;
-        this.optElectronicDoorLocks = optElectronicDoorLocks;
-        this.optBidet = optBidet;
-        this.optVeranda = optVeranda;
-        this.optElevator = optElevator;
+    }
+
+    public void updateListingInfoIfPresent(String description, Integer floor, String deposit, String monthlyFee,
+        String charterFee, String managementFee, Boolean optRefrigerator, Boolean optCloset, Boolean optTv,
+        Boolean optMicrowave, Boolean optGasRange, Boolean optInduction, Boolean optWaterPurifier,
+        Boolean optAirConditioner, Boolean optWasher, Boolean optBed, Boolean optDesk, Boolean optShoeCloset,
+        Boolean optElectronicDoorLocks, Boolean optBidet, Boolean optVeranda, Boolean optElevator) {
+        this.description = keepIfNull(description, this.description);
+        this.floor = keepIfNull(floor, this.floor);
+        this.deposit = keepIfNull(deposit, this.deposit);
+        this.monthlyFee = keepIfNull(monthlyFee, this.monthlyFee);
+        this.charterFee = keepIfNull(charterFee, this.charterFee);
+        this.managementFee = keepIfNull(managementFee, this.managementFee);
+        this.optRefrigerator = keepIfNull(optRefrigerator, this.optRefrigerator);
+        this.optCloset = keepIfNull(optCloset, this.optCloset);
+        this.optTv = keepIfNull(optTv, this.optTv);
+        this.optMicrowave = keepIfNull(optMicrowave, this.optMicrowave);
+        this.optGasRange = keepIfNull(optGasRange, this.optGasRange);
+        this.optInduction = keepIfNull(optInduction, this.optInduction);
+        this.optWaterPurifier = keepIfNull(optWaterPurifier, this.optWaterPurifier);
+        this.optAirConditioner = keepIfNull(optAirConditioner, this.optAirConditioner);
+        this.optWasher = keepIfNull(optWasher, this.optWasher);
+        this.optBed = keepIfNull(optBed, this.optBed);
+        this.optDesk = keepIfNull(optDesk, this.optDesk);
+        this.optShoeCloset = keepIfNull(optShoeCloset, this.optShoeCloset);
+        this.optElectronicDoorLocks = keepIfNull(optElectronicDoorLocks, this.optElectronicDoorLocks);
+        this.optBidet = keepIfNull(optBidet, this.optBidet);
+        this.optVeranda = keepIfNull(optVeranda, this.optVeranda);
+        this.optElevator = keepIfNull(optElevator, this.optElevator);
+    }
+
+    public void updateRentTypeAvailabilityIfPresent(Boolean isMonthlyAvailable, Boolean isCharterAvailable) {
+        this.isMonthlyAvailable = keepIfNull(isMonthlyAvailable, this.isMonthlyAvailable);
+        this.isCharterAvailable = keepIfNull(isCharterAvailable, this.isCharterAvailable);
+    }
+
+    private static <T> T keepIfNull(T newValue, T currentValue) {
+        if (newValue == null) {
+            return currentValue;
+        }
+        return newValue;
+    }
+
+    private static String toStringOrNull(Double value) {
+        if (value == null) {
+            return null;
+        }
+        return String.valueOf(value);
     }
 }

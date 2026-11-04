@@ -10,15 +10,15 @@ import in.koreatech.koin.domain.land.model.Land;
 
 public interface LandRepository extends Repository<Land, Integer> {
 
-    List<Land> findAll();
+    List<Land> findAllByIsDeletedFalse();
 
     List<Land> findAllByIsDeletedFalseAndInternalNameContaining(String internalName);
 
-    Optional<Land> findById(Integer id);
+    Optional<Land> findByIdAndIsDeletedFalse(Integer id);
 
     Land save(Land request);
 
-    default Land getById(Integer id) {
-        return findById(id).orElseThrow(() -> LandNotFoundException.withDetail("id: " + id));
+    default Land getActiveById(Integer id) {
+        return findByIdAndIsDeletedFalse(id).orElseThrow(() -> LandNotFoundException.withDetail("id: " + id));
     }
 }

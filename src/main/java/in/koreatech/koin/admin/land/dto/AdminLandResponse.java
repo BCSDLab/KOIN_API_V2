@@ -4,6 +4,9 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
@@ -107,6 +110,12 @@ public record AdminLandResponse(
     @Schema(description = "엘리베이터 보유 여부", example = "true")
     boolean optElevator,
 
+    @Schema(description = "월세 매물 여부 - 학생 목록의 월세 배지", example = "true")
+    boolean isMonthlyAvailable,
+
+    @Schema(description = "전세 매물 여부 - 학생 목록의 전세 배지", example = "false")
+    boolean isCharterAvailable,
+
     @Schema(description = "삭제(soft delete) 여부", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
     Boolean isDeleted
 ) {
@@ -144,6 +153,8 @@ public record AdminLandResponse(
             land.isOptBidet(),
             land.isOptVeranda(),
             land.isOptElevator(),
+            land.isMonthlyAvailable(),
+            land.isCharterAvailable(),
             land.isDeleted()
         );
     }
@@ -152,6 +163,15 @@ public record AdminLandResponse(
         if (imageUrls == null || imageUrls.isEmpty()) {
             return List.of();
         }
-        return List.of(imageUrls.replace("[", "").replace("]", "").replace("\"", "").split(","));
+        try {
+            return new JSONArray(imageUrls)
+                .toList()
+                .stream()
+                .map(Object::toString)
+                .toList();
+        } catch (JSONException e) {
+            // 예전 방식(따옴표를 이스케이프하지 않음)으로 저장된 값도 운영자가 열어서 고칠 수 있도록 한다.
+            return List.of(imageUrls.replace("[", "").replace("]", "").replace("\"", "").split(","));
+        }
     }
 }

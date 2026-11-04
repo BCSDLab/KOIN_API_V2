@@ -26,7 +26,7 @@ public class LandService {
     public LandsGroupResponse getLands(String query) {
         String normalizedQuery = Land.toInternalName(query);
         List<Land> foundLands = normalizedQuery.isEmpty()
-            ? landRepository.findAll()
+            ? landRepository.findAllByIsDeletedFalse()
             : landRepository.findAllByIsDeletedFalseAndInternalNameContaining(normalizedQuery);
         List<LandsResponse> lands = foundLands
             .stream()
@@ -37,7 +37,7 @@ public class LandService {
     }
 
     public LandResponse getLand(Integer id) {
-        Land land = landRepository.getById(id);
+        Land land = landRepository.getActiveById(id);
 
         String image = land.getImageUrls();
         List<String> imageUrls = null;
