@@ -7,11 +7,23 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.LandAcceptanceFixture;
@@ -19,6 +31,7 @@ import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.land.model.Land;
+import jakarta.persistence.EntityManager;
 
 class AdminLandApiTest extends AcceptanceTest {
 
@@ -30,6 +43,11 @@ class AdminLandApiTest extends AcceptanceTest {
 
     @Autowired
     private UserAcceptanceFixture userFixture;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeAll
     void setup() {
@@ -383,5 +401,207 @@ class AdminLandApiTest extends AcceptanceTest {
             softly.assertThat(undeletedLand.getName()).isEqualTo("삭제된 복덕방");
             softly.assertThat(undeletedLand.isDeleted()).isFalse();
         });
+    }
+
+    @Test
+    void 복덕방을_수정할_때_숨긴_항목을_보내지_않으면_기존_값을_유지한다() throws Exception {
+        Land land = adminLandRepository.save(
+            Land.builder()
+                .internalName("보존빌")
+                .name("보존빌")
+                .roomType("원룸")
+                .latitude("36.766")
+                .longitude("127.284")
+                .address("충청남도 천안시 동남구 병천면")
+                .phone("041-111-1111")
+                .description("1년 계약시 20만원 할인")
+                .floor(3)
+                .deposit("300")
+                .monthlyFee("30")
+                .charterFee("5000")
+                .managementFee("5")
+                .optRefrigerator(true)
+                .optWasher(true)
+                .build()
+        );
+        Map<String, Object> request = 필수값만_있는_요청("보존빌");
+        request.put("phone", "041-222-2222");
+
+        수정한다(land.getId(), request).andExpect(status().isOk());
+
+        Land updatedLand = adminLandRepository.getById(land.getId());
+        assertSoftly(softly -> {
+            softly.assertThat(updatedLand.getPhone()).isEqualTo("041-222-2222");
+            softly.assertThat(updatedLand.getDescription()).isEqualTo("1년 계약시 20만원 할인");
+            softly.assertThat(updatedLand.getFloor()).isEqualTo(3);
+            softly.assertThat(updatedLand.getDeposit()).isEqualTo("300");
+            softly.assertThat(updatedLand.getMonthlyFee()).isEqualTo("30");
+            softly.assertThat(updatedLand.getCharterFee()).isEqualTo("5000");
+            softly.assertThat(updatedLand.getManagementFee()).isEqualTo("5");
+            softly.assertThat(updatedLand.isOptRefrigerator()).isTrue();
+            softly.assertThat(updatedLand.isOptWasher()).isTrue();
+            softly.assertThat(updatedLand.isOptTv()).isFalse();
+        });
+    }
+
+    @Test
+    void 복덕방을_수정할_때_보이는_항목을_비워_보내면_비운다() throws Exception {
+        Land land = adminLandRepository.save(
+            Land.builder()
+                .internalName("비움빌")
+                .name("비움빌")
+                .roomType("원룸")
+                .size("8.0")
+                .latitude("36.766")
+                .longitude("127.284")
+                .address("충청남도 천안시 동남구 병천면")
+                .phone("041-111-1111")
+                .imageUrls(List.of("https://example.test.com/a.jpeg"))
+                .build()
+        );
+        Map<String, Object> request = 필수값만_있는_요청("비움빌");
+        request.put("phone", null);
+        request.put("image_urls", List.of());
+
+        수정한다(land.getId(), request).andExpect(status().isOk());
+
+        Land updatedLand = adminLandRepository.getById(land.getId());
+        assertSoftly(softly -> {
+            softly.assertThat(updatedLand.getPhone()).isNull();
+            softly.assertThat(updatedLand.getImageUrls()).isNull();
+            softly.assertThat(updatedLand.getSize()).isNull();
+            softly.assertThat(updatedLand.getRoomType()).isNull();
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"name", "address", "latitude", "longitude"})
+    void 복덕방을_추가할_때_필수값이_없으면_400을_응답한다(String missingField) throws Exception {
+        Map<String, Object> request = 필수값만_있는_요청("필수값추가빌" + missingField);
+        request.remove(missingField);
+
+        추가한다(request).andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"name", "address", "latitude", "longitude"})
+    void 복덕방을_수정할_때_필수값이_없으면_400을_응답하고_값을_바꾸지_않는다(String missingField) throws Exception {
+        Land land = landFixture.신안빌();
+        Map<String, Object> request = 필수값만_있는_요청("신안빌 수정");
+        request.remove(missingField);
+
+        수정한다(land.getId(), request).andExpect(status().isBadRequest());
+
+        Land unchangedLand = adminLandRepository.getById(land.getId());
+        assertSoftly(softly -> {
+            softly.assertThat(unchangedLand.getName()).isEqualTo("신안빌");
+            softly.assertThat(unchangedLand.getLatitude()).isEqualTo(37.555);
+            softly.assertThat(unchangedLand.getLongitude()).isEqualTo(126.555);
+        });
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0, 0", "0, 127.284", "36.766, 0", "40.0, 127.284", "36.766, 120.0"})
+    void 복덕방_좌표가_국내_범위를_벗어나면_400을_응답한다(double latitude, double longitude) throws Exception {
+        Map<String, Object> request = 필수값만_있는_요청("좌표빌" + latitude + longitude);
+        request.put("latitude", latitude);
+        request.put("longitude", longitude);
+
+        추가한다(request).andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" "})
+    void 사진_목록에_비어_있는_주소가_있으면_400을_응답한다(String imageUrl) throws Exception {
+        Map<String, Object> request = 필수값만_있는_요청("빈사진빌");
+        request.put("image_urls", Arrays.asList("https://example.test.com/a.jpeg", imageUrl));
+
+        추가한다(request).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 사진_주소에_쉼표가_있어도_어드민_상세에서_한_장으로_조회한다() throws Exception {
+        Land land = adminLandRepository.save(
+            Land.builder()
+                .internalName("쉼표빌")
+                .name("쉼표빌")
+                .latitude("36.766")
+                .longitude("127.284")
+                .address("충청남도 천안시 동남구 병천면")
+                .imageUrls(List.of("https://example.test.com/a,b.jpeg", "https://example.test.com/\"c\".jpeg"))
+                .build()
+        );
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                get("/admin/lands/{id}", land.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.image_urls.length()").value(2))
+            .andExpect(jsonPath("$.image_urls[0]").value("https://example.test.com/a,b.jpeg"))
+            .andExpect(jsonPath("$.image_urls[1]").value("https://example.test.com/\"c\".jpeg"));
+    }
+
+    @Test
+    void 예전_방식으로_저장된_사진_문자열도_어드민_상세에서_조회한다() throws Exception {
+        Land land = adminLandRepository.save(
+            Land.builder()
+                .internalName("예전사진빌")
+                .name("예전사진빌")
+                .latitude("36.766")
+                .longitude("127.284")
+                .address("충청남도 천안시 동남구 병천면")
+                .build()
+        );
+        entityManager.flush();
+        entityManager.createNativeQuery("UPDATE lands SET image_urls = :imageUrls WHERE id = :id")
+            .setParameter("imageUrls", "[\"https://example.test.com/a\"b.jpeg\",\"https://example.test.com/c.jpeg\"]")
+            .setParameter("id", land.getId())
+            .executeUpdate();
+        entityManager.clear();
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                get("/admin/lands/{id}", land.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.image_urls.length()").value(2))
+            .andExpect(jsonPath("$.image_urls[1]").value("https://example.test.com/c.jpeg"));
+    }
+
+    private Map<String, Object> 필수값만_있는_요청(String name) {
+        Map<String, Object> request = new HashMap<>();
+        request.put("name", name);
+        request.put("address", "충청남도 천안시 동남구 병천면");
+        request.put("latitude", 36.766);
+        request.put("longitude", 127.284);
+        return request;
+    }
+
+    private ResultActions 추가한다(Map<String, Object> request) throws Exception {
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+        return mockMvc.perform(
+            post("/admin/lands")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        );
+    }
+
+    private ResultActions 수정한다(Integer landId, Map<String, Object> request) throws Exception {
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+        return mockMvc.perform(
+            put("/admin/lands/{id}", landId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        );
     }
 }
