@@ -3,10 +3,12 @@ package in.koreatech.koin.acceptance.domain;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -15,6 +17,8 @@ import org.springframework.http.MediaType;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.LandAcceptanceFixture;
+import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.admin.manager.model.Admin;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.land.repository.LandRepository;
 
@@ -25,6 +29,14 @@ class LandApiTest extends AcceptanceTest {
 
     @Autowired
     private LandRepository landRepository;
+
+    @Autowired
+    private UserAcceptanceFixture userFixture;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 복덕방_리스트를_조회한다() throws Exception {
@@ -153,7 +165,7 @@ class LandApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.opt_elevator").value(false))
             .andExpect(jsonPath("$.address").value("충청남도 천안시 동남구 병천면"));
 
-        Land savedLand = landRepository.getById(land.getId());
+        Land savedLand = landRepository.getActiveById(land.getId());
         assertSoftly(softly -> {
             softly.assertThat(savedLand.getDescription()).isEqualTo("1년 계약시 20만원 할인");
             softly.assertThat(savedLand.getMonthlyFee()).isEqualTo("30");
@@ -250,5 +262,71 @@ class LandApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.lands[0].charter_fee").value(nullValue()))
             .andExpect(jsonPath("$.lands[0].is_monthly_available").value(true))
             .andExpect(jsonPath("$.lands[0].is_charter_available").value(false));
+    }
+
+    @Test
+    void 복덕방_리스트에서_삭제된_건물은_제외한다() throws Exception {
+        landFixture.신안빌();
+        landFixture.삭제된_복덕방();
+
+        mockMvc.perform(
+                get("/lands")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands.length()").value(1))
+            .andExpect(jsonPath("$.lands[0].name").value("신안빌"));
+    }
+
+    @Test
+    void 삭제된_복덕방을_단일_조회하면_404를_응답한다() throws Exception {
+        Land deletedLand = landFixture.삭제된_복덕방();
+
+        mockMvc.perform(
+                get("/lands/{id}", deletedLand.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void 어드민에서_복구한_복덕방은_같은_ID로_다시_조회된다() throws Exception {
+        Land deletedLand = landFixture.삭제된_복덕방();
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
+
+        mockMvc.perform(
+                get("/admin/lands")
+                    .header("Authorization", "Bearer " + token)
+                    .param("page", "1")
+                    .param("is_deleted", "true")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands[0].id").value(deletedLand.getId()));
+        mockMvc.perform(
+                get("/admin/lands/{id}", deletedLand.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.is_deleted").value(true));
+
+        mockMvc.perform(
+                post("/admin/lands/{id}/undelete", deletedLand.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk());
+
+        mockMvc.perform(
+                get("/lands/{id}", deletedLand.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(deletedLand.getId()));
+        mockMvc.perform(
+                get("/lands")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lands[0].id").value(deletedLand.getId()));
     }
 }

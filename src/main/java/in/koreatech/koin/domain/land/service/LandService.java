@@ -24,7 +24,7 @@ public class LandService {
     private final LandRepository landRepository;
 
     public LandsGroupResponse getLands() {
-        List<LandsResponse> lands = landRepository.findAll()
+        List<LandsResponse> lands = landRepository.findAllByIsDeletedFalse()
             .stream()
             .map(LandsResponse::from)
             .toList();
@@ -33,7 +33,7 @@ public class LandService {
     }
 
     public LandResponse getLand(Integer id) {
-        Land land = landRepository.getById(id);
+        Land land = landRepository.getActiveById(id);
 
         String image = land.getImageUrls();
         List<String> imageUrls = null;
