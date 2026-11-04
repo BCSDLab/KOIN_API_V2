@@ -140,7 +140,7 @@ public record AdminLandRequest(
     public Land toLand() {
         return Land.builder()
             .name(name)
-            .internalName(name.trim().replace(" ", "").toLowerCase())
+            .internalName(Land.toInternalName(name))
             .size(toStringOrNull(size))
             .roomType(roomType)
             .latitude(String.valueOf(latitude))

@@ -90,4 +90,30 @@ public class LandAcceptanceFixture {
                 .build()
         );
     }
+
+    public Land 별밭하우스() {
+        return landRepository.save(
+            Land.builder()
+                .internalName("별밭하우스")
+                .name("별밭하우스")
+                .roomType("원룸")
+                .latitude("36.765")
+                .longitude("127.282")
+                .address("충남 천안시 동남구 병천면")
+                .build()
+        );
+    }
+
+    public Land 코인하우스() {
+        return landRepository.save(
+            Land.builder()
+                .internalName("koinhouse")
+                .name("KOIN House")
+                .roomType("투룸")
+                .latitude("36.765")
+                .longitude("127.282")
+                .address("충남 천안시 동남구 병천면")
+                .build()
+        );
+    }
 }

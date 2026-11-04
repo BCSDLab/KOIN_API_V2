@@ -269,6 +269,10 @@ public class Land extends BaseEntity {
         return new JSONArray(imageUrls).toString();
     }
 
+    public static String toInternalName(String name) {
+        return name.replaceAll("[\\s\\p{Z}]+", "").toLowerCase();
+    }
+
     public void delete() {
         this.isDeleted = true;
     }

@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.land.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.land.dto.LandResponse;
@@ -17,8 +18,10 @@ public class LandController implements LandApi {
     private final LandService landService;
 
     @GetMapping("/lands")
-    public ResponseEntity<LandsGroupResponse> getLands() {
-        LandsGroupResponse responses = landService.getLands();
+    public ResponseEntity<LandsGroupResponse> getLands(
+        @RequestParam(required = false, defaultValue = "") String query
+    ) {
+        LandsGroupResponse responses = landService.getLands(query);
         return ResponseEntity.ok(responses);
     }
 

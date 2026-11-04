@@ -23,8 +23,12 @@ public class LandService {
 
     private final LandRepository landRepository;
 
-    public LandsGroupResponse getLands() {
-        List<LandsResponse> lands = landRepository.findAllByIsDeletedFalse()
+    public LandsGroupResponse getLands(String query) {
+        String normalizedQuery = Land.toInternalName(query);
+        List<Land> foundLands = normalizedQuery.isEmpty()
+            ? landRepository.findAllByIsDeletedFalse()
+            : landRepository.findAllByIsDeletedFalseAndInternalNameContaining(normalizedQuery);
+        List<LandsResponse> lands = foundLands
             .stream()
             .map(LandsResponse::from)
             .toList();

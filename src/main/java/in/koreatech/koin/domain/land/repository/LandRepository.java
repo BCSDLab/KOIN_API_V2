@@ -12,6 +12,8 @@ public interface LandRepository extends Repository<Land, Integer> {
 
     List<Land> findAllByIsDeletedFalse();
 
+    List<Land> findAllByIsDeletedFalseAndInternalNameContaining(String internalName);
+
     Optional<Land> findByIdAndIsDeletedFalse(Integer id);
 
     Land save(Land request);
