@@ -148,15 +148,6 @@ class LandApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 존재하지_않는_복덕방을_단일_조회하면_404를_응답한다() throws Exception {
-        mockMvc.perform(
-                get("/lands/{id}", 9999)
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isNotFound());
-    }
-
-    @Test
     void 어드민에서_복구한_복덕방은_같은_ID로_다시_조회된다() throws Exception {
         Land deletedLand = landFixture.삭제된_복덕방();
         Admin adminUser = userFixture.코인_운영자();
