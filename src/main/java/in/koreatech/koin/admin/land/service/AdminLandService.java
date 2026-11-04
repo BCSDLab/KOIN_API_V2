@@ -53,8 +53,8 @@ public class AdminLandService {
     @Transactional
     public void updateLand(Integer id, AdminLandRequest request) {
         Land land = adminLandRepository.getById(id);
-        land.update(
-            request.name().trim().replace(" ","").toLowerCase(),
+        land.updateBasicInfo(
+            request.name().trim().replace(" ", "").toLowerCase(),
             request.name(),
             request.size(),
             request.roomType(),
@@ -62,7 +62,9 @@ public class AdminLandService {
             request.longitude(),
             request.phone(),
             request.imageUrls(),
-            request.address(),
+            request.address()
+        );
+        land.updateListingInfoIfPresent(
             request.description(),
             request.floor(),
             request.deposit(),
