@@ -4,6 +4,9 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
@@ -152,6 +155,15 @@ public record AdminLandResponse(
         if (imageUrls == null || imageUrls.isEmpty()) {
             return List.of();
         }
-        return List.of(imageUrls.replace("[", "").replace("]", "").replace("\"", "").split(","));
+        try {
+            return new JSONArray(imageUrls)
+                .toList()
+                .stream()
+                .map(Object::toString)
+                .toList();
+        } catch (JSONException e) {
+            // 예전 방식(따옴표를 이스케이프하지 않음)으로 저장된 값도 운영자가 열어서 고칠 수 있도록 한다.
+            return List.of(imageUrls.replace("[", "").replace("]", "").replace("\"", "").split(","));
+        }
     }
 }
