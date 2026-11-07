@@ -34,7 +34,7 @@ public class ArticleSearchKeywordIpMap extends BaseEntity {
     @JoinColumn(name = "keyword_id", nullable = false)
     private ArticleSearchKeyword articleSearchKeyword;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 45)
     private String ipAddress;
 
     @Column(nullable = false)

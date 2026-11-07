@@ -34,9 +34,8 @@ public class IpAddressInterceptor implements HandlerInterceptor {
         if (ip == null) {
             ip = request.getHeader("HTTP_X_FORWARDED_FOR");
         }
-        if (ip == null) {
-            ip = request.getRemoteAddr();
-        }
-        return ip;
+        return IpAddressParser.parse(ip)
+            .or(() -> IpAddressParser.parse(request.getRemoteAddr()))
+            .orElse(null);
     }
 }
