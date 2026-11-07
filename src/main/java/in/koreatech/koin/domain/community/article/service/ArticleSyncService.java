@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,9 +12,10 @@ import java.util.Set;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import in.koreatech.koin.domain.community.article.dto.BusArticleProjection;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -27,6 +29,7 @@ import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywor
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
+import in.koreatech.koin.global.ipaddress.IpAddressParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -112,27 +115,32 @@ public class ArticleSyncService {
 
     @Transactional
     public void synchronizeKeywords() {
-        Set<TypedTuple<Object>> topKeywords = redisTemplate.opsForZSet()
-            .reverseRangeWithScores(KEYWORD_SET, 0, -1);
-
-        if (topKeywords == null || topKeywords.isEmpty()) {
-            clearStoredData();
-            return;
-        }
-
-        syncAllIpSearchCounts();
-        clearStoredData();
+        Set<String> synchronizedIpKeys = syncAllIpSearchCounts();
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                clearStoredData(synchronizedIpKeys);
+            }
+        });
     }
 
-    private void syncAllIpSearchCounts() {
+    private Set<String> syncAllIpSearchCounts() {
         Set<String> ipKeys = redisTemplate.keys(IP_SEARCH_COUNT_PREFIX + "*");
         if (ipKeys == null || ipKeys.isEmpty()) {
-            return;
+            return Set.of();
         }
 
+        Set<String> synchronizedIpKeys = new HashSet<>();
+        int invalidIpCount = 0;
         for (String ipKey : ipKeys) {
+            Optional<String> parsedIpAddress = IpAddressParser.parse(ipKey.substring(IP_SEARCH_COUNT_PREFIX.length()));
+            if (parsedIpAddress.isEmpty()) {
+                invalidIpCount++;
+                continue;
+            }
+
             Map<Object, Object> keywordSearchCounts = redisTemplate.opsForHash().entries(ipKey);
-            String ipAddress = ipKey.replace(IP_SEARCH_COUNT_PREFIX, "");
+            String ipAddress = parsedIpAddress.get();
 
             for (Map.Entry<Object, Object> entry : keywordSearchCounts.entrySet()) {
                 String searchedKeyword = (String)entry.getKey();
@@ -158,23 +166,25 @@ public class ArticleSyncService {
                         );
                 });
             }
-            redisTemplate.delete(ipKey);
+            synchronizedIpKeys.add(ipKey);
         }
+        if (invalidIpCount > 0) {
+            log.warn("IP 형식을 확인할 수 없는 검색 집계 {}개는 동기화에서 제외하고 Redis에 보존합니다.", invalidIpCount);
+        }
+        return synchronizedIpKeys;
     }
 
-    @Transactional
-    public void clearStoredData() {
+    private void clearStoredData(Set<String> synchronizedIpKeys) {
         try {
             redisTemplate.delete(KEYWORD_SET);
             log.info("키워드 집계 데이터 초기화 완료");
 
-            Set<String> ipSearchKeys = redisTemplate.keys(IP_SEARCH_COUNT_PREFIX + "*");
-            if (ipSearchKeys != null && !ipSearchKeys.isEmpty()) {
-                redisTemplate.delete(ipSearchKeys);
-                log.info("IP별 검색 통계 초기화 완료");
+            if (!synchronizedIpKeys.isEmpty()) {
+                redisTemplate.delete(synchronizedIpKeys);
+                log.info("동기화한 IP별 검색 통계 {}개 정리 완료", synchronizedIpKeys.size());
             }
         } catch (Exception e) {
-            log.error("데이터 초기화 중 오류 발생", e);
+            log.error("DB 커밋 후 Redis 검색 집계 정리 중 오류 발생", e);
         }
     }
 
