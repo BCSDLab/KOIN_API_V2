@@ -52,7 +52,8 @@ public record ArticleAiSummaryResponse(
         @Schema(description = "요약 항목 아이콘", example = "📅", requiredMode = REQUIRED)
         String icon,
 
-        @Schema(description = "요약 내용", example = "신청은 5월 20일까지 접수됩니다.", requiredMode = REQUIRED)
+        @Schema(description = "요약 내용. 새 한국어 요약은 공백 포함 최대 100자이며, 갱신 전 기존 요약은 더 길 수 있습니다.",
+            example = "신청은 5월 20일까지 접수됩니다.", requiredMode = REQUIRED)
         String text
     ) {
 

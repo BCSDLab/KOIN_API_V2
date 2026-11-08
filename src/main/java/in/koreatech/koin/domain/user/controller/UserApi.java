@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.code.ApiResponseCodes;
+import in.koreatech.koin.global.exception.ErrorResponse;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
@@ -80,12 +81,22 @@ public interface UserApi {
     );
 
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200"),
-        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        @ApiResponse(responseCode = "200", description = "현재 서버 선호 언어 조회 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 정보가 없거나 유효하지 않음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "허용되지 않은 회원 유형 또는 웹 쿠키 요청의 출처 검증 실패",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @Operation(summary = "내 언어 조회", description = "일반·학생·총학생회의 언어 설정을 조회합니다. 미설정이거나 더 이상 지원하지 않는 저장값은 ko-KR로 반환하며 저장값은 변경하지 않습니다.")
+    @Operation(
+        summary = "내 서버 선호 언어 조회",
+        description = "일반·학생·총학생회의 서버 선호 언어를 확인합니다. "
+            + "미설정이거나 더 이상 지원하지 않는 저장값은 ko-KR로 반환하며 저장값은 변경하지 않습니다. "
+            + "Bearer 또는 웹 쿠키로 인증하며, 웹 쿠키 요청에는 허용된 Origin 또는 Referer 출처가 필요합니다. "
+            + "클라이언트는 로그인·로그아웃에도 기기 UI 언어를 유지하며 이 응답으로 자동 덮어쓰지 않습니다. "
+            + "알림 언어 적용은 아직 구현하지 않았습니다."
+    )
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/users/me/language")
     ResponseEntity<UserLanguageResponse> getLanguage(
@@ -93,13 +104,26 @@ public interface UserApi {
     );
 
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200"),
-        @ApiResponse(responseCode = "400", description = "필수 코드 누락 또는 지원하지 않는 코드(UNSUPPORTED_LANGUAGE)", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        @ApiResponse(responseCode = "200", description = "서버 선호 언어 저장 성공"),
+        @ApiResponse(responseCode = "400", description = "필수 코드 누락·잘못된 입력 또는 지원하지 않는 코드(UNSUPPORTED_LANGUAGE)",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증 정보가 없거나 유효하지 않음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "허용되지 않은 회원 유형 또는 웹 쿠키 요청의 Origin·CSRF 검증 실패",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @Operation(summary = "내 언어 변경", description = "GET /languages의 코드로 본인 언어만 변경합니다. en-us와 같은 대소문자 차이는 en-US로 정규화합니다. 같은 코드를 다시 보내도 성공합니다.")
+    @Operation(
+        summary = "내 서버 선호 언어 변경",
+        description = "GET /languages의 코드로 본인 서버 선호 언어만 변경합니다. "
+            + "en-us와 같은 대소문자 차이는 en-US로 정규화하며 같은 코드의 재요청도 성공합니다. "
+            + "서버 미설정 기본값은 ko-KR입니다. 웹 쿠키 인증으로 PATCH할 때는 허용된 Origin 또는 Referer 출처와 "
+            + "현재 세션의 X-CSRF-Token 헤더가 필요합니다. Bearer 인증에는 이 쿠키용 CSRF 조건을 적용하지 않습니다. "
+            + "FE에서는 로그인 시와 명시적인 언어 변경 시 기기 선택을 동기화하는 흐름을 제안합니다. "
+            + "서버 저장이 실패해도 기기 UI 언어를 유지하고 동기화 재시도를 제공합니다. "
+            + "여러 기기에서 변경하면 서버에는 마지막으로 실제 저장된 값이 남으며, 기기별 푸시 언어 정책은 미확정입니다."
+    )
     @SecurityRequirement(name = "Jwt Authentication")
     @PatchMapping("/users/me/language")
     ResponseEntity<UserLanguageResponse> updateLanguage(
