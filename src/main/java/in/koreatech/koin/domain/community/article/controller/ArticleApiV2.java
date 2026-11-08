@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Articles V2: 게시글", description = "게시글 정보를 관리한다")
@@ -36,6 +37,7 @@ public interface ArticleApiV2 {
         기존에 저장한 긴 요약은 새 요약이 성공할 때까지 반환될 수 있으므로 클라이언트에서 100자 기준으로 잘라내지 않습니다.
         이 API는 표시 언어에 맞춰 번역하지 않습니다. 요약 번역 API와 원문 버전 필드는 후속 구현 대상입니다.
         """)
+    @SecurityRequirements
     @GetMapping("/{id}")
     ResponseEntity<ArticleResponseV2> getArticleV2(
         @RequestParam(required = false) Integer boardId,
