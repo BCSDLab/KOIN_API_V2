@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryOption;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceTransferData;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,30 +26,32 @@ public record ShopOrderServiceRequestRequest(
     @NotNull(message = "포장 가능 여부는 필수입니다.")
     Boolean isTakeout,
 
-    @Schema(description = "배달 옵션 (CAMPUS/OUTSIDE/BOTH)", example = "BOTH", requiredMode = REQUIRED)
+    @Schema(description = "배달 옵션 (CAMPUS/OFF_CAMPUS/BOTH)", example = "BOTH", requiredMode = REQUIRED)
     @NotNull(message = "배달 옵션은 필수입니다.")
     ShopOrderServiceRequestDeliveryOption deliveryOption,
 
-    @Schema(description = "교내 배달팁", example = "1000", requiredMode = REQUIRED)
-    @NotNull(message = "교내 배달팁은 필수입니다.")
-    @Min(value = 0, message = "교내 배달팁은 0원 이상이어야 합니다.")
-    Integer campusDeliveryTip,
+    @Schema(description = "공통 배달비", example = "1000", requiredMode = REQUIRED)
+    @NotNull(message = "공통 배달비는 필수입니다.")
+    @Min(value = 0, message = "배달비는 0원 이상이어야 합니다.")
+    Integer deliveryTip,
 
-    @Schema(description = "교외 배달팁", example = "2000", requiredMode = REQUIRED)
-    @NotNull(message = "교외 배달팁은 필수입니다.")
-    @Min(value = 0, message = "교외 배달팁은 0원 이상이어야 합니다.")
-    Integer offCampusDeliveryTip,
+    @Schema(description = "신청 시 확정한 이관 데이터", requiredMode = REQUIRED)
+    @NotNull @Valid
+    ShopOrderServiceTransferData transferData,
 
     @Schema(description = "사업자 등록증 URL", example = "https://example.com/business_license.jpg", requiredMode = REQUIRED)
     @NotBlank(message = "사업자 등록증 URL은 필수입니다.")
+    @Size(max = 255)
     String businessLicenseUrl,
 
     @Schema(description = "영업 신고증 URL", example = "https://example.com/business_certificate.jpg", requiredMode = REQUIRED)
     @NotBlank(message = "영업 신고증 URL은 필수입니다.")
+    @Size(max = 255)
     String businessCertificateUrl,
 
     @Schema(description = "통장 사본 URL", example = "https://example.com/bank_copy.jpg", requiredMode = REQUIRED)
     @NotBlank(message = "통장 사본 URL은 필수입니다.")
+    @Size(max = 255)
     String bankCopyUrl,
 
     @Schema(description = "은행명", example = "국민은행", requiredMode = REQUIRED)

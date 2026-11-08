@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.ownershop.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +21,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -58,6 +63,13 @@ public class ShopOrderServiceRequest extends BaseEntity {
 
     @Column(name = "off_campus_delivery_tip", nullable = false)
     private Integer offCampusDeliveryTip = 0;
+
+    @Column(name = "delivery_tip")
+    private Integer deliveryTip;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "transfer_data", columnDefinition = "JSON", updatable = false)
+    private ShopOrderServiceTransferData transferData;
 
     @NotNull
     @Column(name = "business_license_url", nullable = false)
@@ -100,20 +112,30 @@ public class ShopOrderServiceRequest extends BaseEntity {
         String businessCertificateUrl,
         String bankCopyUrl,
         String bank,
-        String accountNumber
+        String accountNumber,
+        Integer deliveryTip,
+        ShopOrderServiceTransferData transferData
     ) {
         this.shop = shop;
         this.minimumOrderAmount = minimumOrderAmount;
         this.isTakeout = isTakeout;
         this.deliveryOption = deliveryOption;
-        this.campusDeliveryTip = campusDeliveryTip;
-        this.offCampusDeliveryTip = offCampusDeliveryTip;
+        this.campusDeliveryTip = campusDeliveryTip == null ? 0 : campusDeliveryTip;
+        this.offCampusDeliveryTip = offCampusDeliveryTip == null ? 0 : offCampusDeliveryTip;
         this.businessLicenseUrl = businessLicenseUrl;
         this.businessCertificateUrl = businessCertificateUrl;
         this.bankCopyUrl = bankCopyUrl;
         this.bank = bank;
         this.accountNumber = accountNumber;
+        this.deliveryTip = deliveryTip;
+        this.transferData = transferData;
         this.approvedAt = null;
+    }
+
+    public void requirePending() {
+        if (requestStatus != PENDING) {
+            throw CustomException.of(ApiResponseCode.ORDER_SERVICE_REQUEST_ALREADY_PROCESSED);
+        }
     }
 
     public void approve() {

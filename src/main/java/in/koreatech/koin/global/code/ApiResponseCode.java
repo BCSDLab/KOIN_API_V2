@@ -191,6 +191,8 @@ public enum ApiResponseCode {
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.CONFLICT, "이미 처리된 요청입니다."),
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
     DUPLICATE_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
+    ORDER_SERVICE_REQUEST_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 주문 서비스 신청입니다."),
+    ORDER_SERVICE_TRANSFER_DATA_REQUIRED(HttpStatus.CONFLICT, "이관 데이터와 공통 배달비가 없는 기존 신청은 재신청이 필요합니다."),
     DUPLICATE_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 주문 가능한 상점입니다."),
     DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "이미 존재하는 학기입니다."),
     OVERLAPPING_SEMESTER_DATE_RANGE(HttpStatus.CONFLICT, "학기 기간이 기존 학기와 겹칩니다."),

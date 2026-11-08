@@ -10,10 +10,21 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 public interface ShopRepository extends Repository<Shop, Integer> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM Shop s WHERE s.id = :shopId")
+    Optional<Shop> findByIdForUpdate(@Param("shopId") Integer shopId);
+
+    default Shop getByIdForUpdate(Integer shopId) {
+        return findByIdForUpdate(shopId)
+            .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
+    }
 
     Shop save(Shop shop);
 

@@ -37,4 +37,10 @@ public class OrderableShopDeliveryOption extends BaseEntity {
     @JoinColumn(name = "orderable_shop_id", nullable = false)
     private OrderableShop orderableShop;
 
+
+    public OrderableShopDeliveryOption(OrderableShop orderableShop, boolean campusDelivery, boolean offCampusDelivery) {
+        this.orderableShop = orderableShop;
+        this.campusDelivery = campusDelivery;
+        this.offCampusDelivery = offCampusDelivery;
+    }
 }

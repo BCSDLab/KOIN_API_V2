@@ -14,6 +14,13 @@ import in.koreatech.koin.global.exception.CustomException;
 
 public interface OrderableShopRepository extends JpaRepository<OrderableShop, Integer> {
 
+    @Query(value = "SELECT COUNT(*) FROM orderable_shop WHERE shop_id = :shopId", nativeQuery = true)
+    long countIncludingDeletedByShopId(@Param("shopId") Integer shopId);
+
+    default boolean existsByShopId(Integer shopId) {
+        return countIncludingDeletedByShopId(shopId) > 0;
+    }
+
     @Query("""
             SELECT new in.koreatech.koin.domain.order.shop.model.domain.OrderableShopInfoSummary(
                 s.id,

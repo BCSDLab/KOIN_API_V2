@@ -39,4 +39,9 @@ public class OrderableShopMenuGroupMap extends BaseEntity {
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    public OrderableShopMenuGroupMap(OrderableShopMenuGroup menuGroup, OrderableShopMenu menu) {
+        this.menuGroup = menuGroup;
+        this.menu = menu;
+    }
 }

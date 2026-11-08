@@ -42,4 +42,10 @@ public class OrderableShopMenuImage extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+
+    public OrderableShopMenuImage(OrderableShopMenu menu, String imageUrl, boolean isThumbnail) {
+        this.menu = menu;
+        this.imageUrl = imageUrl;
+        this.isThumbnail = isThumbnail;
+    }
 }

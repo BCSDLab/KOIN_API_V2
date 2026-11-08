@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.ownershop.dto.ShopOrderServiceRequestRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
@@ -20,21 +21,23 @@ public class ShopOrderServiceRequestService {
 
     private final ShopOrderServiceRequestRepository shopOrderServiceRequestRepository;
     private final ShopRepository shopRepository;
+    private final OrderableShopRepository orderableShopRepository;
 
     @Transactional
     public void createOrderableRequest(Integer ownerId, ShopOrderServiceRequestRequest request, Integer shopId) {
-        Shop shop = shopRepository.getById(shopId);
+        Shop shop = shopRepository.getByIdForUpdate(shopId);
 
         validateShopOwner(shop, ownerId);
         validateDuplicateRequest(shop);
+        request.transferData().validateFor(shop);
 
         ShopOrderServiceRequest shopOrderServiceRequest = ShopOrderServiceRequest.builder()
             .shop(shop)
             .minimumOrderAmount(request.minimumOrderAmount())
             .isTakeout(request.isTakeout())
             .deliveryOption(request.deliveryOption())
-            .campusDeliveryTip(request.campusDeliveryTip())
-            .offCampusDeliveryTip(request.offCampusDeliveryTip())
+            .deliveryTip(request.deliveryTip())
+            .transferData(request.transferData())
             .businessLicenseUrl(request.businessLicenseUrl())
             .businessCertificateUrl(request.businessCertificateUrl())
             .bankCopyUrl(request.bankCopyUrl())
@@ -59,7 +62,8 @@ public class ShopOrderServiceRequestService {
         }
 
         // 이미 주문가능 상점인지 확인
-        if (shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(shop.getId(), APPROVED)) {
+        if (orderableShopRepository.existsByShopId(shop.getId())
+            || shopOrderServiceRequestRepository.existsByShopIdAndRequestStatus(shop.getId(), APPROVED)) {
             throw CustomException.of(DUPLICATE_ORDERABLE_SHOP, "shopId: " + shop.getId());
         }
     }

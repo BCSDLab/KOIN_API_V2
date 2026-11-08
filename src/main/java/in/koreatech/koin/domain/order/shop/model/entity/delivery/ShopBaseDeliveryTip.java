@@ -42,4 +42,11 @@ public class ShopBaseDeliveryTip extends BaseEntity {
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
+
+    public ShopBaseDeliveryTip(Shop shop, Integer orderAmount, Integer fee) {
+        this.shop = shop;
+        this.orderAmount = orderAmount;
+        this.fee = fee;
+        this.isDeleted = false;
+    }
 }

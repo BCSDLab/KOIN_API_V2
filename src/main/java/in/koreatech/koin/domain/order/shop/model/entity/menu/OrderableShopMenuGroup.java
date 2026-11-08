@@ -48,4 +48,9 @@ public class OrderableShopMenuGroup extends BaseEntity {
     @OneToMany(mappedBy = "menuGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuGroupMap> menuGroupMap = new ArrayList<>();
 
+
+    public OrderableShopMenuGroup(OrderableShop orderableShop, String name) {
+        this.orderableShop = orderableShop;
+        this.name = name;
+    }
 }

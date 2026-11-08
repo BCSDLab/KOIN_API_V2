@@ -355,4 +355,9 @@ public class Shop extends BaseEntity {
     public boolean isOwner(Integer ownerId) {
         return this.owner != null && this.owner.getId().equals(ownerId);
     }
+
+    public void changeOrderServiceAccount(String bank, String accountNumber) {
+        this.bank = bank;
+        this.accountNumber = accountNumber;
+    }
 }
