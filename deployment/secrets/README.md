@@ -13,3 +13,5 @@ startup gate, receipt verification and rollback belong to the DevOps repository.
 Do not merge this workflow change before the staging host deployment wrapper is installed.
 A sanitized JAR cannot use the old `.env.dev` / `java -jar` startup path. The production
 workflow and main branch keep their current behavior until separately authorized.
+
+Manifest schema v2 groups secrets by `kv/stage/koin-api/{purpose}` and records per-key purpose/target. Runtime generation requires a reviewed release lock pinning every source version; no secret values are tracked. Agent authentication and file rendering passed, but the running stage app still uses the original startup path. Do not merge yet.

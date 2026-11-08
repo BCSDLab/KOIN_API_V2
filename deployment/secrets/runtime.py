@@ -19,25 +19,39 @@ def now():
 
 def contract(path):
     m = json.loads(Path(path).read_text())
-    assert set(m) == {'schemaVersion','service','environment','mode','owner','path','entries'}
-    assert m['schemaVersion'] == 1
+    assert set(m) == {'schemaVersion','service','environment','mode','owner','sources','entries'}
+    assert m['schemaVersion'] == 2
     assert re.fullmatch(r'[a-z][a-z0-9-]{1,63}', m['service'])
-    assert m['environment'] in ('stage', 'prod')
-    assert m['mode'] in ('managed', 'observe')
-    assert re.fullmatch(r'kv/(stage|prod)/[a-z0-9-]+/runtime', m['path'])
-    assert m['path'].split('/')[1:3] == [m['environment'], m['service']]
-    assert m['entries'] and len(m['entries']) <= 200
-    names, targets = set(), set()
+    assert m['environment'] in ('stage','prod') and m['mode'] in ('managed','observe')
+    assert m['sources'] and len(m['sources']) <= 20
+    for group, source in m['sources'].items():
+        assert re.fullmatch(r'[a-z][a-z0-9-]{1,40}',group)
+        assert set(source)=={'path','purpose'} and source['purpose']
+        assert source['path']=='kv/'+m['environment']+'/'+m['service']+'/'+group
+    assert 0 < len(m['entries']) <= 200
+    names, targets, groups = set(),set(),set()
     for e in m['entries']:
-        assert set(e) == {'key','target','format'}
-        assert re.fullmatch(r'[A-Z][A-Z0-9_]{0,100}', e['key'])
-        assert e['key'] not in names
+        assert set(e)=={'key','target','format','source','purpose'}
+        assert e['source'] in m['sources'] and e['purpose']
+        groups.add(e['source'])
+        assert re.fullmatch(r'[A-Z][A-Z0-9_]{0,100}',e['key']) and e['key'] not in names
         names.add(e['key'])
-        assert e['format'] in ('text', 'json')
-        assert re.fullmatch(r'(configtree|files)/[A-Za-z0-9_.-]+', e['target'])
-        assert e['target'] not in targets
+        assert e['format'] in ('text','json')
+        assert re.fullmatch(r'(configtree|files)/[A-Za-z0-9_.-]+',e['target']) and e['target'] not in targets
         targets.add(e['target'])
+    assert groups==set(m['sources'])
     return m
+
+
+def release_lock(m,path):
+    lock=json.loads(Path(path).read_text())
+    assert set(lock)=={'schemaVersion','service','environment','manifestRevision','releaseId','versions'}
+    assert lock['schemaVersion']==1 and lock['service']==m['service'] and lock['environment']==m['environment']
+    assert lock['manifestRevision']==revision(m)
+    assert re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}',lock['releaseId'])
+    assert set(lock['versions'])==set(m['sources'])
+    assert all(type(v) is int and v>0 for v in lock['versions'].values())
+    return lock
 
 
 def revision(m):
@@ -58,27 +72,30 @@ def atomic(path, data, mode=0o600):
         if os.path.exists(tmp): os.unlink(tmp)
 
 
-def generate(m, directory, address):
+def generate(m, directory, address, lock):
     assert m['environment'] == 'stage' and m['mode'] == 'managed', 'generation enabled for stage only'
     assert re.fullmatch(r'https://[A-Za-z0-9.:-]+', address)
     out = Path(directory)
     out.mkdir(parents=True, exist_ok=True)
     base = '/etc/bcsd-secrets/' + m['environment'] + '-' + m['service']
     run = '/run/bcsd-secrets/' + m['environment'] + '-' + m['service']
-    path = m['path'].replace('kv/', 'kv/data/', 1)
-    template = '{{ with secret "' + path + '" }}{{ .Data | toJSON }}{{ end }}'
+    paths={g:v['path'].replace('kv/','kv/data/',1) for g,v in m['sources'].items()}
+    parts=[]
+    for group,path in paths.items():
+        parts.append(json.dumps(group)+':{{ with secret '+json.dumps(path+'?version='+str(lock['versions'][group]))+' }}{{ .Data | toJSON }}{{ end }}')
+    template='{"releaseId":'+json.dumps(lock['releaseId'])+',"manifestRevision":'+json.dumps(revision(m))+',"sources":{'+','.join(parts)+'}}'
     hcl = '''vault {
  address = ADDRESS
  ca_cert = BASE_CA
  tls_server_name = "localhost"
+ client_cert = CERT
+ client_key = KEY
 }
 auto_auth {
  method "cert" {
   mount_path = "auth/cert"
   config = {
    name = ROLE
-   client_cert = CERT
-   client_key = KEY
   }
  }
 }
@@ -97,7 +114,8 @@ template {
         hcl = hcl.replace(k, json.dumps(v))
     (out/'agent.hcl').write_text(hcl)
     (out/'agent-once.hcl').write_text('exit_after_auth = true\n' + hcl)
-    (out/'policy.hcl').write_text('path '+json.dumps(path)+' { capabilities = ["read"] }\n')
+    (out/'policy.hcl').write_text(''.join('path '+json.dumps(path)+' { capabilities = ["read"] }\n' for path in paths.values()))
+    atomic(out/'release-lock.json',lock)
     (out/'agent.service').write_text("""[Unit]
 Description=BCSD stage service secret agent
 After=network-online.target
@@ -127,17 +145,22 @@ def private_file(path):
     assert stat.S_ISREG(s.st_mode) and not s.st_mode & 0o077, 'input must be private regular file'
 
 
-def materialize(m, candidate, root, uid=None, gid=None):
+def materialize(m, candidate, root, uid=None, gid=None, lock=None):
     assert m['mode'] == 'managed' and m['environment'] == 'stage'
     private_file(candidate)
     assert Path(candidate).stat().st_size < 1024 * 1024
     body = json.loads(Path(candidate).read_text())
-    version = body['metadata']['version']
-    assert type(version) is int and version > 0
-    assert not body['metadata'].get('destroyed') and not body['metadata'].get('deletion_time')
-    data = body['data']
-    # One KV object is a coherent release. No partial per-file activation.
-    assert set(data) == {e['key'] for e in m['entries']}, 'key set mismatch'
+    assert lock is not None and lock['manifestRevision']==revision(m)
+    assert body['releaseId']==lock['releaseId'] and body['manifestRevision']==revision(m)
+    assert set(body['sources'])==set(m['sources'])
+    data={}
+    for group,source in body['sources'].items():
+        metadata=source['metadata']
+        assert type(metadata['version']) is int and metadata['version']==lock['versions'][group]
+        assert not metadata.get('destroyed') and not metadata.get('deletion_time')
+        expected={e['key'] for e in m['entries'] if e['source']==group}
+        assert set(source['data'])==expected, 'source key set mismatch'
+        data.update(source['data'])
     rendered = {}
     for e in m['entries']:
         value = data[e['key']]
@@ -158,7 +181,7 @@ def materialize(m, candidate, root, uid=None, gid=None):
             p.parent.mkdir(mode=0o700, exist_ok=True)
             p.write_text(value)
             p.chmod(0o400)
-        receipt = {'service':m['service'],'environment':m['environment'],'manifestRevision':revision(m),'renderedVersion':version,'renderedAt':now(),'keyCount':len(rendered)}
+        receipt = {'service':m['service'],'environment':m['environment'],'manifestRevision':revision(m),'renderedVersion':None,'releaseId':lock['releaseId'],'versions':lock['versions'],'renderedAt':now(),'keyCount':len(rendered)}
         atomic(tmp/'receipt.json', receipt, 0o400)
         if uid is not None:
             for p in [*tmp.rglob('*'),tmp]: os.chown(p, uid, gid if gid is not None else uid)
@@ -177,13 +200,14 @@ def main():
     p.add_argument('--output')
     p.add_argument('--address')
     p.add_argument('--candidate')
+    p.add_argument('--release-lock')
     p.add_argument('--uid', type=int)
     p.add_argument('--gid', type=int)
     a=p.parse_args()
     try:
         m=contract(a.manifest)
-        if a.action=='generate': generate(m,a.output,a.address)
-        elif a.action=='materialize': materialize(m,a.candidate,a.output,a.uid,a.gid)
+        if a.action=='generate': generate(m,a.output,a.address,release_lock(m,a.release_lock))
+        elif a.action=='materialize': materialize(m,a.candidate,a.output,a.uid,a.gid,release_lock(m,a.release_lock))
         else: print(json.dumps({'valid':True,'service':m['service'],'manifestRevision':revision(m)}))
     except Exception:
         # Never include parser exception messages: they can contain secret input.
