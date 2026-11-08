@@ -3,6 +3,10 @@ name: KOIN_API_V2 CD (main)
 on:
   workflow_dispatch:
 
+concurrency:
+  group: koin-prod-deploy
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -37,15 +41,17 @@ jobs:
           cache-read-only: false
           cache-encryption-key: ${{ secrets.GRADLE_CACHE_ENCRYPTION_KEY }}
 
-      - name: Create Firebase Admin SDK JSON
-        run: echo '${{ secrets.FCM_ADMIN_SDK_JSON_MAIN }}' > src/main/resources/koin-firebase-adminsdk.json
-
       - name: Build JAR
         run: |
           set -a
           source .env.example
           set +a
           ./gradlew clean build -x test -x webAuthHttpTest -Dspring.profiles.active=prod
+
+      - name: Prepare production artifact without embedded secrets
+        run: |
+          python3 deployment/secrets/prod/sanitize_jar.py deployment/secrets/prod/manifest.json build/libs/KOIN_API_V2.jar build/libs/KOIN_API_V2-clean.jar
+          mv build/libs/KOIN_API_V2-clean.jar build/libs/KOIN_API_V2.jar
 
       - name: SCP JAR to main server
         uses: appleboy/scp-action@v0.1.7
@@ -54,8 +60,8 @@ jobs:
           username: ${{ secrets.MAIN_SERVER_USER }}
           key: ${{ secrets.MAIN_SSH_PRIVATE_KEY }}
           port: ${{ secrets.MAIN_SERVER_PORT }}
-          source: ${{ secrets.SOURCE_JAR_PATH }}
-          target: ${{ secrets.MAIN_SERVER_JAR_PATH }}
+          source: build/libs/KOIN_API_V2.jar
+          target: /usr/local/koin/api
           strip_components: 2
 
       - name: Run deploy script on main server
@@ -65,7 +71,8 @@ jobs:
           username: ${{ secrets.MAIN_SERVER_USER }}
           key: ${{ secrets.MAIN_SSH_PRIVATE_KEY }}
           port: ${{ secrets.MAIN_SERVER_PORT }}
-          script: ${{ secrets.MAIN_DEPLOY_SCRIPT_PATH }}
+          command_timeout: 20m
+          script: /usr/local/koin/api/deploy.sh
 
       - name: Notify Slack - Deploy Result
         if: always()
