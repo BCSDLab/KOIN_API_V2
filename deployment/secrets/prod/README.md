@@ -1,6 +1,8 @@
 # KOIN prod OpenBao 적용 준비 — 실제 반영 금지
 
-이 PR은 검토용 명세와 최소권한 정책 후보를 추가한다. prod 서버·OpenBao·AWS 설정을 변경하지 않으며 현재 main 배포 workflow와 stage 실행기의 guard를 유지한다. `manifest.json`은 `environment=prod`, `mode=observe`다. 현재 생성기·sanitizer·launcher는 stage 전용이므로 이 명세로 prod 실행 파일을 생성하거나 실행할 수 없다. 완료된 prod 전환으로 간주하지 않는다.
+이 PR은 main 기준으로 prod22키 명세·최소 read 정책·prod sanitizer와 main CD 연동을 추가한다. `manifest.json`은 `environment=prod`, `mode=managed`다. 실행기는 별도 `/opt/bcsd-secrets-prod`와 prod 인스턴스 ID guard를 사용하며 staging 도구는 유지한다. 운영값·개인키는 이 저장소에 포함하지 않는다.
+
+2026-11-08 실측: KOIN_PROD `i-0130a45c4dffcfb48`, 기존 JAR `KOIN_API_V2_20261107231947.jar`, `/usr/local/koin/api/deploy.sh`, `.env.prod`, nginx8081/8082 전환. 기존 스크립트의 원본 삭제 대신 root 전용 snapshot·이전 JAR 보존·OnFailure 복구를 구현했다. 실제 적용/검증 결과는 [운영 계획서](https://github.com/BCSDLab/bcsdpdevops/blob/main/docs/gitops-plan.md)에 기록한다.
 
 ## 환경과 서비스별 소유 경계
 
@@ -12,7 +14,7 @@
 | `kv/prod/koin-api/payment` | Toss 결제 키 | KOIN prod API |
 | `kv/prod/koin-api/integrations` | SES·SMS·주소·AI 연동 키 | KOIN prod API |
 
-각 key·Spring target·용도는 manifest에 기록했다. stage의21키 구조를 후보로 가져왔으며 prod 실제 설정과의 완전한 대응은 아직 확인 전이다. 값을 stage에서 복사하거나 KV 버전을 임의로1로 가정하지 않는다. 일반 설정(DATASOURCE_URL, API base URL, profile 등)은 검토된 비밀 없는 allowlist로 분리한다. 프론트엔드에는 공개 설정만 전달한다.
+각 key·Spring target·용도는 manifest에 기록했다. stage의21키에 prod 실행 환경의 식단 제보 봇 인증키 `DINING_REPORT_BOTTOKEN`을 추가한22키다. 값을 stage에서 복사하거나 KV 버전을 임의로1로 가정하지 않는다. 일반 설정(DATASOURCE_URL, API base URL, profile 등)은 검토된 비밀 없는 allowlist로 분리한다. 프론트엔드에는 공개 설정만 전달한다.
 
 ## 적용 순서와 담당 확인
 
@@ -25,7 +27,7 @@
 7. **실제 적용 승인 후:** 정상 배포·주입 receipt·readiness·주요 조회·허용된 로그인/결제 sandbox/메일 시험을 확인한다. startup/readiness/필수 업무 실패 시 이전 JAR와 설정 버전으로 복구하고 CI는 실패로 종료한다. DB migration은 JAR rollback으로 되돌아가지 않는다.
 8. **안정화 후:** 관측기간과 다음 배포까지 정상 확인 후 평문 env/구 JAR/불필요한 GitHub secret을 소비자별로 제거한다. 새 키 교체와 이력·백업 보존 정책은 별도 검토한다.
 
-## 예정된 main workflow 변경 (이번 PR에는 미적용)
+## main workflow 변경
 
 - `FCM_ADMIN_SDK_JSON_MAIN`을 JAR에 쓰는 단계 제거.
 - 검증된 prod sanitizer로 Firebase 원문 및 비밀 placeholder 제거. class/library 동일성 확인.
@@ -36,6 +38,6 @@
 
 ## 검증과 남은 조건
 
-로컬 `python3 deployment/secrets/prod/check.py`는 prod 경로·observe 모드·정확한 read ACL과 현재 생성기의 prod 실행 거부를 확인한다. 네트워크나 실제 비밀에 접근하지 않는다.
+로컬 `python3 deployment/secrets/prod/check.py`는 prod 경로·managed 모드·정확한 read ACL를 확인한다. 네트워크나 실제 비밀에 접근하지 않는다.
 
 배포 승격 조건은 prod 실측·5경로 이관·인증/격리 시험·host 실행기 확장·현재 main artifact 검증·무중단 가능성/점검시간·rollback 리허설·담당자 승인이다. 아직 이 조건들은 완료되지 않았다. SSH 인원 이전·IDE 시험은 보류한다.
