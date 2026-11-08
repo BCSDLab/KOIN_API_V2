@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.shop.dto.shop.AdminShopOrderServiceRequestsResponse;
+import in.koreatech.koin.admin.shop.dto.shop.AdminShopOrderServiceRequestResponse;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopOrderServiceRequestRepository;
 import in.koreatech.koin.common.model.Criteria;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
@@ -17,6 +18,10 @@ import lombok.RequiredArgsConstructor;
 public class AdminShopOrderServiceRequestService {
 
     private final AdminShopOrderServiceRequestRepository requestRepository;
+
+    public AdminShopOrderServiceRequestResponse getRequest(Integer id) {
+        return AdminShopOrderServiceRequestResponse.from(requestRepository.getById(id));
+    }
 
     public AdminShopOrderServiceRequestsResponse getRequests(Integer page, Integer limit,
         ShopOrderServiceRequestStatus status, String keyword) {

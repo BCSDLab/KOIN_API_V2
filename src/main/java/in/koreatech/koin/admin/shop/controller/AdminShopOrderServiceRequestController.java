@@ -4,10 +4,12 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.shop.dto.shop.AdminShopOrderServiceRequestsResponse;
+import in.koreatech.koin.admin.shop.dto.shop.AdminShopOrderServiceRequestResponse;
 import in.koreatech.koin.admin.shop.service.AdminShopOrderServiceRequestService;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
 import in.koreatech.koin.global.auth.Auth;
@@ -28,5 +30,13 @@ public class AdminShopOrderServiceRequestController implements AdminShopOrderSer
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         return ResponseEntity.ok(requestService.getRequests(page, limit, status, keyword));
+    }
+
+    @GetMapping("/admin/shops/order-service-requests/{id}")
+    public ResponseEntity<AdminShopOrderServiceRequestResponse> getRequest(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        return ResponseEntity.ok(requestService.getRequest(id));
     }
 }

@@ -100,6 +100,10 @@ public class ShopOrderServiceRequest extends BaseEntity {
     @Column(name = "approved_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime approvedAt = null;
 
+    @Size(max = 500)
+    @Column(name = "rejection_reason", length = 500)
+    private String rejectionReason;
+
     @Builder
     public ShopOrderServiceRequest(
         Shop shop,
