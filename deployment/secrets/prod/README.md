@@ -1,4 +1,4 @@
-# KOIN prod OpenBao 적용 준비 — 실제 반영 금지
+# KOIN prod OpenBao 배포
 
 이 PR은 main 기준으로 prod22키 명세·최소 read 정책·prod sanitizer와 main CD 연동을 추가한다. `manifest.json`은 `environment=prod`, `mode=managed`다. 실행기는 별도 `/opt/bcsd-secrets-prod`와 prod 인스턴스 ID guard를 사용하며 staging 도구는 유지한다. 운영값·개인키는 이 저장소에 포함하지 않는다.
 
@@ -16,7 +16,7 @@
 
 각 key·Spring target·용도는 manifest에 기록했다. stage의21키에 prod 실행 환경의 식단 제보 봇 인증키 `DINING_REPORT_BOTTOKEN`을 추가한22키다. 값을 stage에서 복사하거나 KV 버전을 임의로1로 가정하지 않는다. 일반 설정(DATASOURCE_URL, API base URL, profile 등)은 검토된 비밀 없는 allowlist로 분리한다. 프론트엔드에는 공개 설정만 전달한다.
 
-## 적용 순서와 담당 확인
+## 적용 절차와 운영 체크리스트
 
 1. **읽기 전용 사전 조사:** prod 인스턴스 ID/주소·SSH/SSM 경로·JVM/메모리·nginx/ALB·현재 배포 스크립트·DB migration 동작을 확인한다. 현재 stage 호스트/8081/ubuntu를 prod 값으로 가정하지 않는다. 실행중인 main artifact와 manifest의 필수 키 대응표를 값 없이 작성한다.
 2. **복구·변경 창:** 정상 JAR·현재 설정·upstream·DB migration 영향과 복구 담당자를 기록한다. 원본 자료는 root 전용으로 보존한다. JVM 병렬 실행 가능 여부를 측정해 blue/green 또는 단일 JVM 교체와 중단 시간을 결정한다.
@@ -40,4 +40,12 @@
 
 로컬 `python3 deployment/secrets/prod/check.py`는 prod 경로·managed 모드·정확한 read ACL를 확인한다. 네트워크나 실제 비밀에 접근하지 않는다.
 
-배포 승격 조건은 prod 실측·5경로 이관·인증/격리 시험·host 실행기 확장·현재 main artifact 검증·무중단 가능성/점검시간·rollback 리허설·담당자 승인이다. 아직 이 조건들은 완료되지 않았다. SSH 인원 이전·IDE 시험은 보류한다.
+배포 승격 조건은 prod 실측·5경로 이관·인증/격리 시험·host 실행기 확장·대상 artifact 검증·점검시간·rollback 리허설·담당자 승인이다. 최초 host 이관은 기존 운영 JAR의 업무 바이트를 유지한 채 완료했으며, CI 기반 새 artifact 배포와 추가 업무 E2E는 별도로 결과를 기록한다. SSH 인원 이전·IDE 시험은 보류한다.
+
+## 2026-11-08 최초 host 적용 결과
+
+- 기존 운영 JAR에서 비밀만 분리해22키 동일성·업무 class/library 바이트 동일성을 확인했다.
+- 실패 후보는 exit1 및 기존 프로세스/nginx 유지. 최초 정상 후보에서 `/run` 상위 경로 접근권한 문제를 발견해 수정한 뒤 재시도했다. root 상위711, 앱 전용 release700/파일400을 유지한다.
+- 정상 배포 `20261108T135004Z-ea46b4f0`:8082 전환·exit0, pending 없음, 5그룹 v1 verified, 비밀 env 부재, 공개HTTPS 조회2개200.
+- prod 전용30일 인증서·5경로read·타 경로403·일일 만료 감시 구성. 실제 결제·메일·회원 변경 E2E는 수행하지 않았다.
+- main 리뷰 우회 허용자에 사용자 요청으로 `Choi-JJunho`만 추가했고 나머지 보호 규칙을 대조해 유지했다. 이후 CI/merge/dispatch 결과는 PR 본문과 운영 계획서를 따른다.
