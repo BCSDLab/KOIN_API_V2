@@ -114,7 +114,7 @@ class ArticleAiSummaryServiceTest {
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
         assertThat(summary.getSummaryLines()).containsExactly("기존 요약입니다.");
         assertThat(summary.getModel()).isEqualTo("solar-pro4");
-        assertThat(summary.getPromptVersion()).isEqualTo("v11");
+        assertThat(summary.getPromptVersion()).isEqualTo("v12");
         verify(contentRenderer).prependSummary("본문", List.of("기존 요약입니다."));
     }
 
@@ -141,6 +141,64 @@ class ArticleAiSummaryServiceTest {
     }
 
     @Test
+    void 프롬프트_버전만_바뀌면_기존_긴_요약을_유지하며_재생성하고_처리중에는_다시_예약하지_않는다() {
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+        ArticleAiSummaryService service = service(clock);
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        ArticleAiSummary summary = completedSummary(clock, article, "solar-pro4", "v11");
+        String oldSummary = "기존 긴 요약 문장입니다. ".repeat(10).trim();
+        summary.completeSuccess(
+            List.of(oldSummary), "fingerprint", LocalDateTime.now(clock),
+            "solar-pro4", "v11", LocalDateTime.now(clock).minusDays(1)
+        );
+        when(board.getId()).thenReturn(1);
+        when(article.getBoard()).thenReturn(board);
+        when(article.getId()).thenReturn(1);
+        when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
+        when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
+        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
+
+        ArticleSummaryView summaryView = service.getSummary(article, "본문");
+
+        assertThat(oldSummary.length()).isGreaterThan(100);
+        assertThat(summaryView.status()).isEqualTo(ArticleSummaryView.Status.SUCCESS);
+        assertThat(summaryView.summaryLines()).containsExactly(oldSummary);
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+        assertThat(summary.getModel()).isEqualTo("solar-pro4");
+        assertThat(summary.getPromptVersion()).isEqualTo("v12");
+        assertThat(summary.getSummarizedAt()).isEqualTo(LocalDateTime.now(clock).minusDays(1));
+
+        LocalDateTime lockedUntil = LocalDateTime.now(clock).plusMinutes(30);
+        summary.markProcessing("worker", lockedUntil);
+
+        assertThat(service.getSummary(article, "본문").summaryLines()).containsExactly(oldSummary);
+        assertThat(summary.isProcessingBy("worker")).isTrue();
+        assertThat(summary.getLockedUntil()).isEqualTo(lockedUntil);
+    }
+
+    @Test
+    void 같은_원문과_현재_프롬프트_버전의_요약은_재생성하지_않는다() {
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+        ArticleAiSummaryService service = service(clock);
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        ArticleAiSummary summary = completedSummary(clock, article, "solar-pro4", "v12");
+        when(board.getId()).thenReturn(1);
+        when(article.getBoard()).thenReturn(board);
+        when(article.getId()).thenReturn(1);
+        when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
+        when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
+        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
+
+        ArticleSummaryView summaryView = service.getSummary(article, "본문");
+
+        assertThat(summaryView.status()).isEqualTo(ArticleSummaryView.Status.SUCCESS);
+        assertThat(summaryView.summaryLines()).containsExactly("기존 요약입니다.");
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.SUCCESS);
+    }
+
+    @Test
     void V2에서_요약이_없으면_PENDING을_반환하고_WAIT으로_등록한다() {
         Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
         ArticleAiSummaryService service = service(clock);
@@ -163,7 +221,7 @@ class ArticleAiSummaryServiceTest {
             "fingerprint",
             updatedAt,
             "solar-pro4",
-            "v11"
+            "v12"
         );
     }
 

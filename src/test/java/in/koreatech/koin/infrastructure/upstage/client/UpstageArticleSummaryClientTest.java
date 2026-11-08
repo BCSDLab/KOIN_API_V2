@@ -7,6 +7,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
@@ -36,5 +37,10 @@ class UpstageArticleSummaryClientTest {
             .containsEntry("reasoning_effort", "low")
             .containsKey("response_format")
             .doesNotContainKey("max_tokens");
+
+        JsonNode schema = new ObjectMapper().valueToTree(requestBody)
+            .at("/response_format/json_schema/schema/properties/items");
+        assertThat(schema.path("maxItems").asInt()).isEqualTo(3);
+        assertThat(schema.at("/items/properties/text/maxLength").asInt()).isEqualTo(100);
     }
 }

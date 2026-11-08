@@ -68,8 +68,8 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
-    void 요약_문장은_200자까지_허용한다() {
-        String text = "가".repeat(200);
+    void 요약_문장은_공백을_포함해_100자까지_허용한다() {
+        String text = "가 ".repeat(49) + "가나";
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
             new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, text)
         ));
@@ -80,13 +80,24 @@ class ArticleSummaryValidatorTest {
     }
 
     @Test
-    void 요약_문장이_200자를_초과하면_실패한다() {
+    void 요약_문장이_100자를_초과하면_자르지_않고_실패한다() {
         ArticleSummaryResult result = new ArticleSummaryResult(List.of(
-            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(201))
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(101))
         ));
 
-        assertThatThrownBy(() -> validator.validate(result, "가".repeat(201)))
-            .isInstanceOf(ArticleSummaryValidationException.class);
+        assertThatThrownBy(() -> validator.validate(result, "가".repeat(101)))
+            .isInstanceOf(ArticleSummaryValidationException.class)
+            .hasMessage("요약 문장이 100자를 초과했습니다.");
+    }
+
+    @Test
+    void 목표_길이보다_짧아도_구체적인_문장은_허용한다() {
+        String text = "재학생은 5월 20일까지 신청하세요.";
+        ArticleSummaryResult result = new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.ACTION, text)
+        ));
+
+        assertThat(validator.validate(result, text)).containsExactly("📝 " + text);
     }
 
     @Test

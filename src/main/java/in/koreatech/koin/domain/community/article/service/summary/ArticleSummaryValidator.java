@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.article.service.summary;
 
+import static in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPrompt.MAX_TEXT_LENGTH;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +17,6 @@ import org.springframework.util.StringUtils;
 public class ArticleSummaryValidator {
 
     private static final int MAX_ITEMS = 3;
-    private static final int MAX_TEXT_LENGTH = 200;
     private static final int DIAGNOSTIC_ITEM_LENGTH = 120;
     private static final Pattern CRITICAL_TOKEN_PATTERN = Pattern.compile(
         "(\\d{4}\\s*년\\s*\\d{1,2}\\s*월\\s*\\d{1,2}\\s*일)"
@@ -104,7 +105,7 @@ public class ArticleSummaryValidator {
             throw new ArticleSummaryValidationException("요약 문장이 비어 있습니다.");
         }
         if (text.length() > MAX_TEXT_LENGTH) {
-            throw new ArticleSummaryValidationException("요약 문장이 200자를 초과했습니다.");
+            throw new ArticleSummaryValidationException("요약 문장이 %d자를 초과했습니다.".formatted(MAX_TEXT_LENGTH));
         }
         if (isMeaningless(text)) {
             throw new ArticleSummaryValidationException("구체 정보가 없는 요약 문장입니다.");

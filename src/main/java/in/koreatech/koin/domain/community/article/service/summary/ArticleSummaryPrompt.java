@@ -6,4 +6,5 @@ public record ArticleSummaryPrompt(
     String sourceText,
     int maxItems
 ) {
+    public static final int MAX_TEXT_LENGTH = 100;
 }
