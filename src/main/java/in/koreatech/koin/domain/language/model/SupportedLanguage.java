@@ -1,5 +1,10 @@
 package in.koreatech.koin.domain.language.model;
 
+import java.util.Arrays;
+import java.util.Optional;
+
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -18,4 +23,19 @@ public enum SupportedLanguage {
 
     private final String code;
     private final String name;
+
+    public static SupportedLanguage fromCode(String code) {
+        return findByCode(code)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.UNSUPPORTED_LANGUAGE));
+    }
+
+    public static SupportedLanguage fromStoredCode(String code) {
+        return findByCode(code).orElse(DEFAULT);
+    }
+
+    private static Optional<SupportedLanguage> findByCode(String code) {
+        return Arrays.stream(values())
+            .filter(language -> language.code.equalsIgnoreCase(code))
+            .findFirst();
+    }
 }

@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,8 @@ import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserLanguageResponse;
+import in.koreatech.koin.domain.user.dto.UserLanguageUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
@@ -74,6 +77,34 @@ public interface UserApi {
     @GetMapping("/v3/users/me")
     ResponseEntity<UserProfileResponse> getProfile(
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(summary = "내 언어 조회", description = "일반·학생·총학생회의 언어 설정을 조회합니다. 미설정이거나 더 이상 지원하지 않는 저장값은 ko-KR로 반환하며 저장값은 변경하지 않습니다.")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/users/me/language")
+    ResponseEntity<UserLanguageResponse> getLanguage(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "400", description = "필수 코드 누락 또는 지원하지 않는 코드(UNSUPPORTED_LANGUAGE)", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(summary = "내 언어 변경", description = "GET /languages의 코드로 본인 언어만 변경합니다. en-us와 같은 대소문자 차이는 en-US로 정규화합니다. 같은 코드를 다시 보내도 성공합니다.")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PatchMapping("/users/me/language")
+    ResponseEntity<UserLanguageResponse> updateLanguage(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
+        @RequestBody @Valid UserLanguageUpdateRequest request
     );
 
     @ApiResponses(

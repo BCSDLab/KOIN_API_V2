@@ -74,6 +74,7 @@ public class SwaggerGroupConfig {
             .group("4. User API")
             .packagesToScan(
                 "in.koreatech.koin.domain.user",
+                "in.koreatech.koin.domain.language",
                 "in.koreatech.koin.domain.student",
                 "in.koreatech.koin.domain.timetable",
                 "in.koreatech.koin.domain.timetableV2",
