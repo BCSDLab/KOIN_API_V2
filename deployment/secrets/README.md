@@ -23,8 +23,11 @@ settings allowlist, certificate operations and rollback remain host concerns.
 
 ## Verification and merge gate
 
-2026-11-08: direct candidate startup and rollback passed. Host wrapper deployment and
-an intentionally failing JAR are being validated before this PR is marked ready.
+2026-11-08: the installed wrapper deployed a known sanitized JAR successfully.
+A deliberately invalid Start-Class then failed during startup; automatic rollback
+restored the prior healthy OpenBao release and returned exit1 to the caller.
+Readiness, read-only shop APIs, injection receipts and unchanged DB containers passed.
+Staging now runs the managed OpenBao service; it is enabled for boot.
 The final host result is recorded in the PR description and
 [staging deployment runbook](https://github.com/BCSDLab/bcsdpdevops/blob/main/host/secrets/deployment/README.md).
 
