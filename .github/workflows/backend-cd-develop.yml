@@ -5,6 +5,10 @@ on:
     branches:
       - develop
 
+concurrency:
+  group: koin-stage-deploy
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -58,8 +62,8 @@ jobs:
           username: ${{ secrets.DEVELOP_SERVER_USER }}
           key: ${{ secrets.DEVELOP_SSH_PRIVATE_KEY }}
           port: ${{ secrets.DEVELOP_SERVER_PORT }}
-          source: ${{ secrets.SOURCE_JAR_PATH }}
-          target: ${{ secrets.DEVELOP_SERVER_JAR_PATH }}
+          source: build/libs/KOIN_API_V2.jar
+          target: /usr/local/koin/api
           strip_components: 2
 
       - name: Run deploy script on develop server
@@ -69,7 +73,8 @@ jobs:
           username: ${{ secrets.DEVELOP_SERVER_USER }}
           key: ${{ secrets.DEVELOP_SSH_PRIVATE_KEY }}
           port: ${{ secrets.DEVELOP_SERVER_PORT }}
-          script: ${{ secrets.DEVELOP_DEPLOY_SCRIPT_PATH }}
+          command_timeout: 20m
+          script: /usr/local/koin/api/deploy.sh
 
       - name: Notify Slack - Deploy Result
         if: always()
