@@ -1,11 +1,18 @@
 package in.koreatech.koin.domain.ownershop.model;
 
+import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.*;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import in.koreatech.koin.common.model.BaseEntity;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.domain.shop.model.shop.Shop;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,17 +26,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.*;
 
 @Entity
 @Getter
@@ -142,13 +141,16 @@ public class ShopOrderServiceRequest extends BaseEntity {
         }
     }
 
-    public void approve() {
+    public void approve(Clock clock) {
+        requirePending();
         this.requestStatus = APPROVED;
-        this.approvedAt = LocalDateTime.now();
+        this.approvedAt = LocalDateTime.now(clock);
     }
 
-    public void reject() {
+    public void reject(String reason) {
+        requirePending();
         this.requestStatus = REJECTED;
+        this.rejectionReason = reason;
     }
 
 }
