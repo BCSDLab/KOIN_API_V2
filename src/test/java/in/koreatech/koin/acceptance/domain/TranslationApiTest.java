@@ -118,6 +118,16 @@ class TranslationApiTest extends AcceptanceTest {
         });
         var executor = Executors.newSingleThreadExecutor();
         try {
+            // 프롬프트 교체 전 저장된 혼합 언어 결과는 ID로 직접 조회해도 반환하지 않는다.
+            var legacy = store.claim(resource, source.version(), SupportedLanguage.ENGLISH, properties.getModel(), "v2");
+            store.succeed(legacy.translation().id(), legacy.ownerToken(), objectMapper.writeValueAsString(
+                Map.of("items", List.of(Map.of("icon", "📅", "text", "Applications close ましょう.")))));
+            mockMvc.perform(get("/translations/{id}", legacy.translation().id()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("FAILED"))
+                .andExpect(jsonPath("$.reason_code").value("INVALID_TRANSLATION"))
+                .andExpect(jsonPath("$.retryable").value(true)).andExpect(jsonPath("$.data").isEmpty());
+            assertThat(store.findById(legacy.translation().id()).orElseThrow().translatedJson()).isNull();
+
             var first = executor.submit(() -> mockMvc.perform(post(SUMMARY)
                     .contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SUCCESS"))
@@ -129,6 +139,8 @@ class TranslationApiTest extends AcceptanceTest {
                 .andExpect(status().isAccepted()).andExpect(header().string(HttpHeaders.RETRY_AFTER, "2"))
                 .andExpect(jsonPath("$.status").value("PENDING")).andReturn();
             String id = JsonAssertions.convertJsonNode(pending).path("translation_id").asText();
+            assertThat(id).isNotEqualTo(legacy.translation().id());
+            assertThat(store.findById(id).orElseThrow().promptVersion()).isEqualTo(properties.getPromptVersion());
             mockMvc.perform(get("/translations/{id}", id))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PENDING"));
             release.countDown();

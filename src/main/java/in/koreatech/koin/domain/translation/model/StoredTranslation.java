@@ -7,6 +7,8 @@ public record StoredTranslation(
     TranslationResource resource,
     String sourceVersion,
     String targetLanguage,
+    String model,
+    String promptVersion,
     TranslationStatus status,
     String translatedJson,
     TranslationReason reason,

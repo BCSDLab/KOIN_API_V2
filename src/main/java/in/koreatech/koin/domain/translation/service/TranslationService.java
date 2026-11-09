@@ -111,10 +111,13 @@ public class TranslationService {
             } catch (JsonProcessingException | IllegalArgumentException e) {
                 throw CustomException.of(ApiResponseCode.TRANSLATION_RESULT_INVALID);
             }
-            if (stored.resource().type() == TranslationType.ARTICLE_SUMMARY
+            boolean outdated = !properties.getModel().equals(stored.model())
+                || !properties.getPromptVersion().equals(stored.promptVersion());
+            boolean summaryEcho = stored.resource().type() == TranslationType.ARTICLE_SUMMARY
                 && !SupportedLanguage.KOREAN.getCode().equals(stored.targetLanguage())
-                && current.data().equals(data)) {
-                // 이전에 저장된 원문 반복 결과도 재시도할 수 있게 한다. 바뀐 결과는 덮어쓰지 않는다.
+                && current.data().equals(data);
+            if (outdated || summaryEcho) {
+                // 이전 지침으로 저장한 결과와 원문 반복 결과는 재시도한다. 바뀐 결과는 덮어쓰지 않는다.
                 if (!store.invalidateSuccess(stored.id(), stored.translatedJson())) {
                     return get(stored.id(), userId);
                 }

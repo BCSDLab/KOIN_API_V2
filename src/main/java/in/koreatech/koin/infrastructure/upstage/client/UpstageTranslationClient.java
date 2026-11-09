@@ -44,11 +44,17 @@ public class UpstageTranslationClient implements TranslationAiClient {
         Return only the JSON object defined by the response schema, with exactly the same field names.
         Each output value must be a non-empty string.
         Translate every field completely. Do not summarize, omit, embellish, explain, or invent information.
+        Use the target language and script for ordinary prose, except for original proper names and literal tokens.
+        Original names must retain their exact original characters even when they use a different script.
+        Do not introduce foreign words, grammatical endings, or explanations that are absent from the source.
         Preserve numbers, amounts, dates, times, units, URLs, emoji, line breaks, paragraphs, and conditions.
         Copy every __KOIN_...__ token exactly once in its original field. Never alter, translate, or expand it.
         Tokens represent literal values. Never convert currencies or replace them with local currency names.
         Keep standalone URLs at the end of a text as well. Every source URL must appear unchanged in its output field.
-        Preserve proper nouns in their original form. Do not invent an official translated name.
+        Preserve person, organization, and place names character-for-character in their original script.
+        Never romanize, transliterate, respell, or localize a proper name, even when another spelling is familiar.
+        Translate surrounding words and honorifics, but keep the name itself unchanged.
+        Do not invent an official translated name.
         If a value is already written in the target language, return it unchanged without rewriting it.
         Do not add Markdown fences or text outside the JSON object.
         """;
@@ -105,7 +111,9 @@ public class UpstageTranslationClient implements TranslationAiClient {
                 .timeout(Duration.ofSeconds(translationProperties.getRequestTimeoutSeconds()))
                 .onErrorMap(TimeoutException.class, this::transportFailure)
                 .block();
-            return protectedText.restore(readTranslation(response, fields));
+            Map<String, String> translated = readTranslation(response, fields);
+            TranslationLanguageGuard.validate(protectedText, translated, targetLanguage);
+            return protectedText.restore(translated);
         } catch (JsonProcessingException | DataBufferLimitException | DecodingException e) {
             log.warn("event=upstage_translation_invalid_response exception_type={} reason={}",
                 e.getClass().getSimpleName(), TranslationReason.INVALID_TRANSLATION);
@@ -139,11 +147,11 @@ public class UpstageTranslationClient implements TranslationAiClient {
             "model", translationProperties.getModel(),
             "messages", List.of(
                 Map.of("role", "system", "content", SYSTEM_MESSAGE.formatted(
-                    targetLanguage.getName(), targetLanguage.getCode()
+                    TranslationLanguageGuard.targetDescription(targetLanguage), targetLanguage.getCode()
                 )),
                 Map.of("role", "user", "content", objectMapper.writeValueAsString(fields))
             ),
-            "temperature", 0.2,
+            "temperature", 0.0,
             "reasoning_effort", "none",
             "response_format", Map.of(
                 "type", "json_schema",

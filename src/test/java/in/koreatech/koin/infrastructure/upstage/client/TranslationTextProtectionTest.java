@@ -12,7 +12,7 @@ import in.koreatech.koin.domain.translation.service.TranslationFailureException;
 
 class TranslationTextProtectionTest {
     @Test
-    void 통화와_시간_URL은_원문으로_복원하고_누락하거나_복제한_결과는_거절한다() {
+    void 보호값은_원문으로_복원하고_누락하거나_복제한_결과는_거절한다() {
         var protectedText = TranslationTextProtection.protect(Map.of(
             "content", "가격은 12000원, 만날 시간은 15:30.\nhttps://example.com/menu?id=17"));
         var tokens = new ArrayList<>(protectedText.tokens().get("content").keySet());
@@ -29,6 +29,13 @@ class TranslationTextProtectionTest {
         assertThatThrownBy(() -> embedded.restore(Map.of("content", "Visit https://example.com/pay https://example.com/extra")))
             .isInstanceOf(TranslationFailureException.class).hasMessage("INVALID_TRANSLATION");
         assertThatThrownBy(() -> protectedText.restore(Map.of("content", translated + " https://example.com/extra")))
+            .isInstanceOf(TranslationFailureException.class).hasMessage("INVALID_TRANSLATION");
+
+        var names = TranslationTextProtection.protect(Map.of("content", "山田님과 John님, 고객님과 손님, C씨앗"));
+        assertThat(names.fields().get("content")).isEqualTo("__KOIN_0__님과 __KOIN_1__님, 고객님과 손님, C씨앗");
+        assertThat(names.restore(Map.of("content", "Meet __KOIN_0__ and __KOIN_1__.")))
+            .containsEntry("content", "Meet 山田 and John.");
+        assertThatThrownBy(() -> names.restore(Map.of("content", "Meet Yamada and __KOIN_1__.")))
             .isInstanceOf(TranslationFailureException.class).hasMessage("INVALID_TRANSLATION");
     }
 }

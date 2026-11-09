@@ -92,7 +92,7 @@ public class ContentTranslation {
     public StoredTranslation snapshot() {
         return new StoredTranslation(id,
             new TranslationResource(resourceType, resourceId, parentId, roomId),
-            sourceVersion, targetLanguage, status, translatedJson, reason,
+            sourceVersion, targetLanguage, model, promptVersion, status, translatedJson, reason,
             lockedUntil, nextAttemptAt, expiresAt);
     }
 }

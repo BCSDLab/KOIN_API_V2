@@ -8,13 +8,15 @@ import java.util.regex.Pattern;
 import in.koreatech.koin.domain.translation.model.TranslationReason;
 import in.koreatech.koin.domain.translation.service.TranslationFailureException;
 
-/** Solar가 원화·시간·URL을 다른 값으로 바꾸지 않도록 원문 조각을 복원한다. */
+/** Solar가 금액·시간·URL과 호칭이 붙은 비한글 이름을 바꾸지 않도록 원문 조각을 복원한다. */
 record TranslationTextProtection(Map<String, String> fields, Map<String, Map<String, String>> tokens,
                                  String prefix, Map<String, String> originals, Map<String, String> suffixes) {
     private static final Pattern URL = Pattern.compile("https?://[^\\s<>\"']+");
     private static final Pattern TRAILING_URLS = Pattern.compile("(?:\\s+https?://[^\\s<>\"']+)+\\s*$");
     private static final Pattern VALUE = Pattern.compile(
-        "https?://[^\\s<>\"']+|(?:[₩$€£¥]\\s*)?\\d[\\d,]*(?:\\.\\d+)?(?::\\d{2})?"
+        // 山田님·John님처럼 '님'이 붙은 비한글 이름만 보호한다. 손님·고객님 같은 일반 명사는 번역한다.
+        "https?://[^\\s<>\"']+|[\\p{L}\\p{M}&&[^\\p{IsHangul}]]+(?=님)"
+            + "|(?:[₩$€£¥]\\s*)?\\d[\\d,]*(?:\\.\\d+)?(?::\\d{2})?"
             + "(?:\\s*(?:KRW|USD|EUR|JPY|CNY|원|달러|유로|엔|위안|%))?");
 
     static TranslationTextProtection protect(Map<String, String> source) {

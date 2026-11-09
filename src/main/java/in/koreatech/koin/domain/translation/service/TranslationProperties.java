@@ -22,7 +22,7 @@ public class TranslationProperties {
     private String model = "solar-pro4";
     @NotBlank
     @Size(max = 20)
-    private String promptVersion = "v2";
+    private String promptVersion = "v3";
     @Min(1) @Max(60)
     private int requestTimeoutSeconds = 25;
     @Min(1) @Max(20)

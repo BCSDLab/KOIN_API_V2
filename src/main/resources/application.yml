@@ -140,7 +140,7 @@ upstage:
 
 translation:
   model: ${TRANSLATION_MODEL:${ARTICLE_AI_SUMMARY_MODEL:solar-pro4}}
-  prompt-version: ${TRANSLATION_PROMPT_VERSION:v2}
+  prompt-version: ${TRANSLATION_PROMPT_VERSION:v3}
   request-timeout-seconds: ${TRANSLATION_REQUEST_TIMEOUT_SECONDS:25}
   max-concurrent-requests: ${TRANSLATION_MAX_CONCURRENT_REQUESTS:4}
   max-requests-per-minute: ${TRANSLATION_MAX_REQUESTS_PER_MINUTE:30}
