@@ -1,9 +1,14 @@
 package in.koreatech.koin.acceptance.repository;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,7 +61,7 @@ class LostItemTranslationMessageRepositoryTest {
     }
 
     @Test
-    void selectsOnlyExactIdWithinArticleAndRoomWithoutChangingReadState() {
+    void selectsExactMessageAndPreservesConcurrentChangesWhenMarkingRead() throws Exception {
         repository.save(message(ID, 17, 2, "원문"));
         repository.save(message(ID - 1, 17, 2, "이전"));
         repository.save(message(ID + 1, 17, 2, "다음"));
@@ -73,6 +78,37 @@ class LostItemTranslationMessageRepositoryTest {
             .isEqualTo("다른 방");
         assertThat(repository.findByArticleIdAndChatRoomIdAndId(17, 2, ID + 2)).isEmpty();
         assertThat(redis.opsForZSet().range(KEY, 0, -1)).isEqualTo(before);
+
+        redis.expire(KEY, Duration.ofMinutes(1));
+        ObjectMapper racingMapper = spy(mapper);
+        AtomicBoolean raced = new AtomicBoolean();
+        doAnswer(invocation -> {
+            if (raced.compareAndSet(false, true)) {
+                // 읽음 처리의 스냅샷 조회와 저장 사이에 발생한 전송·삭제·수정을 재현한다.
+                repository.save(message(ID + 2, 17, 2, "동시에 도착한 메시지"));
+                for (String member : before) {
+                    if (!member.contains("\"id\":" + ID + ",")) {
+                        redis.opsForZSet().remove(KEY, member);
+                    }
+                }
+                repository.save(message(ID + 1, 17, 2, "변경된 메시지"));
+            }
+            return invocation.callRealMethod();
+        }).when(racingMapper).writeValueAsString(any(ChatMessageEntity.class));
+        new ChatMessageRedisRepository(redis, racingMapper).markAllMessagesAsRead(17, 2, 8);
+
+        var read = repository.findByArticleIdAndChatRoomIdAndId(17, 2, ID).orElseThrow();
+        assertThat(read.getId()).isEqualTo(ID);
+        assertThat(read.getIsRead()).isTrue();
+        assertThat(repository.findByArticleIdAndChatRoomIdAndId(17, 2, ID - 1)).isEmpty();
+        var replaced = repository.findByArticleIdAndChatRoomIdAndId(17, 2, ID + 1).orElseThrow();
+        assertThat(replaced.getContents()).isEqualTo("변경된 메시지");
+        assertThat(replaced.getIsRead()).isFalse();
+        assertThat(repository.findByArticleIdAndChatRoomIdAndId(17, 2, ID + 2).orElseThrow().getIsRead()).isFalse();
+        assertThat(redis.opsForZSet().zCard(KEY)).isEqualTo(3);
+        assertThat(redis.getExpire(KEY)).isPositive().isLessThanOrEqualTo(60);
+        assertThat(redis.opsForZSet().rangeWithScores(KEY, 0, -1)).allSatisfy(member ->
+            assertThat(member.getScore()).isZero());
     }
 
     private ChatMessageEntity message(long id, int article, int room, String contents) {

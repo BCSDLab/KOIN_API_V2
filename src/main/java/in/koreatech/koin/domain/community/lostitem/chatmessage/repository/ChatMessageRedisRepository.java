@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.lostitem.chatmessage.repository;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +26,18 @@ public class ChatMessageRedisRepository {
 
     private static final int COUNTER_DIGITS = 4;
     private static final String SEPARATOR = "|";
+    private static final DefaultRedisScript<Long> MARK_READ_SCRIPT = new DefaultRedisScript<>("""
+        local updated = 0
+        for i = 1, #ARGV, 2 do
+            local score = redis.call('ZSCORE', KEYS[1], ARGV[i])
+            if score then
+                redis.call('ZADD', KEYS[1], score, ARGV[i + 1])
+                redis.call('ZREM', KEYS[1], ARGV[i])
+                updated = updated + 1
+            end
+        end
+        return updated
+        """, Long.class);
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
@@ -84,32 +98,25 @@ public class ChatMessageRedisRepository {
             return;
         }
 
-        List<String> updatedMessages = messageJsonSet.stream()
-            .map(value -> {
-                try {
-                    String tsidKey = value.substring(0, value.indexOf(SEPARATOR));
-                    String json = value.substring(value.indexOf(SEPARATOR) + 1);
-                    ChatMessageEntity message = objectMapper.readValue(json, ChatMessageEntity.class);
-
-                    // 자신이 보낸 메시지이거나 이미 읽은 메시지는 업데이트하지 않음
-                    if (message.getUserId().equals(userId) || Boolean.TRUE.equals(message.getIsRead())) {
-                        return value;
-                    }
-
-                    message.readMessage();
-
-                    String updatedJson = objectMapper.writeValueAsString(message);
-                    return tsidKey + SEPARATOR + updatedJson;
-                } catch (JsonProcessingException e) {
-                    throw new MessageProcessingException("메시지 업데이트 실패");
+        List<String> replacements = new ArrayList<>();
+        for (String value : messageJsonSet) {
+            try {
+                String tsidKey = value.substring(0, value.indexOf(SEPARATOR));
+                String json = value.substring(value.indexOf(SEPARATOR) + 1);
+                ChatMessageEntity message = objectMapper.readValue(json, ChatMessageEntity.class);
+                if (message.getUserId().equals(userId) || Boolean.TRUE.equals(message.getIsRead())) {
+                    continue;
                 }
-            })
-            .toList();
-
-        // 기존 데이터 삭제 후 업데이트된 데이터 저장
-        redisTemplate.delete(key);
-        for (int i = 0; i < updatedMessages.size(); i++) {
-            redisTemplate.opsForZSet().add(key, updatedMessages.get(i), 0);
+                message.readMessage();
+                replacements.add(value);
+                replacements.add(tsidKey + SEPARATOR + objectMapper.writeValueAsString(message));
+            } catch (JsonProcessingException e) {
+                throw new MessageProcessingException("메시지 업데이트 실패");
+            }
+        }
+        if (!replacements.isEmpty()) {
+            // 원본 member가 그대로 있을 때만 교체한다. 먼저 추가해 TTL을 유지하고 방 전체 삭제를 피한다.
+            redisTemplate.execute(MARK_READ_SCRIPT, List.of(key), replacements.toArray());
         }
     }
 
