@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ public interface ShopMenuApi {
         }
     )
     @Operation(summary = "메뉴 단건 조회")
+    @SecurityRequirements
     @GetMapping("/shops/{shopId}/menus/{menuId}")
     ResponseEntity<MenuDetailResponse> findMenu(
         @Parameter(in = PATH) @PathVariable Integer shopId,
@@ -41,6 +43,7 @@ public interface ShopMenuApi {
         }
     )
     @Operation(summary = "특정 상점의 모든 메뉴 조회")
+    @SecurityRequirements
     @GetMapping("/shops/{id}/menus")
     ResponseEntity<ShopMenuResponse> findMenus(
         @Parameter(in = PATH) @PathVariable Integer id
@@ -53,6 +56,7 @@ public interface ShopMenuApi {
         }
     )
     @Operation(summary = "메뉴 카테고리 목록 조회")
+    @SecurityRequirements
     @GetMapping("/shops/{shopId}/menus/categories")
     ResponseEntity<MenuCategoriesResponse> getMenuCategories(
         @Parameter(in = PATH) @PathVariable Integer shopId

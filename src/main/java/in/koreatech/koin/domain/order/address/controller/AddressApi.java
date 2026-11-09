@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -132,6 +133,7 @@ public interface AddressApi {
           - **COLLEGE_BUILDING**: 공학관
           - **ETC**: 그 외
         """)
+    @SecurityRequirements
     @GetMapping("/address/delivery/campus")
     ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
         @Parameter(description = "주소 타입. 중복 지정 불가")

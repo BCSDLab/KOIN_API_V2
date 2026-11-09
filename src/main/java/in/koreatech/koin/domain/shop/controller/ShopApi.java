@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Shop: 상점", description = "상점 정보를 관리한다")
@@ -47,6 +48,7 @@ public interface ShopApi {
         }
     )
     @Operation(summary = "특정 상점 조회")
+    @SecurityRequirements
     @GetMapping("/shops/{id}")
     ResponseEntity<ShopResponse> getShopById(
         @Parameter(in = PATH) @PathVariable Integer id
@@ -59,6 +61,7 @@ public interface ShopApi {
     @ApiResponseCodes({
         OK
     })
+    @SecurityRequirements
     @GetMapping("/v2/shops/{id}")
     ResponseEntity<ShopResponseV2> getShopByIdV2(
         @Parameter(in = PATH) @PathVariable Integer id

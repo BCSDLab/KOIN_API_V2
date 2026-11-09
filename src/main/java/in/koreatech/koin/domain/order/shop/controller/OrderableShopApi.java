@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) OrderShop: 주문 가능 상점", description = "주문 가능 상점 정보를 관리한다")
@@ -237,6 +238,7 @@ public interface OrderableShopApi {
             - owner_info.company_registration_number: **nullable**
             - origins: 원산지 표기  (해당 데이터 없으면 empty array 반환)
         """)
+    @SecurityRequirements
     @GetMapping("/order/shop/{orderableShopId}/detail")
     ResponseEntity<OrderableShopInfoDetailResponse> getOrderableShopInfoDetail(
         @Parameter(description = "주문 가능 상점 고유 식별자(orderable_shop_id)", example = "1")

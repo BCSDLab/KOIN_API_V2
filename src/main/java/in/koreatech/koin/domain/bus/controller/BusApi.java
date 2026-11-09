@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Bus: 버스", description = "버스 정보를 조회한다.")
@@ -58,6 +59,7 @@ public interface BusApi {
     );
 
     @Operation(summary = "시내버스 시간표 조회")
+    @SecurityRequirements
     @GetMapping("/timetable/city")
     ResponseEntity<CityBusTimetableResponse> getCityBusTimetable(
         @RequestParam(value = "bus_number") Long bus_number,
@@ -107,6 +109,7 @@ public interface BusApi {
         }
     )
     @Operation(summary = "학교버스 특정 노선 시간표 조회", description = "id: 노선 id 값 (get /bus/courses/shuttle response 참조)")
+    @SecurityRequirements
     @GetMapping("/timetable/shuttle/{id}")
     ResponseEntity<ShuttleBusTimetableResponse> getShuttleBusTimetable(@PathVariable String id,
         @Parameter(description = "표시 언어 코드. 공식 명칭이 없으면 원문을 반환합니다.", example = "en-US")
@@ -127,6 +130,7 @@ public interface BusApi {
             - **출발지 & 도착지** : 출발지와 도착지가 일치하는 경우 빈 리스트를 반환합니다.
             """
     )
+    @SecurityRequirements
     @GetMapping("/route")
     ResponseEntity<BusScheduleResponse> getBusRouteSchedule(
         @Parameter(description = "yyyy-MM-dd") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,

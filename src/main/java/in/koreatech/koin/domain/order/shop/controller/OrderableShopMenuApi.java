@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) OrderShopMenu: 주문 가능 상점 메뉴", description = "주문 가능 상점 메뉴를 관리한다")
@@ -142,6 +143,7 @@ public interface OrderableShopMenuApi {
         - 메뉴의 상세 정보(이미지, 옵션 등)를 조회합니다.
         - `orderableShopId`는 현재 라우팅 경로상 필요하지만, 실제 로직에서는 `orderableShopMenuId`만 사용하여 메뉴를 조회합니다.
         """)
+    @SecurityRequirements
     @GetMapping("/order/shop/{orderableShopId}/menus/{orderableShopMenuId}")
     ResponseEntity<OrderableShopMenuResponse> getOrderableShopMenu(
         @Parameter(description = "주문 가능 상점 고유 식별자 (orderable_shop_id)", example = "1")
@@ -175,6 +177,7 @@ public interface OrderableShopMenuApi {
         ### 주문 가능 상점 메뉴 그룹 목록 조회
         - 특정 주문 가능 상점 모든 메뉴 그룹 ID와 이름을 반환합니다.
         """)
+    @SecurityRequirements
     @GetMapping("/order/shop/{orderableShopId}/menus/groups")
     ResponseEntity<OrderableShopMenuGroupResponse> getOrderableShopMenuGroups(
         @Parameter(description = "주문 가능 상점 고유 식별자 (orderable_shop_id)", example = "1")
