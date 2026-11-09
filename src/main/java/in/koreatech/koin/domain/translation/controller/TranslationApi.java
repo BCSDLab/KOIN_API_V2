@@ -217,6 +217,22 @@ public interface TranslationApi {
         @PathVariable Integer recruitmentId, @PathVariable Integer chatRoomId, @PathVariable Integer messageId,
         @Auth(permit = {STUDENT}) Integer userId, @RequestBody @Valid TranslationRequest request);
 
+    @Operation(summary = "콜밴 채팅 메시지 번역", description = "현재 콜밴에 참여한 학생만 텍스트 메시지를 번역할 수 있습니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
+            | `expected_source_version` | `GET /callvan/posts/{postId}/chat`에서 번역할 메시지의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @ApiResponse(responseCode = "202", description = "PENDING: 처리 중. Retry-After 이후 GET /translations/{translationId}로 조회합니다.")
+    @PostMapping("/callvan/posts/{postId}/chat/messages/{messageId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Message>> callvanMessage(
+        @PathVariable Integer postId,
+        @Parameter(description = "콜밴 채팅 조회 응답의 messages[].message_id") @PathVariable Integer messageId,
+        @Auth(permit = {STUDENT}) Integer userId, @RequestBody @Valid TranslationRequest request);
+
     @Operation(summary = "번역 결과 조회",
         description = "`translation_id`로 처리 상태와 결과를 조회합니다. 쪽지는 현재 방 참여 권한이 필요합니다.")
     @ApiResponse(responseCode = "200", description = "SUCCESS: 완료 · PENDING: 처리 중 · FAILED: 실패. 재시도는 Retry-After 이후 원래 POST를 사용합니다.")

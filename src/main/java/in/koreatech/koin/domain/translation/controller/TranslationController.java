@@ -95,6 +95,13 @@ public class TranslationController implements TranslationApi {
     }
 
     @Override
+    public ResponseEntity<TranslationResponse<TranslationData.Message>> callvanMessage(Integer postId,
+        Integer messageId, @Auth(permit = {STUDENT}) Integer userId, @RequestBody @Valid TranslationRequest request) {
+        return translated(TranslationResource.message(CALLVAN_MESSAGE, postId, 0, messageId.toString()),
+            request, userId, TranslationData.Message.class);
+    }
+
+    @Override
     public ResponseEntity<TranslationResponse<Map<String, Object>>> result(String translationId, @UserId Integer userId) {
         var response = service.get(translationId, userId);
         return headers(response, false).body(response);

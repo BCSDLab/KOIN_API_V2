@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
+import in.koreatech.koin.domain.callvan.repository.CallvanChatMessageRepository;
+import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
 import in.koreatech.koin.domain.community.article.dto.ArticleAiSummaryResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
@@ -61,6 +64,8 @@ public class TranslationSourceReader {
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
     private final OrderableShopMenuRepository orderableShopMenuRepository;
+    private final CallvanParticipantRepository callvanParticipantRepository;
+    private final CallvanChatMessageRepository callvanMessageRepository;
 
     // Solar 호출 전후 각각 새 영속성 컨텍스트에서 원문과 접근 권한을 확인한다.
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
@@ -78,6 +83,7 @@ public class TranslationSourceReader {
             case RECRUITMENT -> recruitment(resource);
             case LOST_ITEM_MESSAGE -> lostItemMessage(resource, userId);
             case RECRUITMENT_MESSAGE -> teamMessage(resource, userId);
+            case CALLVAN_MESSAGE -> callvanMessage(resource, userId);
         };
     }
 
@@ -264,6 +270,17 @@ public class TranslationSourceReader {
             .orElseThrow(() -> CustomException.of(TRANSLATION_SOURCE_NOT_FOUND));
         return fields(resource, TranslationSourceFields.message(message.getContent()),
             Boolean.TRUE.equals(message.getIsImage()));
+    }
+
+    private TranslationSource callvanMessage(TranslationResource resource, Integer userId) {
+        authorize(userId, UserType.STUDENT);
+        if (!callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(resource.parentId(), userId)) {
+            throw CustomException.of(FORBIDDEN_PARTICIPANT);
+        }
+        var message = callvanMessageRepository.findInActivePost(integerId(resource), resource.parentId())
+            .orElseThrow(() -> CustomException.of(TRANSLATION_SOURCE_NOT_FOUND));
+        return fields(resource, TranslationSourceFields.message(message.getContent()),
+            Boolean.TRUE.equals(message.getIsImage()) || message.getMessageType() == CallvanMessageType.IMAGE);
     }
 
     private void authorize(Integer userId, UserType... permitted) {

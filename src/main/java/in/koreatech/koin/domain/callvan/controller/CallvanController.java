@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
@@ -34,6 +35,7 @@ import in.koreatech.koin.domain.callvan.service.CallvanPostQueryService;
 import in.koreatech.koin.domain.callvan.service.CallvanPostStatusService;
 import in.koreatech.koin.domain.callvan.service.CallvanRestrictionQueryService;
 import in.koreatech.koin.domain.callvan.service.CallvanUserReportService;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import jakarta.validation.Valid;
@@ -144,9 +146,11 @@ public class CallvanController implements CallvanApi {
     @GetMapping("/posts/{postId}/chat")
     public ResponseEntity<CallvanChatMessageResponse> getCallvanChatMessages(
         @PathVariable Integer postId,
-        @UserId Integer userId
+        @Auth(permit = {STUDENT}) Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        CallvanChatMessageResponse response = callvanChatService.getMessages(postId, userId);
+        CallvanChatMessageResponse response = callvanChatService.getMessages(postId, userId,
+            SupportedLanguage.fromCode(language));
         return ResponseEntity.ok(response);
     }
 
