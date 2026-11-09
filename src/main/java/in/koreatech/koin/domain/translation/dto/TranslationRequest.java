@@ -12,7 +12,7 @@ public record TranslationRequest(
     @NotBlank @Schema(description = "현재 화면 언어. GET /languages의 code를 사용합니다.", example = "en-US")
     String targetLanguage,
     @NotBlank @Pattern(regexp = "[a-f0-9]{64}", message = "원문 버전은 64자리 SHA-256 값이어야 합니다.")
-    @Schema(description = "원문 응답의 translation_source_version. 공지 요약은 ai_summary 안의 값을 사용합니다.")
+    @Schema(description = "원문 변경 확인용 64자리 버전. 원문 조회 응답의 translation_source_version을 그대로 보내며, 클라이언트에서 계산하지 않습니다.")
     String expectedSourceVersion
 ) {
 }
