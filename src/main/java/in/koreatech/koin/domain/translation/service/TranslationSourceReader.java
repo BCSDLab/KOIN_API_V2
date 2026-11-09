@@ -32,6 +32,13 @@ import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import lombok.RequiredArgsConstructor;
+import in.koreatech.koin.domain.dining.repository.DiningRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
+import in.koreatech.koin.domain.order.shop.repository.OrderableShopRepository;
+import in.koreatech.koin.domain.order.shop.repository.menu.OrderableShopMenuRepository;
+import in.koreatech.koin.domain.order.shop.dto.menu.OrderableShopMenuResponse;
+import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -48,17 +55,118 @@ public class TranslationSourceReader {
     private final TeamRecruitmentChatMemberRepository teamMemberRepository;
     private final TeamRecruitmentChatMessageRepository teamMessageRepository;
     private final UserRepository userRepository;
+    private final DiningRepository diningRepository;
+    private final ShopRepository shopRepository;
+    private final OrderableShopRepository orderableShopRepository;
+    private final MenuRepository menuRepository;
+    private final MenuCategoryRepository menuCategoryRepository;
+    private final OrderableShopMenuRepository orderableShopMenuRepository;
 
     // Solar 호출 전후 각각 새 영속성 컨텍스트에서 원문과 접근 권한을 확인한다.
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public TranslationSource load(TranslationResource resource, Integer userId) {
         return switch (resource.type()) {
+            case DINING -> dining(resource);
+            case SHOP -> fields(resource, TranslationSourceFields.shop(shopRepository.getById(integerId(resource)).getDescription()), false);
+            case SHOP_MENU_CATEGORY -> shopMenuCategory(resource);
+            case ORDERABLE_SHOP_MENU_GROUP -> orderableShopMenuGroup(resource);
+            case ORDERABLE_SHOP_MENU -> orderableShopMenu(resource);
+            case SHOP_INFO -> shopInfo(resource);
+            case SHOP_MENU -> shopMenu(resource);
             case ARTICLE_SUMMARY -> summary(resource);
             case LOST_ITEM -> lostItem(resource);
             case RECRUITMENT -> recruitment(resource);
             case LOST_ITEM_MESSAGE -> lostItemMessage(resource, userId);
             case RECRUITMENT_MESSAGE -> teamMessage(resource, userId);
         };
+    }
+
+    private TranslationSource dining(TranslationResource resource) {
+        var dining = diningRepository.findById(integerId(resource))
+            .orElseThrow(() -> CustomException.of(TRANSLATION_SOURCE_NOT_FOUND));
+        var menu = dining.getMenu();
+        Map<String, String> texts = new LinkedHashMap<>();
+        if (menu != null) {
+            for (int i = 0; i < menu.size(); i++) {
+                String text = menu.get(i);
+                if (hasLetters(text)) {
+                    texts.put("menu_" + i, text);
+                }
+            }
+        }
+        return TranslationSource.of(resource, TranslationSourceFields.dining(menu), texts,
+            texts.isEmpty() ? TranslationReason.UNSUPPORTED_CONTENT : null);
+    }
+
+    private TranslationSource shopInfo(TranslationResource resource) {
+        int shopId = integerId(resource);
+        if (!orderableShopRepository.existsByShop_Id(shopId)) {
+            throw CustomException.of(TRANSLATION_SOURCE_NOT_FOUND);
+        }
+        var shop = shopRepository.getById(shopId);
+        return fields(resource, TranslationSourceFields.shopInfo(shop.getIntroduction(), shop.getNotice(), shop.getAddressDetail()), false);
+    }
+
+    private TranslationSource shopMenuCategory(TranslationResource resource) {
+        shopRepository.getById(resource.parentId());
+        var category = menuCategoryRepository.getById(integerId(resource));
+        if (!Objects.equals(category.getShop().getId(), resource.parentId())) {
+            throw CustomException.of(TRANSLATION_SOURCE_NOT_FOUND);
+        }
+        return fields(resource, TranslationSourceFields.name(category.getName()), false);
+    }
+
+    private TranslationSource orderableShopMenuGroup(TranslationResource resource) {
+        var orderableShop = orderableShopRepository.getByIdWithMenus(resource.parentId());
+        shopRepository.getById(orderableShop.getShop().getId());
+        var group = orderableShop.getMenuGroups().stream()
+            .filter(value -> Objects.equals(value.getId(), integerId(resource)))
+            .filter(value -> !Boolean.TRUE.equals(value.getIsDeleted()))
+            .findFirst().orElseThrow(() -> CustomException.of(TRANSLATION_SOURCE_NOT_FOUND));
+        return fields(resource, TranslationSourceFields.name(group.getName()), false);
+    }
+
+    private TranslationSource orderableShopMenu(TranslationResource resource) {
+        var orderableShop = orderableShopRepository.getById(resource.parentId());
+        shopRepository.getById(orderableShop.getShop().getId());
+        var menu = orderableShopMenuRepository.getByIdWithMenuOptionGroups(integerId(resource));
+        if (Boolean.TRUE.equals(menu.getIsDeleted())
+            || !Objects.equals(menu.getOrderableShop().getId(), resource.parentId())) {
+            throw CustomException.of(TRANSLATION_SOURCE_NOT_FOUND);
+        }
+        var response = OrderableShopMenuResponse.from(menu);
+        Map<String, String> texts = new LinkedHashMap<>();
+        addText(texts, "name", response.name());
+        addText(texts, "description", response.description());
+        for (int i = 0; i < response.prices().size(); i++) {
+            addText(texts, "price_" + i + "_name", response.prices().get(i).name());
+        }
+        for (int i = 0; i < response.optionGroups().size(); i++) {
+            var group = response.optionGroups().get(i);
+            String key = "group_" + i;
+            addText(texts, key + "_name", group.name());
+            addText(texts, key + "_description", group.description());
+            for (int j = 0; j < group.options().size(); j++) {
+                addText(texts, key + "_option_" + j + "_name", group.options().get(j).name());
+            }
+        }
+        return TranslationSource.of(resource, TranslationSourceFields.orderableShopMenu(response), texts,
+            texts.isEmpty() ? TranslationReason.UNSUPPORTED_CONTENT : null);
+    }
+
+    private void addText(Map<String, String> texts, String key, String value) {
+        if (hasLetters(value)) {
+            texts.put(key, value);
+        }
+    }
+
+    private TranslationSource shopMenu(TranslationResource resource) {
+        shopRepository.getById(resource.parentId());
+        var menu = menuRepository.getById(integerId(resource));
+        if (!Objects.equals(menu.getShop().getId(), resource.parentId()) || menu.isHidden()) {
+            throw CustomException.of(TRANSLATION_SOURCE_NOT_FOUND);
+        }
+        return fields(resource, TranslationSourceFields.shopMenu(menu.getName(), menu.getDescription()), false);
     }
 
     private TranslationSource summary(TranslationResource resource) {

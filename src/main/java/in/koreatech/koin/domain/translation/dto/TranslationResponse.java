@@ -14,7 +14,8 @@ public record TranslationResponse<T>(
     String status,
     @Schema(example = "en-US") String targetLanguage,
     @Schema(description = "실제 번역 대상 원문의 버전") String sourceVersion,
-    @Schema(nullable = true) TranslationReason reasonCode,
+    @Schema(description = "MISSING_TRANSLATION은 번역문 누락, INVALID_TRANSLATION은 잘못된 결과입니다.", nullable = true)
+    TranslationReason reasonCode,
     @Schema(description = "재시도 가능 여부. 대기 시간은 Retry-After를 따릅니다.") boolean retryable,
     @Schema(description = "SUCCESS인 경우 전체 번역 결과, 나머지 상태는 null", nullable = true) T data
 ) {

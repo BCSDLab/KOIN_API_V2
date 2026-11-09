@@ -57,12 +57,12 @@ class UpstageTranslationClientTest {
             var failure = catchThrowableOfType(() -> client.translate(fields, SupportedLanguage.ENGLISH),
                 TranslationFailureException.class);
 
-            assertThat(failure.getReason()).isEqualTo(TranslationReason.INVALID_TRANSLATION);
-            assertThat(failure.getMessage()).isEqualTo("INVALID_TRANSLATION");
+            assertThat(failure.getReason()).isEqualTo(TranslationReason.MISSING_TRANSLATION);
+            assertThat(failure.getMessage()).isEqualTo("MISSING_TRANSLATION");
             assertThat(failure.getCause()).isNull();
             assertThat(logs.list).isNotEmpty().allSatisfy(event -> {
                 assertThat(event.getThrowableProxy()).isNull();
-                assertThat(event.getFormattedMessage()).contains("reason=INVALID_TRANSLATION")
+                assertThat(event.getFormattedMessage()).contains("reason=MISSING_TRANSLATION")
                     .doesNotContain("private-source", "private-response", "private-api-key");
             });
         } finally {

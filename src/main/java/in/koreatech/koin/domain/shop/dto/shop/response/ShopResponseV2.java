@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.shop.dto.shop.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
+
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -88,6 +92,12 @@ public record ShopResponseV2(
     @JsonFormat(pattern = "HH:mm")
     LocalTime closeTime
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "이 항목의 번역 원문 버전. 번역 요청 expected_source_version으로 전달합니다.")
+    public String getTranslationSourceVersion() {
+        return TranslationSourceVersion.of(TranslationSourceFields.shop(description));
+    }
+
 
     public static ShopResponseV2 from(Shop shop, LocalDate now) {
         Collections.sort(shop.getMenuCategories());
@@ -192,6 +202,12 @@ public record ShopResponseV2(
         @Schema(example = "대표 메뉴", description = "이름", requiredMode = REQUIRED)
         String name
     ) {
+        @JsonProperty("translation_source_version")
+        @Schema(description = "이 메뉴 분류 이름의 번역 원문 버전")
+        public String getTranslationSourceVersion() {
+            return TranslationSourceVersion.of(TranslationSourceFields.name(name));
+        }
+
 
     }
 }

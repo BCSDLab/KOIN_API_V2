@@ -33,6 +33,98 @@ import jakarta.validation.Valid;
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 })
 public interface TranslationApi {
+    @Operation(summary = "상점 메뉴 분류 이름 번역", description = "분류 이름을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 원문 변경 확인용 버전. 메뉴 분류 GET의 해당 `menu_categories[]` 항목에서 `translation_source_version`을 그대로 보냅니다. |
+            """))
+    @SecurityRequirements
+    @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
+    @PostMapping("/shops/{shopId}/menus/categories/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Name>> shopMenuCategory(
+        @PathVariable Integer shopId, @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "주문 메뉴 분류 이름 번역", description = "주문 메뉴의 분류 이름을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 원문 변경 확인용 버전. 주문 메뉴 분류 GET의 해당 `menu_groups[]` 항목에서 `translation_source_version`을 그대로 보냅니다. |
+            """))
+    @SecurityRequirements
+    @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
+    @PostMapping("/order/shop/{orderableShopId}/menus/groups/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Name>> orderableShopMenuGroup(
+        @PathVariable Integer orderableShopId, @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "주문 메뉴·옵션 번역", description = "메뉴와 옵션의 이름·설명을 번역합니다. 항목 ID는 원문과 같습니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 원문 변경 확인용 버전. 주문 메뉴 상세 GET 응답의 `translation_source_version`을 그대로 보냅니다. |
+            """))
+    @SecurityRequirements
+    @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
+    @PostMapping("/order/shop/{orderableShopId}/menus/{orderableShopMenuId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.OrderableShopMenu>> orderableShopMenu(
+        @PathVariable Integer orderableShopId, @PathVariable Integer orderableShopMenuId,
+        @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "상점 소개·공지 번역", description = "상점 소개·공지·상세 위치 설명을 번역합니다. 경로 ID에는 주문상점 상세의 shop_id를 사용합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 원문 변경 확인용 버전. `GET /order/shop/{orderableShopId}/detail`의 `translation_source_version`을 그대로 보냅니다. |
+            """))
+    @SecurityRequirements
+    @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
+    @PostMapping("/shops/{id}/info/translations")
+    ResponseEntity<TranslationResponse<TranslationData.ShopInfo>> shopInfo(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "식단 메뉴 번역", description = "식단의 메뉴를 원래 순서대로 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 원문 변경 확인용 버전. `GET /dinings`에서 번역할 식단의 `translation_source_version`을 그대로 보냅니다. |
+            """))
+    @SecurityRequirements
+    @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
+    @PostMapping("/dinings/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Dining>> dining(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "상점 설명 번역", description = "상점의 설명을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 원문 변경 확인용 버전. 상점 상세 GET 응답의 `translation_source_version`을 그대로 보냅니다. |
+            """))
+    @SecurityRequirements
+    @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
+    @PostMapping("/shops/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Shop>> shop(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "상점 메뉴 번역", description = "상점 메뉴의 이름과 설명을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 원문 변경 확인용 버전. 메뉴 목록의 해당 메뉴 또는 메뉴 상세 응답의 `translation_source_version`을 그대로 보냅니다. |
+            """))
+    @SecurityRequirements
+    @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
+    @PostMapping("/shops/{shopId}/menus/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.ShopMenu>> shopMenu(
+        @PathVariable Integer shopId, @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
     @Operation(summary = "공지 AI 요약 번역", description = "현재 공지의 AI 요약을 번역합니다.",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
             | 필드 | 설명 |

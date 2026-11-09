@@ -45,6 +45,9 @@ public class UpstageTranslationClient implements TranslationAiClient {
         Each output value must be a non-empty string.
         Translate every field completely. Do not summarize, omit, embellish, explain, or invent information.
         Preserve numbers, amounts, dates, times, units, URLs, emoji, line breaks, paragraphs, and conditions.
+        Copy every __KOIN_...__ token exactly once in its original field. Never alter, translate, or expand it.
+        Tokens represent literal values. Never convert currencies or replace them with local currency names.
+        Keep standalone URLs at the end of a text as well. Every source URL must appear unchanged in its output field.
         Preserve proper nouns in their original form. Do not invent an official translated name.
         If a value is already written in the target language, return it unchanged without rewriting it.
         Do not add Markdown fences or text outside the JSON object.
@@ -81,11 +84,12 @@ public class UpstageTranslationClient implements TranslationAiClient {
             throw failure(TranslationReason.TEMPORARY_ERROR);
         }
         try {
+            TranslationTextProtection protectedText = TranslationTextProtection.protect(fields);
             String response = webClient.post()
                 .uri("/chat/completions")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + upstageProperties.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody(fields, targetLanguage))
+                .bodyValue(requestBody(protectedText.fields(), targetLanguage))
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), clientResponse -> {
                     int status = clientResponse.statusCode().value();
@@ -101,7 +105,7 @@ public class UpstageTranslationClient implements TranslationAiClient {
                 .timeout(Duration.ofSeconds(translationProperties.getRequestTimeoutSeconds()))
                 .onErrorMap(TimeoutException.class, this::transportFailure)
                 .block();
-            return readTranslation(response, fields);
+            return protectedText.restore(readTranslation(response, fields));
         } catch (JsonProcessingException | DataBufferLimitException | DecodingException e) {
             log.warn("event=upstage_translation_invalid_response exception_type={} reason={}",
                 e.getClass().getSimpleName(), TranslationReason.INVALID_TRANSLATION);
@@ -140,7 +144,7 @@ public class UpstageTranslationClient implements TranslationAiClient {
                 Map.of("role", "user", "content", objectMapper.writeValueAsString(fields))
             ),
             "temperature", 0.2,
-            "reasoning_effort", "low",
+            "reasoning_effort", "none",
             "response_format", Map.of(
                 "type", "json_schema",
                 "json_schema", Map.of(
@@ -174,22 +178,28 @@ public class UpstageTranslationClient implements TranslationAiClient {
             throw failure(TranslationReason.INVALID_TRANSLATION);
         }
         JsonNode translated = jsonReader.readTree(content.textValue());
-        if (!translated.isObject() || translated.size() != sourceFields.size()) {
+        if (!translated.isObject()) {
             throw failure(TranslationReason.INVALID_TRANSLATION);
         }
         Map<String, String> result = new LinkedHashMap<>();
         for (String field : sourceFields.keySet()) {
             JsonNode value = translated.get(field);
-            if (value == null || !value.isTextual() || !StringUtils.hasText(value.textValue())) {
+            if (value == null || value.isNull() || (value.isTextual() && !StringUtils.hasText(value.textValue()))) {
+                throw failure(TranslationReason.MISSING_TRANSLATION);
+            }
+            if (!value.isTextual()) {
                 throw failure(TranslationReason.INVALID_TRANSLATION);
             }
             result.put(field, value.textValue());
+        }
+        if (translated.size() != sourceFields.size()) {
+            throw failure(TranslationReason.INVALID_TRANSLATION);
         }
         return Collections.unmodifiableMap(result);
     }
 
     private TranslationFailureException failure(TranslationReason reason) {
-        if (reason == TranslationReason.INVALID_TRANSLATION) {
+        if (reason == TranslationReason.INVALID_TRANSLATION || reason == TranslationReason.MISSING_TRANSLATION) {
             log.warn("event=upstage_translation_invalid_response reason={}", reason);
         }
         return new TranslationFailureException(reason, null);

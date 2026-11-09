@@ -150,8 +150,11 @@ public class TranslationService {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> translatedData(TranslationSource source, Map<String, String> translated) {
-        if (translated == null || !translated.keySet().equals(source.texts().keySet())
+        if (translated == null || !translated.keySet().containsAll(source.texts().keySet())
             || translated.values().stream().anyMatch(value -> !StringUtils.hasText(value))) {
+            throw new TranslationFailureException(TranslationReason.MISSING_TRANSLATION, null);
+        }
+        if (!translated.keySet().equals(source.texts().keySet())) {
             throw new TranslationFailureException(TranslationReason.INVALID_TRANSLATION, null);
         }
         Map<String, Object> data = new LinkedHashMap<>(source.data());
@@ -167,9 +170,52 @@ public class TranslationService {
                 result.add(item);
             }
             data.put("items", result);
+        } else if (source.resource().type() == TranslationType.DINING) {
+            List<String> menu = (List<String>)source.data().get("menu");
+            List<String> result = new ArrayList<>(menu);
+            for (int i = 0; i < menu.size(); i++) {
+                if (translated.containsKey("menu_" + i)) {
+                    result.set(i, translated.get("menu_" + i));
+                }
+            }
+            data.put("menu", result);
+        } else if (source.resource().type() == TranslationType.ORDERABLE_SHOP_MENU) {
+            data = translatedLabels(data, translated, "");
+            List<Map<String, Object>> prices = (List<Map<String, Object>>)data.get("prices");
+            List<Map<String, Object>> translatedPrices = new ArrayList<>();
+            for (int i = 0; i < prices.size(); i++) {
+                translatedPrices.add(translatedLabels(prices.get(i), translated, "price_" + i + "_"));
+            }
+            data.put("prices", translatedPrices);
+            List<Map<String, Object>> groups = (List<Map<String, Object>>)data.get("option_groups");
+            List<Map<String, Object>> translatedGroups = new ArrayList<>();
+            for (int i = 0; i < groups.size(); i++) {
+                String prefix = "group_" + i + "_";
+                Map<String, Object> group = translatedLabels(groups.get(i), translated, prefix);
+                List<Map<String, Object>> options = (List<Map<String, Object>>)group.get("options");
+                List<Map<String, Object>> translatedOptions = new ArrayList<>();
+                for (int j = 0; j < options.size(); j++) {
+                    translatedOptions.add(translatedLabels(options.get(j), translated, prefix + "option_" + j + "_"));
+                }
+                group.put("options", translatedOptions);
+                translatedGroups.add(group);
+            }
+            data.put("option_groups", translatedGroups);
         } else {
             data.putAll(translated);
         }
         return data;
+    }
+
+    private Map<String, Object> translatedLabels(Map<String, Object> source, Map<String, String> translated,
+        String prefix) {
+        Map<String, Object> result = new LinkedHashMap<>(source);
+        for (String field : List.of("name", "description")) {
+            String text = translated.get(prefix + field);
+            if (text != null) {
+                result.put(field, text);
+            }
+        }
+        return result;
     }
 }

@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.shop.dto.menu.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
+
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -49,6 +53,12 @@ public record MenuDetailResponse(
     @Schema(description = "이미지 URL 리스트", requiredMode = NOT_REQUIRED)
     List<String> imageUrls
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "이 항목의 번역 원문 버전. 번역 요청 expected_source_version으로 전달합니다.")
+    public String getTranslationSourceVersion() {
+        return TranslationSourceVersion.of(TranslationSourceFields.shopMenu(name, description));
+    }
+
 
     public static MenuDetailResponse createForSingleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
         if (menu.hasMultipleOption()) {

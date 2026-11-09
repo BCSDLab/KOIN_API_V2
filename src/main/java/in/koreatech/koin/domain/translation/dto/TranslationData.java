@@ -25,6 +25,36 @@ public final class TranslationData {
     public record Recruitment(String title, String description, @Schema(nullable = true) String qualification) {
     }
 
+    public record Dining(List<String> menu) {
+    }
+
+    public record Shop(@Schema(nullable = true) String description) {
+    }
+
+    @JsonNaming(SnakeCaseStrategy.class)
+    public record ShopInfo(@Schema(nullable = true) String introduction, @Schema(nullable = true) String notice,
+        @Schema(nullable = true) String addressDetail) {
+    }
+
+    public record ShopMenu(String name, @Schema(nullable = true) String description) {
+    }
+
+    @JsonNaming(SnakeCaseStrategy.class)
+    public record OrderableShopMenu(String name, @Schema(nullable = true) String description,
+        List<NamedItem> prices, List<MenuOptionGroup> optionGroups) {
+    }
+
+    public record NamedItem(@Schema(description = "원문 항목 ID. 변경하지 않습니다.") Integer id,
+        @Schema(nullable = true) String name) {
+    }
+
+    public record MenuOptionGroup(Integer id, String name, @Schema(nullable = true) String description,
+        List<NamedItem> options) {
+    }
+
+    public record Name(String name) {
+    }
+
     public record Message(String content) {
     }
 }

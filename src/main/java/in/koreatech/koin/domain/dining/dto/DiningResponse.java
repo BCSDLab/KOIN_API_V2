@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.dining.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
+
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -69,6 +73,12 @@ public record DiningResponse(
     @Schema(description = "식단 좋아요 여부", example = "true", requiredMode = REQUIRED)
     Boolean isLiked
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "이 항목의 번역 원문 버전. 번역 요청 expected_source_version으로 전달합니다.")
+    public String getTranslationSourceVersion() {
+        return TranslationSourceVersion.of(TranslationSourceFields.dining(menu));
+    }
+
 
     public static DiningResponse from(Dining dining, Boolean isLiked) {
         return new DiningResponse(

@@ -24,6 +24,48 @@ public class TranslationController implements TranslationApi {
     private final ObjectMapper objectMapper;
 
     @Override
+    public ResponseEntity<TranslationResponse<TranslationData.Name>> shopMenuCategory(Integer shopId, Integer id,
+        @RequestBody @Valid TranslationRequest request) {
+        return translated(new TranslationResource(SHOP_MENU_CATEGORY, id.toString(), shopId, 0),
+            request, null, TranslationData.Name.class);
+    }
+
+    @Override
+    public ResponseEntity<TranslationResponse<TranslationData.Name>> orderableShopMenuGroup(Integer orderableShopId, Integer id,
+        @RequestBody @Valid TranslationRequest request) {
+        return translated(new TranslationResource(ORDERABLE_SHOP_MENU_GROUP, id.toString(), orderableShopId, 0),
+            request, null, TranslationData.Name.class);
+    }
+
+    @Override
+    public ResponseEntity<TranslationResponse<TranslationData.OrderableShopMenu>> orderableShopMenu(
+        Integer orderableShopId, Integer orderableShopMenuId, @RequestBody @Valid TranslationRequest request) {
+        return translated(new TranslationResource(ORDERABLE_SHOP_MENU, orderableShopMenuId.toString(), orderableShopId, 0),
+            request, null, TranslationData.OrderableShopMenu.class);
+    }
+
+    @Override
+    public ResponseEntity<TranslationResponse<TranslationData.ShopInfo>> shopInfo(Integer id, @RequestBody @Valid TranslationRequest request) {
+        return translated(TranslationResource.article(SHOP_INFO, id), request, null, TranslationData.ShopInfo.class);
+    }
+
+    @Override
+    public ResponseEntity<TranslationResponse<TranslationData.Dining>> dining(Integer id, @RequestBody @Valid TranslationRequest request) {
+        return translated(TranslationResource.article(DINING, id), request, null, TranslationData.Dining.class);
+    }
+
+    @Override
+    public ResponseEntity<TranslationResponse<TranslationData.Shop>> shop(Integer id, @RequestBody @Valid TranslationRequest request) {
+        return translated(TranslationResource.article(SHOP, id), request, null, TranslationData.Shop.class);
+    }
+
+    @Override
+    public ResponseEntity<TranslationResponse<TranslationData.ShopMenu>> shopMenu(Integer shopId, Integer id,
+        @RequestBody @Valid TranslationRequest request) {
+        return translated(new TranslationResource(SHOP_MENU, id.toString(), shopId, 0), request, null, TranslationData.ShopMenu.class);
+    }
+
+    @Override
     public ResponseEntity<TranslationResponse<TranslationData.Summary>> summary(Integer id, @RequestBody @Valid TranslationRequest request) {
         return translated(TranslationResource.article(ARTICLE_SUMMARY, id), request, null, TranslationData.Summary.class);
     }
