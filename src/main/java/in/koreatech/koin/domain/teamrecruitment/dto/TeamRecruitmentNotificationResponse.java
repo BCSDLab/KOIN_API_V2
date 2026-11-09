@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -55,7 +56,9 @@ public record TeamRecruitmentNotificationResponse(
                 notification.getApplication() != null ? notification.getApplication().getId() : null,
                 notification.getChatRoom() != null ? notification.getChatRoom().getId() : null,
                 notification.getSenderNickname(),
-                notification.getMessagePreview(),
+                NotificationMessages.teamMessage(notification.getRecipient(), notification.getType(),
+                    notification.getRecruitment().getTitle() == null ? "팀원 모집" : notification.getRecruitment().getTitle(),
+                    notification.getMessagePreview()),
                 notification.isRead(),
                 notification.getCreatedAt()
         );

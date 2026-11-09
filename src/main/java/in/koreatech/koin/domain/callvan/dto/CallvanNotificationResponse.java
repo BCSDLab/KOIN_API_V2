@@ -73,7 +73,7 @@ public record CallvanNotificationResponse(
         return new CallvanNotificationResponse(
             notification.getId(),
             notification.getNotificationType(),
-            notification.getMessagePreview(),
+            in.koreatech.koin.domain.callvan.model.CallvanPushNotificationFactory.localizedPreview(notification),
             notification.getIsRead(),
             notification.getCreatedAt(),
             notification.getPost() != null ? notification.getPost().getId() : null,

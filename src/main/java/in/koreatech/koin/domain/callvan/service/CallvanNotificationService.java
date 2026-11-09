@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.event.CallvanPushNotificationEvent;
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
@@ -125,7 +126,9 @@ public class CallvanNotificationService {
                 CallvanNotificationType.NEW_MESSAGE,
                 post,
                 senderNickname,
-                notificationContent,
+                messageType == CallvanMessageType.IMAGE
+                    ? NotificationMessages.format(p.getMember(), "%s님이 사진을 보냈습니다.", senderNickname)
+                    : notificationContent,
                 null
             ))
             .toList();

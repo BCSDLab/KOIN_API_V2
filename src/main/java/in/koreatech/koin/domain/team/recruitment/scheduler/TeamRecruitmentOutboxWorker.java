@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
@@ -116,13 +117,20 @@ public class TeamRecruitmentOutboxWorker {
             }
 
             String recruitmentTitle = recruitment.getTitle() == null
-                ? "팀원 모집"
+                ? NotificationMessages.format(recipient, "팀원 모집")
                 : recruitment.getTitle();
             String title = text(payload, "title").orElse(recruitmentTitle);
             String content = text(payload, "content")
                 .or(() -> text(payload, "message_preview"))
                 .or(() -> inbox.map(TeamRecruitmentNotification::getMessagePreview))
-                .orElseGet(() -> fallbackContent(outboxPayload.type(), recruitmentTitle));
+                .orElseGet(() -> outboxPayload.type() == TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE
+                    ? NotificationMessages.format(recipient, "%s 새 메시지가 도착했어요.", recruitmentTitle)
+                    : fallbackContent(outboxPayload.type(), recruitment.getTitle() == null ? "팀원 모집" : recruitment.getTitle()));
+
+            if (outboxPayload.type() != TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE) {
+                content = NotificationMessages.teamMessage(recipient, outboxPayload.type(),
+                    recruitment.getTitle() == null ? "팀원 모집" : recruitment.getTitle(), content);
+            }
 
             FcmSendRequest request = FcmSendRequest.of(
                 recipient.getDeviceToken(),

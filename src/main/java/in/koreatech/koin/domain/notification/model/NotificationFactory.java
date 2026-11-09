@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.common.model.MobileAppPath;
 
@@ -23,8 +25,8 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateSchemeUri(path, orderId),
-            generateOrderTitle(status),
-            generateOrderMessage(status, shopName, delivery, estimatedAt),
+            NotificationMessages.translateKnown(target, generateOrderTitle(status)),
+            generateOrderMessage(status, shopName, delivery, estimatedAt, target),
             null,
             NotificationType.MESSAGE,
             target
@@ -40,8 +42,8 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateClubRecruitmentSchemeUri(path, clubId),
-            "[코인동아리] %s 모집 공고가 갱신되었어요!".formatted(clubName),
-            "%s에 모집 정보가 새로 업데이트되었어요.\n행사 내용 둘러보기".formatted(clubName),
+            NotificationMessages.format(target, "[코인동아리] %s 모집 공고가 갱신되었어요!", clubName),
+            NotificationMessages.format(target, "%s에 모집 정보가 새로 업데이트되었어요.\n행사 내용 둘러보기", clubName),
             null,
             NotificationType.MESSAGE,
             target
@@ -60,9 +62,9 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateClubEventSchemeUri(path, clubId, eventId),
-            "[코인 동아리] %s에 내일 예정된 행사가 있어요!".formatted(clubName),
-            "%s - %s의 행사가 %s에 진행 될 예정이에요.\n행사 내용 둘러보기"
-                .formatted(eventName, clubName, formatEventDateTime(eventDateTime)),
+            NotificationMessages.format(target, "[코인 동아리] %s에 내일 예정된 행사가 있어요!", clubName),
+            NotificationMessages.format(target, "%s - %s의 행사가 %s에 진행 될 예정이에요.\n행사 내용 둘러보기",
+                eventName, clubName, formatEventDateTime(eventDateTime, target)),
             null,
             NotificationType.MESSAGE,
             target
@@ -80,8 +82,8 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateClubEventSchemeUri(path, clubId, eventId), // 검토필요
-            "[코인 동아리] 오늘 %s 행사가 한 시간 남았어요!".formatted(clubName),
-            "%s - %s의 행사가 1시간 뒤에 시작 할 예정이에요.\n행사 내용 둘러보기".formatted(eventName, clubName),
+            NotificationMessages.format(target, "[코인 동아리] 오늘 %s 행사가 한 시간 남았어요!", clubName),
+            NotificationMessages.format(target, "%s - %s의 행사가 1시간 뒤에 시작 할 예정이에요.\n행사 내용 둘러보기", eventName, clubName),
             null,
             NotificationType.MESSAGE,
             target
@@ -99,8 +101,8 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateSchemeUri(path, eventShopId),
-            String.format("%s%s", shopName, title),
-            message,
+            String.format("%s%s", shopName, NotificationMessages.translateKnown(target, title)),
+            NotificationMessages.translateKnown(target, message),
             null,
             NotificationType.MESSAGE,
             target
@@ -118,7 +120,7 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateSchemeUri(path, eventShopId),
-            "%s의 이벤트가 추가되었어요 🎉".formatted(shopName),
+            NotificationMessages.format(target, "%s의 이벤트가 추가되었어요 🎉", shopName),
             "%s".formatted(title),
             imageUrl,
             NotificationType.MESSAGE,
@@ -135,8 +137,9 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateSchemeUri(path, eventDiningId),
-            "%s 품절됐어요 \uD83D\uDE22".formatted(getPostposition(place, "이", "가")),
-            "다른 코너 메뉴도 확인해보세요",
+            NotificationMessages.format(target, "%s 품절됐어요 😢",
+                isKorean(target) ? getPostposition(place, "이", "가") : place),
+            NotificationMessages.format(target, "다른 코너 메뉴도 확인해보세요"),
             null,
             NotificationType.MESSAGE,
             target
@@ -152,8 +155,8 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateSchemeUri(path, eventDiningId),
-            "식단 사진이 업로드 됐어요!",
-            "사진 보러 가기 \uD83D\uDE0B",
+            NotificationMessages.format(target, "식단 사진이 업로드 됐어요!"),
+            NotificationMessages.format(target, "사진 보러 가기 😋"),
             imageUrl,
             NotificationType.MESSAGE,
             target
@@ -172,7 +175,7 @@ public class NotificationFactory {
             path,
             generateKeywordSchemeUri(path, eventKeywordId, keyword, boardId),
             title,
-            "방금 등록된 %s 공지를 확인해보세요!".formatted(keyword),
+            NotificationMessages.format(target, "방금 등록된 %s 공지를 확인해보세요!", keyword),
             null,
             NotificationType.MESSAGE,
             target
@@ -190,7 +193,7 @@ public class NotificationFactory {
             path,
             generateLostItemKeywordSchemeUri(path, eventKeywordId, keyword),
             title,
-            "방금 등록된 %s 분실물 게시물을 확인해보세요!".formatted(keyword),
+            NotificationMessages.format(target, "방금 등록된 %s 분실물 게시물을 확인해보세요!", keyword),
             null,
             NotificationType.MESSAGE,
             target
@@ -208,7 +211,7 @@ public class NotificationFactory {
         return new Notification(
             path,
             generateChatMessageSchemeUri(path, articleId, chatRoomId),
-            String.format("%s님의 메시지", senderName),
+            NotificationMessages.format(target, "%s님의 메시지", senderName),
             messageContent,
             null,
             NotificationType.MESSAGE,
@@ -228,31 +231,37 @@ public class NotificationFactory {
         };
     }
 
-    private String generateOrderMessage(String status, String shopName, boolean delivery, LocalDateTime estimatedAt) {
+    private String generateOrderMessage(String status, String shopName, boolean delivery, LocalDateTime estimatedAt, User target) {
         return switch (status) {
             case "COOKING" -> appendEstimatedTime(
-                "%s에서 조리를 시작했어요.".formatted(shopName),
+                NotificationMessages.format(target, "%s에서 조리를 시작했어요.", shopName),
                 delivery ? "예상 도착" : "포장 완료 예정",
-                estimatedAt
+                estimatedAt, target
             );
             case "DELIVERING" -> appendEstimatedTime(
-                "%s에서 주문하신 음식이 배달 중이에요.".formatted(shopName), "예상 도착", estimatedAt
+                NotificationMessages.format(target, "%s에서 주문하신 음식이 배달 중이에요.", shopName), "예상 도착", estimatedAt, target
             );
-            case "PACKAGED" -> "%s에서 주문을 수령해 주세요.".formatted(shopName);
-            case "PICKED_UP", "DELIVERED" -> "%s 주문, 맛있게 드세요!".formatted(shopName);
-            case "CANCELED" -> "%s 주문의 자세한 내용은 주문 내역을 확인해 주세요.".formatted(shopName);
+            case "PACKAGED" -> NotificationMessages.format(target, "%s에서 주문을 수령해 주세요.", shopName);
+            case "PICKED_UP", "DELIVERED" -> NotificationMessages.format(target, "%s 주문, 맛있게 드세요!", shopName);
+            case "CANCELED" -> NotificationMessages.format(target, "%s 주문의 자세한 내용은 주문 내역을 확인해 주세요.", shopName);
             default -> throw new IllegalArgumentException("알림 대상이 아닌 주문 상태: " + status);
         };
     }
 
-    private String appendEstimatedTime(String message, String estimatedTimeLabel, LocalDateTime estimatedAt) {
-        String estimatedTime = estimatedAt.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
-        return "%s\n%s: %s".formatted(message, estimatedTimeLabel, estimatedTime);
+    private String appendEstimatedTime(String message, String estimatedTimeLabel, LocalDateTime estimatedAt, User target) {
+        String estimatedTime = estimatedAt.format(DateTimeFormatter.ofPattern(isKorean(target) ? "M월 d일 HH:mm" : "MM-dd HH:mm"));
+        return "%s\n%s: %s".formatted(message, NotificationMessages.translateKnown(target, estimatedTimeLabel), estimatedTime);
     }
 
-    private String formatEventDateTime(LocalDateTime dateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M월 d일 HH시 mm분");
+    private String formatEventDateTime(LocalDateTime dateTime, User target) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(isKorean(target) ? "M월 d일 HH시 mm분" : "MM-dd HH:mm");
         return dateTime.format(formatter);
+    }
+
+    private boolean isKorean(User target) {
+        return SupportedLanguage.fromStoredCode(
+            target == null ? null : target.getPreferredLanguage())
+            == SupportedLanguage.KOREAN;
     }
 
     private String generateClubRecruitmentSchemeUri(MobileAppPath path, Integer clubId) {
