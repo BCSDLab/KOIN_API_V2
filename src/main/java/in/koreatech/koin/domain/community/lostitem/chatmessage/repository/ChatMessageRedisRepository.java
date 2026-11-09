@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.data.domain.Range;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -50,7 +51,25 @@ public class ChatMessageRedisRepository {
     public Optional<ChatMessageEntity> findByArticleIdAndChatRoomIdAndId(
         Integer articleId, Integer chatRoomId, Long messageId
     ) {
-        return findByArticleIdAndChatRoomId(articleId, chatRoomId).stream()
+        if (messageId == null || messageId < 10_000) {
+            return Optional.empty();
+        }
+        String tsidKey = formatTSIDKey(messageId);
+        // 모든 member의 score는 0이다. '|' 다음 ASCII 문자인 '}'를 배타 상한으로 사용한다.
+        Set<String> values = redisTemplate.opsForZSet().rangeByLex(getChatRoomKey(articleId, chatRoomId),
+            Range.rightOpen(tsidKey + SEPARATOR, tsidKey + "}"));
+        if (values == null || values.isEmpty()) {
+            return Optional.empty();
+        }
+        return values.stream()
+            .map(value -> {
+                try {
+                    return objectMapper.readValue(value.substring(value.indexOf(SEPARATOR) + 1), ChatMessageEntity.class);
+                } catch (JsonProcessingException exception) {
+                    throw new MessageProcessingException("메시지 조회 실패");
+                }
+            })
+            .filter(Objects::nonNull)
             .filter(message -> Objects.equals(message.getId(), messageId))
             .filter(message -> Objects.equals(message.getArticleId(), articleId))
             .filter(message -> Objects.equals(message.getChatRoomId(), chatRoomId))
