@@ -36,7 +36,14 @@ public final class TranslationData {
         @Schema(nullable = true) String addressDetail) {
     }
 
-    public record ShopMenu(String name, @Schema(nullable = true) String description) {
+    @JsonNaming(SnakeCaseStrategy.class)
+    public record ShopMenu(String name, @Schema(nullable = true) String description,
+        @Schema(description = "원문 순서의 옵션명과 가격. 단일 메뉴는 null입니다.", nullable = true)
+        List<ShopMenuOptionPrice> optionPrices) {
+    }
+
+    public record ShopMenuOptionPrice(@Schema(nullable = true) String option,
+        @Schema(description = "원문 가격. 번역하지 않습니다.") Integer price) {
     }
 
     @JsonNaming(SnakeCaseStrategy.class)

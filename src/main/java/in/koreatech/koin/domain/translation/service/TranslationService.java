@@ -216,6 +216,20 @@ public class TranslationService {
                 translatedGroups.add(group);
             }
             data.put("option_groups", translatedGroups);
+        } else if (source.resource().type() == TranslationType.SHOP_MENU) {
+            data = translatedLabels(data, translated, "");
+            List<Map<String, Object>> options = (List<Map<String, Object>>)data.get("option_prices");
+            if (options != null) {
+                List<Map<String, Object>> translatedOptions = new ArrayList<>();
+                for (int i = 0; i < options.size(); i++) {
+                    Map<String, Object> option = new LinkedHashMap<>(options.get(i));
+                    if (translated.containsKey("option_" + i)) {
+                        option.put("option", translated.get("option_" + i));
+                    }
+                    translatedOptions.add(option);
+                }
+                data.put("option_prices", translatedOptions);
+            }
         } else {
             data.putAll(translated);
         }

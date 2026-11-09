@@ -112,7 +112,7 @@ public interface TranslationApi {
     ResponseEntity<TranslationResponse<TranslationData.Shop>> shop(
         @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
 
-    @Operation(summary = "상점 메뉴 번역", description = "상점 메뉴의 이름과 설명을 번역합니다.",
+    @Operation(summary = "상점 메뉴 번역", description = "상점 메뉴의 이름·설명·옵션명을 번역합니다. 가격과 옵션 순서는 유지합니다.",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
             | 필드 | 설명 |
             | --- | --- |

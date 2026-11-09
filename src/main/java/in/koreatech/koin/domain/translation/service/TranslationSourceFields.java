@@ -58,6 +58,20 @@ public final class TranslationSourceFields {
         return fields;
     }
 
+    public static Map<String, Object> shopMenu(String name, String description,
+        List<Map<String, Object>> optionPrices) {
+        Map<String, Object> fields = shopMenu(name, description);
+        fields.put("option_prices", optionPrices);
+        return fields;
+    }
+
+    public static Map<String, Object> optionPrice(String option, Integer price) {
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put("option", option);
+        fields.put("price", price);
+        return fields;
+    }
+
     public static Map<String, Object> orderableShopMenu(OrderableShopMenuResponse menu) {
         Map<String, Object> fields = shopMenu(menu.name(), menu.description());
         fields.put("prices", menu.prices().stream().map(price -> identifiedName(price.id(), price.name())).toList());

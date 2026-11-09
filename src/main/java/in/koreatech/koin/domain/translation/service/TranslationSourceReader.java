@@ -166,7 +166,19 @@ public class TranslationSourceReader {
         if (!Objects.equals(menu.getShop().getId(), resource.parentId()) || menu.isHidden()) {
             throw CustomException.of(TRANSLATION_SOURCE_NOT_FOUND);
         }
-        return fields(resource, TranslationSourceFields.shopMenu(menu.getName(), menu.getDescription()), false);
+        var optionPrices = menu.hasMultipleOption() ? menu.getMenuOptions().stream()
+            .map(option -> TranslationSourceFields.optionPrice(option.getOption(), option.getPrice())).toList() : null;
+        Map<String, String> texts = new LinkedHashMap<>();
+        addText(texts, "name", menu.getName());
+        addText(texts, "description", menu.getDescription());
+        if (optionPrices != null) {
+            for (int i = 0; i < optionPrices.size(); i++) {
+                addText(texts, "option_" + i, (String)optionPrices.get(i).get("option"));
+            }
+        }
+        return TranslationSource.of(resource,
+            TranslationSourceFields.shopMenu(menu.getName(), menu.getDescription(), optionPrices), texts,
+            texts.isEmpty() ? TranslationReason.UNSUPPORTED_CONTENT : null);
     }
 
     private TranslationSource summary(TranslationResource resource) {

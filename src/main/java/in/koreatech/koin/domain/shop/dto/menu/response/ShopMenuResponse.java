@@ -119,7 +119,9 @@ public record ShopMenuResponse(
             @JsonProperty("translation_source_version")
             @Schema(description = "이 항목의 번역 원문 버전. 번역 요청 expected_source_version으로 전달합니다.")
             public String getTranslationSourceVersion() {
-                return TranslationSourceVersion.of(TranslationSourceFields.shopMenu(name, description));
+                return TranslationSourceVersion.of(TranslationSourceFields.shopMenu(name, description,
+                    optionPrices == null ? null : optionPrices.stream()
+                        .map(option -> TranslationSourceFields.optionPrice(option.option(), option.price())).toList()));
             }
             public static InnerMenuResponse from(MenuCategoryMap menuCategoryMap) {
                 Menu menu = menuCategoryMap.getMenu();
