@@ -61,7 +61,9 @@ public interface BusApi {
     @GetMapping("/timetable/city")
     ResponseEntity<CityBusTimetableResponse> getCityBusTimetable(
         @RequestParam(value = "bus_number") Long bus_number,
-        @RequestParam(value = "direction") CityBusDirection direction
+        @RequestParam(value = "direction") CityBusDirection direction,
+        @Parameter(description = "표시 언어 코드. 공식 명칭이 없으면 원문을 반환합니다.", example = "en-US")
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponses(
@@ -106,7 +108,9 @@ public interface BusApi {
     )
     @Operation(summary = "학교버스 특정 노선 시간표 조회", description = "id: 노선 id 값 (get /bus/courses/shuttle response 참조)")
     @GetMapping("/timetable/shuttle/{id}")
-    ResponseEntity<ShuttleBusTimetableResponse> getShuttleBusTimetable(@PathVariable String id);
+    ResponseEntity<ShuttleBusTimetableResponse> getShuttleBusTimetable(@PathVariable String id,
+        @Parameter(description = "표시 언어 코드. 공식 명칭이 없으면 원문을 반환합니다.", example = "en-US")
+        @RequestParam(defaultValue = "ko-KR") String language);
 
     @ApiResponses(
         value = {
@@ -127,9 +131,11 @@ public interface BusApi {
     ResponseEntity<BusScheduleResponse> getBusRouteSchedule(
         @Parameter(description = "yyyy-MM-dd") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
         @Parameter(description = "HH:mm") @RequestParam String time,
-        @RequestParam BusRouteType busRouteType,
+        @RequestParam(value = "bus_type") BusRouteType busRouteType,
         @RequestParam BusStation depart,
-        @RequestParam BusStation arrival
+        @RequestParam BusStation arrival,
+        @Parameter(description = "표시 언어 코드. depart/arrival 식별자는 유지하고 표시명만 제공합니다.", example = "en-US")
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponses(

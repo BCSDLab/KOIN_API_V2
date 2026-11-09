@@ -27,6 +27,7 @@ import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
 import in.koreatech.koin.domain.bus.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.BusService;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -60,9 +61,11 @@ public class BusController implements BusApi {
     @GetMapping("/timetable/city")
     public ResponseEntity<CityBusTimetableResponse> getCityBusTimetable(
         @RequestParam(value = "bus_number") Long busNumber,
-        @RequestParam(value = "direction") CityBusDirection direction
+        @RequestParam(value = "direction") CityBusDirection direction,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        return ResponseEntity.ok().body(busService.getCityBusTimetable(busNumber, direction));
+        SupportedLanguage selectedLanguage = SupportedLanguage.fromCode(language);
+        return ResponseEntity.ok().body(busService.getCityBusTimetable(busNumber, direction).withLanguage(selectedLanguage));
     }
 
     // Deprecated: 강제 업데이트 이후 API 삭제 예정
@@ -90,8 +93,10 @@ public class BusController implements BusApi {
     }
 
     @GetMapping("/timetable/shuttle/{id}")
-    public ResponseEntity<ShuttleBusTimetableResponse> getShuttleBusTimetable(@PathVariable String id) {
-        return ResponseEntity.ok().body(busService.getShuttleBusTimetable(id));
+    public ResponseEntity<ShuttleBusTimetableResponse> getShuttleBusTimetable(@PathVariable String id,
+        @RequestParam(defaultValue = "ko-KR") String language) {
+        SupportedLanguage selectedLanguage = SupportedLanguage.fromCode(language);
+        return ResponseEntity.ok().body(busService.getShuttleBusTimetable(id).withLanguage(selectedLanguage));
     }
 
     @GetMapping("/route")
@@ -100,11 +105,13 @@ public class BusController implements BusApi {
         @RequestParam String time,
         @RequestParam(value = "bus_type") BusRouteType busRouteType,
         @RequestParam BusStation depart,
-        @RequestParam BusStation arrival
+        @RequestParam BusStation arrival,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
+        SupportedLanguage selectedLanguage = SupportedLanguage.fromCode(language);
         BusRouteCommand request = new BusRouteCommand(depart, arrival, busRouteType, date, LocalTime.parse(time));
         BusScheduleResponse busSchedule = busService.getBusSchedule(request);
-        return ResponseEntity.ok().body(busSchedule);
+        return ResponseEntity.ok().body(busSchedule.withLanguage(selectedLanguage));
     }
 
     @GetMapping("/notice")

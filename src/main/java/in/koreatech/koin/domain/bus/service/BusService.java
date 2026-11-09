@@ -145,7 +145,7 @@ public class BusService {
 
         return new BusScheduleResponse(
             request.depart(), request.arrive(), request.date(), request.time(),
-            scheduleInfoList
+            scheduleInfoList, request.depart().getQueryName(), request.arrive().getQueryName()
         );
     }
 
