@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.callvan.model.CallvanChatMessage;
 import in.koreatech.koin.domain.callvan.model.CallvanPost;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
 import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.language.service.OfficialNameResolver;
@@ -32,12 +33,12 @@ public record CallvanChatMessageResponse(
     public static CallvanChatMessageResponse of(CallvanPost post, List<CallvanChatMessage> messages, Integer userId,
         SupportedLanguage language) {
         String departure = officialName(post.getDepartureType().getName(), language);
-        if (StringUtils.hasText(post.getDepartureCustomName())) {
+        if (post.getDepartureType() == CallvanLocation.CUSTOM && StringUtils.hasText(post.getDepartureCustomName())) {
             departure = post.getDepartureCustomName();
         }
 
         String arrival = officialName(post.getArrivalType().getName(), language);
-        if (StringUtils.hasText(post.getArrivalCustomName())) {
+        if (post.getArrivalType() == CallvanLocation.CUSTOM && StringUtils.hasText(post.getArrivalCustomName())) {
             arrival = post.getArrivalCustomName();
         }
 

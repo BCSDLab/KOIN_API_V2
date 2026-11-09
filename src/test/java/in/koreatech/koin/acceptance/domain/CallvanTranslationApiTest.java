@@ -156,6 +156,9 @@ class CallvanTranslationApiTest extends AcceptanceTest {
     @Test
     void 채팅_표시는_선택한_언어를_따르고_직접_입력한_지명과_원문_버전은_유지한다() throws Exception {
         String version = TranslationSourceVersion.of(TranslationSourceFields.message(ORIGINAL));
+        // 실제 생성 API는 일반 장소명도 custom_name 컬럼에 함께 저장한다.
+        jdbc.update("UPDATE callvan_post SET departure_custom_name = ?, arrival_custom_name = ? WHERE id = ?",
+            "정문", "천안역", post.getId());
         mockMvc.perform(get(CHAT, post.getId()).header(HttpHeaders.AUTHORIZATION, bearer))
             .andExpect(status().isOk()).andExpect(jsonPath("$.room_name").value("정문 -> 천안역 (14:00) (4명)"))
             .andExpect(jsonPath("$.messages[0].time").value("오후 12:00"));
@@ -164,7 +167,8 @@ class CallvanTranslationApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.messages[0].time").value("PM 12:00"))
             .andExpect(jsonPath("$.messages[0].content").value(ORIGINAL))
             .andExpect(jsonPath("$.messages[0].translation_source_version").value(version));
-        jdbc.update("UPDATE callvan_post SET arrival_custom_name = ? WHERE id = ?", "천안역 동쪽 출구", post.getId());
+        jdbc.update("UPDATE callvan_post SET arrival_type = 'CUSTOM', arrival_custom_name = ? WHERE id = ?",
+            "천안역 동쪽 출구", post.getId());
         mockMvc.perform(get(CHAT, post.getId()).header(HttpHeaders.AUTHORIZATION, bearer).param("language", "en-US"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.room_name").value("정문 -> 천안역 동쪽 출구 (14:00) (4 people)"));
