@@ -142,11 +142,11 @@ public record ShopResponse(
         Boolean closed,
 
         @JsonFormat(pattern = "HH:mm")
-        @Schema(example = "02:00", description = "오픈 시간", requiredMode = NOT_REQUIRED)
+        @Schema(implementation = String.class, example = "02:00", description = "오픈 시간", requiredMode = NOT_REQUIRED)
         LocalTime openTime,
 
         @JsonFormat(pattern = "HH:mm")
-        @Schema(example = "16:00", description = "마감 시간", requiredMode = NOT_REQUIRED)
+        @Schema(implementation = String.class, example = "16:00", description = "마감 시간", requiredMode = NOT_REQUIRED)
         LocalTime closeTime
     ) {
 

@@ -24,7 +24,7 @@ public record BusScheduleResponse(
     BusStation arrival,
     @Schema(description = "출발 날짜", example = "2024-11-05", requiredMode = REQUIRED)
     LocalDate departDate,
-    @Schema(description = "출발 시간", example = "12:00", requiredMode = REQUIRED)
+    @Schema(implementation = String.class, description = "출발 시간", example = "12:00", requiredMode = REQUIRED)
     LocalTime departTime,
     @Schema(description = "교통편 조회 결과", requiredMode = NOT_REQUIRED)
     List<ScheduleInfo> schedule,
@@ -48,7 +48,7 @@ public record BusScheduleResponse(
         String busType,
         @Schema(description = "버스 이름 또는 노선명", example = "대성티앤이", requiredMode = REQUIRED)
         String busName,
-        @Schema(description = "버스 출발 시간", example = "16:50", requiredMode = REQUIRED)
+        @Schema(implementation = String.class, description = "버스 출발 시간", example = "16:50", requiredMode = REQUIRED)
         LocalTime departTime
     ) {
 
