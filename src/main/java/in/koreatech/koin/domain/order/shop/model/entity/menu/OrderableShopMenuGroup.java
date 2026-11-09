@@ -20,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -48,4 +49,9 @@ public class OrderableShopMenuGroup extends BaseEntity {
     @OneToMany(mappedBy = "menuGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderableShopMenuGroupMap> menuGroupMap = new ArrayList<>();
 
+    @Builder
+    public OrderableShopMenuGroup(OrderableShop orderableShop, String name) {
+        this.orderableShop = orderableShop;
+        this.name = name;
+    }
 }
