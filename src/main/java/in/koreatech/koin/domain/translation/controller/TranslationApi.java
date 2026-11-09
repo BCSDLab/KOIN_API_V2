@@ -29,7 +29,7 @@ import jakarta.validation.Valid;
         content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     @ApiResponse(responseCode = "404", description = "원문·방·메시지·결과가 없거나 결과 보관 기간이 지났습니다.",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-    @ApiResponse(responseCode = "409", description = "SOURCE_CHANGED: 원문이 변경됐습니다. 원문을 다시 조회한 뒤 새 버전으로 요청하세요.",
+    @ApiResponse(responseCode = "409", description = "SOURCE_CHANGED: 원문을 다시 조회해 화면을 갱신하세요. 새 translation_source_version을 expected_source_version에 넣어 번역 POST를 다시 요청하세요.",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 })
 public interface TranslationApi {
@@ -38,7 +38,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 메뉴 분류 GET의 해당 `menu_categories[]` 항목에서 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 메뉴 분류 GET의 해당 `menu_categories[]` 항목에서 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
@@ -51,7 +53,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 주문 메뉴 분류 GET의 해당 `menu_groups[]` 항목에서 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 주문 메뉴 분류 GET의 해당 `menu_groups[]` 항목에서 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
@@ -64,7 +68,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 주문 메뉴 상세 GET 응답의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 주문 메뉴 상세 GET 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
@@ -78,7 +84,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. `GET /order/shop/{orderableShopId}/detail`의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | `GET /order/shop/{orderableShopId}/detail`의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
@@ -91,7 +99,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. `GET /dinings`에서 번역할 식단의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | `GET /dinings`에서 번역할 식단의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
@@ -104,7 +114,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 상점 상세 GET 응답의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 상점 상세 GET 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
@@ -117,7 +129,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 메뉴 목록의 해당 메뉴 또는 메뉴 상세 응답의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 메뉴 목록의 해당 메뉴 또는 메뉴 상세 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 공통 번역 결과 API로 조회합니다.")
@@ -130,7 +144,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 공지 조회 응답의 `ai_summary.translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 공지 조회 응답의 `ai_summary.translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: 처리 중. Retry-After 이후 GET /translations/{translationId}로 조회합니다.")
@@ -143,7 +159,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 분실물 조회 응답의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 분실물 조회 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: 처리 중. Retry-After 이후 GET /translations/{translationId}로 조회합니다.")
@@ -156,7 +174,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 모집글 조회 응답의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 모집글 조회 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @SecurityRequirements
     @ApiResponse(responseCode = "202", description = "PENDING: 처리 중. Retry-After 이후 GET /translations/{translationId}로 조회합니다.")
@@ -169,7 +189,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 분실물 쪽지 조회 응답에서 번역할 메시지의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 분실물 쪽지 조회 응답에서 번역할 메시지의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @ApiResponse(responseCode = "202", description = "PENDING: 처리 중. Retry-After 이후 GET /translations/{translationId}로 조회합니다.")
     @PostMapping("/v2/chatroom/lost-item/{articleId}/{chatRoomId}/messages/{messageId}/translations")
@@ -185,7 +207,9 @@ public interface TranslationApi {
             | 필드 | 설명 |
             | --- | --- |
             | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
-            | `expected_source_version` | 원문 변경 확인용 버전. 팀원 모집 쪽지 조회 응답에서 번역할 메시지의 `translation_source_version`을 그대로 보냅니다. |
+            | `expected_source_version` | 팀원 모집 쪽지 조회 응답에서 번역할 메시지의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
             """))
     @ApiResponse(responseCode = "202", description = "PENDING: 처리 중. Retry-After 이후 GET /translations/{translationId}로 조회합니다.")
     @PostMapping("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages/{messageId}/translations")
