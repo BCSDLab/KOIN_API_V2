@@ -157,6 +157,10 @@ public class TranslationService {
         if (!translated.keySet().equals(source.texts().keySet())) {
             throw new TranslationFailureException(TranslationReason.INVALID_TRANSLATION, null);
         }
+        // 한국어 요약의 외국어 번역이 원문 그대로면 성공 결과로 저장하지 않는다.
+        if (source.resource().type() == TranslationType.ARTICLE_SUMMARY && source.texts().equals(translated)) {
+            throw new TranslationFailureException(TranslationReason.INVALID_TRANSLATION, null);
+        }
         Map<String, Object> data = new LinkedHashMap<>(source.data());
         if (source.resource().type() == TranslationType.ARTICLE_SUMMARY) {
             List<Map<String, Object>> items = (List<Map<String, Object>>)source.data().get("items");
