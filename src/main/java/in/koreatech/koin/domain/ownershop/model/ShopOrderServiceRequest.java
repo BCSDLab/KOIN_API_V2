@@ -1,6 +1,13 @@
 package in.koreatech.koin.domain.ownershop.model;
 
+import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.*;
 import static lombok.AccessLevel.PROTECTED;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
@@ -17,14 +24,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.time.LocalDateTime;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.*;
 
 @Entity
 @Getter
@@ -81,6 +83,14 @@ public class ShopOrderServiceRequest extends BaseEntity {
     @Column(name = "account_number", length = 20, nullable = false)
     private String accountNumber;
 
+    @Size(max = 50)
+    @Column(name = "account_holder", length = 50)
+    private String accountHolder;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "menu_snapshot", columnDefinition = "JSON", updatable = false)
+    private List<ShopOrderServiceMenuSnapshot> menus;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "request_status", nullable = false)
     private ShopOrderServiceRequestStatus requestStatus = ShopOrderServiceRequestStatus.PENDING;
@@ -100,7 +110,9 @@ public class ShopOrderServiceRequest extends BaseEntity {
         String businessCertificateUrl,
         String bankCopyUrl,
         String bank,
-        String accountNumber
+        String accountNumber,
+        String accountHolder,
+        List<ShopOrderServiceMenuSnapshot> menus
     ) {
         this.shop = shop;
         this.minimumOrderAmount = minimumOrderAmount;
@@ -113,6 +125,8 @@ public class ShopOrderServiceRequest extends BaseEntity {
         this.bankCopyUrl = bankCopyUrl;
         this.bank = bank;
         this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
+        this.menus = menus;
         this.approvedAt = null;
     }
 

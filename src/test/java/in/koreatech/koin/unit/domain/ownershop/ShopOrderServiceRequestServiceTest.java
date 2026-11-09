@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuOption;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.ownershop.dto.ShopOrderServiceRequestRequest;
@@ -55,6 +59,13 @@ class ShopOrderServiceRequestServiceTest {
         owner = OwnerFixture.성빈_사장님();
         ReflectionTestUtils.setField(owner, "id", 1);
         shop = ShopFixture.주문전환_이전_상점(owner);
+        Menu menu = Menu.builder().shop(shop).name("탕수육").build();
+        ReflectionTestUtils.setField(menu, "id", 101);
+        menu.addMenuOptions(List.of(
+            MenuOption.builder().menu(menu).option("소").price(18000).build(),
+            MenuOption.builder().menu(menu).option("대").price(26000).build()
+        ));
+        shop.getMenus().add(menu);
 
         request = new ShopOrderServiceRequestRequest(
             5000,
@@ -66,7 +77,14 @@ class ShopOrderServiceRequestServiceTest {
             "https://example.com/business_certificate.jpg",
             "https://example.com/bank_copy.jpg",
             "국민은행",
-            "123-456-789"
+            "123-456-789",
+            "홍길동",
+            List.of(new ShopOrderServiceRequestRequest.MenuSelection(101, List.of(
+                new ShopOrderServiceRequestRequest.OptionGroup(
+                    "토핑 추가", null, false, 0, 1,
+                    List.of(new ShopOrderServiceRequestRequest.Option("치즈 추가", 1000))
+                )
+            )))
         );
     }
 
@@ -102,6 +120,16 @@ class ShopOrderServiceRequestServiceTest {
             assertThat(saved.getOffCampusDeliveryTip()).isEqualTo(2000);
             assertThat(saved.getBank()).isEqualTo("국민은행");
             assertThat(saved.getAccountNumber()).isEqualTo("123-456-789");
+            assertThat(saved.getAccountHolder()).isEqualTo("홍길동");
+            assertThat(saved.getMenus()).singleElement().satisfies(menu -> {
+                assertThat(menu.menuId()).isEqualTo(101);
+                assertThat(menu.prices()).extracting(price -> price.price()).containsExactly(18000, 26000);
+                assertThat(menu.optionGroups()).singleElement().satisfies(group ->
+                    assertThat(group.options()).singleElement().satisfies(option ->
+                        assertThat(option.price()).isEqualTo(1000)
+                    )
+                );
+            });
         }
 
         @Test
