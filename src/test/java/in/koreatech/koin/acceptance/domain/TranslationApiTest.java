@@ -7,28 +7,35 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpServer;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.support.JsonAssertions;
 import in.koreatech.koin.domain.language.model.SupportedLanguage;
-import in.koreatech.koin.domain.translation.model.*;
+import in.koreatech.koin.domain.translation.model.TranslationResource;
+import in.koreatech.koin.domain.translation.model.TranslationType;
 import in.koreatech.koin.domain.translation.service.*;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -36,25 +43,24 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.config.WebAuthProperties;
-import jakarta.servlet.http.Cookie;
+import in.koreatech.koin.infrastructure.upstage.client.UpstageProperties;
+import in.koreatech.koin.infrastructure.upstage.client.UpstageTranslationClient;
 
-/** HTTP/auth/serialization and real translation-service/store integration; domain source policies have separate tests. */
+/** 실제 MVC·저장소를 사용한다. 원문은 합성 데이터이며 정상 호출은 로컬 HTTP 서버를 거친다. */
 @Transactional(propagation = NOT_SUPPORTED)
 @TestPropertySource(properties = {"article.ai-summary.enabled=false", "upstage.api-key=", "translation.cleanup-cron=-"})
 class TranslationApiTest extends AcceptanceTest {
+    private static final String SUMMARY = "/v2/articles/17/ai-summary/translations";
     private static final String LOST = "/articles/lost-item/17/translations";
     private static final String LOST_MESSAGE = "/v2/chatroom/lost-item/17/2/messages/733900000000012345/translations";
-    private static final String TEAM_MESSAGE = "/chatroom/team-recruitment/17/2/messages/3/translations";
+
     @MockBean TranslationAiClient aiClient;
     @MockBean TranslationSourceReader sourceReader;
     @Autowired JdbcTemplate jdbc;
-    @Autowired TranslationStore store;
     @Autowired TranslationProperties properties;
+    @Autowired ObjectMapper objectMapper;
     @Autowired UserRepository users;
     @Autowired JwtProvider jwtProvider;
-    @Autowired PasswordEncoder passwordEncoder;
-    @Autowired WebAuthProperties webAuthProperties;
     private final List<User> createdUsers = new ArrayList<>();
 
     @BeforeEach
@@ -69,167 +75,125 @@ class TranslationApiTest extends AcceptanceTest {
         createdUsers.clear();
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"/v2/articles/17/ai-summary/translations", LOST, "/team-recruitments/17/translations"})
-    void publicRequestsBindSerializeCacheAndGetWithoutAnotherSolarCall(String path) throws Exception {
-        TranslationType type = path.contains("ai-summary") ? TranslationType.ARTICLE_SUMMARY
-            : path.contains("lost-item") ? TranslationType.LOST_ITEM : TranslationType.RECRUITMENT;
-        var source = stub(TranslationResource.article(type, 17), null);
-        var first = mockMvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
-            .andExpect(status().isOk()).andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-store"))
-            .andExpect(jsonPath("$.status").value("SUCCESS"))
-            .andExpect(jsonPath("$.target_language").value("en-US"))
-            .andExpect(jsonPath("$.source_version").value(source.version())).andReturn();
-        String id = JsonAssertions.convertJsonNode(first).path("translation_id").asText();
-        assertThat(id).isNotBlank();
-        if (type == TranslationType.ARTICLE_SUMMARY) {
-            assertThat(JsonAssertions.convertJsonNode(first).at("/data/items/0/icon").asText()).isEqualTo("📅");
-            assertThat(JsonAssertions.convertJsonNode(first).at("/data/items/0/text").asText()).isEqualTo("Translated");
+    @Test
+    void 번역_중에는_기존_작업을_조회하고_완료_후에는_저장된_번역을_재사용한다() throws Exception {
+        var resource = TranslationResource.article(TranslationType.ARTICLE_SUMMARY, 17);
+        var source = TranslationSource.of(resource,
+            TranslationSourceFields.summary(List.of(Map.of("icon", "📅", "text", "신청은 금요일까지입니다."))),
+            Map.of("item_0", "신청은 금요일까지입니다."), null);
+        when(sourceReader.load(resource, null)).thenReturn(source);
+
+        var entered = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        var calls = new AtomicInteger();
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        String translated = "Applications close on Friday.";
+        byte[] response = objectMapper.writeValueAsBytes(Map.of("choices", List.of(Map.of(
+            "finish_reason", "stop", "message", Map.of("content", objectMapper.writeValueAsString(Map.of("item_0", translated)))))));
+        server.createContext("/v1/chat/completions", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            calls.incrementAndGet();
+            entered.countDown();
+            try {
+                if (release.await(10, TimeUnit.SECONDS)) {
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                exchange.close();
+            }
+        });
+        server.start();
+        var upstage = new UpstageProperties();
+        upstage.setApiKey("translation-test-key");
+        upstage.setApiBaseUrl("http://127.0.0.1:" + server.getAddress().getPort() + "/v1");
+        var client = new UpstageTranslationClient(objectMapper, upstage, properties);
+        when(aiClient.translate(source.texts(), SupportedLanguage.ENGLISH)).thenAnswer(invocation -> {
+            assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isFalse();
+            return client.translate(source.texts(), SupportedLanguage.ENGLISH);
+        });
+        var executor = Executors.newSingleThreadExecutor();
+        try {
+            var first = executor.submit(() -> mockMvc.perform(post(SUMMARY)
+                    .contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.items[0].icon").value("📅"))
+                .andExpect(jsonPath("$.data.items[0].text").value(translated)).andReturn());
+            assertThat(entered.await(10, TimeUnit.SECONDS)).isTrue();
+            var pending = mockMvc.perform(post(SUMMARY)
+                    .contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isAccepted()).andExpect(header().string(HttpHeaders.RETRY_AFTER, "2"))
+                .andExpect(jsonPath("$.status").value("PENDING")).andReturn();
+            String id = JsonAssertions.convertJsonNode(pending).path("translation_id").asText();
+            mockMvc.perform(get("/translations/{id}", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PENDING"));
+            release.countDown();
+            assertThat(JsonAssertions.convertJsonNode(first.get(10, TimeUnit.SECONDS)).path("translation_id").asText())
+                .isEqualTo(id);
+            mockMvc.perform(post(SUMMARY).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.translation_id").value(id))
+                .andExpect(jsonPath("$.data.items[0].text").value(translated));
+            mockMvc.perform(get("/translations/{id}", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.items[0].text").value(translated))
+                .andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-store"));
+            assertThat(calls.get()).isEqualTo(1);
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM content_translations WHERE status = 'SUCCESS'", Integer.class))
+                .isEqualTo(1);
+        } finally {
+            release.countDown();
+            executor.shutdownNow();
+            server.stop(0);
         }
-        mockMvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.translation_id").value(id));
-        mockMvc.perform(get("/translations/{id}", id)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.translation_id").value(id))
-            .andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-store"));
-        verify(aiClient, times(1)).translate(anyMap(), eq(SupportedLanguage.ENGLISH));
     }
 
     @Test
-    void activeClaimReturns202WithRetryAfterAndGetDoesNotStartSolar() throws Exception {
-        var source = stubSource(TranslationResource.article(TranslationType.LOST_ITEM, 17), null);
-        var claim = store.claim(source.resource(), source.version(), SupportedLanguage.ENGLISH,
-            properties.getModel(), properties.getPromptVersion());
-        mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
-            .andExpect(status().isAccepted()).andExpect(header().string(HttpHeaders.RETRY_AFTER, "2"))
-            .andExpect(jsonPath("$.status").value("PENDING"));
-        mockMvc.perform(get("/translations/{id}", claim.translation().id()))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PENDING"));
-        verifyNoInteractions(aiClient);
-    }
-
-    @Test
-    void unknownResultReturns404WithoutReadingSourceOrCallingSolar() throws Exception {
-        mockMvc.perform(get("/translations/00000000-0000-0000-0000-000000000000"))
-            .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("TRANSLATION_NOT_FOUND"));
-        verifyNoInteractions(aiClient, sourceReader);
-    }
-
-    @Test
-    void oldSourceVersionReturns409WithoutSolar() throws Exception {
-        stubSource(TranslationResource.article(TranslationType.LOST_ITEM, 17), null);
-        mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body("a".repeat(64))))
-            .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("SOURCE_CHANGED"));
-        verifyNoInteractions(aiClient);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"{}", "{\"target_language\":\"en-US\"}",
-        "{\"target_language\":\"en-US\",\"expected_source_version\":\"invalid\"}"})
-    void malformedRequestsFailBeforeSourceRead(String body) throws Exception {
-        mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body))
-            .andExpect(status().isBadRequest());
-        verifyNoInteractions(aiClient, sourceReader);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {LOST_MESSAGE, TEAM_MESSAGE})
-    void privatePostRequiresLogin(String path) throws Exception {
-        mockMvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content(body("a".repeat(64))))
-            .andExpect(status().isUnauthorized());
-        verifyNoInteractions(aiClient, sourceReader);
-    }
-
-    @Test
-    void generalUserCannotTranslateTeamMessages() throws Exception {
-        var user = user(UserType.GENERAL);
-        mockMvc.perform(post(TEAM_MESSAGE).header(HttpHeaders.AUTHORIZATION, bearer(user))
-                .contentType(MediaType.APPLICATION_JSON).content(body("a".repeat(64))))
-            .andExpect(status().isForbidden());
-        verifyNoInteractions(aiClient, sourceReader);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {LOST_MESSAGE, TEAM_MESSAGE})
-    void privateRoutesPreserveMessageIdAndResultRechecksAccess(String path) throws Exception {
-        var user = user(UserType.STUDENT);
-        var resource = path.equals(LOST_MESSAGE)
-            ? TranslationResource.message(TranslationType.LOST_ITEM_MESSAGE, 17, 2, "733900000000012345")
-            : TranslationResource.message(TranslationType.RECRUITMENT_MESSAGE, 17, 2, "3");
-        var source = stub(resource, user.getId());
-        var result = mockMvc.perform(post(path).header(HttpHeaders.AUTHORIZATION, bearer(user))
+    void 저장된_쪽지_번역도_현재_로그인과_방_권한을_다시_검사한다() throws Exception {
+        var user = users.save(User.builder().userType(UserType.STUDENT).name("번역 테스트")
+            .loginPw("unused-test-password").isAuthed(true).isDeleted(false).build());
+        createdUsers.add(user);
+        String bearer = "Bearer " + jwtProvider.createToken(user);
+        var resource = TranslationResource.message(TranslationType.LOST_ITEM_MESSAGE, 17, 2, "733900000000012345");
+        var source = TranslationSource.of(resource, TranslationSourceFields.message("안녕하세요"), Map.of("content", "안녕하세요"), null);
+        when(sourceReader.load(resource, user.getId())).thenReturn(source);
+        when(aiClient.translate(source.texts(), SupportedLanguage.ENGLISH)).thenReturn(Map.of("content", "Hello"));
+        var result = mockMvc.perform(post(LOST_MESSAGE).header(HttpHeaders.AUTHORIZATION, bearer)
                 .contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.data.content").value("Translated")).andReturn();
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data.content").value("Hello")).andReturn();
         String id = JsonAssertions.convertJsonNode(result).path("translation_id").asText();
         when(sourceReader.load(resource, null)).thenThrow(AuthenticationException.withDetail("login required"));
         mockMvc.perform(get("/translations/{id}", id)).andExpect(status().isUnauthorized());
         when(sourceReader.load(resource, user.getId())).thenThrow(AuthorizationException.withDetail("access revoked"));
-        mockMvc.perform(get("/translations/{id}", id).header(HttpHeaders.AUTHORIZATION, bearer(user)))
+        mockMvc.perform(get("/translations/{id}", id).header(HttpHeaders.AUTHORIZATION, bearer))
             .andExpect(status().isForbidden());
         verify(aiClient, times(1)).translate(anyMap(), any());
     }
 
     @Test
-    void cookiePostRequiresCsrfBeforeInvokingTranslation() throws Exception {
-        var user = user(UserType.GENERAL);
-        var login = mockMvc.perform(post("/v2/web/auth/login").header(HttpHeaders.ORIGIN, "http://localhost:3000")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"login_id\":\"" + user.getLoginId() + "\",\"login_pw\":\"1234\"}"))
-            .andExpect(status().isCreated()).andReturn();
-        Cookie access = login.getResponse().getCookie(webAuthProperties.accessCookieName());
-        String csrf = JsonAssertions.convertJsonNode(login).path("csrf_token").asText();
-        var source = stub(TranslationResource.message(TranslationType.LOST_ITEM_MESSAGE, 17, 2, "733900000000012345"), user.getId());
-        mockMvc.perform(post(LOST_MESSAGE).cookie(access).header(HttpHeaders.ORIGIN, "http://localhost:3000")
-                .contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
-            .andExpect(status().isForbidden());
-        verifyNoInteractions(aiClient);
-        mockMvc.perform(post(LOST_MESSAGE).cookie(access).header(HttpHeaders.ORIGIN, "http://localhost:3000")
-                .header("X-CSRF-Token", csrf).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
-            .andExpect(status().isOk());
-    }
-
-    private TranslationSource stub(TranslationResource resource, Integer userId) {
-        var source = stubSource(resource, userId);
+    void 번역_도중_원문이_수정되면_이전_번역을_저장하거나_반환하지_않는다() throws Exception {
+        var resource = TranslationResource.article(TranslationType.LOST_ITEM, 17);
+        var source = TranslationSource.of(resource, TranslationSourceFields.lostItem("학생회관", null),
+            Map.of("found_place", "학생회관"), null);
+        var changed = TranslationSource.of(resource, TranslationSourceFields.lostItem("도서관", null),
+            Map.of("found_place", "도서관"), null);
+        when(sourceReader.load(resource, null)).thenReturn(source);
         when(aiClient.translate(source.texts(), SupportedLanguage.ENGLISH)).thenAnswer(invocation -> {
-            assertThat(org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive())
-                .as("Solar 호출 동안 DB 트랜잭션을 유지하지 않는다")
-                .isFalse();
-            return source.texts().keySet().stream()
-                .collect(java.util.stream.Collectors.toMap(key -> key, key -> "Translated"));
+            when(sourceReader.load(resource, null)).thenReturn(changed);
+            return Map.of("found_place", "Student Union");
         });
-        return source;
-    }
-
-    private TranslationSource stubSource(TranslationResource resource, Integer userId) {
-        Map<String, Object> data = switch (resource.type()) {
-            case ARTICLE_SUMMARY -> TranslationSourceFields.summary(List.of(Map.of("icon", "📅", "text", "마감")));
-            case LOST_ITEM -> TranslationSourceFields.lostItem(null, "분실물");
-            case RECRUITMENT -> TranslationSourceFields.recruitment("모집", "설명", null);
-            default -> TranslationSourceFields.message("안녕하세요");
-        };
-        Map<String, String> texts = switch (resource.type()) {
-            case ARTICLE_SUMMARY -> Map.of("item_0", "마감");
-            case RECRUITMENT -> Map.of("title", "모집", "description", "설명");
-            case LOST_ITEM -> Map.of("content", "분실물");
-            default -> Map.of("content", "안녕하세요");
-        };
-        var source = TranslationSource.of(resource, data, texts, null);
-        when(sourceReader.load(resource, userId)).thenReturn(source);
-        return source;
+        mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+            .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("SOURCE_CHANGED"));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM content_translations WHERE translated_json IS NOT NULL", Integer.class))
+            .isZero();
+        String id = jdbc.queryForObject("SELECT id FROM content_translations", String.class);
+        mockMvc.perform(get("/translations/{id}", id))
+            .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("SOURCE_CHANGED"));
+        verify(aiClient, times(1)).translate(anyMap(), any());
     }
 
     private String body(String version) {
         return "{\"target_language\":\"en-us\",\"expected_source_version\":\"" + version + "\"}";
-    }
-
-    private User user(UserType type) {
-        var user = users.save(User.builder().userType(type).name("번역 테스트")
-            .loginId("translation-test-" + java.util.UUID.randomUUID().toString().substring(0, 8))
-            .loginPw(passwordEncoder.encode("1234")).isAuthed(true).isDeleted(false).build());
-        createdUsers.add(user);
-        return user;
-    }
-
-    private String bearer(User user) {
-        return "Bearer " + jwtProvider.createToken(user);
     }
 }

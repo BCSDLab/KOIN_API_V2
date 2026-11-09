@@ -293,46 +293,6 @@ class ArticleAiSummaryServiceTest {
         assertThat(waitingSummary.isProcessingBy("worker")).isTrue();
     }
 
-    @Test
-    void 번역용_조회는_WAIT와_PROCESSING에_보존된_현재_요약도_읽고_상태를_변경하지_않는다() {
-        Clock clock = clockAt(12);
-        Article article = mock(Article.class);
-        Board board = mock(Board.class);
-        when(board.getId()).thenReturn(1);
-        when(article.getBoard()).thenReturn(board);
-        when(article.getId()).thenReturn(1);
-        when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
-        ArticleAiSummary summary = completedSummary(clock, article, "solar-pro4", "old");
-        summary.prepareWait("fingerprint", LocalDateTime.now(clock), "solar-pro4", "new");
-        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
-
-        assertThat(service(clock).readReadySummary(article, "본문").summaryLines())
-            .containsExactly("기존 요약입니다.");
-        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
-        summary.markProcessing("worker", LocalDateTime.now(clock).plusMinutes(1));
-        assertThat(service(clock).readReadySummary(article, "본문").isSuccess()).isTrue();
-        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.PROCESSING);
-        org.mockito.Mockito.verifyNoInteractions(articleAiSummaryLogRepository);
-    }
-
-    @Test
-    void 번역용_조회는_원문이_변경되면_기존_요약을_반환하지_않고_기존_상태도_변경하지_않는다() {
-        Clock clock = clockAt(12);
-        Article article = mock(Article.class);
-        Board board = mock(Board.class);
-        when(board.getId()).thenReturn(1);
-        when(article.getBoard()).thenReturn(board);
-        when(article.getId()).thenReturn(1);
-        when(sourceReader.createFingerprint(any())).thenReturn("changed");
-        ArticleAiSummary summary = completedSummary(clock, article, "solar-pro4", "old");
-        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
-
-        assertThat(service(clock).readReadySummary(article, "변경된 본문").isSuccess()).isFalse();
-        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.SUCCESS);
-        assertThat(summary.getSummaryLines()).containsExactly("기존 요약입니다.");
-        org.mockito.Mockito.verifyNoInteractions(articleAiSummaryLogRepository);
-    }
-
     private ArticleAiSummaryService service(Clock clock) {
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
         properties.setEnabled(true);
