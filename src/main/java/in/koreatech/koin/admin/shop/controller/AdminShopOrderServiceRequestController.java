@@ -27,6 +27,7 @@ public class AdminShopOrderServiceRequestController implements AdminShopOrderSer
         @RequestParam(required = false) String keyword,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok(requestService.getRequests(page, limit, status, keyword));
+        AdminShopOrderServiceRequestsResponse response = requestService.getRequests(page, limit, status, keyword);
+        return ResponseEntity.ok(response);
     }
 }

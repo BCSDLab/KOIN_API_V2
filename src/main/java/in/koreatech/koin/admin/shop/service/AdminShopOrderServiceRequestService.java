@@ -18,11 +18,16 @@ public class AdminShopOrderServiceRequestService {
 
     private final AdminShopOrderServiceRequestRepository requestRepository;
 
-    public AdminShopOrderServiceRequestsResponse getRequests(Integer page, Integer limit,
-        ShopOrderServiceRequestStatus status, String keyword) {
+    public AdminShopOrderServiceRequestsResponse getRequests(
+        Integer page, Integer limit, ShopOrderServiceRequestStatus status, String keyword
+    ) {
         Criteria criteria = Criteria.of(page, limit);
-        PageRequest pageable = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-            Sort.by(Sort.Direction.DESC, "createdAt", "id"));
+        PageRequest pageable = PageRequest.of(
+            criteria.getPage(),
+            criteria.getLimit(),
+            Sort.by(Sort.Direction.DESC, "createdAt", "id")
+        );
+
         return AdminShopOrderServiceRequestsResponse.from(requestRepository.findRequests(status, keyword, pageable));
     }
 }
