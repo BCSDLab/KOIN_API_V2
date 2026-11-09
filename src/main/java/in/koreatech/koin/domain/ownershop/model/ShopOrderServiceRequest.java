@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.ownershop.model;
 
 import static in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus.*;
+import static in.koreatech.koin.global.code.ApiResponseCode.ORDER_SERVICE_REQUEST_ALREADY_PROCESSED;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import org.hibernate.type.SqlTypes;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -98,6 +100,10 @@ public class ShopOrderServiceRequest extends BaseEntity {
     @Column(name = "approved_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime approvedAt = null;
 
+    @Size(max = 500)
+    @Column(name = "rejection_reason", length = 500)
+    private String rejectionReason;
+
     @Builder
     public ShopOrderServiceRequest(
         Shop shop,
@@ -130,13 +136,22 @@ public class ShopOrderServiceRequest extends BaseEntity {
         this.approvedAt = null;
     }
 
-    public void approve() {
-        this.requestStatus = APPROVED;
-        this.approvedAt = LocalDateTime.now();
+    public void requirePending() {
+        if (requestStatus != PENDING) {
+            throw CustomException.of(ORDER_SERVICE_REQUEST_ALREADY_PROCESSED);
+        }
     }
 
-    public void reject() {
+    public void approve(LocalDateTime approvedAt) {
+        requirePending();
+        this.requestStatus = APPROVED;
+        this.approvedAt = approvedAt;
+    }
+
+    public void reject(String rejectionReason) {
+        requirePending();
         this.requestStatus = REJECTED;
+        this.rejectionReason = rejectionReason;
     }
 
 }

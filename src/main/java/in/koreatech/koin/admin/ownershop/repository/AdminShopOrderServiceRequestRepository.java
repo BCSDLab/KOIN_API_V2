@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,7 @@ import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.exception.CustomException;
+import jakarta.persistence.LockModeType;
 
 public interface AdminShopOrderServiceRequestRepository extends Repository<ShopOrderServiceRequest, Integer> {
 
@@ -19,6 +21,15 @@ public interface AdminShopOrderServiceRequestRepository extends Repository<ShopO
 
     default ShopOrderServiceRequest getById(Integer id) {
         return findById(id)
+            .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST));
+    }
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM ShopOrderServiceRequest r WHERE r.id = :id")
+    Optional<ShopOrderServiceRequest> findByIdForUpdate(@Param("id") Integer id);
+
+    default ShopOrderServiceRequest getByIdForUpdate(Integer id) {
+        return findByIdForUpdate(id)
             .orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_SHOP_ORDER_SERVICE_REQUEST));
     }
 
