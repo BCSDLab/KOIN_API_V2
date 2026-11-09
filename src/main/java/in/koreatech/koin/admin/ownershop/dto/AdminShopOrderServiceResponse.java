@@ -73,7 +73,10 @@ public record AdminShopOrderServiceResponse(
     String accountHolder,
 
     @Schema(description = "신청 시 선택한 메뉴와 옵션", requiredMode = NOT_REQUIRED, nullable = true)
-    List<ShopOrderServiceMenuSnapshot> menus
+    List<ShopOrderServiceMenuSnapshot> menus,
+
+    @Schema(description = "반려 사유", requiredMode = NOT_REQUIRED, nullable = true)
+    String rejectionReason
 ) {
     public static AdminShopOrderServiceResponse from(ShopOrderServiceRequest shopOrderServiceRequest) {
         return new AdminShopOrderServiceResponse(
@@ -94,7 +97,8 @@ public record AdminShopOrderServiceResponse(
             shopOrderServiceRequest.getCreatedAt(),
             shopOrderServiceRequest.getApprovedAt(),
             shopOrderServiceRequest.getAccountHolder(),
-            shopOrderServiceRequest.getMenus()
+            shopOrderServiceRequest.getMenus(),
+            shopOrderServiceRequest.getRejectionReason()
         );
     }
 }
