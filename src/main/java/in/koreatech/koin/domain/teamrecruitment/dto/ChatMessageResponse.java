@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessag
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
+@Schema(name = "TeamRecruitmentChatMessageResponse")
 public record ChatMessageResponse(
         @Schema(description = "메시지 ID", example = "901", requiredMode = REQUIRED)
         Integer messageId,

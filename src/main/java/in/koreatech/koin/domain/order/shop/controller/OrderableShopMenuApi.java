@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -119,74 +120,8 @@ public interface OrderableShopMenuApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200", description = "특정 메뉴의 상세 정보 조회 성공",
-                content = @Content(mediaType = "application/json", examples = {
-                    @ExampleObject(name = "성공", value = """
-                        {
-                          "id": 101,
-                          "name": "후라이드 치킨",
-                          "description": "바삭하고 고소한 오리지널 후라이드",
-                          "images": [
-                            "https://example.com/images/fried_chicken_1.jpg",
-                            "https://example.com/images/fried_chicken_2.jpg"
-                          ],
-                          "prices": [
-                                  {
-                                    "id": 1,
-                                    "name": null,
-                                    "price": 19000
-                                  }
-                          ],
-                          "option_groups": [
-                            {
-                              "id": 1,
-                              "name": "음료 변경",
-                              "description": "기본 제공 음료를 변경할 수 있습니다.",
-                              "is_required": false,
-                              "min_select": 0,
-                              "max_select": 1,
-                              "options": [
-                                {
-                                  "id": 1,
-                                  "name": "콜라 1.25L로 변경",
-                                  "price": 1000
-                                },
-                                {
-                                  "id": 2,
-                                  "name": "사이다 1.25L로 변경",
-                                  "price": 1000
-                                }
-                              ]
-                            },
-                            {
-                              "id": 2,
-                              "name": "소스 추가",
-                              "description": "다양한 소스를 추가해보세요!",
-                              "is_required": false,
-                              "min_select": 0,
-                              "max_select": 3,
-                              "options": [
-                                {
-                                  "id": 3,
-                                  "name": "양념 소스",
-                                  "price": 500
-                                },
-                                {
-                                  "id": 4,
-                                  "name": "머스타드 소스",
-                                  "price": 500
-                                },
-                                {
-                                  "id": 5,
-                                  "name": "치즈 소스",
-                                  "price": 1000
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                        """
-                    )
-                })
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = OrderableShopMenuResponse.class))
             ),
             @ApiResponse(responseCode = "404", description = "메뉴 또는 상점을 찾을 수 없음",
                 content = @Content(mediaType = "application/json", examples = {
@@ -219,24 +154,8 @@ public interface OrderableShopMenuApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200", description = "주문 가능 상점 메뉴 그룹 목록 조회 성공",
-                content = @Content(mediaType = "application/json", examples = {
-                    @ExampleObject(name = "성공", value = """
-                        {
-                          "count": 2,
-                          "menu_group": [
-                            {
-                              "id": 1,
-                              "name": "메인 메뉴"
-                            },
-                            {
-                              "id": 2,
-                              "name": "사이드 메뉴"
-                            }
-                          ]
-                        }
-                        """
-                    )
-                })
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = OrderableShopMenuGroupResponse.class))
             ),
             @ApiResponse(responseCode = "404", description = "주문 가능 상점을 찾을 수 없음",
                 content = @Content(mediaType = "application/json", examples = {

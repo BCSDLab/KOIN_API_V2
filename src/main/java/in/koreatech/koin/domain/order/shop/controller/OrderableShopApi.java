@@ -198,51 +198,8 @@ public interface OrderableShopApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200", description = "주문 가능 상점 상세 정보 조회 성공",
-                content = @Content(mediaType = "application/json", examples = {
-                    @ExampleObject(name = "성공", value = """
-                        {
-                          "shop_id": 2,
-                          "orderable_shop_id": 1,
-                          "name": "가장 맛있는 족발",
-                          "address": "천안시 동남구 충절로 880 가동 1층",
-                          "open_time": "16:00:00",
-                          "close_time": "00:00:00",
-                          "closed_days": [],
-                          "phone": "041-523-5849",
-                          "introduction": "안녕하세요 맛있는 족발입니다. 고객님에게 신선한 음식을 제공하고자 즐거운 하루를 보내시고 감사합니다.",
-                          "notice": "*행사 이벤트 진행중입니다* 단체 주문 시 20% 할인 합니다. 50,000원 이상 주문 시 막국수 서비스 드립니다",
-                          "delivery_tips": [
-                            {
-                              "from_amount": 10000,
-                              "to_amount": 18000,
-                              "fee": 4500
-                            },
-                            {
-                              "from_amount": 18000,
-                              "to_amount": null,
-                              "fee": 2500
-                            }
-                          ],
-                          "owner_info": {
-                            "name": "홍길동",
-                            "shop_name": "가장 맛있는 족발",
-                            "address": "천안시 동남구 충절로 880 가동 1층",
-                            "company_registration_number": "123-21-31313"
-                          },
-                          "origins": [
-                            {
-                              "ingredient": "소고기",
-                              "origin": "국내산 한우"
-                            },
-                            {
-                              "ingredient": "쌀",
-                              "origin": "국내산"
-                             }
-                          ]
-                        }
-                        """
-                    )
-                })
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = OrderableShopInfoDetailResponse.class))
             ),
             @ApiResponse(responseCode = "404", description = "주문 가능 상점을 찾을 수 없음",
                 content = @Content(mediaType = "application/json", examples = {

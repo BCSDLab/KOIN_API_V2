@@ -36,11 +36,11 @@ public record OrderableShopInfoDetailResponse(
     @Schema(description = "상점 주소", example = "충청남도 천안시 동남구 병천면 병천리 163-12")
     String address,
 
-    @Schema(description = "상점 영업 시작 시간", example = "11:30")
+    @Schema(implementation = String.class, description = "상점 영업 시작 시간", example = "11:30")
     @JsonFormat(pattern = "HH:mm")
     LocalTime openTime,
 
-    @Schema(description = "상점 영업 종료 시간", example = "20:30")
+    @Schema(implementation = String.class, description = "상점 영업 종료 시간", example = "20:30")
     @JsonFormat(pattern = "HH:mm")
     LocalTime closeTime,
 

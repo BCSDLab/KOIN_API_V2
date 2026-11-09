@@ -13,6 +13,7 @@ import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessage
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
+@Schema(name = "LostItemChatMessageResponse")
 public record ChatMessageResponse(
     @Schema(description = "메시지 전송 사용자 ID", example = "5665")
     Integer userId,
