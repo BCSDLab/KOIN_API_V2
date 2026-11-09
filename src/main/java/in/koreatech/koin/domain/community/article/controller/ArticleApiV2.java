@@ -29,14 +29,8 @@ public interface ArticleApiV2 {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "게시글 단건 조회 V2", description = """
-        게시글 원문과 AI 요약을 분리해 반환합니다. `ai_summary.status`는 SUCCESS, PENDING, UNAVAILABLE입니다.
-        SUCCESS이면 최대 3개의 아이콘·텍스트 항목을 표시하고, PENDING이면 요약 준비 중, UNAVAILABLE이면 원문을 표시합니다.
-
-        새 한국어 요약은 항목당 40~70자를 목표로 최대 100자(공백 포함)로 생성합니다.
-        기존에 저장한 긴 요약은 새 요약이 성공할 때까지 반환될 수 있으므로 클라이언트에서 100자 기준으로 잘라내지 않습니다.
-        이 API는 표시 언어에 맞춰 번역하지 않습니다. 요약 번역 API와 원문 버전 필드는 후속 구현 대상입니다.
-        """)
+    @Operation(summary = "게시글 단건 조회 V2",
+        description = "공지 원문과 `ai_summary`를 조회합니다. 요약 번역에는 `ai_summary.translation_source_version`을 사용합니다.")
     @SecurityRequirements
     @GetMapping("/{id}")
     ResponseEntity<ArticleResponseV2> getArticleV2(

@@ -91,11 +91,7 @@ public interface UserApi {
     })
     @Operation(
         summary = "내 서버 선호 언어 조회",
-        description = "일반·학생·총학생회의 서버 선호 언어를 확인합니다. "
-            + "미설정이거나 더 이상 지원하지 않는 저장값은 ko-KR로 반환하며 저장값은 변경하지 않습니다. "
-            + "Bearer 또는 웹 쿠키로 인증하며, 웹 쿠키 요청에는 허용된 Origin 또는 Referer 출처가 필요합니다. "
-            + "클라이언트는 로그인·로그아웃에도 기기 UI 언어를 유지하며 이 응답으로 자동 덮어쓰지 않습니다. "
-            + "알림 언어 적용은 아직 구현하지 않았습니다."
+        description = "미설정 값은 `ko-KR`입니다. 화면 언어는 기기에 저장한 선택을 유지합니다."
     )
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/users/me/language")
@@ -116,13 +112,7 @@ public interface UserApi {
     })
     @Operation(
         summary = "내 서버 선호 언어 변경",
-        description = "GET /languages의 코드로 본인 서버 선호 언어만 변경합니다. "
-            + "en-us와 같은 대소문자 차이는 en-US로 정규화하며 같은 코드의 재요청도 성공합니다. "
-            + "서버 미설정 기본값은 ko-KR입니다. 웹 쿠키 인증으로 PATCH할 때는 허용된 Origin 또는 Referer 출처와 "
-            + "현재 세션의 X-CSRF-Token 헤더가 필요합니다. Bearer 인증에는 이 쿠키용 CSRF 조건을 적용하지 않습니다. "
-            + "FE에서는 로그인 시와 명시적인 언어 변경 시 기기 선택을 동기화하는 흐름을 제안합니다. "
-            + "서버 저장이 실패해도 기기 UI 언어를 유지하고 동기화 재시도를 제공합니다. "
-            + "여러 기기에서 변경하면 서버에는 마지막으로 실제 저장된 값이 남으며, 기기별 푸시 언어 정책은 미확정입니다."
+        description = "지원 언어 코드로 내 서버 선호 언어를 변경합니다. 화면 언어는 기기에 저장한 선택을 유지합니다."
     )
     @SecurityRequirement(name = "Jwt Authentication")
     @PatchMapping("/users/me/language")
