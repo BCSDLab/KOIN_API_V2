@@ -6,6 +6,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
@@ -68,18 +69,23 @@ public class ContentTranslation {
     @Column(name = "owner_token", length = 36)
     private String ownerToken;
 
+    @Convert(disableConversion = true)
     @Column(name = "locked_until", columnDefinition = "DATETIME(6)")
     private LocalDateTime lockedUntil;
 
+    @Convert(disableConversion = true)
     @Column(name = "next_attempt_at", columnDefinition = "DATETIME(6)")
     private LocalDateTime nextAttemptAt;
 
+    @Convert(disableConversion = true)
     @Column(name = "expires_at", columnDefinition = "DATETIME(6)", nullable = false)
     private LocalDateTime expiresAt;
 
+    @Convert(disableConversion = true)
     @Column(name = "created_at", columnDefinition = "DATETIME(6)", nullable = false)
     private LocalDateTime createdAt;
 
+    @Convert(disableConversion = true)
     @Column(name = "updated_at", columnDefinition = "DATETIME(6)", nullable = false)
     private LocalDateTime updatedAt;
 
