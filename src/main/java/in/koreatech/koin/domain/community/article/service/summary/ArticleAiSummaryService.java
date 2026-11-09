@@ -62,6 +62,18 @@ public class ArticleAiSummaryService {
         return resolveSummary(article, content);
     }
 
+    /** 번역에서 사용한다. 요약 생성 접수나 상태 변경 없이 현재 표시 가능한 요약만 읽는다. */
+    public ArticleSummaryView readReadySummary(Article article, String content) {
+        if (article.getBoard().getId().equals(LOST_ITEM_BOARD_ID)) {
+            return ArticleSummaryView.unavailable();
+        }
+        String fingerprint = sourceReader.createFingerprint(ArticleSummarySourceSeed.from(article, content));
+        return articleAiSummaryRepository.findByArticleId(article.getId())
+            .filter(summary -> summary.hasSummaryForSource(fingerprint))
+            .map(summary -> ArticleSummaryView.success(summary.getSummaryLines()))
+            .orElseGet(ArticleSummaryView::unavailable);
+    }
+
     private ArticleSummaryView resolveSummary(Article article, String content) {
         if (article.getBoard().getId().equals(LOST_ITEM_BOARD_ID)) {
             return ArticleSummaryView.unavailable();

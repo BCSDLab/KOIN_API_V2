@@ -35,9 +35,9 @@ public class ChatMessageSocketController {
         Integer subscriptionCount = sessionTracker.getSubscriptionCount(destination);
         Integer userId = principal.getUserId();
 
-        chatService.saveMessage(articleId, chatRoomId, userId, subscriptionCount, message);
+        var savedMessage = chatService.saveMessage(articleId, chatRoomId, userId, subscriptionCount, message);
 
-        ChatMessageResponse sendMessage = ChatMessageResponse.toResponse(message);
+        ChatMessageResponse sendMessage = ChatMessageResponse.toResponse(savedMessage);
         simpMessageSendingOperations.convertAndSend(destination, sendMessage);
 
         eventPublisher.publishEvent(MessageSendEvent.from(articleId, chatRoomId, userId, message));

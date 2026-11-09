@@ -9,6 +9,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
 
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplyBlockReason;
@@ -103,6 +107,12 @@ public record RecruitmentDetail(
         nullable = true, requiredMode = REQUIRED)
     Integer teamChatRoomId
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "현재 번역 대상 필드의 버전. 번역 요청의 expected_source_version에 그대로 전달합니다.", nullable = true)
+    public String getTranslationSourceVersion() {
+        return TranslationSourceVersion.of(TranslationSourceFields.recruitment(title, description, qualification));
+    }
+
     @JsonNaming(SnakeCaseStrategy.class)
     @Schema(description = "현재 사용자의 지원 정보")
     public record AppliedApplication(

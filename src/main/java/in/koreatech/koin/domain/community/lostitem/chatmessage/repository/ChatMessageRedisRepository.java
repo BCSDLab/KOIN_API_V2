@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -44,6 +45,16 @@ public class ChatMessageRedisRepository {
         Set<String> messageJsonSet = redisTemplate.opsForZSet().reverseRange(key, 0, -1);
 
         return convertToMessages(messageJsonSet);
+    }
+
+    public Optional<ChatMessageEntity> findByArticleIdAndChatRoomIdAndId(
+        Integer articleId, Integer chatRoomId, Long messageId
+    ) {
+        return findByArticleIdAndChatRoomId(articleId, chatRoomId).stream()
+            .filter(message -> Objects.equals(message.getId(), messageId))
+            .filter(message -> Objects.equals(message.getArticleId(), articleId))
+            .filter(message -> Objects.equals(message.getChatRoomId(), chatRoomId))
+            .findFirst();
     }
 
     public void markAllMessagesAsRead(Integer articleId, Integer chatRoomId, Integer userId) {

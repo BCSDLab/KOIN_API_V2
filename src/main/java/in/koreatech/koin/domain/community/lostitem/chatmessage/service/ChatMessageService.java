@@ -15,7 +15,7 @@ public class ChatMessageService {
 
     private final ChatMessageRedisRepository chatMessageRedisRepository;
 
-    public void saveMessage(Integer articleId, Integer chatRoomId, Integer userId, Integer subscriptionCount,
+    public ChatMessageEntity saveMessage(Integer articleId, Integer chatRoomId, Integer userId, Integer subscriptionCount,
         ChatMessage message) {
         boolean isRead = determineIsRead(subscriptionCount);
 
@@ -24,6 +24,7 @@ public class ChatMessageService {
 
         // 메시지 저장
         chatMessageRedisRepository.save(newMessage);
+        return newMessage;
     }
 
     private boolean determineIsRead(Integer subscriptionCount) {
