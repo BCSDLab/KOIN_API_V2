@@ -67,6 +67,10 @@ public class TranslationStore {
         return repository.fail(id, ownerToken, reason.name(), now.plusSeconds(delay), now) == 1;
     }
 
+    public boolean invalidateSuccess(String id, String expectedJson) {
+        return repository.invalidateSuccess(id, expectedJson, LocalDateTime.now(clock)) == 1;
+    }
+
     @Scheduled(cron = "${translation.cleanup-cron:0 20 * * * *}")
     @Transactional(propagation = NOT_SUPPORTED)
     public int deleteExpired() {

@@ -75,6 +75,17 @@ public interface TranslationRepository extends Repository<ContentTranslation, St
         @Param("now") LocalDateTime now);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = """
+        UPDATE content_translations
+        SET status = 'FAILED', translated_json = NULL, reason_code = 'INVALID_TRANSLATION',
+            owner_token = NULL, locked_until = NULL, next_attempt_at = :now, updated_at = :now
+        WHERE id = :id AND status = 'SUCCESS'
+          AND BINARY translated_json = BINARY :expectedJson
+        """, nativeQuery = true)
+    int invalidateSuccess(@Param("id") String id, @Param("expectedJson") String expectedJson,
+        @Param("now") LocalDateTime now);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional(propagation = REQUIRES_NEW)
     @Query(value = """
         DELETE FROM content_translations

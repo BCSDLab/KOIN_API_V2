@@ -111,6 +111,17 @@ public class TranslationService {
             } catch (JsonProcessingException | IllegalArgumentException e) {
                 throw CustomException.of(ApiResponseCode.TRANSLATION_RESULT_INVALID);
             }
+            if (stored.resource().type() == TranslationType.ARTICLE_SUMMARY
+                && !SupportedLanguage.KOREAN.getCode().equals(stored.targetLanguage())
+                && current.data().equals(data)) {
+                // 이전에 저장된 원문 반복 결과도 재시도할 수 있게 한다. 바뀐 결과는 덮어쓰지 않는다.
+                if (!store.invalidateSuccess(stored.id(), stored.translatedJson())) {
+                    return get(stored.id(), userId);
+                }
+                status = "FAILED";
+                reason = TranslationReason.INVALID_TRANSLATION;
+                data = null;
+            }
         }
         return new TranslationResponse<>(stored.id(), status, stored.targetLanguage(), stored.sourceVersion(),
             reason, "FAILED".equals(status), data);

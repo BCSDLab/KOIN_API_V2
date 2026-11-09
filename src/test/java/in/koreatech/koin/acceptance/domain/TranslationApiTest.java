@@ -58,6 +58,7 @@ class TranslationApiTest extends AcceptanceTest {
     @MockBean TranslationSourceReader sourceReader;
     @Autowired JdbcTemplate jdbc;
     @Autowired TranslationProperties properties;
+    @Autowired TranslationStore store;
     @Autowired ObjectMapper objectMapper;
     @Autowired UserRepository users;
     @Autowired JwtProvider jwtProvider;
@@ -142,6 +143,31 @@ class TranslationApiTest extends AcceptanceTest {
             assertThat(calls.get()).isEqualTo(1);
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM content_translations WHERE status = 'SUCCESS'", Integer.class))
                 .isEqualTo(1);
+
+            String savedJson = jdbc.queryForObject("SELECT translated_json FROM content_translations WHERE id = ?",
+                String.class, id);
+            assertThat(store.invalidateSuccess(id, savedJson.replace("Applications", "APPLICATIONS"))).isFalse();
+            assertThat(store.findById(id).orElseThrow().translatedJson()).isEqualTo(savedJson);
+
+            String originalJson = objectMapper.writeValueAsString(source.data());
+            jdbc.update("UPDATE content_translations SET translated_json = ? WHERE id = ?", originalJson, id);
+            mockMvc.perform(get("/translations/{id}", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("FAILED"))
+                .andExpect(jsonPath("$.reason_code").value("INVALID_TRANSLATION"))
+                .andExpect(jsonPath("$.retryable").value(true)).andExpect(jsonPath("$.data").isEmpty());
+            mockMvc.perform(post(SUMMARY).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.translation_id").value(id))
+                .andExpect(jsonPath("$.data.items[0].text").value(translated));
+
+            jdbc.update("UPDATE content_translations SET translated_json = ? WHERE id = ?", originalJson, id);
+            mockMvc.perform(post(SUMMARY).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("FAILED"))
+                .andExpect(jsonPath("$.reason_code").value("INVALID_TRANSLATION"));
+            mockMvc.perform(post(SUMMARY).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.translation_id").value(id))
+                .andExpect(jsonPath("$.data.items[0].text").value(translated));
+            assertThat(calls.get()).isEqualTo(3);
         } finally {
             release.countDown();
             executor.shutdownNow();
