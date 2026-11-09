@@ -138,6 +138,12 @@ public class SwaggerGroupConfig {
             });
     }
 
+    @Bean
+    public GroupedOpenApi translationApi() {
+        return createGroupedOpenApi("10. Translation API",
+            new String[] {"in.koreatech.koin.domain.translation"});
+    }
+
     private GroupedOpenApi createGroupedOpenApi(
         String groupName,
         String[] packagesPath) {
