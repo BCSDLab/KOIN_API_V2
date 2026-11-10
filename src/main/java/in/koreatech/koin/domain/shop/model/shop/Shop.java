@@ -243,6 +243,13 @@ public class Shop extends BaseEntity {
         this.shopMainCategory = shopMainCategory;
     }
 
+    public void enableOrderServiceBankAccount(String bank, String accountNumber, String accountHolder) {
+        this.payBank = true;
+        this.bank = bank;
+        this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
+    }
+
     public boolean isOpen(LocalDateTime now) {
         String currDayOfWeek = now.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
         String prevDayOfWeek = now.minusDays(1).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
