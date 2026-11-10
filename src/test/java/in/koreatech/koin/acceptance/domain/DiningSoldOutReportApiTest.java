@@ -4,7 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,9 +20,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,9 +38,6 @@ import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 
-@TestPropertySource(properties = {
-    "dining.report.bot-token=test-dining-report-bot-token"
-})
 class DiningSoldOutReportApiTest extends AcceptanceTest {
 
     private static final String BOT_PATH = "/internal/dining/soldout-reports";
@@ -73,7 +69,7 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Autowired
     private S3ClientWrapper s3Client;
 
     private User student;
@@ -113,12 +109,12 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
         LocalDate today = LocalDate.now(clock.withZone(ZoneId.of("Asia/Seoul")));
         dining = diningFixture.A코너_점심(today);
         otherDining = diningFixture.B코너_점심(today);
-        when(s3Client.getDomainUrlPrefix()).thenReturn(IMAGE_DOMAIN);
-        when(s3Client.isCustomDomainUrl(anyString()))
-            .thenAnswer(invocation -> invocation.<String>getArgument(0).startsWith(IMAGE_DOMAIN));
-        when(s3Client.extractKeyFromUrl(anyString()))
-            .thenAnswer(invocation -> invocation.<String>getArgument(0).substring(IMAGE_DOMAIN.length()));
-        when(s3Client.doesFileExist(anyString())).thenReturn(true);
+        doReturn(IMAGE_DOMAIN).when(s3Client).getDomainUrlPrefix();
+        doAnswer(invocation -> invocation.<String>getArgument(0).startsWith(IMAGE_DOMAIN))
+            .when(s3Client).isCustomDomainUrl(anyString());
+        doAnswer(invocation -> invocation.<String>getArgument(0).substring(IMAGE_DOMAIN.length()))
+            .when(s3Client).extractKeyFromUrl(anyString());
+        doReturn(true).when(s3Client).doesFileExist(anyString());
     }
 
     @Test
@@ -149,7 +145,7 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
             submit(studentToken, anotherDate, IMAGE_URL).andExpect(status().isBadRequest());
         }
         submit(studentToken, dining, "https://outside.example/soldout.jpg").andExpect(status().isBadRequest());
-        when(s3Client.doesFileExist(anyString())).thenReturn(false);
+        doReturn(false).when(s3Client).doesFileExist(anyString());
         submit(studentToken, dining, IMAGE_URL).andExpect(status().isBadRequest());
         student.updateAuthenticationStatus(false);
         entityManager.flush();

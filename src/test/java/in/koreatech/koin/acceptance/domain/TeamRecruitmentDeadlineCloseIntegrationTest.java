@@ -29,7 +29,6 @@ import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotif
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.team.recruitment.scheduler.TeamRecruitmentDeadlineCloseCoordinator;
-import in.koreatech.koin.domain.team.recruitment.scheduler.TeamRecruitmentDeadlineScheduler;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -38,7 +37,6 @@ import java.time.ZoneId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,9 +69,6 @@ class TeamRecruitmentDeadlineCloseIntegrationTest extends AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @MockBean
-    private TeamRecruitmentDeadlineScheduler deadlineScheduler;
 
     @AfterEach
     void cleanUp() {

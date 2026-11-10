@@ -1,7 +1,6 @@
 package in.koreatech.koin.acceptance;
 
-import java.time.Clock;
-
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,10 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
+import in.koreatech.koin.acceptance.support.DBInitializer;
+import in.koreatech.koin.acceptance.support.DirectRoomSaveBarrier;
+import in.koreatech.koin.acceptance.util.TestCircuitBreakerClient;
+import in.koreatech.koin.config.TestClock;
 import in.koreatech.koin.config.TestJpaConfig;
 import in.koreatech.koin.config.TestRedisConfig;
 import in.koreatech.koin.config.TestResilience4jConfig;
@@ -28,24 +31,31 @@ import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.service.express.client.PublicExpressBusClient;
 import in.koreatech.koin.domain.bus.service.express.client.StaticExpressBusClient;
 import in.koreatech.koin.domain.bus.service.express.client.TmoneyExpressBusClient;
+import in.koreatech.koin.domain.dining.repository.DiningReportRepository;
+import in.koreatech.koin.domain.dining.repository.DiningReportSequenceRepository;
 import in.koreatech.koin.domain.notification.eventlistener.CoopEventListener;
 import in.koreatech.koin.domain.notification.eventlistener.KeywordEventListener;
+import in.koreatech.koin.domain.notification.eventlistener.ShopEventListener;
+import in.koreatech.koin.domain.team.recruitment.scheduler.TeamRecruitmentDeadlineScheduler;
+import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import in.koreatech.koin.infrastructure.slack.eventlistener.OwnerEventListener;
 import in.koreatech.koin.infrastructure.slack.eventlistener.ReviewEventListener;
-import in.koreatech.koin.domain.notification.eventlistener.ShopEventListener;
 import in.koreatech.koin.infrastructure.slack.eventlistener.StudentEventListener;
-import in.koreatech.koin.acceptance.support.DBInitializer;
-import in.koreatech.koin.acceptance.util.TestCircuitBreakerClient;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import({DBInitializer.class,
+    DirectRoomSaveBarrier.class,
     TestJpaConfig.class,
     TestTimeConfig.class,
     TestRedisConfig.class,
     TestResilience4jConfig.class})
+// 하위 클래스가 mock/spy 구성을 따로 선언하면 Spring 컨텍스트가 새로 뜬다. 필요한 대체 빈은 여기서만 선언한다.
+@MockBean(TeamRecruitmentDeadlineScheduler.class)
+@SpyBean({FcmClient.class, S3ClientWrapper.class, DiningReportRepository.class, DiningReportSequenceRepository.class})
 @ActiveProfiles("test")
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -97,7 +107,7 @@ public abstract class AcceptanceTest {
     protected EntityManager entityManager;
 
     @Autowired
-    protected Clock clock;
+    protected TestClock clock;
 
     @Container
     static final MySQLContainer<?> mySqlContainer = new MySQLContainer<>("mysql:8.0.29")
@@ -139,6 +149,11 @@ public abstract class AcceptanceTest {
     void initIncrement() {
         dataInitializer.initIncrement();
         dataInitializer.clearRedis();
+    }
+
+    @AfterAll
+    void resetClock() {
+        clock.reset();
     }
 
     protected void clear() {
