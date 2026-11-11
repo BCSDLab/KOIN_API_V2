@@ -2,16 +2,16 @@ package in.koreatech.koin.domain.callvan.model;
 
 import static in.koreatech.koin.common.model.MobileAppPath.CALLVAN;
 import static in.koreatech.koin.common.model.MobileAppPath.CALLVAN_CHAT;
-import static in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType.DEPARTURE_UPCOMING;
 import static in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType.NEW_MESSAGE;
-import static in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType.PARTICIPANT_JOINED;
-import static in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType.RECRUITMENT_COMPLETE;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.common.model.MobileAppPath;
 
 @Component
@@ -48,8 +48,10 @@ public class CallvanPushNotificationFactory {
         return switch (notification.getNotificationType()) {
             case PARTICIPANT_JOINED -> NotificationMessages.format(notification.getRecipient(), "%s님이 콜벤팟에 참여했어요", notification.getJoinedMemberNickname());
             case DEPARTURE_UPCOMING -> NotificationMessages.format(notification.getRecipient(), "%s -> %s 콜벤팟이 30분 뒤 출발해요",
-                getLocationName(notification.getDepartureCustomName(), notification.getDepartureType().getName()),
-                getLocationName(notification.getArrivalCustomName(), notification.getArrivalType().getName())
+                localizedLocationName(notification.getDepartureCustomName(), notification.getDepartureType().getName(),
+                    notification.getRecipient()),
+                localizedLocationName(notification.getArrivalCustomName(), notification.getArrivalType().getName(),
+                    notification.getRecipient())
             );
             case NEW_MESSAGE -> notification.getMessageType() == CallvanMessageType.IMAGE
                 ? NotificationMessages.format(notification.getRecipient(), "%s님이 사진을 보냈습니다.", notification.getSenderNickname())
@@ -67,10 +69,12 @@ public class CallvanPushNotificationFactory {
         return "callvan?id=%d".formatted(postId);
     }
 
-    private static String getLocationName(String customName, String defaultName) {
+    public static String localizedLocationName(String customName, String defaultName, User recipient) {
         if (StringUtils.hasText(customName)) {
             return customName;
         }
-        return defaultName;
+        SupportedLanguage language = SupportedLanguage.fromStoredCode(
+            recipient == null ? null : recipient.getPreferredLanguage());
+        return OfficialNameResolver.stationName(OfficialNameResolver.buildingName(defaultName, language), language);
     }
 }

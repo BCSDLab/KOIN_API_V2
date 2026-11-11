@@ -84,7 +84,7 @@ class NotificationMessagesTest {
     }
 
     @Test
-    void 콜밴_사진_알림은_발송과_조회_시점_언어를_사용하고_일반_메시지는_보존한다() {
+    void 콜밴_시스템_알림은_발송과_조회_시점_언어를_사용하고_사용자_입력은_보존한다() {
         User recipient = mock(User.class);
         when(recipient.getId()).thenReturn(2);
         when(recipient.getPreferredLanguage()).thenReturn("en-US");
@@ -121,5 +121,21 @@ class NotificationMessagesTest {
         assertThat(CallvanPushNotificationFactory.localizedPreview(CallvanNotification.builder()
             .recipient(recipient).notificationType(CallvanNotificationType.NEW_MESSAGE)
             .senderNickname("닉네임").messagePreview(original).build())).isEqualTo(original);
+
+        when(recipient.getPreferredLanguage()).thenReturn("en-US");
+        CallvanNotification departure = CallvanNotification.builder()
+            .recipient(recipient).notificationType(CallvanNotificationType.DEPARTURE_UPCOMING)
+            .departureType(CallvanLocation.TENNIS_COURT).arrivalType(CallvanLocation.STATION).build();
+        String expected = "Callvan from Tennis Court to Cheonan Station departs in 30 minutes";
+        assertThat(factory.from(departure).message()).isEqualTo(expected);
+        CallvanNotificationResponse response = CallvanNotificationResponse.from(departure);
+        assertThat(response.messagePreview()).isEqualTo(expected);
+        assertThat(response.departure()).isEqualTo("Tennis Court");
+        assertThat(response.arrival()).isEqualTo("Cheonan Station");
+        assertThat(CallvanPushNotificationFactory.localizedPreview(CallvanNotification.builder()
+            .recipient(recipient).notificationType(CallvanNotificationType.DEPARTURE_UPCOMING)
+            .departureType(CallvanLocation.CUSTOM).departureCustomName("테니스장")
+            .arrivalType(CallvanLocation.FRONT_GATE).build()))
+            .isEqualTo("Callvan from 테니스장 to 정문 departs in 30 minutes");
     }
 }
