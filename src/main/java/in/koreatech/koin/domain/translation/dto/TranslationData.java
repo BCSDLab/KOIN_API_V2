@@ -14,7 +14,7 @@ public final class TranslationData {
 
     public record SummaryItem(
         @Schema(description = "원문의 아이콘. 번역하지 않습니다.", example = "📅") String icon,
-        @Schema(description = "번역한 요약 문장. 한국어 생성의 100자 상한은 적용하지 않습니다.") String text
+        @Schema(description = "번역한 요약 문장. 한국어 요약 생성의 길이 제한은 적용하지 않습니다.") String text
     ) {
     }
 

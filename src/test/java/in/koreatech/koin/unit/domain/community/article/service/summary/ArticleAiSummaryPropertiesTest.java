@@ -2,6 +2,7 @@ package in.koreatech.koin.unit.domain.community.article.service.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
@@ -15,5 +16,10 @@ class ArticleAiSummaryPropertiesTest {
         assertThat(properties.getModel()).isEqualTo("solar-pro4");
         assertThat(properties.getPromptVersion()).isEqualTo("v12");
         assertThat(properties.getChatRequestTimeoutSeconds()).isEqualTo(600);
+        assertThat(properties.getProcessingLockDuration()).isEqualTo(Duration.ofMinutes(53).plusSeconds(3));
+        properties.setMaxRefinementRetryCount(2);
+        assertThat(properties.getProcessingLockDuration()).isEqualTo(Duration.ofMinutes(63).plusSeconds(3));
+        properties.setLockMinutes(90);
+        assertThat(properties.getProcessingLockDuration()).isEqualTo(Duration.ofMinutes(90));
     }
 }

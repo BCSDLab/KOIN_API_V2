@@ -1,7 +1,5 @@
 package in.koreatech.koin.infrastructure.upstage.client;
 
-import static in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPrompt.MAX_TEXT_LENGTH;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -96,11 +94,11 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
             "temperature", 0.2,
             "top_p", 0.9,
             "reasoning_effort", "low",
-            "response_format", responseFormat(prompt.maxItems())
+            "response_format", responseFormat(prompt.maxItems(), prompt.maxTextLength())
         );
     }
 
-    private Map<String, Object> responseFormat(int maxItems) {
+    private Map<String, Object> responseFormat(int maxItems, int maxTextLength) {
         return Map.of(
             "type", "json_schema",
             "json_schema", Map.of(
@@ -129,7 +127,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
                                     ),
                                     "text", Map.of(
                                         "type", "string",
-                                        "maxLength", MAX_TEXT_LENGTH
+                                        "maxLength", maxTextLength
                                     )
                                 )
                             )

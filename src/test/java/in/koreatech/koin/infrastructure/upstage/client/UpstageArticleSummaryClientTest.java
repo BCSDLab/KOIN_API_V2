@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPrompt;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPromptBuilder;
 
 class UpstageArticleSummaryClientTest {
 
@@ -42,5 +43,12 @@ class UpstageArticleSummaryClientTest {
             .at("/response_format/json_schema/schema/properties/items");
         assertThat(schema.path("maxItems").asInt()).isEqualTo(3);
         assertThat(schema.at("/items/properties/text/maxLength").asInt()).isEqualTo(100);
+
+        ArticleSummaryPrompt fallback = new ArticleSummaryPromptBuilder().buildLegacyFallback(prompt);
+        Map<String, Object> fallbackBody = ReflectionTestUtils.invokeMethod(client, "requestBody", fallback);
+        JsonNode fallbackSchema = new ObjectMapper().valueToTree(fallbackBody)
+            .at("/response_format/json_schema/schema/properties/items");
+        assertThat(fallbackSchema.path("maxItems").asInt()).isEqualTo(3);
+        assertThat(fallbackSchema.at("/items/properties/text/maxLength").asInt()).isEqualTo(200);
     }
 }

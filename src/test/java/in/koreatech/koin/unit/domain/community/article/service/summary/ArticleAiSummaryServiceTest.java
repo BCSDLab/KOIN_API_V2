@@ -271,6 +271,7 @@ class ArticleAiSummaryServiceTest {
         verify(articleAiSummaryRepository, never()).findRetryableFailedSummariesForUpdate(any(), anyInt(), anyInt());
         verify(articleAiSummaryRepository).findWaitingSummariesForUpdate(now, 5);
         assertThat(waitingSummary.isProcessingBy("worker")).isTrue();
+        assertThat(waitingSummary.getLockedUntil()).isEqualTo(now.plusMinutes(53).plusSeconds(3));
     }
 
     @Test

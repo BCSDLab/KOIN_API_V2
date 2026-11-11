@@ -1,5 +1,6 @@
 package in.koreatech.koin.unit.domain.community.article.service.summary;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
@@ -90,7 +92,7 @@ class ArticleAiSummaryWorkerTest {
     }
 
     @Test
-    void 재선별_횟수를_넘어도_4개면_재시도_대기로_전환한다() {
+    void 재선별과_이전_기준_생성_후에도_4개면_재시도_대기로_전환한다() {
         ArticleSummarySourceSeed seed = sourceSeed();
         ArticleSummarySource source = source();
         when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
@@ -100,14 +102,14 @@ class ArticleAiSummaryWorkerTest {
 
         worker.process(1, "worker");
 
-        verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
+        verify(articleSummaryAiClient, times(3)).summarize(any(ArticleSummaryPrompt.class));
         verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("최대 3개"));
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
         verify(articleAiSummaryService, never()).skip(any(), any(), any());
     }
 
     @Test
-    void 재선별_결과가_비어있으면_일시_실패로_처리해_재시도_가능하게_한다() {
+    void 재선별과_이전_기준_생성_결과가_비어있으면_재시도_가능하게_한다() {
         ArticleSummarySourceSeed seed = sourceSeed();
         ArticleSummarySource source = source();
         when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
@@ -117,8 +119,8 @@ class ArticleAiSummaryWorkerTest {
 
         worker.process(1, "worker");
 
-        verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
-        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("재선별 결과"));
+        verify(articleSummaryAiClient, times(3)).summarize(any(ArticleSummaryPrompt.class));
+        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("재작성 결과"));
         verify(articleAiSummaryService, never()).skip(any(), any(), any());
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
     }
@@ -199,7 +201,7 @@ class ArticleAiSummaryWorkerTest {
     }
 
     @Test
-    void 검증_재작성_후에도_실패하면_재시도_대기로_전환한다() {
+    void 짧은_요약_보정이_실패하면_이전_200자_기준으로_생성해_저장한다() {
         ArticleSummarySourceSeed seed = sourceSeed();
         ArticleSummarySource source = source();
         when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
@@ -209,10 +211,57 @@ class ArticleAiSummaryWorkerTest {
 
         worker.process(1, "worker");
 
-        verify(articleSummaryAiClient, times(2)).summarize(any(ArticleSummaryPrompt.class));
-        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("100자"));
+        ArgumentCaptor<ArticleSummaryPrompt> prompts = ArgumentCaptor.forClass(ArticleSummaryPrompt.class);
+        verify(articleSummaryAiClient, times(3)).summarize(prompts.capture());
+        assertThat(prompts.getAllValues()).extracting(ArticleSummaryPrompt::maxTextLength)
+            .containsExactly(100, 100, 200);
+        assertThat(prompts.getValue().maxItems()).isEqualTo(3);
+        assertThat(prompts.getValue().systemMessage()).contains("50~140자", "최대 200자").doesNotContain("최대 100자");
+        verify(articleAiSummaryService).completeSuccess(eq(1), eq("worker"), eq(source),
+            eq(List.of("✅ " + "가".repeat(101))));
+        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
         verify(articleAiSummaryService, never()).skip(any(), any(), any());
-        verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
+    }
+
+    @Test
+    void 최초_요약_호출이_일시_실패해도_이전_기준으로_한_번_생성해_저장한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = source();
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+        when(articleSummaryAiClient.summarize(any(ArticleSummaryPrompt.class)))
+            .thenThrow(new ArticleSummaryExternalApiException("timeout", true, null))
+            .thenReturn(refinedResult());
+
+        worker.process(1, "worker");
+
+        ArgumentCaptor<ArticleSummaryPrompt> prompts = ArgumentCaptor.forClass(ArticleSummaryPrompt.class);
+        verify(articleSummaryAiClient, times(2)).summarize(prompts.capture());
+        assertThat(prompts.getAllValues()).extracting(ArticleSummaryPrompt::maxTextLength)
+            .containsExactly(100, 200);
+        verify(articleAiSummaryService).completeSuccess(eq(1), eq("worker"), eq(source),
+            eq(List.of("📅 신청 기간: 5월 20일까지", "🎯 대상: 재학생", "💰 혜택: 50만원 지급")));
+        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any(), any());
+    }
+
+    @Test
+    void 보정과_이전_기준_생성이_모두_실패해도_기존_정상_항목은_저장한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = source();
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+        when(articleSummaryAiClient.summarize(any(ArticleSummaryPrompt.class)))
+            .thenReturn(partiallyInvalidResult())
+            .thenThrow(new ArticleSummaryExternalApiException("correction timeout", true, null))
+            .thenThrow(new ArticleSummaryExternalApiException("fallback timeout", true, null));
+
+        worker.process(1, "worker");
+
+        verify(articleSummaryAiClient, times(3)).summarize(any(ArticleSummaryPrompt.class));
+        verify(articleAiSummaryService).completeSuccess(eq(1), eq("worker"), eq(source),
+            eq(List.of("🎯 대상: 재학생", "💰 혜택: 50만원 지급")));
+        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any(), any());
+        verify(articleAiSummaryService, never()).completeFailure(any(), any(), any());
     }
 
     @Test
@@ -277,6 +326,7 @@ class ArticleAiSummaryWorkerTest {
 
         worker.process(1, "worker");
 
+        verify(articleSummaryAiClient, times(1)).summarize(any(ArticleSummaryPrompt.class));
         verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), eq("rate limited"), eq(retryAfter));
         verify(articleAiSummaryService, never()).skip(any(), any(), any());
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
@@ -293,6 +343,7 @@ class ArticleAiSummaryWorkerTest {
 
         worker.process(1, "worker");
 
+        verify(articleSummaryAiClient, times(1)).summarize(any(ArticleSummaryPrompt.class));
         verify(articleAiSummaryService).completeFailureWithoutRetry(eq(1), eq("worker"), eq("bad request"));
         verify(articleAiSummaryService, never()).skip(any(), any(), any());
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());

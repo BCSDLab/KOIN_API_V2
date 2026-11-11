@@ -154,7 +154,7 @@ public class ArticleAiSummaryService {
         if (remainingLimit > 0) {
             summaries.addAll(articleAiSummaryRepository.findWaitingSummariesForUpdate(now, remainingLimit));
         }
-        LocalDateTime lockedUntil = now.plusMinutes(properties.getLockMinutes());
+        LocalDateTime lockedUntil = now.plus(properties.getProcessingLockDuration());
         return summaries.stream()
             .peek(summary -> summary.markProcessing(workerId, lockedUntil))
             .map(ArticleAiSummary::getId)
