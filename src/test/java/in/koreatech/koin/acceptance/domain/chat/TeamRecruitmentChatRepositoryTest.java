@@ -2,34 +2,24 @@ package in.koreatech.koin.acceptance.domain.chat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.hibernate.SessionFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.chat.adapter.TeamRecruitmentChatAdapter;
 import in.koreatech.koin.domain.chat.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus;
@@ -44,39 +34,23 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessag
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
-import in.koreatech.koin.domain.teamrecruitment.service.TeamRecruitmentChatService;
+import in.koreatech.koin.domain.team.recruitment.scheduler.TeamRecruitmentDeadlineScheduler;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 
-import jakarta.persistence.EntityManager;
+@TestPropertySource(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
+class TeamRecruitmentChatRepositoryTest extends AcceptanceTest {
 
-@ActiveProfiles("test")
-@DataJpaTest(showSql = false, properties = {
-    "spring.datasource.url=jdbc:h2:mem:team-common-chat;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE",
-    "spring.datasource.driver-class-name=org.h2.Driver",
-    "spring.datasource.username=sa", "spring.datasource.password=", "spring.flyway.enabled=false",
-    "spring.jpa.hibernate.ddl-auto=create-drop",
-    "spring.jpa.properties.hibernate.generate_statistics=true",
-    "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
-    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect"
-})
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ContextConfiguration(classes = TeamRecruitmentChatRepositoryTest.Config.class)
-@Import({TeamRecruitmentChatService.class, TeamRecruitmentChatAdapter.class})
-class TeamRecruitmentChatRepositoryTest {
-    @Configuration
-    @EnableJpaAuditing
-    @EntityScan(basePackageClasses = {TeamRecruitment.class, User.class})
-    @EnableJpaRepositories(basePackageClasses = TeamRecruitmentChatMemberRepository.class)
-    static class Config {}
-
-    @MockBean private ObjectMapper objectMapper;
-    @MockBean private Clock clock;
+    @MockBean private TeamRecruitmentDeadlineScheduler deadlineScheduler;
     @Autowired private TeamRecruitmentChatAdapter adapter;
     @Autowired private PlatformTransactionManager transactionManager;
-    @Autowired private EntityManager entityManager;
     @Autowired private TeamRecruitmentChatMemberRepository members;
     @Autowired private TeamRecruitmentChatMessageRepository messages;
+
+    @AfterEach
+    void cleanUp() {
+        clear();
+    }
 
     @Test
     void cursorUpdatesNeverRegressAndPaginationStaysInsideRoom() {
@@ -109,8 +83,8 @@ class TeamRecruitmentChatRepositoryTest {
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void mixedRoomListQueryCountStaysBoundedAsRoomsGrowAndPreservesWithdrawnCanSend() {
+        clear();
         var transaction = new TransactionTemplate(transactionManager);
         var small = transaction.execute(status -> mixedRooms(1));
         var large = transaction.execute(status -> mixedRooms(4));

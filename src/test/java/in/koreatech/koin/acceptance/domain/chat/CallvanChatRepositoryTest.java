@@ -8,16 +8,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 
+import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.callvan.model.CallvanChatMessage;
 import in.koreatech.koin.domain.callvan.model.CallvanChatRoom;
 import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
@@ -27,32 +20,8 @@ import in.koreatech.koin.domain.callvan.repository.CallvanChatMessageRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
-import jakarta.persistence.EntityManager;
 
-@ActiveProfiles("test")
-@DataJpaTest(showSql = false, properties = {
-    "spring.datasource.url=jdbc:h2:mem:common-chat;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE",
-    "spring.datasource.driver-class-name=org.h2.Driver",
-    "spring.datasource.username=sa",
-    "spring.datasource.password=",
-    "spring.flyway.enabled=false",
-    "spring.jpa.hibernate.ddl-auto=create-drop",
-    "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
-    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect"
-})
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ContextConfiguration(classes = CallvanChatRepositoryTest.Config.class)
-class CallvanChatRepositoryTest {
-
-    @Configuration
-    @EnableJpaAuditing
-    @EntityScan(basePackageClasses = {CallvanPost.class, User.class})
-    @EnableJpaRepositories(basePackageClasses = CallvanParticipantRepository.class)
-    static class Config {
-    }
-
-    @Autowired
-    private EntityManager entityManager;
+class CallvanChatRepositoryTest extends AcceptanceTest {
 
     @Autowired
     private CallvanParticipantRepository participants;
