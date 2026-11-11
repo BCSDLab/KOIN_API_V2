@@ -25,7 +25,7 @@ class UserLanguageMigrationTest {
     @Test
     void 새_언어_컬럼은_기존_계정값을_유지하고_미설정으로_추가된다() throws Exception {
         Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword())
-            .locations("classpath:db/migration").target("28").load().migrate();
+            .locations("classpath:db/migration").target("30").load().migrate();
 
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             statement.executeUpdate("""
@@ -36,7 +36,7 @@ class UserLanguageMigrationTest {
 
         Flyway flyway = Flyway.configure()
             .dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword())
-            .locations("classpath:db/migration").target("29").load();
+            .locations("classpath:db/migration").target("31").load();
         assertThat(flyway.migrate().migrationsExecuted).isEqualTo(1);
         flyway.validate();
 

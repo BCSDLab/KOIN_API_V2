@@ -24,7 +24,7 @@ class ContentTranslationMigrationTest {
     @Test
     void 번역_테이블만_추가하고_기존_사용자_언어를_변경하지_않는다() throws Exception {
         Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword())
-            .locations("classpath:db/migration").target("29").load().migrate();
+            .locations("classpath:db/migration").target("31").load().migrate();
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
             statement.executeUpdate("""
                 INSERT INTO users (id, password, nickname, name, user_type, anonymous_nickname, preferred_language)
@@ -33,7 +33,7 @@ class ContentTranslationMigrationTest {
         }
 
         Flyway flyway = Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword())
-            .locations("classpath:db/migration").target("30").load();
+            .locations("classpath:db/migration").target("32").load();
         assertThat(flyway.migrate().migrationsExecuted).isEqualTo(1);
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
