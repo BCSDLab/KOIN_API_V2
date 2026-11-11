@@ -76,6 +76,10 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         SELECT *
         FROM article_ai_summaries
         WHERE is_deleted = 0
+          AND EXISTS (
+              SELECT 1 FROM new_articles a
+              WHERE a.id = article_ai_summaries.article_id AND a.is_deleted = 0
+          )
           AND (
               (
                   status = 'WAIT'
@@ -102,6 +106,10 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         SELECT *
         FROM article_ai_summaries
         WHERE is_deleted = 0
+          AND EXISTS (
+              SELECT 1 FROM new_articles a
+              WHERE a.id = article_ai_summaries.article_id AND a.is_deleted = 0
+          )
           AND status = 'FAILED'
           AND retry_count < :maxRetryCount
           AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
@@ -184,6 +192,10 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         SELECT s.status AS status, COUNT(*) AS summaryCount
         FROM article_ai_summaries s
         WHERE s.is_deleted = 0
+          AND EXISTS (
+              SELECT 1 FROM new_articles a
+              WHERE a.id = s.article_id AND a.is_deleted = 0
+          )
         GROUP BY s.status
         """, nativeQuery = true)
     List<AdminArticleAiSummaryStatusCountProjection> countAdminSummariesByStatus();
@@ -215,6 +227,10 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
             THEN 1 ELSE 0 END), 0) AS retryableFailedCount
         FROM article_ai_summaries
         WHERE is_deleted = 0
+          AND EXISTS (
+              SELECT 1 FROM new_articles a
+              WHERE a.id = article_ai_summaries.article_id AND a.is_deleted = 0
+          )
         """, nativeQuery = true)
     AdminArticleAiSummaryQueueCountProjection countAdminQueue(
         @Param("now") LocalDateTime now,

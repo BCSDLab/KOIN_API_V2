@@ -63,7 +63,8 @@ class ArticleAiSummaryServiceTest {
         Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary summary = processingSummary(clock);
-        when(articleAiSummaryRepository.findById(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findByIdWithArticle(1)).thenReturn(Optional.of(summary));
 
         service.completeFailure(1, "worker", "rate limited", Duration.ofMinutes(1));
 
@@ -97,7 +98,8 @@ class ArticleAiSummaryServiceTest {
         Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary summary = processingSummary(clock);
-        when(articleAiSummaryRepository.findById(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findByIdWithArticle(1)).thenReturn(Optional.of(summary));
 
         service.completeFailure(1, "worker", "temporary failure", null);
 

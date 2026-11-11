@@ -95,6 +95,26 @@ class ArticleAiSummaryApiTest extends AcceptanceTest {
 
         assertThat(articleAiSummaryRepository.findByArticleId(deletedBoardArticle.getId())).isEmpty();
         assertThat(articleAiSummaryRepository.findByArticleId(article.getId())).isPresent();
+
+        ArticleAiSummary summary = articleAiSummaryRepository.findByArticleId(article.getId()).orElseThrow();
+        article.delete();
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(articleAiSummaryService.claimProcessableSummaries("new-worker", 1)).isEmpty();
+        summary = articleAiSummaryRepository.findById(summary.getId()).orElseThrow();
+        summary.completeFailure("temporary failure", LocalDateTime.now(clock).minusMinutes(1));
+        assertThat(articleAiSummaryService.claimProcessableSummaries("new-worker", 1)).isEmpty();
+
+        summary.markProcessing("old-worker", LocalDateTime.now(clock).minusMinutes(1));
+        assertThat(articleAiSummaryService.claimProcessableSummaries("new-worker", 1)).isEmpty();
+        assertThat(articleAiSummaryService.getGenerationSeed(summary.getId(), "new-worker")).isEmpty();
+        assertThat(summary.isProcessingBy("old-worker")).isTrue();
+        assertThat(articleAiSummaryService.getGenerationSeed(summary.getId(), "old-worker")).isEmpty();
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.SKIPPED);
+        assertThat(summary.getLockedUntil()).isNull();
+        assertThat(articleAiSummaryRepository.countAdminSummariesByStatus()).isEmpty();
+        assertThat(articleAiSummaryRepository.countAdminQueue(LocalDateTime.now(clock), 10).getRetryableFailedCount()).isZero();
     }
 
     @Test

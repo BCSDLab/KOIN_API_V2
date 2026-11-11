@@ -160,17 +160,15 @@ public class ArticleAiSummaryService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Optional<ArticleSummarySourceSeed> getGenerationSeed(Integer summaryId, String workerId) {
-        return articleAiSummaryRepository.findByIdWithArticle(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        return findProcessingSummaryForUpdate(summaryId, workerId)
             .map(summary -> ArticleSummarySourceSeed.from(summary.getArticle(), summary.getArticle().getContent()));
     }
 
     @Transactional
     public void completeSuccess(Integer summaryId, String workerId, ArticleSummarySource source, List<String> summaryLines) {
-        articleAiSummaryRepository.findById(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        findProcessingSummaryForUpdate(summaryId, workerId)
             .ifPresent(summary -> summary.completeSuccess(
                 summaryLines,
                 source.fingerprint(),
@@ -188,8 +186,7 @@ public class ArticleAiSummaryService {
 
     @Transactional
     public void completeFailure(Integer summaryId, String workerId, String reason, Duration retryAfter) {
-        articleAiSummaryRepository.findById(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        findProcessingSummaryForUpdate(summaryId, workerId)
             .ifPresent(summary -> {
                 String sanitizedReason = failureReasonSanitizer.sanitize(reason);
                 int nextRetryCount = summary.getRetryCount() + 1;
@@ -220,8 +217,7 @@ public class ArticleAiSummaryService {
 
     @Transactional
     public void completeFailureWithoutRetry(Integer summaryId, String workerId, String reason) {
-        articleAiSummaryRepository.findById(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        findProcessingSummaryForUpdate(summaryId, workerId)
             .ifPresent(summary -> {
                 String sanitizedReason = failureReasonSanitizer.sanitize(reason);
                 LocalDateTime nextAttemptAt = LocalDateTime.now(clock)
@@ -239,8 +235,7 @@ public class ArticleAiSummaryService {
 
     @Transactional
     public void skip(Integer summaryId, String workerId, String reason) {
-        articleAiSummaryRepository.findById(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        findProcessingSummaryForUpdate(summaryId, workerId)
             .ifPresent(summary -> {
                 String sanitizedReason = failureReasonSanitizer.sanitize(reason);
                 summary.skip(sanitizedReason);
@@ -257,6 +252,20 @@ public class ArticleAiSummaryService {
     @Transactional
     public int deleteOldLogs() {
         return articleAiSummaryLogRepository.deleteOlderThan(LocalDateTime.now(clock).minusDays(LOG_RETENTION_DAYS));
+    }
+
+    private Optional<ArticleAiSummary> findProcessingSummaryForUpdate(Integer summaryId, String workerId) {
+        return articleAiSummaryRepository.findByIdForUpdate(summaryId)
+            .filter(summary -> summary.isProcessingBy(workerId))
+            .filter(summary -> {
+                if (articleAiSummaryRepository.findByIdWithArticle(summaryId).isPresent()) {
+                    return true;
+                }
+                // 선점/생성 후 삭제된 작업도 종료하며, 삭제된 Article 프록시로 로그를 만들지 않는다.
+                summary.skip("게시글 원문이 삭제되어 요약을 종료합니다.");
+                log.debug("원문이 없는 게시글 AI 요약을 종료했습니다. summaryId: {}, workerId: {}", summaryId, workerId);
+                return false;
+            });
     }
 
     private void enqueueIfEnabled(Article article, String fingerprint, LocalDateTime sourceUpdatedAt) {
