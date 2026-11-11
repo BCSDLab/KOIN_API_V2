@@ -94,7 +94,6 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         FROM article_ai_summaries
         WHERE is_deleted = 0
           AND status = 'FAILED'
-          AND retry_count < :maxRetryCount
           AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
           AND (locked_until IS NULL OR locked_until < :now)
         ORDER BY
@@ -105,8 +104,7 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         """, nativeQuery = true)
     List<ArticleAiSummary> findRetryableFailedSummariesForUpdate(
         @Param("now") LocalDateTime now,
-        @Param("limit") int limit,
-        @Param("maxRetryCount") int maxRetryCount
+        @Param("limit") int limit
     );
 
     @Query(value = """
@@ -200,7 +198,6 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
             THEN 1 ELSE 0 END), 0) AS expiredProcessingCount,
           COALESCE(SUM(CASE
             WHEN status = 'FAILED'
-             AND retry_count < :maxRetryCount
              AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
              AND (locked_until IS NULL OR locked_until < :now)
             THEN 1 ELSE 0 END), 0) AS retryableFailedCount
@@ -208,8 +205,7 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         WHERE is_deleted = 0
         """, nativeQuery = true)
     AdminArticleAiSummaryQueueCountProjection countAdminQueue(
-        @Param("now") LocalDateTime now,
-        @Param("maxRetryCount") int maxRetryCount
+        @Param("now") LocalDateTime now
     );
 
 }

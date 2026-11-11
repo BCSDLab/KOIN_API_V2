@@ -76,10 +76,18 @@ class ArticleAiSummaryServiceTest {
         verify(articleAiSummaryLogRepository).save(logCaptor.capture());
         assertThat(logCaptor.getValue().getEventType()).isEqualTo(ArticleAiSummaryLogType.RETRY_WAITING);
         assertThat(logCaptor.getValue().getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+
+        for (int attempt = 2; attempt <= 4; attempt++) {
+            summary.completeFailure("temporary failure", LocalDateTime.now(clock));
+        }
+        summary.markProcessing("worker", LocalDateTime.now(clock).plusHours(1));
+        service.completeFailure(1, "worker", "rate limited", Duration.ofHours(48));
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
+        assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusHours(48));
     }
 
     @Test
-    void retry_after가_없으면_설정된_기본_백오프를_사용한다() {
+    void 백오프_한도에_도달해도_다음날부터_매일_재시도를_예약한다() {
         Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary summary = processingSummary(clock);
@@ -90,6 +98,19 @@ class ArticleAiSummaryServiceTest {
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
         assertThat(summary.getRetryCount()).isEqualTo(1);
         assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusMinutes(5));
+
+        for (int attempt = 2; attempt <= 5; attempt++) {
+            summary.markProcessing("worker", LocalDateTime.now(clock).plusHours(1));
+            service.completeFailure(1, "worker", "temporary failure", null);
+        }
+        assertThat(summary.getRetryCount()).isEqualTo(5);
+        assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.of(2026, 6, 2, 0, 0));
+
+        Clock tomorrow = Clock.offset(clock, Duration.ofDays(1));
+        summary.markProcessing("worker", LocalDateTime.now(tomorrow).plusHours(1));
+        service(tomorrow).completeFailure(1, "worker", "temporary failure", null);
+        assertThat(summary.getRetryCount()).isEqualTo(6);
+        assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.of(2026, 6, 3, 0, 0));
     }
 
     @Test
@@ -268,7 +289,7 @@ class ArticleAiSummaryServiceTest {
 
         service.claimProcessableSummaries("worker", 5);
 
-        verify(articleAiSummaryRepository, never()).findRetryableFailedSummariesForUpdate(any(), anyInt(), anyInt());
+        verify(articleAiSummaryRepository, never()).findRetryableFailedSummariesForUpdate(any(), anyInt());
         verify(articleAiSummaryRepository).findWaitingSummariesForUpdate(now, 5);
         assertThat(waitingSummary.isProcessingBy("worker")).isTrue();
         assertThat(waitingSummary.getLockedUntil()).isEqualTo(now.plusMinutes(53).plusSeconds(3));
@@ -281,14 +302,14 @@ class ArticleAiSummaryServiceTest {
         ArticleAiSummary failedSummary = failedSummary(clock);
         ArticleAiSummary waitingSummary = waitingSummary(clock);
         LocalDateTime now = LocalDateTime.now(clock);
-        when(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now, 5, 5))
+        when(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now, 5))
             .thenReturn(List.of(failedSummary));
         when(articleAiSummaryRepository.findWaitingSummariesForUpdate(now, 4))
             .thenReturn(List.of(waitingSummary));
 
         service.claimProcessableSummaries("worker", 5);
 
-        verify(articleAiSummaryRepository).findRetryableFailedSummariesForUpdate(now, 5, 5);
+        verify(articleAiSummaryRepository).findRetryableFailedSummariesForUpdate(now, 5);
         verify(articleAiSummaryRepository).findWaitingSummariesForUpdate(now, 4);
         assertThat(failedSummary.isProcessingBy("worker")).isTrue();
         assertThat(waitingSummary.isProcessingBy("worker")).isTrue();

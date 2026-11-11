@@ -225,10 +225,10 @@ public class ArticleAiSummary extends BaseEntity {
         this.failureReason = truncate(reason);
     }
 
-    public void completeFailureWithoutRetry(String reason, int maxRetryCount) {
+    public void deferFailureUntilDailyRetry(String reason, int maxRetryCount, LocalDateTime nextAttemptAt) {
         this.status = ArticleAiSummaryStatus.FAILED;
         this.retryCount = Math.max(this.retryCount + 1, maxRetryCount);
-        this.nextAttemptAt = null;
+        this.nextAttemptAt = nextAttemptAt;
         this.lockedUntil = null;
         this.workerId = null;
         this.failureReason = truncate(reason);

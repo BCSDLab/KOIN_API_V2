@@ -58,7 +58,7 @@ public record AdminArticleAiSummaryOverviewResponse(
         @Schema(description = "스케줄러 batch size", example = "5", requiredMode = REQUIRED)
         Integer batchSize,
 
-        @Schema(description = "최대 재시도 횟수", example = "5", requiredMode = REQUIRED)
+        @Schema(description = "초기 재시도 한도. 도달 후에도 FAILED는 지정 시간대에 매일 재시도합니다.", example = "5", requiredMode = REQUIRED)
         Integer maxRetryCount,
 
         @Schema(description = "FAILED 재처리 시작 시각", example = "0", requiredMode = REQUIRED)

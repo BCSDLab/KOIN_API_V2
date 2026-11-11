@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance.admin;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.ArticleAcceptanceFixture;
@@ -27,6 +29,7 @@ import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryLogRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRepository;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryFailureType;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryService;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 
@@ -49,6 +52,9 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
 
     @Autowired
     private ArticleAiSummaryLogRepository articleAiSummaryLogRepository;
+
+    @Autowired
+    private ArticleAiSummaryService articleAiSummaryService;
 
     private String koinAdminToken;
     private String studentToken;
@@ -97,7 +103,14 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
     }
 
     @Test
+    @Transactional
     void 승인된_코인_어드민은_super_admin이_아니어도_게시글_AI_요약_큐_상태를_조회한다() throws Exception {
+        // 이전 코드에서 재시도가 중단된 행도 그대로 다시 처리할 수 있어야 한다.
+        for (int attempt = 2; attempt <= 5; attempt++) {
+            failedSummary.completeFailure(rawFailureReason, null);
+        }
+        articleAiSummaryRepository.save(failedSummary);
+
         mockMvc.perform(
                 get("/admin/articles/ai-summaries/overview")
                     .header("Authorization", "Bearer " + koinAdminToken)
@@ -111,6 +124,17 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.queue.ready_wait_count").value(1))
             .andExpect(jsonPath("$.queue.retryable_failed_count").value(1))
             .andExpect(jsonPath("$.config.batch_size").value(5));
+
+        LocalDateTime now = LocalDateTime.now(clock);
+        assertThat(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now, 1))
+            .extracting(ArticleAiSummary::getId).containsExactly(failedSummary.getId());
+        failedSummary.markProcessing("daily-worker", now.plusHours(1));
+        articleAiSummaryService.deferFailureUntilDailyRetry(failedSummary.getId(), "daily-worker", "invalid api key");
+        LocalDateTime nextRetry = now.toLocalDate().plusDays(1).atStartOfDay();
+        assertThat(failedSummary.getNextAttemptAt()).isEqualTo(nextRetry);
+        assertThat(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now, 1)).isEmpty();
+        assertThat(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(nextRetry, 1))
+            .extracting(ArticleAiSummary::getId).containsExactly(failedSummary.getId());
     }
 
     @Test

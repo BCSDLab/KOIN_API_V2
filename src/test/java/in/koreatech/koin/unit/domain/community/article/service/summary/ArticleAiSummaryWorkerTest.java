@@ -333,7 +333,7 @@ class ArticleAiSummaryWorkerTest {
     }
 
     @Test
-    void 재시도_불가능한_외부_API_오류는_즉시_재시도_종료_상태로_처리한다() {
+    void 재시도_불가능한_외부_API_오류는_즉시_반복하지_않고_일일_재시도로_미룬다() {
         ArticleSummarySourceSeed seed = sourceSeed();
         ArticleSummarySource source = source();
         when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
@@ -344,7 +344,7 @@ class ArticleAiSummaryWorkerTest {
         worker.process(1, "worker");
 
         verify(articleSummaryAiClient, times(1)).summarize(any(ArticleSummaryPrompt.class));
-        verify(articleAiSummaryService).completeFailureWithoutRetry(eq(1), eq("worker"), eq("bad request"));
+        verify(articleAiSummaryService).deferFailureUntilDailyRetry(eq(1), eq("worker"), eq("bad request"));
         verify(articleAiSummaryService, never()).skip(any(), any(), any());
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
     }
