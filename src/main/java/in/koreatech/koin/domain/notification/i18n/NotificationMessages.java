@@ -32,11 +32,11 @@ public final class NotificationMessages {
         return text == null || text.contains("%s") ? text : template(user, text);
     }
 
-    /** Legacy snapshots have no template metadata. Translate only an exact, typed reconstruction. */
+    /** 저장 당시 제목을 우선 사용하며, 구형 알림은 모호하지 않은 템플릿만 복원한다. */
     public static String teamMessage(User user,
         in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType type,
         String recruitmentTitle, String original) {
-        if (type == null || original == null || recruitmentTitle == null) {
+        if (type == null || original == null) {
             return original;
         }
         List<String> keys = switch (type) {
@@ -48,12 +48,34 @@ public final class NotificationMessages {
             case RECRUITMENT_DELETED -> List.of("team.recruitment.deleted");
             case NEW_CHAT_MESSAGE -> List.of();
         };
-        return keys.stream()
+        List<String> templates = keys.stream()
             .map(key -> MESSAGES.get(SupportedLanguage.KOREAN).getProperty(key))
+            .toList();
+        String exactTemplate = templates.stream()
             .filter(template -> template.formatted(recruitmentTitle).equals(original))
             .findFirst()
-            .map(template -> format(user, template, recruitmentTitle))
-            .orElse(original);
+            .orElse(null);
+        if (recruitmentTitle != null && exactTemplate != null) {
+            return format(user, exactTemplate, recruitmentTitle);
+        }
+
+        String translated = null;
+        for (String template : templates) {
+            int placeholder = template.indexOf("%s");
+            String prefix = template.substring(0, placeholder);
+            String suffix = template.substring(placeholder + 2);
+            if (!original.startsWith(prefix) || !original.endsWith(suffix)
+                || original.length() <= prefix.length() + suffix.length()) {
+                continue;
+            }
+            // 거절 사유와 사용자 제목을 구별할 수 없는 구형 알림은 추측하지 않는다.
+            if (translated != null) {
+                return original;
+            }
+            String originalTitle = original.substring(prefix.length(), original.length() - suffix.length());
+            translated = format(user, template, originalTitle);
+        }
+        return translated == null ? original : translated;
     }
 
     private static String template(User user, String koreanTemplate) {

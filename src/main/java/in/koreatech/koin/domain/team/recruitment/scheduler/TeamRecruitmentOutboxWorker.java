@@ -130,8 +130,10 @@ public class TeamRecruitmentOutboxWorker {
                     : fallbackContent(outboxPayload.type(), recruitment.getTitle() == null ? "팀원 모집" : recruitment.getTitle()));
 
             if (outboxPayload.type() != TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE) {
+                String originalTitle = inbox.map(TeamRecruitmentNotification::getRecruitmentTitle)
+                    .orElse(recruitment.getTitle());
                 content = NotificationMessages.teamMessage(recipient, outboxPayload.type(),
-                    recruitment.getTitle() == null ? "팀원 모집" : recruitment.getTitle(), content);
+                    originalTitle, content);
             }
 
             FcmSendRequest request = FcmSendRequest.of(

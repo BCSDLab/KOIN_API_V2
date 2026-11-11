@@ -48,6 +48,10 @@ public record TeamRecruitmentNotificationResponse(
         LocalDateTime createdAt
 ) {
     public static TeamRecruitmentNotificationResponse from(TeamRecruitmentNotification notification) {
+        String recruitmentTitle = notification.getRecruitmentTitle();
+        if (recruitmentTitle == null) {
+            recruitmentTitle = notification.getRecruitment().getTitle();
+        }
         return new TeamRecruitmentNotificationResponse(
                 notification.getId(),
                 notification.getType().name(),
@@ -57,7 +61,7 @@ public record TeamRecruitmentNotificationResponse(
                 notification.getChatRoom() != null ? notification.getChatRoom().getId() : null,
                 notification.getSenderNickname(),
                 NotificationMessages.teamMessage(notification.getRecipient(), notification.getType(),
-                    notification.getRecruitment().getTitle() == null ? "팀원 모집" : notification.getRecruitment().getTitle(),
+                    recruitmentTitle,
                     notification.getMessagePreview()),
                 notification.isRead(),
                 notification.getCreatedAt()

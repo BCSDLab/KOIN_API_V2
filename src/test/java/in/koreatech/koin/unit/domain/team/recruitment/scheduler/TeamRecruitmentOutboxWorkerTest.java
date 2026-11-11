@@ -31,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.domain.chat.service.ChatPresenceService;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType;
@@ -139,7 +140,7 @@ class TeamRecruitmentOutboxWorkerTest {
     }
 
     @Test
-    void 기존_payload로_inbox_내용을_사용해_synchronous_FCM을_호출하고_완료한다() {
+    void 기존_payload로_제목_변경_전_inbox_내용을_발송_시점_언어로_보내고_완료한다() {
         User recipient = UserFixture.id_설정_코인_유저(RECIPIENT_ID);
         recipient.permitNotification("device-token");
         TeamRecruitment recruitment = recruitment();
@@ -147,9 +148,14 @@ class TeamRecruitmentOutboxWorkerTest {
             .recipient(recipient)
             .type(APPLICATION_REJECTED)
             .targetType(MY_APPLICATIONS)
-            .messagePreview("모집 지원이 거절되었어요.")
+            .messagePreview("팀원 모집 지원이 거절되었어요.")
             .recruitment(recruitment)
             .build();
+        recruitment.modify(recruitment.getCategory(), "변경된 제목", recruitment.getMeetingType(),
+            recruitment.getActivityStartDate(), recruitment.getActivityEndDate(), recruitment.getDeadlineDate(),
+            recruitment.getRecruitmentType(), recruitment.getMaxParticipants(), recruitment.getDescription(),
+            recruitment.getRelatedUrl(), recruitment.getQualification());
+        recipient.changeLanguage(SupportedLanguage.ENGLISH);
         TeamRecruitmentOutboxLeaseService.OutboxClaim claim = claim(
             "{\"type\":\"APPLICATION_REJECTED\",\"target_type\":\"MY_APPLICATIONS\","
                 + "\"recipient_id\":2,\"recruitment_id\":10,\"application_id\":20,\"chat_room_id\":null}"
@@ -172,8 +178,8 @@ class TeamRecruitmentOutboxWorkerTest {
         verify(fcmClient).sendMessages(requestCaptor.capture());
         FcmSendRequest request = requestCaptor.getValue().get(0);
         assertThat(request.targetDeviceToken()).isEqualTo("device-token");
-        assertThat(request.title()).isEqualTo("팀원 모집");
-        assertThat(request.content()).isEqualTo("모집 지원이 거절되었어요.");
+        assertThat(request.title()).isEqualTo("변경된 제목");
+        assertThat(request.content()).isEqualTo("Your application to 팀원 모집 was declined.");
         assertThat(request.path()).isNull();
         assertThat(request.schemeUri()).isNull();
         assertThat(request.type()).isEqualTo("application_rejected");

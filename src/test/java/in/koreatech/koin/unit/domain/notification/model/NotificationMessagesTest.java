@@ -28,6 +28,10 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType;
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
+import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentNotificationResponse;
 import in.koreatech.koin.domain.user.model.User;
 
 class NotificationMessagesTest {
@@ -58,6 +62,21 @@ class NotificationMessagesTest {
         assertThat(NotificationMessages.teamMessage(user, TeamRecruitmentNotificationType.APPLICATION_REJECTED,
             title, title + " 지원이 거절되었어요."))
             .isEqualTo("Your application to " + title + " was declined.");
+        TeamRecruitment recruitment = mock(TeamRecruitment.class);
+        when(recruitment.getTitle()).thenReturn(title);
+        TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
+            .recipient(user).recruitment(recruitment).type(TeamRecruitmentNotificationType.APPLICATION_REJECTED)
+            .targetType(TeamRecruitmentNotificationTargetType.MY_APPLICATIONS)
+            .messagePreview(title + " 지원이 거절되었어요.").build();
+        when(recruitment.getTitle()).thenReturn("변경된 제목");
+        assertThat(TeamRecruitmentNotificationResponse.from(notification).messagePreview())
+            .isEqualTo("Your application to " + title + " was declined.");
+        assertThat(NotificationMessages.teamMessage(user, TeamRecruitmentNotificationType.NEW_APPLICATION,
+            "변경된 제목", "A에 새로운 지원자가 있어요."))
+            .isEqualTo("A has a new applicant.");
+        assertThat(NotificationMessages.teamMessage(user, TeamRecruitmentNotificationType.APPLICATION_REJECTED,
+            "변경된 제목", title + " 지원이 거절되었어요."))
+            .isEqualTo(title + " 지원이 거절되었어요.");
         var chat = new NotificationFactory().generateChatMessageNotification(MobileAppPath.SHOP,
             1, 2, "닉네임", "주문이 접수되었어요", user);
         assertThat(chat.getTitle()).isEqualTo("Message from 닉네임");
