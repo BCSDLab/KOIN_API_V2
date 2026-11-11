@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED;
 
 import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -85,7 +86,12 @@ class TranslationStoreTest extends AcceptanceTest {
 
     @Test
     void 만료_행이_한_배치를_넘어도_모두_삭제하고_보관중인_행은_유지한다() {
-        StoredTranslation active = claim().translation();
+        var owner = claim();
+        store.fail(owner.translation().id(), owner.ownerToken(), TranslationReason.RATE_LIMITED, Duration.ofDays(31));
+        StoredTranslation active = store.findById(owner.translation().id()).orElseThrow();
+        assertThat(active.nextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusDays(31));
+        assertThat(active.expiresAt()).isEqualTo(active.nextAttemptAt());
+        assertThat(claim().ownerToken()).isNull();
         LocalDateTime expiredAt = LocalDateTime.now(clock).minusSeconds(1);
         List<Object[]> rows = IntStream.range(0, 1001)
             .mapToObj(index -> new Object[] {UUID.randomUUID().toString(), "expired-" + index, expiredAt, active.id()})

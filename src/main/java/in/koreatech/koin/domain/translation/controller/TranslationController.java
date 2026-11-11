@@ -117,12 +117,26 @@ public class TranslationController implements TranslationApi {
     }
 
     private ResponseEntity.BodyBuilder headers(TranslationResponse<?> response, boolean post) {
-        var builder = ResponseEntity.status(post && "PENDING".equals(response.status()) ? 202 : 200)
+        var builder = ResponseEntity.status(post ? postStatus(response) : 200)
             .cacheControl(CacheControl.noStore());
         long retryAfter = service.retryAfterSeconds(response);
         if (retryAfter > 0) {
             builder.header(HttpHeaders.RETRY_AFTER, Long.toString(retryAfter));
         }
         return builder;
+    }
+
+    private int postStatus(TranslationResponse<?> response) {
+        return switch (response.status()) {
+            case "SUCCESS" -> 200;
+            case "PENDING" -> 202;
+            case "UNAVAILABLE", "FAILED" -> switch (response.reasonCode()) {
+                case UNSUPPORTED_CONTENT, INPUT_TOO_LONG -> 422;
+                case INVALID_TRANSLATION, MISSING_TRANSLATION, UPSTREAM_REJECTED -> 502;
+                case SOURCE_NOT_READY, TEMPORARY_ERROR, RATE_LIMITED, CONFIGURATION_ERROR -> 503;
+                case TIMEOUT -> 504;
+            };
+            default -> throw new IllegalStateException("Unknown translation status");
+        };
     }
 }

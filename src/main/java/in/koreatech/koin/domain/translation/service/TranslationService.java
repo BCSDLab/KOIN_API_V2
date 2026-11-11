@@ -127,14 +127,14 @@ public class TranslationService {
             }
         }
         return new TranslationResponse<>(stored.id(), status, stored.targetLanguage(), stored.sourceVersion(),
-            reason, "FAILED".equals(status), data);
+            reason, "FAILED".equals(status) && reason != null && reason.isRetryable(), data);
     }
 
     public long retryAfterSeconds(TranslationResponse<?> response) {
         if ("PENDING".equals(response.status())) {
             return 2;
         }
-        if (!"FAILED".equals(response.status()) || response.translationId() == null) {
+        if (!"FAILED".equals(response.status()) || !response.retryable() || response.translationId() == null) {
             return 0;
         }
         return store.findById(response.translationId()).map(stored ->

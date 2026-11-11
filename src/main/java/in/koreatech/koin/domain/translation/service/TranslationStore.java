@@ -62,8 +62,13 @@ public class TranslationStore {
 
     public boolean fail(String id, String ownerToken, TranslationReason reason, Duration retryAfter) {
         LocalDateTime now = LocalDateTime.now(clock);
-        long requestedDelay = retryAfter == null ? 0 : retryAfter.getSeconds();
-        long delay = Math.min(3600, Math.max(properties.getRetryDelaySeconds(), requestedDelay));
+        // 외부 Retry-After를 단축하지 않는다. 과도하게 큰 값만 MySQL DATETIME 범위로 제한한다.
+        long maximumDelay = Duration.between(now, LocalDateTime.of(9999, 12, 31, 23, 59, 59)).getSeconds();
+        long requestedDelay = retryAfter == null ? 0 : Math.min(maximumDelay, retryAfter.getSeconds());
+        if (retryAfter != null && retryAfter.getNano() > 0 && requestedDelay < maximumDelay) {
+            requestedDelay++;
+        }
+        long delay = Math.max(properties.getRetryDelaySeconds(), requestedDelay);
         return repository.fail(id, ownerToken, reason.name(), now.plusSeconds(delay), now) == 1;
     }
 

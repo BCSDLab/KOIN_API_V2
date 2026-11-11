@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,7 +49,9 @@ class UpstageTranslationClientTest {
             var upstage = new UpstageProperties();
             upstage.setApiKey("translation-test-key");
             upstage.setApiBaseUrl("http://127.0.0.1:" + server.getAddress().getPort() + "/v1");
-            var client = new UpstageTranslationClient(mapper, upstage, new TranslationProperties());
+            var properties = new TranslationProperties();
+            properties.setMaxRetries(0);
+            var client = new UpstageTranslationClient(mapper, upstage, properties);
             var fields = Map.of("content", "山田さん KOIN에서 만나요. 15:30, 12000원. https://example.com/menu");
             var sentences = Map.of(
                 SupportedLanguage.KOREAN, "山田さん KOIN에서 만나요.",
@@ -96,6 +101,7 @@ class UpstageTranslationClientTest {
     @Test
     void 필드가_빠진_번역은_거절하고_로그에_원문과_응답을_남기지_않는다() throws Exception {
         var mapper = new ObjectMapper();
+        var calls = new AtomicInteger();
         var fields = Map.of("title", "private-source-title", "content", "private-source-content");
         String incomplete = mapper.writeValueAsString(Map.of("title", "private-response-title"));
         byte[] body = mapper.writeValueAsBytes(Map.of("choices", List.of(Map.of(
@@ -103,6 +109,7 @@ class UpstageTranslationClientTest {
         var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/v1/chat/completions", exchange -> {
             exchange.getRequestBody().readAllBytes();
+            calls.incrementAndGet();
             try {
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 exchange.sendResponseHeaders(200, body.length);
@@ -122,11 +129,14 @@ class UpstageTranslationClientTest {
             var upstage = new UpstageProperties();
             upstage.setApiKey("private-api-key");
             upstage.setApiBaseUrl("http://127.0.0.1:" + server.getAddress().getPort() + "/v1");
-            var client = new UpstageTranslationClient(mapper, upstage, new TranslationProperties());
+            var properties = new TranslationProperties();
+            properties.setMaxRetries(2);
+            var client = new UpstageTranslationClient(mapper, upstage, properties);
 
             var failure = catchThrowableOfType(() -> client.translate(fields, SupportedLanguage.ENGLISH),
                 TranslationFailureException.class);
 
+            assertThat(calls.get()).isEqualTo(3); // 최초 호출 + 설정한 추가 재시도 2회
             assertThat(failure.getReason()).isEqualTo(TranslationReason.MISSING_TRANSLATION);
             assertThat(failure.getMessage()).isEqualTo("MISSING_TRANSLATION");
             assertThat(failure.getCause()).isNull();
@@ -141,5 +151,81 @@ class UpstageTranslationClientTest {
             logs.stop();
             logger.setLevel(previousLevel);
         }
+    }
+
+    @Test
+    void 일시_장애와_잘못된_번역만_재시도하고_정상_결과를_반환한다() throws Exception {
+        var calls = new AtomicInteger();
+        var mapper = new ObjectMapper();
+        byte[] valid = mapper.writeValueAsBytes(Map.of("choices", List.of(Map.of(
+            "finish_reason", "stop", "message", Map.of("content", "{\"content\":\"Hello\"}")))));
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/v1/chat/completions", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            int attempt = calls.incrementAndGet();
+            byte[] response = attempt == 3 ? valid : "{}".getBytes();
+            try {
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.getResponseHeaders().set("Retry-After", "0");
+                exchange.sendResponseHeaders(attempt == 1 ? 429 : 200, response.length);
+                exchange.getResponseBody().write(response);
+            } finally {
+                exchange.close();
+            }
+        });
+        server.start();
+        try {
+            var properties = new TranslationProperties();
+            properties.setMaxRetries(2);
+            var client = client(server, properties);
+            assertThat(client.translate(Map.of("content", "안녕하세요"), SupportedLanguage.ENGLISH))
+                .containsEntry("content", "Hello");
+            assertThat(calls.get()).isEqualTo(3);
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void 재시도_대기와_호출은_전체_제한_시간을_공유한다() throws Exception {
+        var calls = new AtomicInteger();
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        var executor = Executors.newCachedThreadPool();
+        server.setExecutor(executor);
+        server.createContext("/v1/chat/completions", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            int attempt = calls.incrementAndGet();
+            try {
+                Thread.sleep(attempt == 1 ? 1000 : 5000);
+                exchange.sendResponseHeaders(503, -1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                exchange.close();
+            }
+        });
+        server.start();
+        try {
+            var properties = new TranslationProperties();
+            properties.setRequestTimeoutSeconds(2);
+            properties.setMaxRetries(3);
+            var client = client(server, properties);
+            long started = System.nanoTime();
+            var failure = catchThrowableOfType(() -> client.translate(Map.of("content", "안녕하세요"),
+                SupportedLanguage.ENGLISH), TranslationFailureException.class);
+            assertThat(failure.getReason()).isEqualTo(TranslationReason.TIMEOUT);
+            assertThat(calls.get()).isEqualTo(2);
+            assertThat(Duration.ofNanos(System.nanoTime() - started)).isLessThan(Duration.ofMillis(2900));
+        } finally {
+            server.stop(0);
+            executor.shutdownNow();
+        }
+    }
+
+    private UpstageTranslationClient client(HttpServer server, TranslationProperties properties) {
+        var upstage = new UpstageProperties();
+        upstage.setApiKey("translation-test-key");
+        upstage.setApiBaseUrl("http://127.0.0.1:" + server.getAddress().getPort() + "/v1");
+        return new UpstageTranslationClient(new ObjectMapper(), upstage, properties);
     }
 }

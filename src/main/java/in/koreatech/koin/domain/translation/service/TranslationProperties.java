@@ -25,6 +25,8 @@ public class TranslationProperties {
     private String promptVersion = "v3";
     @Min(1) @Max(60)
     private int requestTimeoutSeconds = 25;
+    @Min(0) @Max(3)
+    private int maxRetries = 1;
     @Min(1) @Max(20)
     private int maxConcurrentRequests = 4;
     @Min(1) @Max(1000)

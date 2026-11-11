@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.support.JsonAssertions;
 import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.translation.model.TranslationResource;
+import in.koreatech.koin.domain.translation.model.TranslationReason;
 import in.koreatech.koin.domain.translation.model.TranslationType;
 import in.koreatech.koin.domain.translation.service.*;
 import in.koreatech.koin.domain.user.model.User;
@@ -173,7 +176,7 @@ class TranslationApiTest extends AcceptanceTest {
 
             jdbc.update("UPDATE content_translations SET translated_json = ? WHERE id = ?", originalJson, id);
             mockMvc.perform(post(SUMMARY).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("FAILED"))
+                .andExpect(status().isBadGateway()).andExpect(jsonPath("$.status").value("FAILED"))
                 .andExpect(jsonPath("$.reason_code").value("INVALID_TRANSLATION"));
             mockMvc.perform(post(SUMMARY).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SUCCESS"))
@@ -229,6 +232,70 @@ class TranslationApiTest extends AcceptanceTest {
         mockMvc.perform(get("/translations/{id}", id))
             .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("SOURCE_CHANGED"));
         verify(aiClient, times(1)).translate(anyMap(), any());
+    }
+
+    @Test
+    void 실패_POST는_오류로_반환하고_결과_GET과_후속_POST는_저장된_대기시간을_존중한다() throws Exception {
+        var resource = TranslationResource.article(TranslationType.LOST_ITEM, 17);
+        var source = TranslationSource.of(resource, TranslationSourceFields.lostItem("학생회관", null),
+            Map.of("found_place", "학생회관"), null);
+        when(sourceReader.load(resource, null)).thenReturn(source);
+        var upstreamStatus = new AtomicInteger(401);
+        var calls = new AtomicInteger();
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/v1/chat/completions", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            calls.incrementAndGet();
+            try {
+                exchange.getResponseHeaders().set("Retry-After", "7200");
+                exchange.sendResponseHeaders(upstreamStatus.get(), -1);
+            } finally {
+                exchange.close();
+            }
+        });
+        server.start();
+        try {
+            var upstage = new UpstageProperties();
+            upstage.setApiKey("translation-test-key");
+            upstage.setApiBaseUrl("http://127.0.0.1:" + server.getAddress().getPort() + "/v1");
+            var client = new UpstageTranslationClient(objectMapper, upstage, properties);
+            when(aiClient.translate(source.texts(), SupportedLanguage.ENGLISH))
+                .thenAnswer(invocation -> client.translate(source.texts(), SupportedLanguage.ENGLISH));
+            var rejected = mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isServiceUnavailable()).andExpect(jsonPath("$.reason_code").value("CONFIGURATION_ERROR"))
+                .andExpect(jsonPath("$.retryable").value(false)).andExpect(header().doesNotExist(HttpHeaders.RETRY_AFTER))
+                .andReturn();
+            assertThat(calls.get()).isEqualTo(1); // 인증 오류는 재시도하지 않는다.
+            String id = JsonAssertions.convertJsonNode(rejected).path("translation_id").asText();
+            mockMvc.perform(get("/translations/{id}", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("FAILED"))
+                .andExpect(jsonPath("$.retryable").value(false)).andExpect(header().doesNotExist(HttpHeaders.RETRY_AFTER));
+
+            // 운영자가 설정을 수정한 뒤 다시 요청한 상황. 외부 대기 지시는 25초보다 길다.
+            jdbc.update("UPDATE content_translations SET next_attempt_at = ? WHERE id = ?", LocalDateTime.now(clock), id);
+            upstreamStatus.set(429);
+            long started = System.nanoTime();
+            var limited = mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isServiceUnavailable()).andExpect(jsonPath("$.reason_code").value("RATE_LIMITED"))
+                .andExpect(jsonPath("$.retryable").value(true)).andExpect(jsonPath("$.translation_id").value(id)).andReturn();
+            assertThat(Duration.ofNanos(System.nanoTime() - started)).isLessThan(Duration.ofSeconds(5));
+            assertThat(Long.parseLong(limited.getResponse().getHeader(HttpHeaders.RETRY_AFTER))).isGreaterThanOrEqualTo(7200);
+            assertThat(store.findById(id).orElseThrow().nextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusHours(2));
+            mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isServiceUnavailable()).andExpect(jsonPath("$.translation_id").value(id));
+            mockMvc.perform(get("/translations/{id}", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.reason_code").value("RATE_LIMITED"));
+            assertThat(calls.get()).isEqualTo(2); // 기다릴 수 없거나 대기 중인 요청은 Solar를 다시 호출하지 않는다.
+
+            jdbc.update("UPDATE content_translations SET next_attempt_at = ? WHERE id = ?", LocalDateTime.now(clock), id);
+            doThrow(new TranslationFailureException(TranslationReason.TIMEOUT, null))
+                .when(aiClient).translate(source.texts(), SupportedLanguage.ENGLISH);
+            mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isGatewayTimeout()).andExpect(jsonPath("$.reason_code").value("TIMEOUT"))
+                .andExpect(jsonPath("$.retryable").value(true));
+        } finally {
+            server.stop(0);
+        }
     }
 
     private String body(String version) {

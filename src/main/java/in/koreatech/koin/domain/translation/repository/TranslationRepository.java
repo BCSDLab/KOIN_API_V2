@@ -67,7 +67,8 @@ public interface TranslationRepository extends Repository<ContentTranslation, St
     @Query(value = """
         UPDATE content_translations
         SET status = 'FAILED', translated_json = NULL, reason_code = :reason,
-            owner_token = NULL, locked_until = NULL, next_attempt_at = :nextAttemptAt, updated_at = :now
+            owner_token = NULL, locked_until = NULL, next_attempt_at = :nextAttemptAt,
+            expires_at = GREATEST(expires_at, :nextAttemptAt), updated_at = :now
         WHERE id = :id AND status = 'PENDING' AND owner_token = :ownerToken AND locked_until > :now
         """, nativeQuery = true)
     int fail(@Param("id") String id, @Param("ownerToken") String ownerToken,
