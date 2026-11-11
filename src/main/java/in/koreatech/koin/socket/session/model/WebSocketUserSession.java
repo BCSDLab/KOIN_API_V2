@@ -6,6 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -34,7 +35,7 @@ public class WebSocketUserSession implements Serializable {
     @JsonCreator
     private WebSocketUserSession(
         @JsonProperty("userId") Integer userId,
-        @JsonProperty("deviceId") String deviceToken,
+        @JsonProperty("deviceToken") @JsonAlias("deviceId") String deviceToken,
         @JsonProperty("status") WebSocketUserSessionStatus status,
         @JsonProperty("currentArticleId") Long currentArticleId,
         @JsonProperty("currentChatRoomId") Long currentChatRoomId,
@@ -78,7 +79,7 @@ public class WebSocketUserSession implements Serializable {
 
         // 가변 요소를 방어적으로 복사
         this.userId = Integer.valueOf(userId);
-        this.deviceToken = String.copyValueOf(deviceToken.toCharArray());
+        this.deviceToken = deviceToken == null ? null : String.copyValueOf(deviceToken.toCharArray());
         this.status = WebSocketUserSessionStatus.valueOf(status.name());
         this.lastActiveAt = LocalDateTime.of(lastActiveAt.toLocalDate(), lastActiveAt.toLocalTime());
         this.currentArticleId = this.currentArticleId == null ? -1L : currentArticleId;
@@ -91,9 +92,6 @@ public class WebSocketUserSession implements Serializable {
     private void validate(Integer userId, String deviceToken, WebSocketUserSessionStatus status, LocalDateTime lastActiveAt) {
         if (userId == null) {
             throw new KoinIllegalStateException("웹소켓 사용자 세션 에러 : userId는 null일 수 없습니다.");
-        }
-        if (deviceToken == null) {
-            throw new KoinIllegalStateException("웹소켓 사용자 세션 에러 : deviceToken은 null일 수 없습니다.");
         }
         if (status == null) {
             throw new KoinIllegalStateException("웹소켓 사용자 세션 에러 : status는 null일 수 없습니다.");

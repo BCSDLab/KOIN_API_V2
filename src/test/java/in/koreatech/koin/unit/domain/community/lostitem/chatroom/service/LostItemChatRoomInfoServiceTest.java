@@ -38,6 +38,9 @@ public class LostItemChatRoomInfoServiceTest {
     private LostItemArticleRepository lostItemArticleRepository;
     @Mock
     private LostItemChatRoomInfoRepository chatRoomInfoRepository;
+    @Mock private org.redisson.api.RedissonClient redissonClient;
+    @Mock private org.redisson.api.RLock lock;
+    @Mock private in.koreatech.koin.domain.community.lostitem.chatroom.service.LostItemChatAccessService access;
     private User author;
     private User messageSender;
     private LostItemArticle lostItemArticle;
@@ -48,6 +51,7 @@ public class LostItemChatRoomInfoServiceTest {
 
     @BeforeEach
     void setUp() {
+        when(redissonClient.getLock(anyString())).thenReturn(lock);
         author = UserFixture.코인_유저();
         ReflectionTestUtils.setField(author, "id", authorId);
 
@@ -138,6 +142,18 @@ public class LostItemChatRoomInfoServiceTest {
                 ApiResponseCode.NOT_FOUND_USER
             );
         }
+    }
+
+    @Test
+    void blockedPairCannotCreateMongoRoom() {
+        when(lostItemArticleRepository.getByArticleId(articleId)).thenReturn(lostItemArticle);
+        doThrow(CustomException.of(ApiResponseCode.FORBIDDEN_BLOCKED_USER))
+            .when(access).validateNotBlocked(messageSenderId, authorId);
+        assertCustomExceptionThrown(
+            () -> lostItemChatRoomInfoService.getOrCreateChatRoomId(articleId, messageSenderId),
+            ApiResponseCode.FORBIDDEN_BLOCKED_USER);
+        verify(chatRoomInfoRepository, never()).save(any());
+        verify(lock).unlock();
     }
 
     private void assertCustomExceptionThrown(Runnable runnable, ApiResponseCode expectedCode) {

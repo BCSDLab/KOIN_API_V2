@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.common.model.MobileAppPath;
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.event.PollingMessageSendEvent;
 import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
@@ -26,32 +28,23 @@ public class ChatMessagePollingNotificationSendService {
 
     @Transactional
     public void handle(PollingMessageSendEvent event) {
-        if (!isNotificationEligible(event.receiverId())) {
+        User partner = userRepository.getById(event.receiverId());
+        if (partner.getDeviceToken() == null || !isSubscribedToChatNotification(event.receiverId())) {
             return;
         }
-
         User sender = userRepository.getById(event.userId());
-        User partner = userRepository.getById(event.receiverId());
+        ChatRoomKey room = new ChatRoomKey(ChatDomainType.LOST_ITEM, event.articleId(), event.chatRoomId());
 
         Notification notification = notificationFactory.generateChatMessageNotification(
             MobileAppPath.CHAT,
             event.articleId(),
             event.chatRoomId(),
-            sender.getNickname(),
+            sender.getDisplayNickname(),
             event.chatMessage().content(),
             partner
         );
 
-        notificationService.pushNotification(notification);
-    }
-
-    private boolean isNotificationEligible(Integer partnerId) {
-        return hasDeviceToken(partnerId) && isSubscribedToChatNotification(partnerId);
-    }
-
-    private boolean hasDeviceToken(Integer partnerId) {
-        User partner = userRepository.getById(partnerId);
-        return partner.getDeviceToken() != null;
+        notificationService.pushChatNotification(notification, room.encoded());
     }
 
     private boolean isSubscribedToChatNotification(Integer partnerId) {

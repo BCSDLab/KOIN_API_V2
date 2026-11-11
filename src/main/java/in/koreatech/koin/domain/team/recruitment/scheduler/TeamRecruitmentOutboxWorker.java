@@ -21,6 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
@@ -136,6 +138,13 @@ public class TeamRecruitmentOutboxWorker {
                     ? null
                     : outboxPayload.notificationId().toString()
             );
+            if (outboxPayload.type() == NEW_CHAT_MESSAGE
+                && outboxPayload.targetType() == TeamRecruitmentNotificationTargetType.CHAT_ROOM
+                && outboxPayload.recruitmentId() > 0
+                && outboxPayload.chatRoomId() != null && outboxPayload.chatRoomId() > 0) {
+                request = request.withRoomId(new ChatRoomKey(ChatDomainType.TEAM_RECRUITMENT,
+                    outboxPayload.recruitmentId(), outboxPayload.chatRoomId()).encoded());
+            }
             List<FcmSendResponse> responses = fcmClient.sendMessages(List.of(request));
             FcmSendResponse response = responses == null || responses.isEmpty()
                 ? FcmSendResponse.failed("EMPTY_RESPONSE", null)

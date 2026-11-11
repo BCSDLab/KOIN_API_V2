@@ -10,6 +10,11 @@ public class MessageProcessingException extends KoinIllegalArgumentException {
         super(message);
     }
 
+    public MessageProcessingException(String message, Throwable cause) {
+        super(message);
+        initCause(cause);
+    }
+
     public MessageProcessingException(String message, String detail) {
         super(message, detail);
     }

@@ -21,7 +21,7 @@ public interface LostItemChatRoomUserBlockApi {
 
 
     @ApiResponseCodes({
-        ApiResponseCode.NO_CONTENT
+        ApiResponseCode.CREATED
     })
     @Operation(
         summary = "채팅방 에서 사용자 차단",
@@ -31,14 +31,14 @@ public interface LostItemChatRoomUserBlockApi {
             """
     )
     @PostMapping("/lost-item/{articleId}/{chatRoomId}/block")
-    ResponseEntity<?> blockChatUser(
+    ResponseEntity<Void> blockChatUser(
         @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer userId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     );
 
     @ApiResponseCodes({
-        ApiResponseCode.NO_CONTENT
+        ApiResponseCode.OK
     })
     @Operation(
         summary = "채팅방에서 사용자 차단 해제(개발 편의용)",
@@ -48,7 +48,7 @@ public interface LostItemChatRoomUserBlockApi {
         """
     )
     @DeleteMapping("/lost-item/{articleId}/{chatRoomId}/unblock")
-    ResponseEntity<?> unblockChatUser(
+    ResponseEntity<Void> unblockChatUser(
         @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId

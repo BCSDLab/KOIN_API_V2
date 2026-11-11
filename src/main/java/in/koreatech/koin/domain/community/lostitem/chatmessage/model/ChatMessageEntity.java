@@ -7,12 +7,13 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
 import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessage;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @RedisHash(value = "ChatMessage")
 public class ChatMessageEntity {
