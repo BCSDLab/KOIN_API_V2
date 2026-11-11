@@ -672,6 +672,8 @@ class TeamRecruitmentUserWithdrawalTest {
             mock(PasswordEncoder.class),
             new TeamRecruitmentWithdrawalService(
                 repositories.getRepository(TeamRecruitmentRepository.class),
+                repositories.getRepository(TeamRecruitmentChatRoomRepository.class),
+                mock(ApplicationEventPublisher.class),
                 repositories.getRepository(TeamRecruitmentApplicationRepository.class),
                 repositories.getRepository(TeamRecruitmentRoleRepository.class),
                 new TeamRecruitmentClosureService(

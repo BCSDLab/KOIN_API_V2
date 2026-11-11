@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.callvan.service;
 
+import static in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType.NEW_MESSAGE;
 import static in.koreatech.koin.domain.notification.model.NotificationSubscribeType.CALLVAN;
 
 import java.util.List;
@@ -12,8 +13,11 @@ import in.koreatech.koin.domain.callvan.model.CallvanNotification;
 import in.koreatech.koin.domain.callvan.model.CallvanPushNotification;
 import in.koreatech.koin.domain.callvan.model.CallvanPushNotificationFactory;
 import in.koreatech.koin.domain.callvan.repository.CallvanNotificationRepository;
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
+import in.koreatech.koin.infrastructure.fcm.FcmSendRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,7 +48,7 @@ public class CallvanPushNotificationService {
         }
 
         CallvanPushNotification pushNotification = callvanPushNotificationFactory.from(notification);
-        fcmClient.sendMessage(
+        FcmSendRequest request = FcmSendRequest.of(
             deviceToken,
             pushNotification.title(),
             pushNotification.message(),
@@ -53,5 +57,13 @@ public class CallvanPushNotificationService {
             pushNotification.schemeUri(),
             pushNotification.type()
         );
+        if (notification.getNotificationType() == NEW_MESSAGE
+            && notification.getPost() != null && notification.getChatRoom() != null
+            && notification.getPost().getId() != null && notification.getPost().getId() > 0
+            && notification.getChatRoom().getId() != null && notification.getChatRoom().getId() > 0) {
+            request = request.withRoomId(new ChatRoomKey(ChatDomainType.CALLVAN,
+                notification.getPost().getId(), notification.getChatRoom().getId()).encoded());
+        }
+        fcmClient.sendMessage(request);
     }
 }

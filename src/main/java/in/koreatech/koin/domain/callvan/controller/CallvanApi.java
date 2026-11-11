@@ -366,7 +366,7 @@ public interface CallvanApi {
         NOT_FOUND_ARTICLE,
         FORBIDDEN_PARTICIPANT
     })
-    @Operation(summary = "콜밴 게시글 채팅 조회", description = """
+    @Operation(summary = "콜밴 게시글 채팅 조회", deprecated = true, description = """
         현재 참여 중인 학생만 조회할 수 있으며 메시지는 오래된 순으로 반환합니다.
         번역에는 해당 메시지의 message_id와 translation_source_version을 사용합니다. 이미지 버전은 null입니다.
         language에 맞춰 채팅방 인원 단위와 오전·오후를 표시합니다. 지명은 확인된 공식 명칭만 사용하며, 직접 입력한 이름과 메시지 원문은 유지합니다.
@@ -384,7 +384,7 @@ public interface CallvanApi {
         NOT_FOUND_ARTICLE,
         FORBIDDEN_PARTICIPANT
     })
-    @Operation(summary = "콜밴 게시글 채팅 전송", description = """
+    @Operation(summary = "콜밴 게시글 채팅 전송", deprecated = true, description = """
         ### 콜밴 게시글 채팅 전송 API
         콜밴 게시글 채팅방에 메시지를 전송합니다.
 

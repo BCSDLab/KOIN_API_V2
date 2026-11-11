@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
-import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 
@@ -40,16 +39,6 @@ class TeamRecruitmentCommunicationModelTest {
         member.advanceLastReadMessageId(11);
 
         assertThat(member.getLastReadMessageId()).isEqualTo(11);
-    }
-
-    @Test
-    void 이미지_여부를_생략하면_텍스트_메시지로_생성한다() {
-        TeamRecruitmentChatMessage message = TeamRecruitmentChatMessage.builder()
-            .senderNickname("사용자")
-            .content("안녕하세요")
-            .build();
-
-        assertThat(message.getIsImage()).isFalse();
     }
 
     @Test

@@ -4,13 +4,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
-import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatRoomInfoRepository;
-import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatUserBlockRepository;
 import in.koreatech.koin.domain.community.lostitem.chatroom.model.LostItemChatRoomInfoEntity;
 import in.koreatech.koin.domain.community.lostitem.chatroom.model.LostItemChatUserBlockEntity;
-
+import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatUserBlockRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class LostItemChatUserBlockService {
 
     private final LostItemChatUserBlockRepository userBlockRepository;
-    private final LostItemChatRoomInfoRepository chatRoomInfoRepository;
+    private final LostItemChatAccessService access;
 
     public void blockUser(Integer articleId, Integer chatRoomId, Integer userId) {
         Integer otherUserId = findOtherUserId(articleId, chatRoomId, userId);
@@ -37,27 +33,13 @@ public class LostItemChatUserBlockService {
     }
 
     public void validateBlockState(Integer articleId, Integer chatRoomId, Integer messageSendUserId) {
-        Integer messageReceiveUserId = findOtherUserId(articleId, chatRoomId, messageSendUserId);
-
-        boolean blockedByMessageSendUser = readByBlockerUserIdAndBlockedUserIdAndIsActive(
-            messageSendUserId, messageReceiveUserId, true
-        ).isPresent();
-
-        boolean blockedByMessageReceiveUser = readByBlockerUserIdAndBlockedUserIdAndIsActive(
-            messageReceiveUserId, messageSendUserId, true
-        ).isPresent();
-
-        if (blockedByMessageSendUser || blockedByMessageReceiveUser) {
-            throw CustomException.of(ApiResponseCode.FORBIDDEN_BLOCKED_USER, "차단된 사용자입니다.");
-        }
+        access.validateAccess(articleId, chatRoomId, messageSendUserId);
     }
 
     /* ======= 헬퍼 메소드 ======= */
 
     private Integer findOtherUserId(Integer articleId, Integer chatRoomId, Integer userId) {
-        LostItemChatRoomInfoEntity chatRoomInfo = chatRoomInfoRepository.getByArticleIdAndChatRoomId(
-            articleId, chatRoomId
-        );
+        LostItemChatRoomInfoEntity chatRoomInfo = access.validateParticipant(articleId, chatRoomId, userId);
 
         Integer articleAuthorId = chatRoomInfo.getAuthorId();
         Integer ownerId = chatRoomInfo.getOwnerId();

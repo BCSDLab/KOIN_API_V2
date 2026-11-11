@@ -1,21 +1,27 @@
 package in.koreatech.koin.domain.community.lostitem.chatmessage.service;
 
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import com.github.f4b6a3.tsid.TsidCreator;
-
+import in.koreatech.koin.domain.chat.event.ChatMessageStoredEvent;
+import in.koreatech.koin.domain.chat.event.ChatRoomChangedEvent;
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
+import in.koreatech.koin.domain.chat.service.ChatPresenceService;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessage;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.event.PollingMessageSendEvent;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageEntity;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.repository.ChatMessageRedisRepository;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.repository.ChatRoomPollingSessionRedisRepository;
-import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatRoomInfoRepository;
+import in.koreatech.koin.domain.community.lostitem.chatroom.service.LostItemChatAccessService;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,62 +30,98 @@ public class ChatMessagePollingService {
 
     private final ChatMessageRedisRepository chatMessageRedisRepository;
     private final ChatRoomPollingSessionRedisRepository chatRoomPollingSessionRedisRepository;
-    private final LostItemChatRoomInfoRepository chatRoomInfoRepository;
+    private final LostItemChatAccessService access;
+    private final ChatPresenceService presence;
+    private final UserRepository users;
 
     private final ApplicationEventPublisher eventPublisher;
 
     public List<ChatMessageResponse> pollAllMessages(Integer articleId, Integer chatRoomId, Integer userId) {
+        access.validateParticipant(articleId, chatRoomId, userId);
         // 폴링할 때마다 사용자의 접속 상태를 레디스에 기록. 접속 상태인 사용자는 FCM 푸시 발송 X
         chatRoomPollingSessionRedisRepository.markUserOnline(articleId, chatRoomId, userId);
 
         // 상대방이 보낸 메시지를 읽음 처리
-        chatMessageRedisRepository.markAllMessagesAsRead(articleId, chatRoomId, userId);
+        advanceAllRead(articleId, chatRoomId, userId);
 
         return chatMessageRedisRepository.findByArticleIdAndChatRoomId(articleId, chatRoomId).stream()
             .map(ChatMessageResponse::toResponse)
             .toList();
     }
 
+    public void markAllMessagesAsRead(Integer articleId, Integer chatRoomId, Integer userId) {
+        access.validateParticipant(articleId, chatRoomId, userId);
+        advanceAllRead(articleId, chatRoomId, userId);
+    }
+
+    public void markRead(Integer articleId, Integer chatRoomId, Integer userId, Long messageId) {
+        access.validateAccess(articleId, chatRoomId, userId);
+        if (chatMessageRedisRepository.markRead(articleId, chatRoomId, userId, messageId)) {
+            publishReadChange(articleId, chatRoomId);
+        }
+    }
+
+    private void advanceAllRead(Integer articleId, Integer chatRoomId, Integer userId) {
+        if (chatMessageRedisRepository.markAllMessagesAsRead(articleId, chatRoomId, userId)) {
+            publishReadChange(articleId, chatRoomId);
+        }
+    }
+
+    private void publishReadChange(Integer articleId, Integer chatRoomId) {
+        eventPublisher.publishEvent(new ChatRoomChangedEvent(
+            new ChatRoomKey(ChatDomainType.LOST_ITEM, articleId, chatRoomId)));
+    }
+
     public void leaveRoom(Integer articleId, Integer chatRoomId, Integer userId) {
+        access.validateParticipant(articleId, chatRoomId, userId);
         chatRoomPollingSessionRedisRepository.markUserOffline(articleId, chatRoomId, userId);
     }
 
     public ChatMessageResponse sendMessage(Integer articleId, Integer chatRoomId, Integer userId, ChatMessage message) {
-        // 채팅 상대방의 접속 상태를 확인
-        Integer receiverId = getPartnerId(articleId, chatRoomId, userId);
-        Boolean isReceiverOnline = chatRoomPollingSessionRedisRepository.isUserOnline(articleId, chatRoomId, receiverId);
+        return ChatMessageResponse.toResponse(sendLegacyMessageEntity(articleId, chatRoomId, userId, message));
+    }
 
-        ChatMessageEntity newMessage = ChatMessageEntity.create(
-            articleId,
-            chatRoomId,
-            userId,
-            isReceiverOnline, // 채팅방에 접속중이면 메시지 바로 읽음 처리
-            message,
-            generateUniqueIdentifier()
-        );
+    public ChatMessageEntity sendMessageEntity(Integer articleId, Integer chatRoomId, Integer userId, ChatMessage message) {
+        return saveMessage(articleId, chatRoomId, userId, message, false);
+    }
 
-        chatMessageRedisRepository.save(newMessage);
+    public ChatMessageEntity sendLegacyMessageEntity(Integer articleId, Integer chatRoomId, Integer userId,
+        ChatMessage message) {
+        return saveMessage(articleId, chatRoomId, userId, message, true);
+    }
 
-        // 상대방이 접속 중이 아니면 FCM 알림 발송
-        if (!isReceiverOnline && receiverId != null) {
-            eventPublisher.publishEvent(
-                new PollingMessageSendEvent(articleId, chatRoomId, userId, receiverId, message)
-            );
+    private ChatMessageEntity saveMessage(Integer articleId, Integer chatRoomId, Integer userId,
+        ChatMessage message, boolean legacy) {
+        if (!legacy && (message == null || message.content() == null || message.content().isBlank()
+            || message.isImage() == null)) {
+            throw CustomException.of(ApiResponseCode.INVALID_REQUEST_BODY);
         }
+        var room = legacy ? access.validateParticipant(articleId, chatRoomId, userId)
+            : access.validateAccess(articleId, chatRoomId, userId);
+        Integer receiverId = userId.equals(room.getAuthorId()) ? room.getOwnerId() : room.getAuthorId();
+        var roomKey = new ChatRoomKey(
+            ChatDomainType.LOST_ITEM, articleId, chatRoomId);
+        boolean isReceiverOnline = receiverId != null && (legacy
+            ? chatRoomPollingSessionRedisRepository.isUserOnline(articleId, chatRoomId, receiverId)
+            : presence.isOnline(roomKey, receiverId));
+        boolean isRead = legacy && isReceiverOnline;
+        ChatMessage canonical = legacy ? message : ChatMessage.builder()
+            .userId(userId).userNickname(users.getById(userId).getDisplayNickname())
+            .content(message.content()).isImage(message.isImage()).timestamp(LocalDateTime.now()).build();
+        ChatMessageEntity saved = chatMessageRedisRepository.save(ChatMessageEntity.create(
+            articleId, chatRoomId, userId, isRead, canonical, null));
 
-        return ChatMessageResponse.toResponse(newMessage);
+        eventPublisher.publishEvent(new ChatMessageStoredEvent(roomKey,
+            in.koreatech.koin.domain.chat.dto.ChatMessageResponse.builder()
+                .messageId(saved.getId().toString()).userId(saved.getUserId()).userNickname(saved.getNickName())
+                .content(saved.getContents()).timestamp(saved.getCreatedAt()).isImage(saved.getIsImage())
+                .unreadCount(Boolean.TRUE.equals(saved.getIsRead()) ? 0 : 1).isLeftUser(false).build(), !legacy));
+        if (!isRead && !isReceiverOnline && receiverId != null) {
+            eventPublisher.publishEvent(new PollingMessageSendEvent(articleId, chatRoomId, userId, receiverId,
+                new ChatMessage(saved.getUserId(), saved.getNickName(), saved.getContents(), saved.getCreatedAt(),
+                    saved.getIsImage())));
+        }
+        return saved;
     }
 
-    private Integer getPartnerId(Integer articleId, Integer chatRoomId, Integer userId) {
-        var chatRoomInfo = chatRoomInfoRepository.getByArticleIdAndChatRoomId(articleId, chatRoomId);
-
-        Map<Integer, Integer> partnerMap = new HashMap<>();
-        partnerMap.put(chatRoomInfo.getAuthorId(), chatRoomInfo.getOwnerId());
-        partnerMap.put(chatRoomInfo.getOwnerId(), chatRoomInfo.getAuthorId());
-        return partnerMap.get(userId);
-    }
-
-    private Long generateUniqueIdentifier() {
-        return TsidCreator.getTsid256().toLong();
-    }
 }

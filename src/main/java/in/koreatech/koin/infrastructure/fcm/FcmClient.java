@@ -33,6 +33,20 @@ public class FcmClient {
     private static final int FCM_MESSAGE_BATCH_SIZE = 500;
 
     @Async
+    public void sendMessage(FcmSendRequest request) {
+        if (!StringUtils.hasText(request.targetDeviceToken())) {
+            return;
+        }
+        try {
+            log.info("call FcmClient sendMessage: title: {}, content: {}", request.title(), request.content());
+            String result = FirebaseMessaging.getInstance().send(buildMessage(request));
+            log.info("FCM 알림 전송 성공: {}", result);
+        } catch (Exception e) {
+            log.warn("FCM 알림 전송 실패", e);
+        }
+    }
+
+    @Async
     public void sendMessage(
         String targetDeviceToken,
         String title,
@@ -42,30 +56,7 @@ public class FcmClient {
         String schemeUri,
         String type
     ) {
-        if (!StringUtils.hasText(targetDeviceToken)) {
-            return;
-        }
-        try {
-            log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
-
-            ApnsConfig apnsConfig = generateAppleConfig(
-                title, content, imageUrl, path, type, schemeUri, null
-            );
-            AndroidConfig androidConfig = generateAndroidConfig(
-                title, content, imageUrl, schemeUri, type, null
-            );
-
-            Message message = Message.builder()
-                .setToken(targetDeviceToken)
-                .setApnsConfig(apnsConfig)
-                .setAndroidConfig(androidConfig)
-                .build();
-
-            String result = FirebaseMessaging.getInstance().send(message);
-            log.info("FCM 알림 전송 성공: {}", result);
-        } catch (Exception e) {
-            log.warn("FCM 알림 전송 실패", e);
-        }
+        sendMessage(FcmSendRequest.of(targetDeviceToken, title, content, imageUrl, path, schemeUri, type));
     }
 
     public List<FcmSendResponse> sendMessages(List<FcmSendRequest> requests) {
@@ -73,27 +64,7 @@ public class FcmClient {
         for (int start = 0; start < requests.size(); start += FCM_MESSAGE_BATCH_SIZE) {
             int end = Math.min(start + FCM_MESSAGE_BATCH_SIZE, requests.size());
             List<Message> messages = requests.subList(start, end).stream()
-                .map(request -> Message.builder()
-                    .setToken(request.targetDeviceToken())
-                    .setApnsConfig(generateAppleConfig(
-                        request.title(),
-                        request.content(),
-                        request.imageUrl(),
-                        request.path(),
-                        request.type(),
-                        request.schemeUri(),
-                        request.notificationId()
-                    ))
-                    .setAndroidConfig(generateAndroidConfig(
-                        request.title(),
-                        request.content(),
-                        request.imageUrl(),
-                        request.schemeUri(),
-                        request.type(),
-                        request.notificationId()
-                    ))
-                    .build()
-                )
+                .map(this::buildMessage)
                 .toList();
 
             try {
@@ -109,6 +80,27 @@ public class FcmClient {
             }
         }
         return responses;
+    }
+
+    private Message buildMessage(FcmSendRequest request) {
+        Map<String, String> chatData = request.roomId() == null ? Map.of() : Map.of(
+            "notification_type", "CHAT_MESSAGE", "room_id", request.roomId()
+        );
+        Map<String, String> data = generateAndroidData(
+            request.title(), request.content(), request.imageUrl(), request.schemeUri(), request.type(),
+            request.notificationId(), chatData
+        );
+        Message.Builder message = Message.builder()
+            .setToken(request.targetDeviceToken())
+            .setApnsConfig(generateAppleConfig(
+                request.title(), request.content(), request.imageUrl(), request.path(), request.type(),
+                request.schemeUri(), request.notificationId(), chatData
+            ))
+            .setAndroidConfig(AndroidConfig.builder().putAllData(data).setPriority(HIGH).build());
+        if (request.roomId() != null) {
+            message.putAllData(chatData);
+        }
+        return message.build();
     }
 
     private FcmSendResponse toFcmSendResponse(SendResponse response) {
@@ -128,7 +120,8 @@ public class FcmClient {
         MobileAppPath path,
         String type,
         String schemeUri,
-        String notificationId
+        String notificationId,
+        Map<String, String> chatData
     ) {
         return ApnsConfig.builder()
             .setAps(
@@ -149,14 +142,15 @@ public class FcmClient {
                     .setImage(imageUrl)
                     .build()
             )
-            .putAllCustomData(appleCustomData(type, schemeUri, notificationId))
+            .putAllCustomData(appleCustomData(type, schemeUri, notificationId, chatData))
             .build();
     }
 
     private Map<String, Object> appleCustomData(
         String type,
         String schemeUri,
-        String notificationId
+        String notificationId,
+        Map<String, String> chatData
     ) {
         Map<String, Object> customData = new HashMap<>();
         if (notificationId != null) {
@@ -168,16 +162,18 @@ public class FcmClient {
         if (schemeUri != null) {
             customData.put("schemeUri", schemeUri);
         }
+        customData.putAll(chatData);
         return customData;
     }
 
-    private AndroidConfig generateAndroidConfig(
+    private Map<String, String> generateAndroidData(
         String title,
         String content,
         String imageUrl,
         String schemeUri,
         String type,
-        String notificationId
+        String notificationId,
+        Map<String, String> chatData
     ) {
         Map<String, String> androidNotificationV2 = new HashMap<>();
         if (notificationId != null) {
@@ -191,9 +187,7 @@ public class FcmClient {
         }
         androidNotificationV2.put("type", type != null ? type : "");
 
-        return AndroidConfig.builder()
-            .putAllData(androidNotificationV2)
-            .setPriority(HIGH)
-            .build();
+        androidNotificationV2.putAll(chatData);
+        return androidNotificationV2;
     }
 }

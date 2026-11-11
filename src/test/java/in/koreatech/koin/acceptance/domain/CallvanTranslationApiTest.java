@@ -94,6 +94,13 @@ class CallvanTranslationApiTest extends AcceptanceTest {
             .path("translation_source_version").asText();
         assertThat(version).isEqualTo(TranslationSourceVersion.of(TranslationSourceFields.message(ORIGINAL)));
 
+        String roomId = "callvan-" + post.getId() + "-" + post.getChatRoom().getId();
+        mockMvc.perform(get("/chatrooms/{roomId}/messages", roomId).header(HttpHeaders.AUTHORIZATION, bearer))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].message_id").value(message.getId().toString()))
+            .andExpect(jsonPath("$[0].translation_source_version").value(version))
+            .andExpect(jsonPath("$[1].translation_source_version").isEmpty());
+
         when(aiClient.translate(Map.of("content", ORIGINAL), SupportedLanguage.ENGLISH))
             .thenReturn(Map.of("content", "Meet me at the main gate at 2 PM."));
         var translated = translate(message.getId(), bearer, version)
@@ -167,6 +174,15 @@ class CallvanTranslationApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.messages[0].time").value("PM 12:00"))
             .andExpect(jsonPath("$.messages[0].content").value(ORIGINAL))
             .andExpect(jsonPath("$.messages[0].translation_source_version").value(version));
+        String roomId = "callvan-" + post.getId() + "-" + post.getChatRoom().getId();
+        mockMvc.perform(get("/chatrooms/{roomId}", roomId).header(HttpHeaders.AUTHORIZATION, bearer)
+                .param("language", "en-US"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.room_name").value("정문 -> Cheonan Station (14:00) (4 people)"));
+        mockMvc.perform(get("/chatrooms").header(HttpHeaders.AUTHORIZATION, bearer)
+                .param("domain_type", "CALLVAN").param("language", "en-US"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].room_name").value("정문 -> Cheonan Station (14:00) (4 people)"));
         jdbc.update("UPDATE callvan_post SET arrival_type = 'CUSTOM', arrival_custom_name = ? WHERE id = ?",
             "천안역 동쪽 출구", post.getId());
         mockMvc.perform(get(CHAT, post.getId()).header(HttpHeaders.AUTHORIZATION, bearer).param("language", "en-US"))

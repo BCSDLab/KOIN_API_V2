@@ -7,15 +7,20 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.chat.event.ChatRoomChangedEvent;
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatRoomRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRoleRepository;
-import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentOutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 public class TeamRecruitmentWithdrawalService {
 
     private final TeamRecruitmentRepository recruitmentRepository;
+    private final TeamRecruitmentChatRoomRepository chatRoomRepository;
+    private final ApplicationEventPublisher eventPublisher;
     private final TeamRecruitmentApplicationRepository applicationRepository;
     private final TeamRecruitmentRoleRepository roleRepository;
     private final TeamRecruitmentClosureService closureService;
@@ -46,6 +53,11 @@ public class TeamRecruitmentWithdrawalService {
 
             boolean isAuthor = recruitment.getAuthor() != null
                 && Objects.equals(recruitment.getAuthor().getId(), userId);
+            if (isAuthor || application != null) {
+                chatRoomRepository.findAllByRecruitment_Id(recruitmentId).forEach(room ->
+                    eventPublisher.publishEvent(new ChatRoomChangedEvent(
+                        new ChatRoomKey(ChatDomainType.TEAM_RECRUITMENT, recruitmentId, room.getId()))));
+            }
             if (isAuthor && recruitment.isRecruiting()) {
                 recruitment.close();
                 closureService.onAuthorWithdrawn(recruitment);

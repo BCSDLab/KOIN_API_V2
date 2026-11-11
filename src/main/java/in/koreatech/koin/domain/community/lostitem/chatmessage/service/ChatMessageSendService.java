@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.common.model.MobileAppPath;
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.event.MessageSendEvent;
 import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatRoomInfoRepository;
 import in.koreatech.koin.domain.community.lostitem.chatroom.service.LostItemChatRoomInfoService;
@@ -62,12 +64,13 @@ public class ChatMessageSendService {
             MobileAppPath.CHAT,
             event.articleId(),
             event.chatRoomId(),
-            sender.getNickname(),
+            sender.getDisplayNickname(),
             event.chatMessage().content(),
             partner
         );
 
-        notificationService.pushNotification(notification);
+        notificationService.pushChatNotification(notification,
+            new ChatRoomKey(ChatDomainType.LOST_ITEM, event.articleId(), event.chatRoomId()).encoded());
     }
 
     /**
