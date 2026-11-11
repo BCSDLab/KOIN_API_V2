@@ -81,6 +81,9 @@ public class UserService {
 
     public UserLanguageResponse getLanguage(Integer userId) {
         User user = userRepository.getById(userId);
+        if (user.getPreferredLanguage() == null) {
+            return new UserLanguageResponse(null);
+        }
         return UserLanguageResponse.from(SupportedLanguage.fromStoredCode(user.getPreferredLanguage()));
     }
 

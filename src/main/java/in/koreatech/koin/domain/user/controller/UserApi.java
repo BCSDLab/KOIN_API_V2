@@ -91,7 +91,7 @@ public interface UserApi {
     })
     @Operation(
         summary = "내 서버 선호 언어 조회",
-        description = "미설정 값은 `ko-KR`입니다. 화면 언어는 기기에 저장한 선택을 유지합니다."
+        description = "언어를 설정하지 않았으면 `language: null`을 반환합니다. 화면 언어는 기기에 저장한 선택을 유지합니다."
     )
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/users/me/language")

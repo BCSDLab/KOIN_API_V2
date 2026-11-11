@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,7 +55,7 @@ class UserLanguageApiTest extends AcceptanceTest {
 
     @ParameterizedTest
     @EnumSource(value = UserType.class, names = {"GENERAL", "STUDENT", "COUNCIL"})
-    void 미설정_계정은_한국어를_조회하고_DB에는_쓰지_않는다(UserType type) throws Exception {
+    void 미설정_계정은_null을_조회하고_DB에는_쓰지_않는다(UserType type) throws Exception {
         User user = createUser(type, "default-language");
         entityManager.flush();
         entityManager.clear();
@@ -62,13 +63,20 @@ class UserLanguageApiTest extends AcceptanceTest {
 
         mockMvc.perform(get("/users/me/language").header(HttpHeaders.AUTHORIZATION, bearer(user)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.language").value("ko-KR"));
+            .andExpect(content().json("{\"language\":null}", true));
 
         entityManager.flush();
         entityManager.clear();
         User stored = userRepository.getById(user.getId());
         assertThat(stored.getPreferredLanguage()).isNull();
         assertThat(stored.getUpdatedAt()).isEqualTo(updatedAt);
+
+        stored.changeLanguage(SupportedLanguage.KOREAN);
+        entityManager.flush();
+        entityManager.clear();
+        mockMvc.perform(get("/users/me/language").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.language").value("ko-KR"));
     }
 
     @ParameterizedTest
