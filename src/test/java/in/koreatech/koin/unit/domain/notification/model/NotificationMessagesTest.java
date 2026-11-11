@@ -1,12 +1,30 @@
 package in.koreatech.koin.unit.domain.notification.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import in.koreatech.koin.common.model.MobileAppPath;
+import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
+import in.koreatech.koin.domain.callvan.model.CallvanChatRoom;
+import in.koreatech.koin.domain.callvan.model.CallvanNotification;
+import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
+import in.koreatech.koin.domain.callvan.model.CallvanPost;
+import in.koreatech.koin.domain.callvan.model.CallvanPushNotificationFactory;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
+import in.koreatech.koin.domain.callvan.repository.CallvanNotificationRepository;
+import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
+import in.koreatech.koin.domain.callvan.service.CallvanNotificationService;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType;
@@ -44,5 +62,45 @@ class NotificationMessagesTest {
             1, 2, "닉네임", "주문이 접수되었어요", user);
         assertThat(chat.getTitle()).isEqualTo("Message from 닉네임");
         assertThat(chat.getMessage()).isEqualTo("주문이 접수되었어요");
+    }
+
+    @Test
+    void 콜밴_사진_알림은_발송과_조회_시점_언어를_사용하고_일반_메시지는_보존한다() {
+        User recipient = mock(User.class);
+        when(recipient.getId()).thenReturn(2);
+        when(recipient.getPreferredLanguage()).thenReturn("en-US");
+        CallvanPost post = mock(CallvanPost.class);
+        when(post.getParticipants()).thenReturn(List.of(CallvanParticipant.builder().member(recipient).build()));
+        when(post.getChatRoom()).thenReturn(mock(CallvanChatRoom.class));
+        when(post.getDepartureType()).thenReturn(CallvanLocation.FRONT_GATE);
+        when(post.getArrivalType()).thenReturn(CallvanLocation.STATION);
+        CallvanPostRepository posts = mock(CallvanPostRepository.class);
+        when(posts.getById(1)).thenReturn(post);
+        CallvanNotificationRepository notifications = mock(CallvanNotificationRepository.class);
+        List<CallvanNotification> saved = new ArrayList<>();
+        when(notifications.saveAllAndFlush(anyList())).thenAnswer(invocation -> {
+            List<CallvanNotification> batch = invocation.getArgument(0);
+            saved.addAll(batch);
+            return batch;
+        });
+        var service = new CallvanNotificationService(posts, notifications, mock(UserRepository.class),
+            mock(ApplicationEventPublisher.class));
+        String original = "닉네임님이 사진을 보냈습니다.";
+        service.notifyNewMessageReceived(1, 1, "닉네임", "photo.jpg", CallvanMessageType.IMAGE);
+        service.notifyNewMessageReceived(1, 1, "닉네임", original, CallvanMessageType.TEXT);
+
+        assertThat(saved).extracting(CallvanNotification::getMessageType)
+            .containsExactly(CallvanMessageType.IMAGE, CallvanMessageType.TEXT);
+        assertThat(saved).extracting(CallvanNotification::getMessagePreview).containsOnly(original);
+        var factory = new CallvanPushNotificationFactory();
+        assertThat(factory.from(saved.get(0)).message()).isEqualTo("닉네임 sent a photo.");
+        when(recipient.getPreferredLanguage()).thenReturn("ja-JP");
+        assertThat(factory.from(saved.get(0)).message()).isEqualTo("닉네임さんが写真を送信しました。");
+        assertThat(CallvanNotificationResponse.from(saved.get(0)).messagePreview())
+            .isEqualTo("닉네임さんが写真を送信しました。");
+        assertThat(factory.from(saved.get(1)).message()).isEqualTo(original);
+        assertThat(CallvanPushNotificationFactory.localizedPreview(CallvanNotification.builder()
+            .recipient(recipient).notificationType(CallvanNotificationType.NEW_MESSAGE)
+            .senderNickname("닉네임").messagePreview(original).build())).isEqualTo(original);
     }
 }

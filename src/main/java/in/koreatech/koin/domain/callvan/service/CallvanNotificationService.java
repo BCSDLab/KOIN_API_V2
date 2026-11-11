@@ -6,7 +6,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.callvan.dto.CallvanNotificationResponse;
 import in.koreatech.koin.domain.callvan.event.CallvanPushNotificationEvent;
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
@@ -74,6 +73,7 @@ public class CallvanNotificationService {
                 post,
                 null,
                 "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요",
+                null,
                 null
             ))
             .toList();
@@ -97,7 +97,8 @@ public class CallvanNotificationService {
                 post,
                 null,
                 null,
-                joinUserNickname
+                joinUserNickname,
+                null
             ))
             .toList();
 
@@ -126,10 +127,9 @@ public class CallvanNotificationService {
                 CallvanNotificationType.NEW_MESSAGE,
                 post,
                 senderNickname,
-                messageType == CallvanMessageType.IMAGE
-                    ? NotificationMessages.format(p.getMember(), "%s님이 사진을 보냈습니다.", senderNickname)
-                    : notificationContent,
-                null
+                notificationContent,
+                null,
+                messageType
             ))
             .toList();
 
@@ -159,7 +159,7 @@ public class CallvanNotificationService {
         };
 
         CallvanNotification callvanNotification = buildNotification(recipient, notificationType, post, null, message,
-            null);
+            null, null);
         CallvanNotification savedNotification = callvanNotificationRepository.saveAndFlush(callvanNotification);
         publishPushNotifications(List.of(savedNotification));
     }
@@ -170,7 +170,8 @@ public class CallvanNotificationService {
         CallvanPost post,
         String senderNickname,
         String messagePreview,
-        String joinedMemberNickname
+        String joinedMemberNickname,
+        CallvanMessageType messageType
     ) {
         return CallvanNotification.builder()
             .recipient(recipient)
@@ -186,6 +187,7 @@ public class CallvanNotificationService {
             .maxParticipants(post.getMaxParticipants())
             .senderNickname(senderNickname)
             .messagePreview(messagePreview)
+            .messageType(messageType)
             .chatRoom(post.getChatRoom())
             .joinedMemberNickname(joinedMemberNickname)
             .build();

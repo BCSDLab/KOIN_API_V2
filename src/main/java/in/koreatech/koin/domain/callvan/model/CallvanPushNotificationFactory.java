@@ -10,6 +10,7 @@ import static in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationTy
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
 import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.common.model.MobileAppPath;
 
@@ -50,10 +51,11 @@ public class CallvanPushNotificationFactory {
                 getLocationName(notification.getDepartureCustomName(), notification.getDepartureType().getName()),
                 getLocationName(notification.getArrivalCustomName(), notification.getArrivalType().getName())
             );
-            case NEW_MESSAGE, RECRUITMENT_COMPLETE, REPORT_WARNING, REPORT_RESTRICTION_14_DAYS,
-                 REPORT_PERMANENT_RESTRICTION -> notification.getNotificationType() == NEW_MESSAGE
-                    ? notification.getMessagePreview()
-                    : NotificationMessages.translateKnown(notification.getRecipient(), notification.getMessagePreview());
+            case NEW_MESSAGE -> notification.getMessageType() == CallvanMessageType.IMAGE
+                ? NotificationMessages.format(notification.getRecipient(), "%s님이 사진을 보냈습니다.", notification.getSenderNickname())
+                : notification.getMessagePreview();
+            case RECRUITMENT_COMPLETE, REPORT_WARNING, REPORT_RESTRICTION_14_DAYS,
+                 REPORT_PERMANENT_RESTRICTION -> NotificationMessages.translateKnown(notification.getRecipient(), notification.getMessagePreview());
         };
     }
 

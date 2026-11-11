@@ -9,6 +9,7 @@ import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
@@ -83,6 +84,10 @@ public class CallvanNotification extends BaseEntity {
     @Column(name = "message_preview", length = 100)
     private String messagePreview;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "message_type", length = 10)
+    private CallvanMessageType messageType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "callvan_chat_room_id")
     private CallvanChatRoom chatRoom;
@@ -111,6 +116,7 @@ public class CallvanNotification extends BaseEntity {
             Integer maxParticipants,
             String senderNickname,
             String messagePreview,
+            CallvanMessageType messageType,
             CallvanChatRoom chatRoom,
             String joinedMemberNickname,
             Boolean isRead,
@@ -128,6 +134,7 @@ public class CallvanNotification extends BaseEntity {
         this.maxParticipants = maxParticipants;
         this.senderNickname = senderNickname;
         this.messagePreview = messagePreview;
+        this.messageType = messageType;
         this.chatRoom = chatRoom;
         this.joinedMemberNickname = joinedMemberNickname;
         this.isRead = isRead != null ? isRead : false;
