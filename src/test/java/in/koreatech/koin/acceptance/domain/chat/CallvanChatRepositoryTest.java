@@ -1,16 +1,30 @@
 package in.koreatech.koin.acceptance.domain.chat;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mockingDetails;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
+import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
 import in.koreatech.koin.domain.callvan.model.CallvanChatMessage;
 import in.koreatech.koin.domain.callvan.model.CallvanChatRoom;
 import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
@@ -18,6 +32,10 @@ import in.koreatech.koin.domain.callvan.model.CallvanPost;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.callvan.repository.CallvanChatMessageRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
+import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
+import in.koreatech.koin.domain.callvan.service.CallvanChatService;
+import in.koreatech.koin.domain.callvan.service.CallvanNotificationEventListener;
+import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 
@@ -28,6 +46,82 @@ class CallvanChatRepositoryTest extends AcceptanceTest {
 
     @Autowired
     private CallvanChatMessageRepository messages;
+
+    @SpyBean
+    private CallvanPostRepository posts;
+
+    @Autowired
+    private CallvanPostJoinService joinService;
+
+    @Autowired
+    private CallvanChatService chatService;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
+    @MockBean
+    private CallvanNotificationEventListener notificationEventListener;
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void joiningUsesMessagesCommittedWhileWaitingForThePostLock() throws Exception {
+        var executor = Executors.newSingleThreadExecutor();
+        try {
+            clear();
+            TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+            transaction.setIsolationLevel(TransactionDefinition.ISOLATION_REPEATABLE_READ);
+            transaction.setTimeout(5);
+            CallvanPost post = transaction.execute(status -> {
+                User sender = user("sender");
+                CallvanPost created = post(sender, true);
+                participants.save(CallvanParticipant.builder().post(created).member(sender).build());
+                message(created.getChatRoom(), sender, "before join");
+                return created;
+            });
+            User reader = transaction.execute(status -> user("reader"));
+            CountDownLatch postLocked = new CountDownLatch(1);
+            CountDownLatch joinLockRequested = new CountDownLatch(1);
+            Thread joiningThread = Thread.currentThread();
+            Answer<Object> requestPostLock = invocation -> {
+                if (Thread.currentThread() == joiningThread) {
+                    joinLockRequested.countDown();
+                }
+                return mockingDetails(posts).getMockCreationSettings().getDefaultAnswer().answer(invocation);
+            };
+            doAnswer(requestPostLock).when(posts).getByIdWithLock(post.getId());
+            doAnswer(requestPostLock).when(posts).findByIdWithLock(post.getId());
+
+            var sent = executor.submit(() -> transaction.execute(status -> {
+                posts.getByIdWithLock(post.getId());
+                postLocked.countDown();
+                try {
+                    assertThat(joinLockRequested.await(5, TimeUnit.SECONDS)).isTrue();
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException(exception);
+                }
+                return chatService.sendMessageAndGet(post.getId(), post.getAuthor().getId(),
+                    new CallvanChatMessageRequest("committed before join", false)).getId();
+            }));
+            assertThat(postLocked.await(10, TimeUnit.SECONDS)).isTrue();
+            transaction.executeWithoutResult(status -> joinService.join(post.getId(), reader.getId()));
+            Integer latestMessageId = sent.get(10, TimeUnit.SECONDS);
+
+            transaction.executeWithoutResult(status -> {
+                assertThat(participants.findByPostIdAndMemberId(post.getId(), reader.getId()).orElseThrow()
+                    .getLastReadMessageId()).isEqualTo(latestMessageId);
+                assertThat(messages.countUnreadMessages(post.getChatRoom().getId(), reader.getId())).isZero();
+            });
+            chatService.sendMessageAndGet(post.getId(), post.getAuthor().getId(),
+                new CallvanChatMessageRequest("after join", false));
+            transaction.executeWithoutResult(status ->
+                assertThat(messages.countUnreadMessages(post.getChatRoom().getId(), reader.getId())).isEqualTo(1));
+        } finally {
+            executor.shutdownNow();
+            assertThat(executor.awaitTermination(15, TimeUnit.SECONDS)).isTrue();
+            clear();
+        }
+    }
 
     @Test
     void 활동중인_참여자의_게시글과_채팅방을_함께_조회한다() {
@@ -146,7 +240,7 @@ class CallvanChatRepositoryTest extends AcceptanceTest {
     private CallvanPost post(User author, boolean withRoom) {
         CallvanPost post = CallvanPost.builder().author(author).title("콜밴")
             .departureType(CallvanLocation.FRONT_GATE).arrivalType(CallvanLocation.STATION)
-            .departureDate(LocalDate.of(2026, 10, 7)).departureTime(LocalTime.of(14, 0))
+            .departureDate(LocalDate.now().plusDays(1)).departureTime(LocalTime.of(14, 0))
             .maxParticipants(4).build();
         entityManager.persist(post);
         if (withRoom) {

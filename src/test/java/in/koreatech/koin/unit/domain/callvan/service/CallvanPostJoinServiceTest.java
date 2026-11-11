@@ -84,6 +84,27 @@ class CallvanPostJoinServiceTest {
     }
 
     @Test
+    void restrictionErrorStillTakesPriorityWhenThePostDoesNotExist() {
+        doThrow(CustomException.of(ApiResponseCode.FORBIDDEN_CALLVAN_RESTRICTED_USER))
+            .when(restrictionService).validateNotRestricted(2);
+
+        assertThatThrownBy(() -> service.join(10, 2))
+            .isInstanceOfSatisfying(CustomException.class,
+                error -> assertThat(error.getErrorCode()).isEqualTo(ApiResponseCode.FORBIDDEN_CALLVAN_RESTRICTED_USER));
+        verify(postRepository).findByIdWithLock(10);
+        verifyNoInteractions(participantRepository, messageRepository, userRepository, eventPublisher);
+    }
+
+    @Test
+    void unrestrictedUserStillGetsNotFoundForAMissingPost() {
+        assertThatThrownBy(() -> service.join(10, 2))
+            .isInstanceOfSatisfying(CustomException.class,
+                error -> assertThat(error.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_ARTICLE));
+        verify(restrictionService).validateNotRestricted(2);
+        verifyNoInteractions(participantRepository, messageRepository, userRepository, eventPublisher);
+    }
+
+    @Test
     void creatorStillCannotLeave() {
         CallvanPost post = post();
         when(postRepository.getByIdWithLock(10)).thenReturn(post);
@@ -95,7 +116,7 @@ class CallvanPostJoinServiceTest {
 
     private CallvanPost prepareJoin() {
         CallvanPost post = post();
-        when(postRepository.getByIdWithLock(10)).thenReturn(post);
+        when(postRepository.findByIdWithLock(10)).thenReturn(Optional.of(post));
         when(userRepository.getById(2)).thenReturn(User.builder().id(2).nickname("member").isDeleted(false).build());
         return post;
     }

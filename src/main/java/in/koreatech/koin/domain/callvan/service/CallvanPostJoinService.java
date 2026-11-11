@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.callvan.service;
 
+import java.util.Optional;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,8 +40,10 @@ public class CallvanPostJoinService {
     @Transactional
     @ConcurrencyGuard(lockName = "callvanJoin")
     public void join(Integer postId, Integer userId) {
+        // 잠금 대기 중 커밋된 메시지도 읽도록 일반 조회보다 게시글 잠금을 먼저 획득한다.
+        Optional<CallvanPost> post = callvanPostRepository.findByIdWithLock(postId);
         callvanRestrictionService.validateNotRestricted(userId);
-        CallvanPost callvanPost = callvanPostRepository.getByIdWithLock(postId);
+        CallvanPost callvanPost = post.orElseThrow(() -> CustomException.of(ApiResponseCode.NOT_FOUND_ARTICLE));
         User user = userRepository.getById(userId);
 
         if (callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId)) {
