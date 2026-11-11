@@ -23,7 +23,7 @@ public class LostItemChatRoomUserBlockController implements LostItemChatRoomUser
     private final LostItemChatUserBlockUseCase lostItemChatUserBlockUseCase;
 
     @PostMapping("/lost-item/{articleId}/{chatRoomId}/block")
-    public ResponseEntity<?> blockChatUser(
+    public ResponseEntity<Void> blockChatUser(
         @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer userId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
@@ -33,7 +33,7 @@ public class LostItemChatRoomUserBlockController implements LostItemChatRoomUser
     }
 
     @DeleteMapping("/lost-item/{articleId}/{chatRoomId}/unblock")
-    public ResponseEntity<?> unblockChatUser(
+    public ResponseEntity<Void> unblockChatUser(
         @Auth(permit= {GENERAL, STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId

@@ -1,7 +1,9 @@
 package in.koreatech.koin.unit.domain.team.recruitment.scheduler;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.MY_APPLICATIONS;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.APPLICATION_REJECTED;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -9,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,19 +21,23 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.koreatech.koin.domain.chat.service.ChatPresenceService;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
+import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
-import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentOutboxEvent;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentNotificationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 import in.koreatech.koin.domain.team.recruitment.scheduler.TeamRecruitmentOutboxLeaseService;
@@ -66,18 +73,69 @@ class TeamRecruitmentOutboxWorkerTest {
     private UserRepository userRepository;
 
     @Mock
+    private TeamRecruitmentChatMemberRepository chatMemberRepository;
+
+    @Mock
+    private TeamRecruitmentChatMessageRepository chatMessageRepository;
+
+    @Mock
+    private ChatPresenceService chatPresenceService;
+
+    @Mock
     private FcmClient fcmClient;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @InjectMocks
     private TeamRecruitmentOutboxWorker worker;
 
     @BeforeEach
     void enableWorker() {
+        worker = new TeamRecruitmentOutboxWorker(leaseService, properties, notificationRepository,
+            recruitmentRepository, userRepository, fcmClient, objectMapper);
         properties.setEnabled(true);
         properties.setBatchSize(10);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"false,false", "true,false", "false,true", "true,true"})
+    void 팀_채팅_푸시는_채팅방_ID가_아닌_알림_ID와_기존_유형을_보낸다(boolean direct, boolean legacy) {
+        User recipient = UserFixture.id_설정_코인_유저(RECIPIENT_ID);
+        recipient.permitNotification("device-token");
+        TeamRecruitment recruitment = recruitment();
+        TeamRecruitmentApplication application = direct
+            ? TeamRecruitmentApplication.builder().id(20).recruitment(recruitment).build() : null;
+        TeamRecruitmentChatRoom room = TeamRecruitmentChatRoom.builder().id(12)
+            .recruitment(recruitment).application(application).build();
+        TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
+            .id(530).recipient(recipient).type(NEW_CHAT_MESSAGE).targetType(CHAT_ROOM)
+            .messagePreview("새 채팅 메시지").recruitment(recruitment).application(application).chatRoom(room).build();
+        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim("""
+            {"type":"NEW_CHAT_MESSAGE","target_type":"CHAT_ROOM","recipient_id":2,
+             "recruitment_id":10,"application_id":%s,"chat_room_id":12,"notification_id":530%s}
+            """.formatted(direct ? "20" : "null", legacy ? "" : ",\"message_id\":42"))));
+        when(notificationRepository.findByIdForOutbox(530)).thenReturn(Optional.of(notification));
+        when(userRepository.findById(RECIPIENT_ID)).thenReturn(Optional.of(recipient));
+        when(fcmClient.sendMessages(anyList())).thenReturn(List.of(FcmSendResponse.succeeded()));
+
+
+        worker.processBatch();
+
+        ArgumentCaptor<List<FcmSendRequest>> sent = ArgumentCaptor.forClass(List.class);
+        verify(fcmClient).sendMessages(sent.capture());
+        verifyNoInteractions(chatPresenceService);
+        assertThat(sent.getValue()).singleElement().satisfies(request -> {
+            assertThat(request.type()).isEqualTo("new_chat_message");
+            assertThat(request.notificationId()).isEqualTo("530");
+            assertThat(request.title()).isEqualTo(recruitment.getTitle());
+            assertThat(request.content()).isEqualTo("새 채팅 메시지");
+            assertThat(request.schemeUri()).isNull();
+            assertThat(request.path()).isNull();
+            assertThat(request.imageUrl()).isNull();
+            assertThat(request.targetDeviceToken()).isEqualTo("device-token");
+            assertThat(request.roomId()).isEqualTo("team-recruitment-10-12");
+        });
+        verify(leaseService).complete(eq(EVENT_ID), anyString());
     }
 
     @Test
@@ -120,71 +178,9 @@ class TeamRecruitmentOutboxWorkerTest {
         assertThat(request.schemeUri()).isNull();
         assertThat(request.type()).isEqualTo("application_rejected");
         assertThat(request.notificationId()).isNull();
+        assertThat(request.roomId()).isNull();
+        verifyNoInteractions(chatPresenceService, chatMemberRepository, chatMessageRepository);
         verify(leaseService).complete(eq(EVENT_ID), anyString());
-    }
-
-    @Test
-    void notification_id가_있는_payload는_정확한_inbox를_조회한다() {
-        User recipient = UserFixture.id_설정_코인_유저(RECIPIENT_ID);
-        recipient.permitNotification("device-token");
-        TeamRecruitment recruitment = recruitment();
-        TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
-            .id(90)
-            .recipient(recipient)
-            .type(APPLICATION_REJECTED)
-            .targetType(MY_APPLICATIONS)
-            .messagePreview("정확한 알림")
-            .recruitment(recruitment)
-            .application(TeamRecruitmentApplication.builder().id(20).recruitment(recruitment).build())
-            .build();
-        TeamRecruitmentOutboxLeaseService.OutboxClaim claim = claim(
-            "{\"type\":\"APPLICATION_REJECTED\",\"target_type\":\"MY_APPLICATIONS\","
-                + "\"recipient_id\":2,\"recruitment_id\":10,\"application_id\":20,"
-                + "\"chat_room_id\":null,\"notification_id\":90}"
-        );
-        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim));
-        when(notificationRepository.findByIdForOutbox(90)).thenReturn(Optional.of(notification));
-        when(userRepository.findById(RECIPIENT_ID)).thenReturn(Optional.of(recipient));
-        when(fcmClient.sendMessages(anyList())).thenReturn(List.of(FcmSendResponse.succeeded()));
-
-        worker.processBatch();
-
-        verify(notificationRepository).findByIdForOutbox(90);
-        verify(notificationRepository, never()).findForOutbox(
-            any(), any(), any(), any(), any(), any()
-        );
-        ArgumentCaptor<List<FcmSendRequest>> requestCaptor = ArgumentCaptor.forClass(List.class);
-        verify(fcmClient).sendMessages(requestCaptor.capture());
-        assertThat(requestCaptor.getValue().get(0).notificationId()).isEqualTo("90");
-        verify(leaseService).complete(eq(EVENT_ID), anyString());
-    }
-
-    @Test
-    void 삭제된_inbox_이벤트는_FCM없이_완료한다() {
-        TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
-            .id(90)
-            .recipient(UserFixture.id_설정_코인_유저(RECIPIENT_ID))
-            .type(APPLICATION_REJECTED)
-            .targetType(MY_APPLICATIONS)
-            .messagePreview("삭제된 알림")
-            .recruitment(recruitment())
-            .application(TeamRecruitmentApplication.builder().id(20).recruitment(recruitment()).build())
-            .isDeleted(true)
-            .build();
-        TeamRecruitmentOutboxLeaseService.OutboxClaim claim = claim(
-            "{\"type\":\"APPLICATION_REJECTED\",\"target_type\":\"MY_APPLICATIONS\","
-                + "\"recipient_id\":2,\"recruitment_id\":10,\"application_id\":20,"
-                + "\"chat_room_id\":null,\"notification_id\":90}"
-        );
-        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim));
-        when(notificationRepository.findByIdForOutbox(90)).thenReturn(Optional.of(notification));
-
-        worker.processBatch();
-
-        verify(fcmClient, never()).sendMessages(anyList());
-        verify(userRepository, never()).findById(any());
-        verify(leaseService).complete(eq(EVENT_ID), anyString());
-        verify(leaseService, never()).fail(any(), any(), any(), anyBoolean());
     }
 
     @Test
@@ -366,8 +362,150 @@ class TeamRecruitmentOutboxWorkerTest {
         verify(leaseService).fail(any(), any(), org.mockito.ArgumentMatchers.eq("INVALID_ARGUMENT"), org.mockito.ArgumentMatchers.eq(false));
     }
 
+    @Test
+    void 알림_ID가_없는_legacy_채팅도_공통_방_정보를_전송한다() {
+        User recipient = UserFixture.id_설정_코인_유저(RECIPIENT_ID);
+        recipient.permitNotification("device-token");
+        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim("""
+            {"type":"NEW_CHAT_MESSAGE","target_type":"CHAT_ROOM","recipient_id":2,
+             "recruitment_id":10,"chat_room_id":12,"title":"기존 제목","content":"기존 내용"}
+            """)));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment()));
+        when(userRepository.findById(RECIPIENT_ID)).thenReturn(Optional.of(recipient));
+        when(fcmClient.sendMessages(anyList())).thenReturn(List.of(FcmSendResponse.succeeded()));
+
+
+        worker.processBatch();
+
+        ArgumentCaptor<List<FcmSendRequest>> sent = ArgumentCaptor.forClass(List.class);
+        verify(fcmClient).sendMessages(sent.capture());
+        verifyNoInteractions(chatPresenceService);
+        assertThat(sent.getValue()).singleElement().satisfies(request -> {
+            assertThat(request.notificationId()).isNull();
+            assertThat(request.title()).isEqualTo("기존 제목");
+            assertThat(request.content()).isEqualTo("기존 내용");
+            assertThat(request.type()).isEqualTo("new_chat_message");
+            assertThat(request.roomId()).isEqualTo("team-recruitment-10-12");
+        });
+        verify(leaseService).complete(eq(EVENT_ID), anyString());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "CHAT_ROOM,10,null", "CHAT_ROOM,10,0",
+        "CHAT_ROOM,0,12", "MY_APPLICATIONS,10,12"
+    })
+    void 공통_방_ID를_만들_수_없어도_기존_알림은_전송한다(String target, String recruitment, String room) {
+        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim("""
+            {"type":"NEW_CHAT_MESSAGE","target_type":"%s","recipient_id":2,
+             "recruitment_id":%s,"chat_room_id":%s}
+            """.formatted(target, recruitment, room))));
+
+        User recipient = UserFixture.id_설정_코인_유저(RECIPIENT_ID);
+        recipient.permitNotification("device-token");
+        when(recruitmentRepository.findById(Integer.valueOf(recruitment)))
+            .thenReturn(Optional.of(recruitment()));
+        when(userRepository.findById(RECIPIENT_ID)).thenReturn(Optional.of(recipient));
+        when(fcmClient.sendMessages(anyList())).thenReturn(List.of(FcmSendResponse.succeeded()));
+
+        worker.processBatch();
+
+        ArgumentCaptor<List<FcmSendRequest>> sent = ArgumentCaptor.forClass(List.class);
+        verify(fcmClient).sendMessages(sent.capture());
+        assertThat(sent.getValue()).singleElement().satisfies(request -> assertThat(request.roomId()).isNull());
+        verify(leaseService).complete(eq(EVENT_ID), anyString());
+        verify(leaseService, never()).fail(any(), any(), any(), anyBoolean());
+    }
+
+    @Test
+    void 삭제된_채팅_inbox는_방이_없어도_전송없이_완료한다() {
+        TeamRecruitmentNotification notification = TeamRecruitmentNotification.builder()
+            .id(530).recipient(UserFixture.id_설정_코인_유저(RECIPIENT_ID))
+            .type(NEW_CHAT_MESSAGE).targetType(CHAT_ROOM).recruitment(recruitment())
+            .isDeleted(true).build();
+        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim("""
+            {"type":"NEW_CHAT_MESSAGE","target_type":"CHAT_ROOM","recipient_id":2,
+             "recruitment_id":10,"chat_room_id":null,"notification_id":530}
+            """)));
+        when(notificationRepository.findByIdForOutbox(530)).thenReturn(Optional.of(notification));
+
+        worker.processBatch();
+
+        verifyNoInteractions(fcmClient, userRepository);
+        verify(leaseService).complete(eq(EVENT_ID), anyString());
+        verify(leaseService, never()).fail(any(), any(), any(), anyBoolean());
+    }
+
+    @Test
+    void 대기_채팅은_읽음_멤버십_메시지_상태를_다시_검사하지_않는다() {
+        User recipient = UserFixture.id_설정_코인_유저(RECIPIENT_ID);
+        recipient.permitNotification("device-token");
+        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(
+            new TeamRecruitmentOutboxLeaseService.OutboxClaim(EVENT_ID, "legacy-key", """
+                {"type":"NEW_CHAT_MESSAGE","target_type":"CHAT_ROOM","recipient_id":2,
+                 "recruitment_id":10,"chat_room_id":12}
+                """)));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment()));
+        when(userRepository.findById(RECIPIENT_ID)).thenReturn(Optional.of(recipient));
+        when(fcmClient.sendMessages(anyList())).thenReturn(List.of(FcmSendResponse.succeeded()));
+
+        worker.processBatch();
+
+        verify(fcmClient).sendMessages(anyList());
+        verifyNoInteractions(chatMemberRepository, chatMessageRepository, chatPresenceService);
+        verify(leaseService).complete(eq(EVENT_ID), anyString());
+    }
+
+    @Test
+    void 조회되지_않는_채팅_inbox는_기존대로_영구_실패한다() {
+        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim("""
+            {"type":"NEW_CHAT_MESSAGE","target_type":"CHAT_ROOM","recipient_id":2,
+             "recruitment_id":10,"chat_room_id":12,"notification_id":530}
+            """)));
+
+        worker.processBatch();
+
+        verifyNoInteractions(fcmClient, chatMessageRepository, chatPresenceService);
+        verify(leaseService).fail(eq(EVENT_ID), anyString(), eq("NOTIFICATION_NOT_FOUND"), eq(false));
+        verify(leaseService, never()).complete(any(), anyString());
+    }
+
+    @Test
+    void 조회되지_않는_채팅_수신자는_기존대로_영구_실패한다() {
+        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim("""
+            {"type":"NEW_CHAT_MESSAGE","target_type":"CHAT_ROOM","recipient_id":2,
+             "recruitment_id":10,"chat_room_id":12}
+            """)));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment()));
+
+        worker.processBatch();
+
+        verifyNoInteractions(fcmClient);
+        verify(leaseService).fail(eq(EVENT_ID), anyString(), eq("RECIPIENT_NOT_FOUND"), eq(false));
+        verify(leaseService, never()).complete(any(), anyString());
+    }
+
+    @Test
+    void 전송_허용된_채팅의_일시적_FCM_실패는_기존대로_재시도한다() {
+        User recipient = UserFixture.id_설정_코인_유저(RECIPIENT_ID);
+        recipient.permitNotification("device-token");
+        when(leaseService.claim(any(), any(Integer.class))).thenReturn(List.of(claim("""
+            {"type":"NEW_CHAT_MESSAGE","target_type":"CHAT_ROOM","recipient_id":2,
+             "recruitment_id":10,"chat_room_id":12,"message_id":42}
+            """)));
+        when(recruitmentRepository.findById(RECRUITMENT_ID)).thenReturn(Optional.of(recruitment()));
+        when(userRepository.findById(RECIPIENT_ID)).thenReturn(Optional.of(recipient));
+        when(fcmClient.sendMessages(anyList())).thenReturn(List.of(FcmSendResponse.failed("UNAVAILABLE", null)));
+
+        worker.processBatch();
+
+        verify(leaseService).fail(eq(EVENT_ID), anyString(), eq("UNAVAILABLE"), eq(true));
+        verify(leaseService, never()).complete(any(), anyString());
+    }
+
     private TeamRecruitmentOutboxLeaseService.OutboxClaim claim(String payload) {
-        return new TeamRecruitmentOutboxLeaseService.OutboxClaim(EVENT_ID, "event-key", payload);
+        return new TeamRecruitmentOutboxLeaseService.OutboxClaim(
+            EVENT_ID, "team-recruitment:chat-message:42:2", payload);
     }
 
     private TeamRecruitment recruitment() {

@@ -4,8 +4,6 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.Where;
-
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanRole;
 import in.koreatech.koin.domain.user.model.User;
@@ -52,6 +50,9 @@ public class CallvanParticipant extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Column(name = "last_read_message_id", nullable = false)
+    private Integer lastReadMessageId = 0;
+
     public void joinCallvanAgain() {
         this.isDeleted = false;
     }
@@ -66,8 +67,10 @@ public class CallvanParticipant extends BaseEntity {
             User member,
             CallvanRole role,
             LocalDateTime joinedAt,
-            Boolean isDeleted
+            Boolean isDeleted,
+            Integer lastReadMessageId
     ) {
+        this.lastReadMessageId = lastReadMessageId != null ? lastReadMessageId : 0;
         this.post = post;
         this.member = member;
         this.role = role != null ? role : CallvanRole.PARTICIPANT;

@@ -365,7 +365,7 @@ public interface CallvanApi {
         NOT_FOUND_ARTICLE,
         FORBIDDEN_PARTICIPANT
     })
-    @Operation(summary = "콜밴 게시글 채팅 조회", description = """
+    @Operation(summary = "콜밴 게시글 채팅 조회", deprecated = true, description = """
         ### 콜밴 게시글 채팅 조회 API
         콜밴 게시글의 채팅 내역을 조회합니다.
 
@@ -389,7 +389,7 @@ public interface CallvanApi {
         NOT_FOUND_ARTICLE,
         FORBIDDEN_PARTICIPANT
     })
-    @Operation(summary = "콜밴 게시글 채팅 전송", description = """
+    @Operation(summary = "콜밴 게시글 채팅 전송", deprecated = true, description = """
         ### 콜밴 게시글 채팅 전송 API
         콜밴 게시글 채팅방에 메시지를 전송합니다.
 
