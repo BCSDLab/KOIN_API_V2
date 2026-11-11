@@ -156,7 +156,7 @@ article:
     enabled: ${ARTICLE_AI_SUMMARY_ENABLED:false}
     scheduler-fixed-delay-ms: ${ARTICLE_AI_SUMMARY_SCHEDULER_FIXED_DELAY_MS:60000}
     batch-size: ${ARTICLE_AI_SUMMARY_BATCH_SIZE:5}
-    max-retry-count: ${ARTICLE_AI_SUMMARY_MAX_RETRY_COUNT:5}
+    max-retry-count: ${ARTICLE_AI_SUMMARY_MAX_RETRY_COUNT:10}
     max-refinement-retry-count: ${ARTICLE_AI_SUMMARY_MAX_REFINEMENT_RETRY_COUNT:1}
     lock-minutes: ${ARTICLE_AI_SUMMARY_LOCK_MINUTES:30}
     retry-backoff-minutes: ${ARTICLE_AI_SUMMARY_RETRY_BACKOFF_MINUTES:5}

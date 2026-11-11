@@ -111,7 +111,7 @@ class ArticleAiSummaryApiTest extends AcceptanceTest {
     }
 
     @Test
-    void V2에서_요약이_없으면_원문과_생성_대기_상태를_분리해_반환한다() throws Exception {
+    void V2에서_요약이_없거나_시도_한도를_소진하면_생성을_대기시키고_중복_조회는_횟수를_유지한다() throws Exception {
         mockMvc.perform(
                 get("/v2/articles/{articleId}", article.getId())
                     .contentType(MediaType.APPLICATION_JSON)
@@ -123,6 +123,39 @@ class ArticleAiSummaryApiTest extends AcceptanceTest {
 
         ArticleAiSummary summary = articleAiSummaryRepository.findByArticleId(article.getId()).orElseThrow();
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+
+        LocalDateTime nextAttemptAt = LocalDateTime.now(clock).plusHours(1);
+        for (int attempt = 1; attempt <= 10; attempt++) {
+            summary.completeFailure("temporary failure", nextAttemptAt);
+        }
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(get("/v2/articles/{articleId}", article.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ai_summary.status").value("PENDING"));
+
+        summary = articleAiSummaryRepository.findByArticleId(article.getId()).orElseThrow();
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+        assertThat(summary.getRetryCount()).isZero();
+        assertThat(summary.getNextAttemptAt()).isEqualTo(nextAttemptAt);
+        assertThat(articleAiSummaryRepository.findWaitingSummariesForUpdate(LocalDateTime.now(clock), 1)).isEmpty();
+
+        summary.waitForRetry("rate limited", nextAttemptAt);
+        mockMvc.perform(get("/v2/articles/{articleId}", article.getId())).andExpect(status().isOk());
+        assertThat(summary.getRetryCount()).isEqualTo(1);
+        assertThat(summary.getNextAttemptAt()).isEqualTo(nextAttemptAt);
+
+        summary.markProcessing("worker", nextAttemptAt);
+        mockMvc.perform(get("/v2/articles/{articleId}", article.getId())).andExpect(status().isOk());
+        assertThat(summary.isProcessingBy("worker")).isTrue();
+        assertThat(summary.getRetryCount()).isEqualTo(1);
+
+        summary.completeFailure("temporary failure", nextAttemptAt);
+        mockMvc.perform(get("/v2/articles/{articleId}", article.getId())).andExpect(status().isOk());
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
+        assertThat(summary.getRetryCount()).isEqualTo(2);
+        assertThat(summary.getNextAttemptAt()).isEqualTo(nextAttemptAt);
     }
 
     @Test

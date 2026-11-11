@@ -33,7 +33,7 @@ public class ArticleAiSummaryWorker {
                 articleAiSummaryService.completeFailure(summaryId, workerId, e.getMessage(), e.getRetryAfter());
                 return;
             }
-            articleAiSummaryService.deferFailureUntilDailyRetry(summaryId, workerId, e.getMessage());
+            articleAiSummaryService.completeFailureWithoutRetry(summaryId, workerId, e.getMessage());
         } catch (Exception e) {
             log.error(
                 "게시글 AI 요약 워커에서 예기치 못한 예외가 발생했습니다. summaryId: {}, workerId: {}, exception: {}",

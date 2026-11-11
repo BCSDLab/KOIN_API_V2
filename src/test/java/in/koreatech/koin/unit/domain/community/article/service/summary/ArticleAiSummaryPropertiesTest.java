@@ -15,6 +15,7 @@ class ArticleAiSummaryPropertiesTest {
 
         assertThat(properties.getModel()).isEqualTo("solar-pro4");
         assertThat(properties.getPromptVersion()).isEqualTo("v12");
+        assertThat(properties.getMaxRetryCount()).isEqualTo(10);
         assertThat(properties.getChatRequestTimeoutSeconds()).isEqualTo(600);
         assertThat(properties.getProcessingLockDuration()).isEqualTo(Duration.ofMinutes(53).plusSeconds(3));
         properties.setMaxRefinementRetryCount(2);

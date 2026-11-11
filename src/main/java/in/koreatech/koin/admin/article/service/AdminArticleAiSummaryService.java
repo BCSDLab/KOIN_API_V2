@@ -53,7 +53,7 @@ public class AdminArticleAiSummaryService {
                 (first, second) -> first
             ));
         AdminArticleAiSummaryQueueCountProjection queue = articleAiSummaryRepository.countAdminQueue(
-            LocalDateTime.now(clock)
+            LocalDateTime.now(clock), properties.getMaxRetryCount()
         );
 
         return new AdminArticleAiSummaryOverviewResponse(

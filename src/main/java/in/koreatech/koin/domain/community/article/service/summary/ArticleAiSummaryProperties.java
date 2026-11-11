@@ -21,7 +21,7 @@ public class ArticleAiSummaryProperties {
 
     private boolean enabled = false;
     private int batchSize = 5;
-    private int maxRetryCount = 5;
+    private int maxRetryCount = 10;
     private int maxRefinementRetryCount = 1;
     private int lockMinutes = 30;
     private int retryBackoffMinutes = 5;

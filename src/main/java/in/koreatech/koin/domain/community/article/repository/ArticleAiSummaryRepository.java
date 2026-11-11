@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -15,6 +16,7 @@ import in.koreatech.koin.admin.article.dto.AdminArticleAiSummaryProjection;
 import in.koreatech.koin.admin.article.dto.AdminArticleAiSummaryQueueCountProjection;
 import in.koreatech.koin.admin.article.dto.AdminArticleAiSummaryStatusCountProjection;
 import in.koreatech.koin.domain.community.article.model.ArticleAiSummary;
+import jakarta.persistence.LockModeType;
 
 public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary, Integer> {
 
@@ -23,6 +25,13 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
     Optional<ArticleAiSummary> findById(Integer id);
 
     Optional<ArticleAiSummary> findByArticleId(Integer articleId);
+
+    @Query("SELECT s.id FROM ArticleAiSummary s WHERE s.article.id = :articleId")
+    Optional<Integer> findIdByArticleId(@Param("articleId") Integer articleId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM ArticleAiSummary s WHERE s.id = :id")
+    Optional<ArticleAiSummary> findByIdForUpdate(@Param("id") Integer id);
 
     @Modifying
     @Query(value = """
@@ -94,6 +103,7 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         FROM article_ai_summaries
         WHERE is_deleted = 0
           AND status = 'FAILED'
+          AND retry_count < :maxRetryCount
           AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
           AND (locked_until IS NULL OR locked_until < :now)
         ORDER BY
@@ -104,6 +114,7 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         """, nativeQuery = true)
     List<ArticleAiSummary> findRetryableFailedSummariesForUpdate(
         @Param("now") LocalDateTime now,
+        @Param("maxRetryCount") int maxRetryCount,
         @Param("limit") int limit
     );
 
@@ -198,6 +209,7 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
             THEN 1 ELSE 0 END), 0) AS expiredProcessingCount,
           COALESCE(SUM(CASE
             WHEN status = 'FAILED'
+             AND retry_count < :maxRetryCount
              AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
              AND (locked_until IS NULL OR locked_until < :now)
             THEN 1 ELSE 0 END), 0) AS retryableFailedCount
@@ -205,7 +217,8 @@ public interface ArticleAiSummaryRepository extends Repository<ArticleAiSummary,
         WHERE is_deleted = 0
         """, nativeQuery = true)
     AdminArticleAiSummaryQueueCountProjection countAdminQueue(
-        @Param("now") LocalDateTime now
+        @Param("now") LocalDateTime now,
+        @Param("maxRetryCount") int maxRetryCount
     );
 
 }
