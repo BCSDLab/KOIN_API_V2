@@ -2,7 +2,6 @@ package in.koreatech.koin.unit.domain.community.article.service.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -301,7 +300,7 @@ class ArticleAiSummaryServiceTest {
     }
 
     @Test
-    void 실패_재처리_시간대가_아니면_FAILED_큐를_claim하지_않는다() {
+    void 낮에도_FAILED_큐를_확인하고_재시도할_실패건이_없으면_WAIT_큐를_처리한다() {
         Clock clock = clockAt(12);
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary waitingSummary = waitingSummary(clock);
@@ -311,15 +310,15 @@ class ArticleAiSummaryServiceTest {
 
         service.claimProcessableSummaries("worker", 5);
 
-        verify(articleAiSummaryRepository, never()).findRetryableFailedSummariesForUpdate(any(), anyInt(), anyInt());
+        verify(articleAiSummaryRepository).findRetryableFailedSummariesForUpdate(now, 10, 5);
         verify(articleAiSummaryRepository).findWaitingSummariesForUpdate(now, 5);
         assertThat(waitingSummary.isProcessingBy("worker")).isTrue();
         assertThat(waitingSummary.getLockedUntil()).isEqualTo(now.plusMinutes(53).plusSeconds(3));
     }
 
     @Test
-    void 실패_재처리_시간대에는_FAILED_큐를_먼저_claim하고_남은_용량만_WAIT_큐에_사용한다() {
-        Clock clock = clockAt(1);
+    void 낮에도_FAILED_큐를_먼저_claim하고_남은_용량만_WAIT_큐에_사용한다() {
+        Clock clock = clockAt(15);
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary failedSummary = failedSummary(clock);
         ArticleAiSummary waitingSummary = waitingSummary(clock);

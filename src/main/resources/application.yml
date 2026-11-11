@@ -165,8 +165,6 @@ article:
     max-document-bytes: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENT_BYTES:52428800}
     document-parse-ocr-mode: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_OCR_MODE:auto}
     document-parse-min-interval-millis: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_MIN_INTERVAL_MILLIS:1000}
-    failed-retry-window-start-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_START_HOUR:0}
-    failed-retry-window-end-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_END_HOUR:4}
     request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:120}
     chat-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_CHAT_REQUEST_TIMEOUT_SECONDS:600}
     document-parse-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_REQUEST_TIMEOUT_SECONDS:180}

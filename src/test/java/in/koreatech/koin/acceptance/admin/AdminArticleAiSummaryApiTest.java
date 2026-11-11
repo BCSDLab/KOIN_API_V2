@@ -123,7 +123,9 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.queue.ready_wait_count").value(1))
             .andExpect(jsonPath("$.queue.retryable_failed_count").value(1))
             .andExpect(jsonPath("$.config.batch_size").value(5))
-            .andExpect(jsonPath("$.config.max_retry_count").value(10));
+            .andExpect(jsonPath("$.config.max_retry_count").value(10))
+            .andExpect(jsonPath("$.config.failed_retry_window_start_hour").value(0))
+            .andExpect(jsonPath("$.config.failed_retry_window_end_hour").value(24));
 
         LocalDateTime now = LocalDateTime.now(clock);
         assertThat(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now, 10, 1))

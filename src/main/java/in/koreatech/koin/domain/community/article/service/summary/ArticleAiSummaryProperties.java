@@ -30,8 +30,6 @@ public class ArticleAiSummaryProperties {
     private int maxDocumentBytes = 50 * 1024 * 1024;
     private String documentParseOcrMode = "auto";
     private int documentParseMinIntervalMillis = 1_000;
-    private int failedRetryWindowStartHour = 0;
-    private int failedRetryWindowEndHour = 4;
     private int requestTimeoutSeconds = 120;
     private int chatRequestTimeoutSeconds = 600;
     private int documentParseRequestTimeoutSeconds = 180;
@@ -64,13 +62,5 @@ public class ArticleAiSummaryProperties {
 
     public int getBoundedMaxDocumentBytes() {
         return Math.min(Math.max(maxDocumentBytes, 1), MAX_DOCUMENT_BYTES_LIMIT);
-    }
-
-    public int getBoundedFailedRetryWindowStartHour() {
-        return Math.min(Math.max(failedRetryWindowStartHour, 0), 23);
-    }
-
-    public int getBoundedFailedRetryWindowEndHour() {
-        return Math.min(Math.max(failedRetryWindowEndHour, 0), 24);
     }
 }

@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.community.article.service.ArticleService.
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -145,14 +144,11 @@ public class ArticleAiSummaryService {
             return List.of();
         }
         LocalDateTime now = LocalDateTime.now(clock);
-        List<ArticleAiSummary> summaries = new ArrayList<>();
-        if (isFailedRetryWindow(now.toLocalTime())) {
-            summaries.addAll(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(
-                now,
-                properties.getMaxRetryCount(),
-                batchLimit
-            ));
-        }
+        List<ArticleAiSummary> summaries = new ArrayList<>(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(
+            now,
+            properties.getMaxRetryCount(),
+            batchLimit
+        ));
         int remainingLimit = batchLimit - summaries.size();
         if (remainingLimit > 0) {
             summaries.addAll(articleAiSummaryRepository.findWaitingSummariesForUpdate(now, remainingLimit));
@@ -290,19 +286,6 @@ public class ArticleAiSummaryService {
         return Math.min(Math.max(limit, 0), properties.getBatchSize());
     }
 
-    private boolean isFailedRetryWindow(LocalTime now) {
-        int startHour = properties.getBoundedFailedRetryWindowStartHour();
-        int endHour = properties.getBoundedFailedRetryWindowEndHour();
-        if (startHour == endHour) {
-            return false;
-        }
-        int currentHour = now.getHour();
-        if (startHour < endHour) {
-            return currentHour >= startHour && currentHour < endHour;
-        }
-        return currentHour >= startHour || currentHour < endHour;
-    }
-
     private Duration resolveRetryDelay(int nextRetryCount, Duration retryAfter) {
         Duration maxBackoff = Duration.ofMinutes(properties.getMaxRetryBackoffMinutes());
         if (retryAfter != null && !retryAfter.isNegative() && !retryAfter.isZero()) {
@@ -355,7 +338,7 @@ public class ArticleAiSummaryService {
         }
         log.debug(
             "게시글 AI 요약 생성 실패로 FAILED 재처리 큐에 등록했습니다. summaryId: {}, articleId: {}, boardId: {}, "
-                + "status: {}, failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, retryWindow: {}:00-{}:00, "
+                + "status: {}, failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, "
                 + "workerId: {}, reason: {}, impact: 요약은 아직 노출되지 않고 원문만 반환됩니다.",
             summary.getId(),
             articleId(summary),
@@ -365,8 +348,6 @@ public class ArticleAiSummaryService {
             summary.getRetryCount(),
             properties.getMaxRetryCount(),
             nextAttemptAt,
-            properties.getBoundedFailedRetryWindowStartHour(),
-            properties.getBoundedFailedRetryWindowEndHour(),
             workerId,
             reason
         );

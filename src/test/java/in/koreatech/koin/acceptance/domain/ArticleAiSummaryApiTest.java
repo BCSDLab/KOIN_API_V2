@@ -156,6 +156,10 @@ class ArticleAiSummaryApiTest extends AcceptanceTest {
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
         assertThat(summary.getRetryCount()).isEqualTo(2);
         assertThat(summary.getNextAttemptAt()).isEqualTo(nextAttemptAt);
+        assertThat(articleAiSummaryService.claimProcessableSummaries("worker", 1)).isEmpty();
+
+        summary.completeFailure("temporary failure", LocalDateTime.now(clock).minusMinutes(1));
+        assertThat(articleAiSummaryService.claimProcessableSummaries("worker", 1)).containsExactly(summary.getId());
     }
 
     @Test

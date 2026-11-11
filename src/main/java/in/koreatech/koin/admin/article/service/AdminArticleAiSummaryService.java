@@ -74,8 +74,8 @@ public class AdminArticleAiSummaryService {
                 schedulerFixedDelayMs,
                 properties.getBatchSize(),
                 properties.getMaxRetryCount(),
-                properties.getBoundedFailedRetryWindowStartHour(),
-                properties.getBoundedFailedRetryWindowEndHour()
+                0,
+                24
             )
         );
     }
