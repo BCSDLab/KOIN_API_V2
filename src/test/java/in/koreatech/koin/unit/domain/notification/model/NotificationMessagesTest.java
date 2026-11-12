@@ -59,6 +59,10 @@ class NotificationMessagesTest {
         assertThat(NotificationMessages.translateKnown(user, template)).isEqualTo(template);
         assertThat(NotificationMessages.translateKnown(user, null)).isNull();
         NotificationFactory factory = new NotificationFactory();
+        assertThat(factory.generateSoldOutNotification(MobileAppPath.DINING, 1, "A코너", user).getTitle())
+            .isEqualTo("Corner A is sold out 😢");
+        assertThat(factory.generateSoldOutNotification(MobileAppPath.DINING, 1, "임시코너", user).getTitle())
+            .isEqualTo("임시코너 is sold out 😢");
         for (SupportedLanguage language : SupportedLanguage.values()) {
             when(user.getPreferredLanguage()).thenReturn(language.getCode());
             String message = factory.generateDiningReportApprovedNotification(1, user).getMessage();
@@ -68,6 +72,8 @@ class NotificationMessagesTest {
             }
         }
         when(user.getPreferredLanguage()).thenReturn(null);
+        assertThat(factory.generateSoldOutNotification(MobileAppPath.DINING, 1, "A코너", user).getTitle())
+            .isEqualTo("A코너가 품절됐어요 😢");
         assertThat(factory.generateDiningReportApprovedNotification(1, user).getMessage())
             .isEqualTo("품절 제보가 승인되었습니다.");
         when(user.getPreferredLanguage()).thenReturn("en-US");

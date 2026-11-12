@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.ContentMessageCatalog;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.common.model.MobileAppPath;
 
@@ -146,11 +147,13 @@ public class NotificationFactory {
         String place,
         User target
     ) {
+        String displayPlace = ContentMessageCatalog.text(SupportedLanguage.fromStoredCode(
+            target == null ? null : target.getPreferredLanguage()), "dining.place." + place, place);
         return new Notification(
             path,
             generateSchemeUri(path, eventDiningId),
             NotificationMessages.format(target, "%s 품절됐어요 😢",
-                isKorean(target) ? getPostposition(place, "이", "가") : place),
+                isKorean(target) ? getPostposition(place, "이", "가") : displayPlace),
             NotificationMessages.format(target, "다른 코너 메뉴도 확인해보세요"),
             null,
             NotificationType.MESSAGE,
