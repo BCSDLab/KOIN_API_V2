@@ -67,7 +67,7 @@ public class TranslationService {
         }
         try {
             Map<String, String> translated = aiClient.translate(source.texts(), language);
-            Map<String, Object> data = translatedData(source, translated);
+            Map<String, Object> data = translatedData(source, translated, language);
             assertUsableVersion(sourceReader.load(resource, userId), source.version());
             store.succeed(id, claim.ownerToken(), objectMapper.writeValueAsString(data));
         } catch (TranslationFailureException e) {
@@ -163,7 +163,7 @@ public class TranslationService {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> translatedData(TranslationSource source, Map<String, String> translated) {
+    private Map<String, Object> translatedData(TranslationSource source, Map<String, String> translated, SupportedLanguage language) {
         if (translated == null || !translated.keySet().containsAll(source.texts().keySet())
             || translated.values().stream().anyMatch(value -> !StringUtils.hasText(value))) {
             throw new TranslationFailureException(TranslationReason.MISSING_TRANSLATION, null);
@@ -176,6 +176,20 @@ public class TranslationService {
             throw new TranslationFailureException(TranslationReason.INVALID_TRANSLATION, null);
         }
         Map<String, Object> data = new LinkedHashMap<>(source.data());
+        if (source.resource().type() == TranslationType.ARTICLE_CONTENT) {
+            data.put("content", ArticleHtmlTranslation.restore((String) data.get("content"), translated));
+            return data;
+        }
+        if (source.resource().type() == TranslationType.CALLVAN_POST) {
+            for (String key : java.util.List.of("departure", "arrival")) {
+                String original = (String) data.get(key);
+                data.put(key, translated.containsKey(key) ? translated.get(key)
+                    : in.koreatech.koin.domain.language.service.OfficialNameResolver.stationName(
+                        in.koreatech.koin.domain.language.service.OfficialNameResolver.buildingName(original, language), language));
+            }
+            data.put("title", data.get("departure") + " -> " + data.get("arrival"));
+            return data;
+        }
         if (source.resource().type() == TranslationType.ARTICLE_SUMMARY) {
             List<Map<String, Object>> items = (List<Map<String, Object>>)source.data().get("items");
             List<Map<String, Object>> result = new ArrayList<>();

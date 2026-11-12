@@ -93,6 +93,14 @@ class UpstageTranslationClientTest {
                 TranslationFailureException.class);
             assertThat(failure).isNotNull();
             assertThat(failure.getReason()).isEqualTo(TranslationReason.INVALID_TRANSLATION);
+
+            // 판별도 같은 제한시간/재시도 HTTP 경로를 사용하되 번역 결과를 생성하지 않는다.
+            output.set(Map.of("source_language", "uz-Latn"));
+            assertThat(client.detectLanguage(Map.of("content", "Ertaga uchrashamiz."))).isEqualTo("uz-Latn");
+            output.set(Map.of("source_language", "not-a-language"));
+            var invalidLanguage = catchThrowableOfType(() -> client.detectLanguage(Map.of("content", "Hello")),
+                TranslationFailureException.class);
+            assertThat(invalidLanguage.getReason()).isEqualTo(TranslationReason.INVALID_TRANSLATION);
         } finally {
             server.stop(0);
         }

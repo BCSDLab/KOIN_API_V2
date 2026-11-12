@@ -33,6 +33,44 @@ import jakarta.validation.Valid;
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 })
 public interface TranslationApi {
+    @Operation(summary = "공지 본문 번역", description = "원문 GET의 translation_source_version을 expected_source_version으로 보냅니다. HTML 구조·링크·이미지는 유지합니다.")
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "처리 중. Retry-After 이후 결과 조회"),
+        @ApiResponse(responseCode = "422", description = "번역 대상 없음 또는 입력 길이 초과"),
+        @ApiResponse(responseCode = "502", description = "번역 응답 오류"),
+        @ApiResponse(responseCode = "503", description = "일시 장애·호출 제한"),
+        @ApiResponse(responseCode = "504", description = "번역 제한 시간 초과")
+    })
+    @PostMapping("/v2/articles/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Message>> articleContent(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "댓글 번역", description = "댓글 조회의 translation_source_version을 expected_source_version으로 보냅니다. 닉네임은 번역하지 않습니다.")
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "처리 중. Retry-After 이후 결과 조회"),
+        @ApiResponse(responseCode = "422", description = "번역 대상 없음 또는 입력 길이 초과"),
+        @ApiResponse(responseCode = "502", description = "번역 응답 오류"),
+        @ApiResponse(responseCode = "503", description = "일시 장애·호출 제한"),
+        @ApiResponse(responseCode = "504", description = "번역 제한 시간 초과")
+    })
+    @PostMapping("/articles/{articleId}/comments/{commentId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Message>> comment(
+        @PathVariable Integer articleId, @PathVariable Integer commentId, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "콜밴 모집글 번역", description = "모집글의 translation_source_version을 expected_source_version으로 보냅니다. 직접 입력한 장소만 AI 번역합니다. 출발 후에는 참여자만 조회할 수 있습니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "처리 중. Retry-After 이후 결과 조회"),
+        @ApiResponse(responseCode = "422", description = "번역 대상 없음 또는 입력 길이 초과"),
+        @ApiResponse(responseCode = "502", description = "번역 응답 오류"),
+        @ApiResponse(responseCode = "503", description = "일시 장애·호출 제한"),
+        @ApiResponse(responseCode = "504", description = "번역 제한 시간 초과")
+    })
+    @PostMapping("/callvan/posts/{postId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.CallvanPost>> callvanPost(
+        @PathVariable Integer postId, @UserId Integer userId, @RequestBody @Valid TranslationRequest request);
+
     @Operation(summary = "상점 메뉴 분류 이름 번역", description = "분류 이름을 번역합니다.",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
             | 필드 | 설명 |
@@ -181,7 +219,7 @@ public interface TranslationApi {
     ResponseEntity<TranslationResponse<TranslationData.ShopMenu>> shopMenu(
         @PathVariable Integer shopId, @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
 
-    @Operation(summary = "공지 AI 요약 번역", description = "현재 공지의 AI 요약을 번역합니다.",
+    @Operation(summary = "공지 AI 요약 번역", description = "한국어 요약을 번역합니다. 설정 언어로 자동 표시할 때 원문 조회 후 호출합니다.",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
             | 필드 | 설명 |
             | --- | --- |

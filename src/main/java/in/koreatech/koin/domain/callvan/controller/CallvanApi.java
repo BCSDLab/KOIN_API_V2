@@ -123,7 +123,8 @@ public interface CallvanApi {
         @RequestParam(required = false,  name = "joined", defaultValue = "false") Boolean isJoined,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponseCodes({
@@ -165,7 +166,8 @@ public interface CallvanApi {
     @GetMapping("/posts/{postId}/summary")
     ResponseEntity<CallvanPostSearchResponse.CallvanPostResponse> getCallvanPostSummary(
         @PathVariable Integer postId,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponseCodes({
@@ -189,7 +191,8 @@ public interface CallvanApi {
     @GetMapping("/posts/{postId}")
     ResponseEntity<CallvanPostDetailResponse> getCallvanPostDetail(
         @PathVariable Integer postId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponseCodes({

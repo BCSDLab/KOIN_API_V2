@@ -62,6 +62,9 @@ public final class TranslationData {
     public record Name(String name) {
     }
 
+    public record CallvanPost(String title, String departure, String arrival) {
+    }
+
     public record Message(String content) {
     }
 }

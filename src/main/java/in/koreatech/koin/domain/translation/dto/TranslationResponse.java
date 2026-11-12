@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record TranslationResponse<T>(
-    @Schema(description = "저장 결과/진행 작업 ID. 제공 불가 또는 한국어 요약 원문 반환은 null입니다.", nullable = true)
+    @Schema(description = "번역 저장 결과/진행 작업 ID. 언어 판별·제공 불가·한국어 요약 원문 반환은 null입니다.", nullable = true)
     String translationId,
     @Schema(allowableValues = {"PENDING", "SUCCESS", "UNAVAILABLE", "FAILED"}, example = "SUCCESS")
     String status,

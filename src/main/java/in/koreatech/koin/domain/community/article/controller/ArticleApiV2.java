@@ -30,7 +30,7 @@ public interface ArticleApiV2 {
         }
     )
     @Operation(summary = "게시글 단건 조회 V2",
-        description = "공지 원문과 `ai_summary`를 조회합니다. 요약 번역에는 `ai_summary.translation_source_version`을 사용합니다.")
+        description = "공지 원문과 한국어 `ai_summary`를 조회합니다. 설정 언어로 자동 표시하려면 조회 후 `ai_summary.translation_source_version`과 설정 언어로 POST /v2/articles/{id}/ai-summary/translations를 호출합니다. 원문은 유지하고 성공한 번역 결과만 표시합니다.")
     @SecurityRequirements
     @GetMapping("/{id}")
     ResponseEntity<ArticleResponseV2> getArticleV2(

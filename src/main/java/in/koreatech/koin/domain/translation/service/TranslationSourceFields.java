@@ -11,6 +11,14 @@ public final class TranslationSourceFields {
     private TranslationSourceFields() {
     }
 
+    public static Map<String, Object> callvanPost(String title, String departure, String arrival) {
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put("title", title);
+        fields.put("departure", departure);
+        fields.put("arrival", arrival);
+        return fields;
+    }
+
     public static Map<String, Object> summary(List<Map<String, Object>> items) {
         return Map.of("items", items);
     }

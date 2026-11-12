@@ -81,11 +81,12 @@ public class CallvanController implements CallvanApi {
         Boolean isJoined,
         Integer page,
         Integer limit,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
         CallvanPostSearchResponse response = callvanPostQueryService.getCallvanPosts(
             author, departures, departureKeyword, arrivals, arrivalKeyword, statuses, title, sort, isJoined, page, limit,
-            userId);
+            userId, SupportedLanguage.fromCode(language));
         return ResponseEntity.ok().body(response);
     }
 
@@ -100,18 +101,20 @@ public class CallvanController implements CallvanApi {
     @GetMapping("/posts/{postId}/summary")
     public ResponseEntity<CallvanPostResponse> getCallvanPostSummary(
         @PathVariable Integer postId,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        CallvanPostResponse response = callvanPostQueryService.getCallvanPostSummary(postId, userId);
+        CallvanPostResponse response = callvanPostQueryService.getCallvanPostSummary(postId, userId, SupportedLanguage.fromCode(language));
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/posts/{postId}")
     public ResponseEntity<CallvanPostDetailResponse> getCallvanPostDetail(
         @PathVariable Integer postId,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        CallvanPostDetailResponse response = callvanPostQueryService.getCallvanPostDetail(postId, userId);
+        CallvanPostDetailResponse response = callvanPostQueryService.getCallvanPostDetail(postId, userId, SupportedLanguage.fromCode(language));
         return ResponseEntity.ok(response);
     }
 

@@ -24,6 +24,25 @@ public class TranslationController implements TranslationApi {
     private final ObjectMapper objectMapper;
 
     @Override
+    public ResponseEntity<TranslationResponse<TranslationData.Message>> articleContent(Integer id,
+        @RequestBody @Valid TranslationRequest request) {
+        return translated(TranslationResource.article(ARTICLE_CONTENT, id), request, null, TranslationData.Message.class);
+    }
+
+    @Override
+    public ResponseEntity<TranslationResponse<TranslationData.Message>> comment(Integer articleId, Integer commentId,
+        @RequestBody @Valid TranslationRequest request) {
+        return translated(new TranslationResource(ARTICLE_COMMENT, commentId.toString(), articleId, 0),
+            request, null, TranslationData.Message.class);
+    }
+
+    @Override
+    public ResponseEntity<TranslationResponse<TranslationData.CallvanPost>> callvanPost(Integer postId,
+        @UserId Integer userId, @RequestBody @Valid TranslationRequest request) {
+        return translated(TranslationResource.article(CALLVAN_POST, postId), request, userId, TranslationData.CallvanPost.class);
+    }
+
+    @Override
     public ResponseEntity<TranslationResponse<TranslationData.Name>> shopMenuCategory(Integer shopId, Integer id,
         @RequestBody @Valid TranslationRequest request) {
         return translated(new TranslationResource(SHOP_MENU_CATEGORY, id.toString(), shopId, 0),
@@ -126,7 +145,7 @@ public class TranslationController implements TranslationApi {
         return builder;
     }
 
-    private int postStatus(TranslationResponse<?> response) {
+    static int postStatus(TranslationResponse<?> response) {
         return switch (response.status()) {
             case "SUCCESS" -> 200;
             case "PENDING" -> 202;

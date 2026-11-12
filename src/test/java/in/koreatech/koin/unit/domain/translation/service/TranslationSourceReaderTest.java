@@ -44,6 +44,9 @@ class TranslationSourceReaderTest {
     @Mock TeamRecruitmentChatMemberRepository teamMemberRepository;
     @Mock TeamRecruitmentChatMessageRepository teamMessageRepository;
     @Mock UserRepository userRepository;
+    @Mock in.koreatech.koin.domain.community.article.repository.CommentRepository commentRepository;
+    @Mock in.koreatech.koin.domain.callvan.repository.CallvanPostRepository callvanPostRepository;
+    @Mock in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository callvanParticipantRepository;
     @InjectMocks TranslationSourceReader reader;
 
     @Test
@@ -70,5 +73,44 @@ class TranslationSourceReaderTest {
             .isInstanceOfSatisfying(CustomException.class, error ->
                 assertThat(error.getErrorCode()).isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_FORBIDDEN));
         verifyNoInteractions(teamMessageRepository);
+    }
+
+    @Test
+    void articleBodyTranslatesOnlyTextAndKeepsHtmlAndSourceVersion() {
+        String html = "<style>.notice{color:red}</style><p class='notice'>모집 안내 <a href='/apply'>신청하기</a><img src='/photo.png' alt='사진'></p><script>doNotTranslate()</script>";
+        var article = mock(in.koreatech.koin.domain.community.article.model.Article.class);
+        when(articleRepository.getById(10)).thenReturn(article);
+        when(article.getContent()).thenReturn("https://static.test/notice.html");
+        when(s3Client.isCustomDomainUrl("https://static.test/notice.html")).thenReturn(true);
+        when(s3Client.getContentFromCustomDomainUrl("https://static.test/notice.html")).thenReturn(html);
+        var source = reader.load(TranslationResource.article(TranslationType.ARTICLE_CONTENT, 10), null);
+        assertThat(source.version()).isEqualTo(TranslationSourceVersion.of(TranslationSourceFields.message(html)));
+        assertThat(source.texts()).containsOnlyKeys("text_0", "text_1");
+        String translated = ArticleHtmlTranslation.restore(html,
+            java.util.Map.of("text_0", "Recruitment <img src=x onerror=alert(1)>", "text_1", "Apply"));
+        var document = org.jsoup.Jsoup.parse(translated);
+        assertThat(document.select("img")).hasSize(1);
+        assertThat(document.selectFirst("a").attr("href")).isEqualTo("/apply");
+        assertThat(document.selectFirst("img").attr("alt")).isEqualTo("사진");
+        assertThat(document.selectFirst("style").data()).isEqualTo(".notice{color:red}");
+        assertThat(document.selectFirst("script").data()).isEqualTo("doNotTranslate()");
+        assertThat(document.selectFirst("p").text()).contains("<img src=x onerror=alert(1)>");
+    }
+
+    @Test
+    void commentUsesParentBindingAndExpiredCallvanRequiresParticipation() {
+        when(articleRepository.getById(10)).thenReturn(mock(in.koreatech.koin.domain.community.article.model.Article.class));
+        when(commentRepository.findByIdAndArticle_Id(3, 10)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> reader.load(new TranslationResource(TranslationType.ARTICLE_COMMENT, "3", 10, 0), null))
+            .isInstanceOfSatisfying(CustomException.class, error ->
+                assertThat(error.getErrorCode()).isEqualTo(ApiResponseCode.TRANSLATION_SOURCE_NOT_FOUND));
+        var post = mock(in.koreatech.koin.domain.callvan.model.CallvanPost.class);
+        when(callvanPostRepository.getById(4)).thenReturn(post);
+        when(post.getId()).thenReturn(4);
+        when(post.isExpired()).thenReturn(true);
+        when(userRepository.getById(7)).thenReturn(mock(User.class));
+        assertThatThrownBy(() -> reader.load(TranslationResource.article(TranslationType.CALLVAN_POST, 4), 7))
+            .isInstanceOfSatisfying(CustomException.class, error ->
+                assertThat(error.getErrorCode()).isEqualTo(ApiResponseCode.NOT_FOUND_ARTICLE));
     }
 }

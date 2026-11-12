@@ -188,6 +188,42 @@ class TranslationApiTest extends AcceptanceTest {
             executor.shutdownNow();
             server.stop(0);
         }
+
+        // 새 콘텐츠 경로도 같은 MVC·DB 재사용 계약을 통과해야 한다.
+        record Example(TranslationSource source, String path, Map<String, String> translated, String field, String expected) {}
+        var examples = List.of(
+            new Example(TranslationSource.of(TranslationResource.article(TranslationType.ARTICLE_CONTENT, 18),
+                TranslationSourceFields.message("<p>안녕하세요</p>"), Map.of("text_0", "안녕하세요"), null),
+                "/v2/articles/18/translations", Map.of("text_0", "Hello"), "content", "<p>Hello</p>"),
+            new Example(TranslationSource.of(new TranslationResource(TranslationType.ARTICLE_COMMENT, "19", 18, 0),
+                TranslationSourceFields.message("안녕하세요"), Map.of("content", "안녕하세요"), null),
+                "/articles/18/comments/19/translations", Map.of("content", "Hello"), "content", "Hello"),
+            new Example(TranslationSource.of(TranslationResource.article(TranslationType.CALLVAN_POST, 20),
+                TranslationSourceFields.callvanPost("정문 -> 천안역", "정문", "천안역"), Map.of("departure", "정문"), null),
+                "/callvan/posts/20/translations", Map.of("departure", "Main gate"), "title", "Main gate -> Cheonan Station")
+        );
+        for (var example : examples) {
+            when(sourceReader.load(example.source().resource(), null)).thenReturn(example.source());
+            when(aiClient.translate(example.source().texts(), SupportedLanguage.ENGLISH)).thenReturn(example.translated());
+            var first = mockMvc.perform(post(example.path()).contentType(MediaType.APPLICATION_JSON)
+                    .content(body(example.source().version())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data." + example.field()).value(example.expected())).andReturn();
+            String id = JsonAssertions.convertJsonNode(first).path("translation_id").asText();
+            mockMvc.perform(post(example.path()).contentType(MediaType.APPLICATION_JSON)
+                    .content(body(example.source().version())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.translation_id").value(id));
+            assertThat(store.findById(id).orElseThrow().translatedJson()).contains(example.expected());
+            verify(aiClient, times(1)).translate(example.source().texts(), SupportedLanguage.ENGLISH);
+        }
+        when(aiClient.detectLanguage(examples.get(0).source().texts())).thenReturn("ko-KR");
+        for (int repeat = 0; repeat < 2; repeat++) {
+            mockMvc.perform(post("/translations/source-language").contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"resource_type\":\"ARTICLE_CONTENT\",\"resource_id\":\"18\",\"target_language\":\"en-US\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.source_language").value("ko-KR"))
+                .andExpect(jsonPath("$.data.translation_required").value(true));
+        }
+        verify(aiClient, times(1)).detectLanguage(examples.get(0).source().texts());
     }
 
     @Test

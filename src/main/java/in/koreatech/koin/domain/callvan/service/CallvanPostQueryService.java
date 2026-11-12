@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.callvan.service;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -59,6 +61,25 @@ public class CallvanPostQueryService {
         Integer limit,
         Integer userId
     ) {
+        return getCallvanPosts(authorFilter, departures, departureKeyword, arrivals, arrivalKeyword,
+            statusFilters, title, sort, isJoined, page, limit, userId, SupportedLanguage.DEFAULT);
+    }
+
+    public CallvanPostSearchResponse getCallvanPosts(
+        CallvanAuthorFilter authorFilter,
+        List<CallvanLocation> departures,
+        String departureKeyword,
+        List<CallvanLocation> arrivals,
+        String arrivalKeyword,
+        List<CallvanPostStatusFilter> statusFilters,
+        String title,
+        CallvanPostSortCriteria sort,
+        Boolean isJoined,
+        Integer page,
+        Integer limit,
+        Integer userId,
+        SupportedLanguage language
+    ) {
         Integer authorId = authorFilter.getRequiredAuthorId(userId);
         Integer joinedMemberId = getJoinedMemberId(isJoined, userId);
         List<CallvanStatus> statuses = CallvanPostStatusFilter.toStatuses(statusFilters);
@@ -95,7 +116,7 @@ public class CallvanPostQueryService {
             criteria.getPage() + 1,
             totalPage,
             joinedPostIds,
-            userId);
+            userId, language);
     }
 
     private Integer getJoinedMemberId(Boolean isJoined, Integer userId) {
@@ -106,6 +127,10 @@ public class CallvanPostQueryService {
     }
 
     public CallvanPostDetailResponse getCallvanPostDetail(Integer postId, Integer userId) {
+        return getCallvanPostDetail(postId, userId, SupportedLanguage.DEFAULT);
+    }
+
+    public CallvanPostDetailResponse getCallvanPostDetail(Integer postId, Integer userId, SupportedLanguage language) {
         if (!callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId)) {
             throw CustomException.of(ApiResponseCode.FORBIDDEN_PARTICIPANT);
         }
@@ -124,10 +149,14 @@ public class CallvanPostQueryService {
                 postId, userId, ACTIVE_REPORT_STATUSES);
         }
 
-        return CallvanPostDetailResponse.from(callvanPost, userId, reportedUserIds);
+        return CallvanPostDetailResponse.from(callvanPost, userId, reportedUserIds, language);
     }
 
     public CallvanPostSearchResponse.CallvanPostResponse getCallvanPostSummary(Integer postId, Integer userId) {
+        return getCallvanPostSummary(postId, userId, SupportedLanguage.DEFAULT);
+    }
+
+    public CallvanPostSearchResponse.CallvanPostResponse getCallvanPostSummary(Integer postId, Integer userId, SupportedLanguage language) {
         CallvanPost callvanPost = callvanPostRepository.getById(postId);
         boolean isJoined =
             userId != null && callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId);
@@ -137,6 +166,6 @@ public class CallvanPostQueryService {
             throw CustomException.of(ApiResponseCode.NOT_FOUND_ARTICLE);
         }
 
-        return CallvanPostSearchResponse.CallvanPostResponse.from(callvanPost, isJoined, userId);
+        return CallvanPostSearchResponse.CallvanPostResponse.from(callvanPost, isJoined, userId, language);
     }
 }

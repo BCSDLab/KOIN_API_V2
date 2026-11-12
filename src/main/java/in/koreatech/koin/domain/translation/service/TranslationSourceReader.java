@@ -46,6 +46,8 @@ import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 @Service
 @RequiredArgsConstructor
 public class TranslationSourceReader {
+    private final in.koreatech.koin.domain.community.article.repository.CommentRepository commentRepository;
+    private final in.koreatech.koin.domain.callvan.repository.CallvanPostRepository callvanPostRepository;
     private final ArticleRepository articleRepository;
     private final LostItemArticleRepository lostItemArticleRepository;
     private final ArticleAiSummaryService summaryService;
@@ -71,6 +73,9 @@ public class TranslationSourceReader {
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public TranslationSource load(TranslationResource resource, Integer userId) {
         return switch (resource.type()) {
+            case ARTICLE_CONTENT -> articleContent(resource);
+            case ARTICLE_COMMENT -> comment(resource);
+            case CALLVAN_POST -> callvanPost(resource, userId);
             case DINING -> dining(resource);
             case SHOP -> fields(resource, TranslationSourceFields.shop(shopRepository.getById(integerId(resource)).getDescription()), false);
             case SHOP_MENU_CATEGORY -> shopMenuCategory(resource);
@@ -85,6 +90,48 @@ public class TranslationSourceReader {
             case RECRUITMENT_MESSAGE -> teamMessage(resource, userId);
             case CALLVAN_MESSAGE -> callvanMessage(resource, userId);
         };
+    }
+
+    private TranslationSource articleContent(TranslationResource resource) {
+        var article = articleRepository.getById(integerId(resource));
+        String content = article.getContent();
+        String url = content == null ? null : content.trim();
+        if (s3Client.isCustomDomainUrl(url)) {
+            content = s3Client.getContentFromCustomDomainUrl(url);
+        }
+        var texts = ArticleHtmlTranslation.texts(content);
+        return TranslationSource.of(resource, TranslationSourceFields.message(content), texts,
+            texts.isEmpty() ? TranslationReason.UNSUPPORTED_CONTENT : null);
+    }
+
+    private TranslationSource comment(TranslationResource resource) {
+        articleRepository.getById(resource.parentId());
+        var comment = commentRepository.findByIdAndArticle_Id(integerId(resource), resource.parentId())
+            .orElseThrow(() -> CustomException.of(TRANSLATION_SOURCE_NOT_FOUND));
+        return fields(resource, TranslationSourceFields.message(comment.getContent()), false);
+    }
+
+    private TranslationSource callvanPost(TranslationResource resource, Integer userId) {
+        var post = callvanPostRepository.getById(integerId(resource));
+        if (post.isExpired()) {
+            authorize(userId, UserType.STUDENT);
+            if (!callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(post.getId(), userId)) {
+                throw CustomException.of(NOT_FOUND_ARTICLE);
+            }
+        }
+        String departure = org.springframework.util.StringUtils.hasText(post.getDepartureCustomName())
+            ? post.getDepartureCustomName() : post.getDepartureType().getName();
+        String arrival = org.springframework.util.StringUtils.hasText(post.getArrivalCustomName())
+            ? post.getArrivalCustomName() : post.getArrivalType().getName();
+        Map<String, String> texts = new LinkedHashMap<>();
+        if (post.getDepartureType() == in.koreatech.koin.domain.callvan.model.enums.CallvanLocation.CUSTOM) {
+            addText(texts, "departure", departure);
+        }
+        if (post.getArrivalType() == in.koreatech.koin.domain.callvan.model.enums.CallvanLocation.CUSTOM) {
+            addText(texts, "arrival", arrival);
+        }
+        return TranslationSource.of(resource, TranslationSourceFields.callvanPost(post.getTitle(), departure, arrival),
+            texts, texts.isEmpty() ? TranslationReason.UNSUPPORTED_CONTENT : null);
     }
 
     private TranslationSource dining(TranslationResource resource) {
