@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.domain.chat.adapter.TeamRecruitmentChatAdapter;
 import in.koreatech.koin.domain.chat.dto.ChatRoomResponse;
@@ -93,10 +94,10 @@ class TeamRecruitmentChatRepositoryTest extends AcceptanceTest {
         // Each service call must open its own transaction, just as it does behind the adapter in production.
         assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isFalse();
         statistics.clear();
-        var smallRooms = adapter.getRooms(small.userId());
+        var smallRooms = adapter.getRooms(small.userId(), SupportedLanguage.KOREAN);
         long smallQueries = statistics.getPrepareStatementCount();
         statistics.clear();
-        var largeRooms = adapter.getRooms(large.userId());
+        var largeRooms = adapter.getRooms(large.userId(), SupportedLanguage.KOREAN);
         long largeQueries = statistics.getPrepareStatementCount();
 
         assertThat(smallRooms).hasSize(4).allSatisfy(room ->

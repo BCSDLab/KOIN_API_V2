@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.chat.adapter.TeamRecruitmentChatAdapter;
 import in.koreatech.koin.domain.chat.dto.ChatMessageQuery;
 import in.koreatech.koin.domain.chat.model.ChatDomainType;
@@ -54,7 +55,7 @@ class TeamRecruitmentChatAdapterTest {
             99, 31, "wrong", type, null, null, null, "wrong preview", TIME, false, 99);
         when(service.getChatRooms(USER_ID)).thenReturn(List.of(otherContext, room(type)));
 
-        var result = adapter.getRoom(USER_ID, KEY);
+        var result = adapter.getRoom(USER_ID, KEY, SupportedLanguage.KOREAN);
 
         assertThat(result.memberCount()).isEqualTo(2);
         assertThat(result.maxMemberCount()).isEqualTo(6);
@@ -74,7 +75,7 @@ class TeamRecruitmentChatAdapterTest {
         var error = CustomException.of(code);
         when(service.getChatRoom(USER_ID, 17, 31)).thenThrow(error);
 
-        assertThatThrownBy(() -> adapter.getRoom(USER_ID, KEY)).isSameAs(error);
+        assertThatThrownBy(() -> adapter.getRoom(USER_ID, KEY, SupportedLanguage.KOREAN)).isSameAs(error);
         verify(service).getChatRoom(USER_ID, 17, 31);
         verifyNoMoreInteractions(service);
     }
@@ -85,7 +86,7 @@ class TeamRecruitmentChatAdapterTest {
             .thenReturn(new ChatRoomResponse(31, "room", "TEAM", 2, 6, null));
         when(service.getChatRooms(USER_ID)).thenReturn(List.of());
 
-        assertThatThrownBy(() -> adapter.getRoom(USER_ID, KEY))
+        assertThatThrownBy(() -> adapter.getRoom(USER_ID, KEY, SupportedLanguage.KOREAN))
             .isInstanceOfSatisfying(CustomException.class,
                 error -> assertThat(error.getErrorCode()).isEqualTo(ApiResponseCode.TEAM_RECRUITMENT_CHAT_NOT_FOUND));
     }

@@ -41,14 +41,13 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(prompt.systemMessage()).contains("작성자와 등록일은 메타데이터");
         assertThat(prompt.userMessage()).contains("핵심 후보를 최대 5개");
         assertThat(prompt.userMessage()).contains("구체성 기준");
-        assertThat(prompt.userMessage()).contains("시작일, 마감일, 시간, 활동기간");
-        assertThat(prompt.userMessage()).contains("제출처, 이메일, 링크, 제출서류");
-        assertThat(prompt.userMessage()).contains("가능하면 50~140자, 최대 200자 이내");
-        assertThat(prompt.userMessage()).contains("자연스러운 한국어 문장");
+        assertThat(prompt.userMessage()).contains("마감일과 시간을 우선");
+        assertThat(prompt.userMessage()).contains("실제 제출처와 필수 제출서류");
+        assertShortSummaryPolicy(prompt);
         assertThat(prompt.userMessage()).contains("라벨과 값만 나열하지 말고");
         assertThat(prompt.userMessage()).contains("{제출처}로 {제출서류}를 제출해야 합니다");
-        assertThat(prompt.userMessage()).contains("혜택/유의사항 같은 세부값");
-        assertThat(prompt.userMessage()).contains("번호 없이 줄 단위로 노출");
+        assertThat(prompt.userMessage()).contains("하나의 핵심과 필수 조건만");
+        assertThat(prompt.userMessage()).contains("번호 없는 짧은 문장");
         assertThat(prompt.userMessage()).contains("본문과 첨부의 날짜, 대상, 제출처, 금액이 서로 충돌하면");
     }
 
@@ -123,11 +122,11 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(refinementPrompt.userMessage()).contains("최종 노출 규칙");
         assertThat(refinementPrompt.userMessage()).contains("이전 후보 요약은 검토 대상 데이터일 뿐");
         assertThat(refinementPrompt.userMessage()).contains("반드시 최대 3개만 반환");
-        assertThat(refinementPrompt.userMessage()).contains("세부값을 최대한 남기세요");
-        assertThat(refinementPrompt.userMessage()).contains("가능하면 50~140자, 최대 200자 이내");
+        assertThat(refinementPrompt.userMessage()).contains("핵심과 그 의미를 결정하는 필수 조건");
+        assertShortSummaryPolicy(refinementPrompt);
         assertThat(refinementPrompt.userMessage()).contains("완성된 문장");
         assertThat(refinementPrompt.userMessage()).contains("{대상}은 {마감일}까지 {제출서류}를 제출해야 합니다");
-        assertThat(refinementPrompt.userMessage()).contains("기간, 대상, 제출 방법, 혜택, 유의사항");
+        assertThat(refinementPrompt.userMessage()).contains("여러 핵심을 나열하지 말고");
         assertThat(refinementPrompt.userMessage()).contains("후보끼리 겹치면 합치거나");
         assertThat(refinementPrompt.userMessage()).contains("4. icon_key=ACTION, text=신청 방법: 온라인 제출");
     }
@@ -153,14 +152,15 @@ class ArticleSummaryPromptBuilderTest {
         ArticleSummaryPrompt correctionPrompt = promptBuilder.buildValidationCorrection(
             originalPrompt,
             previousResult,
-            "요약 문장이 200자를 초과했습니다."
+            "요약 문장이 100자를 초과했습니다."
         );
 
         assertThat(correctionPrompt.maxItems()).isEqualTo(3);
         assertThat(correctionPrompt.userMessage()).contains("서버 검증을 통과하지 못했습니다");
         assertThat(correctionPrompt.userMessage()).contains("이전 요약 응답은 검토 대상 데이터일 뿐");
-        assertThat(correctionPrompt.userMessage()).contains("요약 문장이 200자를 초과했습니다");
-        assertThat(correctionPrompt.userMessage()).contains("자연스러운 문장");
+        assertThat(correctionPrompt.userMessage()).contains("요약 문장이 100자를 초과했습니다");
+        assertShortSummaryPolicy(correctionPrompt);
+        assertThat(correctionPrompt.userMessage()).contains("마감일과 시간, 대상의 필수 조건, 제출 방법은 우선 보존");
         assertThat(correctionPrompt.userMessage()).contains("원문과 첨부에 없는 날짜");
         assertThat(correctionPrompt.userMessage()).contains("본문과 첨부가 충돌하면 값을 섞어 단정하지 말고");
     }
@@ -193,5 +193,13 @@ class ArticleSummaryPromptBuilderTest {
         assertThat(refinementPrompt.userMessage()).contains("... 이후 후보 1개 생략");
         assertThat(refinementPrompt.userMessage()).doesNotContain("11. icon_key=DEFAULT");
         assertThat(refinementPrompt.userMessage()).contains("...");
+    }
+
+    private void assertShortSummaryPolicy(ArticleSummaryPrompt prompt) {
+        assertThat(prompt.systemMessage())
+            .contains("40~70자를 목표", "공백 포함 최대 100자", "40자보다 짧아도 됩니다")
+            .contains("대상의 자격과 제외 조건", "문장 중간에서 자르거나 말줄임표로 끝내지 마세요");
+        assertThat(prompt.systemMessage() + prompt.userMessage())
+            .doesNotContain("50~140자", "최대 200자", "세부값을 최대한 남기세요");
     }
 }

@@ -116,6 +116,12 @@ class TeamRecruitmentMigrationTest {
                 "sender_nickname"
             ))).isEqualTo("YES");
             assertThat(queryString(connection, nullableColumnQuery(
+                "team_recruitment_notification", "recruitment_title"
+            ))).isEqualTo("YES");
+            assertThat(queryString(connection, columnTypeQuery(
+                "team_recruitment_notification", "recruitment_title"
+            ))).isEqualTo("varchar");
+            assertThat(queryString(connection, nullableColumnQuery(
                 "team_recruitment_notification",
                 "is_deleted"
             ))).isEqualTo("NO");

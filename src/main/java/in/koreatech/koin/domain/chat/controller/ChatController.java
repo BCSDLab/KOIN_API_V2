@@ -23,6 +23,7 @@ import in.koreatech.koin.domain.chat.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.chat.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.chat.model.ChatDomainType;
 import in.koreatech.koin.domain.chat.service.ChatService;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,17 +38,19 @@ public class ChatController implements ChatApi {
     @GetMapping
     public ResponseEntity<List<ChatRoomResponse>> getRooms(
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
-        @RequestParam(name = "domain_type", required = false) ChatDomainType domainType
+        @RequestParam(name = "domain_type", required = false) ChatDomainType domainType,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        return ResponseEntity.ok(chatService.getRooms(userId, domainType));
+        return ResponseEntity.ok(chatService.getRooms(userId, domainType, SupportedLanguage.fromCode(language)));
     }
 
     @GetMapping("/{roomId}")
     public ResponseEntity<ChatRoomResponse> getRoom(
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
-        @PathVariable String roomId
+        @PathVariable String roomId,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        return ResponseEntity.ok(chatService.getRoom(userId, roomId));
+        return ResponseEntity.ok(chatService.getRoom(userId, roomId, SupportedLanguage.fromCode(language)));
     }
 
     @GetMapping("/{roomId}/messages")

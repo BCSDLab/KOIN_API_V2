@@ -48,7 +48,7 @@ public class ArticleAiSummaryScheduler {
         try {
             int claimLimit = resolveClaimLimit();
             if (claimLimit <= 0) {
-                log.debug("게시글 AI 요약 작업 큐가 가득 차 이번 스케줄을 건너뜁니다.");
+                log.debug("게시글 AI 요약 워커가 사용 중이라 이번 스케줄을 건너뜁니다.");
                 return;
             }
             articleAiSummaryService.enqueueArticlesWithoutSummary(claimLimit);
@@ -60,7 +60,7 @@ public class ArticleAiSummaryScheduler {
         }
     }
 
-    // 기본 FAILED 재처리 창 안의 저트래픽 시간대이며, 정각 배치와 겹치지 않도록 03:20에 실행한다.
+    // 정각 배치와 겹치지 않도록 로그 정리는 03:20에 실행한다.
     @Scheduled(cron = "0 20 3 * * *")
     public void deleteOldArticleAiSummaryLogs() {
         try {
@@ -75,9 +75,9 @@ public class ArticleAiSummaryScheduler {
 
     private int resolveClaimLimit() {
         ThreadPoolExecutor executor = articleSummaryTaskExecutor.getThreadPoolExecutor();
-        int idleWorkerCount = Math.max(0, articleSummaryTaskExecutor.getMaxPoolSize() - articleSummaryTaskExecutor.getActiveCount());
-        int remainingQueueCapacity = executor.getQueue().remainingCapacity();
-        int availableCapacity = idleWorkerCount + remainingQueueCapacity;
-        return Math.min(articleAiSummaryProperties.getBatchSize(), availableCapacity);
+        // 대기열까지 미리 선점하면 실행 전 잠금이 만료될 수 있어 즉시 실행할 수 있는 작업만 가져온다.
+        int idleWorkerCount = Math.max(0, articleSummaryTaskExecutor.getCorePoolSize()
+            - articleSummaryTaskExecutor.getActiveCount() - executor.getQueue().size());
+        return Math.min(articleAiSummaryProperties.getBatchSize(), idleWorkerCount);
     }
 }

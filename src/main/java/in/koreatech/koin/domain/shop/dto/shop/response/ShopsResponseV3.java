@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.dto.shop.response;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -32,6 +34,10 @@ public record ShopsResponseV3(
     @Schema(description = "상점 정보")
     List<InnerShopResponse> shops
 ) {
+    public ShopsResponseV3 localized(SupportedLanguage language) {
+        return new ShopsResponseV3(count, shops.stream().map(shop -> shop.localized(language)).toList());
+    }
+
 
     private static Predicate<ShopCache> queryPredicate(String query) {
         String trimmedQuery = query.replaceAll(" ", "");
@@ -118,8 +124,66 @@ public record ShopsResponseV3(
         List<String> benefitDetails,
 
         @Schema(description = "상점 이미지 목록", requiredMode = NOT_REQUIRED)
-        List<String> images
+        List<String> images,
+
+        @Schema(description = "선택 언어의 표시명. 번역이 없으면 원문을 사용합니다.")
+        String displayName
     ) {
+        public InnerShopResponse(
+            List<Integer> categoryIds,
+            boolean delivery,
+            Integer id,
+            String name,
+            boolean payBank,
+            boolean payCard,
+            String phone,
+            List<InnerShopOpen> open,
+            boolean isEvent,
+            boolean isOpen,
+            double averageRate,
+            long reviewCount,
+            List<String> benefitDetails,
+            List<String> images
+        ) {
+            this(
+                categoryIds,
+                delivery,
+                id,
+                name,
+                payBank,
+                payCard,
+                phone,
+                open,
+                isEvent,
+                isOpen,
+                averageRate,
+                reviewCount,
+                benefitDetails,
+                images,
+                name
+            );
+        }
+
+        public InnerShopResponse localized(SupportedLanguage language) {
+            return new InnerShopResponse(
+                categoryIds,
+                delivery,
+                id,
+                name,
+                payBank,
+                payCard,
+                phone,
+                open,
+                isEvent,
+                isOpen,
+                averageRate,
+                reviewCount,
+                benefitDetails,
+                images,
+                OfficialNameResolver.shopName(name, language)
+            );
+        }
+
 
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record InnerShopOpen(
@@ -132,11 +196,11 @@ public record ShopsResponseV3(
             Boolean closed,
 
             @JsonFormat(pattern = "HH:mm")
-            @Schema(example = "02:00", description = "오픈 시간", requiredMode = NOT_REQUIRED)
+            @Schema(implementation = String.class, example = "02:00", description = "오픈 시간", requiredMode = NOT_REQUIRED)
             LocalTime openTime,
 
             @JsonFormat(pattern = "HH:mm")
-            @Schema(example = "16:00", description = "마감 시간", requiredMode = NOT_REQUIRED)
+            @Schema(implementation = String.class, example = "16:00", description = "마감 시간", requiredMode = NOT_REQUIRED)
             LocalTime closeTime
         ) {
 

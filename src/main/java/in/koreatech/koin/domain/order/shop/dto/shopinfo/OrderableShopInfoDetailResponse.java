@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.order.shop.dto.shopinfo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -32,11 +36,11 @@ public record OrderableShopInfoDetailResponse(
     @Schema(description = "상점 주소", example = "충청남도 천안시 동남구 병천면 병천리 163-12")
     String address,
 
-    @Schema(description = "상점 영업 시작 시간", example = "11:30")
+    @Schema(implementation = String.class, description = "상점 영업 시작 시간", example = "11:30")
     @JsonFormat(pattern = "HH:mm")
     LocalTime openTime,
 
-    @Schema(description = "상점 영업 종료 시간", example = "20:30")
+    @Schema(implementation = String.class, description = "상점 영업 종료 시간", example = "20:30")
     @JsonFormat(pattern = "HH:mm")
     LocalTime closeTime,
 
@@ -52,12 +56,21 @@ public record OrderableShopInfoDetailResponse(
     @Schema(description = "가게 알림", example = "*행사 이벤트 진행중입니다*\\n단체 주문 시 20% 할인 합니다.")
     String notice,
 
+    @Schema(description = "상세 위치 설명", nullable = true)
+    String addressDetail,
+
     List<DeliveryTipsResponse> deliveryTips,
 
     OwnerInfo ownerInfo,
 
     List<MenuOriginResponse> origins
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "이 항목의 번역 원문 버전. 번역 요청 expected_source_version으로 전달합니다.")
+    public String getTranslationSourceVersion() {
+        return TranslationSourceVersion.of(TranslationSourceFields.shopInfo(introduction, notice, addressDetail));
+    }
+
 
     public static OrderableShopInfoDetailResponse from(OrderableShop orderableShop) {
         List<ShopOpen> shopOpens = orderableShop.getShop().getShopOpens();
@@ -86,6 +99,7 @@ public record OrderableShopInfoDetailResponse(
             orderableShop.getShop().getPhone(),
             orderableShop.getShop().getIntroduction(),
             orderableShop.getShop().getNotice(),
+            orderableShop.getShop().getAddressDetail(),
             DeliveryTipsResponse.from(orderableShop.getShop().getBaseDeliveryTips().getDeliveryTipRanges()),
             OwnerInfo.from(orderableShop.getShop().getOwner(), orderableShop.getShop().getName(),
                 orderableShop.getShop().getAddress()),

@@ -13,6 +13,8 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessag
 
 public interface TeamRecruitmentChatMessageRepository extends Repository<TeamRecruitmentChatMessage, Integer> {
 
+    Optional<TeamRecruitmentChatMessage> findByIdAndChatRoom_Id(Integer messageId, Integer chatRoomId);
+
     Optional<TeamRecruitmentChatMessage> findTopByChatRoom_IdOrderByIdDesc(Integer chatRoomId);
 
     boolean existsByIdAndChatRoom_Id(Integer id, Integer chatRoomId);

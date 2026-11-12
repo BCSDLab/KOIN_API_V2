@@ -36,8 +36,7 @@ public class ChatMessageSocketController {
             sessionTracker.getSubscriptionCount(destination), message);
 
         // 기존 구독자에게는 Redis 발행 성공 여부와 무관하게 직접 전달한다.
-        broker.convertAndSend(destination, new ChatMessageResponse(principal.getUserId(), message.userNickname(),
-            message.content(), message.timestamp(), message.isImage()));
+        broker.convertAndSend(destination, ChatMessageResponse.toResponse(saved));
         eventPublisher.publishEvent(MessageSendEvent.from(articleId, chatRoomId, principal.getUserId(), message));
         eventPublisher.publishEvent(new ChatMessageStoredEvent(
             new ChatRoomKey(ChatDomainType.LOST_ITEM, articleId, chatRoomId),

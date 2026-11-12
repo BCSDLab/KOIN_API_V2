@@ -2,6 +2,10 @@ package in.koreatech.koin.domain.order.shop.dto.menu;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -32,6 +36,12 @@ public record OrderableShopMenuResponse(
     @Schema(description = "메뉴 옵션 그룹 목록")
     List<InnerOrderableShopMenuOptionGroupResponse> optionGroups
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "메뉴명·설명·가격 옵션명·옵션 그룹/옵션 문구의 번역 원문 버전. 상세 경로의 /translations 요청에 전달합니다.")
+    public String getTranslationSourceVersion() {
+        return TranslationSourceVersion.of(TranslationSourceFields.orderableShopMenu(this));
+    }
+
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOrderableShopMenuOptionGroupResponse(

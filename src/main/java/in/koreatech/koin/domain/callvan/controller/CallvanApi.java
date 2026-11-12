@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
@@ -122,7 +123,8 @@ public interface CallvanApi {
         @RequestParam(required = false,  name = "joined", defaultValue = "false") Boolean isJoined,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponseCodes({
@@ -164,7 +166,8 @@ public interface CallvanApi {
     @GetMapping("/posts/{postId}/summary")
     ResponseEntity<CallvanPostSearchResponse.CallvanPostResponse> getCallvanPostSummary(
         @PathVariable Integer postId,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponseCodes({
@@ -188,7 +191,8 @@ public interface CallvanApi {
     @GetMapping("/posts/{postId}")
     ResponseEntity<CallvanPostDetailResponse> getCallvanPostDetail(
         @PathVariable Integer postId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponseCodes({
@@ -366,22 +370,16 @@ public interface CallvanApi {
         FORBIDDEN_PARTICIPANT
     })
     @Operation(summary = "콜밴 게시글 채팅 조회", deprecated = true, description = """
-        ### 콜밴 게시글 채팅 조회 API
-        콜밴 게시글의 채팅 내역을 조회합니다.
-
-        #### 인증 조건
-        - **학생(STUDENT)** 권한을 가진 사용자만 호출 가능합니다.
-        - 해당 콜벤의 참여자여야 합니다.
-
-        #### 비즈니스 로직
-        1. 존재하지 않는 게시글(`NOT_FOUND_ARTICLE`)이면 예외가 발생합니다.
-        2. 참여자가 아닌 경우(`FORBIDDEN_PARTICIPANT`) 예외가 발생합니다.
-        3. 채팅 내역은 오래된 순으로 정렬되어 반환됩니다.
+        현재 참여 중인 학생만 조회할 수 있으며 메시지는 오래된 순으로 반환합니다.
+        번역에는 해당 메시지의 message_id와 translation_source_version을 사용합니다. 이미지 버전은 null입니다.
+        language에 맞춰 채팅방 인원 단위와 오전·오후를 표시합니다. 지명은 확인된 공식 명칭만 사용하며, 직접 입력한 이름과 메시지 원문은 유지합니다.
         """)
     @GetMapping("/posts/{postId}/chat")
     ResponseEntity<CallvanChatMessageResponse> getCallvanChatMessages(
         @PathVariable Integer postId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer userId,
+        @Parameter(description = "현재 화면 언어. GET /languages의 code를 사용합니다.")
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponseCodes({

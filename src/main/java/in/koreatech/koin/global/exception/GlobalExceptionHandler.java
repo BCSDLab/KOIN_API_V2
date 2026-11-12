@@ -107,8 +107,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiResponseCode errorCode = ApiResponseCode.INVALID_REQUEST_BODY;
         String errorTraceId = UUID.randomUUID().toString();
 
-        List<ErrorResponse.FieldError> fieldErrors = getFieldErrors(ex);
-        String firstErrorMessage = getFirstFieldErrorMessage(fieldErrors, errorCode.getMessage());
+        List<ErrorResponse.FieldError> fieldErrors = getFieldErrors(ex, request);
+        String firstErrorMessage = getFirstFieldErrorMessage(fieldErrors, ErrorMessageCatalog.message(request, errorCode));
 
         requestLogging(request, errorCode.getHttpStatus().value(), firstErrorMessage, errorTraceId);
 
@@ -252,7 +252,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse response = new ErrorResponse(
             errorCode.getHttpStatus().value(),
             errorCode.getCode(),
-            errorCode.getMessage(),
+            ErrorMessageCatalog.message(request, errorCode),
             errorTraceId
         );
         return ResponseEntity.status(response.status()).body(response);
@@ -269,7 +269,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse response = new ErrorResponse(
             errorCode.getHttpStatus().value(),
             errorCode.getCode(),
-            errorCode.getMessage(),
+            ErrorMessageCatalog.fallback(request, errorCode.getHttpStatus().value(), errorCode.getMessage()),
             errorTraceId
         );
         return ResponseEntity.status(response.status()).body(response);
@@ -325,22 +325,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
     }
 
-    private List<ErrorResponse.FieldError> getFieldErrors(MethodArgumentNotValidException ex) {
+    private List<ErrorResponse.FieldError> getFieldErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
         return ex.getBindingResult()
             .getFieldErrors()
             .stream()
-            .map(this::toFieldError)
+            .map(error -> toFieldError(error, request))
             .toList();
     }
 
-    private ErrorResponse.FieldError toFieldError(FieldError fe) {
+    private ErrorResponse.FieldError toFieldError(FieldError fe, HttpServletRequest request) {
         String field = fe.getField();
         String constraint = Objects.requireNonNull(fe.getCode());
         String message = Objects.requireNonNullElse(
             fe.getDefaultMessage(), ApiResponseCode.INVALID_REQUEST_BODY.getMessage()
         );
 
-        return new ErrorResponse.FieldError(field, message, constraint);
+        return new ErrorResponse.FieldError(field, ErrorMessageCatalog.validation(request, constraint, message), constraint);
     }
 
     private String getFirstFieldErrorMessage(List<ErrorResponse.FieldError> fields, String defaultMessage) {
@@ -422,7 +422,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         String errorTraceId = UUID.randomUUID().toString();
         requestLogging(request, httpStatus.value(), errorMessage, errorTraceId);
-        var response = new ErrorResponse(httpStatus.value(), errorMessage, errorTraceId);
+        var response = new ErrorResponse(httpStatus.value(), ErrorMessageCatalog.fallback(request, httpStatus.value(), errorMessage), errorTraceId);
         return ResponseEntity.status(httpStatus).body(response);
     }
 
@@ -434,7 +434,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         String errorTraceId = UUID.randomUUID().toString();
         requestLogging(request, httpStatus.value(), errorMessage, errorTraceId);
-        var response = new ErrorResponse(httpStatus.value(), errorCode, errorMessage, errorTraceId);
+        var response = new ErrorResponse(httpStatus.value(), errorCode, ErrorMessageCatalog.message(request, errorCode, httpStatus.value(), errorMessage), errorTraceId);
         return ResponseEntity.status(httpStatus).body(response);
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.chat.dto.ChatMessageQuery;
 import in.koreatech.koin.domain.chat.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.chat.dto.ChatRoomResponse;
@@ -44,7 +45,7 @@ public class LostItemChatAdapter implements ChatDomainAdapter {
     }
 
     @Override
-    public List<ChatRoomResponse> getRooms(Integer userId) {
+    public List<ChatRoomResponse> getRooms(Integer userId, SupportedLanguage language) {
         // 기존 목록의 양방향 차단, 탈퇴 및 게시글 삭제 필터를 유지한다.
         return roomInfo.getAllChatRoomInfo(userId).stream()
             .map(room -> {
@@ -62,7 +63,7 @@ public class LostItemChatAdapter implements ChatDomainAdapter {
     }
 
     @Override
-    public ChatRoomResponse getRoom(Integer userId, ChatRoomKey key) {
+    public ChatRoomResponse getRoom(Integer userId, ChatRoomKey key, SupportedLanguage language) {
         LostItemChatRoomInfoEntity room = authorize(userId, key);
         var display = roomDisplay.getLostItemChatRoom(key.contextId(), userId, key.chatRoomId());
         var summary = roomInfo.getMessageSummary(key.contextId(), key.chatRoomId(), userId);

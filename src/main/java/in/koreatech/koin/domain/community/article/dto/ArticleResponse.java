@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleAttachment;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -51,10 +53,13 @@ public record ArticleResponse(
     @JsonFormat(pattern = "yyyy-MM-dd") LocalDate registeredAt,
 
     @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt,
+
+    @Schema(description = "본문 번역 요청의 expected_source_version으로 전달할 버전")
+    String translationSourceVersion
 ) {
 
-    public static ArticleResponse from(Article article, String content) {
+    public static ArticleResponse from(Article article, String content, String originalContent) {
         return new ArticleResponse(
             article.getId(),
             article.getBoard().getId(),
@@ -69,7 +74,8 @@ public record ArticleResponse(
             article.getPrevId(),
             article.getNextId(),
             article.getRegisteredAt(),
-            article.getUpdatedAt()
+            article.getUpdatedAt(),
+            TranslationSourceVersion.of(TranslationSourceFields.message(originalContent))
         );
     }
 

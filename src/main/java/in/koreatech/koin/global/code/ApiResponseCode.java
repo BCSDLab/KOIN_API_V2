@@ -9,6 +9,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ApiResponseCode {
 
+    UNSUPPORTED_LANGUAGE(HttpStatus.BAD_REQUEST, "지원하지 않는 언어입니다."),
+    SOURCE_CHANGED(HttpStatus.CONFLICT, "원문이 변경되었습니다. 원문을 다시 조회해 주세요."),
+    TRANSLATION_NOT_FOUND(HttpStatus.NOT_FOUND, "번역 결과를 찾을 수 없습니다."),
+    TRANSLATION_SOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "번역할 원문을 찾을 수 없습니다."),
+    TRANSLATION_RESULT_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "저장된 번역 결과를 읽을 수 없습니다."),
     DINING_REPORT_DATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "오늘 식단만 제보할 수 있습니다."),
     INVALID_REPORT_IMAGE(HttpStatus.BAD_REQUEST, "제보 사진이 올바르지 않습니다."),
     BOT_AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "삐봇 서비스 인증에 실패했습니다."),

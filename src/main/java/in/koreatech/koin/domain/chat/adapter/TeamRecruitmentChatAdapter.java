@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.chat.dto.ChatMessageQuery;
 import in.koreatech.koin.domain.chat.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.chat.dto.ChatRoomResponse;
@@ -31,14 +32,14 @@ public class TeamRecruitmentChatAdapter implements ChatDomainAdapter {
     }
 
     @Override
-    public List<ChatRoomResponse> getRooms(Integer userId) {
+    public List<ChatRoomResponse> getRooms(Integer userId, SupportedLanguage language) {
         return chatService.getChatRoomsWithSendPermission(userId).stream()
             .map(item -> roomResponse(item.response()).canSend(item.canSend()).build())
             .toList();
     }
 
     @Override
-    public ChatRoomResponse getRoom(Integer userId, ChatRoomKey key) {
+    public ChatRoomResponse getRoom(Integer userId, ChatRoomKey key, SupportedLanguage language) {
         var detail = chatService.getChatRoom(userId, key.contextId(), key.chatRoomId());
         var room = chatService.getChatRooms(userId).stream()
             .filter(item -> item.recruitmentId().equals(key.contextId())

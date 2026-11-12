@@ -13,22 +13,25 @@ import in.koreatech.koin.domain.chat.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.chat.model.ChatDomainType;
 import in.koreatech.koin.global.code.ApiResponseCodes;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Chat: 공통 채팅", description = "분실물, 콜밴, 팀 모집 채팅을 공통 인터페이스로 제공합니다.")
 public interface ChatApi {
 
-    @ApiResponseCodes({OK, UNAUTHORIZED_USER, FORBIDDEN_USER_TYPE})
+    @ApiResponseCodes({OK, UNAUTHORIZED_USER, FORBIDDEN_USER_TYPE, UNSUPPORTED_LANGUAGE})
     @Operation(summary = "내 채팅방 목록 조회",
         description = "참여 중인 채팅방을 최근 메시지 순으로 조회합니다. 콜밴과 팀 모집 채팅은 학생 계정만 이용할 수 있습니다.")
-    ResponseEntity<List<ChatRoomResponse>> getRooms(Integer userId, ChatDomainType domainType);
+    ResponseEntity<List<ChatRoomResponse>> getRooms(Integer userId, ChatDomainType domainType,
+        @Parameter(description = "콜밴 방명 표시 언어. 기본 ko-KR이며 사용자 입력은 원문을 유지합니다.", example = "en-US") String language);
 
     @ApiResponseCodes({OK, UNAUTHORIZED_USER, FORBIDDEN_USER_TYPE, ILLEGAL_ARGUMENT,
         FORBIDDEN_BLOCKED_USER, FORBIDDEN_PARTICIPANT, TEAM_RECRUITMENT_CHAT_FORBIDDEN,
-        NOT_FOUND_LOST_ITEM_CHATROOM, TEAM_RECRUITMENT_CHAT_NOT_FOUND})
+        NOT_FOUND_LOST_ITEM_CHATROOM, TEAM_RECRUITMENT_CHAT_NOT_FOUND, UNSUPPORTED_LANGUAGE})
     @Operation(summary = "채팅방 상세 조회",
         description = "채팅방 정보와 메시지 전송 및 읽음 처리 가능 여부를 조회합니다.")
-    ResponseEntity<ChatRoomResponse> getRoom(Integer userId, String roomId);
+    ResponseEntity<ChatRoomResponse> getRoom(Integer userId, String roomId,
+        @Parameter(description = "콜밴 방명 표시 언어. 기본 ko-KR이며 사용자 입력은 원문을 유지합니다.", example = "en-US") String language);
 
     @ApiResponseCodes({OK, UNAUTHORIZED_USER, ILLEGAL_ARGUMENT, FORBIDDEN_BLOCKED_USER,
         FORBIDDEN_PARTICIPANT, TEAM_RECRUITMENT_CHAT_FORBIDDEN})

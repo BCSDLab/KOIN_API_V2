@@ -1,0 +1,358 @@
+package in.koreatech.koin.domain.translation.controller;
+
+import static in.koreatech.koin.domain.user.model.UserType.*;
+import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import in.koreatech.koin.domain.translation.dto.*;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
+import in.koreatech.koin.global.exception.ErrorResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
+@Tag(name = "(Normal) Translation: 번역", description = "콘텐츠 번역 및 결과 조회")
+@ApiResponses({
+    @ApiResponse(responseCode = "200", description = "SUCCESS: 번역 완료. 일시 오류·번역 검증 실패는 전체 25초 안에서 기본 1회 추가 시도합니다."),
+    @ApiResponse(responseCode = "400", description = "필수값·언어 코드·원문 버전 형식 오류",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    @ApiResponse(responseCode = "401", description = "쪽지 번역에 본인 인증이 필요합니다.",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    @ApiResponse(responseCode = "403", description = "현재 접근 권한 없음 또는 쿠키 Origin/CSRF 오류",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    @ApiResponse(responseCode = "404", description = "원문·방·메시지·결과가 없거나 결과 보관 기간이 지났습니다.",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    @ApiResponse(responseCode = "409", description = "SOURCE_CHANGED: 원문을 다시 조회해 화면을 갱신하세요. 새 translation_source_version을 expected_source_version에 넣어 번역 POST를 다시 요청하세요.",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+})
+public interface TranslationApi {
+    @Operation(summary = "공지 본문 번역", description = "원문 GET의 translation_source_version을 expected_source_version으로 보냅니다. HTML 구조·링크·이미지는 유지합니다.")
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "처리 중. Retry-After 이후 결과 조회"),
+        @ApiResponse(responseCode = "422", description = "번역 대상 없음 또는 입력 길이 초과"),
+        @ApiResponse(responseCode = "502", description = "번역 응답 오류"),
+        @ApiResponse(responseCode = "503", description = "일시 장애·호출 제한"),
+        @ApiResponse(responseCode = "504", description = "번역 제한 시간 초과")
+    })
+    @PostMapping("/v2/articles/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Message>> articleContent(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "댓글 번역", description = "댓글 조회의 translation_source_version을 expected_source_version으로 보냅니다. 닉네임은 번역하지 않습니다.")
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "처리 중. Retry-After 이후 결과 조회"),
+        @ApiResponse(responseCode = "422", description = "번역 대상 없음 또는 입력 길이 초과"),
+        @ApiResponse(responseCode = "502", description = "번역 응답 오류"),
+        @ApiResponse(responseCode = "503", description = "일시 장애·호출 제한"),
+        @ApiResponse(responseCode = "504", description = "번역 제한 시간 초과")
+    })
+    @PostMapping("/articles/{articleId}/comments/{commentId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Message>> comment(
+        @PathVariable Integer articleId, @PathVariable Integer commentId, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "콜밴 모집글 번역", description = "모집글의 translation_source_version을 expected_source_version으로 보냅니다. 직접 입력한 장소만 AI 번역합니다. 출발 후에는 참여자만 조회할 수 있습니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "처리 중. Retry-After 이후 결과 조회"),
+        @ApiResponse(responseCode = "422", description = "번역 대상 없음 또는 입력 길이 초과"),
+        @ApiResponse(responseCode = "502", description = "번역 응답 오류"),
+        @ApiResponse(responseCode = "503", description = "일시 장애·호출 제한"),
+        @ApiResponse(responseCode = "504", description = "번역 제한 시간 초과")
+    })
+    @PostMapping("/callvan/posts/{postId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.CallvanPost>> callvanPost(
+        @PathVariable Integer postId, @UserId Integer userId, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "상점 메뉴 분류 이름 번역", description = "분류 이름을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 메뉴 분류 GET의 해당 `menu_categories[]` 항목에서 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/shops/{shopId}/menus/categories/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Name>> shopMenuCategory(
+        @PathVariable Integer shopId, @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "주문 메뉴 분류 이름 번역", description = "주문 메뉴의 분류 이름을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 주문 메뉴 분류 GET의 해당 `menu_groups[]` 항목에서 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/order/shop/{orderableShopId}/menus/groups/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Name>> orderableShopMenuGroup(
+        @PathVariable Integer orderableShopId, @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "주문 메뉴·옵션 번역", description = "메뉴와 옵션의 이름·설명을 번역합니다. 항목 ID는 원문과 같습니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 주문 메뉴 상세 GET 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/order/shop/{orderableShopId}/menus/{orderableShopMenuId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.OrderableShopMenu>> orderableShopMenu(
+        @PathVariable Integer orderableShopId, @PathVariable Integer orderableShopMenuId,
+        @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "상점 소개·공지 번역", description = "상점 소개·공지·상세 위치 설명을 번역합니다. 경로 ID에는 주문상점 상세의 shop_id를 사용합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | `GET /order/shop/{orderableShopId}/detail`의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/shops/{id}/info/translations")
+    ResponseEntity<TranslationResponse<TranslationData.ShopInfo>> shopInfo(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "식단 메뉴 번역", description = "식단의 메뉴를 원래 순서대로 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | `GET /dinings`에서 번역할 식단의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/dinings/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Dining>> dining(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "상점 설명 번역", description = "상점의 설명을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 상점 상세 GET 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/shops/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Shop>> shop(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "상점 메뉴 번역", description = "상점 메뉴의 이름·설명·옵션명을 번역합니다. 가격과 옵션 순서는 유지합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 대상 언어. `GET /languages`의 코드를 사용합니다. |
+            | `expected_source_version` | 메뉴 목록의 해당 메뉴 또는 메뉴 상세 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/shops/{shopId}/menus/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.ShopMenu>> shopMenu(
+        @PathVariable Integer shopId, @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "공지 AI 요약 번역", description = "한국어 요약을 번역합니다. 설정 언어로 자동 표시할 때 원문 조회 후 호출합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
+            | `expected_source_version` | 공지 조회 응답의 `ai_summary.translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/v2/articles/{id}/ai-summary/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Summary>> summary(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "분실물 게시글 번역", description = "분실물의 습득 장소와 내용을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
+            | `expected_source_version` | 분실물 조회 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/articles/lost-item/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.LostItem>> lostItem(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "팀원 모집글 번역", description = "모집글의 제목·소개·지원 자격을 번역합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
+            | `expected_source_version` | 모집글 조회 응답의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @SecurityRequirements
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/team-recruitments/{id}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Recruitment>> recruitment(
+        @PathVariable Integer id, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "분실물 쪽지 번역", description = "현재 방 참여자만 텍스트 쪽지를 번역할 수 있습니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
+            | `expected_source_version` | 분실물 쪽지 조회 응답에서 번역할 메시지의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/v2/chatroom/lost-item/{articleId}/{chatRoomId}/messages/{messageId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Message>> lostItemMessage(
+        @PathVariable Integer articleId, @PathVariable Integer chatRoomId,
+        @Parameter(description = "원문 응답의 문자열 message_id. JavaScript Number로 변환하지 않습니다.",
+            schema = @Schema(type = "string", implementation = String.class, pattern = "[0-9]+", example = "733900000000012345"))
+        @PathVariable Long messageId,
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "팀원 모집 쪽지 번역", description = "현재 방의 학생 멤버만 텍스트 쪽지를 번역할 수 있습니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
+            | `expected_source_version` | 팀원 모집 쪽지 조회 응답에서 번역할 메시지의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages/{messageId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Message>> recruitmentMessage(
+        @PathVariable Integer recruitmentId, @PathVariable Integer chatRoomId, @PathVariable Integer messageId,
+        @Auth(permit = {STUDENT}) Integer userId, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "콜밴 채팅 메시지 번역", description = "현재 콜밴에 참여한 학생만 텍스트 메시지를 번역할 수 있습니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = """
+            | 필드 | 설명 |
+            | --- | --- |
+            | `target_language` | 번역할 언어 코드. `GET /languages`의 `code`를 사용합니다. |
+            | `expected_source_version` | `GET /callvan/posts/{postId}/chat`에서 번역할 메시지의 `translation_source_version`을 그대로 복사해 보냅니다. |
+
+            409가 오면 원문을 다시 조회해 화면을 갱신하고, 새 버전으로 번역 POST를 다시 요청합니다.
+            """))
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "PENDING: Retry-After 이후 GET /translations/{translationId}로 조회합니다."),
+        @ApiResponse(responseCode = "422", description = "UNAVAILABLE: UNSUPPORTED_CONTENT(번역 대상 없음), INPUT_TOO_LONG(8,000자 초과). 원문을 유지합니다."),
+        @ApiResponse(responseCode = "502", description = "FAILED: MISSING_TRANSLATION(번역 누락), INVALID_TRANSLATION(잘못된 결과), UPSTREAM_REJECTED(Solar 요청 거절). retryable=true일 때만 Retry-After 이후 POST로 재시도합니다."),
+        @ApiResponse(responseCode = "503", description = "TEMPORARY_ERROR(일시 장애), RATE_LIMITED(서버·Solar 호출 제한), CONFIGURATION_ERROR(서버 설정 오류), SOURCE_NOT_READY(원문 준비 전). retryable과 Retry-After를 확인합니다. 원문 준비 전에는 원문을 다시 조회합니다."),
+        @ApiResponse(responseCode = "504", description = "FAILED/TIMEOUT: Solar 호출·재시도·대기를 합친 제한 시간(기본 25초) 초과. 원문을 유지하고 Retry-After 이후 POST로 재시도합니다.")
+    })
+    @PostMapping("/callvan/posts/{postId}/chat/messages/{messageId}/translations")
+    ResponseEntity<TranslationResponse<TranslationData.Message>> callvanMessage(
+        @PathVariable Integer postId,
+        @Parameter(description = "콜밴 채팅 조회 응답의 messages[].message_id") @PathVariable Integer messageId,
+        @Auth(permit = {STUDENT}) Integer userId, @RequestBody @Valid TranslationRequest request);
+
+    @Operation(summary = "번역 결과 조회",
+        description = "`translation_id`로 처리 상태와 결과를 조회합니다. 쪽지는 현재 방 참여 권한이 필요합니다.")
+    @ApiResponse(responseCode = "200", description = "상태 조회 성공: SUCCESS·PENDING·FAILED 모두 200입니다. retryable=true인 실패만 Retry-After 이후 원래 POST로 재시도합니다. GET은 번역을 실행하지 않습니다.")
+    @GetMapping("/translations/{translationId}")
+    ResponseEntity<TranslationResponse<Map<String, Object>>> result(
+        @PathVariable String translationId, @UserId Integer userId);
+}

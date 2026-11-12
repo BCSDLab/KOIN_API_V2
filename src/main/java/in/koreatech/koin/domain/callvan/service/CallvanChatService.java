@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
 import in.koreatech.koin.domain.callvan.repository.CallvanChatMessageRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.chat.event.ChatMessageStoredEvent;
 import in.koreatech.koin.domain.chat.event.ChatRoomChangedEvent;
 import in.koreatech.koin.domain.chat.model.ChatDomainType;
@@ -68,7 +69,7 @@ public class CallvanChatService {
         }
     }
 
-    public CallvanChatMessageResponse getMessages(Integer postId, Integer userId) {
+    public CallvanChatMessageResponse getMessages(Integer postId, Integer userId, SupportedLanguage language) {
         if (!callvanParticipantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(postId, userId)) {
             throw CustomException.of(ApiResponseCode.FORBIDDEN_PARTICIPANT);
         }
@@ -78,7 +79,7 @@ public class CallvanChatService {
         List<CallvanChatMessage> messages = callvanChatMessageRepository.findAllByChatRoomIdOrderByCreatedAtAsc(
             callvanPost.getChatRoom().getId());
 
-        return CallvanChatMessageResponse.of(callvanPost, messages, userId);
+        return CallvanChatMessageResponse.of(callvanPost, messages, userId, language);
     }
 
     @Transactional

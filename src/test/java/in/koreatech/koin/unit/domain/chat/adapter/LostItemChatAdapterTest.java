@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.chat.adapter.LostItemChatAdapter;
 import in.koreatech.koin.domain.chat.dto.ChatMessageQuery;
 import in.koreatech.koin.domain.chat.dto.CreateChatMessageRequest;
@@ -155,7 +156,7 @@ class LostItemChatAdapterTest {
     private void assertDenied(int userId, ChatRoomKey roomKey) {
         assertThatThrownBy(() -> adapter.validateReadAccess(userId, roomKey)).isInstanceOf(CustomException.class);
         assertThatThrownBy(() -> adapter.markRead(userId, roomKey, TSID)).isInstanceOf(CustomException.class);
-        assertThatThrownBy(() -> adapter.getRoom(userId, roomKey)).isInstanceOf(CustomException.class);
+        assertThatThrownBy(() -> adapter.getRoom(userId, roomKey, SupportedLanguage.KOREAN)).isInstanceOf(CustomException.class);
         assertThatThrownBy(() -> adapter.getMessages(userId, roomKey, new ChatMessageQuery(null, null, 10)))
             .isInstanceOf(CustomException.class);
         assertThatThrownBy(() -> adapter.sendMessage(userId, roomKey, new CreateChatMessageRequest("hello", false)))

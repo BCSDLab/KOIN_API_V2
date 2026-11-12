@@ -31,6 +31,7 @@ import in.koreatech.koin.domain.callvan.repository.CallvanChatMessageRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
 import in.koreatech.koin.domain.callvan.service.CallvanChatService;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.exception.CustomException;
@@ -82,7 +83,7 @@ class CallvanChatServiceTest {
 
     @Test
     void inactiveParticipantCannotRead() {
-        assertThatThrownBy(() -> service.getMessages(10, 1)).isInstanceOf(CustomException.class);
+        assertThatThrownBy(() -> service.getMessages(10, 1, SupportedLanguage.KOREAN)).isInstanceOf(CustomException.class);
         verifyNoInteractions(postRepository, userRepository, messageRepository, eventPublisher);
     }
 
@@ -131,12 +132,13 @@ class CallvanChatServiceTest {
         when(sender.getId()).thenReturn(1);
         CallvanChatMessage message = CallvanChatMessage.builder().sender(sender)
             .senderNickname("nickname").content("hello").isLeftUser(true).build();
+        ReflectionTestUtils.setField(message, "id", 42);
         ReflectionTestUtils.setField(message, "createdAt", LocalDateTime.of(2026, 10, 6, 14, 5));
         when(participantRepository.existsByPostIdAndMemberIdAndIsDeletedFalse(10, 1)).thenReturn(true);
         when(postRepository.getById(10)).thenReturn(post);
         when(messageRepository.findAllByChatRoomIdOrderByCreatedAtAsc(20)).thenReturn(List.of(message));
 
-        var result = service.getMessages(10, 1);
+        var result = service.getMessages(10, 1, SupportedLanguage.KOREAN);
 
         assertThat(result.roomName()).isEqualTo("정문 -> 천안역 (14:05) (4명)");
         assertThat(result.messages()).hasSize(1);
@@ -146,6 +148,13 @@ class CallvanChatServiceTest {
         assertThat(response.senderNickname()).isEqualTo("nickname");
         assertThat(response.isMine()).isTrue();
         assertThat(response.isLeftUser()).isTrue();
+        assertThat(response.messageId()).isEqualTo(42);
+        var english = service.getMessages(10, 1, SupportedLanguage.ENGLISH);
+        assertThat(english.roomName()).endsWith("(4 people)");
+        assertThat(english.messages().get(0).time()).isEqualTo("PM 2:05");
+        assertThat(english.messages().get(0).getTranslationSourceVersion())
+            .isNotBlank().isEqualTo(response.getTranslationSourceVersion());
+        assertThat(english.messages().get(0).content()).isEqualTo("hello");
         verifyNoInteractions(eventPublisher, userRepository);
     }
 

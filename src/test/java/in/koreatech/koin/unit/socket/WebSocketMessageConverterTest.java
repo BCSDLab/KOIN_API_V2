@@ -20,6 +20,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import in.koreatech.koin.domain.chat.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.chat.dto.ChatRealtimeEvent;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
 import in.koreatech.koin.socket.config.WebSocketConfig;
 import in.koreatech.koin.socket.interceptor.ChatHandshakeInterceptor;
 import in.koreatech.koin.socket.interceptor.ChatOutboundInterceptor;
@@ -47,16 +49,25 @@ class WebSocketMessageConverterTest {
         var common = new ChatRealtimeEvent(ChatRealtimeEvent.Type.MESSAGE_CREATED, "lost-item-1-2",
             new ChatMessageResponse("123", 7, "user", "hello", timestamp, false, 1, false));
         var legacy = new in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageResponse(
-            7, "user", "hello", timestamp, false);
+            7, "user", "hello", timestamp, false, "123");
         for (Object event : new Object[] {common, legacy}) {
             var message = converter.toMessage(event, new MessageHeaders(Map.of()));
             assertThat(message).isNotNull();
             var actual = applicationMapper.readTree((byte[])message.getPayload());
             assertThat(actual).isEqualTo(applicationMapper.valueToTree(event));
-            var time = actual.has("message") ? actual.path("message").path("timestamp") : actual.path("timestamp");
+            var payload = actual.has("message") ? actual.path("message") : actual;
+            assertThat(payload.path("message_id").asText()).isEqualTo("123");
+            assertThat(payload.path("translation_source_version").asText())
+                .isEqualTo(TranslationSourceVersion.of(TranslationSourceFields.message("hello")));
+            var time = payload.path("timestamp");
             assertThat(time.isTextual()).isTrue();
             assertThat(time.textValue()).isEqualTo("2026-10-12T13:14:15.123456");
         }
+        assertThat(applicationMapper.readValue(applicationMapper.writeValueAsString(common), ChatRealtimeEvent.class))
+            .isEqualTo(common);
+        var image = new ChatMessageResponse("124", 7, "user", "https://example.com/photo.png", timestamp,
+            true, 1, false);
+        assertThat(applicationMapper.valueToTree(image).path("translation_source_version").isNull()).isTrue();
     }
 
 }

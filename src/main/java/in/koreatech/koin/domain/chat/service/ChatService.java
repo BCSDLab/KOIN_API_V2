@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.chat.dto.ChatMessageQuery;
 import in.koreatech.koin.domain.chat.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.chat.dto.ChatRoomResponse;
@@ -38,24 +39,24 @@ public class ChatService {
         }
     }
 
-    public List<ChatRoomResponse> getRooms(Integer userId, ChatDomainType domainType) {
+    public List<ChatRoomResponse> getRooms(Integer userId, ChatDomainType domainType, SupportedLanguage language) {
         User user = getUser(userId);
         if (domainType != null) {
             domainType.authorize(user);
-            return sortRooms(adapter(domainType).getRooms(userId));
+            return sortRooms(adapter(domainType).getRooms(userId, language));
         }
         return sortRooms(adapters.entrySet().stream()
             .filter(entry -> entry.getKey().supports(user))
             .flatMap(entry -> {
                 entry.getKey().authorize(user);
-                return entry.getValue().getRooms(userId).stream();
+                return entry.getValue().getRooms(userId, language).stream();
             })
             .toList());
     }
 
-    public ChatRoomResponse getRoom(Integer userId, String roomId) {
+    public ChatRoomResponse getRoom(Integer userId, String roomId, SupportedLanguage language) {
         ChatRoomKey key = authorize(userId, roomId);
-        return adapter(key.domainType()).getRoom(userId, key);
+        return adapter(key.domainType()).getRoom(userId, key, language);
     }
 
     public List<ChatMessageResponse> getMessages(Integer userId, String roomId, ChatMessageQuery query) {

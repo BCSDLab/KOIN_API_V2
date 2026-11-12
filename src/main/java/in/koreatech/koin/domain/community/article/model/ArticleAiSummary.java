@@ -179,6 +179,18 @@ public class ArticleAiSummary extends BaseEntity {
         this.failureReason = null;
     }
 
+    public void reopenExhaustedRetryCycle(int maxRetryCount) {
+        if (status != ArticleAiSummaryStatus.FAILED || retryCount < maxRetryCount) {
+            return;
+        }
+        this.status = ArticleAiSummaryStatus.WAIT;
+        this.retryCount = 0;
+        this.lockedUntil = null;
+        this.workerId = null;
+        this.failureReason = null;
+        // 조회로 재접수해도 기존 요약과 Retry-After/백오프 대기 시간은 유지한다.
+    }
+
     public void markProcessing(String workerId, LocalDateTime lockedUntil) {
         this.status = ArticleAiSummaryStatus.PROCESSING;
         this.workerId = workerId;
@@ -225,10 +237,10 @@ public class ArticleAiSummary extends BaseEntity {
         this.failureReason = truncate(reason);
     }
 
-    public void completeFailureWithoutRetry(String reason, int maxRetryCount) {
+    public void completeFailureWithoutRetry(String reason, int maxRetryCount, LocalDateTime nextAttemptAt) {
         this.status = ArticleAiSummaryStatus.FAILED;
         this.retryCount = Math.max(this.retryCount + 1, maxRetryCount);
-        this.nextAttemptAt = null;
+        this.nextAttemptAt = nextAttemptAt;
         this.lockedUntil = null;
         this.workerId = null;
         this.failureReason = truncate(reason);

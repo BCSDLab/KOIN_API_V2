@@ -46,7 +46,16 @@ public class ArticleSummarySourceReader {
     private final S3ClientWrapper s3Client;
 
     public String createFingerprint(ArticleSummarySourceSeed seed) {
-        return createFingerprint(seed, resolveContent(seed.content()));
+        try {
+            return createFingerprint(seed, resolveContent(seed.content()));
+        } catch (ArticleSummaryExternalApiException e) {
+            if (!e.isRetryable()) {
+                throw e;
+            }
+            // 등록/조회는 본문 서버의 일시 장애로 중단하지 않는다. 실제 요약 생성은 read에서 재시도한다.
+            log.warn("본문 조회 실패로 URL 기준의 임시 fingerprint를 사용합니다. articleId: {}", seed.articleId());
+            return createFingerprint(seed, seed.content());
+        }
     }
 
     private String createFingerprint(ArticleSummarySourceSeed seed, String contentForFingerprint) {
@@ -113,7 +122,7 @@ public class ArticleSummarySourceReader {
             return s3Client.getContentFromUrl(trimmed);
         } catch (Exception e) {
             log.warn("게시글 본문 URL 조회에 실패했습니다. url: {}", sanitizeUrl(trimmed), e);
-            return "";
+            throw new ArticleSummaryExternalApiException("게시글 본문 URL 조회에 실패했습니다.", true, null, e);
         }
     }
 

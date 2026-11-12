@@ -18,7 +18,7 @@ final class UpstageRetryAfterResolver {
 
     static Duration resolve(int status, String retryAfterHeader) {
         Duration parsedRetryAfter = parse(retryAfterHeader);
-        if (isPositive(parsedRetryAfter)) {
+        if (parsedRetryAfter != null && !parsedRetryAfter.isNegative()) {
             return parsedRetryAfter;
         }
         if (status == HTTP_STATUS_TOO_MANY_REQUESTS) {
@@ -52,10 +52,6 @@ final class UpstageRetryAfterResolver {
                 return null;
             }
         }
-    }
-
-    private static boolean isPositive(Duration duration) {
-        return duration != null && !duration.isNegative() && !duration.isZero();
     }
 
     private static Throwable rootCause(Throwable throwable) {

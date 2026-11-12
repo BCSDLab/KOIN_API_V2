@@ -3,6 +3,7 @@ package in.koreatech.koin.acceptance.domain.chat.realtime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Executors;
@@ -25,7 +26,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import in.koreatech.koin.domain.chat.config.ChatRedisConfig;
+import in.koreatech.koin.domain.chat.dto.ChatMessageResponse;
 import in.koreatech.koin.domain.chat.dto.ChatRealtimeEvent;
+import in.koreatech.koin.domain.chat.event.ChatMessageStoredEvent;
 import in.koreatech.koin.domain.chat.event.ChatRealtimeReceivedEvent;
 import in.koreatech.koin.domain.chat.event.ChatRoomChangedEvent;
 import in.koreatech.koin.domain.chat.model.ChatDomainType;
@@ -190,6 +193,18 @@ class ChatRedisIntegrationTest {
             assertThat(second.poll(5, TimeUnit.SECONDS)).isEqualTo(expected);
             assertThat(first.poll(100, TimeUnit.MILLISECONDS)).isNull();
             assertThat(second.poll(100, TimeUnit.MILLISECONDS)).isNull();
+            var message = new ChatMessageResponse("9007199254740993", 7, "sender", "원문", LocalDateTime.now(),
+                false, 1, false);
+            new ChatRealtimePublisher(redis, mapper).onMessageStored(new ChatMessageStoredEvent(room, message, true));
+            var messageEvent = new ChatRealtimeReceivedEvent(
+                new ChatRealtimeEvent(ChatRealtimeEvent.Type.MESSAGE_CREATED, room.encoded(), message), true);
+            for (var node : List.of(first, second)) {
+                var received = (ChatRealtimeReceivedEvent)node.poll(5, TimeUnit.SECONDS);
+                assertThat(received).isEqualTo(messageEvent);
+                assertThat(received.event().message().getTranslationSourceVersion())
+                    .isEqualTo(message.getTranslationSourceVersion());
+                assertThat(node.poll(100, TimeUnit.MILLISECONDS)).isNull();
+            }
         } finally {
             nodeOne.destroy();
             nodeTwo.destroy();

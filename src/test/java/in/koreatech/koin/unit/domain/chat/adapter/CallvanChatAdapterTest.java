@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.callvan.model.CallvanChatMessage;
 import in.koreatech.koin.domain.callvan.model.CallvanChatRoom;
 import in.koreatech.koin.domain.callvan.model.CallvanParticipant;
@@ -66,7 +67,7 @@ class CallvanChatAdapterTest {
         when(participantRepository.findActiveWithChatRoomByMemberId(1))
             .thenReturn(List.of(left, missing, deletedRoom, deletedPost));
 
-        assertThat(adapter.getRooms(1)).isEmpty();
+        assertThat(adapter.getRooms(1, SupportedLanguage.KOREAN)).isEmpty();
         verifyNoInteractions(messageRepository);
     }
 
@@ -210,14 +211,20 @@ class CallvanChatAdapterTest {
     void roomReportsPersistentUnreadCountAndReceiptSupport() {
         authorize();
         when(messageRepository.countUnreadMessages(20, 1)).thenReturn(3);
-        var room = adapter.getRoom(1, KEY);
+        var room = adapter.getRoom(1, KEY, SupportedLanguage.KOREAN);
         assertThat(room.supportsReadReceipts()).isTrue();
         assertThat(room.unreadMessageCount()).isEqualTo(3);
+        assertThat(room.roomName()).endsWith("(14:05) (4명)");
+        assertThat(adapter.getRoom(1, KEY, SupportedLanguage.ENGLISH).roomName())
+            .endsWith("(14:05) (4 people)");
+        when(participantRepository.findActiveWithChatRoomByMemberId(1)).thenReturn(List.of(participant()));
+        assertThat(adapter.getRooms(1, SupportedLanguage.JAPANESE)).singleElement()
+            .satisfies(localized -> assertThat(localized.roomName()).endsWith("(14:05) (4人)"));
         verify(participantRepository, never()).advanceReadCursor(anyInt(), anyInt(), anyInt());
     }
 
     private void assertDenied(ChatRoomKey key) {
-        assertThatThrownBy(() -> adapter.getRoom(1, key)).isInstanceOf(CustomException.class);
+        assertThatThrownBy(() -> adapter.getRoom(1, key, SupportedLanguage.KOREAN)).isInstanceOf(CustomException.class);
         assertThatThrownBy(() -> adapter.getMessages(1, key, new ChatMessageQuery(null, null, 2)))
             .isInstanceOf(CustomException.class);
         assertThatThrownBy(() -> adapter.sendMessage(1, key, REQUEST)).isInstanceOf(CustomException.class);

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageRequest;
 import in.koreatech.koin.domain.callvan.dto.CallvanChatMessageResponse;
 import in.koreatech.koin.domain.callvan.model.CallvanChatMessage;
@@ -43,16 +44,16 @@ public class CallvanChatAdapter implements ChatDomainAdapter {
     }
 
     @Override
-    public List<ChatRoomResponse> getRooms(Integer userId) {
+    public List<ChatRoomResponse> getRooms(Integer userId, SupportedLanguage language) {
         return participantRepository.findActiveWithChatRoomByMemberId(userId).stream()
             .filter(this::hasActiveRoom)
-            .map(participant -> toRoom(participant.getPost(), userId))
+            .map(participant -> toRoom(participant.getPost(), userId, language))
             .toList();
     }
 
     @Override
-    public ChatRoomResponse getRoom(Integer userId, ChatRoomKey key) {
-        return toRoom(requirePost(userId, key), userId);
+    public ChatRoomResponse getRoom(Integer userId, ChatRoomKey key, SupportedLanguage language) {
+        return toRoom(requirePost(userId, key), userId, language);
     }
 
     @Override
@@ -121,14 +122,14 @@ public class CallvanChatAdapter implements ChatDomainAdapter {
             && post.getChatRoom() != null && !Boolean.TRUE.equals(post.getChatRoom().getIsDeleted());
     }
 
-    private ChatRoomResponse toRoom(CallvanPost post, Integer userId) {
+    private ChatRoomResponse toRoom(CallvanPost post, Integer userId, SupportedLanguage language) {
         Integer roomId = post.getChatRoom().getId();
         CallvanChatMessage last = messageRepository.findFirstByChatRoomIdOrderByIdDesc(roomId).orElse(null);
         return ChatRoomResponse.builder()
             .roomId(new ChatRoomKey(domainType(), post.getId(), roomId).encoded())
             .domainType(domainType()).contextId(post.getId()).chatRoomId(roomId)
             .roomType(ChatRoomType.GROUP)
-            .roomName(CallvanChatMessageResponse.of(post, List.of(), userId).roomName())
+            .roomName(CallvanChatMessageResponse.of(post, List.of(), userId, language).roomName())
             .memberCount(post.getCurrentParticipants()).maxMemberCount(post.getMaxParticipants())
             .canSend(true).supportsReadReceipts(true)
             .unreadMessageCount(messageRepository.countUnreadMessages(roomId, userId))

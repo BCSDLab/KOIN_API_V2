@@ -2,10 +2,10 @@ package in.koreatech.koin.unit.domain.community.article.service.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,7 +63,8 @@ class ArticleAiSummaryServiceTest {
         Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary summary = processingSummary(clock);
-        when(articleAiSummaryRepository.findById(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findByIdWithArticle(1)).thenReturn(Optional.of(summary));
 
         service.completeFailure(1, "worker", "rate limited", Duration.ofMinutes(1));
 
@@ -76,20 +77,48 @@ class ArticleAiSummaryServiceTest {
         verify(articleAiSummaryLogRepository).save(logCaptor.capture());
         assertThat(logCaptor.getValue().getEventType()).isEqualTo(ArticleAiSummaryLogType.RETRY_WAITING);
         assertThat(logCaptor.getValue().getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+
+        for (int attempt = 2; attempt <= 9; attempt++) {
+            summary.completeFailure("temporary failure", LocalDateTime.now(clock));
+        }
+        summary.markProcessing("worker", LocalDateTime.now(clock).plusHours(1));
+        service.completeFailure(1, "worker", "rate limited", Duration.ofHours(48));
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
+        assertThat(summary.getRetryCount()).isEqualTo(10);
+        assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusHours(48));
+
+        summary.reopenExhaustedRetryCycle(10);
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+        assertThat(summary.getRetryCount()).isZero();
+        assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusHours(48));
     }
 
     @Test
-    void retry_after가_없으면_설정된_기본_백오프를_사용한다() {
+    void 열_번_실패하면_재시도를_중단하고_재접수시_지킬_대기시간을_저장한다() {
         Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary summary = processingSummary(clock);
-        when(articleAiSummaryRepository.findById(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findByIdWithArticle(1)).thenReturn(Optional.of(summary));
 
         service.completeFailure(1, "worker", "temporary failure", null);
 
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
         assertThat(summary.getRetryCount()).isEqualTo(1);
         assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusMinutes(5));
+
+        for (int attempt = 2; attempt <= 10; attempt++) {
+            summary.markProcessing("worker", LocalDateTime.now(clock).plusHours(1));
+            service.completeFailure(1, "worker", "temporary failure", null);
+        }
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.FAILED);
+        assertThat(summary.getRetryCount()).isEqualTo(10);
+        assertThat(summary.getNextAttemptAt()).isEqualTo(LocalDateTime.now(clock).plusHours(1));
+        assertThat(summary.getWorkerId()).isNull();
+        assertThat(summary.getLockedUntil()).isNull();
+        ArgumentCaptor<ArticleAiSummaryLog> logs = ArgumentCaptor.forClass(ArticleAiSummaryLog.class);
+        verify(articleAiSummaryLogRepository, times(10)).save(logs.capture());
+        assertThat(logs.getAllValues().get(9).getEventType()).isEqualTo(ArticleAiSummaryLogType.TERMINAL_FAILED);
     }
 
     @Test
@@ -104,7 +133,8 @@ class ArticleAiSummaryServiceTest {
         when(article.getId()).thenReturn(1);
         when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
         when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
-        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findIdByArticleId(1)).thenReturn(Optional.of(1));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
         when(contentRenderer.prependSummary(eq("본문"), eq(List.of("기존 요약입니다."))))
             .thenReturn("새 디자인 요약\n본문");
 
@@ -114,7 +144,7 @@ class ArticleAiSummaryServiceTest {
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
         assertThat(summary.getSummaryLines()).containsExactly("기존 요약입니다.");
         assertThat(summary.getModel()).isEqualTo("solar-pro4");
-        assertThat(summary.getPromptVersion()).isEqualTo("v11");
+        assertThat(summary.getPromptVersion()).isEqualTo("v12");
         verify(contentRenderer).prependSummary("본문", List.of("기존 요약입니다."));
     }
 
@@ -130,7 +160,8 @@ class ArticleAiSummaryServiceTest {
         when(article.getId()).thenReturn(1);
         when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
         when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
-        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findIdByArticleId(1)).thenReturn(Optional.of(1));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
 
         ArticleSummaryView summaryView = service.getSummary(article, "본문");
 
@@ -138,6 +169,76 @@ class ArticleAiSummaryServiceTest {
         assertThat(summaryView.summaryLines()).containsExactly("기존 요약입니다.");
         assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
         verify(contentRenderer, never()).prependSummary(any(), any());
+
+        LocalDateTime nextAttemptAt = LocalDateTime.now(clock).plusHours(1);
+        for (int attempt = 1; attempt <= 10; attempt++) {
+            summary.completeFailure("temporary failure", nextAttemptAt);
+        }
+
+        assertThat(service.getSummary(article, "본문").summaryLines()).containsExactly("기존 요약입니다.");
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+        assertThat(summary.getRetryCount()).isZero();
+        assertThat(summary.getNextAttemptAt()).isEqualTo(nextAttemptAt);
+    }
+
+    @Test
+    void 프롬프트_버전만_바뀌면_기존_긴_요약을_유지하며_재생성하고_처리중에는_다시_예약하지_않는다() {
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+        ArticleAiSummaryService service = service(clock);
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        ArticleAiSummary summary = completedSummary(clock, article, "solar-pro4", "v11");
+        String oldSummary = "기존 긴 요약 문장입니다. ".repeat(10).trim();
+        summary.completeSuccess(
+            List.of(oldSummary), "fingerprint", LocalDateTime.now(clock),
+            "solar-pro4", "v11", LocalDateTime.now(clock).minusDays(1)
+        );
+        when(board.getId()).thenReturn(1);
+        when(article.getBoard()).thenReturn(board);
+        when(article.getId()).thenReturn(1);
+        when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
+        when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
+        when(articleAiSummaryRepository.findIdByArticleId(1)).thenReturn(Optional.of(1));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
+
+        ArticleSummaryView summaryView = service.getSummary(article, "본문");
+
+        assertThat(oldSummary.length()).isGreaterThan(100);
+        assertThat(summaryView.status()).isEqualTo(ArticleSummaryView.Status.SUCCESS);
+        assertThat(summaryView.summaryLines()).containsExactly(oldSummary);
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.WAIT);
+        assertThat(summary.getModel()).isEqualTo("solar-pro4");
+        assertThat(summary.getPromptVersion()).isEqualTo("v12");
+        assertThat(summary.getSummarizedAt()).isEqualTo(LocalDateTime.now(clock).minusDays(1));
+
+        LocalDateTime lockedUntil = LocalDateTime.now(clock).plusMinutes(30);
+        summary.markProcessing("worker", lockedUntil);
+
+        assertThat(service.getSummary(article, "본문").summaryLines()).containsExactly(oldSummary);
+        assertThat(summary.isProcessingBy("worker")).isTrue();
+        assertThat(summary.getLockedUntil()).isEqualTo(lockedUntil);
+    }
+
+    @Test
+    void 같은_원문과_현재_프롬프트_버전의_요약은_재생성하지_않는다() {
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+        ArticleAiSummaryService service = service(clock);
+        Article article = mock(Article.class);
+        Board board = mock(Board.class);
+        ArticleAiSummary summary = completedSummary(clock, article, "solar-pro4", "v12");
+        when(board.getId()).thenReturn(1);
+        when(article.getBoard()).thenReturn(board);
+        when(article.getId()).thenReturn(1);
+        when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
+        when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
+        when(articleAiSummaryRepository.findIdByArticleId(1)).thenReturn(Optional.of(1));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
+
+        ArticleSummaryView summaryView = service.getSummary(article, "본문");
+
+        assertThat(summaryView.status()).isEqualTo(ArticleSummaryView.Status.SUCCESS);
+        assertThat(summaryView.summaryLines()).containsExactly("기존 요약입니다.");
+        assertThat(summary.getStatus()).isEqualTo(ArticleAiSummaryStatus.SUCCESS);
     }
 
     @Test
@@ -152,7 +253,7 @@ class ArticleAiSummaryServiceTest {
         when(article.getId()).thenReturn(1);
         when(article.getUpdatedAt()).thenReturn(updatedAt);
         when(sourceReader.createFingerprint(any())).thenReturn("fingerprint");
-        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.empty());
+        when(articleAiSummaryRepository.findIdByArticleId(1)).thenReturn(Optional.empty());
 
         ArticleSummaryView summaryView = service.getSummary(article, "본문");
 
@@ -163,7 +264,7 @@ class ArticleAiSummaryServiceTest {
             "fingerprint",
             updatedAt,
             "solar-pro4",
-            "v11"
+            "v12"
         );
     }
 
@@ -179,7 +280,8 @@ class ArticleAiSummaryServiceTest {
         when(article.getId()).thenReturn(1);
         when(article.getUpdatedAt()).thenReturn(LocalDateTime.now(clock));
         when(sourceReader.createFingerprint(any())).thenReturn("changed-fingerprint");
-        when(articleAiSummaryRepository.findByArticleId(1)).thenReturn(Optional.of(summary));
+        when(articleAiSummaryRepository.findIdByArticleId(1)).thenReturn(Optional.of(1));
+        when(articleAiSummaryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(summary));
 
         ArticleSummaryView summaryView = service.getSummary(article, "변경된 본문");
 
@@ -200,7 +302,7 @@ class ArticleAiSummaryServiceTest {
     }
 
     @Test
-    void 실패_재처리_시간대가_아니면_FAILED_큐를_claim하지_않는다() {
+    void 낮에도_FAILED_큐를_확인하고_재시도할_실패건이_없으면_WAIT_큐를_처리한다() {
         Clock clock = clockAt(12);
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary waitingSummary = waitingSummary(clock);
@@ -210,26 +312,27 @@ class ArticleAiSummaryServiceTest {
 
         service.claimProcessableSummaries("worker", 5);
 
-        verify(articleAiSummaryRepository, never()).findRetryableFailedSummariesForUpdate(any(), anyInt(), anyInt());
+        verify(articleAiSummaryRepository).findRetryableFailedSummariesForUpdate(now, 10, 5);
         verify(articleAiSummaryRepository).findWaitingSummariesForUpdate(now, 5);
         assertThat(waitingSummary.isProcessingBy("worker")).isTrue();
+        assertThat(waitingSummary.getLockedUntil()).isEqualTo(now.plusMinutes(53).plusSeconds(3));
     }
 
     @Test
-    void 실패_재처리_시간대에는_FAILED_큐를_먼저_claim하고_남은_용량만_WAIT_큐에_사용한다() {
-        Clock clock = clockAt(1);
+    void 낮에도_FAILED_큐를_먼저_claim하고_남은_용량만_WAIT_큐에_사용한다() {
+        Clock clock = clockAt(15);
         ArticleAiSummaryService service = service(clock);
         ArticleAiSummary failedSummary = failedSummary(clock);
         ArticleAiSummary waitingSummary = waitingSummary(clock);
         LocalDateTime now = LocalDateTime.now(clock);
-        when(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now, 5, 5))
+        when(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now, 10, 5))
             .thenReturn(List.of(failedSummary));
         when(articleAiSummaryRepository.findWaitingSummariesForUpdate(now, 4))
             .thenReturn(List.of(waitingSummary));
 
         service.claimProcessableSummaries("worker", 5);
 
-        verify(articleAiSummaryRepository).findRetryableFailedSummariesForUpdate(now, 5, 5);
+        verify(articleAiSummaryRepository).findRetryableFailedSummariesForUpdate(now, 10, 5);
         verify(articleAiSummaryRepository).findWaitingSummariesForUpdate(now, 4);
         assertThat(failedSummary.isProcessingBy("worker")).isTrue();
         assertThat(waitingSummary.isProcessingBy("worker")).isTrue();
@@ -240,7 +343,6 @@ class ArticleAiSummaryServiceTest {
         properties.setEnabled(true);
         properties.setRetryBackoffMinutes(5);
         properties.setMaxRetryBackoffMinutes(60);
-        properties.setMaxRetryCount(5);
         UpstageProperties upstageProperties = new UpstageProperties();
         upstageProperties.setApiKey("test-api-key");
         return new ArticleAiSummaryService(

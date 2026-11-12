@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import in.koreatech.koin.global.code.ApiResponseCodesOperationCustomizer;
+import io.swagger.v3.oas.models.media.Schema;
 
 @Configuration
 public class SwaggerGroupConfig {
@@ -74,6 +75,8 @@ public class SwaggerGroupConfig {
             .group("4. User API")
             .packagesToScan(
                 "in.koreatech.koin.domain.user",
+                "in.koreatech.koin.domain.language",
+                "in.koreatech.koin.domain.policy",
                 "in.koreatech.koin.domain.student",
                 "in.koreatech.koin.domain.timetable",
                 "in.koreatech.koin.domain.timetableV2",
@@ -136,6 +139,30 @@ public class SwaggerGroupConfig {
             new String[] {
                 "in.koreatech.koin.domain.payment",
             });
+    }
+
+    @Bean
+    public GroupedOpenApi translationApi() {
+        return GroupedOpenApi.builder()
+            .group("10. Translation API")
+            .packagesToScan("in.koreatech.koin.domain.translation")
+            .addOperationCustomizer(customizer)
+            .addOpenApiCustomizer(openApi -> openApi.getComponents().getSchemas().forEach((name, schema) -> {
+                if (!name.startsWith("TranslationResponse")) {
+                    return;
+                }
+                // OpenAPI 3.0 enum은 nullable 선언과 함께 실제 null 항목도 필요하다.
+                Schema<?> reason = (Schema<?>)schema.getProperties().get("reason_code");
+                if (!reason.getEnum().contains(null)) {
+                    reason.addEnumItemObject(null);
+                }
+                Schema<?> data = (Schema<?>)schema.getProperties().get("data");
+                if (data.getAdditionalProperties() != null) {
+                    // 결과 GET의 Map 값은 문자열·배열·null 등 원래 POST의 필드 타입이다.
+                    data.setAdditionalProperties(true);
+                }
+            }))
+            .build();
     }
 
     private GroupedOpenApi createGroupedOpenApi(

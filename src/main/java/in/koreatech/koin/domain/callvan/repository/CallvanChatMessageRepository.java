@@ -40,6 +40,14 @@ public interface CallvanChatMessageRepository extends Repository<CallvanChatMess
 
     List<CallvanChatMessage> findAllByChatRoomIdOrderByCreatedAtAsc(Integer chatRoomId);
 
+    @Query("""
+        SELECT m FROM CallvanChatMessage m
+        JOIN m.chatRoom r JOIN r.post p
+        WHERE m.id = :messageId AND p.id = :postId
+          AND r.isDeleted = false AND p.isDeleted = false
+        """)
+    Optional<CallvanChatMessage> findInActivePost(@Param("messageId") Integer messageId, @Param("postId") Integer postId);
+
     @Modifying(clearAutomatically = true)
     @Query("UPDATE CallvanChatMessage c SET c.isLeftUser = :isLeftUser WHERE c.chatRoom.id = :chatRoomId AND c.sender.id = :senderId")
     void updateIsLeftUserByChatRoomIdAndSenderId(

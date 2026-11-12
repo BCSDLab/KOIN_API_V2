@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.chat.dto.ChatRoomResponse;
 import in.koreatech.koin.domain.chat.model.ChatDomainType;
 import in.koreatech.koin.domain.chat.model.ChatRoomKey;
@@ -46,11 +47,11 @@ class ChatServiceTest {
     @Test
     void 모든_도메인의_목록을_최근_메시지_순으로_합친다() {
         login(UserType.STUDENT, true);
-        when(lostItem.getRooms(1)).thenReturn(List.of(room("lost-item-10-1", LocalDateTime.of(2026, 10, 6, 10, 0))));
-        when(callvan.getRooms(1)).thenReturn(List.of(room("callvan-10-1", null)));
-        when(recruitment.getRooms(1)).thenReturn(List.of(room("team-recruitment-10-1", LocalDateTime.of(2026, 10, 6, 11, 0))));
+        when(lostItem.getRooms(1, SupportedLanguage.KOREAN)).thenReturn(List.of(room("lost-item-10-1", LocalDateTime.of(2026, 10, 6, 10, 0))));
+        when(callvan.getRooms(1, SupportedLanguage.KOREAN)).thenReturn(List.of(room("callvan-10-1", null)));
+        when(recruitment.getRooms(1, SupportedLanguage.KOREAN)).thenReturn(List.of(room("team-recruitment-10-1", LocalDateTime.of(2026, 10, 6, 11, 0))));
 
-        assertThat(service.getRooms(1, null)).extracting(ChatRoomResponse::roomId)
+        assertThat(service.getRooms(1, null, SupportedLanguage.KOREAN)).extracting(ChatRoomResponse::roomId)
             .containsExactly("team-recruitment-10-1", "lost-item-10-1", "callvan-10-1");
     }
 
@@ -58,11 +59,11 @@ class ChatServiceTest {
     void 같은_저장_초의_방은_식별자로_정렬하고_반환_시각은_유지한다() {
         login(UserType.STUDENT, true);
         LocalDateTime second = LocalDateTime.of(2026, 10, 12, 21, 45, 13);
-        when(lostItem.getRooms(1)).thenReturn(List.of(room("lost-item-10-1", second.withNano(294527000))));
-        when(callvan.getRooms(1)).thenReturn(List.of(room("callvan-10-1", second)));
-        when(recruitment.getRooms(1)).thenReturn(List.of(room("team-recruitment-10-1", second)));
+        when(lostItem.getRooms(1, SupportedLanguage.KOREAN)).thenReturn(List.of(room("lost-item-10-1", second.withNano(294527000))));
+        when(callvan.getRooms(1, SupportedLanguage.KOREAN)).thenReturn(List.of(room("callvan-10-1", second)));
+        when(recruitment.getRooms(1, SupportedLanguage.KOREAN)).thenReturn(List.of(room("team-recruitment-10-1", second)));
 
-        var result = service.getRooms(1, null);
+        var result = service.getRooms(1, null, SupportedLanguage.KOREAN);
 
         assertThat(result).extracting(ChatRoomResponse::roomId)
             .containsExactly("callvan-10-1", "lost-item-10-1", "team-recruitment-10-1");
@@ -72,35 +73,35 @@ class ChatServiceTest {
     @Test
     void 일반_사용자의_전체_목록은_학생_전용_도메인을_제외한다() {
         login(UserType.GENERAL, true);
-        when(lostItem.getRooms(1)).thenReturn(List.of());
-        assertThat(service.getRooms(1, null)).isEmpty();
-        verify(callvan, org.mockito.Mockito.never()).getRooms(1);
-        verify(recruitment, org.mockito.Mockito.never()).getRooms(1);
+        when(lostItem.getRooms(1, SupportedLanguage.KOREAN)).thenReturn(List.of());
+        assertThat(service.getRooms(1, null, SupportedLanguage.KOREAN)).isEmpty();
+        verify(callvan, org.mockito.Mockito.never()).getRooms(1, SupportedLanguage.KOREAN);
+        verify(recruitment, org.mockito.Mockito.never()).getRooms(1, SupportedLanguage.KOREAN);
     }
 
     @Test
     void 도메인_필터는_해당_도메인만_조회한다() {
         login(UserType.STUDENT, true);
-        when(callvan.getRooms(1)).thenReturn(List.of());
-        service.getRooms(1, ChatDomainType.CALLVAN);
-        verify(callvan).getRooms(1);
-        verify(lostItem, org.mockito.Mockito.never()).getRooms(1);
-        verify(recruitment, org.mockito.Mockito.never()).getRooms(1);
+        when(callvan.getRooms(1, SupportedLanguage.ENGLISH)).thenReturn(List.of());
+        service.getRooms(1, ChatDomainType.CALLVAN, SupportedLanguage.ENGLISH);
+        verify(callvan).getRooms(1, SupportedLanguage.ENGLISH);
+        verify(lostItem, org.mockito.Mockito.never()).getRooms(1, SupportedLanguage.ENGLISH);
+        verify(recruitment, org.mockito.Mockito.never()).getRooms(1, SupportedLanguage.ENGLISH);
     }
 
     @Test
     void 학생이_아닌_사용자는_팀_모집_단건과_필터_접근이_거부된다() {
         login(UserType.GENERAL, true);
-        assertForbidden(() -> service.getRooms(1, ChatDomainType.TEAM_RECRUITMENT));
-        assertForbidden(() -> service.getRoom(1, "team-recruitment-10-1"));
-        verify(recruitment, org.mockito.Mockito.never()).getRooms(1);
-        verify(recruitment, org.mockito.Mockito.never()).getRoom(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        assertForbidden(() -> service.getRooms(1, ChatDomainType.TEAM_RECRUITMENT, SupportedLanguage.KOREAN));
+        assertForbidden(() -> service.getRoom(1, "team-recruitment-10-1", SupportedLanguage.KOREAN));
+        verify(recruitment, org.mockito.Mockito.never()).getRooms(1, SupportedLanguage.KOREAN);
+        verify(recruitment, org.mockito.Mockito.never()).getRoom(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
     void 익명_요청은_도메인_저장소를_호출하지_않는다() {
-        assertThatThrownBy(() -> service.getRooms(null, null)).isInstanceOf(AuthenticationException.class);
-        assertThatThrownBy(() -> service.getRoom(0, "callvan-10-1")).isInstanceOf(AuthenticationException.class);
+        assertThatThrownBy(() -> service.getRooms(null, null, SupportedLanguage.KOREAN)).isInstanceOf(AuthenticationException.class);
+        assertThatThrownBy(() -> service.getRoom(0, "callvan-10-1", SupportedLanguage.KOREAN)).isInstanceOf(AuthenticationException.class);
         verifyNoInteractions(users);
     }
 
@@ -108,12 +109,12 @@ class ChatServiceTest {
     void 콜밴은_기존처럼_학생_권한과_계정_인증을_검증한다() {
         login(UserType.GENERAL, true);
         ChatRoomKey key = new ChatRoomKey(ChatDomainType.CALLVAN, 10, 1);
-        assertForbidden(() -> service.getRoom(1, key.encoded()));
+        assertForbidden(() -> service.getRoom(1, key.encoded(), SupportedLanguage.KOREAN));
         login(UserType.STUDENT, false);
-        assertThatThrownBy(() -> service.getRoom(1, key.encoded()))
+        assertThatThrownBy(() -> service.getRoom(1, key.encoded(), SupportedLanguage.KOREAN))
             .isInstanceOfSatisfying(CustomException.class,
                 error -> assertThat(error.getErrorCode()).isEqualTo(ApiResponseCode.FORBIDDEN_STUDENT));
-        verify(callvan, org.mockito.Mockito.never()).getRoom(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        verify(callvan, org.mockito.Mockito.never()).getRoom(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 
     @Test

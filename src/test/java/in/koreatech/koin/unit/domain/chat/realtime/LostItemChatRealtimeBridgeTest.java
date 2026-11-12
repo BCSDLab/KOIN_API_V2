@@ -143,7 +143,7 @@ class LostItemChatRealtimeBridgeTest {
             new ChatRealtimeEvent(ChatRealtimeEvent.Type.MESSAGE_CREATED, room.encoded(), message), true));
         verify(broker).convertAndSend("/topic/chat/10/2",
             new in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageResponse(
-                7, message.userNickname(), message.content(), message.timestamp(), false));
+                7, message.userNickname(), message.content(), message.timestamp(), false, message.messageId()));
         verify(chatService, never()).markRead(anyInt(), anyString(), anyLong());
         verify(broker).convertAndSend("/topic/chatroom/list/7", List.of());
         verifyNoMoreInteractions(broker);

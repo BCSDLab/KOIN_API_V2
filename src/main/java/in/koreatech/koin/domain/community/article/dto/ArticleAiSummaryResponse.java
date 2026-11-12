@@ -4,10 +4,15 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
 
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryIcon;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryView;
@@ -22,6 +27,16 @@ public record ArticleAiSummaryResponse(
     @Schema(description = "AI 요약 항목", requiredMode = REQUIRED)
     List<InnerArticleAiSummaryItemResponse> items
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "현재 번역 대상 필드의 버전. 번역 요청의 expected_source_version에 그대로 전달합니다.", nullable = true)
+    public String getTranslationSourceVersion() {
+        if (status != Status.SUCCESS || items.isEmpty()) {
+            return null;
+        }
+        return TranslationSourceVersion.of(TranslationSourceFields.summary(items.stream()
+            .map(item -> Map.<String, Object>of("icon", item.icon(), "text", item.text()))
+            .toList()));
+    }
 
     private static final int MAX_SUMMARY_LINES = 3;
     private static final int MAX_SUMMARY_LINE_LENGTH = 220;
@@ -52,7 +67,8 @@ public record ArticleAiSummaryResponse(
         @Schema(description = "요약 항목 아이콘", example = "📅", requiredMode = REQUIRED)
         String icon,
 
-        @Schema(description = "요약 내용", example = "신청은 5월 20일까지 접수됩니다.", requiredMode = REQUIRED)
+        @Schema(description = "요약 내용. 한국어는 항목당 최대 100자로 생성하며, 실패 시 이전 200자 기준으로 한 번 생성합니다. 클라이언트에서 자르지 않습니다.",
+            example = "신청은 5월 20일까지 접수됩니다.", requiredMode = REQUIRED)
         String text
     ) {
 

@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.dto.shop.response;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -23,6 +25,10 @@ public record ShopsResponse(
         @Schema(description = "상점 정보")
         List<InnerShopResponse> shops
 ) {
+    public ShopsResponse localized(SupportedLanguage language) {
+        return new ShopsResponse(count, shops.stream().map(shop -> shop.localized(language)).toList());
+    }
+
 
     public static ShopsResponse from(
             List<Shop> shops,
@@ -71,8 +77,42 @@ public record ShopsResponse(
             boolean isEvent,
 
             @Schema(example = "true", description = "운영중 여부", requiredMode = REQUIRED)
-            boolean isOpen
+            boolean isOpen,
+
+        @Schema(description = "선택 언어의 표시명. 번역이 없으면 원문을 사용합니다.")
+        String displayName
     ) {
+        public InnerShopResponse(
+            List<Integer> categoryIds,
+            boolean delivery,
+            Integer id,
+            String name,
+            List<InnerShopOpen> open,
+            boolean payBank,
+            boolean payCard,
+            String phone,
+            boolean isEvent,
+            boolean isOpen
+        ) {
+            this(categoryIds, delivery, id, name, open, payBank, payCard, phone, isEvent, isOpen, name);
+        }
+
+        public InnerShopResponse localized(SupportedLanguage language) {
+            return new InnerShopResponse(
+                categoryIds,
+                delivery,
+                id,
+                name,
+                open,
+                payBank,
+                payCard,
+                phone,
+                isEvent,
+                isOpen,
+                OfficialNameResolver.shopName(name, language)
+            );
+        }
+
 
         public static InnerShopResponse from(Shop shop, boolean isEvent, boolean isOpen) {
             return new InnerShopResponse(

@@ -65,7 +65,7 @@ public class ArticleService {
             articleDetail.article(),
             articleDetail.content()
         );
-        return ArticleResponse.from(articleDetail.article(), contentWithSummary);
+        return ArticleResponse.from(articleDetail.article(), contentWithSummary, articleDetail.content());
     }
 
     @Transactional

@@ -58,6 +58,13 @@ public record ArticleResponseV2(
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
 ) {
 
+    @com.fasterxml.jackson.annotation.JsonProperty("translation_source_version")
+    @Schema(description = "본문 번역 요청의 expected_source_version으로 전달할 버전")
+    public String getTranslationSourceVersion() {
+        return in.koreatech.koin.domain.translation.service.TranslationSourceVersion.of(
+            in.koreatech.koin.domain.translation.service.TranslationSourceFields.message(content));
+    }
+
     public static ArticleResponseV2 from(Article article, String content, ArticleSummaryView summaryView) {
         return new ArticleResponseV2(
             article.getId(),

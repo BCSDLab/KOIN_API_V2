@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Shop: 상점", description = "상점 정보를 관리한다")
@@ -46,22 +47,27 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 상점 조회")
+    @Operation(summary = "특정 상점 조회", description = "language의 공식 상점명을 display_name으로 제공합니다. 설명 자동 번역은 조회 후 translation_source_version으로 POST /shops/{id}/translations를 호출합니다. 원문 필드는 유지합니다.")
+    @SecurityRequirements
     @GetMapping("/shops/{id}")
     ResponseEntity<ShopResponse> getShopById(
-        @Parameter(in = PATH) @PathVariable Integer id
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @Operation(summary = "특정 상점 조회 V2", description = """
+        language의 공식 상점명을 display_name으로 제공합니다. 설명 자동 번역은 조회 후 translation_source_version으로 POST /shops/{id}/translations를 호출합니다.
         ### 변경점
             - openTime, closeTime 응답값 추가
         """)
     @ApiResponseCodes({
         OK
     })
+    @SecurityRequirements
     @GetMapping("/v2/shops/{id}")
     ResponseEntity<ShopResponseV2> getShopByIdV2(
-        @Parameter(in = PATH) @PathVariable Integer id
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponses(
@@ -70,10 +76,11 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 상점 요약 정보 조회")
+    @Operation(summary = "특정 상점 요약 정보 조회", description = "language의 공식 상점명을 display_name으로 제공합니다. 등록된 공식명이 없으면 원문을 유지합니다. 요일 표시명은 언어 카탈로그의 weekday.{dayOfWeek}를 사용합니다.")
     @GetMapping("/shops/{id}/summary")
     ResponseEntity<ShopSummaryResponse> getShopSummary(
-        @Parameter(in = PATH) @PathVariable Integer id
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponses(
@@ -84,9 +91,9 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "모든 상점 조회")
+    @Operation(summary = "모든 상점 조회", description = "language의 공식 상점명을 display_name으로 제공합니다. 등록된 공식명이 없으면 원문을 유지합니다. 요일 표시명은 언어 카탈로그의 weekday.{dayOfWeek}를 사용합니다.")
     @GetMapping("/shops")
-    ResponseEntity<ShopsResponse> getShops();
+    ResponseEntity<ShopsResponse> getShops(@RequestParam(defaultValue = "ko-KR") String language);
 
     @ApiResponseCodes({
         OK
@@ -103,9 +110,9 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "모든 상점 카테고리 조회")
+    @Operation(summary = "모든 상점 카테고리 조회", description = "language에 맞는 display_name을 제공합니다. id와 name은 원본을 유지합니다.")
     @GetMapping("/shops/categories")
-    ResponseEntity<ShopCategoriesResponse> getShopsCategories();
+    ResponseEntity<ShopCategoriesResponse> getShopsCategories(@RequestParam(defaultValue = "ko-KR") String language);
 
     @ApiResponses(
         value = {
@@ -115,12 +122,13 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "정렬, 필터가 있는 모든 상점 조회")
+    @Operation(summary = "정렬, 필터가 있는 모든 상점 조회", description = "language의 공식 상점명을 display_name으로 제공합니다. 등록된 공식명이 없으면 원문을 유지합니다. 요일 표시명은 언어 카탈로그의 weekday.{dayOfWeek}를 사용합니다.")
     @GetMapping("/v2/shops")
     ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias,
-        @RequestParam(name = "query", required = false) String query
+        @RequestParam(name = "query", required = false) String query,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponses(
@@ -132,6 +140,7 @@ public interface ShopApi {
         }
     )
     @Operation(summary = "정렬, 필터가 있는 모든 상점 조회 V3", description = """
+        language의 공식 상점명을 display_name으로 제공합니다. 등록된 공식명이 없으면 원문을 유지합니다.
         ### 주변 상점 조회 V3
         - **V2에서 달라진 점**
             - 이미지 응답값 추가
@@ -142,7 +151,8 @@ public interface ShopApi {
     ResponseEntity<ShopsResponseV3> getShopsV3(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteriaV3 sortBy,
         @RequestParam(name = "filter", required = false) List<ShopsFilterCriteriaV3> shopsFilterCriterias,
-        @RequestParam(name = "query", required = false, defaultValue = "") String query
+        @RequestParam(name = "query", required = false, defaultValue = "") String query,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponses(

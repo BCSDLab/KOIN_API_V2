@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.order.shop.dto.menu;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +25,12 @@ public record OrderableShopMenusResponse(
 
     List<InnerMenuResponse> menus
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "이 메뉴 분류 이름의 번역 원문 버전")
+    public String getTranslationSourceVersion() {
+        return TranslationSourceVersion.of(TranslationSourceFields.name(menuGroupName));
+    }
+
     public static OrderableShopMenusResponse from(OrderableShopMenuGroup menuGroup) {
         return new OrderableShopMenusResponse(menuGroup.getId(), menuGroup.getName(),
             InnerMenuResponse.from(menuGroup));

@@ -4,13 +4,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import org.springframework.util.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.callvan.model.CallvanNotification;
+import in.koreatech.koin.domain.callvan.model.CallvanPushNotificationFactory;
 import in.koreatech.koin.domain.callvan.model.enums.CallvanNotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -60,20 +59,15 @@ public record CallvanNotificationResponse(
 ) {
 
     public static CallvanNotificationResponse from(CallvanNotification notification) {
-        String departureName = notification.getDepartureType().getName();
-        if (StringUtils.hasText(notification.getDepartureCustomName())) {
-            departureName = notification.getDepartureCustomName();
-        }
-
-        String arrivalName = notification.getArrivalType().getName();
-        if (StringUtils.hasText(notification.getArrivalCustomName())) {
-            arrivalName = notification.getArrivalCustomName();
-        }
+        String departureName = CallvanPushNotificationFactory.localizedLocationName(
+            notification.getDepartureCustomName(), notification.getDepartureType(), notification.getRecipient());
+        String arrivalName = CallvanPushNotificationFactory.localizedLocationName(
+            notification.getArrivalCustomName(), notification.getArrivalType(), notification.getRecipient());
 
         return new CallvanNotificationResponse(
             notification.getId(),
             notification.getNotificationType(),
-            notification.getMessagePreview(),
+            CallvanPushNotificationFactory.localizedPreview(notification),
             notification.getIsRead(),
             notification.getCreatedAt(),
             notification.getPost() != null ? notification.getPost().getId() : null,

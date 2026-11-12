@@ -49,8 +49,8 @@ public class ChatMessageRedisRepository {
     private static final DefaultRedisScript<Long> REPLACE_MESSAGE = new DefaultRedisScript<>("""
         local score = redis.call('ZSCORE', KEYS[1], ARGV[1])
         if not score then return 0 end
-        redis.call('ZREM', KEYS[1], ARGV[1])
         redis.call('ZADD', KEYS[1], score, ARGV[2])
+        redis.call('ZREM', KEYS[1], ARGV[1])
         return 1
         """, Long.class);
 
@@ -109,13 +109,13 @@ public class ChatMessageRedisRepository {
     }
 
     public boolean markRead(Integer articleId, Integer chatRoomId, Integer userId, Long messageId) {
-        if (findMessage(articleId, chatRoomId, messageId).isEmpty()) {
+        if (findByArticleIdAndChatRoomIdAndId(articleId, chatRoomId, messageId).isEmpty()) {
             throw CustomException.of(ApiResponseCode.ILLEGAL_ARGUMENT, "해당 채팅방에 존재하지 않는 메시지입니다.");
         }
         return advanceRead(articleId, chatRoomId, userId, messageId);
     }
 
-    private Optional<ChatMessageEntity> findMessage(Integer articleId, Integer chatRoomId, Long messageId) {
+    public Optional<ChatMessageEntity> findByArticleIdAndChatRoomIdAndId(Integer articleId, Integer chatRoomId, Long messageId) {
         if (messageId == null || messageId < 1) {
             return Optional.empty();
         }
@@ -130,7 +130,19 @@ public class ChatMessageRedisRepository {
             stored = redisTemplate.opsForZSet().rangeByLex(key,
                 Range.closed(prefix, prefix + "\uffff"), Limit.limit().count(1));
         }
-        return convertToMessages(key, stored).stream().filter(message -> messageId.equals(message.getId())).findFirst();
+        if (stored == null || stored.isEmpty()) {
+            return Optional.empty();
+        }
+        String member = stored.iterator().next();
+        try {
+            return Optional.ofNullable(objectMapper.readValue(
+                    member.substring(member.indexOf(SEPARATOR) + 1), ChatMessageEntity.class))
+                .filter(message -> messageId.equals(message.getId()))
+                .filter(message -> Objects.equals(articleId, message.getArticleId()))
+                .filter(message -> Objects.equals(chatRoomId, message.getChatRoomId()));
+        } catch (JsonProcessingException exception) {
+            throw new MessageProcessingException("메시지 조회 실패: " + key, exception);
+        }
     }
 
     private boolean advanceRead(Integer articleId, Integer roomId, Integer userId, Long messageId) {
@@ -153,7 +165,7 @@ public class ChatMessageRedisRepository {
                         message.readMessage();
                         String replacement = member.substring(0, member.indexOf(SEPARATOR) + 1)
                             + objectMapper.writeValueAsString(message);
-                        // Replace only the observed member atomically; never delete the room's ZSET.
+                        // Add before removing the observed member so the room TTL is preserved.
                         redisTemplate.execute(REPLACE_MESSAGE, List.of(key), member, replacement);
                     }
                 }

@@ -41,7 +41,7 @@ class ChatSocketControllerTest {
 
         var order = inOrder(service, broker, events);
         order.verify(service).saveMessage(1, 2, 7, 1, message);
-        order.verify(broker).convertAndSend("/topic/chat/1/2", ChatMessageResponse.toResponse(message));
+        order.verify(broker).convertAndSend("/topic/chat/1/2", ChatMessageResponse.toResponse(stored));
         order.verify(events).publishEvent(MessageSendEvent.from(1, 2, 7, message));
         order.verify(events).publishEvent(argThat((Object event) -> event instanceof ChatMessageStoredEvent saved
             && !saved.relayLegacy() && saved.message().messageId().equals("100")));

@@ -43,7 +43,7 @@ public class LostItemChatRealtimeBridge {
             try {
                 broker.convertAndSend("/topic/chat/" + key.contextId() + "/" + key.chatRoomId(),
                     new ChatMessageResponse(message.userId(), message.userNickname(), message.content(),
-                        message.timestamp(), message.isImage()));
+                        message.timestamp(), message.isImage(), message.messageId()));
             } catch (RuntimeException exception) {
                 log.warn("Legacy chat relay failed: room={}, error={}", key.encoded(),
                     exception.getClass().getSimpleName());
