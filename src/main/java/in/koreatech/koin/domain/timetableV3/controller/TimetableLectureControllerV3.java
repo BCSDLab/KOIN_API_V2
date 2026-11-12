@@ -5,6 +5,8 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,17 +28,23 @@ public class TimetableLectureControllerV3 implements TimetableLectureApiV3 {
     @GetMapping("/v3/timetables/lecture")
     public ResponseEntity<TimetableLectureResponseV3> getTimetableLecture(
         @RequestParam(value = "timetable_frame_id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        TimetableLectureResponseV3 response = lectureServiceV3.getTimetableLecture(timetableFrameId, userId);
+        SupportedLanguage selectedLanguage = SupportedLanguage.fromCode(language);
+        TimetableLectureResponseV3 response = lectureServiceV3.getTimetableLecture(timetableFrameId, userId)
+            .withLanguage(selectedLanguage);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/v3/timetables/main/lectures")
     public ResponseEntity<TakeAllTimetableLectureResponse> getTakeAllTimetableLectures(
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        TakeAllTimetableLectureResponse response = lectureServiceV3.getTakeAllTimetableLectures(userId);
+        SupportedLanguage selectedLanguage = SupportedLanguage.fromCode(language);
+        TakeAllTimetableLectureResponse response = lectureServiceV3.getTakeAllTimetableLectures(userId)
+            .withLanguage(selectedLanguage);
         return ResponseEntity.ok(response);
     }
 

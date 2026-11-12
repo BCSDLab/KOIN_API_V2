@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.dto.shop.response;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
 import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
@@ -78,8 +80,78 @@ public record ShopResponse(
     String bank,
 
     @Schema(example = "110-439-1234567", description = "계좌번호", requiredMode = NOT_REQUIRED)
-    String accountNumber
+    String accountNumber,
+
+    @Schema(description = "선택 언어의 표시명. 번역이 없으면 원문을 사용합니다.")
+    String displayName
 ) {
+    public ShopResponse(
+        String address,
+        Boolean delivery,
+        Integer deliveryPrice,
+        String description,
+        Integer id,
+        List<String> imageUrls,
+        List<InnerMenuCategory> menuCategories,
+        String name,
+        List<InnerShopOpen> open,
+        Boolean payBank,
+        Boolean payCard,
+        String phone,
+        Integer mainCategoryId,
+        List<InnerShopCategory> shopCategories,
+        LocalDateTime updatedAt,
+        Boolean isEvent,
+        String bank,
+        String accountNumber
+    ) {
+        this(
+            address,
+            delivery,
+            deliveryPrice,
+            description,
+            id,
+            imageUrls,
+            menuCategories,
+            name,
+            open,
+            payBank,
+            payCard,
+            phone,
+            mainCategoryId,
+            shopCategories,
+            updatedAt,
+            isEvent,
+            bank,
+            accountNumber,
+            name
+        );
+    }
+
+    public ShopResponse localized(SupportedLanguage language) {
+        return new ShopResponse(
+            address,
+            delivery,
+            deliveryPrice,
+            description,
+            id,
+            imageUrls,
+            menuCategories,
+            name,
+            open,
+            payBank,
+            payCard,
+            phone,
+            mainCategoryId,
+            shopCategories,
+            updatedAt,
+            isEvent,
+            bank,
+            accountNumber,
+            OfficialNameResolver.shopName(name, language)
+        );
+    }
+
     @JsonProperty("translation_source_version")
     @Schema(description = "이 항목의 번역 원문 버전. 번역 요청 expected_source_version으로 전달합니다.")
     public String getTranslationSourceVersion() {

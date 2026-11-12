@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.dining.dto;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.ContentMessageCatalog;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
 import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
@@ -71,8 +73,35 @@ public record DiningResponse(
     Integer likes,
 
     @Schema(description = "식단 좋아요 여부", example = "true", requiredMode = REQUIRED)
-    Boolean isLiked
+    Boolean isLiked,
+
+    @Schema(description = "선택 언어의 표시명. 번역이 없으면 원문을 사용합니다.")
+    String displayPlace
 ) {
+    public DiningResponse(
+        Integer id,
+        LocalDate date,
+        String type,
+        String place,
+        Integer priceCard,
+        Integer priceCash,
+        Integer kcal,
+        List<String> menu,
+        String imageUrl,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        LocalDateTime soldoutAt,
+        LocalDateTime changedAt,
+        Integer likes,
+        Boolean isLiked
+    ) {
+        this(id, date, type, place, priceCard, priceCash, kcal, menu, imageUrl, createdAt, updatedAt, soldoutAt, changedAt, likes, isLiked, place);
+    }
+
+    public DiningResponse localized(SupportedLanguage language) {
+        return new DiningResponse(id, date, type, place, priceCard, priceCash, kcal, menu, imageUrl, createdAt, updatedAt, soldoutAt, changedAt, likes, isLiked, ContentMessageCatalog.text(language, "dining.place." + place, place));
+    }
+
     @JsonProperty("translation_source_version")
     @Schema(description = "이 항목의 번역 원문 버전. 번역 요청 expected_source_version으로 전달합니다.")
     public String getTranslationSourceVersion() {

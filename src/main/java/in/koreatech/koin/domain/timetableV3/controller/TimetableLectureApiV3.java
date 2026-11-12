@@ -37,7 +37,8 @@ public interface TimetableLectureApiV3 {
     @GetMapping("/v3/timetables/lecture")
     ResponseEntity<TimetableLectureResponseV3> getTimetableLecture(
         @RequestParam(value = "timetable_frame_id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponses(
@@ -52,7 +53,8 @@ public interface TimetableLectureApiV3 {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/v3/timetables/main/lectures")
     ResponseEntity<TakeAllTimetableLectureResponse> getTakeAllTimetableLectures(
-        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @ApiResponses(

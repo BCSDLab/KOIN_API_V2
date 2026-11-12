@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.dto.shop.response;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -28,6 +30,10 @@ public record ShopsResponseV2(
         @Schema(description = "상점 정보")
         List<InnerShopResponse> shops
 ) {
+    public ShopsResponseV2 localized(SupportedLanguage language) {
+        return new ShopsResponseV2(count, shops.stream().map(shop -> shop.localized(language)).toList());
+    }
+
 
     private static Predicate<ShopCache> queryPredicate(String query) {
         String trimmedQuery = query.replaceAll(" ", "");
@@ -106,8 +112,48 @@ public record ShopsResponseV2(
             long reviewCount,
 
             @Schema(example = "['배달비 무료', '콜라 서비스']", description = "혜택 설명", requiredMode = NOT_REQUIRED)
-            List<String> benefitDetails
+            List<String> benefitDetails,
+
+        @Schema(description = "선택 언어의 표시명. 번역이 없으면 원문을 사용합니다.")
+        String displayName
     ) {
+        public InnerShopResponse(
+            List<Integer> categoryIds,
+            boolean delivery,
+            Integer id,
+            String name,
+            boolean payBank,
+            boolean payCard,
+            String phone,
+            List<InnerShopOpen> open,
+            boolean isEvent,
+            boolean isOpen,
+            double averageRate,
+            long reviewCount,
+            List<String> benefitDetails
+        ) {
+            this(categoryIds, delivery, id, name, payBank, payCard, phone, open, isEvent, isOpen, averageRate, reviewCount, benefitDetails, name);
+        }
+
+        public InnerShopResponse localized(SupportedLanguage language) {
+            return new InnerShopResponse(
+                categoryIds,
+                delivery,
+                id,
+                name,
+                payBank,
+                payCard,
+                phone,
+                open,
+                isEvent,
+                isOpen,
+                averageRate,
+                reviewCount,
+                benefitDetails,
+                OfficialNameResolver.shopName(name, language)
+            );
+        }
+
 
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record InnerShopOpen(

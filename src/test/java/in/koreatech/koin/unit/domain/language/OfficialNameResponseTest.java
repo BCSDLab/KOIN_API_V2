@@ -41,6 +41,9 @@ class OfficialNameResponseTest {
         mvc.perform(get("/address/delivery/campus"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.addresses[0].display_name").value("101동(해울)"));
+        assertThat(OfficialNameResolver.shopName("멕시카나", SupportedLanguage.ENGLISH)).isEqualTo("Mexicana");
+        assertThat(OfficialNameResolver.shopName("멕시카나 병천점", SupportedLanguage.ENGLISH)).isEqualTo("멕시카나 병천점");
+        assertThat(OfficialNameResolver.lectureName("자료구조", SupportedLanguage.ENGLISH)).isEqualTo("자료구조");
         assertThat(original.addresses().get(0).displayName()).isEqualTo("101동(해울)");
         assertThat(OfficialNameResolver.buildingName("공학 1관", SupportedLanguage.ENGLISH))
             .isEqualTo("Engineering Building 1");

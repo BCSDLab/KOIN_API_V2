@@ -1,6 +1,8 @@
 package in.koreatech.koin.unit.domain.language;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -11,6 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import in.koreatech.koin.domain.language.controller.LanguageController;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.ContentMessageCatalog;
 
 class LanguageControllerTest {
 
@@ -35,5 +39,14 @@ class LanguageControllerTest {
                   ]
                 }
                 """, true));
+        mockMvc.perform(get("/languages/{language}/messages", language))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$['dining.place.A코너']").value(language.equals("en-US") ? "Corner A" : "A코너"));
+        for (SupportedLanguage supported : SupportedLanguage.values()) {
+            assertThat(ContentMessageCatalog.messages(supported).keySet())
+                .isEqualTo(ContentMessageCatalog.messages(SupportedLanguage.KOREAN).keySet());
+            assertThat(ContentMessageCatalog.messages(supported).values()).allMatch(value -> !value.isBlank());
+            assertThat(ContentMessageCatalog.text(supported, "unknown.key", "원문")).isEqualTo("원문");
+        }
     }
 }

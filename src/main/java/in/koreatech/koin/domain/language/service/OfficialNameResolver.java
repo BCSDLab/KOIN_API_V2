@@ -79,12 +79,21 @@ public final class OfficialNameResolver {
     private static final Map<String, String> STATIONS_EN = Map.of(
         "천안역", "Cheonan Station",
         "천안 터미널", "Bus Terminal",
+        "천안터미널", "Bus Terminal",
         "터미널", "Bus Terminal",
         "코리아텍", "KOREATECH",
         "한기대", "KOREATECH"
     );
 
     private OfficialNameResolver() {
+    }
+
+    public static String shopName(String original, SupportedLanguage language) {
+        return original == null ? null : ContentMessageCatalog.officialName(language, "shop." + original, original);
+    }
+
+    public static String lectureName(String original, SupportedLanguage language) {
+        return original == null ? null : ContentMessageCatalog.officialName(language, "lecture." + original, original);
     }
 
     public static String buildingName(String original, SupportedLanguage language) {

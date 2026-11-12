@@ -26,7 +26,7 @@ public interface ShopMenuApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "메뉴 단건 조회")
+    @Operation(summary = "메뉴 단건 조회", description = "설정 언어로 자동 표시하려면 translation_source_version으로 POST /shops/{shopId}/menus/{menuId}/translations를 호출합니다. 원문 필드는 유지합니다.")
     @SecurityRequirements
     @GetMapping("/shops/{shopId}/menus/{menuId}")
     ResponseEntity<MenuDetailResponse> findMenu(
@@ -42,7 +42,7 @@ public interface ShopMenuApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 상점의 모든 메뉴 조회")
+    @Operation(summary = "특정 상점의 모든 메뉴 조회", description = "화면에 표시할 메뉴의 translation_source_version과 설정 언어로 메뉴 번역 POST를 호출합니다. 메뉴 분류도 각 분류의 버전으로 별도 번역합니다. 원문 필드는 유지합니다.")
     @SecurityRequirements
     @GetMapping("/shops/{id}/menus")
     ResponseEntity<ShopMenuResponse> findMenus(
@@ -55,7 +55,7 @@ public interface ShopMenuApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "메뉴 카테고리 목록 조회")
+    @Operation(summary = "메뉴 카테고리 목록 조회", description = "상점이 작성한 메뉴 분류는 각 translation_source_version과 설정 언어로 POST /shops/{shopId}/menus/categories/{id}/translations를 호출해 표시합니다.")
     @SecurityRequirements
     @GetMapping("/shops/{shopId}/menus/categories")
     ResponseEntity<MenuCategoriesResponse> getMenuCategories(

@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
@@ -21,6 +24,10 @@ public record TakeAllTimetableLectureResponse(
     @Schema(description = "시간표 프레임 강의 정보")
     List<TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3> timetable
 ) {
+    public TakeAllTimetableLectureResponse withLanguage(SupportedLanguage language) {
+        return new TakeAllTimetableLectureResponse(timetable.stream().map(lecture -> lecture.withLanguage(language)).toList());
+    }
+
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureResponseV3(
         @Schema(description = "시간표 id", example = "1", requiredMode = REQUIRED)
@@ -66,8 +73,18 @@ public record TakeAllTimetableLectureResponse(
         String courseType,
 
         @Schema(description = "교양영역", example = "", requiredMode = NOT_REQUIRED)
-        String generalEducationArea
+        String generalEducationArea,
+
+        @Schema(description = "표시용 공식 강의명. 미등록 또는 직접 작성한 강의는 class_title 원문")
+        String displayName
     ) {
+        public InnerTimetableLectureResponseV3 withLanguage(SupportedLanguage language) {
+            return new InnerTimetableLectureResponseV3(id, lectureId, regularNumber, code, designScore,
+                lectureInfos, memo, grades, classTitle, lectureClass, target, professor, department,
+                courseType, generalEducationArea,
+                lectureId == null ? classTitle : OfficialNameResolver.lectureName(classTitle, language));
+        }
+
         public static List<TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3> from(
             List<TimetableLecture> timetableLectures) {
             List<TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3> InnerTimetableLectureResponses = new ArrayList<>();
@@ -93,7 +110,8 @@ public record TakeAllTimetableLectureResponse(
                         timetableLecture.getProfessor(),
                         null,
                         getCourseType(timetableLecture),
-                        getGeneralEducationArea(timetableLecture)
+                        getGeneralEducationArea(timetableLecture),
+                        timetableLecture.getClassTitle()
                     );
                 } else {
                     responseV3 = new TakeAllTimetableLectureResponse.InnerTimetableLectureResponseV3(
@@ -114,7 +132,8 @@ public record TakeAllTimetableLectureResponse(
                             ? timetableLecture.getProfessor() : lecture.getProfessor(),
                         lecture.getDepartment(),
                         getCourseType(timetableLecture),
-                        getGeneralEducationArea(timetableLecture)
+                        getGeneralEducationArea(timetableLecture),
+                        lecture.getName()
                     );
                 }
                 InnerTimetableLectureResponses.add(responseV3);
