@@ -44,5 +44,15 @@ class LanguageApiTest extends AcceptanceTest {
         assertThat(patchLanguage.get(0).has("Jwt Authentication")).isTrue();
         assertThat(patchLanguage.get(1).has("WebAccessCookie")).isTrue();
         assertThat(patchLanguage.get(1).has("WebCsrfToken")).isTrue();
+        assertThat(openApi.path("paths").has("/policies/{type}")).isTrue();
+        mockMvc.perform(get("/policies/privacy").param("language", "en-US"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.requested_language").value("en-US"))
+            .andExpect(jsonPath("$.language").value("ko-KR"))
+            .andExpect(jsonPath("$.is_fallback").value(true)).andExpect(jsonPath("$.sections.length()").value(8));
+        mockMvc.perform(get("/policies/terms"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.is_fallback").value(false))
+            .andExpect(jsonPath("$.sections.length()").value(16));
+        mockMvc.perform(get("/languages/en-US/messages"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$['dining.place.A코스']").value("Corner A"));
     }
 }
