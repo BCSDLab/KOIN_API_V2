@@ -44,10 +44,14 @@ public class TranslationService {
         TranslationRequest request, Integer userId) {
         SupportedLanguage language = SupportedLanguage.fromCode(request.targetLanguage());
         TranslationSource source = sourceReader.load(resource, userId);
+        // 생성 중인 요약에는 아직 공개된 원문 버전이 없다.
+        if (source.unavailableReason() == TranslationReason.SOURCE_NOT_READY) {
+            return unavailable(source, language, TranslationReason.SOURCE_NOT_READY);
+        }
+        assertVersion(source, request.expectedSourceVersion());
         if (source.unavailableReason() != null) {
             return unavailable(source, language, source.unavailableReason());
         }
-        assertVersion(source, request.expectedSourceVersion());
         if (source.texts().values().stream().mapToInt(String::length).sum() > properties.getMaxInputCharacters()) {
             return unavailable(source, language, TranslationReason.INPUT_TOO_LONG);
         }

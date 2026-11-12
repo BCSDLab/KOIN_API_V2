@@ -249,7 +249,7 @@ class TranslationApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 번역_도중_원문이_수정되면_이전_번역을_저장하거나_반환하지_않는다() throws Exception {
+    void 번역_전후_원문이_수정되면_이전_번역을_저장하거나_반환하지_않는다() throws Exception {
         var resource = TranslationResource.article(TranslationType.LOST_ITEM, 17);
         var source = TranslationSource.of(resource, TranslationSourceFields.lostItem("학생회관", null),
             Map.of("found_place", "학생회관"), null);
@@ -267,6 +267,26 @@ class TranslationApiTest extends AcceptanceTest {
         String id = jdbc.queryForObject("SELECT id FROM content_translations", String.class);
         mockMvc.perform(get("/translations/{id}", id))
             .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("SOURCE_CHANGED"));
+
+        // 원문이 번역할 수 없는 내용으로 바뀌어도 이전 버전에는 재조회를 안내한다.
+        var unsupported = TranslationSource.of(resource, TranslationSourceFields.lostItem("123", null),
+            Map.of(), TranslationReason.UNSUPPORTED_CONTENT);
+        when(sourceReader.load(resource, null)).thenReturn(unsupported);
+        mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+            .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("SOURCE_CHANGED"));
+        mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(unsupported.version())))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.reason_code").value("UNSUPPORTED_CONTENT"));
+
+        // 생성 중인 요약에는 아직 공개된 버전이 없으므로 기존 준비 중 응답을 유지한다.
+        var summaryResource = TranslationResource.article(TranslationType.ARTICLE_SUMMARY, 17);
+        var pendingSummary = TranslationSource.of(summaryResource, TranslationSourceFields.summary(List.of()),
+            Map.of(), TranslationReason.SOURCE_NOT_READY);
+        when(sourceReader.load(summaryResource, null)).thenReturn(pendingSummary);
+        mockMvc.perform(post(SUMMARY).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+            .andExpect(status().isServiceUnavailable())
+            .andExpect(jsonPath("$.reason_code").value("SOURCE_NOT_READY"))
+            .andExpect(jsonPath("$.retryable").value(true));
         verify(aiClient, times(1)).translate(anyMap(), any());
     }
 
