@@ -114,7 +114,10 @@ class CallvanTranslationApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.translation_id").value(id));
         mockMvc.perform(get("/translations/{id}", id).header(HttpHeaders.AUTHORIZATION, bearer))
             .andExpect(status().isOk()).andExpect(jsonPath("$.data.content").value("Meet me at the main gate at 2 PM."));
-        translate(image.getId(), bearer, version).andExpect(status().isUnprocessableEntity())
+        translate(image.getId(), bearer, version).andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("SOURCE_CHANGED"));
+        String imageVersion = TranslationSourceVersion.of(TranslationSourceFields.message(image.getContent()));
+        translate(image.getId(), bearer, imageVersion).andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.status").value("UNAVAILABLE"))
             .andExpect(jsonPath("$.reason_code").value("UNSUPPORTED_CONTENT"));
 
