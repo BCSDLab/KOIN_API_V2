@@ -137,6 +137,25 @@ class NotificationMessagesTest {
             1, 2, "닉네임", "주문이 접수되었어요", user);
         assertThat(chat.getTitle()).isEqualTo("Message from 닉네임");
         assertThat(chat.getMessage()).isEqualTo("주문이 접수되었어요");
+
+        NotificationFactory factory = new NotificationFactory();
+        var shopEvent = factory.generateShopEventCreateNotification(MobileAppPath.SHOP,
+            1, null, "멕시카나", "주문이 접수되었어요", user);
+        assertThat(shopEvent.getTitle()).isEqualTo("Mexicana has added an event 🎉");
+        assertThat(shopEvent.getMessage()).isEqualTo("주문이 접수되었어요");
+        assertThat(factory.generateReviewPromptNotification(MobileAppPath.SHOP, 1,
+            "멕시카나", ",맛있게 드셨나요?", "가게에 리뷰를 남겨보세요!", user).getTitle())
+            .isEqualTo("Mexicana, did you enjoy your meal?");
+        assertThat(factory.generateOrderNotification(MobileAppPath.SHOP, 1,
+            "멕시카나", "PACKAGED", false, null, user).getMessage())
+            .isEqualTo("Please pick up your order at Mexicana.");
+        assertThat(factory.generateShopEventCreateNotification(MobileAppPath.SHOP,
+            1, null, "미등록 상점", "행사", user).getTitle())
+            .isEqualTo("미등록 상점 has added an event 🎉");
+        when(user.getPreferredLanguage()).thenReturn(null);
+        assertThat(factory.generateShopEventCreateNotification(MobileAppPath.SHOP,
+            1, null, "멕시카나", "행사", user).getTitle())
+            .isEqualTo("멕시카나의 이벤트가 추가되었어요 🎉");
     }
 
     @Test

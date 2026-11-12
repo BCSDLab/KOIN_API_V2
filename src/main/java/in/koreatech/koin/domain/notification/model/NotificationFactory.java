@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.language.service.ContentMessageCatalog;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.common.model.MobileAppPath;
 
@@ -23,11 +24,12 @@ public class NotificationFactory {
         LocalDateTime estimatedAt,
         User target
     ) {
+        String displayName = OfficialNameResolver.shopName(shopName, languageOf(target));
         return new Notification(
             path,
             generateSchemeUri(path, orderId),
             NotificationMessages.translateKnown(target, generateOrderTitle(status)),
-            generateOrderMessage(status, shopName, delivery, estimatedAt, target),
+            generateOrderMessage(status, displayName, delivery, estimatedAt, target),
             null,
             NotificationType.MESSAGE,
             target
@@ -99,10 +101,11 @@ public class NotificationFactory {
         String message,
         User target
     ) {
+        String displayName = OfficialNameResolver.shopName(shopName, languageOf(target));
         return new Notification(
             path,
             generateSchemeUri(path, eventShopId),
-            String.format("%s%s", shopName, NotificationMessages.translateKnown(target, title)),
+            String.format("%s%s", displayName, NotificationMessages.translateKnown(target, title)),
             NotificationMessages.translateKnown(target, message),
             null,
             NotificationType.MESSAGE,
@@ -118,10 +121,11 @@ public class NotificationFactory {
         String title,
         User target
     ) {
+        String displayName = OfficialNameResolver.shopName(shopName, languageOf(target));
         return new Notification(
             path,
             generateSchemeUri(path, eventShopId),
-            NotificationMessages.format(target, "%s의 이벤트가 추가되었어요 🎉", shopName),
+            NotificationMessages.format(target, "%s의 이벤트가 추가되었어요 🎉", displayName),
             "%s".formatted(title),
             imageUrl,
             NotificationType.MESSAGE,
@@ -147,8 +151,7 @@ public class NotificationFactory {
         String place,
         User target
     ) {
-        String displayPlace = ContentMessageCatalog.text(SupportedLanguage.fromStoredCode(
-            target == null ? null : target.getPreferredLanguage()), "dining.place." + place, place);
+        String displayPlace = ContentMessageCatalog.text(languageOf(target), "dining.place." + place, place);
         return new Notification(
             path,
             generateSchemeUri(path, eventDiningId),
@@ -274,9 +277,12 @@ public class NotificationFactory {
     }
 
     private boolean isKorean(User target) {
+        return languageOf(target) == SupportedLanguage.KOREAN;
+    }
+
+    private SupportedLanguage languageOf(User target) {
         return SupportedLanguage.fromStoredCode(
-            target == null ? null : target.getPreferredLanguage())
-            == SupportedLanguage.KOREAN;
+            target == null ? null : target.getPreferredLanguage());
     }
 
     private String generateClubRecruitmentSchemeUri(MobileAppPath path, Integer clubId) {
