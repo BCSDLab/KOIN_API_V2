@@ -60,9 +60,9 @@ public record CallvanNotificationResponse(
 
     public static CallvanNotificationResponse from(CallvanNotification notification) {
         String departureName = CallvanPushNotificationFactory.localizedLocationName(
-            notification.getDepartureCustomName(), notification.getDepartureType().getName(), notification.getRecipient());
+            notification.getDepartureCustomName(), notification.getDepartureType(), notification.getRecipient());
         String arrivalName = CallvanPushNotificationFactory.localizedLocationName(
-            notification.getArrivalCustomName(), notification.getArrivalType().getName(), notification.getRecipient());
+            notification.getArrivalCustomName(), notification.getArrivalType(), notification.getRecipient());
 
         return new CallvanNotificationResponse(
             notification.getId(),

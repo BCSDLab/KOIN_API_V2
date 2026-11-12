@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType;
 
 /** 언어별 properties의 시스템 알림 문구를 사용한다. 사용자 작성 내용은 번역하지 않는다. */
 public final class NotificationMessages {
@@ -34,8 +35,8 @@ public final class NotificationMessages {
 
     /** 저장 당시 제목을 우선 사용하며, 구형 알림은 모호하지 않은 템플릿만 복원한다. */
     public static String teamMessage(User user,
-        in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType type,
-        String recruitmentTitle, String original) {
+        TeamRecruitmentNotificationType type,
+        String recruitmentTitle, String original, String decisionReason) {
         if (type == null || original == null) {
             return original;
         }
@@ -48,6 +49,15 @@ public final class NotificationMessages {
             case RECRUITMENT_DELETED -> List.of("team.recruitment.deleted");
             case NEW_CHAT_MESSAGE -> List.of();
         };
+        if (recruitmentTitle == null && type == TeamRecruitmentNotificationType.APPLICATION_REJECTED) {
+            // 구형 알림의 현재 모집글 제목은 증거가 아니다. 저장된 지원 결정 사유만 사용한다.
+            keys = switch (decisionReason == null ? "" : decisionReason) {
+                case "APPLICATION_REJECTED" -> List.of("team.application.rejected");
+                case "RECRUITMENT_CLOSED" -> List.of("team.application.rejected-closed");
+                case "RECRUITMENT_DELETED" -> List.of("team.application.rejected-deleted");
+                default -> keys;
+            };
+        }
         List<String> templates = keys.stream()
             .map(key -> MESSAGES.get(SupportedLanguage.KOREAN).getProperty(key))
             .toList();

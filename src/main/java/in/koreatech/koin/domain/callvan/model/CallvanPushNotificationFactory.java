@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.domain.callvan.model.enums.CallvanMessageType;
+import in.koreatech.koin.domain.callvan.model.enums.CallvanLocation;
 import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
@@ -48,9 +49,9 @@ public class CallvanPushNotificationFactory {
         return switch (notification.getNotificationType()) {
             case PARTICIPANT_JOINED -> NotificationMessages.format(notification.getRecipient(), "%s님이 콜벤팟에 참여했어요", notification.getJoinedMemberNickname());
             case DEPARTURE_UPCOMING -> NotificationMessages.format(notification.getRecipient(), "%s -> %s 콜벤팟이 30분 뒤 출발해요",
-                localizedLocationName(notification.getDepartureCustomName(), notification.getDepartureType().getName(),
+                localizedLocationName(notification.getDepartureCustomName(), notification.getDepartureType(),
                     notification.getRecipient()),
-                localizedLocationName(notification.getArrivalCustomName(), notification.getArrivalType().getName(),
+                localizedLocationName(notification.getArrivalCustomName(), notification.getArrivalType(),
                     notification.getRecipient())
             );
             case NEW_MESSAGE -> notification.getMessageType() == CallvanMessageType.IMAGE
@@ -69,12 +70,12 @@ public class CallvanPushNotificationFactory {
         return "callvan?id=%d".formatted(postId);
     }
 
-    public static String localizedLocationName(String customName, String defaultName, User recipient) {
-        if (StringUtils.hasText(customName)) {
+    public static String localizedLocationName(String customName, CallvanLocation type, User recipient) {
+        if (type == CallvanLocation.CUSTOM && StringUtils.hasText(customName)) {
             return customName;
         }
         SupportedLanguage language = SupportedLanguage.fromStoredCode(
             recipient == null ? null : recipient.getPreferredLanguage());
-        return OfficialNameResolver.stationName(OfficialNameResolver.buildingName(defaultName, language), language);
+        return OfficialNameResolver.stationName(OfficialNameResolver.buildingName(type.getName(), language), language);
     }
 }

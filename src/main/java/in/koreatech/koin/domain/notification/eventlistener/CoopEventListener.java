@@ -6,11 +6,13 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.event.TransactionPhase;
 
 import in.koreatech.koin.common.event.DiningImageUploadEvent;
 import in.koreatech.koin.common.event.DiningSoldOutEvent;
+import in.koreatech.koin.common.event.DiningReportApprovedEvent;
 import in.koreatech.koin.domain.notification.service.CoopNotificationService;
 import in.koreatech.koin.global.concurrent.exception.ConcurrencyLockException;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,12 @@ public class CoopEventListener {
             // REQUIRES_NEW 서비스 프록시의 알림 트랜잭션이 끝난 뒤 해제한다.
             lock.unlock();
         }
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onDiningReportApproved(DiningReportApprovedEvent event) {
+        coopNotificationService.sendDiningReportApprovedNotifications(event.diningId(), event.reporterIds());
     }
 
     @TransactionalEventListener

@@ -128,6 +128,18 @@ public class NotificationFactory {
         );
     }
 
+    public Notification generateDiningReportApprovedNotification(Integer diningId, User target) {
+        return new Notification(
+            MobileAppPath.DINING,
+            generateSchemeUri(MobileAppPath.DINING, diningId),
+            NotificationMessages.format(target, "품절 제보 승인"),
+            NotificationMessages.format(target, "품절 제보가 승인되었습니다."),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
     public Notification generateSoldOutNotification(
         MobileAppPath path,
         Integer eventDiningId,

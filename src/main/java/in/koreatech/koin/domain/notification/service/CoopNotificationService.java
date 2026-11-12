@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 
@@ -24,6 +25,7 @@ import in.koreatech.koin.domain.notification.model.Notification;
 import in.koreatech.koin.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -38,6 +40,7 @@ public class CoopNotificationService {
     private final DiningRepository diningRepository;
     private final CoopShopService coopShopService;
     private final Clock clock;
+    private final UserRepository userRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendDiningSoldOutNotifications(Integer diningId, String place, DiningType diningType) {
@@ -61,6 +64,16 @@ public class CoopNotificationService {
             .toList();
         notificationService.pushNotifications(notifications);
         diningSoldOutCacheRepository.save(DiningSoldOutCache.from(place));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendDiningReportApprovedNotifications(Integer diningId, List<Integer> reporterIds) {
+        // 처리 결과는 품절 구독 여부와 무관하게 해당 제보자에게 안내한다.
+        List<Notification> notifications = userRepository.findAllByIdIn(reporterIds).stream()
+            .filter(user -> StringUtils.hasText(user.getDeviceToken()))
+            .map(user -> notificationFactory.generateDiningReportApprovedNotification(diningId, user))
+            .toList();
+        notificationService.pushNotifications(notifications);
     }
 
     public void sendDiningImageUploadNotifications(int id, String imageUrl) {

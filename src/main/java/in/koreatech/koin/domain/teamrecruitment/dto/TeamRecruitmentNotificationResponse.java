@@ -49,9 +49,6 @@ public record TeamRecruitmentNotificationResponse(
 ) {
     public static TeamRecruitmentNotificationResponse from(TeamRecruitmentNotification notification) {
         String recruitmentTitle = notification.getRecruitmentTitle();
-        if (recruitmentTitle == null) {
-            recruitmentTitle = notification.getRecruitment().getTitle();
-        }
         return new TeamRecruitmentNotificationResponse(
                 notification.getId(),
                 notification.getType().name(),
@@ -62,7 +59,8 @@ public record TeamRecruitmentNotificationResponse(
                 notification.getSenderNickname(),
                 NotificationMessages.teamMessage(notification.getRecipient(), notification.getType(),
                     recruitmentTitle,
-                    notification.getMessagePreview()),
+                    notification.getMessagePreview(),
+                    notification.getApplication() == null ? null : notification.getApplication().getDecisionReason()),
                 notification.isRead(),
                 notification.getCreatedAt()
         );
