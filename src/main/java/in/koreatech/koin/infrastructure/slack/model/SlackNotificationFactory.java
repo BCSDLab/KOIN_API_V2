@@ -73,6 +73,16 @@ public class SlackNotificationFactory {
             .build();
     }
 
+    public SlackNotification generateShopOrderServiceRequestNotification(String shopName) {
+        return SlackNotification.builder()
+            .slackUrl(ownerEventNotificationUrl)
+            .text("""
+                `%s` 상점에서 주문 서비스를 신청했어요!
+                %s
+                """.formatted(shopName, String.format(MARKDOWN_ADMIN_PAGE_URL_FORMAT, adminPageUrl)))
+            .build();
+    }
+
     /**
      * 학생 이메일 인증 요청 알림
      */
