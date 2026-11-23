@@ -23,6 +23,13 @@ class TranslationTextProtectionTest {
             .isInstanceOf(TranslationFailureException.class).hasMessage("INVALID_TRANSLATION");
         assertThatThrownBy(() -> protectedText.restore(Map.of("content", translated + tokens.get(0))))
             .isInstanceOf(TranslationFailureException.class).hasMessage("INVALID_TRANSLATION");
+        var breakfast = TranslationTextProtection.protect(Map.of("menu_0", "★₩1,000의 아침★"));
+        assertThat(breakfast.fields()).containsEntry("menu_0", "★__KOIN_0__의 아침★");
+        assertThat(breakfast.restore(Map.of("menu_0", "★__KOIN_0__ Breakfast★")))
+            .containsEntry("menu_0", "★₩1,000 Breakfast★");
+        assertThatThrownBy(() -> breakfast.restore(Map.of("menu_0", "★$1 Breakfast★")))
+            .isInstanceOf(TranslationFailureException.class).hasMessage("INVALID_TRANSLATION");
+
         var embedded = TranslationTextProtection.protect(Map.of("content", "안내 https://example.com/pay 에서 확인"));
         assertThatThrownBy(() -> embedded.restore(Map.of("content", "Visit https://example.com/pay-wrong for details")))
             .isInstanceOf(TranslationFailureException.class).hasMessage("INVALID_TRANSLATION");
