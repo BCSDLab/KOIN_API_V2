@@ -52,7 +52,8 @@ public class TranslationService {
         if (source.unavailableReason() != null) {
             return unavailable(source, language, source.unavailableReason());
         }
-        if (source.texts().values().stream().mapToInt(String::length).sum() > properties.getMaxInputCharacters()) {
+        Map<String, String> inputs = DiningMenuTranslation.inputs(source, language);
+        if (inputs.values().stream().mapToInt(String::length).sum() > properties.getMaxInputCharacters()) {
             return unavailable(source, language, TranslationReason.INPUT_TOO_LONG);
         }
         if (resource.type() == TranslationType.ARTICLE_SUMMARY && language == SupportedLanguage.KOREAN) {
@@ -70,8 +71,11 @@ public class TranslationService {
             return get(id, userId);
         }
         try {
-            Map<String, String> translated = aiClient.translate(source.texts(), language);
+            Map<String, String> translated = aiClient.translate(inputs, language);
             Map<String, Object> data = translatedData(source, translated, language);
+            if (DiningMenuTranslation.hasIncorrectPrice(source, language.getCode(), data)) {
+                throw new TranslationFailureException(TranslationReason.INVALID_TRANSLATION, null);
+            }
             assertUsableVersion(sourceReader.load(resource, userId), source.version());
             store.succeed(id, claim.ownerToken(), objectMapper.writeValueAsString(data));
         } catch (TranslationFailureException e) {
@@ -120,8 +124,8 @@ public class TranslationService {
             boolean summaryEcho = stored.resource().type() == TranslationType.ARTICLE_SUMMARY
                 && !SupportedLanguage.KOREAN.getCode().equals(stored.targetLanguage())
                 && current.data().equals(data);
-            if (outdated || summaryEcho) {
-                // 이전 지침으로 저장한 결과와 원문 반복 결과는 재시도한다. 바뀐 결과는 덮어쓰지 않는다.
+            if (outdated || summaryEcho || DiningMenuTranslation.hasIncorrectPrice(current, stored.targetLanguage(), data)) {
+                // 검증한 JSON과 일치하는 결과만 무효화하고 다음 POST에서 재번역한다.
                 if (!store.invalidateSuccess(stored.id(), stored.translatedJson())) {
                     return get(stored.id(), userId);
                 }

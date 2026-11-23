@@ -227,6 +227,60 @@ class TranslationApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 식단의_금액_오역을_무효화하고_원화로_재번역한_결과를_재사용한다() throws Exception {
+        var resource = TranslationResource.article(TranslationType.DINING, 21);
+        List<String> originalMenu = List.of("★천원의 아침★", "계란찜");
+        var source = TranslationSource.of(resource, TranslationSourceFields.dining(originalMenu),
+            Map.of("menu_0", originalMenu.get(0), "menu_1", originalMenu.get(1)), null);
+        when(sourceReader.load(resource, null)).thenReturn(source);
+        var translationInput = Map.of("menu_0", "★₩1,000의 아침★", "menu_1", "계란찜");
+        when(aiClient.translate(translationInput, SupportedLanguage.ENGLISH))
+            .thenReturn(Map.of("menu_0", "★₩1,000 Breakfast★", "menu_1", "Steamed eggs"));
+
+        var legacy = store.claim(resource, source.version(), SupportedLanguage.ENGLISH,
+            properties.getModel(), properties.getPromptVersion());
+        String id = legacy.translation().id();
+        String incorrectJson = objectMapper.writeValueAsString(
+            TranslationSourceFields.dining(List.of("★$1 Breakfast★", "Steamed eggs")));
+        assertThat(store.succeed(id, legacy.ownerToken(), incorrectJson)).isTrue();
+
+        mockMvc.perform(get("/translations/{id}", id))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("FAILED"))
+            .andExpect(jsonPath("$.reason_code").value("INVALID_TRANSLATION"))
+            .andExpect(jsonPath("$.retryable").value(true)).andExpect(jsonPath("$.data").isEmpty())
+            .andExpect(header().exists(HttpHeaders.RETRY_AFTER));
+        assertThat(store.findById(id).orElseThrow().translatedJson()).isNull();
+        verifyNoInteractions(aiClient);
+
+        String path = "/dinings/21/translations";
+        for (int request = 0; request < 2; request++) {
+            mockMvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.translation_id").value(id))
+                .andExpect(jsonPath("$.source_version").value(source.version()))
+                .andExpect(jsonPath("$.data.menu[0]").value("★₩1,000 Breakfast★"))
+                .andExpect(jsonPath("$.data.menu[1]").value("Steamed eggs"));
+        }
+        mockMvc.perform(get("/translations/{id}", id))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SUCCESS"))
+            .andExpect(jsonPath("$.source_version").value(source.version()))
+            .andExpect(jsonPath("$.data.menu[0]").value("★₩1,000 Breakfast★"));
+        verify(aiClient, times(1)).translate(translationInput, SupportedLanguage.ENGLISH);
+        assertThat(source.data()).isEqualTo(TranslationSourceFields.dining(originalMenu));
+        assertThat(source.texts()).containsEntry("menu_0", "★천원의 아침★");
+
+        jdbc.update("UPDATE content_translations SET translated_json = ? WHERE id = ?", incorrectJson, id);
+        mockMvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+            .andExpect(status().isBadGateway()).andExpect(jsonPath("$.status").value("FAILED"))
+            .andExpect(jsonPath("$.reason_code").value("INVALID_TRANSLATION"))
+            .andExpect(jsonPath("$.retryable").value(true)).andExpect(jsonPath("$.data").isEmpty());
+        mockMvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.translation_id").value(id))
+            .andExpect(jsonPath("$.data.menu[0]").value("★₩1,000 Breakfast★"));
+        verify(aiClient, times(2)).translate(translationInput, SupportedLanguage.ENGLISH);
+    }
+
+    @Test
     void 저장된_쪽지_번역도_현재_로그인과_방_권한을_다시_검사한다() throws Exception {
         var user = users.save(User.builder().userType(UserType.STUDENT).name("번역 테스트")
             .loginPw("unused-test-password").isAuthed(true).isDeleted(false).build());
