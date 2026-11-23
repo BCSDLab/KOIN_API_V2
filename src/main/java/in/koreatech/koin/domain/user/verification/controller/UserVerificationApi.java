@@ -10,6 +10,8 @@ import in.koreatech.koin.domain.user.verification.dto.VerifyEmailVerificationReq
 import in.koreatech.koin.domain.user.verification.dto.SendSmsVerificationRequest;
 import in.koreatech.koin.domain.user.verification.dto.VerifySmsVerificationRequest;
 import in.koreatech.koin.domain.user.verification.dto.SendVerificationResponse;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.code.ApiResponseCodes;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,14 +27,16 @@ public interface UserVerificationApi {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "인증 번호 전송 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "429", description = "인증 번호 전송 횟수 초과", content = @Content(schema = @Schema(hidden = true)))
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터", content = @Content(schema = @Schema(hidden = true)))
     })
+    @ApiResponseCodes(ApiResponseCode.TOO_MANY_REQUESTS_VERIFICATION)
     @Operation(
         summary = "SMS 인증번호 발송",
         description = """
             요청한 전화번호로 하루 최대 5회까지 인증번호를 전송할 수 있습니다.
             스테이지 환경에서는 `코인_이벤트알림_STAGE` 채널로 인증번호를 전송합니다.
+            발송 횟수를 초과하면 HTTP 429와 `code=TOO_MANY_REQUESTS_VERIFICATION`을 반환합니다.
+            `code`는 언어와 무관한 분기 값이고, `message`는 요청 언어에 따른 표시용 문구입니다.
             """
     )
     @PostMapping("/sms/send")
