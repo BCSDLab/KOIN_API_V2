@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusTimetable;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -54,11 +56,15 @@ public record CityBusTimetableResponse(
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
-    public record BusInfo(Long number, String departNode, String arrivalNode) {
+    public record BusInfo(Long number, String departNode, String arrivalNode,
+        @Schema(description = "표시용 출발지 공식 명칭. 없으면 depart_node 원문") String departDisplayName,
+        @Schema(description = "표시용 도착지 공식 명칭. 없으면 arrival_node 원문") String arrivalDisplayName) {
 
         public static BusInfo of(Long number, CityBusDirection direction) {
             return new BusInfo(
                 number,
+                direction.getDepartNode(),
+                direction.getApartNode(),
                 direction.getDepartNode(),
                 direction.getApartNode()
             );
@@ -87,5 +93,11 @@ public record CityBusTimetableResponse(
                 .map(busTimetable -> BusTimetable.of(busNumber, direction, busTimetable))
                 .toList()
         );
+    }
+
+    public CityBusTimetableResponse withLanguage(SupportedLanguage language) {
+        return new CityBusTimetableResponse(updatedAt, new BusInfo(busInfo.number(), busInfo.departNode(),
+            busInfo.arrivalNode(), OfficialNameResolver.stationName(busInfo.departNode(), language),
+            OfficialNameResolver.stationName(busInfo.arrivalNode(), language)), busTimetables);
     }
 }

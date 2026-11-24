@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -47,6 +48,7 @@ public record TeamRecruitmentNotificationResponse(
         LocalDateTime createdAt
 ) {
     public static TeamRecruitmentNotificationResponse from(TeamRecruitmentNotification notification) {
+        String recruitmentTitle = notification.getRecruitmentTitle();
         return new TeamRecruitmentNotificationResponse(
                 notification.getId(),
                 notification.getType().name(),
@@ -55,7 +57,10 @@ public record TeamRecruitmentNotificationResponse(
                 notification.getApplication() != null ? notification.getApplication().getId() : null,
                 notification.getChatRoom() != null ? notification.getChatRoom().getId() : null,
                 notification.getSenderNickname(),
-                notification.getMessagePreview(),
+                NotificationMessages.teamMessage(notification.getRecipient(), notification.getType(),
+                    recruitmentTitle,
+                    notification.getMessagePreview(),
+                    notification.getApplication() == null ? null : notification.getApplication().getDecisionReason()),
                 notification.isRead(),
                 notification.getCreatedAt()
         );

@@ -4,10 +4,12 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.net.URI;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +24,8 @@ import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserLanguageResponse;
+import in.koreatech.koin.domain.user.dto.UserLanguageUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
@@ -57,6 +61,21 @@ public class UserController implements UserApi {
     ) {
         UserProfileResponse response = userService.getProfile(userId);
         return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/users/me/language")
+    public ResponseEntity<UserLanguageResponse> getLanguage(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
+    ) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(userService.getLanguage(userId));
+    }
+
+    @PatchMapping("/users/me/language")
+    public ResponseEntity<UserLanguageResponse> updateLanguage(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
+        @RequestBody @Valid UserLanguageUpdateRequest request
+    ) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(userService.updateLanguage(userId, request));
     }
 
     @GetMapping("/user/auth")

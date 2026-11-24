@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.dto.shop.response;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -32,8 +34,26 @@ public record ShopSummaryResponse(
     long reviewCount,
 
     @Schema(description = "이미지 url 리스트", requiredMode = REQUIRED)
-    List<InnerImageResponse> images
+    List<InnerImageResponse> images,
+
+    @Schema(description = "선택 언어의 표시명. 번역이 없으면 원문을 사용합니다.")
+    String displayName
 ) {
+    public ShopSummaryResponse(
+        Integer shopId,
+        String name,
+        String introduction,
+        double ratingAverage,
+        long reviewCount,
+        List<InnerImageResponse> images
+    ) {
+        this(shopId, name, introduction, ratingAverage, reviewCount, images, name);
+    }
+
+    public ShopSummaryResponse localized(SupportedLanguage language) {
+        return new ShopSummaryResponse(shopId, name, introduction, ratingAverage, reviewCount, images, OfficialNameResolver.shopName(name, language));
+    }
+
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerImageResponse(
         @Schema(description = "이미지 url", example = "https://static.koreatech.in/upload/market/2022/03/26/0e650fe1-811b-411e-9a82-0dd4f43c42ca-1648289492264.jpg", requiredMode = REQUIRED)

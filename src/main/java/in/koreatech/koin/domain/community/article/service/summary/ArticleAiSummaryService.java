@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.community.article.service.ArticleService.
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +61,18 @@ public class ArticleAiSummaryService {
         return resolveSummary(article, content);
     }
 
+    /** 번역에서 사용한다. 요약 생성 접수나 상태 변경 없이 현재 표시 가능한 요약만 읽는다. */
+    public ArticleSummaryView readReadySummary(Article article, String content) {
+        if (article.getBoard().getId().equals(LOST_ITEM_BOARD_ID)) {
+            return ArticleSummaryView.unavailable();
+        }
+        String fingerprint = sourceReader.createFingerprint(ArticleSummarySourceSeed.from(article, content));
+        return articleAiSummaryRepository.findByArticleId(article.getId())
+            .filter(summary -> summary.hasSummaryForSource(fingerprint))
+            .map(summary -> ArticleSummaryView.success(summary.getSummaryLines()))
+            .orElseGet(ArticleSummaryView::unavailable);
+    }
+
     private ArticleSummaryView resolveSummary(Article article, String content) {
         if (article.getBoard().getId().equals(LOST_ITEM_BOARD_ID)) {
             return ArticleSummaryView.unavailable();
@@ -69,21 +80,24 @@ public class ArticleAiSummaryService {
         ArticleSummarySourceSeed seed = ArticleSummarySourceSeed.from(article, content);
         String fingerprint = sourceReader.createFingerprint(seed);
 
-        Optional<ArticleAiSummary> optionalSummary = articleAiSummaryRepository.findByArticleId(article.getId());
+        // 없는 행의 gap lock을 피하고, 기존 행은 최신 상태를 잠근 뒤 한 번만 재접수한다.
+        Optional<ArticleAiSummary> optionalSummary = articleAiSummaryRepository.findIdByArticleId(article.getId())
+            .flatMap(articleAiSummaryRepository::findByIdForUpdate);
         if (optionalSummary.isEmpty()) {
             enqueueIfEnabled(article, fingerprint, article.getUpdatedAt());
             return canGenerate() ? ArticleSummaryView.pending() : ArticleSummaryView.unavailable();
         }
 
         ArticleAiSummary summary = optionalSummary.get();
-        if (summary.hasSummaryForSource(fingerprint)) {
-            if (canGenerate() && !summary.isProcessing() && isStale(summary, fingerprint)) {
+        if (canGenerate() && !summary.isProcessing()) {
+            if (isStale(summary, fingerprint)) {
                 summary.prepareWait(fingerprint, article.getUpdatedAt(), properties.getModel(), properties.getPromptVersion());
+            } else {
+                summary.reopenExhaustedRetryCycle(properties.getMaxRetryCount());
             }
-            return ArticleSummaryView.success(summary.getSummaryLines());
         }
-        if (canGenerate() && !summary.isProcessing() && isStale(summary, fingerprint)) {
-            summary.prepareWait(fingerprint, article.getUpdatedAt(), properties.getModel(), properties.getPromptVersion());
+        if (summary.hasSummaryForSource(fingerprint)) {
+            return ArticleSummaryView.success(summary.getSummaryLines());
         }
         if (canGenerate() && (summary.getStatus() == ArticleAiSummaryStatus.WAIT || summary.isProcessing())) {
             return ArticleSummaryView.pending();
@@ -130,36 +144,31 @@ public class ArticleAiSummaryService {
             return List.of();
         }
         LocalDateTime now = LocalDateTime.now(clock);
-        List<ArticleAiSummary> summaries = new ArrayList<>();
-        if (isFailedRetryWindow(now.toLocalTime())) {
-            summaries.addAll(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(
-                now,
-                batchLimit,
-                properties.getMaxRetryCount()
-            ));
-        }
+        List<ArticleAiSummary> summaries = new ArrayList<>(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(
+            now,
+            properties.getMaxRetryCount(),
+            batchLimit
+        ));
         int remainingLimit = batchLimit - summaries.size();
         if (remainingLimit > 0) {
             summaries.addAll(articleAiSummaryRepository.findWaitingSummariesForUpdate(now, remainingLimit));
         }
-        LocalDateTime lockedUntil = now.plusMinutes(properties.getLockMinutes());
+        LocalDateTime lockedUntil = now.plus(properties.getProcessingLockDuration());
         return summaries.stream()
             .peek(summary -> summary.markProcessing(workerId, lockedUntil))
             .map(ArticleAiSummary::getId)
             .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Optional<ArticleSummarySourceSeed> getGenerationSeed(Integer summaryId, String workerId) {
-        return articleAiSummaryRepository.findByIdWithArticle(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        return findProcessingSummaryForUpdate(summaryId, workerId)
             .map(summary -> ArticleSummarySourceSeed.from(summary.getArticle(), summary.getArticle().getContent()));
     }
 
     @Transactional
     public void completeSuccess(Integer summaryId, String workerId, ArticleSummarySource source, List<String> summaryLines) {
-        articleAiSummaryRepository.findById(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        findProcessingSummaryForUpdate(summaryId, workerId)
             .ifPresent(summary -> summary.completeSuccess(
                 summaryLines,
                 source.fingerprint(),
@@ -177,16 +186,14 @@ public class ArticleAiSummaryService {
 
     @Transactional
     public void completeFailure(Integer summaryId, String workerId, String reason, Duration retryAfter) {
-        articleAiSummaryRepository.findById(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        findProcessingSummaryForUpdate(summaryId, workerId)
             .ifPresent(summary -> {
                 String sanitizedReason = failureReasonSanitizer.sanitize(reason);
                 int nextRetryCount = summary.getRetryCount() + 1;
-                LocalDateTime nextAttemptAt = null;
-                if (nextRetryCount < properties.getMaxRetryCount()) {
-                    nextAttemptAt = LocalDateTime.now(clock).plus(resolveRetryDelay(nextRetryCount, retryAfter));
-                }
-                if (retryAfter != null && nextAttemptAt != null) {
+                boolean exhausted = nextRetryCount >= properties.getMaxRetryCount();
+                LocalDateTime nextAttemptAt = LocalDateTime.now(clock)
+                    .plus(resolveRetryDelay(nextRetryCount, retryAfter));
+                if (retryAfter != null && !exhausted) {
                     summary.waitForRetry(sanitizedReason, nextAttemptAt);
                     ArticleSummaryFailureType failureType = saveLog(
                         summary,
@@ -200,7 +207,7 @@ public class ArticleAiSummaryService {
                 summary.completeFailure(sanitizedReason, nextAttemptAt);
                 ArticleSummaryFailureType failureType = saveLog(
                     summary,
-                    nextAttemptAt == null ? ArticleAiSummaryLogType.TERMINAL_FAILED : ArticleAiSummaryLogType.FAILED,
+                    exhausted ? ArticleAiSummaryLogType.TERMINAL_FAILED : ArticleAiSummaryLogType.FAILED,
                     sanitizedReason,
                     workerId
                 );
@@ -210,25 +217,25 @@ public class ArticleAiSummaryService {
 
     @Transactional
     public void completeFailureWithoutRetry(Integer summaryId, String workerId, String reason) {
-        articleAiSummaryRepository.findById(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        findProcessingSummaryForUpdate(summaryId, workerId)
             .ifPresent(summary -> {
                 String sanitizedReason = failureReasonSanitizer.sanitize(reason);
-                summary.completeFailureWithoutRetry(sanitizedReason, properties.getMaxRetryCount());
+                LocalDateTime nextAttemptAt = LocalDateTime.now(clock)
+                    .plus(resolveRetryDelay(properties.getMaxRetryCount(), null));
+                summary.completeFailureWithoutRetry(sanitizedReason, properties.getMaxRetryCount(), nextAttemptAt);
                 ArticleSummaryFailureType failureType = saveLog(
                     summary,
                     ArticleAiSummaryLogType.TERMINAL_FAILED,
                     sanitizedReason,
                     workerId
                 );
-                logTerminalFailure(summary, workerId, failureType, sanitizedReason, "재시도 불가능한 오류입니다.");
+                logFailure(summary, workerId, failureType, sanitizedReason, nextAttemptAt);
             });
     }
 
     @Transactional
     public void skip(Integer summaryId, String workerId, String reason) {
-        articleAiSummaryRepository.findById(summaryId)
-            .filter(summary -> summary.isProcessingBy(workerId))
+        findProcessingSummaryForUpdate(summaryId, workerId)
             .ifPresent(summary -> {
                 String sanitizedReason = failureReasonSanitizer.sanitize(reason);
                 summary.skip(sanitizedReason);
@@ -245,6 +252,20 @@ public class ArticleAiSummaryService {
     @Transactional
     public int deleteOldLogs() {
         return articleAiSummaryLogRepository.deleteOlderThan(LocalDateTime.now(clock).minusDays(LOG_RETENTION_DAYS));
+    }
+
+    private Optional<ArticleAiSummary> findProcessingSummaryForUpdate(Integer summaryId, String workerId) {
+        return articleAiSummaryRepository.findByIdForUpdate(summaryId)
+            .filter(summary -> summary.isProcessingBy(workerId))
+            .filter(summary -> {
+                if (articleAiSummaryRepository.findByIdWithArticle(summaryId).isPresent()) {
+                    return true;
+                }
+                // 선점/생성 후 삭제된 작업도 종료하며, 삭제된 Article 프록시로 로그를 만들지 않는다.
+                summary.skip("게시글 원문이 삭제되어 요약을 종료합니다.");
+                log.debug("원문이 없는 게시글 AI 요약을 종료했습니다. summaryId: {}, workerId: {}", summaryId, workerId);
+                return false;
+            });
     }
 
     private void enqueueIfEnabled(Article article, String fingerprint, LocalDateTime sourceUpdatedAt) {
@@ -274,23 +295,10 @@ public class ArticleAiSummaryService {
         return Math.min(Math.max(limit, 0), properties.getBatchSize());
     }
 
-    private boolean isFailedRetryWindow(LocalTime now) {
-        int startHour = properties.getBoundedFailedRetryWindowStartHour();
-        int endHour = properties.getBoundedFailedRetryWindowEndHour();
-        if (startHour == endHour) {
-            return false;
-        }
-        int currentHour = now.getHour();
-        if (startHour < endHour) {
-            return currentHour >= startHour && currentHour < endHour;
-        }
-        return currentHour >= startHour || currentHour < endHour;
-    }
-
     private Duration resolveRetryDelay(int nextRetryCount, Duration retryAfter) {
         Duration maxBackoff = Duration.ofMinutes(properties.getMaxRetryBackoffMinutes());
         if (retryAfter != null && !retryAfter.isNegative() && !retryAfter.isZero()) {
-            return retryAfter.compareTo(maxBackoff) > 0 ? maxBackoff : retryAfter;
+            return retryAfter;
         }
         long multiplier = 1L << Math.min(Math.max(nextRetryCount - 1, 0), 10);
         Duration configuredBackoff = Duration.ofMinutes((long)properties.getRetryBackoffMinutes() * multiplier);
@@ -328,13 +336,18 @@ public class ArticleAiSummaryService {
         String reason,
         LocalDateTime nextAttemptAt
     ) {
-        if (nextAttemptAt == null) {
-            logTerminalFailure(summary, workerId, failureType, reason, "최대 재시도 횟수에 도달했습니다.");
+        if (summary.getRetryCount() >= properties.getMaxRetryCount()) {
+            log.debug(
+                "게시글 AI 요약 재시도를 중단하고 상세 조회 시 재접수를 기다립니다. summaryId: {}, articleId: {}, "
+                    + "failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, workerId: {}, reason: {}",
+                summary.getId(), articleId(summary), failureType, summary.getRetryCount(), properties.getMaxRetryCount(),
+                nextAttemptAt, workerId, reason
+            );
             return;
         }
         log.debug(
             "게시글 AI 요약 생성 실패로 FAILED 재처리 큐에 등록했습니다. summaryId: {}, articleId: {}, boardId: {}, "
-                + "status: {}, failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, retryWindow: {}:00-{}:00, "
+                + "status: {}, failureType: {}, retryCount: {}/{}, nextAttemptAt: {}, "
                 + "workerId: {}, reason: {}, impact: 요약은 아직 노출되지 않고 원문만 반환됩니다.",
             summary.getId(),
             articleId(summary),
@@ -344,33 +357,7 @@ public class ArticleAiSummaryService {
             summary.getRetryCount(),
             properties.getMaxRetryCount(),
             nextAttemptAt,
-            properties.getBoundedFailedRetryWindowStartHour(),
-            properties.getBoundedFailedRetryWindowEndHour(),
             workerId,
-            reason
-        );
-    }
-
-    private void logTerminalFailure(
-        ArticleAiSummary summary,
-        String workerId,
-        ArticleSummaryFailureType failureType,
-        String reason,
-        String cause
-    ) {
-        log.debug(
-            "게시글 AI 요약 생성이 중단되었습니다. summaryId: {}, articleId: {}, boardId: {}, status: {}, "
-                + "failureType: {}, retryCount: {}/{}, workerId: {}, cause: {}, reason: {}, "
-                + "impact: 해당 게시글은 요약 없이 원문만 반환됩니다. action: Admin AI 요약 상세 API로 상태를 확인하고 원문/첨부/Upstage 상태를 점검하세요.",
-            summary.getId(),
-            articleId(summary),
-            boardId(summary),
-            summary.getStatus(),
-            failureType,
-            summary.getRetryCount(),
-            properties.getMaxRetryCount(),
-            workerId,
-            cause,
             reason
         );
     }

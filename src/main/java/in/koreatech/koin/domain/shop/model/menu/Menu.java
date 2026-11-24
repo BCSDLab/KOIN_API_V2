@@ -18,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -58,6 +59,7 @@ public class Menu extends BaseEntity {
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
     @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = ALL)
+    @OrderBy("id ASC")
     private List<MenuOption> menuOptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = ALL)

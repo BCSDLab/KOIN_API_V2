@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface LostItemChatRoomApi {
 
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "채팅방 생성 성공",
+        @ApiResponse(responseCode = "201", description = "채팅방 생성 또는 기존 채팅방 반환 성공",
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(name = "생성 성공", value = """
                     {
@@ -133,6 +133,7 @@ public interface LostItemChatRoomApi {
         ),
     })
     @Operation(
+        deprecated = true,
         summary = "채팅방 목록(쪽지 리스트 페이지)에서 채팅방 진입시 필요한 데이터 반환",
         description = """
             ### 분실물 게시글 채팅방 데이터 반환
@@ -164,6 +165,7 @@ public interface LostItemChatRoomApi {
         )
     })
     @Operation(
+        deprecated = true,
         summary = "채팅방의 모든 메시지 반환",
         description = """
             ### 채팅방의 모든 메시지를 반환합니다.
@@ -197,6 +199,7 @@ public interface LostItemChatRoomApi {
         )
     })
     @Operation(
+        deprecated = true,
         summary = "채팅방 목록(쪽지 리스트) 데이터 반환",
         description = """
             ### 채팅방 목록 데이터 반환

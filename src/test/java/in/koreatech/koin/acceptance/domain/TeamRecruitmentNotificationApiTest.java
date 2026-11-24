@@ -29,6 +29,7 @@ import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
 import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentNotification;
@@ -69,11 +70,17 @@ class TeamRecruitmentNotificationApiTest extends AcceptanceTest {
     @DisplayName("팀원 모집 알림 목록은 사용자별로 격리되고 페이지·전체 읽음·전체 삭제가 HTTP로 동작한다")
     void notificationListIsolationPaginationAndBulkActions() throws Exception {
         TeamRecruitment recruitment = saveRecruitment("알림 목록");
-        TeamRecruitmentNotification first = saveNotification(recruitment, applicant.getUser(), "첫 알림");
+        TeamRecruitmentNotification first = saveNotification(recruitment, applicant.getUser(), "알림 목록 지원이 거절되었어요.");
         TeamRecruitmentNotification second = saveNotification(recruitment, applicant.getUser(), "둘째 알림");
         TeamRecruitmentNotification third = saveNotification(recruitment, applicant.getUser(), "셋째 알림");
         TeamRecruitmentNotification authorNotification = saveNotification(recruitment, author.getUser(), "작성자 알림");
+        applicant.getUser().changeLanguage(SupportedLanguage.ENGLISH);
         entityManager.flush();
+        entityManager.createQuery("UPDATE TeamRecruitment r SET r.title = :title WHERE r.id = :id")
+            .setParameter("title", "변경된 제목").setParameter("id", recruitment.getId()).executeUpdate();
+        entityManager.clear();
+        assertThat(notificationRepository.findById(first.getId()).orElseThrow().getRecruitmentTitle())
+            .isEqualTo("알림 목록");
 
         List<Integer> applicantNotificationIds = List.of(first.getId(), second.getId(), third.getId()).stream()
             .sorted(Comparator.reverseOrder())
@@ -103,7 +110,8 @@ class TeamRecruitmentNotificationApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.total_page").value(2))
             .andExpect(jsonPath("$.current_page").value(2))
             .andExpect(jsonPath("$.unread_count").value(3))
-            .andExpect(jsonPath("$.notifications[0].id").value(applicantNotificationIds.get(2)));
+            .andExpect(jsonPath("$.notifications[0].id").value(applicantNotificationIds.get(2)))
+            .andExpect(jsonPath("$.notifications[0].message_preview").value("Your application to 알림 목록 was declined."));
 
         mockMvc.perform(get("/team-recruitments/notifications")
                 .header("Authorization", "Bearer " + authorToken))

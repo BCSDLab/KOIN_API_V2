@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -123,18 +124,21 @@ public interface AddressApi {
     })
     @Operation(summary = "교내 배달 주소 목록 조회", description = """
         ### 교내 배달이 가능한 주소 목록 조회
-        - `type` 파라미터를 사용하지 않으면 전체 목록이 조회됩니다.
+        - `filter` 파라미터를 사용하지 않으면 전체 목록이 조회됩니다.
         
         ### 요청 파라미터
-        - **type**: 주소 타입 (선택, 기본값: `ALL`)
+        - **filter**: 주소 타입 (선택, 기본값: `ALL`)
           - **ALL**: 전체
           - **DORMITORY**: 기숙사
           - **COLLEGE_BUILDING**: 공학관
           - **ETC**: 그 외
         """)
+    @SecurityRequirements
     @GetMapping("/address/delivery/campus")
     ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
         @Parameter(description = "주소 타입. 중복 지정 불가")
-        @RequestParam(name = "type", defaultValue = "ALL") CampusDeliveryAddressRequestFilter type
+        @RequestParam(name = "filter", defaultValue = "ALL") CampusDeliveryAddressRequestFilter filter,
+        @Parameter(description = "표시 언어 코드. 공식 명칭이 없으면 원문이며 실제 배달 주소는 변경하지 않습니다.", example = "en-US")
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 }

@@ -70,12 +70,16 @@ public interface UserValidationApi {
         value = {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", description = "전화번호 양식 오류", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", description = "전화번호 중복", content = @Content(schema = @Schema(hidden = true))),
         }
     )
+    @ApiResponseCodes(ApiResponseCode.DUPLICATE_PHONE_NUMBER)
     @Operation(
         summary = "전화번호 사용 가능 체크",
-        description = "입력한 전화번호가 중복되지 않고, 사용 가능한지 확인합니다."
+        description = """
+            입력한 전화번호가 중복되지 않고, 사용 가능한지 확인합니다.
+            이미 등록된 전화번호는 HTTP 409와 `code=DUPLICATE_PHONE_NUMBER`를 반환합니다.
+            `code`는 언어와 무관한 분기 값이고, `message`는 요청 언어에 따른 표시용 문구입니다.
+            """
     )
     @GetMapping("/user/check/phone")
     ResponseEntity<Void> requireUniquePhoneNumber(

@@ -172,6 +172,9 @@ class TeamRecruitmentApplicationServiceTest {
     @Mock
     private Clock clock;
 
+    @org.mockito.Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private TeamRecruitmentApplicationService applicationService;
 

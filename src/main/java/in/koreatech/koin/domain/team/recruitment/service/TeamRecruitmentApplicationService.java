@@ -25,8 +25,31 @@ import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_NOT
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_PROFILE_REQUIRED;
 import static in.koreatech.koin.global.code.ApiResponseCode.TEAM_RECRUITMENT_ROLE_CLOSED;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import in.koreatech.koin.domain.chat.event.ChatRoomChangedEvent;
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.service.StudentValidationService;
@@ -66,22 +89,6 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.duplicate.DuplicateGuard;
 import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.EntityManager;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -113,6 +120,7 @@ public class TeamRecruitmentApplicationService {
     private final ObjectMapper objectMapper;
     private final EntityManager entityManager;
     private final Clock clock;
+    private final ApplicationEventPublisher eventPublisher;
     private final TeamRecruitmentUserLockRepository userLockRepository;
 
     @Transactional
@@ -250,6 +258,8 @@ public class TeamRecruitmentApplicationService {
         chatRoomRepository.save(teamRoom);
         entityManager.flush();
 
+        eventPublisher.publishEvent(new ChatRoomChangedEvent(
+            new ChatRoomKey(ChatDomainType.TEAM_RECRUITMENT, recruitmentId, teamRoom.getId())));
         saveDecisionNotification(application, recruitment, APPLICATION_ACCEPTED, teamRoom);
 
         if (isAtCapacity(recruitment)) {

@@ -7,6 +7,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.common.event.OwnerRegisterEvent;
 import in.koreatech.koin.common.event.OwnerSmsVerificationSendEvent;
+import in.koreatech.koin.common.event.ShopOrderServiceRequestCreatedEvent;
 import in.koreatech.koin.infrastructure.slack.client.SlackClient;
 import in.koreatech.koin.infrastructure.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,13 @@ public class OwnerEventListener {
             event.ownerName(),
             event.shopName()
         );
+        slackClient.sendMessage(notification);
+    }
+
+    @Async
+    @TransactionalEventListener
+    public void onShopOrderServiceRequestCreated(ShopOrderServiceRequestCreatedEvent event) {
+        var notification = slackNotificationFactory.generateShopOrderServiceRequestNotification(event.shopName());
         slackClient.sendMessage(notification);
     }
 }

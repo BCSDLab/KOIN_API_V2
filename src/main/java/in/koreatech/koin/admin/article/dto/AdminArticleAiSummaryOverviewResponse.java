@@ -58,13 +58,13 @@ public record AdminArticleAiSummaryOverviewResponse(
         @Schema(description = "스케줄러 batch size", example = "5", requiredMode = REQUIRED)
         Integer batchSize,
 
-        @Schema(description = "최대 재시도 횟수", example = "5", requiredMode = REQUIRED)
+        @Schema(description = "요약 작업 시도 한도. 소진하면 중단하고 게시글 상세 조회 시 새 주기를 시작합니다.", example = "10", requiredMode = REQUIRED)
         Integer maxRetryCount,
 
-        @Schema(description = "FAILED 재처리 시작 시각", example = "0", requiredMode = REQUIRED)
+        @Schema(description = "FAILED 재처리 시작 시각. 시간 제한 없이 처리하므로 항상 0입니다.", example = "0", requiredMode = REQUIRED)
         Integer failedRetryWindowStartHour,
 
-        @Schema(description = "FAILED 재처리 종료 시각", example = "4", requiredMode = REQUIRED)
+        @Schema(description = "FAILED 재처리 종료 시각. 시간 제한 없이 처리하므로 항상 24입니다.", example = "24", requiredMode = REQUIRED)
         Integer failedRetryWindowEndHour
     ) {
     }

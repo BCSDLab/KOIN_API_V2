@@ -14,6 +14,9 @@ import in.koreatech.koin.global.exception.CustomException;
 
 public interface OrderableShopRepository extends JpaRepository<OrderableShop, Integer> {
 
+    // OrderableShop의 @Where(is_deleted=0)가 삭제된 주문상점을 제외한다.
+    boolean existsByShop_Id(Integer shopId);
+
     @Query(value = "SELECT COUNT(*) FROM orderable_shop WHERE shop_id = :shopId", nativeQuery = true)
     long countByShopIdIncludingDeleted(@Param("shopId") Integer shopId);
 

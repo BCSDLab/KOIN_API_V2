@@ -37,6 +37,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
@@ -233,6 +234,7 @@ class DiningSoldOutNotificationConcurrencyTest extends AcceptanceTest {
     static class NotificationLockConfig {
 
         @Bean(destroyMethod = "shutdown")
+        @Primary
         RedissonClient notificationRedissonClient(@Value("${spring.data.redis.host}") String host,
             @Value("${spring.data.redis.port}") int port) {
             Config config = new Config();
