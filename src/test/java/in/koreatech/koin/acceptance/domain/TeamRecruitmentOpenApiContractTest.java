@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -66,6 +68,27 @@ class TeamRecruitmentOpenApiContractTest extends AcceptanceTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/v3/api-docs", "/v3/api-docs/10.%20Translation%20API"})
+    void teamRecruitmentTranslationMessageIdUsesStringSchema(String apiDocsPath) throws Exception {
+        JsonNode parameters = openApi(apiDocsPath).path("paths")
+            .path("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages/{messageId}/translations")
+            .path("post")
+            .path("parameters");
+
+        assertThat(parameters)
+            .filteredOn(parameter -> "messageId".equals(parameter.path("name").asText()))
+            .singleElement()
+            .satisfies(parameter -> {
+                assertThat(parameter.path("in").asText()).isEqualTo("path");
+                assertThat(parameter.path("required").asBoolean()).isTrue();
+                JsonNode schema = parameter.path("schema");
+                assertThat(schema.path("type").asText()).isEqualTo("string");
+                assertThat(schema.path("format").isMissingNode()).isTrue();
+                assertThat(schema.path("pattern").asText()).isEqualTo("^[0-9]+$");
+            });
+    }
 
     @Test
     void teamRecruitmentContractMatchesRuntime() throws Exception {

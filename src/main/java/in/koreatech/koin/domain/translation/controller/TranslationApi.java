@@ -324,7 +324,10 @@ public interface TranslationApi {
     })
     @PostMapping("/chatroom/team-recruitment/{recruitmentId}/{chatRoomId}/messages/{messageId}/translations")
     ResponseEntity<TranslationResponse<TranslationData.Message>> recruitmentMessage(
-        @PathVariable Integer recruitmentId, @PathVariable Integer chatRoomId, @PathVariable Integer messageId,
+        @PathVariable Integer recruitmentId, @PathVariable Integer chatRoomId,
+        @Parameter(description = "통합 채팅 조회 응답의 문자열 message_id를 그대로 전달합니다.",
+            schema = @Schema(type = "string", pattern = "^[0-9]+$", example = "901"))
+        @PathVariable Integer messageId,
         @Auth(permit = {STUDENT}) Integer userId, @RequestBody @Valid TranslationRequest request);
 
     @Operation(summary = "콜밴 채팅 메시지 번역", description = "현재 콜밴에 참여한 학생만 텍스트 메시지를 번역할 수 있습니다.",
