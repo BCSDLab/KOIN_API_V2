@@ -15,11 +15,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +40,6 @@ import in.koreatech.koin.global.auth.JwtProvider;
 
 /** MVC·원문 로더·MySQL 저장소는 실제 구현을 사용하고 AI 응답만 대체한다. */
 @Transactional(propagation = NOT_SUPPORTED)
-@TestPropertySource(properties = {"article.ai-summary.enabled=false", "upstage.api-key=", "translation.cleanup-cron=-"})
 class CallvanTranslationApiTest extends AcceptanceTest {
     private static final String CHAT = "/callvan/posts/{postId}/chat";
     private static final String TRANSLATE = CHAT + "/messages/{messageId}/translations";
@@ -54,7 +51,7 @@ class CallvanTranslationApiTest extends AcceptanceTest {
     @Autowired JwtProvider jwtProvider;
     @Autowired JdbcTemplate jdbc;
     @Autowired TranslationStore store;
-    @MockBean TranslationAiClient aiClient;
+    @Autowired TranslationAiClient aiClient;
     private User author;
     private User outsider;
     private CallvanPost post;

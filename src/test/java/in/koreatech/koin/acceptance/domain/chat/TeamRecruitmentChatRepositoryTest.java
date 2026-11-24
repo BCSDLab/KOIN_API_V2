@@ -10,9 +10,7 @@ import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,14 +33,11 @@ import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessag
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMemberRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentChatMessageRepository;
-import in.koreatech.koin.domain.team.recruitment.scheduler.TeamRecruitmentDeadlineScheduler;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 
-@TestPropertySource(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 class TeamRecruitmentChatRepositoryTest extends AcceptanceTest {
 
-    @MockBean private TeamRecruitmentDeadlineScheduler deadlineScheduler;
     @Autowired private TeamRecruitmentChatAdapter adapter;
     @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private TeamRecruitmentChatMemberRepository members;
@@ -50,6 +45,7 @@ class TeamRecruitmentChatRepositoryTest extends AcceptanceTest {
 
     @AfterEach
     void cleanUp() {
+        entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getStatistics().setStatisticsEnabled(false);
         clear();
     }
 
@@ -89,7 +85,9 @@ class TeamRecruitmentChatRepositoryTest extends AcceptanceTest {
         var transaction = new TransactionTemplate(transactionManager);
         var small = transaction.execute(status -> mixedRooms(1));
         var large = transaction.execute(status -> mixedRooms(4));
+        // 공용 컨텍스트의 설정을 바꾸지 않도록 쿼리 수 통계는 이 테스트에서만 켠다.
         var statistics = entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getStatistics();
+        statistics.setStatisticsEnabled(true);
 
         // Each service call must open its own transaction, just as it does behind the adapter in production.
         assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isFalse();

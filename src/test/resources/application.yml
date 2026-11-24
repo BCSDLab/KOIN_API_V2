@@ -123,3 +123,10 @@ toss-payment:
 team-recruitment:
   outbox:
     enabled: false
+
+dining:
+  report:
+    bot-token: test-dining-report-bot-token
+
+translation:
+  cleanup-cron: "-"

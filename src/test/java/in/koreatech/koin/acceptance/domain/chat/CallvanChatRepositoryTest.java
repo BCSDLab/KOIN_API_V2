@@ -14,8 +14,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -34,7 +32,6 @@ import in.koreatech.koin.domain.callvan.repository.CallvanChatMessageRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanParticipantRepository;
 import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
 import in.koreatech.koin.domain.callvan.service.CallvanChatService;
-import in.koreatech.koin.domain.callvan.service.CallvanNotificationEventListener;
 import in.koreatech.koin.domain.callvan.service.CallvanPostJoinService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -47,7 +44,7 @@ class CallvanChatRepositoryTest extends AcceptanceTest {
     @Autowired
     private CallvanChatMessageRepository messages;
 
-    @SpyBean
+    @Autowired
     private CallvanPostRepository posts;
 
     @Autowired
@@ -58,9 +55,6 @@ class CallvanChatRepositoryTest extends AcceptanceTest {
 
     @Autowired
     private PlatformTransactionManager transactionManager;
-
-    @MockBean
-    private CallvanNotificationEventListener notificationEventListener;
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)

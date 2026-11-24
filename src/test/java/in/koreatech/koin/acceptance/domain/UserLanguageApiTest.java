@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,6 @@ import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.config.WebAuthProperties;
 import jakarta.servlet.http.Cookie;
 
-@TestPropertySource(properties = {"article.ai-summary.enabled=false", "upstage.api-key="})
 class UserLanguageApiTest extends AcceptanceTest {
 
     @Autowired

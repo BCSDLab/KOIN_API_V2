@@ -22,11 +22,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -51,14 +49,13 @@ import in.koreatech.koin.infrastructure.upstage.client.UpstageTranslationClient;
 
 /** 실제 MVC·저장소를 사용한다. 원문은 합성 데이터이며 정상 호출은 로컬 HTTP 서버를 거친다. */
 @Transactional(propagation = NOT_SUPPORTED)
-@TestPropertySource(properties = {"article.ai-summary.enabled=false", "upstage.api-key=", "translation.cleanup-cron=-"})
 class TranslationApiTest extends AcceptanceTest {
     private static final String SUMMARY = "/v2/articles/17/ai-summary/translations";
     private static final String LOST = "/articles/lost-item/17/translations";
     private static final String LOST_MESSAGE = "/v2/chatroom/lost-item/17/2/messages/733900000000012345/translations";
 
-    @MockBean TranslationAiClient aiClient;
-    @MockBean TranslationSourceReader sourceReader;
+    @Autowired TranslationAiClient aiClient;
+    @Autowired TranslationSourceReader sourceReader;
     @Autowired JdbcTemplate jdbc;
     @Autowired TranslationProperties properties;
     @Autowired TranslationStore store;
@@ -85,7 +82,7 @@ class TranslationApiTest extends AcceptanceTest {
         var source = TranslationSource.of(resource,
             TranslationSourceFields.summary(List.of(Map.of("icon", "📅", "text", "신청은 금요일까지입니다."))),
             Map.of("item_0", "신청은 금요일까지입니다."), null);
-        when(sourceReader.load(resource, null)).thenReturn(source);
+        doReturn(source).when(sourceReader).load(resource, null);
 
         var entered = new CountDownLatch(1);
         var release = new CountDownLatch(1);
@@ -203,7 +200,7 @@ class TranslationApiTest extends AcceptanceTest {
                 "/callvan/posts/20/translations", Map.of("departure", "Main gate"), "title", "Main gate -> Cheonan Station")
         );
         for (var example : examples) {
-            when(sourceReader.load(example.source().resource(), null)).thenReturn(example.source());
+            doReturn(example.source()).when(sourceReader).load(example.source().resource(), null);
             when(aiClient.translate(example.source().texts(), SupportedLanguage.ENGLISH)).thenReturn(example.translated());
             var first = mockMvc.perform(post(example.path()).contentType(MediaType.APPLICATION_JSON)
                     .content(body(example.source().version())))
@@ -232,7 +229,7 @@ class TranslationApiTest extends AcceptanceTest {
         List<String> originalMenu = List.of("★천원의 아침★", "계란찜");
         var source = TranslationSource.of(resource, TranslationSourceFields.dining(originalMenu),
             Map.of("menu_0", originalMenu.get(0), "menu_1", originalMenu.get(1)), null);
-        when(sourceReader.load(resource, null)).thenReturn(source);
+        doReturn(source).when(sourceReader).load(resource, null);
         var translationInput = Map.of("menu_0", "★₩1,000의 아침★", "menu_1", "계란찜");
         when(aiClient.translate(translationInput, SupportedLanguage.ENGLISH))
             .thenReturn(Map.of("menu_0", "★₩1,000 Breakfast★", "menu_1", "Steamed eggs"));
@@ -288,15 +285,15 @@ class TranslationApiTest extends AcceptanceTest {
         String bearer = "Bearer " + jwtProvider.createToken(user);
         var resource = TranslationResource.message(TranslationType.LOST_ITEM_MESSAGE, 17, 2, "733900000000012345");
         var source = TranslationSource.of(resource, TranslationSourceFields.message("안녕하세요"), Map.of("content", "안녕하세요"), null);
-        when(sourceReader.load(resource, user.getId())).thenReturn(source);
+        doReturn(source).when(sourceReader).load(resource, user.getId());
         when(aiClient.translate(source.texts(), SupportedLanguage.ENGLISH)).thenReturn(Map.of("content", "Hello"));
         var result = mockMvc.perform(post(LOST_MESSAGE).header(HttpHeaders.AUTHORIZATION, bearer)
                 .contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
             .andExpect(status().isOk()).andExpect(jsonPath("$.data.content").value("Hello")).andReturn();
         String id = JsonAssertions.convertJsonNode(result).path("translation_id").asText();
-        when(sourceReader.load(resource, null)).thenThrow(AuthenticationException.withDetail("login required"));
+        doThrow(AuthenticationException.withDetail("login required")).when(sourceReader).load(resource, null);
         mockMvc.perform(get("/translations/{id}", id)).andExpect(status().isUnauthorized());
-        when(sourceReader.load(resource, user.getId())).thenThrow(AuthorizationException.withDetail("access revoked"));
+        doThrow(AuthorizationException.withDetail("access revoked")).when(sourceReader).load(resource, user.getId());
         mockMvc.perform(get("/translations/{id}", id).header(HttpHeaders.AUTHORIZATION, bearer))
             .andExpect(status().isForbidden());
         verify(aiClient, times(1)).translate(anyMap(), any());
@@ -309,9 +306,9 @@ class TranslationApiTest extends AcceptanceTest {
             Map.of("found_place", "학생회관"), null);
         var changed = TranslationSource.of(resource, TranslationSourceFields.lostItem("도서관", null),
             Map.of("found_place", "도서관"), null);
-        when(sourceReader.load(resource, null)).thenReturn(source);
+        doReturn(source).when(sourceReader).load(resource, null);
         when(aiClient.translate(source.texts(), SupportedLanguage.ENGLISH)).thenAnswer(invocation -> {
-            when(sourceReader.load(resource, null)).thenReturn(changed);
+            doReturn(changed).when(sourceReader).load(resource, null);
             return Map.of("found_place", "Student Union");
         });
         mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
@@ -325,7 +322,7 @@ class TranslationApiTest extends AcceptanceTest {
         // 원문이 번역할 수 없는 내용으로 바뀌어도 이전 버전에는 재조회를 안내한다.
         var unsupported = TranslationSource.of(resource, TranslationSourceFields.lostItem("123", null),
             Map.of(), TranslationReason.UNSUPPORTED_CONTENT);
-        when(sourceReader.load(resource, null)).thenReturn(unsupported);
+        doReturn(unsupported).when(sourceReader).load(resource, null);
         mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
             .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("SOURCE_CHANGED"));
         mockMvc.perform(post(LOST).contentType(MediaType.APPLICATION_JSON).content(body(unsupported.version())))
@@ -336,7 +333,7 @@ class TranslationApiTest extends AcceptanceTest {
         var summaryResource = TranslationResource.article(TranslationType.ARTICLE_SUMMARY, 17);
         var pendingSummary = TranslationSource.of(summaryResource, TranslationSourceFields.summary(List.of()),
             Map.of(), TranslationReason.SOURCE_NOT_READY);
-        when(sourceReader.load(summaryResource, null)).thenReturn(pendingSummary);
+        doReturn(pendingSummary).when(sourceReader).load(summaryResource, null);
         mockMvc.perform(post(SUMMARY).contentType(MediaType.APPLICATION_JSON).content(body(source.version())))
             .andExpect(status().isServiceUnavailable())
             .andExpect(jsonPath("$.reason_code").value("SOURCE_NOT_READY"))
@@ -349,7 +346,7 @@ class TranslationApiTest extends AcceptanceTest {
         var resource = TranslationResource.article(TranslationType.LOST_ITEM, 17);
         var source = TranslationSource.of(resource, TranslationSourceFields.lostItem("학생회관", null),
             Map.of("found_place", "학생회관"), null);
-        when(sourceReader.load(resource, null)).thenReturn(source);
+        doReturn(source).when(sourceReader).load(resource, null);
         var upstreamStatus = new AtomicInteger(401);
         var calls = new AtomicInteger();
         var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);

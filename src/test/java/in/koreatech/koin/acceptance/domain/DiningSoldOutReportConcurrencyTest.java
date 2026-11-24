@@ -9,12 +9,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.time.LocalDate;
@@ -33,11 +33,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
@@ -69,9 +66,6 @@ import in.koreatech.koin.infrastructure.fcm.FcmSendResponse;
 import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@TestPropertySource(properties = {
-    "dining.report.bot-token=test-dining-report-bot-token"
-})
 class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
 
     private static final int CONCURRENCY = 2;
@@ -117,16 +111,16 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
-    @MockBean
+    @Autowired
     private S3ClientWrapper s3Client;
 
-    @MockBean
+    @Autowired
     private FcmClient fcmClient;
 
-    @SpyBean
+    @Autowired
     private DiningReportRepository reportRepository;
 
-    @SpyBean
+    @Autowired
     private DiningReportSequenceRepository sequenceRepository;
 
     private TransactionTemplate transactionTemplate;
@@ -157,12 +151,12 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
             secondStudentToken = userFixture.getToken(userFixture.성빈_학생(department).getUser());
             diningId = diningFixture.A코너_점심(LocalDate.now(clock.withZone(ZoneId.of("Asia/Seoul")))).getId();
         });
-        when(s3Client.getDomainUrlPrefix()).thenReturn(IMAGE_DOMAIN);
-        when(s3Client.isCustomDomainUrl(anyString()))
-            .thenAnswer(invocation -> invocation.<String>getArgument(0).startsWith(IMAGE_DOMAIN));
-        when(s3Client.extractKeyFromUrl(anyString()))
-            .thenAnswer(invocation -> invocation.<String>getArgument(0).substring(IMAGE_DOMAIN.length()));
-        when(s3Client.doesFileExist(anyString())).thenReturn(true);
+        doReturn(IMAGE_DOMAIN).when(s3Client).getDomainUrlPrefix();
+        doAnswer(invocation -> invocation.<String>getArgument(0).startsWith(IMAGE_DOMAIN))
+            .when(s3Client).isCustomDomainUrl(anyString());
+        doAnswer(invocation -> invocation.<String>getArgument(0).substring(IMAGE_DOMAIN.length()))
+            .when(s3Client).extractKeyFromUrl(anyString());
+        doReturn(true).when(s3Client).doesFileExist(anyString());
         clearInvocations(coopEventListener);
     }
 
@@ -360,7 +354,7 @@ class DiningSoldOutReportConcurrencyTest extends AcceptanceTest {
                 .user(recipient).subscribeType(DINING_SOLD_OUT).detailType(LUNCH).build());
         });
         try {
-            when(fcmClient.sendMessages(anyList())).thenReturn(List.of(FcmSendResponse.succeeded()));
+            doReturn(List.of(FcmSendResponse.succeeded())).when(fcmClient).sendMessages(anyList());
             doAnswer(invocation -> {
                 DiningSoldOutEvent event = invocation.getArgument(0);
                 coopNotificationService.sendDiningSoldOutNotifications(event.id(), event.place(), event.diningType());

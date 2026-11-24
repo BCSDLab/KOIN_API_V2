@@ -1,7 +1,7 @@
 package in.koreatech.koin.config;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import org.springframework.boot.test.context.TestConfiguration;
@@ -28,10 +28,8 @@ public class TestTimeConfig {
     }
 
     @Bean
-    public Clock clock() {
-        return Clock.fixed(
-            currTime.atZone(Clock.systemDefaultZone().getZone()).toInstant(),
-            Clock.systemDefaultZone().getZone()
-        );
+    public TestClock clock() {
+        ZoneId zone = ZoneId.systemDefault();
+        return new TestClock(currTime.atZone(zone).toInstant(), zone);
     }
 }

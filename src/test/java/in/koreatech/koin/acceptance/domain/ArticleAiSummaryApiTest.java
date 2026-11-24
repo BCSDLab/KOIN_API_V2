@@ -12,12 +12,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.transaction.TestTransaction;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
@@ -40,11 +39,8 @@ import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.translation.service.TranslationAiClient;
+import in.koreatech.koin.infrastructure.upstage.client.UpstageProperties;
 
-@TestPropertySource(properties = {
-    "article.ai-summary.enabled=true",
-    "upstage.api-key=test-key"
-})
 class ArticleAiSummaryApiTest extends AcceptanceTest {
 
     @Autowired
@@ -74,19 +70,34 @@ class ArticleAiSummaryApiTest extends AcceptanceTest {
     @Autowired
     private BoardRepository boardRepository;
 
-    @MockBean
+    @Autowired
+    private UpstageProperties upstageProperties;
+
+    @Autowired
     private TranslationAiClient translationAiClient;
 
     private Article article;
     private Student student;
+    private boolean originalEnabled;
+    private String originalApiKey;
 
     @BeforeEach
     void setUp() {
+        originalEnabled = properties.isEnabled();
+        originalApiKey = upstageProperties.getApiKey();
+        properties.setEnabled(true);
+        upstageProperties.setApiKey("test-key");
         clear();
         Department department = departmentFixture.컴퓨터공학부();
         student = userFixture.준호_학생(department, null);
         Board board = boardFixture.자유게시판();
         article = articleFixture.자유글_1(board, student.getUser());
+    }
+
+    @AfterEach
+    void restoreProperties() {
+        properties.setEnabled(originalEnabled);
+        upstageProperties.setApiKey(originalApiKey);
     }
 
     @Test

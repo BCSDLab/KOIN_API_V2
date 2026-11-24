@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
@@ -31,7 +30,6 @@ import in.koreatech.koin.domain.translation.model.TranslationType;
 import in.koreatech.koin.domain.translation.service.TranslationStore;
 
 @Transactional(propagation = NOT_SUPPORTED)
-@TestPropertySource(properties = {"article.ai-summary.enabled=false", "upstage.api-key=", "translation.cleanup-cron=-"})
 class TranslationStoreTest extends AcceptanceTest {
     private static final TranslationResource ARTICLE = TranslationResource.article(TranslationType.LOST_ITEM, 17);
     private static final String VERSION = "a".repeat(64);

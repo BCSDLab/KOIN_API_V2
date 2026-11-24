@@ -9,14 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.context.TestPropertySource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.support.JsonAssertions;
 
-@TestPropertySource(properties = {"article.ai-summary.enabled=false", "upstage.api-key="})
 class LanguageApiTest extends AcceptanceTest {
 
     @ParameterizedTest
