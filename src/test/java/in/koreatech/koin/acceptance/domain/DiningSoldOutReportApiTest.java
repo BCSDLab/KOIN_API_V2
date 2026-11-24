@@ -21,6 +21,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
+import in.koreatech.koin.common.event.DiningReportApprovedEvent;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,6 +41,7 @@ import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 
+@RecordApplicationEvents
 class DiningSoldOutReportApiTest extends AcceptanceTest {
 
     private static final String BOT_PATH = "/internal/dining/soldout-reports";
@@ -47,6 +51,9 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
     private static final String IMAGE_DOMAIN = "https://test.koreatech.in/";
     private static final String IMAGE_URL = IMAGE_DOMAIN
         + "upload/COOP/2024/1/15/e924c7d3-3757-4cd0-961b-e65c1f6cc8ad/soldout.jpg";
+
+    @Autowired
+    private ApplicationEvents applicationEvents;
 
     @Autowired
     private UserAcceptanceFixture userFixture;
@@ -204,6 +211,12 @@ class DiningSoldOutReportApiTest extends AcceptanceTest {
         decide(selectedId, "reject", "U_OTHER").andExpect(status().isConflict());
         decide(rejectedId, "approve", "U_OTHER").andExpect(status().isConflict());
         botDetail(selectedId).andExpect(jsonPath("$.processing_id").value(group));
+        // 반려자/재승인은 제외하고, 이번에 승인된 두 제보자에게만 한 번 발행한다.
+        assertThat(applicationEvents.stream(DiningReportApprovedEvent.class).toList())
+            .singleElement().satisfies(event -> {
+                assertThat(event.diningId()).isEqualTo(dining.getId());
+                assertThat(event.reporterIds()).hasSize(2).doesNotContain(student.getId()).doesNotHaveDuplicates();
+            });
     }
 
     @Test

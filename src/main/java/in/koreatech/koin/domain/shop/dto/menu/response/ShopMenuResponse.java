@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.shop.dto.menu.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
+
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -67,6 +71,12 @@ public record ShopMenuResponse(
         @Schema(description = "해당 상점의 모든 메뉴 리스트")
         List<InnerMenuResponse> menus
     ) {
+        @JsonProperty("translation_source_version")
+        @Schema(description = "이 메뉴 분류 이름의 번역 원문 버전")
+        public String getTranslationSourceVersion() {
+            return TranslationSourceVersion.of(TranslationSourceFields.name(name));
+        }
+
 
         public static InnerMenuCategoriesResponse from(MenuCategory menuCategory) {
             return new InnerMenuCategoriesResponse(
@@ -105,6 +115,14 @@ public record ShopMenuResponse(
             List<String> imageUrls
         ) {
 
+
+            @JsonProperty("translation_source_version")
+            @Schema(description = "이 항목의 번역 원문 버전. 번역 요청 expected_source_version으로 전달합니다.")
+            public String getTranslationSourceVersion() {
+                return TranslationSourceVersion.of(TranslationSourceFields.shopMenu(name, description,
+                    optionPrices == null ? null : optionPrices.stream()
+                        .map(option -> TranslationSourceFields.optionPrice(option.option(), option.price())).toList()));
+            }
             public static InnerMenuResponse from(MenuCategoryMap menuCategoryMap) {
                 Menu menu = menuCategoryMap.getMenu();
                 boolean isSingle = !menu.hasMultipleOption();

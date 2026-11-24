@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.enums.BusStation;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -22,19 +24,31 @@ public record BusScheduleResponse(
     BusStation arrival,
     @Schema(description = "출발 날짜", example = "2024-11-05", requiredMode = REQUIRED)
     LocalDate departDate,
-    @Schema(description = "출발 시간", example = "12:00", requiredMode = REQUIRED)
+    @Schema(implementation = String.class, description = "출발 시간", example = "12:00", requiredMode = REQUIRED)
     LocalTime departTime,
     @Schema(description = "교통편 조회 결과", requiredMode = NOT_REQUIRED)
-    List<ScheduleInfo> schedule
+    List<ScheduleInfo> schedule,
+
+    @Schema(description = "표시용 출발지 공식 명칭. 해당 언어의 공식 명칭이 없으면 원문")
+    String departDisplayName,
+
+    @Schema(description = "표시용 도착지 공식 명칭. 해당 언어의 공식 명칭이 없으면 원문")
+    String arrivalDisplayName
 
 ) {
+    public BusScheduleResponse withLanguage(SupportedLanguage language) {
+        return new BusScheduleResponse(depart, arrival, departDate, departTime, schedule,
+            OfficialNameResolver.stationName(depart.getQueryName(), language),
+            OfficialNameResolver.stationName(arrival.getQueryName(), language));
+    }
+
     @JsonNaming(SnakeCaseStrategy.class)
     public record ScheduleInfo(
         @Schema(description = "버스 타입 (shuttle, express, city)", example = "express", requiredMode = REQUIRED)
         String busType,
         @Schema(description = "버스 이름 또는 노선명", example = "대성티앤이", requiredMode = REQUIRED)
         String busName,
-        @Schema(description = "버스 출발 시간", example = "16:50", requiredMode = REQUIRED)
+        @Schema(implementation = String.class, description = "버스 출발 시간", example = "16:50", requiredMode = REQUIRED)
         LocalTime departTime
     ) {
 

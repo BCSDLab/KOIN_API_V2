@@ -41,22 +41,31 @@ public class NotificationService {
     }
 
     @Transactional
+    public void pushChatNotification(Notification notification, String roomId) {
+        sendAndRecord(List.of(notification), List.of(toRequest(notification).withRoomId(roomId)));
+    }
+
+    @Transactional
     public void pushNotifications(List<Notification> notifications) {
         if (notifications.isEmpty()) {
             return;
         }
 
-        List<FcmSendRequest> fcmSendRequests = notifications.stream()
-            .map(notification -> FcmSendRequest.of(
-                notification.getUser().getDeviceToken(),
-                notification.getTitle(),
-                notification.getMessage(),
-                notification.getImageUrl(),
-                notification.getMobileAppPath(),
-                notification.getSchemeUri(),
-                notification.getType().toLowerCase()
-            ))
-            .toList();
+        sendAndRecord(notifications, notifications.stream().map(this::toRequest).toList());
+    }
+
+    private FcmSendRequest toRequest(Notification notification) {
+        return FcmSendRequest.of(
+            notification.getUser().getDeviceToken(),
+            notification.getTitle(),
+            notification.getMessage(),
+            notification.getImageUrl(),
+            notification.getMobileAppPath(),
+            notification.getSchemeUri(),
+            notification.getType().toLowerCase());
+    }
+
+    private void sendAndRecord(List<Notification> notifications, List<FcmSendRequest> fcmSendRequests) {
         List<FcmSendResponse> fcmSendResponses = fcmClient.sendMessages(fcmSendRequests);
         markPushResults(notifications, fcmSendResponses);
 

@@ -21,6 +21,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.koreatech.koin.domain.notification.i18n.NotificationMessages;
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
@@ -116,13 +119,25 @@ public class TeamRecruitmentOutboxWorker {
             }
 
             String recruitmentTitle = recruitment.getTitle() == null
-                ? "팀원 모집"
+                ? NotificationMessages.format(recipient, "팀원 모집")
                 : recruitment.getTitle();
             String title = text(payload, "title").orElse(recruitmentTitle);
-            String content = text(payload, "content")
+            var savedContent = text(payload, "content")
                 .or(() -> text(payload, "message_preview"))
-                .or(() -> inbox.map(TeamRecruitmentNotification::getMessagePreview))
-                .orElseGet(() -> fallbackContent(outboxPayload.type(), recruitmentTitle));
+                .or(() -> inbox.map(TeamRecruitmentNotification::getMessagePreview));
+            String fallbackTitle = recruitment.getTitle() == null ? "팀원 모집" : recruitment.getTitle();
+            String content = savedContent.orElseGet(() -> outboxPayload.type() == TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE
+                    ? NotificationMessages.format(recipient, "%s 새 메시지가 도착했어요.", recruitmentTitle)
+                    : fallbackContent(outboxPayload.type(), fallbackTitle));
+
+            if (outboxPayload.type() != TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE) {
+                // 지금 만든 대체 문구만 현재 제목이 근거가 된다. 저장된 과거 문구에는 쓰지 않는다.
+                String originalTitle = savedContent.isEmpty() ? fallbackTitle
+                    : inbox.map(TeamRecruitmentNotification::getRecruitmentTitle).orElse(null);
+                content = NotificationMessages.teamMessage(recipient, outboxPayload.type(),
+                    originalTitle, content, inbox.map(TeamRecruitmentNotification::getApplication)
+                        .map(application -> application.getDecisionReason()).orElse(null));
+            }
 
             FcmSendRequest request = FcmSendRequest.of(
                 recipient.getDeviceToken(),
@@ -136,6 +151,13 @@ public class TeamRecruitmentOutboxWorker {
                     ? null
                     : outboxPayload.notificationId().toString()
             );
+            if (outboxPayload.type() == NEW_CHAT_MESSAGE
+                && outboxPayload.targetType() == TeamRecruitmentNotificationTargetType.CHAT_ROOM
+                && outboxPayload.recruitmentId() > 0
+                && outboxPayload.chatRoomId() != null && outboxPayload.chatRoomId() > 0) {
+                request = request.withRoomId(new ChatRoomKey(ChatDomainType.TEAM_RECRUITMENT,
+                    outboxPayload.recruitmentId(), outboxPayload.chatRoomId()).encoded());
+            }
             List<FcmSendResponse> responses = fcmClient.sendMessages(List.of(request));
             FcmSendResponse response = responses == null || responses.isEmpty()
                 ? FcmSendResponse.failed("EMPTY_RESPONSE", null)

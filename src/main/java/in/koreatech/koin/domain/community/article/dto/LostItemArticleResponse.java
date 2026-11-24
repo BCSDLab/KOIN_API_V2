@@ -9,6 +9,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
 
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
@@ -65,6 +69,12 @@ public record LostItemArticleResponse(
     @Schema(description = "수정일", example = "2025-01-10 16:53:22", requiredMode = REQUIRED)
     LocalDateTime updatedAt
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "현재 번역 대상 필드의 버전. 번역 요청의 expected_source_version에 그대로 전달합니다.", nullable = true)
+    public String getTranslationSourceVersion() {
+        return TranslationSourceVersion.of(TranslationSourceFields.lostItem(foundPlace, content));
+    }
+
 
     public static LostItemArticleResponse of(Article article, Boolean isMine) {
         LostItemArticle lostItemArticle = article.getLostItemArticle();

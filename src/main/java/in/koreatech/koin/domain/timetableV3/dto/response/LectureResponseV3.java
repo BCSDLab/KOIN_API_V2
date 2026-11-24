@@ -9,6 +9,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
@@ -54,7 +57,10 @@ public record LectureResponseV3(
     String isElearning,
 
     @Schema(description = "강의 정보", requiredMode = REQUIRED)
-    List<LectureInfo> lectureInfos
+    List<LectureInfo> lectureInfos,
+
+    @Schema(description = "표시용 공식 강의명. 해당 언어의 등록된 공식명이 없으면 name 원문")
+    String displayName
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record LectureInfo(
@@ -96,6 +102,12 @@ public record LectureResponseV3(
         }
     }
 
+    public LectureResponseV3 withLanguage(SupportedLanguage language) {
+        return new LectureResponseV3(id, code, name, grades, lectureClass, regularNumber, department,
+            target, professor, isEnglish, designScore, isElearning, lectureInfos,
+            OfficialNameResolver.lectureName(name, language));
+    }
+
     public static LectureResponseV3 from(Lecture lecture) {
         return new LectureResponseV3(
             lecture.getId(),
@@ -110,7 +122,8 @@ public record LectureResponseV3(
             lecture.getIsEnglish(),
             lecture.getDesignScore(),
             lecture.getIsElearning(),
-            LectureInfo.from(lecture.getClassTime())
+            LectureInfo.from(lecture.getClassTime()),
+            lecture.getName()
         );
     }
 }

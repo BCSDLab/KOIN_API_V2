@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.common.event.UserDeleteEvent;
 import in.koreatech.koin.common.event.UserMarketingAgreementEvent;
@@ -27,6 +28,8 @@ import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserLanguageResponse;
+import in.koreatech.koin.domain.user.dto.UserLanguageUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
@@ -74,6 +77,22 @@ public class UserService {
             return UserProfileResponse.from(student);
         }
         return UserProfileResponse.from(user);
+    }
+
+    public UserLanguageResponse getLanguage(Integer userId) {
+        User user = userRepository.getById(userId);
+        if (user.getPreferredLanguage() == null) {
+            return new UserLanguageResponse(null);
+        }
+        return UserLanguageResponse.from(SupportedLanguage.fromStoredCode(user.getPreferredLanguage()));
+    }
+
+    @Transactional
+    public UserLanguageResponse updateLanguage(Integer userId, UserLanguageUpdateRequest request) {
+        SupportedLanguage language = SupportedLanguage.fromCode(request.language());
+        User user = userRepository.getById(userId);
+        user.changeLanguage(language);
+        return UserLanguageResponse.from(language);
     }
 
     public UserTypeResponse getUserType(Integer userId) {

@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.dining.controller;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDate;
@@ -30,9 +31,12 @@ public class DiningController implements DiningApi {
     public ResponseEntity<List<DiningResponse>> getDinings(
         @DateTimeFormat(pattern = "yyMMdd")
         @RequestParam(required = false) LocalDate date,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        List<DiningResponse> responses = diningService.getDinings(date, userId);
+        var selectedLanguage = SupportedLanguage.fromCode(language);
+        List<DiningResponse> responses = diningService.getDinings(date, userId).stream()
+            .map(response -> response.localized(selectedLanguage)).toList();
         return ResponseEntity.ok(responses);
     }
 

@@ -31,12 +31,16 @@ import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.service.express.client.PublicExpressBusClient;
 import in.koreatech.koin.domain.bus.service.express.client.StaticExpressBusClient;
 import in.koreatech.koin.domain.bus.service.express.client.TmoneyExpressBusClient;
+import in.koreatech.koin.domain.callvan.repository.CallvanPostRepository;
+import in.koreatech.koin.domain.callvan.service.CallvanNotificationEventListener;
 import in.koreatech.koin.domain.dining.repository.DiningReportRepository;
 import in.koreatech.koin.domain.dining.repository.DiningReportSequenceRepository;
 import in.koreatech.koin.domain.notification.eventlistener.CoopEventListener;
 import in.koreatech.koin.domain.notification.eventlistener.KeywordEventListener;
 import in.koreatech.koin.domain.notification.eventlistener.ShopEventListener;
 import in.koreatech.koin.domain.team.recruitment.scheduler.TeamRecruitmentDeadlineScheduler;
+import in.koreatech.koin.domain.translation.service.TranslationAiClient;
+import in.koreatech.koin.domain.translation.service.TranslationSourceReader;
 import in.koreatech.koin.infrastructure.fcm.FcmClient;
 import in.koreatech.koin.infrastructure.naver.service.NaverSmsService;
 import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
@@ -54,8 +58,9 @@ import jakarta.persistence.EntityManager;
     TestRedisConfig.class,
     TestResilience4jConfig.class})
 // 하위 클래스가 mock/spy 구성을 따로 선언하면 Spring 컨텍스트가 새로 뜬다. 필요한 대체 빈은 여기서만 선언한다.
-@MockBean(TeamRecruitmentDeadlineScheduler.class)
-@SpyBean({FcmClient.class, S3ClientWrapper.class, DiningReportRepository.class, DiningReportSequenceRepository.class})
+@MockBean({TeamRecruitmentDeadlineScheduler.class, TranslationAiClient.class, CallvanNotificationEventListener.class})
+@SpyBean({FcmClient.class, S3ClientWrapper.class, DiningReportRepository.class, DiningReportSequenceRepository.class,
+    CallvanPostRepository.class, TranslationSourceReader.class})
 @ActiveProfiles("test")
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

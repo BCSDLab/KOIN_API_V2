@@ -127,3 +127,6 @@ team-recruitment:
 dining:
   report:
     bot-token: test-dining-report-bot-token
+
+translation:
+  cleanup-cron: "-"

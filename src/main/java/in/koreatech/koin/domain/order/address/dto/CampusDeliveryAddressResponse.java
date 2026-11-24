@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.order.address.model.CampusDeliveryAddress;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+import in.koreatech.koin.domain.language.service.OfficialNameResolver;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -39,7 +41,10 @@ public record CampusDeliveryAddressResponse(
         BigDecimal latitude,
 
         @Schema(description = "경도", example = "127.28372942")
-        BigDecimal longitude
+        BigDecimal longitude,
+
+        @Schema(description = "표시용 공식 건물명. 해당 언어의 공식 명칭이 없으면 short_address 원문", example = "Haeul")
+        String displayName
     ) {
         public static InnerCampusDeliveryAddressResponse from(CampusDeliveryAddress address) {
             return new InnerCampusDeliveryAddressResponse(
@@ -49,9 +54,19 @@ public record CampusDeliveryAddressResponse(
                 address.getShortAddress(),
                 address.getAddress(),
                 address.getLatitude(),
-                address.getLongitude()
+                address.getLongitude(),
+                address.getShortAddress()
             );
         }
+    }
+
+    public CampusDeliveryAddressResponse withLanguage(SupportedLanguage language) {
+        return new CampusDeliveryAddressResponse(count, addresses.stream()
+            .map(address -> new InnerCampusDeliveryAddressResponse(
+                address.id(), address.type(), address.fullAddress(), address.shortAddress(), address.address(),
+                address.latitude(), address.longitude(), OfficialNameResolver.buildingName(address.shortAddress(), language)
+            ))
+            .toList());
     }
 
     public static CampusDeliveryAddressResponse from(List<CampusDeliveryAddress> campusDeliveryAddresses) {

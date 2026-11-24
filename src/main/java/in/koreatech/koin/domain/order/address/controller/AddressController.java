@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressRequestFi
 import in.koreatech.koin.domain.order.address.dto.CampusDeliveryAddressResponse;
 import in.koreatech.koin.domain.order.address.service.AddressSearchOpenApiService;
 import in.koreatech.koin.domain.order.address.service.CampusAddressSearchService;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -32,9 +33,11 @@ public class AddressController implements AddressApi {
 
     @GetMapping("/address/delivery/campus")
     public ResponseEntity<CampusDeliveryAddressResponse> getCampusAddresses(
-        @RequestParam(name = "filter", defaultValue = "ALL") CampusDeliveryAddressRequestFilter filter
+        @RequestParam(name = "filter", defaultValue = "ALL") CampusDeliveryAddressRequestFilter filter,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
+        SupportedLanguage selectedLanguage = SupportedLanguage.fromCode(language);
         CampusDeliveryAddressResponse response = campusAddressSearchService.getCampusDeliveryAddresses(filter);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(response.withLanguage(selectedLanguage));
     }
 }

@@ -1,5 +1,11 @@
 package in.koreatech.koin.domain.teamrecruitment.service;
 
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE;
+import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentOutboxEventStatus.PENDING;
+import static in.koreatech.koin.global.code.ApiResponseCode.*;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -15,8 +21,19 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import in.koreatech.koin.domain.chat.event.ChatMessageStoredEvent;
+import in.koreatech.koin.domain.chat.event.ChatRoomChangedEvent;
+import in.koreatech.koin.domain.chat.model.ChatDomainType;
+import in.koreatech.koin.domain.chat.model.ChatRoomKey;
 import in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
@@ -41,19 +58,11 @@ import in.koreatech.koin.domain.teamrecruitment.dto.CreateChatMessageRequest;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomCreationResult;
 import in.koreatech.koin.domain.teamrecruitment.dto.DirectChatRoomResponse;
 import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentChatRoomListItemResponse;
+import in.koreatech.koin.domain.teamrecruitment.dto.TeamRecruitmentChatRoomListItemResult;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.exception.CustomException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationTargetType.CHAT_ROOM;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentNotificationType.NEW_CHAT_MESSAGE;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentOutboxEventStatus.PENDING;
-import static in.koreatech.koin.global.code.ApiResponseCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -76,8 +85,16 @@ public class TeamRecruitmentChatService {
     private final TeamRecruitmentProfileRepository profileRepository;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final ApplicationEventPublisher eventPublisher;
+    private final EntityManager entityManager;
 
     public List<TeamRecruitmentChatRoomListItemResponse> getChatRooms(Integer userId) {
+        return getChatRoomsWithSendPermission(userId).stream()
+            .map(TeamRecruitmentChatRoomListItemResult::response)
+            .toList();
+    }
+
+    public List<TeamRecruitmentChatRoomListItemResult> getChatRoomsWithSendPermission(Integer userId) {
         List<TeamRecruitmentChatMember> memberships =
             memberRepository.findAllByUserIdWithChatRoomAndRecruitment(userId);
         if (memberships.isEmpty()) {
@@ -119,20 +136,23 @@ public class TeamRecruitmentChatService {
             ));
 
         return chatRooms.stream()
-            .map(chatRoom -> TeamRecruitmentChatRoomListItemResponse.of(
-                chatRoom,
-                counterpartsByChatRoomId.get(chatRoom.getId()),
-                getProfileNickname(counterpartsByChatRoomId.get(chatRoom.getId()), profileNicknames),
-                latestMessagesByChatRoomId.get(chatRoom.getId()),
-                Math.toIntExact(unreadCountsByChatRoomId.getOrDefault(chatRoom.getId(), 0L))
+            .map(chatRoom -> new TeamRecruitmentChatRoomListItemResult(
+                TeamRecruitmentChatRoomListItemResponse.of(
+                    chatRoom,
+                    counterpartsByChatRoomId.get(chatRoom.getId()),
+                    getProfileNickname(counterpartsByChatRoomId.get(chatRoom.getId()), profileNicknames),
+                    latestMessagesByChatRoomId.get(chatRoom.getId()),
+                    Math.toIntExact(unreadCountsByChatRoomId.getOrDefault(chatRoom.getId(), 0L))
+                ),
+                canSend(chatRoom)
             ))
             .sorted(Comparator
                 .comparing(
-                    TeamRecruitmentChatRoomListItemResponse::lastMessageAt,
+                    (TeamRecruitmentChatRoomListItemResult item) -> item.response().lastMessageAt(),
                     Comparator.nullsLast(Comparator.reverseOrder())
                 )
                 .thenComparing(
-                    TeamRecruitmentChatRoomListItemResponse::chatRoomId,
+                    item -> item.response().chatRoomId(),
                     Comparator.reverseOrder()
                 ))
             .toList();
@@ -234,8 +254,9 @@ public class TeamRecruitmentChatService {
         memberRepository.save(TeamRecruitmentChatMember.builder()
                 .chatRoom(chatRoom).user(applicant).build());
 
-        return new DirectChatRoomCreationResult(
-                DirectChatRoomResponse.of(chatRoom, counterpartUser, getProfileNickname(counterpartUser)), true);
+        eventPublisher.publishEvent(new ChatRoomChangedEvent(
+            new ChatRoomKey(ChatDomainType.TEAM_RECRUITMENT, recruitmentId, chatRoom.getId())));
+        return new DirectChatRoomCreationResult(DirectChatRoomResponse.of(chatRoom, counterpartUser, getProfileNickname(counterpartUser)), true);
     }
 
     @Transactional
@@ -256,22 +277,77 @@ public class TeamRecruitmentChatService {
             throw CustomException.of(ILLEGAL_ARGUMENT);
         }
 
-        TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND));
+        requireReadAccess(userId, recruitmentId, chatRoomId, false);
+        List<TeamRecruitmentChatMessage> messages = fetchMessages(chatRoomId, afterMessageId, beforeMessageId, limit);
+        if (!messages.isEmpty()) {
+            advanceReadCursor(userId, recruitmentId, chatRoomId, messages.get(messages.size() - 1).getId());
+        }
+        return messageResponses(chatRoomId, messages);
+    }
 
-        if (!chatRoom.getRecruitment().getId().equals(recruitmentId)) {
+    public void validateReadAccess(Integer userId, Integer recruitmentId, Integer chatRoomId) {
+        requireReadAccess(userId, recruitmentId, chatRoomId, false);
+    }
+
+    public boolean canSend(Integer userId, Integer recruitmentId, Integer chatRoomId) {
+        return canSend(requireReadAccess(userId, recruitmentId, chatRoomId, false));
+    }
+
+    private boolean canSend(TeamRecruitmentChatRoom room) {
+        return room.getRecruitment().getAuthor() != null
+            && (room.getRoomType() != TeamRecruitmentChatRoomType.DIRECT
+                || (room.getApplication() != null && room.getApplication().getApplicant() != null));
+    }
+
+    private TeamRecruitmentChatRoom requireReadAccess(Integer userId, Integer recruitmentId, Integer chatRoomId,
+        boolean lock) {
+        if (lock) {
+            // Match application/withdrawal ordering: recruitment before room, then membership.
+            recruitmentRepository.findByIdWithLock(recruitmentId)
+                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND));
+        }
+        TeamRecruitmentChatRoom room = (lock ? chatRoomRepository.findByIdWithLock(chatRoomId)
+            : chatRoomRepository.findById(chatRoomId))
+            .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND));
+        if (!room.getRecruitment().getId().equals(recruitmentId)) {
             throw CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND);
         }
+        memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
+            .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
+        return room;
+    }
 
-        TeamRecruitmentChatMember currentMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
-                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
-
-        List<TeamRecruitmentChatMessage> messages = fetchMessages(chatRoomId, afterMessageId, beforeMessageId, limit);
-
-        if (!messages.isEmpty()) {
-            currentMember.advanceLastReadMessageId(messages.get(messages.size() - 1).getId());
+    @Transactional
+    public void markRead(Integer userId, Integer recruitmentId, Integer chatRoomId, Long messageId) {
+        if (messageId == null || messageId < 1 || messageId > Integer.MAX_VALUE) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
         }
+        requireReadAccess(userId, recruitmentId, chatRoomId, true);
+        if (!messageRepository.existsByIdAndChatRoom_Id(messageId.intValue(), chatRoomId)) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
+        }
+        advanceReadCursor(userId, recruitmentId, chatRoomId, messageId.intValue());
+    }
 
+    private void advanceReadCursor(Integer userId, Integer recruitmentId, Integer chatRoomId, Integer messageId) {
+        if (memberRepository.advanceReadCursor(chatRoomId, userId, messageId) > 0) {
+            eventPublisher.publishEvent(new ChatRoomChangedEvent(
+                new ChatRoomKey(ChatDomainType.TEAM_RECRUITMENT, recruitmentId, chatRoomId)));
+        }
+    }
+
+    public List<ChatMessageResponse> getMessagesWithoutMarkingRead(Integer userId, Integer recruitmentId,
+        Integer chatRoomId, Integer afterMessageId, Integer beforeMessageId, int limit) {
+        if (limit < 1 || limit > 200 || (afterMessageId != null && beforeMessageId != null)
+            || (afterMessageId != null && afterMessageId < 1) || (beforeMessageId != null && beforeMessageId < 1)) {
+            throw CustomException.of(ILLEGAL_ARGUMENT);
+        }
+        requireReadAccess(userId, recruitmentId, chatRoomId, false);
+        List<TeamRecruitmentChatMessage> messages = fetchMessages(chatRoomId, afterMessageId, beforeMessageId, limit);
+        return messageResponses(chatRoomId, messages);
+    }
+
+    private List<ChatMessageResponse> messageResponses(Integer chatRoomId, List<TeamRecruitmentChatMessage> messages) {
         List<TeamRecruitmentChatMember> allMembers = memberRepository.findAllByChatRoom_Id(chatRoomId);
         Map<Integer, String> profileNicknames = getProfileNicknames(messages.stream()
                 .map(TeamRecruitmentChatMessage::getSender)
@@ -312,19 +388,22 @@ public class TeamRecruitmentChatService {
 
     @Transactional
     public ChatMessageResponse createMessage(Integer userId, Integer recruitmentId, Integer chatRoomId, CreateChatMessageRequest request) {
-        TeamRecruitmentChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND));
+        return saveMessage(userId, recruitmentId, chatRoomId, request, true);
+    }
 
-        if (!chatRoom.getRecruitment().getId().equals(recruitmentId)) {
-            throw CustomException.of(TEAM_RECRUITMENT_CHAT_NOT_FOUND);
-        }
+    @Transactional
+    public ChatMessageResponse createMessageWithoutMarkingRead(
+        Integer userId, Integer recruitmentId, Integer chatRoomId, CreateChatMessageRequest request) {
+        return saveMessage(userId, recruitmentId, chatRoomId, request, false);
+    }
 
+    private ChatMessageResponse saveMessage(
+        Integer userId, Integer recruitmentId, Integer chatRoomId, CreateChatMessageRequest request,
+        boolean markSenderRead) {
+        TeamRecruitmentChatRoom chatRoom = requireReadAccess(userId, recruitmentId, chatRoomId, true);
         TeamRecruitmentChatMember senderMember = memberRepository.findByChatRoom_IdAndUser_Id(chatRoomId, userId)
-                .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
-
-        if (chatRoom.getRecruitment().getAuthor() == null
-                || (chatRoom.getRoomType() == TeamRecruitmentChatRoomType.DIRECT
-                && (chatRoom.getApplication() == null || chatRoom.getApplication().getApplicant() == null))) {
+            .orElseThrow(() -> CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN));
+        if (!canSend(chatRoom)) {
             throw CustomException.of(TEAM_RECRUITMENT_CHAT_FORBIDDEN);
         }
 
@@ -340,7 +419,11 @@ public class TeamRecruitmentChatService {
                         .isImage(request.isImage())
                         .build());
 
-        senderMember.advanceLastReadMessageId(message.getId());
+        // 읽음 갱신이 영속성 컨텍스트를 비우기 전에 DB에 저장된 시각을 반영한다.
+        entityManager.refresh(message);
+        if (markSenderRead) {
+            advanceReadCursor(userId, recruitmentId, chatRoomId, message.getId());
+        }
 
         List<TeamRecruitmentChatMember> allMembers = memberRepository.findAllByChatRoom_Id(chatRoomId);
         int unreadCount = (int) allMembers.stream()
@@ -350,7 +433,14 @@ public class TeamRecruitmentChatService {
 
         saveChatMessageNotifications(message, chatRoom, allMembers, userId);
 
-        return ChatMessageResponse.of(message, unreadCount, senderNickname);
+        ChatMessageResponse response = ChatMessageResponse.of(message, unreadCount, senderNickname);
+        eventPublisher.publishEvent(new ChatMessageStoredEvent(
+            new ChatRoomKey(ChatDomainType.TEAM_RECRUITMENT, recruitmentId, chatRoomId),
+            in.koreatech.koin.domain.chat.dto.ChatMessageResponse.builder()
+                .messageId(response.messageId().toString()).userId(response.userId())
+                .userNickname(response.userNickname()).content(response.content()).timestamp(response.timestamp())
+                .isImage(response.isImage()).unreadCount(response.unreadCount()).isLeftUser(false).build()));
+        return response;
     }
 
     private Map<Integer, String> getProfileNicknames(Collection<Integer> userIds) {
