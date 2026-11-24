@@ -9,6 +9,10 @@ concurrency:
   group: koin-stage-deploy
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -55,26 +59,14 @@ jobs:
           python3 deployment/secrets/sanitize_jar.py deployment/secrets/manifest.json build/libs/KOIN_API_V2.jar build/libs/KOIN_API_V2-clean.jar
           mv build/libs/KOIN_API_V2-clean.jar build/libs/KOIN_API_V2.jar
 
-      - name: SCP JAR to develop server
-        uses: appleboy/scp-action@v0.1.7
+      - name: Assume staging deploy role
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          host: ${{ secrets.DEVELOP_SERVER_HOST }}
-          username: ${{ secrets.DEVELOP_SERVER_USER }}
-          key: ${{ secrets.DEVELOP_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.DEVELOP_SERVER_PORT }}
-          source: build/libs/KOIN_API_V2.jar
-          target: /usr/local/koin/api
-          strip_components: 2
+          role-to-assume: arn:aws:iam::965394270103:role/bcsd-koin-stage-github-deploy
+          aws-region: ap-northeast-2
 
-      - name: Run deploy script on develop server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEVELOP_SERVER_HOST }}
-          username: ${{ secrets.DEVELOP_SERVER_USER }}
-          key: ${{ secrets.DEVELOP_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.DEVELOP_SERVER_PORT }}
-          command_timeout: 20m
-          script: /usr/local/koin/api/deploy.sh
+      - name: Deploy to develop server through SSM
+        run: bash .github/SCRIPT/deploy_via_ssm.sh stage
 
       - name: Notify Slack - Deploy Result
         if: always()

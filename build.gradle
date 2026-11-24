@@ -102,6 +102,8 @@ tasks.named('bootBuildImage') {
 }
 
 tasks.named('test') {
+    // 포크마다 MySQL·Redis·Mongo 컨테이너와 Spring 컨텍스트를 따로 띄우므로 CI 러너(4 vCPU) 기준 2개로 제한한다.
+    maxParallelForks = 2
     maxHeapSize = '2g'
     useJUnitPlatform()
 }
