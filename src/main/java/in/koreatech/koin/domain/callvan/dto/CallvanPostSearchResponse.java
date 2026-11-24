@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.callvan.dto;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -30,14 +32,28 @@ public record CallvanPostSearchResponse(
 ) {
     public static CallvanPostSearchResponse of(List<CallvanPost> posts, Long totalCount, Integer currentPage,
         Integer totalPage, Set<Integer> joinedPostIds, Integer userId) {
+        return of(posts, totalCount, currentPage, totalPage, joinedPostIds, userId, SupportedLanguage.DEFAULT);
+    }
+
+    public static CallvanPostSearchResponse of(List<CallvanPost> posts, Long totalCount, Integer currentPage,
+        Integer totalPage, Set<Integer> joinedPostIds, Integer userId, SupportedLanguage language) {
         return new CallvanPostSearchResponse(
             posts.stream()
-                .map(post -> CallvanPostResponse.from(post, joinedPostIds.contains(post.getId()), userId))
+                .map(post -> CallvanPostResponse.from(post, joinedPostIds.contains(post.getId()), userId, language))
                 .toList(),
             totalCount,
             currentPage,
             totalPage
         );
+    }
+
+    static String displayLocation(in.koreatech.koin.domain.callvan.model.enums.CallvanLocation type,
+        String original, SupportedLanguage language) {
+        if (type == in.koreatech.koin.domain.callvan.model.enums.CallvanLocation.CUSTOM) {
+            return original;
+        }
+        return in.koreatech.koin.domain.language.service.OfficialNameResolver.stationName(
+            in.koreatech.koin.domain.language.service.OfficialNameResolver.buildingName(type.getName(), language), language);
     }
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -78,10 +94,32 @@ public record CallvanPostSearchResponse(
         Boolean isJoined,
 
         @Schema(description = "작성자 여부", example = "true")
-        Boolean isAuthor
+        Boolean isAuthor,
+
+        @Schema(description = "표시용 제목. 원문 title은 유지합니다.") String displayTitle,
+        @Schema(description = "표시용 출발지. 직접 입력 장소는 원문 유지") String displayDeparture,
+        @Schema(description = "표시용 도착지. 직접 입력 장소는 원문 유지") String displayArrival
     ) {
 
+        public CallvanPostResponse(Integer id, String title, String departure, String arrival,
+            LocalDate departureDate, LocalTime departureTime, String authorNickname,
+            Integer currentParticipants, Integer maxParticipants, String status, Boolean isJoined, Boolean isAuthor) {
+            this(id, title, departure, arrival, departureDate, departureTime, authorNickname,
+                currentParticipants, maxParticipants, status, isJoined, isAuthor, title, departure, arrival);
+        }
+
+        @com.fasterxml.jackson.annotation.JsonProperty("translation_source_version")
+        @Schema(description = "모집글 번역 요청의 expected_source_version으로 전달할 버전")
+        public String getTranslationSourceVersion() {
+            return in.koreatech.koin.domain.translation.service.TranslationSourceVersion.of(
+                in.koreatech.koin.domain.translation.service.TranslationSourceFields.callvanPost(title, departure, arrival));
+        }
+
         public static CallvanPostResponse from(CallvanPost post, boolean isJoined, Integer userId) {
+            return from(post, isJoined, userId, SupportedLanguage.DEFAULT);
+        }
+
+        public static CallvanPostResponse from(CallvanPost post, boolean isJoined, Integer userId, SupportedLanguage language) {
             String departureName = post.getDepartureType().getName();
             if (StringUtils.hasText(post.getDepartureCustomName())) {
                 departureName = post.getDepartureCustomName();
@@ -92,6 +130,8 @@ public record CallvanPostSearchResponse(
                 arrivalName = post.getArrivalCustomName();
             }
 
+            String displayDeparture = displayLocation(post.getDepartureType(), departureName, language);
+            String displayArrival = displayLocation(post.getArrivalType(), arrivalName, language);
             return new CallvanPostResponse(
                 post.getId(),
                 post.getTitle(),
@@ -104,7 +144,8 @@ public record CallvanPostSearchResponse(
                 post.getMaxParticipants(),
                 post.getStatus().name(),
                 isJoined,
-                post.getAuthor().getId().equals(userId));
+                post.getAuthor().getId().equals(userId),
+                displayDeparture + " -> " + displayArrival, displayDeparture, displayArrival);
         }
     }
 }

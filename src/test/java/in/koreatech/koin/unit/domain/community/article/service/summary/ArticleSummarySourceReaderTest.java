@@ -2,6 +2,7 @@ package in.koreatech.koin.unit.domain.community.article.service.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -288,6 +289,11 @@ class ArticleSummarySourceReaderTest {
 
         assertThat(source.contentText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
         assertThat(source.mergedText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+
+        when(s3Client.getContentFromUrl(seed.content())).thenThrow(new IllegalStateException("temporary timeout"));
+        assertThatThrownBy(() -> reader.read(seed))
+            .isInstanceOf(ArticleSummaryExternalApiException.class)
+            .satisfies(exception -> assertThat(((ArticleSummaryExternalApiException)exception).isRetryable()).isTrue());
     }
 
     @Test
@@ -322,6 +328,14 @@ class ArticleSummarySourceReaderTest {
         String resolvedFingerprint = reader.createFingerprint(resolvedSeed);
 
         assertThat(urlFingerprint).isEqualTo(resolvedFingerprint);
+
+        when(s3Client.getContentFromUrl(urlSeed.content())).thenThrow(new IllegalStateException("temporary timeout"));
+        String unavailableFingerprint = reader.createFingerprint(urlSeed);
+        assertThat(unavailableFingerprint).hasSize(64).isNotEqualTo(resolvedFingerprint);
+        assertThat(reader.createFingerprint(urlSeed)).isEqualTo(unavailableFingerprint);
+
+        doReturn(resolvedSeed.content()).when(s3Client).getContentFromUrl(urlSeed.content());
+        assertThat(reader.createFingerprint(urlSeed)).isEqualTo(resolvedFingerprint);
     }
 
     @Test

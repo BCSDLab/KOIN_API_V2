@@ -138,12 +138,25 @@ upstage:
   api-key: ${UPSTAGE_API_KEY:}
   api-base-url: ${UPSTAGE_API_BASE_URL:https://api.upstage.ai/v1}
 
+translation:
+  model: ${TRANSLATION_MODEL:${ARTICLE_AI_SUMMARY_MODEL:solar-pro4}}
+  prompt-version: ${TRANSLATION_PROMPT_VERSION:v3}
+  request-timeout-seconds: ${TRANSLATION_REQUEST_TIMEOUT_SECONDS:25}
+  max-retries: ${TRANSLATION_MAX_RETRIES:1}
+  max-concurrent-requests: ${TRANSLATION_MAX_CONCURRENT_REQUESTS:4}
+  max-requests-per-minute: ${TRANSLATION_MAX_REQUESTS_PER_MINUTE:30}
+  max-input-characters: ${TRANSLATION_MAX_INPUT_CHARACTERS:8000}
+  retry-delay-seconds: ${TRANSLATION_RETRY_DELAY_SECONDS:30}
+  content-retention-days: ${TRANSLATION_CONTENT_RETENTION_DAYS:30}
+  message-retention-days: ${TRANSLATION_MESSAGE_RETENTION_DAYS:1}
+  cleanup-cron: ${TRANSLATION_CLEANUP_CRON:0 20 * * * *}
+
 article:
   ai-summary:
     enabled: ${ARTICLE_AI_SUMMARY_ENABLED:false}
     scheduler-fixed-delay-ms: ${ARTICLE_AI_SUMMARY_SCHEDULER_FIXED_DELAY_MS:60000}
     batch-size: ${ARTICLE_AI_SUMMARY_BATCH_SIZE:5}
-    max-retry-count: ${ARTICLE_AI_SUMMARY_MAX_RETRY_COUNT:5}
+    max-retry-count: ${ARTICLE_AI_SUMMARY_MAX_RETRY_COUNT:10}
     max-refinement-retry-count: ${ARTICLE_AI_SUMMARY_MAX_REFINEMENT_RETRY_COUNT:1}
     lock-minutes: ${ARTICLE_AI_SUMMARY_LOCK_MINUTES:30}
     retry-backoff-minutes: ${ARTICLE_AI_SUMMARY_RETRY_BACKOFF_MINUTES:5}
@@ -152,14 +165,12 @@ article:
     max-document-bytes: ${ARTICLE_AI_SUMMARY_MAX_DOCUMENT_BYTES:52428800}
     document-parse-ocr-mode: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_OCR_MODE:auto}
     document-parse-min-interval-millis: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_MIN_INTERVAL_MILLIS:1000}
-    failed-retry-window-start-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_START_HOUR:0}
-    failed-retry-window-end-hour: ${ARTICLE_AI_SUMMARY_FAILED_RETRY_WINDOW_END_HOUR:4}
     request-timeout-seconds: ${ARTICLE_AI_SUMMARY_REQUEST_TIMEOUT_SECONDS:120}
     chat-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_CHAT_REQUEST_TIMEOUT_SECONDS:600}
     document-parse-request-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_PARSE_REQUEST_TIMEOUT_SECONDS:180}
     document-download-timeout-seconds: ${ARTICLE_AI_SUMMARY_DOCUMENT_DOWNLOAD_TIMEOUT_SECONDS:60}
     model: ${ARTICLE_AI_SUMMARY_MODEL:solar-pro4}
-    prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v11}
+    prompt-version: ${ARTICLE_AI_SUMMARY_PROMPT_VERSION:v12}
     allowed-content-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_CONTENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}
     allowed-document-url-prefixes: ${ARTICLE_AI_SUMMARY_ALLOWED_DOCUMENT_URL_PREFIXES:https://*.koreatech.in/,https://*.koreatech.ac.kr/}
 

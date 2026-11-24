@@ -28,6 +28,7 @@ public interface LectureApiV3 {
     @GetMapping("/v3/lectures")
     ResponseEntity<List<LectureResponseV3>> getLectures(
         @RequestParam(name = "year") Integer year,
-        @RequestParam(name = "term") String term
+        @RequestParam(name = "term") String term,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 }

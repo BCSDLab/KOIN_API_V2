@@ -57,6 +57,10 @@ public class TeamRecruitmentNotification extends BaseEntity {
     private String messagePreview;
 
     @Size(max = 50)
+    @Column(name = "recruitment_title", length = 50, updatable = false)
+    private String recruitmentTitle;
+
+    @Size(max = 50)
     @Column(name = "sender_nickname", length = 50, updatable = false)
     private String senderNickname;
 
@@ -97,6 +101,8 @@ public class TeamRecruitmentNotification extends BaseEntity {
         this.type = type;
         this.targetType = targetType;
         this.messagePreview = messagePreview;
+        this.recruitmentTitle = recruitment == null || recruitment.getTitle() == null
+            ? "팀원 모집" : recruitment.getTitle();
         this.senderNickname = senderNickname;
         this.recruitment = recruitment;
         this.application = application;

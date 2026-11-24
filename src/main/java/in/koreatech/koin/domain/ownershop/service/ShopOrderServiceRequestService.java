@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.common.event.ShopOrderServiceRequestCreatedEvent;
 import in.koreatech.koin.domain.ownershop.dto.ShopOrderServiceRequestRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceMenuSnapshot;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
@@ -27,6 +29,7 @@ public class ShopOrderServiceRequestService {
 
     private final ShopOrderServiceRequestRepository shopOrderServiceRequestRepository;
     private final ShopRepository shopRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void createOrderableRequest(Integer ownerId, ShopOrderServiceRequestRequest request, Integer shopId) {
@@ -53,6 +56,7 @@ public class ShopOrderServiceRequestService {
             .build();
 
         shopOrderServiceRequestRepository.save(shopOrderServiceRequest);
+        eventPublisher.publishEvent(new ShopOrderServiceRequestCreatedEvent(shop.getName()));
     }
 
     private List<ShopOrderServiceMenuSnapshot> snapshotMenus(

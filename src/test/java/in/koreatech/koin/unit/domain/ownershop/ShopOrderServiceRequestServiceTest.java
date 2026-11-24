@@ -35,6 +35,7 @@ import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.unit.fixture.OwnerFixture;
 import in.koreatech.koin.unit.fixture.ShopFixture;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,9 @@ class ShopOrderServiceRequestServiceTest {
 
     @Mock
     private ShopRepository shopRepository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private Owner owner;
     private User user;

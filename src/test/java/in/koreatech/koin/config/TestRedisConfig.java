@@ -2,6 +2,10 @@ package in.koreatech.koin.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +23,19 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @TestConfiguration
 public class TestRedisConfig {
+
+    @Bean(destroyMethod = "shutdown")
+    public RedissonClient chatTestRedissonClient(
+        @Value("${spring.data.redis.host}") String host,
+        @Value("${spring.data.redis.port}") int port
+    ) {
+        Config config = new Config();
+        config.setThreads(2).setNettyThreads(2);
+        config.useSingleServer().setAddress("redis://" + host + ":" + port)
+            .setConnectionMinimumIdleSize(1).setConnectionPoolSize(4)
+            .setSubscriptionConnectionMinimumIdleSize(1).setSubscriptionConnectionPoolSize(2);
+        return Redisson.create(config);
+    }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {

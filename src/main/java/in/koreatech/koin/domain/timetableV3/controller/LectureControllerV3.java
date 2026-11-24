@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.timetableV3.controller;
 
 import java.util.List;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,9 +22,12 @@ public class LectureControllerV3 implements LectureApiV3 {
     @GetMapping("/v3/lectures")
     public ResponseEntity<List<LectureResponseV3>> getLectures(
         @RequestParam(name = "year") Integer year,
-        @RequestParam(name = "term") String term
+        @RequestParam(name = "term") String term,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
-        List<LectureResponseV3> response = lectureServiceV3.getLectures(year, term);
+        SupportedLanguage selectedLanguage = SupportedLanguage.fromCode(language);
+        List<LectureResponseV3> response = lectureServiceV3.getLectures(year, term).stream()
+            .map(lecture -> lecture.withLanguage(selectedLanguage)).toList();
         return ResponseEntity.ok(response);
     }
 }

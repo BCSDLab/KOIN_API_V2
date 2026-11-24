@@ -1,15 +1,26 @@
 package in.koreatech.koin.domain.team.recruitment.repository;
 
-import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
-import org.springframework.data.repository.query.Param;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
+
+import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMember;
+
 public interface TeamRecruitmentChatMemberRepository extends Repository<TeamRecruitmentChatMember, Integer> {
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+        UPDATE TeamRecruitmentChatMember member SET member.lastReadMessageId = :messageId
+        WHERE member.chatRoom.id = :roomId AND member.user.id = :userId
+          AND (member.lastReadMessageId IS NULL OR member.lastReadMessageId < :messageId)
+        """)
+    int advanceReadCursor(@Param("roomId") Integer roomId, @Param("userId") Integer userId,
+        @Param("messageId") Integer messageId);
 
     TeamRecruitmentChatMember save(TeamRecruitmentChatMember member);
 
@@ -24,6 +35,7 @@ public interface TeamRecruitmentChatMemberRepository extends Repository<TeamRecr
         FROM TeamRecruitmentChatMember member
         JOIN FETCH member.chatRoom chatRoom
         JOIN FETCH chatRoom.recruitment
+        LEFT JOIN FETCH chatRoom.application
         WHERE member.user.id = :userId
         """)
     List<TeamRecruitmentChatMember> findAllByUserIdWithChatRoomAndRecruitment(@Param("userId") Integer userId);

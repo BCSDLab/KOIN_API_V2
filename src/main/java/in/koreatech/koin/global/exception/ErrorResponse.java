@@ -17,7 +17,7 @@ public record ErrorResponse(
     @Schema(description = "비즈니스 에러 코드")
     String code,
 
-    @Schema(description = "사용자에게 보여줄 에러 메시지")
+    @Schema(description = "오류 안내 문구. language 쿼리 → Accept-Language 헤더 → 한국어 순서로 선택합니다.")
     String message,
 
     @Schema(description = "에러 추적용 UUID")

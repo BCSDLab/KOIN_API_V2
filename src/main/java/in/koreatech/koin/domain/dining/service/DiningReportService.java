@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.common.event.DiningSoldOutEvent;
+import in.koreatech.koin.common.event.DiningReportApprovedEvent;
 import in.koreatech.koin.domain.coop.exception.MenuNotFoundException;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
@@ -151,6 +152,13 @@ public class DiningReportService {
             publishSoldOut(dining, now);
         }
         changeService.append(affected, PROCESSED, now);
+        if (result == APPROVED) {
+            List<Integer> reporterIds = affected.stream().map(DiningReport::getReporterId)
+                .filter(Objects::nonNull).distinct().toList();
+            if (!reporterIds.isEmpty()) {
+                eventPublisher.publishEvent(new DiningReportApprovedEvent(diningId, reporterIds));
+            }
+        }
         return new DiningReportDecisionResponse(DiningReportResponse.from(target).withEncodedImageUrl(),
             affected.stream().map(DiningReport::getId).toList(), false);
     }
