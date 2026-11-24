@@ -6,11 +6,16 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import in.koreatech.koin.domain.translation.service.TranslationSourceFields;
+import in.koreatech.koin.domain.translation.service.TranslationSourceVersion;
 
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatMessage;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
+@Schema(name = "TeamRecruitmentChatMessageResponse")
 public record ChatMessageResponse(
         @Schema(description = "메시지 ID", example = "901", requiredMode = REQUIRED)
         Integer messageId,
@@ -34,6 +39,15 @@ public record ChatMessageResponse(
         @Schema(description = "아직 읽지 않은 다른 멤버 수", example = "2", requiredMode = REQUIRED)
         int unreadCount
 ) {
+    @JsonProperty("translation_source_version")
+    @Schema(description = "현재 번역 대상 필드의 버전. 번역 요청의 expected_source_version에 그대로 전달합니다.", nullable = true)
+    public String getTranslationSourceVersion() {
+        if (Boolean.TRUE.equals(isImage)) {
+            return null;
+        }
+        return TranslationSourceVersion.of(TranslationSourceFields.message(content));
+    }
+
     public static ChatMessageResponse of(TeamRecruitmentChatMessage message, int unreadCount, String senderNickname) {
         return new ChatMessageResponse(
                 message.getId(),

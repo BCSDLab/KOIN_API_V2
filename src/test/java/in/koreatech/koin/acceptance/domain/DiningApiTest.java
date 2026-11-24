@@ -93,6 +93,16 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 능수관의_영문_표시명과_원래_장소명을_함께_반환한다() throws Exception {
+        diningFixture.능수관_점심(LocalDate.of(2024, 1, 16));
+
+        mockMvc.perform(get("/dinings").param("date", "240116").param("language", "en-US"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].place").value("능수관"))
+            .andExpect(jsonPath("$[0].display_place").value("Neungsu Hall"));
+    }
+
+    @Test
     void 특정_날짜의_모든_식단들을_조회한다() throws Exception {
         mockMvc.perform(
                 get("/dinings?date=240115")

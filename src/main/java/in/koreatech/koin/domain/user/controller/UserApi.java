@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.code.ApiResponseCode;
 import in.koreatech.koin.global.code.ApiResponseCodes;
+import in.koreatech.koin.global.exception.ErrorResponse;
 import in.koreatech.koin.admin.abtest.useragent.UserAgent;
 import in.koreatech.koin.admin.abtest.useragent.UserAgentInfo;
 import in.koreatech.koin.domain.user.dto.UserFindIdByEmailRequest;
@@ -20,6 +22,8 @@ import in.koreatech.koin.domain.user.dto.UserFindLoginIdResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequestV2;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserLanguageResponse;
+import in.koreatech.koin.domain.user.dto.UserLanguageUpdateRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenRequest;
 import in.koreatech.koin.domain.user.dto.UserRefreshTokenResponse;
 import in.koreatech.koin.domain.user.dto.UserRegisterRequest;
@@ -74,6 +78,47 @@ public interface UserApi {
     @GetMapping("/v3/users/me")
     ResponseEntity<UserProfileResponse> getProfile(
         @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "현재 서버 선호 언어 조회 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 정보가 없거나 유효하지 않음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "허용되지 않은 회원 유형 또는 웹 쿠키 요청의 출처 검증 실패",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @Operation(
+        summary = "내 서버 선호 언어 조회",
+        description = "언어를 설정하지 않았으면 `language: null`을 반환합니다. 화면 언어는 기기에 저장한 선택을 유지합니다."
+    )
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/users/me/language")
+    ResponseEntity<UserLanguageResponse> getLanguage(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "서버 선호 언어 저장 성공"),
+        @ApiResponse(responseCode = "400", description = "필수 코드 누락·잘못된 입력 또는 지원하지 않는 코드(UNSUPPORTED_LANGUAGE)",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증 정보가 없거나 유효하지 않음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "허용되지 않은 회원 유형 또는 웹 쿠키 요청의 Origin·CSRF 검증 실패",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @Operation(
+        summary = "내 서버 선호 언어 변경",
+        description = "지원 언어 코드로 내 서버 선호 언어를 변경합니다. 화면 언어는 기기에 저장한 선택을 유지합니다."
+    )
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PatchMapping("/users/me/language")
+    ResponseEntity<UserLanguageResponse> updateLanguage(
+        @Auth(permit = {GENERAL, STUDENT, COUNCIL}) Integer userId,
+        @RequestBody @Valid UserLanguageUpdateRequest request
     );
 
     @ApiResponses(

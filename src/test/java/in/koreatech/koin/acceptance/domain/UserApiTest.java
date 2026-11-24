@@ -15,9 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.acceptance.support.JsonAssertions;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
@@ -57,6 +60,38 @@ class UserApiTest extends AcceptanceTest {
     @BeforeAll
     void setup() {
         clear();
+    }
+
+    @Test
+    void 회원_Swagger에_전화번호_중복과_SMS_발송_한도_오류_코드를_명세한다() throws Exception {
+        JsonNode openApi = JsonAssertions.convertJsonNode(mockMvc.perform(get("/v3/api-docs/{group}", "4. User API"))
+            .andExpect(status().isOk()).andReturn());
+        JsonNode phone = openApi.at("/paths/~1user~1check~1phone/get/responses");
+        JsonNode sms = openApi.at("/paths/~1users~1verification~1sms~1send/post/responses");
+        JsonNode duplicate = phone.at("/409/content/application~1json");
+        JsonNode sendLimit = sms.at("/429/content/application~1json");
+
+        JsonNode duplicateExample = duplicate.at("/examples/DUPLICATE_PHONE_NUMBER/value");
+        assertThat(duplicateExample.path("code").asText()).isEqualTo("DUPLICATE_PHONE_NUMBER");
+        assertThat(duplicateExample.path("message").asText()).isNotBlank();
+        assertThat(duplicateExample.path("errorTraceId").asText()).isNotBlank();
+        assertThat(duplicateExample.has("status")).isFalse();
+
+        JsonNode limitExample = sendLimit.at("/examples/TOO_MANY_REQUESTS_VERIFICATION/value");
+        assertThat(limitExample.path("code").asText()).isEqualTo("TOO_MANY_REQUESTS_VERIFICATION");
+        assertThat(limitExample.path("message").asText()).isNotBlank();
+        assertThat(limitExample.path("errorTraceId").asText()).isNotBlank();
+        assertThat(limitExample.has("status")).isFalse();
+
+        assertThat(duplicate.at("/schema/properties").has("code")).isTrue();
+        assertThat(duplicate.at("/schema/properties").has("message")).isTrue();
+        assertThat(duplicate.at("/schema/properties").has("errorTraceId")).isTrue();
+        assertThat(sendLimit.path("schema")).isEqualTo(duplicate.path("schema"));
+        assertThat(phone.path("400").path("description").asText()).isEqualTo("전화번호 양식 오류");
+        assertThat(sms.path("400").path("description").asText()).isEqualTo("잘못된 요청 데이터");
+        assertThat(sms.at("/200/content"))
+            .anyMatch(mediaType -> mediaType.at("/schema/$ref").asText()
+                .equals("#/components/schemas/SendVerificationResponse"));
     }
 
     @Test
@@ -233,7 +268,9 @@ class UserApiTest extends AcceptanceTest {
                     .param("phone", user.getPhoneNumber())
                     .contentType(MediaType.APPLICATION_JSON)
             )
-            .andExpect(status().isConflict());
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("DUPLICATE_PHONE_NUMBER"))
+            .andExpect(jsonPath("$.errorTraceId").isNotEmpty());
     }
 
     @Test
@@ -514,7 +551,7 @@ class UserApiTest extends AcceptanceTest {
         }
 
         // then
-        // 6번째 발송 시도시 400 반환
+        // 6번째 발송 시도시 429 반환
         mockMvc.perform(
                 post("/users/verification/sms/send")
                     .content("""
@@ -524,7 +561,9 @@ class UserApiTest extends AcceptanceTest {
                         """.formatted(phoneNumber))
                     .contentType(MediaType.APPLICATION_JSON)
             )
-            .andExpect(status().isTooManyRequests());
+            .andExpect(status().isTooManyRequests())
+            .andExpect(jsonPath("$.code").value("TOO_MANY_REQUESTS_VERIFICATION"))
+            .andExpect(jsonPath("$.errorTraceId").isNotEmpty());
     }
 
     @Test

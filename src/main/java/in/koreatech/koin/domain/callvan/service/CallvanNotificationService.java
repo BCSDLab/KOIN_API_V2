@@ -73,6 +73,7 @@ public class CallvanNotificationService {
                 post,
                 null,
                 "해당 콜벤팟 인원이 모두 모집되었습니다. 콜벤을 예약하세요",
+                null,
                 null
             ))
             .toList();
@@ -96,7 +97,8 @@ public class CallvanNotificationService {
                 post,
                 null,
                 null,
-                joinUserNickname
+                joinUserNickname,
+                null
             ))
             .toList();
 
@@ -126,7 +128,8 @@ public class CallvanNotificationService {
                 post,
                 senderNickname,
                 notificationContent,
-                null
+                null,
+                messageType
             ))
             .toList();
 
@@ -156,7 +159,7 @@ public class CallvanNotificationService {
         };
 
         CallvanNotification callvanNotification = buildNotification(recipient, notificationType, post, null, message,
-            null);
+            null, null);
         CallvanNotification savedNotification = callvanNotificationRepository.saveAndFlush(callvanNotification);
         publishPushNotifications(List.of(savedNotification));
     }
@@ -167,7 +170,8 @@ public class CallvanNotificationService {
         CallvanPost post,
         String senderNickname,
         String messagePreview,
-        String joinedMemberNickname
+        String joinedMemberNickname,
+        CallvanMessageType messageType
     ) {
         return CallvanNotification.builder()
             .recipient(recipient)
@@ -183,6 +187,7 @@ public class CallvanNotificationService {
             .maxParticipants(post.getMaxParticipants())
             .senderNickname(senderNickname)
             .messagePreview(messagePreview)
+            .messageType(messageType)
             .chatRoom(post.getChatRoom())
             .joinedMemberNickname(joinedMemberNickname)
             .build();

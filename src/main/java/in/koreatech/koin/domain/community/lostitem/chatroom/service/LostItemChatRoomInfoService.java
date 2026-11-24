@@ -7,22 +7,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.global.code.ApiResponseCode;
-import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleSummary;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.dto.ChatMessageSummary;
 import in.koreatech.koin.domain.community.lostitem.chatmessage.model.ChatMessageEntity;
-import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatRoomInfoRepository;
-import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatUserBlockRepository;
+import in.koreatech.koin.domain.community.lostitem.chatmessage.repository.ChatMessageRedisRepository;
 import in.koreatech.koin.domain.community.lostitem.chatroom.dto.ChatRoomListResponse;
 import in.koreatech.koin.domain.community.lostitem.chatroom.model.LostItemChatRoomInfoEntity;
-import in.koreatech.koin.domain.community.lostitem.chatmessage.repository.ChatMessageRedisRepository;
+import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatRoomInfoRepository;
+import in.koreatech.koin.domain.community.lostitem.chatroom.repository.LostItemChatUserBlockRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,14 +37,23 @@ public class LostItemChatRoomInfoService {
     private final ChatMessageRedisRepository chatMessageRepository;
     private final UserRepository userRepository;
 
+    private final LostItemChatAccessService access;
+    private final RedissonClient redissonClient;
+
     private static final String DEFAULT_MESSAGE = "대화를 시작해보세요!";
 
     public Integer getOrCreateChatRoomId(Integer articleId, Integer messageSendUserId) {
-        var existChatRoom = findAlreadyCreatedChatRoom(articleId, messageSendUserId);
-        if(existChatRoom.isPresent()) {
-            return existChatRoom.get().getChatRoomId();
-        } else {
+        var lock = redissonClient.getLock("lost-item:article:" + articleId + ":create-chatroom");
+        lock.lock();
+        try {
+            var existing = findAlreadyCreatedChatRoom(articleId, messageSendUserId);
+            if (existing.isPresent()) {
+                access.validateAccess(articleId, existing.get().getChatRoomId(), messageSendUserId);
+                return existing.get().getChatRoomId();
+            }
             return createChatRoomAndGetId(articleId, messageSendUserId);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -100,6 +110,7 @@ public class LostItemChatRoomInfoService {
         validateAuthor(lostItemArticle.getAuthor());
         validateSelfChat(messageSendUserId, lostItemArticle.getAuthor().getId());
 
+        access.validateNotBlocked(messageSendUserId, lostItemArticle.getAuthor().getId());
         Integer nextChatRoomId = getNextChatRoomId(articleId);
         chatRoomInfoRepository.save(
             LostItemChatRoomInfoEntity.toEntity(

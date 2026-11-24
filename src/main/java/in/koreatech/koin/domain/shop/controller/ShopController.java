@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.controller;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -41,32 +42,39 @@ public class ShopController implements ShopApi {
 
     @GetMapping("/shops/{id}")
     public ResponseEntity<ShopResponse> getShopById(
-        @PathVariable Integer id
+        @PathVariable Integer id,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
+        var selectedLanguage = SupportedLanguage.fromCode(language);
         ShopResponse shopResponse = shopService.getShop(id);
-        return ResponseEntity.ok(shopResponse);
+        return ResponseEntity.ok(shopResponse.localized(selectedLanguage));
     }
 
     @GetMapping("/v2/shops/{id}")
     public ResponseEntity<ShopResponseV2> getShopByIdV2(
-        @PathVariable Integer id
+        @PathVariable Integer id,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
+        var selectedLanguage = SupportedLanguage.fromCode(language);
         ShopResponseV2 shopResponse = shopService.getShopV2(id);
-        return ResponseEntity.ok(shopResponse);
+        return ResponseEntity.ok(shopResponse.localized(selectedLanguage));
     }
 
     @GetMapping("/shops/{id}/summary")
     public ResponseEntity<ShopSummaryResponse> getShopSummary(
-        @PathVariable Integer id
+        @PathVariable Integer id,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
+        var selectedLanguage = SupportedLanguage.fromCode(language);
         ShopSummaryResponse response = shopService.getShopSummary(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(response.localized(selectedLanguage));
     }
 
     @GetMapping("/shops")
-    public ResponseEntity<ShopsResponse> getShops() {
+    public ResponseEntity<ShopsResponse> getShops(@RequestParam(defaultValue = "ko-KR") String language) {
+        var selectedLanguage = SupportedLanguage.fromCode(language);
         ShopsResponse shopsResponse = shopService.getShops();
-        return ResponseEntity.ok(shopsResponse);
+        return ResponseEntity.ok(shopsResponse.localized(selectedLanguage));
     }
 
     @GetMapping("/shops/count")
@@ -76,35 +84,40 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops/categories")
-    public ResponseEntity<ShopCategoriesResponse> getShopsCategories() {
+    public ResponseEntity<ShopCategoriesResponse> getShopsCategories(@RequestParam(defaultValue = "ko-KR") String language) {
+        var selectedLanguage = SupportedLanguage.fromCode(language);
         ShopCategoriesResponse shopCategoriesResponse = shopService.getShopsCategories();
-        return ResponseEntity.ok(shopCategoriesResponse);
+        return ResponseEntity.ok(shopCategoriesResponse.localized(selectedLanguage));
     }
 
     @GetMapping("/v2/shops")
     public ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter", required = false) List<ShopsFilterCriteria> shopsFilterCriterias,
-        @RequestParam(name = "query", required = false, defaultValue = "") String query
+        @RequestParam(name = "query", required = false, defaultValue = "") String query,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
+        var selectedLanguage = SupportedLanguage.fromCode(language);
         if (shopsFilterCriterias == null) {
             shopsFilterCriterias = Collections.emptyList();
         }
         var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias, query);
-        return ResponseEntity.ok(shops);
+        return ResponseEntity.ok(shops.localized(selectedLanguage));
     }
 
     @GetMapping("/v3/shops")
     public ResponseEntity<ShopsResponseV3> getShopsV3(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteriaV3 sortBy,
         @RequestParam(name = "filter", required = false) List<ShopsFilterCriteriaV3> shopsFilterCriterias,
-        @RequestParam(name = "query", required = false, defaultValue = "") String query
+        @RequestParam(name = "query", required = false, defaultValue = "") String query,
+        @RequestParam(defaultValue = "ko-KR") String language
     ) {
+        var selectedLanguage = SupportedLanguage.fromCode(language);
         if (shopsFilterCriterias == null) {
             shopsFilterCriterias = Collections.emptyList();
         }
         var shops = shopService.getShopsV3(sortBy, shopsFilterCriterias, query);
-        return ResponseEntity.ok(shops);
+        return ResponseEntity.ok(shops.localized(selectedLanguage));
     }
 
 
