@@ -26,4 +26,8 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP", nullable = false, updatable = true)
     private LocalDateTime updatedAt;
+
+    protected void updateModifiedAt(LocalDateTime modifiedAt) {
+        this.updatedAt = modifiedAt;
+    }
 }

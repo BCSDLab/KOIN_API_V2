@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -84,6 +85,7 @@ public class OwnerShopService {
         shop.modifyShopImages(modifyShopRequest.imageUrls(), entityManager);
         shop.modifyShopOpens(modifyShopRequest.toShopOpens(shop), entityManager);
         shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()), entityManager);
+        shop.updateModifiedAt(LocalDateTime.now(clock));
         shopRepository.save(shop);
     }
 }

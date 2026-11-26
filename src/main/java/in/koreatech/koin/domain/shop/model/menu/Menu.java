@@ -4,6 +4,7 @@ import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +79,10 @@ public class Menu extends BaseEntity {
 
     public boolean hasMultipleOption() {
         return menuOptions.size() > SINGLE_OPTION_COUNT;
+    }
+
+    public void updateModifiedAt(LocalDateTime modifiedAt) {
+        super.updateModifiedAt(modifiedAt);
     }
 
     public void modifyMenu(

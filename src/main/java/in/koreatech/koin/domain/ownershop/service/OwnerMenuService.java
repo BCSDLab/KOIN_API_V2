@@ -15,6 +15,8 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 import jakarta.persistence.EntityManager;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OwnerMenuService {
 
     private final EntityManager entityManager;
+    private final Clock clock;
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
     private final OwnerShopUtilService ownerShopUtilService;
@@ -99,6 +102,9 @@ public class OwnerMenuService {
         menu.modifyMenuImages(modifyMenuRequest.imageUrls(), entityManager);
         menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()), entityManager);
         menu.modifyOptions(modifyMenuRequest.toMenuOption(menu), entityManager);
+        LocalDateTime modifiedAt = LocalDateTime.now(clock);
+        menu.updateModifiedAt(modifiedAt);
+        menu.getShop().updateModifiedAt(modifiedAt);
     }
 
     @Transactional

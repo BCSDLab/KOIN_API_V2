@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.shop.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -184,6 +185,7 @@ public class AdminShopService {
         );
         shop.modifyShopImages(request.imageUrls(), entityManager);
         shop.modifyShopOpens(request.toShopOpens(shop), entityManager);
+        shop.updateModifiedAt(LocalDateTime.now(clock));
     }
 
     @Transactional

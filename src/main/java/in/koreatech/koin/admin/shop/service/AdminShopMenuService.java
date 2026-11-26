@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.shop.service;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminShopMenuService {
 
     private final EntityManager entityManager;
+    private final Clock clock;
     private final AdminShopRepository adminShopRepository;
     private final AdminMenuRepository adminMenuRepository;
     private final AdminMenuCategoryRepository adminMenuCategoryRepository;
@@ -124,6 +127,9 @@ public class AdminShopMenuService {
         menu.modifyMenuImages(request.imageUrls(), entityManager);
         menu.modifyMenuCategories(adminMenuCategoryRepository.findAllByIdIn(request.categoryIds()), entityManager);
         menu.modifyOptions(request.toMenuOption(menu), entityManager);
+        LocalDateTime modifiedAt = LocalDateTime.now(clock);
+        menu.updateModifiedAt(modifiedAt);
+        menu.getShop().updateModifiedAt(modifiedAt);
     }
 
     @Transactional
